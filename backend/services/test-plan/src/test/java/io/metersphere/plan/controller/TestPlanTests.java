@@ -513,6 +513,8 @@ public class TestPlanTests extends BaseTest {
         request.setProjectId(project.getId());
         request.setTestPlanning(false);
 
+        BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
+        request.setBaseAssociateCaseRequest(associateCaseRequest);
         for (int i = 0; i < 999; i++) {
             String moduleId;
             if (i < 50) {
@@ -602,6 +604,7 @@ public class TestPlanTests extends BaseTest {
             itemRequest.setModuleId(a1Node.getId());
             itemRequest.setGroupId(groupTestPlanId7);
             itemRequest.setName("testPlan_group7_" + i);
+            itemRequest.setBaseAssociateCaseRequest(associateCaseRequest);
             if (i == 0) {
                 //测试项目没有开启测试计划模块时能否使用
                 testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
@@ -1078,8 +1081,8 @@ public class TestPlanTests extends BaseTest {
         TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
         Assertions.assertEquals(response.getSortNodeNum(), 1);
         funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
         LOG_CHECK_LIST.add(
                 new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
         );
@@ -2051,4 +2054,31 @@ public class TestPlanTests extends BaseTest {
         ResultHolder editResultHolder = JSON.parseObject(editReturnData, ResultHolder.class);
         Assertions.assertNotNull(editResultHolder);
     }
+
+    @Test
+    @Order(301)
+    public void testAdd() throws Exception {
+        TestPlanCreateRequest request = new TestPlanCreateRequest();
+        request.setProjectId(project.getId());
+        request.setTestPlanning(false);
+
+        BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
+        associateCaseRequest.setFunctionalSelectIds(Arrays.asList("wx_fc_1", "wx_fc_2"));
+        request.setBaseAssociateCaseRequest(associateCaseRequest);
+        request.setName("测试一下关联");
+        request.setPlannedEndTime(null);
+        request.setPlannedStartTime(null);
+        request.setRepeatCase(false);
+        request.setAutomaticStatusUpdate(false);
+        request.setPassThreshold(100);
+        request.setDescription(null);
+        request.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, request);
+        String returnStr = mvcResult.getResponse().getContentAsString();
+        ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+        String returnId = holder.getData().toString();
+        Assertions.assertNotNull(returnId);
+    }
+
 }

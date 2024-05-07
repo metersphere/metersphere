@@ -74,4 +74,7 @@ public class TestPlanCreateRequest {
     public boolean isGroupOption() {
         return StringUtils.equals(this.type, TestPlanConstants.TEST_PLAN_TYPE_GROUP) || !StringUtils.equals(this.groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
     }
+
+    @Schema(description = "查询用例的条件")
+    private BaseAssociateCaseRequest baseAssociateCaseRequest;
 }

@@ -20,6 +20,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -59,7 +60,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         if (maxPos == null) {
             return 0;
         } else {
-            return maxPos + DEFAULT_NODE_INTERVAL_POS;
+            return maxPos + ServiceUtils.POS_STEP;
         }
     }
 
@@ -89,7 +90,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 this::saveTestPlanResource);
     }
 
-    private void saveTestPlanResource(@Validated TestPlanResourceAssociationParam associationParam) {
+    public void saveTestPlanResource(@Validated TestPlanResourceAssociationParam associationParam) {
         long pox = this.getNextOrder(associationParam.getTestPlanId());
         long now = System.currentTimeMillis();
         List<TestPlanFunctionalCase> testPlanFunctionalCaseList = new ArrayList<>();
@@ -100,11 +101,12 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             testPlanFunctionalCase.setNum(NumGenerator.nextNum(associationParam.getTestPlanNum() + "_" + associationParam.getProjectId(), ApplicationNumScope.TEST_PLAN_FUNCTION_CASE));
             testPlanFunctionalCase.setTestPlanId(associationParam.getTestPlanId());
             testPlanFunctionalCase.setFunctionalCaseId(associationIdList.get(i));
-            testPlanFunctionalCase.setPos(pox + (i + 1) * DEFAULT_NODE_INTERVAL_POS);
+            testPlanFunctionalCase.setPos(pox);
             testPlanFunctionalCase.setCreateTime(now);
             testPlanFunctionalCase.setCreateUser(associationParam.getOperator());
             testPlanFunctionalCase.setExecuteUser(associationParam.getOperator());
             testPlanFunctionalCaseList.add(testPlanFunctionalCase);
+            pox += ServiceUtils.POS_STEP;
         }
         testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
     }

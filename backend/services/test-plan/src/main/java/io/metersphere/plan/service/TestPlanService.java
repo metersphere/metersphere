@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
+import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
@@ -108,10 +109,37 @@ public class TestPlanService {
             testPlanXPackFactory.getTestPlanGroupService().validateGroup(createTestPlan, testPlanConfig);
         }
 
+        handleAssociateCase(testPlanCreateRequest, createTestPlan);
+
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insert(testPlanConfig);
         testPlanLogService.saveAddLog(createTestPlan, operator, requestUrl, requestMethod);
         return createTestPlan.getId();
+    }
+
+    /**
+     * 处理关联的用例
+     *
+     * @param request
+     * @return
+     */
+    private void handleAssociateCase(TestPlanCreateRequest request, TestPlan testPlan) {
+        //关联的功能用例
+        handleFunctionalCase(request.getBaseAssociateCaseRequest().getFunctionalSelectIds(), testPlan);
+        //TODO 关联接口用例/接口场景用例
+
+    }
+
+    /**
+     * 关联的功能用例
+     *
+     * @param functionalSelectIds
+     */
+    private void handleFunctionalCase(List<String> functionalSelectIds, TestPlan testPlan) {
+        if (CollectionUtils.isNotEmpty(functionalSelectIds)) {
+            TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(functionalSelectIds, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), testPlan.getCreateUser());
+            testPlanFunctionCaseService.saveTestPlanResource(associationParam);
+        }
     }
 
     private void validateTestPlan(TestPlan testPlan) {
