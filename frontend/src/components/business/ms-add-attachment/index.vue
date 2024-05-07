@@ -134,12 +134,14 @@
                     </MsTag>
                   </a-tooltip>
                   <div v-if="file.local === true" class="flex items-center">
-                    <a-tooltip :content="t('ms.add.attachment.saveAs')">
-                      <MsButton type="text" status="secondary" class="!mr-0" @click="handleOpenSaveAs(file)">
-                        <MsIcon type="icon-icon_unloading" class="hover:text-[rgb(var(--primary-5))]" size="16" />
-                      </MsButton>
-                    </a-tooltip>
-                    <a-divider direction="vertical" :margin="4"></a-divider>
+                    <template v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+ADD'])">
+                      <a-tooltip :content="t('ms.add.attachment.saveAs')">
+                        <MsButton type="text" status="secondary" class="!mr-0" @click="handleOpenSaveAs(file)">
+                          <MsIcon type="icon-icon_unloading" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                        </MsButton>
+                      </a-tooltip>
+                      <a-divider direction="vertical" :margin="4"></a-divider>
+                    </template>
                     <a-tooltip :content="t('ms.add.attachment.remove')">
                       <MsButton type="text" status="secondary" @click="handleClose(file)">
                         <MsIcon
@@ -203,6 +205,7 @@
   import { getAssociatedFileListUrl } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociatedList } from '@/models/caseManagement/featureCase';
   import { TableQueryParams, TransferFileParams } from '@/models/common';

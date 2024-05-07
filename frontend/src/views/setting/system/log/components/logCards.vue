@@ -135,9 +135,9 @@
           {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
         </template>
         <template #content="{ record }">
-          <div v-if="record.module === 'SYSTEM' || record.type === 'DELETE'" class="one-line-text">{{
-            record.content
-          }}</div>
+          <div v-if="record.module === 'SYSTEM' || record.type === 'DELETE'" class="one-line-text">
+            {{ record.content }}
+          </div>
           <MsButton v-else @click="handleNameClick(record)">
             <div class="one-line-text">
               {{ record.content }}
@@ -186,6 +186,7 @@
   const props = defineProps<{
     mode: (typeof MENU_LEVEL)[number]; // 日志展示模式，系统/组织/项目
   }>();
+
   const { t } = useI18n();
   const appStore = useAppStore();
 

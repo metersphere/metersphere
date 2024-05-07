@@ -325,9 +325,11 @@
     emit('change');
   }
 
-  function handleParamTableChange(resultArr: any[]) {
+  function handleParamTableChange(resultArr: any[], isInit?: boolean) {
     currentTableParams.value = [...resultArr];
-    emit('change');
+    if (!isInit) {
+      emit('change');
+    }
   }
 
   function changeBodyFormat(val: RequestBodyFormat) {

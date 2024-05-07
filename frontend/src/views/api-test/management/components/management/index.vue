@@ -64,6 +64,7 @@
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
     :protocol="props.protocol"
+    :definition-detail="activeApiTab"
   />
 </template>
 

@@ -38,20 +38,20 @@ export default function usePathMap() {
    */
   const jumpRouteByMapKey = (key: PathMapRoute, routeQuery?: Record<string, any>, openNewPage = false) => {
     const pathNode = findNodeByKey<PathMapItem>(pathMap, key as unknown as string);
-    if (pathNode) {
+    if (pathNode && (pathNode.route || key.includes('PROJECT_MANAGEMENT_TASK_CENTER'))) {
       if (openNewPage) {
         window.open(
-          `${window.location.origin}#${router.resolve({ name: pathNode?.route }).fullPath}?${new URLSearchParams({
+          `${window.location.origin}#${router.resolve({ name: pathNode.route }).fullPath}?${new URLSearchParams({
             ...routeQuery,
-            ...pathNode?.routeQuery,
+            ...pathNode.routeQuery,
           }).toString()}`
         );
       } else {
         router.push({
-          name: pathNode?.route,
+          name: pathNode.route,
           query: {
             ...routeQuery,
-            ...pathNode?.routeQuery,
+            ...pathNode.routeQuery,
           },
         });
       }

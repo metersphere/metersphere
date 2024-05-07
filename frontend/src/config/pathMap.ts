@@ -1,4 +1,5 @@
 import { RouteEnum } from '@/enums/routeEnum';
+import { TaskCenterEnum } from '@/enums/taskCenter';
 
 export const MENU_LEVEL = ['SYSTEM', 'ORGANIZATION', 'PROJECT'] as const; // 菜单级别
 
@@ -321,6 +322,73 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
             permission: [],
             level: MENU_LEVEL[0],
+            children: [
+              {
+                key: 'SETTING_SYSTEM_TASK_CENTER_REAL_TIME', // 系统设置-系统-任务中心-实时任务
+                locale: 'project.taskCenter.real',
+                route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                permission: [],
+                level: MENU_LEVEL[0],
+                children: [
+                  {
+                    key: 'SETTING_SYSTEM_TASK_CENTER_REAL_TIME_API_CASE', // 系统设置-系统-任务中心-实时任务-接口用例
+                    locale: 'project.taskCenter.interfaceCase',
+                    route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[0],
+                    routeQuery: {
+                      tab: 'real',
+                      type: TaskCenterEnum.API_CASE,
+                    },
+                  },
+                  {
+                    key: 'SETTING_SYSTEM_TASK_CENTER_REAL_TIME_API_SCENARIO', // 系统设置-系统-任务中心-实时任务-接口场景
+                    locale: 'project.taskCenter.apiScenario',
+                    route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[0],
+                    routeQuery: {
+                      tab: 'real',
+                      type: TaskCenterEnum.API_SCENARIO,
+                    },
+                  },
+                ],
+              },
+              {
+                key: 'SETTING_SYSTEM_TASK_CENTER_TIME', // 系统设置-系统-任务中心-定时任务
+                locale: 'apiTestManagement.timeTask',
+                route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                permission: [],
+                level: MENU_LEVEL[0],
+                routeQuery: {
+                  tab: 'timeTask',
+                },
+                children: [
+                  {
+                    key: 'SETTING_SYSTEM_TASK_CENTER_TIME_API_SCENARIO', // 系统设置-系统-任务中心-定时任务-接口场景
+                    locale: 'project.taskCenter.apiScenario',
+                    route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[0],
+                    routeQuery: {
+                      tab: 'timeTask',
+                      type: TaskCenterEnum.API_SCENARIO,
+                    },
+                  },
+                  {
+                    key: 'SETTING_SYSTEM_TASK_CENTER_TIME_API_IMPORT', // 系统设置-系统-任务中心-定时任务-接口导入
+                    locale: 'project.taskCenter.apiImport',
+                    route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[0],
+                    routeQuery: {
+                      tab: 'timeTask',
+                      type: TaskCenterEnum.API_IMPORT,
+                    },
+                  },
+                ],
+              },
+            ],
           },
           {
             key: 'SETTING_SYSTEM_PLUGIN_MANAGEMENT', // 系统设置-系统-插件管理
@@ -372,6 +440,73 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
             permission: [],
             level: MENU_LEVEL[1],
+            children: [
+              {
+                key: 'SETTING_ORGANIZATION_TASK_CENTER_REAL_TIME', // 系统设置-组织-任务中心-实时任务
+                locale: 'project.taskCenter.real',
+                route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                permission: [],
+                level: MENU_LEVEL[1],
+                children: [
+                  {
+                    key: 'SETTING_ORGANIZATION_TASK_CENTER_REAL_TIME_API_CASE', // 系统设置-组织-任务中心-实时任务-接口用例
+                    locale: 'project.taskCenter.interfaceCase',
+                    route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                    routeQuery: {
+                      tab: 'real',
+                      type: TaskCenterEnum.API_CASE,
+                    },
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TASK_CENTER_REAL_TIME_API_SCENARIO', // 系统设置-组织-任务中心-实时任务-接口场景
+                    locale: 'project.taskCenter.apiScenario',
+                    route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                    routeQuery: {
+                      tab: 'real',
+                      type: TaskCenterEnum.API_SCENARIO,
+                    },
+                  },
+                ],
+              },
+              {
+                key: 'SETTING_ORGANIZATION_TASK_CENTER_TIME', // 系统设置-组织-任务中心-定时任务
+                locale: 'apiTestManagement.timeTask',
+                route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                permission: [],
+                level: MENU_LEVEL[1],
+                routeQuery: {
+                  tab: 'timeTask',
+                },
+                children: [
+                  {
+                    key: 'SETTING_ORGANIZATION_TASK_CENTER_TIME_API_SCENARIO', // 系统设置-组织-任务中心-定时任务-接口场景
+                    locale: 'project.taskCenter.apiScenario',
+                    route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                    routeQuery: {
+                      tab: 'timeTask',
+                      type: TaskCenterEnum.API_SCENARIO,
+                    },
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TASK_CENTER_TIME_API_IMPORT', // 系统设置-组织-任务中心-定时任务-接口导入
+                    locale: 'project.taskCenter.apiImport',
+                    route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                    routeQuery: {
+                      tab: 'timeTask',
+                      type: TaskCenterEnum.API_IMPORT,
+                    },
+                  },
+                ],
+              },
+            ],
           },
           {
             key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模板管理
@@ -735,11 +870,76 @@ export const pathMap: PathMapItem[] = [
         key: 'PROJECT_MANAGEMENT_TASK_CENTER', // 项目管理-任务中心
         locale: 'menu.projectManagement.taskCenter',
         route: '',
-        routeQuery: {
-          task: 'projectTask',
-        },
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'PROJECT_MANAGEMENT_TASK_CENTER_REAL_TIME', // 项目管理-任务中心-实时任务
+            locale: 'project.taskCenter.realTimeTask',
+            route: '',
+            permission: [],
+            level: MENU_LEVEL[2],
+            children: [
+              {
+                key: 'PROJECT_MANAGEMENT_TASK_CENTER_REAL_TIME_API_CASE', // 项目管理-任务中心-实时任务-接口用例
+                locale: 'project.taskCenter.interfaceCase',
+                route: '',
+                permission: [],
+                level: MENU_LEVEL[2],
+                routeQuery: {
+                  task: true,
+                  tab: 'real',
+                  type: TaskCenterEnum.API_CASE,
+                },
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TASK_CENTER_REAL_TIME_API_SCENARIO', // 项目管理-任务中心-实时任务-接口场景
+                locale: 'project.taskCenter.apiScenario',
+                route: '',
+                permission: [],
+                level: MENU_LEVEL[2],
+                routeQuery: {
+                  task: true,
+                  tab: 'real',
+                  type: TaskCenterEnum.API_SCENARIO,
+                },
+              },
+            ],
+          },
+          {
+            key: 'PROJECT_MANAGEMENT_TASK_CENTER_TIME', // 项目管理-任务中心-定时任务
+            locale: 'project.taskCenter.scheduledTask',
+            route: '',
+            permission: [],
+            level: MENU_LEVEL[2],
+            children: [
+              {
+                key: 'PROJECT_MANAGEMENT_TASK_CENTER_TIME_API_SCENARIO', // 项目管理-任务中心-定时任务-接口场景
+                locale: 'project.taskCenter.apiScenario',
+                route: '',
+                permission: [],
+                level: MENU_LEVEL[2],
+                routeQuery: {
+                  task: true,
+                  tab: 'timing',
+                  type: TaskCenterEnum.API_SCENARIO,
+                },
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TASK_CENTER_TIME_API_IMPORT', // 项目管理-任务中心-定时任务-接口导入
+                locale: 'project.taskCenter.apiImport',
+                route: '',
+                permission: [],
+                level: MENU_LEVEL[2],
+                routeQuery: {
+                  task: true,
+                  tab: 'timing',
+                  type: TaskCenterEnum.API_IMPORT,
+                },
+              },
+            ],
+          },
+        ],
       },
     ],
   },

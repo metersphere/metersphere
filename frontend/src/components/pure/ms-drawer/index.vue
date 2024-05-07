@@ -58,26 +58,22 @@
     >
       <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
     </div>
-    <a-scrollbar class="ms-drawer-body-scrollbar">
-      <div class="ms-drawer-body">
-        <slot>
-          <MsDescription
-            v-if="props.descriptions && props.descriptions.length > 0"
-            :descriptions="props.descriptions"
-            :show-skeleton="props.showSkeleton"
-            :skeleton-line="10"
-          >
-            <template #value="{ item }">
-              <slot name="descValue" :item="item">
-                {{
-                  item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value
-                }}
-              </slot>
-            </template>
-          </MsDescription>
-        </slot>
-      </div>
-    </a-scrollbar>
+    <div class="ms-drawer-body">
+      <slot>
+        <MsDescription
+          v-if="props.descriptions && props.descriptions.length > 0"
+          :descriptions="props.descriptions"
+          :show-skeleton="props.showSkeleton"
+          :skeleton-line="10"
+        >
+          <template #value="{ item }">
+            <slot name="descValue" :item="item">
+              {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+            </slot>
+          </template>
+        </MsDescription>
+      </slot>
+    </div>
     <template #footer>
       <slot name="footer">
         <div class="flex items-center justify-between">
@@ -310,14 +306,12 @@
     .arco-drawer-body {
       @apply overflow-hidden;
     }
-    .ms-drawer-body-scrollbar {
+    .ms-drawer-body {
       @apply h-full w-full overflow-auto;
+      .ms-scroll-bar();
 
       min-width: 650px;
       min-height: 500px;
-    }
-    .ms-drawer-body {
-      @apply h-full;
     }
     .arco-scrollbar-track-direction-vertical {
       right: -12px;

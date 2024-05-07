@@ -55,7 +55,7 @@
           v-model:model-value="record.value"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full min-w-[250px]"
-          :disabled="!record.enable || !hasAnyPermission(permissionsMap[props.group][props.moduleType].edit)"
+          :disabled="!record.enable || !hasAnyPermission(permissionsMap[props.group][props.moduleType]?.edit)"
           @change="() => changeRunRules(record)"
         >
           <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value">
@@ -112,12 +112,12 @@
           size="small"
           type="line"
           :before-change="() => handleBeforeEnableChange(record)"
-          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType].edit)"
+          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType]?.edit)"
         />
         <a-divider direction="vertical" />
         <MsButton
           class="!mr-0"
-          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType].edit)"
+          :disabled="!hasAnyPermission(permissionsMap[props.group][props.moduleType]?.edit)"
           @click="delSchedule(record)"
           >{{ t('common.delete') }}
         </MsButton>
@@ -259,7 +259,7 @@
     },
   };
   const hasOperationPermission = computed(() =>
-    hasAnyPermission([...permissionsMap[props.group][props.moduleType].edit])
+    hasAnyPermission([...(permissionsMap[props.group][props.moduleType]?.edit || '')])
   );
 
   const columns: MsTableColumn = [
@@ -411,12 +411,12 @@
       {
         label: 'project.taskCenter.batchEnable',
         eventTag: 'batchEnable',
-        anyPermission: permissionsMap[props.group][props.moduleType].edit,
+        anyPermission: permissionsMap[props.group][props.moduleType]?.edit,
       },
       {
         label: 'project.taskCenter.batchDisable',
         eventTag: 'batchDisable',
-        anyPermission: permissionsMap[props.group][props.moduleType].edit,
+        anyPermission: permissionsMap[props.group][props.moduleType]?.edit,
       },
     ],
   };

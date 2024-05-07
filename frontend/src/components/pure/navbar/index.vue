@@ -199,7 +199,7 @@
 
   watch(
     () => appStore.getCurrentTopMenu?.name,
-    (val) => {
+    () => {
       checkMessageRead();
     },
     {

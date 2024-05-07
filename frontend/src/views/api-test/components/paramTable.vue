@@ -828,9 +828,11 @@
     () => props.params,
     (arr) => {
       if (arr.length > 0) {
+        let hasNoIdItem = false;
         paramsData.value = arr.map((item, i) => {
           if (!item) {
             // 批量添加过来的数据最后一行会是 undefined
+            hasNoIdItem = true;
             return {
               ...cloneDeep(props.defaultParamItem),
               id: new Date().getTime() + i,
@@ -838,6 +840,7 @@
           }
           if (!item.id) {
             // 后台存储无id，渲染时需要手动添加一次
+            hasNoIdItem = true;
             return {
               ...item,
               id: new Date().getTime() + i,
@@ -845,7 +848,7 @@
           }
           return item;
         });
-        if (!filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
+        if (hasNoIdItem && !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
           addTableLine(arr.length - 1, false, true);
         }
       } else {

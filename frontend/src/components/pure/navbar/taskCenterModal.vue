@@ -22,14 +22,13 @@
 
     <div class="divider h-full">
       <Suspense>
-        <TaskCenter group="project" mode="modal"></TaskCenter>
+        <TaskCenter v-if="visible" group="project" mode="modal"></TaskCenter>
       </Suspense>
     </div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-  import { ref, Suspense } from 'vue';
   import { useVModel } from '@vueuse/core';
 
   import TaskCenter from '@/views/project-management/taskCenter/component/taskCom.vue';
