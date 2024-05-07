@@ -15,7 +15,8 @@
         schedule.value,
         schedule.enable,
         schedule.create_user AS createUserName,
-        schedule.create_time
+        schedule.create_time,
+        ads.swagger_url
         FROM
         schedule
         inner join api_definition_swagger ads on schedule.resource_id = ads.id

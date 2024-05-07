@@ -170,7 +170,7 @@
   });
   const moduleOption = [
     // { label: 'menu.workbench', value: 'workstation' },
-    // { label: 'menu.testPlan', value: 'testPlan' },
+    { label: 'menu.testPlan', value: 'testPlan' },
     { label: 'menu.bugManagement', value: 'bugManagement' },
     { label: 'menu.caseManagement', value: 'caseManagement' },
     { label: 'menu.apiTest', value: 'apiTest' },
@@ -182,9 +182,9 @@
     (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
-  const allModuleIds = ['bugManagement', 'caseManagement', 'apiTest'];
+  const allModuleIds = ['bugManagement', 'caseManagement', 'apiTest', 'testPlan'];
 
-  const showPoolModuleIds = ['uiTest', 'apiTest', 'loadTest'];
+  const showPoolModuleIds = ['apiTest'];
 
   const form = reactive<CreateOrUpdateSystemProjectParams>({
     name: '',
