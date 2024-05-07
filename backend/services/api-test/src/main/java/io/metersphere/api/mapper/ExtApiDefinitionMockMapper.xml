@@ -27,6 +27,65 @@
             #{id}
         </foreach>
     </select>
+    <select id="getIds" resultType="java.lang.String">
+        SELECT
+        m.id
+        FROM
+        api_definition_mock m
+        INNER JOIN api_definition a ON m.api_definition_id = a.id
+
+        <include refid="queryWhereConditionByBatch"/>
+    </select>
+    <select id="getTagsByIds" resultType="io.metersphere.api.domain.ApiDefinitionMock">
+        SELECT
+        m.id, m.tags
+        FROM
+        api_definition_mock m
+        WHERE m.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getMockInfoByIds" resultType="io.metersphere.api.domain.ApiDefinitionMock">
+        SELECT
+        m.id, m.name
+        FROM
+        api_definition_mock m
+        WHERE m.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <sql id="queryWhereConditionByBatch">
+        <if test="request.protocol != null and request.protocol!=''">
+            and a.protocol = #{request.protocol}
+        </if>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+            and m.api_definition_id = #{request.apiDefinitionId}
+        </if>
+        <if test="request.projectId != null and request.projectId!=''">
+            and m.project_id = #{request.projectId}
+        </if>
+        <if test="request.condition.keyword != null and request.condition.keyword !=''">
+            and (
+            m.name like concat('%', #{request.condition.keyword},'%')
+            or m.expect_num like concat('%', #{request.condition.keyword},'%')
+            or a.path like concat('%', #{request.condition.keyword},'%')
+            or m.tags like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and a.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+
+    </sql>
 
 
     <sql id="queryWhereCondition">
@@ -44,6 +103,16 @@
         <if test="request.apiDefinitionId != null and request.apiDefinitionId != ''">
             and m.api_definition_id = #{request.apiDefinitionId}
         </if>
+        <if test="request.protocol != null and request.protocol!=''">
+            and d.protocol = #{request.protocol}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and d.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+
 
         <include refid="filters">
             <property name="filter" value="request.filter"/>

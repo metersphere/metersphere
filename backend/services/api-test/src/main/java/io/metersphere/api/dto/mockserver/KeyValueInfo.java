@@ -13,6 +13,10 @@ public class KeyValueInfo {
     private String key;
     @Schema(description = "Value")
     private String value;
+    /**
+     * 默认等于，可选：等于、不等于、长度等于、长度大于、长度小于、包含、不包含、为空、非空、正则匹配
+     * 文件类型的参数，等于、不等于、为空、非空
+     */
     @Schema(description = "条件")
     private String condition;
     @Schema(description = "描述")
@@ -27,28 +31,28 @@ public class KeyValueInfo {
             return StringUtils.contains(this.value, value);
         } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_EQUALS.name())) {
             try {
-                int length = Integer.parseInt(value);
+                int length = value.length();
                 return this.value.length() == length;
             } catch (Exception e) {
                 return false;
             }
         } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_NOT_EQUALS.name())) {
             try {
-                int length = Integer.parseInt(value);
+                int length = value.length();
                 return this.value.length() != length;
             } catch (Exception e) {
                 return false;
             }
         } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_SHOT.name())) {
             try {
-                int length = Integer.parseInt(value);
+                int length = value.length();
                 return this.value.length() < length;
             } catch (Exception e) {
                 return false;
             }
         } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_LARGE.name())) {
             try {
-                int length = Integer.parseInt(value);
+                int length = value.length();
                 return this.value.length() > length;
             } catch (Exception e) {
                 return false;

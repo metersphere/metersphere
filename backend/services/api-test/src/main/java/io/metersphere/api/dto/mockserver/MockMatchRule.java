@@ -24,29 +24,29 @@ public class MockMatchRule implements Serializable {
     private BodyParamMatchRule body = new BodyParamMatchRule();
 
     public boolean keyValueMatch(String matchType, Map<String, String> matchParam) {
-        keyValueMatchRule matchRole = null;
+        keyValueMatchRule matchRule = null;
         switch (matchType) {
             case "header":
-                matchRole = header;
+                matchRule = header;
                 break;
             case "query":
-                matchRole = query;
+                matchRule = query;
                 break;
             case "rest":
-                matchRole = rest;
+                matchRule = rest;
                 break;
             case "body":
                 if (body != null) {
-                    matchRole = body.getFormDataMatch();
+                    matchRule = body.getFormDataMatch();
                 }
                 break;
             default:
                 break;
         }
-        if (matchRole == null) {
+        if (matchRule == null) {
             return true;
         }
-        return matchRole.match(matchParam);
+        return matchRule.match(matchParam);
     }
 
     public boolean requestParamMatch(HttpRequestParam httpRequestParam) {

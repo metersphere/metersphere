@@ -48,7 +48,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -450,7 +449,7 @@ public class ApiTestCaseService extends MoveNodeService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> batchEditByType(request, subList, userId, request.getProjectId()));
+        SubListUtils.dealForSubList(ids, 500, subList -> batchEditByType(request, subList, userId, request.getProjectId()));
     }
 
     private void batchEditByType(ApiCaseBatchEditRequest request, List<String> ids, String userId, String projectId) {

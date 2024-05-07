@@ -82,6 +82,8 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
     private static final String ENABLE = BASE_PATH + "enable/";
 
     private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
+    private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
+    private static final String BATCH_EDIT = BASE_PATH + "batch/edit";
 
     private static final String DEFAULT_API_ID = "1001";
     private static Long NO_MOCK_NO_RESPONSE_API_NUM;
@@ -110,6 +112,8 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
     private FileMetadataService fileMetadataService;
     @Resource
     private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
+    private ExtApiDefinitionMockMapper extApiDefinitionMockMapper;
 
     //文件管理中已存在的ID
     private static String fileMetadataId;
@@ -460,6 +464,27 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE, COPY, request);
     }
 
+    @Test
+    @Order(6)
+    public void getMockUrl() throws Exception {
+        this.requestGetWithOk(BASE_PATH + "get-url/" + apiDefinitionMock.getId());
+        //mock不存在
+        this.requestGet(BASE_PATH + "get-url/111").andExpect(status().is4xxClientError());
+        // 接口不存在
+        ApiDefinitionMock apiDefinitionMock1 = apiDefinitionMockMapper.selectByPrimaryKey(apiDefinitionMock.getId());
+        apiDefinitionMock1.setApiDefinitionId("111");
+        apiDefinitionMockMapper.updateByPrimaryKey(apiDefinitionMock1);
+        this.requestGet(BASE_PATH + "get-url/" + apiDefinitionMock.getId()).andExpect(status().is5xxServerError());
+        // 项目不存在导致的mock查不到
+        apiDefinitionMock1.setApiDefinitionId(DEFAULT_API_ID);
+        apiDefinitionMock1.setProjectId("111");
+        apiDefinitionMockMapper.updateByPrimaryKey(apiDefinitionMock1);
+        this.requestGet(BASE_PATH + "get-url/" + apiDefinitionMock.getId()).andExpect(status().isOk());
+        apiDefinitionMock1.setProjectId(DEFAULT_PROJECT_ID);
+        apiDefinitionMockMapper.updateByPrimaryKey(apiDefinitionMock1);
+
+    }
+
 
     @Test
     @Order(9)
@@ -537,6 +562,63 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         assertErrorCode(this.requestPost(DELETE, apiDefinitionMockRequest), MsHttpResultCode.FAILED);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_MOCK_DELETE, DELETE, apiDefinitionMockRequest);
+    }
+
+    @Test
+    @Order(13)
+    public void batchEdit() throws Exception {
+        // 追加标签
+        ApiMockBatchEditRequest request = new ApiMockBatchEditRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setType("Tags");
+        request.setAppend(true);
+        request.setSelectAll(true);
+        request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+        ApiDefinitionMockExample example = new ApiDefinitionMockExample();
+        List<String> ids = extApiDefinitionMockMapper.getIds(request);
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andIdIn(ids);
+        apiDefinitionMockMapper.selectByExample(example).forEach(apiTestCase -> {
+            Assertions.assertTrue(apiTestCase.getTags().contains("tag1"));
+            Assertions.assertTrue(apiTestCase.getTags().contains("tag3"));
+            Assertions.assertTrue(apiTestCase.getTags().contains("tag4"));
+        });
+        //覆盖标签
+        request.setTags(new LinkedHashSet<>(List.of("tag1")));
+        request.setAppend(false);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+        apiDefinitionMockMapper.selectByExample(example).forEach(apiTestCase -> {
+            Assertions.assertEquals(apiTestCase.getTags(), List.of("tag1"));
+        });
+        //标签为空  报错
+        request.setTags(new LinkedHashSet<>());
+        this.requestPost(BATCH_EDIT, request, status().is4xxClientError());
+        //标签超出10个报错
+        request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10", "tag11")));
+        this.requestPost(BATCH_EDIT, request, status().is5xxServerError());
+        //ids为空的时候
+        request.setTags(new LinkedHashSet<>(List.of("tag1")));
+        request.setSelectAll(true);
+        List<ApiDefinitionMock> caseList1 = apiDefinitionMockMapper.selectByExample(example);
+        //提取所有的id
+        List<String> apiIdList = caseList1.stream().map(ApiDefinitionMock::getId).toList();
+        request.setSelectIds(apiIdList);
+        request.setExcludeIds(apiIdList);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+
+        //状态
+        request.setType("Status");
+        request.setEnable(true);
+        request.setSelectAll(true);
+        request.setExcludeIds(new ArrayList<>());
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+        //类型错误
+        request.setType("111");
+        this.requestPost(BATCH_EDIT, request, status().is5xxServerError());
+
+        //校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE, BATCH_EDIT, request);
+
     }
 
     @Test
@@ -1054,6 +1136,19 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
 
             API_MOCK_MAP.put(apiDefinition, mockList);
         }
+    }
+
+    @Test
+    @Order(100)
+    public void batchDelete() throws Exception {
+        // 追加标签
+        ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+        requestPostWithOkAndReturn(BATCH_DELETE, request);
+        //校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_MOCK_DELETE, BATCH_DELETE, request);
+
     }
 
     public static String getFileMD5(byte[] bytes) {
