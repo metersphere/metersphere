@@ -471,7 +471,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useClipboard, useVModel } from '@vueuse/core';
+  import { useClipboard } from '@vueuse/core';
   import { InputInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -506,7 +506,7 @@
     XPathExtract,
   } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
-  import { DataSourceItem, EnvConfig } from '@/models/projectManagement/environmental';
+  import { DataSourceItem } from '@/models/projectManagement/environmental';
   import {
     RequestConditionProcessor,
     RequestExtractEnvType,
@@ -623,10 +623,6 @@ if (!result){
   }
 
   const scriptDefinedRef = ref<InstanceType<typeof MsScriptDefined>>();
-
-  function undoScript() {
-    scriptDefinedRef.value?.undoHandler();
-  }
 
   function clearScript() {
     condition.value.script = '';

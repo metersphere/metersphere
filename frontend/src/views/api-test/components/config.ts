@@ -10,6 +10,7 @@ import {
   ResponseAssertionItem,
   ResponseDefinition,
 } from '@/models/apiTest/common';
+import type { MockParams } from '@/models/apiTest/mock';
 import {
   RequestAssertionCondition,
   RequestBodyFormat,
@@ -235,4 +236,100 @@ export const regexDefaultParamItem = {
   resultMatchingRuleNum: 1,
   responseFormat: ResponseBodyXPathAssertionFormat.XML,
   moreSettingPopoverVisible: false,
+};
+// mock 默认参数
+export const mockDefaultParams: MockParams = {
+  projectId: '',
+  name: '',
+  statusCode: 200,
+  tags: [],
+  mockMatchRule: {
+    header: {
+      matchRules: [
+        {
+          key: '',
+          value: '',
+          condition: 'EQUALS',
+          description: '',
+        },
+      ],
+      matchAll: true,
+    },
+    query: {
+      matchRules: [
+        {
+          key: '',
+          value: '',
+          condition: 'EQUALS',
+          description: '',
+        },
+      ],
+      matchAll: true,
+    },
+    rest: {
+      matchRules: [
+        {
+          key: '',
+          value: '',
+          condition: 'EQUALS',
+          description: '',
+        },
+      ],
+      matchAll: true,
+    },
+    body: {
+      paramType: RequestBodyFormat.FORM_DATA,
+      formDataMatch: {
+        matchRules: [
+          {
+            key: '',
+            value: '',
+            condition: 'EQUALS',
+            description: '',
+          },
+        ],
+        matchAll: true,
+      },
+      binaryBody: {
+        description: '',
+        file: undefined,
+        sendAsBody: false,
+      },
+      raw: '',
+    },
+  },
+  response: {
+    statusCode: 200,
+    headers: [
+      {
+        key: '',
+        value: '',
+        description: '',
+      },
+    ],
+    useApiResponse: false,
+    apiResponseId: '',
+    body: {
+      bodyType: ResponseBodyFormat.JSON,
+      jsonBody: {
+        jsonValue: '',
+        enableJsonSchema: false,
+        enableTransition: false,
+      },
+      xmlBody: {
+        value: '',
+      },
+      rawBody: {
+        value: '',
+      },
+      binaryBody: {
+        description: '',
+        file: undefined,
+        sendAsBody: false,
+      },
+    },
+  },
+  apiDefinitionId: '',
+  uploadFileIds: [],
+  linkFileIds: [],
 };

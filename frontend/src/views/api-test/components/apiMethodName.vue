@@ -23,7 +23,7 @@
 
   const props = withDefaults(
     defineProps<{
-      method?: RequestMethods;
+      method: RequestMethods | string;
       isTag?: boolean;
       tagSize?: Size;
       tagBackgroundColor?: string;
@@ -64,7 +64,7 @@
 
   const methodColor = computed(() => {
     if (props.method) {
-      const colorMap = colorMaps.find((item) => item.includes.includes(props.method!));
+      const colorMap = colorMaps.find((item) => item.includes.includes(props.method as RequestMethods));
       return colorMap?.color || 'rgb(var(--link-7))'; // 方法映射内找不到对应的 key 说明是插件，所有的插件协议颜色都是一样的
     }
     return 'rgb(var(--link-7))';

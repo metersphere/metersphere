@@ -99,19 +99,19 @@
                   <apiMethodName v-if="checkStepShowMethod(step)" :method="step.config.method" />
                   <div
                     v-if="step.uniqueId === showStepNameEditInputStepId"
-                    class="name-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
+                    class="name-warp absolute left-0 top-[-1px] z-10 w-[450px]"
                     @click.stop
                   >
                     <a-input
                       v-model:model-value="tempStepName"
                       :placeholder="t('apiScenario.pleaseInputStepName')"
                       :max-length="255"
-                      size="small"
+                      size="mini"
                       @press-enter="applyStepNameChange(step)"
                       @blur="applyStepNameChange(step)"
                     />
                   </div>
-                  <a-tooltip :content="step.name">
+                  <a-tooltip v-else :content="step.name">
                     <div class="step-name-container">
                       <div class="one-line-text mr-[4px] max-w-[350px] font-medium text-[var(--color-text-1)]">
                         {{ step.name }}
@@ -129,20 +129,20 @@
                 <template v-else>
                   <div
                     v-if="step.uniqueId === showStepDescEditInputStepId"
-                    class="desc-warp absolute left-0 top-[-2px] z-10 w-[calc(100%-24px)]"
+                    class="desc-warp absolute left-0 top-[-1px] z-10 w-[450px]"
                   >
                     <a-input
                       v-model:model-value="tempStepDesc"
                       :default-value="step.name || t('apiScenario.pleaseInputStepDesc')"
                       :placeholder="t('apiScenario.pleaseInputStepDesc')"
                       :max-length="255"
-                      size="small"
+                      size="mini"
                       @press-enter="applyStepDescChange(step)"
                       @blur="applyStepDescChange(step)"
                       @click.stop
                     >
                       <template #prefix>
-                        {{ t('common.desc') }}
+                        <div class="text-[12px] leading-[20px]">{{ t('common.desc') }}</div>
                       </template>
                     </a-input>
                   </div>
@@ -1875,10 +1875,9 @@
         background-color: var(--color-text-n9) !important;
       }
       .step-node-content {
-        @apply flex w-full flex-1 items-center;
+        @apply flex w-full flex-1 flex-nowrap items-center;
 
         gap: 8px;
-        margin-right: 6px;
       }
       .step-name-container {
         @apply flex items-center;

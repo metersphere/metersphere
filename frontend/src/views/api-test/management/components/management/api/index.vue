@@ -114,7 +114,7 @@
           <mockTable
             :active-module="props.activeModule"
             :offspring-ids="props.offspringIds"
-            :protocol="activeApiTab.protocol"
+            :definition-detail="activeApiTab"
             is-api
           />
         </a-tab-pane>

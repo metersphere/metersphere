@@ -1,7 +1,7 @@
 <template>
   <a-tabs v-model:active-key="innerActiveKey" :class="[props.class, props.noContent ? 'no-content' : '']">
     <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="item.label">
-      <template #title>
+      <template v-if="props.showBadge" #title>
         <a-badge
           v-if="props.getTextFunc(item.value) !== ''"
           :class="item.value === innerActiveKey ? 'active-badge' : ''"
@@ -28,8 +28,10 @@
       class?: string;
       getTextFunc?: (value: any) => string;
       noContent?: boolean;
+      showBadge?: boolean;
     }>(),
     {
+      showBadge: true,
       getTextFunc: (value: any) => value,
       class: '',
     }

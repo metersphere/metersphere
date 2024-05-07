@@ -214,4 +214,7 @@ export default {
   'mockManagement.namePlaceholder': '请输入期望名称',
   'mockManagement.nameNotNull': '期望名称不能为空',
   'mockManagement.matchRule': '匹配规则',
+  'mockManagement.saveAndContinue': '保存并继续创建',
+  'mockManagement.paramNameNotNull': '参数名称不能为空',
+  'mockManagement.followDefinition': '跟随 API 定义',
 };

@@ -22,7 +22,7 @@
           ref="executeButtonRef"
           v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
           :execute-loading="activeScenarioTab.executeLoading"
-          @execute="handleExecute"
+          @execute="(type) => handleExecute(type)"
           @stop-debug="handleStopExecute"
         />
         <a-button

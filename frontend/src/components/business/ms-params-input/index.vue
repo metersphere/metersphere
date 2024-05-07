@@ -213,7 +213,9 @@
       :disabled="props.disabled"
       :data="autoCompleteParams"
       :placeholder="t('ms.paramsInput.placeholder', { at: '@' })"
-      :class="`ms-params-input ${paramSettingVisible ? 'ms-params-input--focus' : ''}`"
+      :class="`${props.setDefaultClass ? 'ms-params-input--default' : 'ms-params-input'} ${
+        paramSettingVisible ? 'ms-params-input--focus' : ''
+      }`"
       :trigger-props="{ contentClass: 'ms-params-input-trigger' }"
       :filter-option="false"
       :size="props.size"
@@ -271,6 +273,7 @@
     value: string;
     disabled?: boolean;
     size?: 'small' | 'large' | 'medium' | 'mini';
+    setDefaultClass?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'update:value', val: string): void;
@@ -707,7 +710,8 @@
       border-color: transparent;
     }
   }
-  .ms-params-input {
+  .ms-params-input,
+  .ms-params-input--default {
     .ms-params-input-suffix-icon,
     .ms-params-input-suffix-icon--disabled {
       @apply invisible;

@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
   import ApiCase from './apiCase.vue';
   import ScheduledTask from './scheduledTask.vue';
@@ -33,12 +33,13 @@
   import type { ResourceTypeMapKey } from './utils';
 
   const { t } = useI18n();
-  const activeTab = ref<ResourceTypeMapKey>(TaskCenterEnum.API_CASE);
 
   const props = defineProps<{
     group: 'system' | 'organization' | 'project';
     mode?: 'modal' | 'normal';
   }>();
+
+  const route = useRoute();
 
   const realTabList = ref([
     {
@@ -75,7 +76,8 @@
     },
   ]);
 
-  const activeTask = ref('real');
+  const activeTask = ref(route.query.tab || 'real');
+  const activeTab = ref<ResourceTypeMapKey>((route.query.type as ResourceTypeMapKey) || TaskCenterEnum.API_CASE);
 
   const rightTabList = computed(() => {
     return activeTask.value === 'real' ? realTabList.value : timingTabList.value;

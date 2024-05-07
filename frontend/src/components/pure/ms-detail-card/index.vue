@@ -13,7 +13,7 @@
         <slot name="titleRight"></slot>
       </div>
     </div>
-    <div class="ms-detail-card-desc">
+    <div v-if="showingDescription.length > 0" class="ms-detail-card-desc">
       <div
         v-for="item of showingDescription"
         :key="item.key"

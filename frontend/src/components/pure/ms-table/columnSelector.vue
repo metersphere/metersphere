@@ -268,7 +268,7 @@
 </style>
 
 <style>
-  .column-drawer .ms-drawer-body-scrollbar {
+  .column-drawer .ms-drawer-body {
     min-width: auto !important;
   }
 </style>

@@ -66,8 +66,7 @@
       </template>
     </ms-base-table>
   </div>
-  <mockDetailDrawer v-model:visible="mockDetailDrawerVisible" />
-  <mockDebugDrawer v-model:visible="mockDebugDrawerVisible" />
+  <mockDetailDrawer v-model:visible="mockDetailDrawerVisible" :definition-detail="props.definitionDetail" />
 </template>
 
 <script setup lang="ts">
@@ -80,6 +79,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import {
     deleteDefinitionMockMock,
@@ -97,14 +97,13 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const mockDetailDrawer = defineAsyncComponent(() => import('./mockDetailDrawer.vue'));
-  const mockDebugDrawer = defineAsyncComponent(() => import('./mockDebugDrawer.vue'));
 
   const props = defineProps<{
     isApi?: boolean; // 接口定义详情的case tab下
     class?: string;
     activeModule: string;
     offspringIds: string[];
-    protocol: string; // 查看的协议类型
+    definitionDetail: RequestParam;
     readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
@@ -262,7 +261,7 @@
   );
 
   watch(
-    () => props.protocol,
+    () => props.definitionDetail.protocol,
     () => {
       loadMockList();
     }

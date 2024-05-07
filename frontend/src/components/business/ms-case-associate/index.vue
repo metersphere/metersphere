@@ -168,7 +168,6 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
@@ -184,7 +183,6 @@
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-  import type { CaseLevel } from './types';
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
 
   const router = useRouter();
