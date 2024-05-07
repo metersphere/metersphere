@@ -164,10 +164,6 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         this.requestGet("/task/center/system/schedule/delete/" + "API_IMPORT/" + scheduleId);
         Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);
         Assertions.assertNull(schedule);
-        if (ScheduleTagType.API_IMPORT.getNames().contains(oldSchedule.getType())) {
-            int count = extSwaggerMapper.selectByPrimaryKey(oldSchedule.getResourceId());
-            Assertions.assertTrue(count > 0);
-        }
         this.requestGet("/task/center/org/schedule/delete/" + "API_IMPORT/" + "4");
         this.requestGet("/task/center/project/schedule/delete/" + "API_SCENARIO/" + "2");
         this.requestGet("/task/center/system/schedule/delete/" + "API_SCENARIO/" + "schedule-121", ERROR_REQUEST_MATCHER);

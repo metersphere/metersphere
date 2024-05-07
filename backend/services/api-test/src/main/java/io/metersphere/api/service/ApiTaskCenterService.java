@@ -281,11 +281,11 @@ public class ApiTaskCenterService {
                         extApiReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
                         extApiReportMapper.updateApiCaseStatus(subList);
                         //记录日志
-                        saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_CASE.toString());
+                        saveLog(subList, userId, path, method, StringUtils.join(module, "_REAL_TIME_API_CASE"), TaskCenterResourceType.API_CASE.toString());
                     } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
                         extApiScenarioReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
                         extApiScenarioReportMapper.updateApiScenario(subList);
-                        saveLog(subList, userId, path, method, module, TaskCenterResourceType.API_SCENARIO.toString());
+                        saveLog(subList, userId, path, method, StringUtils.join(module,"_REAL_TIME_API_SCENARIO"), TaskCenterResourceType.API_SCENARIO.toString());
                     }
                 }
             });
