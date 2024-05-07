@@ -54,6 +54,9 @@ public class ApiDefinitionMock implements Serializable {
     @Schema(description = "")
     private Integer statusCode;
 
+    @Schema(description = "更新人")
+    private String updateUser;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -67,7 +70,8 @@ public class ApiDefinitionMock implements Serializable {
         expectNum("expect_num", "expectNum", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         apiDefinitionId("api_definition_id", "apiDefinitionId", "VARCHAR", false),
-        statusCode("status_code", "statusCode", "INTEGER", false);
+        statusCode("status_code", "statusCode", "INTEGER", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

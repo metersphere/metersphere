@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.mockserver;
 
+import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.XMLUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,6 +19,8 @@ public class BodyParamMatchRule {
     private keyValueMatchRule formDataMatch;
     @Schema(description = "文本匹配规则")
     private String raw;
+    @Schema(description = "文件匹配规则")
+    private ResponseBinaryBody binaryBody = new ResponseBinaryBody();
 
     public boolean matchXml(Map<String, Object> requestMap) {
         Map<String, Object> mockMap = XMLUtils.xmlStringToJson(raw);

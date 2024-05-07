@@ -6,6 +6,8 @@ import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDefinitionMock;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
+import io.metersphere.api.dto.definition.ApiMockBatchEditRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
@@ -104,9 +106,10 @@ public class ApiDefinitionMockController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateEnableLog(#id)", msClass = ApiDefinitionMockLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_definition_mock")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_UPDATE, target = "#targetClass.getApiMockDTO(#id)", targetClass = ApiDefinitionMockNoticeService.class)
     public void updateEnable(@PathVariable String id) {
         apiValidateService.validateApiMenuInProject(id, ApiResource.API_DEFINITION_MOCK.name());
-        apiDefinitionMockService.updateEnable(id);
+        apiDefinitionMockService.updateEnable(id, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/delete")
@@ -151,6 +154,31 @@ public class ApiDefinitionMockController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
         return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_MOCK.name());
+    }
+
+    @GetMapping("/get-url/{id}")
+    @Operation(summary = "接口测试-接口管理-获取 Mock URL")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition_mock")
+    public String getMockUrl(@PathVariable String id) {
+        return apiDefinitionMockService.getMockUrl(id);
+    }
+
+
+    @PostMapping("/batch/delete")
+    @Operation(summary = "接口测试-接口管理-mock-批量删除")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_DELETE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition_mock")
+    public void deleteBatchByParam(@RequestBody ApiTestCaseBatchRequest request) {
+        apiDefinitionMockService.batchDelete(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/edit")
+    @Operation(summary = "接口测试-接口管理-mock-批量编辑")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition_mock")
+    public void batchUpdate(@Validated @RequestBody ApiMockBatchEditRequest request) {
+        apiDefinitionMockService.batchEdit(request, SessionUtils.getUserId());
     }
 
 

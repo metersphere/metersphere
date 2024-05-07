@@ -5,6 +5,8 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
+import io.metersphere.api.dto.definition.ApiMockBatchEditRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
@@ -17,25 +19,38 @@ import io.metersphere.api.mapper.ApiDefinitionMockMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMockMapper;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
+import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
-import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author: LAN
@@ -60,6 +75,20 @@ public class ApiDefinitionMockService {
 
     @Resource
     private ApiFileResourceService apiFileResourceService;
+    @Resource
+    private EnvironmentService environmentService;
+    @Resource
+    private EnvironmentMapper environmentMapper;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiDefinitionMockLogService apiDefinitionMockLogService;
+    @Resource
+    private ApiDefinitionMockNoticeService apiDefinitionMockNoticeService;
+    public static final String STATUS = "Status";
+    public static final String TAGS = "Tags";
 
     public List<ApiDefinitionMockDTO> getPage(ApiDefinitionMockPageRequest request) {
         return extApiDefinitionMockMapper.list(request);
@@ -118,6 +147,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMock.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMock.setCreateUser(userId);
         if (CollectionUtils.isNotEmpty(request.getTags())) {
+            apiTestCaseService.checkTagLength(request.getTags());
             apiDefinitionMock.setTags(request.getTags());
         }
         apiDefinitionMock.setEnable(true);
@@ -177,6 +207,7 @@ public class ApiDefinitionMockService {
         ApiDefinitionMock apiDefinitionMock = checkApiDefinitionMock(request.getId());
         BeanUtils.copyBean(apiDefinitionMock, request);
         checkUpdateExist(apiDefinitionMock);
+        apiDefinitionMock.setUpdateUser(userId);
         apiDefinitionMock.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             apiDefinitionMock.setTags(request.getTags());
@@ -247,12 +278,13 @@ public class ApiDefinitionMockService {
         return copyName;
     }
 
-    public void updateEnable(String id) {
+    public void updateEnable(String id, String userId) {
         ApiDefinitionMock apiDefinitionMock = checkApiDefinitionMock(id);
         ApiDefinitionMock update = new ApiDefinitionMock();
         update.setId(id);
         update.setEnable(!apiDefinitionMock.getEnable());
         update.setUpdateTime(System.currentTimeMillis());
+        update.setUpdateUser(userId);
         apiDefinitionMockMapper.updateByPrimaryKeySelective(update);
     }
 
@@ -275,4 +307,123 @@ public class ApiDefinitionMockService {
         }
     }
 
+    public String getMockUrl(String id) {
+        ApiDefinitionMock apiDefinitionMock = checkApiDefinitionMock(id);
+        //检查接口是否存在
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
+        if (apiDefinition == null) {
+            throw new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST);
+        }
+        // 获取mock环境
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(apiDefinitionMock.getProjectId()).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        if (CollectionUtils.isNotEmpty(environments)) {
+            EnvironmentInfoDTO environmentInfoDTO = environmentService.get(environments.getFirst().getId());
+            return StringUtils.join(environmentInfoDTO.getConfig().getHttpConfig().getFirst().getUrl(), "/", apiDefinition.getNum(), apiDefinition.getPath());
+        }
+
+        return null;
+    }
+
+    public void batchDelete(ApiTestCaseBatchRequest request, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            SubListUtils.dealForSubList(ids, 500, subList -> deleteResourceByIds(subList, request.getProjectId(), userId));
+        }
+    }
+    public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
+        List<ApiDefinitionMock> mockList = extApiDefinitionMockMapper.getMockInfoByIds(ids);
+
+        // 批量删除关联文件
+        String apiMockDir = DefaultRepositoryDir.getApiMockDir(projectId, StringUtils.EMPTY);
+        apiFileResourceService.deleteByResourceIds(apiMockDir, ids, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
+
+        ApiDefinitionMockExample example = new ApiDefinitionMockExample();
+        example.createCriteria().andIdIn(ids);
+        apiDefinitionMockMapper.deleteByExample(example);
+        ApiDefinitionMockConfigExample blobExample = new ApiDefinitionMockConfigExample();
+        blobExample.createCriteria().andIdIn(ids);
+        apiDefinitionMockConfigMapper.deleteByExample(blobExample);
+        //记录删除日志
+        apiDefinitionMockLogService.deleteBatchLog(mockList, userId, projectId);
+        apiDefinitionMockNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.MOCK_DELETE);
+    }
+
+    public void batchEdit(ApiMockBatchEditRequest request, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            SubListUtils.dealForSubList(ids, 500, subList -> batchEditByType(request, subList, userId, request.getProjectId()));
+        }
+    }
+
+    private void batchEditByType(ApiMockBatchEditRequest request, List<String> ids, String userId, String projectId) {
+        ApiDefinitionMockExample example = new ApiDefinitionMockExample();
+        example.createCriteria().andIdIn(ids);
+        ApiDefinitionMock updateCase = new ApiDefinitionMock();
+        updateCase.setUpdateUser(userId);
+        updateCase.setUpdateTime(System.currentTimeMillis());
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionMockMapper mapper = sqlSession.getMapper(ApiDefinitionMockMapper.class);
+        switch (request.getType()) {
+            case STATUS -> batchUpdateStatus(example, updateCase, request.isEnable(), mapper);
+            case TAGS -> batchUpdateTags(example, updateCase, request, ids, mapper);
+            default -> throw new MSException(Translator.get("batch_edit_type_error"));
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        List<ApiDefinitionMock> mockInfoByIds = extApiDefinitionMockMapper.getMockInfoByIds(ids);
+        apiDefinitionMockLogService.batchEditLog(mockInfoByIds, userId, projectId);
+        apiDefinitionMockNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.MOCK_UPDATE);
+    }
+
+    private void batchUpdateTags(ApiDefinitionMockExample example, ApiDefinitionMock updateMock,
+                                 ApiMockBatchEditRequest request, List<String> ids,
+                                 ApiDefinitionMockMapper mapper) {
+        if (CollectionUtils.isEmpty(request.getTags())) {
+            throw new MSException(Translator.get("tags_is_null"));
+        }
+        apiTestCaseService.checkTagLength(request.getTags());
+        if (request.isAppend()) {
+            Map<String, ApiDefinitionMock> mockMap = extApiDefinitionMockMapper.getTagsByIds(ids)
+                    .stream()
+                    .collect(Collectors.toMap(ApiDefinitionMock::getId, Function.identity()));
+            if (MapUtils.isNotEmpty(mockMap)) {
+                mockMap.forEach((k, v) -> {
+                    if (CollectionUtils.isNotEmpty(v.getTags())) {
+                        List<String> orgTags = v.getTags();
+                        orgTags.addAll(request.getTags());
+                        apiTestCaseService.checkTagLength(orgTags.stream().distinct().toList());
+                        v.setTags(orgTags.stream().distinct().toList());
+                    } else {
+                        v.setTags(request.getTags());
+                    }
+                    v.setUpdateTime(updateMock.getUpdateTime());
+                    v.setUpdateUser(updateMock.getUpdateUser());
+                    mapper.updateByPrimaryKeySelective(v);
+                });
+            }
+        } else {
+            updateMock.setTags(request.getTags());
+            mapper.updateByExampleSelective(updateMock, example);
+        }
+    }
+
+    private void batchUpdateStatus(ApiDefinitionMockExample example, ApiDefinitionMock updateMock, boolean enable, ApiDefinitionMockMapper mapper) {
+        updateMock.setEnable(enable);
+        mapper.updateByExampleSelective(updateMock, example);
+    }
+
+    public List<String> doSelectIds(ApiTestCaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extApiDefinitionMockMapper.getIds(request);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return new ArrayList<>(ids.stream().distinct().toList());
+        } else {
+            request.getSelectIds().removeAll(request.getExcludeIds());
+            return request.getSelectIds();
+        }
+    }
 }
