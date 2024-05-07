@@ -40,10 +40,16 @@
               hasAnyPermission(['PROJECT_API_DEFINITION:READ+IMPORT'])
             "
             type="primary"
+            @click="handleSelect('import')"
           >
             {{ t('apiTestManagement.importApi') }}
           </a-button>
-          <a-button v-else v-permission="['PROJECT_API_DEFINITION:READ+ADD']" type="primary">
+          <a-button
+            v-else
+            v-permission="['PROJECT_API_DEFINITION:READ+ADD']"
+            type="primary"
+            @click="handleSelect('newApi')"
+          >
             {{ t('apiTestManagement.newApi') }}
           </a-button>
         </template>

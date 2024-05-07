@@ -204,10 +204,10 @@
             query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
             authConfig: apiDetailInfo.value.authConfig ?? apiDetailInfo.value.request.authConfig,
             otherConfig: apiDetailInfo.value.otherConfig ?? apiDetailInfo.value.request.otherConfig,
+            url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
           }
         : {}),
       children: apiDetailInfo.value.children ?? apiDetailInfo.value.request.children,
-      url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
     };
     // 复制
     if (isCopy) {
