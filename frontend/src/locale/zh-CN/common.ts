@@ -123,6 +123,7 @@ export default {
   'common.moveSuccess': '移动成功',
   'common.batchMove': '批量移动',
   'common.batchCopy': '批量复制',
+  'common.batchCopySuccess': '批量复制成功',
   'common.batchMoveSuccess': '批量移动成功',
   'common.importSuccess': '导入成功',
   'common.nameIsTooLang': '名称超过255个字符',
@@ -157,4 +158,10 @@ export default {
   'common.text': '文本',
   'common.resourceDeleted': '资源已被删除',
   'common.refresh': '刷新',
+  'common.searchByNameAndId': '通过ID、名称或标签搜索',
+  'common.archive': '归档',
+  'common.running': '执行中',
+  'common.unExecute': '未执行',
+  'common.pass': '通过',
+  'common.unPass': '不通过',
 };

@@ -78,7 +78,6 @@
           <a-button type="secondary" @click="cancelHandler">
             {{ t('common.cancel') }}
           </a-button>
-          <slot name="self-button"></slot>
           <a-button
             class="ml-3"
             type="primary"

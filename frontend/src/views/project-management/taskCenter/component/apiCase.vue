@@ -19,6 +19,7 @@
       v-bind="propsRes"
       ref="tableRef"
       :action-config="tableBatchActions"
+      :selectable="hasOperationPermission"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >

@@ -1,83 +1,93 @@
 <template>
-  <div class="rounded-2xl bg-white">
-    <div class="p-[24px] pb-[16px]">
-      <a-button v-permission="['PROJECT_TEST_PLAN:READ+ADD']" type="primary">
-        {{ t('testPlan.testPlanIndex.createTestPlan') }}
-      </a-button>
-    </div>
-    <a-divider class="!my-0" />
-    <div class="pageWrap">
-      <MsSplitBox>
-        <template #first>
-          <div class="p-[24px] pb-0">
-            <div class="test-plan h-[100%]">
-              <div class="case h-[38px]">
-                <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
-                  <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-                  <div class="folder-name mx-[4px]">{{ t('testPlan.testPlanIndex.allTestPlan') }}</div>
-                  <div class="folder-count">({{ modulesCount.all || 0 }})</div></div
-                >
-                <div class="ml-auto flex items-center">
-                  <a-tooltip
-                    :content="
-                      isExpandAll ? t('testPlan.testPlanIndex.collapseAll') : t('testPlan.testPlanIndex.expandAll')
-                    "
-                  >
-                    <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
-                      <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-                    </MsButton>
-                  </a-tooltip>
-                  <MsPopConfirm
-                    ref="confirmRef"
-                    v-model:visible="addSubVisible"
-                    :is-delete="false"
-                    :title="t('testPlan.testPlanIndex.addSubModule')"
-                    :all-names="rootModulesName"
-                    :loading="confirmLoading"
-                    :ok-text="t('common.confirm')"
-                    :field-config="{
-                      placeholder: t('testPlan.testPlanIndex.addGroupTip'),
-                    }"
-                    @confirm="confirmHandler"
-                  >
-                    <MsButton type="icon" class="!mr-0 p-[2px]">
-                      <MsIcon
-                        type="icon-icon_create_planarity"
-                        size="18"
-                        class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                      />
-                    </MsButton>
-                  </MsPopConfirm>
-                </div>
-              </div>
-              <a-divider class="my-[8px]" />
-              <TestPlanTree
-                ref="planTreeRef"
-                v-model:selected-keys="selectedKeys"
-                :all-names="rootModulesName"
-                :active-folder="activeFolder"
-                :is-expand-all="isExpandAll"
-                :modules-count="modulesCount"
-                @plan-tree-node-select="planNodeSelect"
-                @init="setRootModules"
-              ></TestPlanTree>
-            </div>
-          </div>
-        </template>
-        <template #second>
-          <div class="p-[24px]">
-            <PlanTable
-              :active-folder="activeFolder"
-              :offspring-ids="offspringIds"
-              :active-folder-type="activeCaseType"
-              :modules-count="modulesCount"
-              @init="initModulesCount"
+  <MsCard simple no-content-padding>
+    <MsSplitBox>
+      <template #first>
+        <div class="p-[16px] pb-0">
+          <div class="mb-[16px] flex justify-between">
+            <a-input-search
+              v-model:model-value="groupKeyword"
+              :placeholder="t('caseManagement.featureCase.searchTip')"
+              allow-clear
             />
+            <a-dropdown-button class="ml-2" type="primary" @click="handleSelect">
+              {{ t('common.newCreate') }}
+              <template #icon>
+                <icon-down />
+              </template>
+              <template #content>
+                <a-doption v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" value="Excel">
+                  {{ t('testPlan.testPlanIndex.newCreatePlanGroup') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
           </div>
-        </template>
-      </MsSplitBox>
-    </div>
-  </div>
+
+          <div class="test-plan h-[100%]">
+            <div class="case h-[38px]">
+              <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
+                <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+                <div class="folder-name mx-[4px]">{{ t('testPlan.testPlanIndex.allTestPlan') }}</div>
+                <div class="folder-count">({{ modulesCount.all || 0 }})</div></div
+              >
+              <div class="ml-auto flex items-center">
+                <a-tooltip
+                  :content="
+                    isExpandAll ? t('testPlan.testPlanIndex.collapseAll') : t('testPlan.testPlanIndex.expandAll')
+                  "
+                >
+                  <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
+                    <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+                  </MsButton>
+                </a-tooltip>
+                <MsPopConfirm
+                  ref="confirmRef"
+                  v-model:visible="addSubVisible"
+                  :is-delete="false"
+                  :title="t('testPlan.testPlanIndex.addSubModule')"
+                  :all-names="rootModulesName"
+                  :loading="confirmLoading"
+                  :ok-text="t('common.confirm')"
+                  :field-config="{
+                    placeholder: t('testPlan.testPlanIndex.addGroupTip'),
+                  }"
+                  @confirm="confirmHandler"
+                >
+                  <MsButton type="icon" class="!mr-0 p-[2px]">
+                    <MsIcon
+                      type="icon-icon_create_planarity"
+                      size="18"
+                      class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                    />
+                  </MsButton>
+                </MsPopConfirm>
+              </div>
+            </div>
+            <TestPlanTree
+              ref="planTreeRef"
+              v-model:selected-keys="selectedKeys"
+              :all-names="rootModulesName"
+              :active-folder="activeFolder"
+              :is-expand-all="isExpandAll"
+              :modules-count="modulesCount"
+              @plan-tree-node-select="planNodeSelect"
+              @init="setRootModules"
+            ></TestPlanTree>
+          </div>
+        </div>
+      </template>
+      <template #second>
+        <div class="p-[16px]">
+          <PlanTable
+            :active-folder="activeFolder"
+            :offspring-ids="offspringIds"
+            :active-folder-type="activeCaseType"
+            :modules-count="modulesCount"
+            @init="initModulesCount"
+          />
+        </div>
+      </template>
+    </MsSplitBox>
+  </MsCard>
 </template>
 
 <script setup lang="ts">
@@ -85,6 +95,7 @@
   import { useRouter } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -106,6 +117,8 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const activeFolder = ref<string>('all');
+
+  const groupKeyword = ref<string>('');
 
   // 获取激活用例类型样式
   const getActiveClass = (type: string) => {
@@ -181,51 +194,47 @@
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
   function initModulesCount(params: any) {}
+
+  function handleSelect() {}
 </script>
 
-<style scoped>
-  .pageWrap {
-    min-width: 1000px;
-    height: calc(100vh - 166px);
-    border-radius: var(--border-radius-large);
-    @apply bg-white;
-    .case {
-      padding: 8px 4px;
-      border-radius: var(--border-radius-small);
-      @apply flex cursor-pointer  items-center justify-between;
-      &:hover {
-        background-color: rgb(var(--primary-1));
-      }
-      .folder-icon {
-        margin-right: 4px;
-        color: var(--color-text-4);
-      }
-      .folder-name {
-        color: var(--color-text-1);
-      }
+<style scoped lang="less">
+  .case {
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    @apply flex cursor-pointer  items-center justify-between;
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+    .folder-icon {
+      margin-right: 4px;
+      color: var(--color-text-4);
+    }
+    .folder-name {
+      color: var(--color-text-1);
+    }
+    .folder-count {
+      margin-left: 4px;
+      color: var(--color-text-4);
+    }
+    .case-active {
+      .folder-icon,
+      .folder-name,
       .folder-count {
-        margin-left: 4px;
-        color: var(--color-text-4);
+        color: rgb(var(--primary-5));
       }
-      .case-active {
-        .folder-icon,
-        .folder-name,
-        .folder-count {
-          color: rgb(var(--primary-5));
-        }
+    }
+    .back {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #ffffff;
+      background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+      box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+      .arco-icon {
+        color: rgb(var(--primary-5));
       }
-      .back {
-        margin-right: 8px;
-        width: 20px;
-        height: 20px;
-        border: 1px solid #ffffff;
-        background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
-        box-shadow: 0 0 7px rgb(15 0 78 / 9%);
-        .arco-icon {
-          color: rgb(var(--primary-5));
-        }
-        @apply flex cursor-pointer items-center rounded-full;
-      }
+      @apply flex cursor-pointer items-center rounded-full;
     }
   }
 </style>

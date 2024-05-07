@@ -1,11 +1,5 @@
 <template>
-  <a-input-search
-    v-model:model-value="groupKeyword"
-    :placeholder="t('caseManagement.featureCase.searchTip')"
-    allow-clear
-    class="mb-[16px]"
-  ></a-input-search>
-  <a-spin class="w-full" :style="{ height: `calc(100vh - 346px)` }" :loading="loading">
+  <a-spin class="min-h-[400px] w-full" :loading="loading">
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
@@ -32,12 +26,12 @@
       <template #title="nodeData">
         <div class="inline-flex w-full gap-[8px]">
           <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-          <div v-if="!props.isModal" class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">
+          <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">
             {{ nodeData.count || 0 }}
           </div>
         </div>
       </template>
-      <template v-if="!props.isModal" #extra="nodeData">
+      <template #extra="nodeData">
         <MsPopConfirm
           :visible="addSubVisible"
           :is-delete="false"
@@ -84,6 +78,7 @@
 
   import {
     createPlanModuleTree,
+    deletePlanModuleTree,
     getTestPlanModule,
     moveTestPlanModuleTree,
     updatePlanModuleTree,
@@ -103,7 +98,6 @@
   const loading = ref(false);
 
   const props = defineProps<{
-    isModal?: boolean; // 是否是弹窗模式
     activeFolder?: string; // 当前选中的文件夹，弹窗模式下需要使用
     selectedKeys?: Array<string | number>; // 选中的节点 key
     isExpandAll: boolean; // 是否展开用例节点
@@ -111,7 +105,7 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'planTreeNodeSelect', 'init']);
+  const emits = defineEmits(['update:selectedKeys', 'planTreeNodeSelect', 'init', 'dragUpdate']);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -162,8 +156,8 @@
         return {
           ...e,
           hideMoreAction: e.id === 'root',
-          draggable: e.id !== 'root' && !props.isModal,
-          disabled: e.id === props.activeFolder && props.isModal,
+          draggable: e.id !== 'root',
+          disabled: e.id === props.activeFolder,
           count: props.modulesCount?.[e.id] || 0,
         };
       });
@@ -194,7 +188,13 @@
       },
       maskClosable: false,
       onBeforeOk: async () => {
-        Message.success(t('caseManagement.featureCase.deleteSuccess'));
+        try {
+          await deletePlanModuleTree(node.id);
+          Message.success(t('common.deleteSuccess'));
+          initModules(true);
+        } catch (error) {
+          console.log(error);
+        }
       },
       hideCancel: false,
     });
@@ -262,7 +262,15 @@
       console.log(error);
     } finally {
       loading.value = false;
-      initModules();
+      await initModules();
+      const treeNode = ref<MsTreeNodeData | null>(null);
+      treeNode.value = dropNode;
+      treeNode.value.children = [];
+      if (dropPosition === 0) {
+        treeNode.value.children.push(dragNode);
+      }
+      caseNodeSelect(dropNode.id, treeNode.value);
+      emits('dragUpdate');
     }
   }
 
@@ -320,10 +328,10 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 366px)',
+      height: 'calc(100vh - 240px)',
       threshold: 200,
       fixedSize: true,
-      buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
+      buffer: 15,
     };
   });
 

@@ -122,6 +122,7 @@ export default {
   'common.moveSuccess': 'Move successful',
   'common.batchMove': 'Batch move',
   'common.batchCopy': 'Batch copy',
+  'common.batchCopySuccess': 'Batch copy successful',
   'common.batchMoveSuccess': 'Batch move successful',
   'common.importSuccess': 'Import successful',
   'common.nameIsTooLang': 'The name exceeds 255 characters',
@@ -157,4 +158,10 @@ export default {
   'common.text': 'Text',
   'common.resourceDeleted': 'Resource has been deleted',
   'common.refresh': 'Refresh',
+  'common.searchByNameAndId': 'Search by ID, name, or tag',
+  'common.archive': 'archive',
+  'common.running': 'Running',
+  'common.unExecute': 'Not executed',
+  'common.pass': 'Pass',
+  'common.unPass': 'Fail pass',
 };

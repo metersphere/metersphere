@@ -7,7 +7,12 @@
         allow-clear
         :max-length="255"
       />
-      <a-button v-permission="['CASE_REVIEW:READ+ADD']" class="ml-2" type="primary" @click="emit('create')">
+      <a-button
+        v-if="!props.isModal && hasAnyPermission(['CASE_REVIEW:READ+ADD'])"
+        class="ml-2"
+        type="primary"
+        @click="emit('create')"
+      >
         {{ t('common.newCreate') }}
       </a-button>
     </div>
@@ -225,7 +230,7 @@
         };
         return {
           ...e,
-          hideMoreAction: e.id === 'root',
+          hideMoreAction: e.id === 'root' || props.isModal,
           draggable: e.id !== 'root' && !props.isModal,
           disabled: e.id === activeFolder.value && props.isModal,
           count: props.modulesCount?.[e.id] || 0, // 避免模块数量先初始化完成了，数量没更新
