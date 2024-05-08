@@ -21,3 +21,8 @@ INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repea
 VALUES
     ('wx_test_plan_id_1', b'0', b'0', 100, b'0'),
     ('wx_test_plan_id_4', b'0', b'0', 100, b'0');
+
+
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
+VALUES
+    ('123', 2, 1, 'wx', 'wx', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["bugManagement","caseManagement","apiTest","testPlan"]');
