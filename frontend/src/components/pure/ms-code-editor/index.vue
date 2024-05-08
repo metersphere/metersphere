@@ -253,12 +253,12 @@
       function getEncodingCode() {
         return editor.getValue();
       }
-
-      const innerHeight = ref<string | number>();
+      // @desc 这里未使用小驼峰 否则CSS绑定时候报错
+      const codeheight = ref<string | number>();
 
       function handleEditorMount() {
         if (!props.isAdaptive) {
-          innerHeight.value = props.height;
+          codeheight.value = props.height;
           return;
         }
         const editorElement = editor.getDomNode();
@@ -273,9 +273,9 @@
         const lineCount = editor.getModel()?.getLineCount() || 10;
         // 计算高度 @desc 原本行数差3行完全展示文本 24为上下的边距为12px
         const height = (lineCount + 3) * lineHeight;
-        innerHeight.value = height > 300 ? `${height + 24}px` : '300px';
+        codeheight.value = height > 300 ? `${height + 24}px` : '300px';
         if (height > 1000) {
-          innerHeight.value = `1000px`;
+          codeheight.value = `1000px`;
         }
         editor.layout();
       }
@@ -383,7 +383,7 @@
         redo,
         format,
         getEncodingCode,
-        innerHeight,
+        codeheight,
         handleEditorMount,
       };
     },
@@ -393,7 +393,7 @@
 <style lang="less" scoped>
   .ms-code-editor {
     width: 100%;
-    height: v-bind(innerheight);
+    height: v-bind(codeheight);
 
     @apply z-10;
     // height: 100vh;
