@@ -25,7 +25,7 @@ public class NodeResourcePoolService {
     private final static String nodeControllerUrl = "http://%s:%s/status";
 
 
-    public boolean validate(TestResourceDTO testResourceDTO, Boolean usedApiType) {
+    public boolean validate(TestResourceDTO testResourceDTO) {
         List<TestResourceNodeDTO> nodesList = testResourceDTO.getNodesList();
         if (CollectionUtils.isEmpty(nodesList)) {
             throw new MSException(Translator.get("no_nodes_message"));
@@ -46,11 +46,7 @@ public class NodeResourcePoolService {
                     testResourceNodeDTO.setConcurrentNumber(10);
                 }
             }
-            if (!usedApiType) {
-                if (StringUtils.isBlank(testResourceNodeDTO.getMonitor())) {
-                    throw new MSException(Translator.get("monitor_is_null"));
-                }
-            }
+
             isValid = validateNode(testResourceNodeDTO);
             if (!isValid) {
                 break;

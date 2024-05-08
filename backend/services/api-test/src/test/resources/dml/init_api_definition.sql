@@ -111,7 +111,7 @@ INSERT INTO `api_test_case_record` (`api_report_id`, `api_test_case_id`) VALUES 
 INSERT INTO `api_test_case_record` (`api_report_id`, `api_test_case_id`) VALUES ('9', 'resource_9');
 
 DELETE FROM `test_resource_pool` WHERE `id` in ('100660357777795313');
-INSERT INTO `test_resource_pool` (`id`, `name`, `type`, `description`, `enable`, `create_time`, `update_time`, `create_user`, `api_test`, `load_test`, `ui_test`, `server_url`, `all_org`, `deleted`) VALUES ('100660357777795313', 'LOCAL', 'Node', '测试资源池', b'1', 1705894549000, 1705894549000, 'admin', b'1', b'1', b'1', NULL, b'1', b'0');
+INSERT INTO `test_resource_pool` (`id`, `name`, `type`, `description`, `enable`, `create_time`, `update_time`, `create_user`, `server_url`, `all_org`, `deleted`) VALUES ('100660357777795313', 'LOCAL', 'Node', '测试资源池', b'1', 1705894549000, 1705894549000, 'admin', NULL, b'1', b'0');
 
 DELETE FROM `api_scenario` WHERE `id` in ('1', '2', '3', '4','5','6', '7', '8', '9');
 INSERT INTO `api_scenario` (`id`, `name`, `priority`, `status`, `step_total`, `request_pass_rate`, `last_report_status`, `last_report_id`, `num`, `deleted`, `pos`, `version_id`, `ref_id`, `latest`, `project_id`, `module_id`, `description`, `tags`, `grouped`, `environment_id`, `create_user`, `create_time`, `delete_time`, `delete_user`, `update_user`, `update_time`) VALUES ('1', 'Scenario 1', 'P0', 'Completed', 10, '95%', 'Passed', 'report_1', 1001, b'0', 1, 'version_1', 'ref_1', b'1', '100001100001', 'module_1', 'Description 1', '[\"tag1\",\"tag2\"]', b'0', 'env_1', 'admin', 1640772861000, NULL, NULL, 'admin', 1640772861000);

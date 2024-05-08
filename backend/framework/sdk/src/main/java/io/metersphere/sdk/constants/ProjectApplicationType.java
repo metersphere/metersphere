@@ -7,36 +7,12 @@ import java.util.Arrays;
  */
 public class ProjectApplicationType {
 
-    //工作台
-    public enum WORKSTATION {
-        WORKSTATION_SYNC_RULE
-    }
-
     //测试计划
     public enum TEST_PLAN {
         TEST_PLAN_CLEAN_REPORT,
         TEST_PLAN_SHARE_REPORT
 
     }
-
-
-    //UI测试
-    public enum UI {
-        UI_CLEAN_REPORT,
-        UI_SHARE_REPORT,
-        UI_RESOURCE_POOL_ID,
-    }
-
-
-    //性能测试
-    public enum LOAD_TEST {
-        LOAD_TEST_CLEAN_REPORT,
-        LOAD_TEST_SHARE_REPORT,
-        LOAD_TEST_SCRIPT_REVIEWER_ENABLE,
-        LOAD_TEST_SCRIPT_REVIEWER_ID,
-        LOAD_TEST_RESOURCE_POOL_ID
-    }
-
 
     //接口测试
     public enum API {

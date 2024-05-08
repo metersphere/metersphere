@@ -138,8 +138,6 @@ public class KubernetesEngineTests extends BaseTest {
         TestResourceDTO testResourceDTO = testResourcePool.getTestResourceDTO();
         testResourcePoolService.checkAndSaveOrgRelation(testResourcePool, id, testResourceDTO);
         testResourcePoolService.checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        testResourcePoolService.checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        testResourcePoolService.checkUiConfig(testResourceDTO, testResourcePool);
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
         }

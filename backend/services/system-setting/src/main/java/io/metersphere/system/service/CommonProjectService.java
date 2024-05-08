@@ -75,8 +75,6 @@ public class CommonProjectService {
     private TestResourcePoolService testResourcePoolService;
     public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
     public static final String API_TEST = "apiTest";
-    public static final String UI_TEST = "uiTest";
-    public static final String LOAD_TEST = "loadTest";
 
     @Autowired
     public CommonProjectService(ProjectServiceInvoker serviceInvoker) {
@@ -647,9 +645,7 @@ public class CommonProjectService {
         //这里需要获取项目开启的模块   判断资源池开启的使用范围的模块是否在项目开启的模块中
         List<String> moduleIds = request.getModulesIds();
         testResourcePools.forEach(pool -> {
-            if ((moduleIds.contains(API_TEST) && pool.getApiTest()) ||
-                    (moduleIds.contains(LOAD_TEST) && pool.getLoadTest()) ||
-                    (moduleIds.contains(UI_TEST) && pool.getUiTest())) {
+            if (moduleIds.contains(API_TEST)) {
                 OptionDTO optionDTO = new OptionDTO();
                 optionDTO.setId(pool.getId());
                 optionDTO.setName(pool.getName());

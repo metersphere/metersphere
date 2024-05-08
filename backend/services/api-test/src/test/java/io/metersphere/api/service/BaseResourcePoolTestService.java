@@ -61,7 +61,6 @@ public class BaseResourcePoolTestService {
         String id = IDGenerator.nextStr();
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         testResourcePool.setId(id);
-        testResourcePool.setApiTest(true);
         testResourcePool.setCreateTime(System.currentTimeMillis());
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         testResourcePool.setDeleted(false);

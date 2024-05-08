@@ -76,7 +76,7 @@ public class ProjectController {
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<OptionDTO> getPoolOptions(@PathVariable String type, @PathVariable String projectId) {
-        return projectService.getPoolOptions(projectId, type);
+        return projectService.getPoolOptions(projectId);
     }
 
     @GetMapping("/has-permission/{id}")

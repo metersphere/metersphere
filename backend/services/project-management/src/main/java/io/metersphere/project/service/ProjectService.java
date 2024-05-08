@@ -171,7 +171,7 @@ public class ProjectService {
         return projectPools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList();
     }
 
-    public List<OptionDTO> getPoolOptions(String projectId, String type) {
+    public List<OptionDTO> getPoolOptions(String projectId) {
         checkProjectNotExist(projectId);
         List<String> poolIds = getPoolIds(projectId);
         if (CollectionUtils.isEmpty(poolIds)) {
@@ -180,14 +180,7 @@ public class ProjectService {
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
-        List<TestResourcePool> testResourcePools = new ArrayList<>();
-        testResourcePools = switch (type) {
-            case ApplicationScope.API_TEST -> {
-                criteria.andApiTestEqualTo(true);
-                yield testResourcePoolMapper.selectByExample(example);
-            }
-            default -> new ArrayList<>();
-        };
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
         return testResourcePools.stream().map(testResourcePool ->
                 new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
         ).toList();

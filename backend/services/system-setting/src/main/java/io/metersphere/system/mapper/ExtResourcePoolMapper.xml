@@ -20,15 +20,6 @@
             <if test="request.deleted != null">
                 and t.deleted = #{request.deleted}
             </if>
-            <if test="request.apiTest != null and request.apiTest == true">
-                and t.api_test = true
-            </if>
-            <if test="request.loadTest != null and request.loadTest == true">
-                and t.load_test = true
-            </if>
-            <if test="request.uiTest != null and request.uiTest == true">
-                and t.ui_test = true
-            </if>
             <include refid="filter"/>
             <include refid="combine">
                 <property name="condition" value="request.combine"/>

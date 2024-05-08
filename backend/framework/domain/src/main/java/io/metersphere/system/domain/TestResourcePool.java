@@ -40,15 +40,6 @@ public class TestResourcePool implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "是否用于接口测试")
-    private Boolean apiTest;
-
-    @Schema(description = "是否用于性能测试")
-    private Boolean loadTest;
-
-    @Schema(description = "是否用于ui测试")
-    private Boolean uiTest;
-
     @Schema(description = "ms部署地址")
     private String serverUrl;
 
@@ -71,9 +62,6 @@ public class TestResourcePool implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        apiTest("api_test", "apiTest", "BIT", false),
-        loadTest("load_test", "loadTest", "BIT", false),
-        uiTest("ui_test", "uiTest", "BIT", false),
         serverUrl("server_url", "serverUrl", "VARCHAR", false),
         allOrg("all_org", "allOrg", "BIT", false),
         deleted("deleted", "deleted", "BIT", false);

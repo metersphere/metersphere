@@ -25,12 +25,6 @@ public class TestResourceNodeDTO {
     private String port;
 
     /**
-     * 性能测试 node节点监控器
-     */
-    @Schema(description =  "性能测试 node节点监控器")
-    private String monitor;
-
-    /**
      * 接口测试 性能测试 最大并发数
      */
     @Schema(description =  "接口测试,性能测试最大并发数")
