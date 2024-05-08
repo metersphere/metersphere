@@ -5,5 +5,5 @@ import io.metersphere.system.dto.pool.TestResourceDTO;
 
 public interface KubernetesResourcePoolService {
 
-    boolean validate(TestResourceDTO testResourceDTO, Boolean usedApiType);
+    boolean validate(TestResourceDTO testResourceDTO);
 }

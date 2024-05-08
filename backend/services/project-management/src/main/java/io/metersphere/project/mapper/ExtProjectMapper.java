@@ -19,11 +19,11 @@ public interface ExtProjectMapper {
 
     List<Project> getProjectByOrgId(@Param("userId") String userId, @Param("organizationId") String organizationId);
 
-    int resourcePoolIsExist(@Param("poolId") String poolId, @Param("projectId") String projectId, @Param("type") String type);
+    int resourcePoolIsExist(@Param("poolId") String poolId, @Param("projectId") String projectId);
 
-    int resourcePoolIsExistByOrg(@Param("poolId") String string, @Param("projectId") String projectId, @Param("type") String type);
+    int resourcePoolIsExistByOrg(@Param("poolId") String string, @Param("projectId") String projectId);
 
-    List<ProjectTestResourcePool> getResourcePool(@Param("projectId") String projectId, @Param("type") String type);
+    List<ProjectTestResourcePool> getResourcePool(@Param("projectId") String projectId);
 
     List<Project> getAllProject(@Param("organizationId") String organizationId);
     List<TestResourcePool> getResourcePoolOption(@Param("projectId") String projectId, @Param("type") String type);

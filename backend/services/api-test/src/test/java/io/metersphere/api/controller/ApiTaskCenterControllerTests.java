@@ -285,7 +285,6 @@ public class ApiTaskCenterControllerTests extends BaseTest {
 
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         testResourcePool.setId("api-pool-id");
-        testResourcePool.setApiTest(true);
         testResourcePool.setCreateTime(System.currentTimeMillis());
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         testResourcePool.setDeleted(false);

@@ -77,20 +77,11 @@ public class TestResourcePoolService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    public boolean checkLoadConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
-        if (testResourcePool.getLoadTest() == null || !testResourcePool.getLoadTest()) {
-            return true;
-        }
-        boolean validate = checkNodeOrK8s(testResourceDTO, type, false);
-        testResourcePool.setEnable(validate);
-        return validate;
-    }
-
-    private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type, Boolean usedApiType) {
+    private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type) {
         if (StringUtils.equalsIgnoreCase(type, ResourcePoolTypeEnum.NODE.name())) {
             NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
             if (resourcePoolService != null) {
-                return resourcePoolService.validate(testResourceDTO, usedApiType);
+                return resourcePoolService.validate(testResourceDTO);
             } else {
                 return false;
             }
@@ -99,26 +90,13 @@ public class TestResourcePoolService {
             if (resourcePoolService == null) {
                 return false;
             }
-            return resourcePoolService.validate(testResourceDTO, usedApiType);
+            return resourcePoolService.validate(testResourceDTO);
         }
     }
 
-    public void checkUiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool) {
-        if (testResourcePool.getUiTest() == null || !testResourcePool.getUiTest()) {
-            return;
-        }
-        UiResourceService resourcePoolService = CommonBeanFactory.getBean(UiResourceService.class);
-        if (resourcePoolService == null) {
-            return;
-        }
-        resourcePoolService.validate(testResourceDTO);
-    }
 
     public boolean checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
-        if (testResourcePool.getApiTest() == null || !testResourcePool.getApiTest()) {
-            return true;
-        }
-        boolean validate = checkNodeOrK8s(testResourceDTO, type, true);
+        boolean validate = checkNodeOrK8s(testResourceDTO, type);
         testResourcePool.setEnable(validate);
         return validate;
     }
@@ -129,8 +107,7 @@ public class TestResourcePoolService {
         TestResourceDTO testResourceDTO = testResourcePool.getTestResourceDTO();
         checkAndSaveOrgRelation(testResourcePool, testResourcePool.getId(), testResourceDTO);
         checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
-        checkUiConfig(testResourceDTO, testResourcePool);
+
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
         }

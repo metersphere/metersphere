@@ -21,6 +21,10 @@ ALTER TABLE operation_log MODIFY COLUMN module VARCHAR(100);
 
 CREATE INDEX idx_num ON test_plan_functional_case(num);
 
+ALTER TABLE test_resource_pool DROP COLUMN api_test;
+ALTER TABLE test_resource_pool DROP COLUMN load_test;
+ALTER TABLE test_resource_pool DROP COLUMN ui_test;
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

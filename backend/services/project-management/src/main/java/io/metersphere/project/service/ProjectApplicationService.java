@@ -139,21 +139,9 @@ public class ProjectApplicationService {
         if (StringUtils.isBlank(type)) {
             return;
         }
-        switch (type) {
-            case "apiTest" -> {
-                poolType = ProjectApplicationType.API.API_RESOURCE_POOL_ID.name();
-                moduleType = "api_test";
-            }
-            case "uiTest" -> {
-                poolType = ProjectApplicationType.UI.UI_RESOURCE_POOL_ID.name();
-                moduleType = "ui_test";
-            }
-            case "loadTest" -> {
-                poolType = ProjectApplicationType.LOAD_TEST.LOAD_TEST_RESOURCE_POOL_ID.name();
-                moduleType = "load_test";
-            }
-            default -> {
-            }
+        if (type.equals("apiTest")) {
+            poolType = ProjectApplicationType.API.API_RESOURCE_POOL_ID.name();
+            moduleType = "api_test";
         }
         if (StringUtils.isNotBlank(poolType) && StringUtils.isNotBlank(moduleType)) {
             if (configMap.containsKey(poolType)) {
@@ -162,17 +150,17 @@ public class ProjectApplicationService {
                 TestResourcePoolExample example = new TestResourcePoolExample();
                 example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andAllOrgEqualTo(true);
                 if (testResourcePoolMapper.countByExample(example) > 0) {
-                    count = extProjectMapper.resourcePoolIsExist(configMap.get(poolType).toString(), projectId, moduleType);
+                    count = extProjectMapper.resourcePoolIsExist(configMap.get(poolType).toString(), projectId);
                 } else {
                     //指定组织  则需要关联组织-资源池的关系表  看看是否再全部存在
-                    count = extProjectMapper.resourcePoolIsExistByOrg(configMap.get(poolType).toString(), projectId, moduleType);
+                    count = extProjectMapper.resourcePoolIsExistByOrg(configMap.get(poolType).toString(), projectId);
                 }
                 if (count == 0) {
                     configMap.remove(poolType);
                 }
             }
             if (!configMap.containsKey(poolType)) {
-                List<ProjectTestResourcePool> projectTestResourcePools = extProjectMapper.getResourcePool(projectId, moduleType);
+                List<ProjectTestResourcePool> projectTestResourcePools = extProjectMapper.getResourcePool(projectId);
                 if (CollectionUtils.isNotEmpty(projectTestResourcePools)) {
                     projectTestResourcePools.sort(Comparator.comparing(ProjectTestResourcePool::getTestResourcePoolId));
                     configMap.put(poolType, projectTestResourcePools.getFirst().getTestResourcePoolId());

@@ -218,7 +218,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(4)
     void addTestResourcePoolFour() throws Exception {
         // 选全部资源池，部分没值 资源池节点为NODE use：
-        this.addTestResourcePoolSuccess("test_pool_4", true, false, false, false, false,false,  ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_4", true, false, false, false, false, false, ResourcePoolTypeEnum.NODE.name());
 
     }
 
@@ -309,28 +309,13 @@ class TestResourcePoolControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
         Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
-        if (testResourcePoolRequest1.getUiTest()) {
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getUiGrid());
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getGirdConcurrentNumber() > 0);
-        }
 
-        if (testResourcePoolRequest1.getApiTest()) {
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNamespace());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getDeployName());
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
-        }
-
-        if (testResourcePoolRequest1.getLoadTest()) {
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNamespace());
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
-        }
-
+        Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
+        Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
+        Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNamespace());
+        Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getDeployName());
+        Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
+        Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
     }
 
     @Test
@@ -348,28 +333,13 @@ class TestResourcePoolControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
         Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
-        if (testResourcePoolRequest1.getUiTest()) {
-            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getUiGrid());
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getGirdConcurrentNumber() > 0);
-        }
 
-        if (testResourcePoolRequest1.getApiTest()) {
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().size() > 0);
-            for (TestResourceNodeDTO testResourceNodeDTO : testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList()) {
-                Assertions.assertNotNull(testResourceNodeDTO.getIp());
-                Assertions.assertNotNull(testResourceNodeDTO.getPort());
-                Assertions.assertNotNull(testResourceNodeDTO.getConcurrentNumber());
-            }
-        }
 
-        if (testResourcePoolRequest1.getLoadTest()) {
-            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().size() > 0);
-            for (TestResourceNodeDTO testResourceNodeDTO : testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList()) {
-                Assertions.assertNotNull(testResourceNodeDTO.getIp());
-                Assertions.assertNotNull(testResourceNodeDTO.getPort());
-                Assertions.assertNotNull(testResourceNodeDTO.getConcurrentNumber());
-                Assertions.assertNotNull(testResourceNodeDTO.getMonitor());
-            }
+        Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().size() > 0);
+        for (TestResourceNodeDTO testResourceNodeDTO : testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList()) {
+            Assertions.assertNotNull(testResourceNodeDTO.getIp());
+            Assertions.assertNotNull(testResourceNodeDTO.getPort());
+            Assertions.assertNotNull(testResourceNodeDTO.getConcurrentNumber());
         }
 
     }
@@ -403,7 +373,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         String id = "1034";
         getDetail("/test/resource/pool/detail/" + id, ERROR_REQUEST_MATCHER);
 
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_node", true, false, true, false, false, true,ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_node", true, false, true, false, false, true, ResourcePoolTypeEnum.K8S.name());
         getDetail("/test/resource/pool/detail/" + testResourcePoolRequest1.getId(), status().isOk());
 
     }
@@ -518,7 +488,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         } else {
             //更新 ID 为空
             url = TEST_RESOURCE_POOL_UPDATE;
-            TestResourcePoolRequest testResourcePoolRequest = generatorDto(true, false, false, false, false, false, false, false, false);
+            TestResourcePoolRequest testResourcePoolRequest = generatorDto(true, false, false, false, false, false, false, false);
             testResourcePoolRequest.setId("");
             this.requestPost(urlType, url, id, testResourcePoolRequest, status().isBadRequest());
 
@@ -528,44 +498,44 @@ class TestResourcePoolControllerTests extends BaseTest {
 
         //资源池名称重复
         TestResourcePoolDTO testPool4 = listByKeyWord("test_pool_4");
-        TestResourcePoolRequest testResourcePoolRequest = generatorDto(true, false, false, false, false, false, false, false, false);
+        TestResourcePoolRequest testResourcePoolRequest = generatorDto(true, false, false, false, false, false, false, false);
         testResourcePoolRequest.setName("test_pool_blob2");
         this.requestPost(urlType, url, testPool4.getId(), testResourcePoolRequest, status().is5xxServerError());
         //资源池类型为空
-        testResourcePoolRequest = generatorDto(true, false, true, false, false, false, false, false, false);
+        testResourcePoolRequest = generatorDto(true, false, true, false, false, false, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, status().isBadRequest());
         //api 类型 资源池节点集合为空
-        testResourcePoolRequest = generatorDto(true, false, false, true, false, false, false, false, false);
+        testResourcePoolRequest = generatorDto(true, false, false, true, false, false, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空 ip 为空
-        testResourcePoolRequest = generatorDto(true, false, false, true, false, true, false, false, false);
+        testResourcePoolRequest = generatorDto(true, false, false, true, false, true, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空 port 为空
-        testResourcePoolRequest = generatorDto(true, false, false, true, false, false, true, false, false);
+        testResourcePoolRequest = generatorDto(true, false, false, true, false, false, true, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空 最大线程数 为空
-        testResourcePoolRequest = generatorDto(true, false, false, true, false, false, false, false, true);
+        testResourcePoolRequest = generatorDto(true, false, false, true, false, false, false, true);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //性能测试类型 资源池节点集合为空
-        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, false, false, false);
+        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空ip为空
-        testResourcePoolRequest = generatorDto(false, false, false, true, false, true, false, false, false);
+        testResourcePoolRequest = generatorDto(false, false, false, true, false, true, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空 port 为空
-        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, true, false, false);
+        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, true, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空 port 为空
-        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, false, true, false);
+        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点不为空，但是内容为空 最大线程数 为空
-        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, false, false, true);
+        testResourcePoolRequest = generatorDto(false, false, false, true, false, false, false, true);
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //应用组织
-        testResourcePoolRequest = generatorDto(true, false, false, false, true, false, false, false, false);
+        testResourcePoolRequest = generatorDto(true, false, false, false, true, false, false, false);
         this.requestPost(urlType, url, id, testResourcePoolRequest, status().isBadRequest());
         //部分组织
-        testResourcePoolRequest = generatorDto(true, false, false, false, false, false, false, false, false);
+        testResourcePoolRequest = generatorDto(true, false, false, false, false, false, false, false);
         testResourcePoolRequest.setAllOrg(false);
         testResourcePoolRequest.setTestResourceDTO(JSON.parseObject(configurationWidthOutOrgIds, TestResourceDTO.class));
         this.requestPost(urlType, url, id, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
@@ -605,7 +575,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    private TestResourcePoolRequest generatorDto(boolean useApiType, boolean noName, boolean noType, boolean noResources, boolean noAllOrg, boolean noIp, boolean noPort, boolean noMonitor, boolean noConcurrentNumber) {
+    private TestResourcePoolRequest generatorDto(boolean useApiType, boolean noName, boolean noType, boolean noResources, boolean noAllOrg, boolean noIp, boolean noPort, boolean noConcurrentNumber) {
         TestResourcePoolRequest testResourcePoolDTO = new TestResourcePoolRequest();
         //没名字
         if (!noName) {
@@ -635,17 +605,13 @@ class TestResourcePoolControllerTests extends BaseTest {
             } else {
                 testResourceNodeDTO.setPort(port + "");
             }
-            if (noMonitor) {
-                testResourceNodeDTO.setMonitor(" ");
-            } else {
-                testResourceNodeDTO.setMonitor("11");
-            }
+
             if (noConcurrentNumber) {
                 testResourceNodeDTO.setConcurrentNumber(null);
             } else {
                 testResourceNodeDTO.setConcurrentNumber(1);
             }
-            if (!noIp && !noPort && !noMonitor && !noConcurrentNumber) {
+            if (!noIp && !noPort && !noConcurrentNumber) {
                 testResourceDTO.setNodesList(null);
             } else {
                 List<TestResourceNodeDTO> testResourceNodeDTOS = new ArrayList<>();

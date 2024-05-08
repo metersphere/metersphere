@@ -64,63 +64,6 @@ public class ProjectApplicationController {
         return projectApplicationService.get(request, types);
     }
 
-
-    /**
-     * ==========UI测试==========
-     */
-
-    @PostMapping("/update/ui")
-    @Operation(summary = "UI测试-配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateUiLog(#application)", msClass = ProjectApplicationService.class)
-    public void updateUI(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
-        projectApplicationService.update(application, SessionUtils.getUserId());
-    }
-
-    @PostMapping("/ui")
-    @Operation(summary = "UI测试-获取配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
-    public Map<String, Object> getUI(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.stream(ProjectApplicationType.UI.values()).map(ProjectApplicationType.UI::name).collect(Collectors.toList());
-        return projectApplicationService.get(request, types);
-    }
-
-    @GetMapping("/ui/resource/pool/{projectId}")
-    @Operation(summary = "UI测试-获取资源池列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
-    public List<OptionDTO> getUiPoolOptions(@PathVariable String projectId) {
-        return  new ArrayList<>();
-    }
-
-
-    /**
-     * ==========性能测试==========
-     */
-
-    @PostMapping("/update/performance-test")
-    @Operation(summary = "性能测试-配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePerformanceLog(#application)", msClass = ProjectApplicationService.class)
-    public void updatePerformanceTest(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
-        projectApplicationService.update(application, SessionUtils.getUserId());
-    }
-
-    @PostMapping("/performance-test")
-    @Operation(summary = "性能测试-获取配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
-    public Map<String, Object> getPerformanceTest(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.stream(ProjectApplicationType.LOAD_TEST.values()).map(ProjectApplicationType.LOAD_TEST::name).collect(Collectors.toList());
-        return projectApplicationService.get(request, types);
-    }
-
-    @GetMapping("/performance-test/user/{projectId}")
-    @Operation(summary = "性能测试-获取审核人")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
-    public List<User> getReviewerUser(@PathVariable String projectId) {
-        return projectApplicationService.getProjectUserList(StringUtils.defaultIfBlank(projectId, SessionUtils.getCurrentProjectId()));
-    }
-
-
     /**
      * ==========接口测试==========
      */
@@ -156,7 +99,7 @@ public class ProjectApplicationController {
     @Operation(summary = "接口测试-获取资源池列表")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
     public List<OptionDTO> getApiPoolOptions(@PathVariable String projectId) {
-        return projectService.getPoolOptions(projectId, ApplicationScope.API_TEST);
+        return projectService.getPoolOptions(projectId);
     }
 
 
@@ -219,28 +162,6 @@ public class ProjectApplicationController {
     public Map<String, String> getRelatedConfigInfo(@PathVariable("projectId") String projectId) {
         return projectApplicationService.getRelatedConfigInfo(projectId);
     }
-
-
-    /**
-     * ==========工作台==========
-     */
-
-    @PostMapping("/update/workstation")
-    @Operation(summary = "工作台-配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_WORKSTATION_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateWorkstationLog(#application)", msClass = ProjectApplicationService.class)
-    public void updateWorkstation(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
-        projectApplicationService.update(application, SessionUtils.getUserId());
-    }
-
-    @PostMapping("/workstation")
-    @Operation(summary = "工作台-获取配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_WORKSTATION_READ)
-    public Map<String, Object> getWorkstation(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.WORKSTATION.values()).stream().map(ProjectApplicationType.WORKSTATION::name).collect(Collectors.toList());
-        return projectApplicationService.get(request, types);
-    }
-
 
     /**
      * ==========缺陷管理==========

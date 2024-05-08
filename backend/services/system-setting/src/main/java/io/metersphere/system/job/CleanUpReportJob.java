@@ -62,26 +62,6 @@ public class CleanUpReportJob {
                     map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), "3M");
                 }
 
-                //ui
-                applicationExample.clear();
-                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.UI.UI_CLEAN_REPORT.name());
-                List<ProjectApplication> ui = projectApplicationMapper.selectByExample(applicationExample);
-                if (CollectionUtils.isNotEmpty(ui)) {
-                    map.put(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), ui.get(0).getTypeValue());
-                } else {
-                    map.put(ProjectApplicationType.UI.UI_CLEAN_REPORT.name(), "3M");
-                }
-
-                //load_test
-                applicationExample.clear();
-                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name());
-                List<ProjectApplication> loadTest = projectApplicationMapper.selectByExample(applicationExample);
-                if (CollectionUtils.isNotEmpty(loadTest)) {
-                    map.put(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), loadTest.get(0).getTypeValue());
-                } else {
-                    map.put(ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name(), "3M");
-                }
-
                 //api
                 applicationExample.clear();
                 applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.API.API_CLEAN_REPORT.name());

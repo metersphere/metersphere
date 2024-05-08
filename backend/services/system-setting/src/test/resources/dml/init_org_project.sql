@@ -26,14 +26,12 @@ replace INTO user_role_relation (id, user_id, role_id, source_id, organization_i
 INSERT INTO organization(id,num, name, description, create_time, update_time, create_user, update_user, delete_user, delete_time) VALUE
     ('default-organization-20',null, 'default-20', 'XXX-1', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, null);
 
-replace into test_resource_pool(id, name, type, description, enable, create_time, update_time, create_user, api_test,
-                                load_test, ui_test, server_url, all_org, deleted)
+replace into test_resource_pool(id, name, type, description, enable, create_time, update_time, create_user, server_url, all_org, deleted)
 values ('resourcePoolId', 'resourcePoolName', 'node', 'resourcePoolDescription', 1, unix_timestamp() * 1000,
-        unix_timestamp() * 1000, 'admin', 1, 1, 1, 'http://localhost:8080', 1, 0);
-replace into test_resource_pool(id, name, type, description, enable, create_time, update_time, create_user, api_test,
-                                load_test, ui_test, server_url, all_org, deleted)
+        unix_timestamp() * 1000, 'admin', 'http://localhost:8080', 1, 0);
+replace into test_resource_pool(id, name, type, description, enable, create_time, update_time, create_user, server_url, all_org, deleted)
 values ('resourcePoolId1', 'resourcePoolName1', 'node', 'resourcePoolDescription', 1, unix_timestamp() * 1000,
-        unix_timestamp() * 1000, 'admin', 1, 1, 1, 'http://localhost:8080', 1, 0);
+        unix_timestamp() * 1000, 'admin', 'http://localhost:8080', 1, 0);
 replace into project_test_resource_pool(project_id, test_resource_pool_id) value ('projectId', 'resourcePoolId');
 replace into project_test_resource_pool(project_id, test_resource_pool_id) value ('projectId', 'resourcePoolId1');
 replace into test_resource_pool_organization(id , test_resource_pool_id, org_id) value (UUID_SHORT(),'resourcePoolId', '100001');

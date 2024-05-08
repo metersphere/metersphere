@@ -78,12 +78,6 @@ public interface NoticeConstants {
         @Schema(description = "message.api_test_management")
         String API_TEST_MANAGEMENT = "API_TEST_MANAGEMENT";
 
-        @Schema(description = "message.ui_test_management")
-        String UI_TEST_MANAGEMENT = "UI_TEST_MANAGEMENT";
-
-        @Schema(description = "message.load_test_management")
-        String LOAD_TEST_MANAGEMENT = "LOAD_TEST_MANAGEMENT";
-
         @Schema(description = "message.jenkins_task_management")
         String JENKINS_TASK_MANAGEMENT = "JENKINS_TASK_MANAGEMENT";
 
@@ -323,30 +317,6 @@ public interface NoticeConstants {
         @Schema(description = "message.api_report_task_delete")
         String API_REPORT_TASK_DELETE = "API_REPORT_TASK_DELETE";//${OPERATOR}删除了接口报告:${name}
 
-        @Schema(description = "message.ui_scenario_task_create")
-        String UI_SCENARIO_TASK_CREATE = "UI_SCENARIO_TASK_CREATE";//${OPERATOR}创建了UI用例:${name}
-        @Schema(description = "message.ui_scenario_task_update")
-        String UI_SCENARIO_TASK_UPDATE = "UI_SCENARIO_TASK_UPDATE";//${OPERATOR}更新了UI用例:${name}
-        @Schema(description = "message.ui_scenario_task_delete")
-        String UI_SCENARIO_TASK_DELETE = "UI_SCENARIO_TASK_DELETE";//${OPERATOR}删除了UI用例:${name}
-        @Schema(description = "message.ui_scenario_task_execute")
-        String UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL";//${OPERATOR}执行了UI用例:${name}
-        @Schema(description = "message.ui_scenario_task_execute")
-        String UI_SCENARIO_TASK_EXECUTE_FAILED = "UI_SCENARIO_TASK_EXECUTE_FAILED";//${OPERATOR}执行了UI用例:${name}
-        @Schema(description = "message.ui_report_task_delete")
-        String UI_REPORT_TASK_DELETE = "UI_REPORT_TASK_DELETE";//${OPERATOR}删除了UI报告:${name}
-
-        @Schema(description = "message.load_test_task_create")
-        String LOAD_TEST_TASK_CREATE = "LOAD_TEST_TASK_CREATE";//${OPERATOR}创建了性能用例:${name}
-        @Schema(description = "message.load_test_task_update")
-        String LOAD_TEST_TASK_UPDATE = "LOAD_TEST_TASK_UPDATE";//${OPERATOR}更新了性能用例:${name}
-        @Schema(description = "message.load_test_task_delete")
-        String LOAD_TEST_TASK_DELETE = "LOAD_TEST_TASK_DELETE";//${OPERATOR}删除了性能用例:${name}
-        @Schema(description = "message.load_test_task_execute_completed")
-        String LOAD_TEST_TASK_EXECUTE_COMPLETED = "LOAD_TEST_TASK_EXECUTE_COMPLETED";//${OPERATOR}执行了性能用例:${name}
-        @Schema(description = "message.load_report_task_delete")
-        String LOAD_REPORT_TASK_DELETE = "LOAD_REPORT_TASK_DELETE";//${OPERATOR}删除了性能报告:${name}
-
         @Schema(description = "message.jenkins_task_execute")
         String JENKINS_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TASK_EXECUTE_SUCCESSFUL";//Jenkins执行了接口场景:${name}
         @Schema(description = "message.jenkins_task_execute")
@@ -464,30 +434,6 @@ public interface NoticeConstants {
         String API_SCENARIO_TASK_SCENARIO_EXECUTE_FAILED = "API_SCENARIO_TASK_SCENARIO_EXECUTE_FAILED";
         @Schema(description = "message.title.api_report_task_delete")//接口报告删除通知
         String API_REPORT_TASK_DELETE = "API_REPORT_TASK_DELETE";
-
-        @Schema(description = "message.title.ui_scenario_task_create")//UI用例创建通知
-        String UI_SCENARIO_TASK_CREATE = "UI_SCENARIO_TASK_CREATE";
-        @Schema(description = "message.title.ui_scenario_task_update")//UI用例更新通知
-        String UI_SCENARIO_TASK_UPDATE = "UI_SCENARIO_TASK_UPDATE";
-        @Schema(description = "message.title.ui_scenario_task_delete")//UI用例删除通知
-        String UI_SCENARIO_TASK_DELETE = "UI_SCENARIO_TASK_DELETE";
-        @Schema(description = "message.title.ui_scenario_task_execute_successful")//UI用例执行成功通知
-        String UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL = "UI_SCENARIO_TASK_EXECUTE_SUCCESSFUL";
-        @Schema(description = "message.title.ui_scenario_task_execute_failed")//UI用例执行失败通知
-        String UI_SCENARIO_TASK_EXECUTE_FAILED = "UI_SCENARIO_TASK_EXECUTE_FAILED";
-        @Schema(description = "message.title.ui_report_task_delete")//UI报告删除通知
-        String UI_REPORT_TASK_DELETE = "UI_REPORT_TASK_DELETE";
-
-        @Schema(description = "message.title.load_test_task_create")//性能用例创建通知
-        String LOAD_TEST_TASK_CREATE = "LOAD_TEST_TASK_CREATE";
-        @Schema(description = "message.title.load_test_task_update")//性能用例更新通知
-        String LOAD_TEST_TASK_UPDATE = "LOAD_TEST_TASK_UPDATE";
-        @Schema(description = "message.title.load_test_task_delete")//性能用例删除通知
-        String LOAD_TEST_TASK_DELETE = "LOAD_TEST_TASK_DELETE";
-        @Schema(description = "message.title.load_test_task_execute_completed")//性能用例执行完成通知
-        String LOAD_TEST_TASK_EXECUTE_COMPLETED = "LOAD_TEST_TASK_EXECUTE_COMPLETED";
-        @Schema(description = "message.title.load_report_task_delete")//性能报告删除通知
-        String LOAD_REPORT_TASK_DELETE = "LOAD_REPORT_TASK_DELETE";
 
         @Schema(description = "message.title.jenkins_task_execute_successful")//Jenkins任务执行成功通知
         String JENKINS_TASK_EXECUTE_SUCCESSFUL = "JENKINS_TASK_EXECUTE_SUCCESSFUL";
