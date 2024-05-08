@@ -62,4 +62,15 @@ export interface SwitchListModel {
   tooltipPosition: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb';
 }
 
+// 获取统计数量
+export interface UseCountType {
+  id: string;
+  passRate: string; // 通过率
+  functionalCaseCount: number; // 功能用例数
+  apiCaseCount: number; // 接口用例数
+  apiScenarioCount: number; // 接口场景数
+  bugCount: number; // Bug数量
+  testProgress: string; // 测试进度
+}
+
 export default {};

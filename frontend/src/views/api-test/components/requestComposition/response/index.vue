@@ -1,5 +1,5 @@
 <template>
-  <div class="response flex min-w-[300px] flex-col">
+  <div class="response flex h-full min-w-[300px] flex-col">
     <div :class="['response-head', activeLayout === 'vertical' ? 'border-t' : '']">
       <slot name="titleLeft">
         <div class="flex items-center justify-between">

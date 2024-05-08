@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="fullRef"
-    class="flex h-full flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]"
-  >
+  <div ref="fullRef" class="flex flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]">
     <div v-if="showTitleLine" class="mb-[8px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">
         <a-select
@@ -257,6 +254,32 @@
         return editor.getValue();
       }
 
+      const innerHeight = ref<string | number>();
+
+      function handleEditorMount() {
+        if (!props.isAdaptive) {
+          innerHeight.value = props.height;
+          return;
+        }
+        const editorElement = editor.getDomNode();
+
+        if (!editorElement) {
+          return;
+        }
+
+        // 获取代码编辑器文本行高
+        const lineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight);
+        // 获取代码的行数
+        const lineCount = editor.getModel()?.getLineCount() || 10;
+        // 计算高度 @desc 原本行数差3行完全展示文本 24为上下的边距为12px
+        const height = (lineCount + 3) * lineHeight;
+        innerHeight.value = height > 300 ? `${height + 24}px` : '300px';
+        if (height > 1000) {
+          innerHeight.value = `1000px`;
+        }
+        editor.layout();
+      }
+
       const init = () => {
         // 注册自定义主题 TODO:自定义主题高亮色还没配置
         // Object.keys(MsCodeEditorTheme).forEach((e) => {
@@ -276,6 +299,7 @@
           ...props,
           language: props.language.toLowerCase(),
           theme: currentTheme.value,
+          selectOnLineNumbers: true,
         });
 
         // 监听值的变化
@@ -284,6 +308,8 @@
           emit('update:modelValue', value);
           emit('change', value);
         });
+
+        handleEditorMount();
       };
 
       watch(
@@ -294,6 +320,7 @@
             if (newValue !== value) {
               editor.setValue(newValue);
             }
+            handleEditorMount();
           }
         },
         { immediate: true }
@@ -356,6 +383,8 @@
         redo,
         format,
         getEncodingCode,
+        innerHeight,
+        handleEditorMount,
       };
     },
   });
@@ -363,11 +392,12 @@
 
 <style lang="less" scoped>
   .ms-code-editor {
+    width: 100%;
+    height: v-bind(innerheight);
+
     @apply z-10;
-    // TODO: 高度改为自适应
-    width: v-bind(width);
-    height: v-bind(height);
-    min-height: 200px;
+    // height: 100vh;
+
     // &.MS-text[data-mode-id='plaintext'] {
     //   :deep(.mtk1) {
     //     color: rgb(var(--primary-5));

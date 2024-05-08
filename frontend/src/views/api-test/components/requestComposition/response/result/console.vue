@@ -9,6 +9,7 @@
     :show-language-change="false"
     :show-charset-change="false"
     read-only
+    is-adaptive
   >
   </MsCodeEditor>
 </template>

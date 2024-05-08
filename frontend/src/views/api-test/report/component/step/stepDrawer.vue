@@ -7,6 +7,7 @@
     :title="props.scenarioDetail?.name"
     show-full-screen
     :unmount-on-close="true"
+    no-content-padding
   >
     <template #headerLeft>
       <ConditionStatus
@@ -15,7 +16,7 @@
         :status="props.scenarioDetail?.stepType"
       />
     </template>
-    <div>
+    <div class="px-[12px]">
       <StepDetailContent
         mode="tiled"
         :show-type="props.showType"
@@ -101,5 +102,8 @@
     span {
       padding-left: 0 !important;
     }
+  }
+  :deep(.arco-drawer-body) {
+    padding: 0 16px;
   }
 </style>

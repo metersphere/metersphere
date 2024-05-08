@@ -2,7 +2,11 @@ import MSR from '@/api/http/index';
 import {
   addTestPlanModuleUrl,
   AddTestPlanUrl,
+  archivedPlanUrl,
+  batchDeletePlanUrl,
+  deletePlanUrl,
   DeleteTestPlanModuleUrl,
+  getStatisticalCountUrl,
   GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
@@ -13,7 +17,7 @@ import {
 import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import { ModuleTreeNode } from '@/models/common';
-import type { AddTestPlanParams, TestPlanItem } from '@/models/testPlan/testPlan';
+import type { AddTestPlanParams, TestPlanItem, UseCountType } from '@/models/testPlan/testPlan';
 
 // 获取模块树
 export function getTestPlanModule(params: TableQueryParams) {
@@ -41,7 +45,7 @@ export function deletePlanModuleTree(id: string) {
 }
 
 // 获取模块数量
-export function getPlanModulesCounts(data: TableQueryParams) {
+export function getPlanModulesCount(data: TableQueryParams) {
   return MSR.post({ url: GetTestPlanModuleCountUrl, data });
 }
 
@@ -53,4 +57,20 @@ export function getTestPlanList(data: TableQueryParams) {
 // 创建测试计划
 export function addTestPlan(data: AddTestPlanParams) {
   return MSR.post({ url: AddTestPlanUrl, data });
+}
+// 批量删除测试计划
+export function batchDeletePlan(data: TableQueryParams) {
+  return MSR.post({ url: batchDeletePlanUrl, data });
+}
+// 删除测试计划
+export function deletePlan(id: string | undefined) {
+  return MSR.get({ url: `${deletePlanUrl}/${id}` });
+}
+// 获取统计数量
+export function getStatisticalCount(id: string) {
+  return MSR.get<UseCountType>({ url: `${getStatisticalCountUrl}/${id}` });
+}
+// 归档
+export function archivedPlan(id: string | undefined) {
+  return MSR.get({ url: `${archivedPlanUrl}/${id}` });
 }

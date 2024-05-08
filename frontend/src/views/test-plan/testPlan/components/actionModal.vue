@@ -44,6 +44,7 @@
   import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import { archivedPlan, deletePlan } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
 
@@ -59,6 +60,7 @@
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
+    (e: 'success'): void;
   }>();
 
   const showModalVisible = useVModel(props, 'visible', emit);
@@ -68,11 +70,21 @@
   }
 
   const confirmLoading = ref<boolean>(false);
-  function confirmHandler(isDelete: boolean) {
+
+  async function confirmHandler(isDelete: boolean) {
     try {
+      confirmLoading.value = true;
+      if (isDelete) {
+        await deletePlan(props.record?.id);
+      } else {
+        await archivedPlan(props.record?.id);
+      }
       Message.success(isDelete ? t('common.deleteSuccess') : t('common.batchArchiveSuccess'));
+      emit('success');
     } catch (error) {
       console.log(error);
+    } finally {
+      confirmLoading.value = false;
     }
   }
 

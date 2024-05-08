@@ -130,4 +130,9 @@ export const editorProps = {
     type: String as PropType<string>,
     default: '',
   },
+  // 是否自适应 开启后按照代码高度计算代码器高度最大1000px 未开启则按照外侧传入容器高度
+  isAdaptive: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
 };

@@ -499,10 +499,6 @@
     height: 1px;
     background: var(--color-text-n8);
   }
-  .foldContent {
-    height: 100%;
-    height: 1000px;
-  }
   :deep(.step-tree-node-title) {
     width: 100%;
   }
