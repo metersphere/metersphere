@@ -164,4 +164,6 @@ export default {
   'common.unExecute': 'Not executed',
   'common.pass': 'Pass',
   'common.unPass': 'Fail pass',
+  'common.belongModule': 'Belong module',
+  'common.moreSetting': 'More settings',
 };

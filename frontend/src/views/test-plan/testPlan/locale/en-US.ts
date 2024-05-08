@@ -60,4 +60,11 @@ export default {
   'project.testPlanIndex.functionalUseCase': 'case',
   'project.testPlanIndex.apiCase': 'Api use case',
   'project.testPlanIndex.apiScenarioCase': 'Api scenario use cases',
+  'testPlan.planForm.namePlaceholder': 'Please enter the name of the test plan',
+  'testPlan.planForm.nameRequired': 'Test plan name cannot be empty',
+  'testPlan.planForm.planStartAndEndTime': 'Planned start and end time',
+  'testPlan.planForm.associateRepeatCase': 'Allow associated duplicate cases',
+  'testPlan.planForm.passThreshold': 'Pass threshold',
+  'testPlan.planForm.repeatCaseTip1': 'Enable: Repeatedly associate the same case',
+  'testPlan.planForm.repeatCaseTip2': 'Close: Cannot be associated with the same case repeatedly',
 };

@@ -164,10 +164,7 @@
       if (isSetDefaultKey) {
         selectedNodeKeys.value = [caseTree.value[0].id];
       }
-      emits(
-        'init',
-        caseTree.value.map((e) => e.name)
-      );
+      emits('init', caseTree.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

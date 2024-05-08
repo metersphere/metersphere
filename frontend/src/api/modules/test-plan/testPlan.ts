@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import {
   addTestPlanModuleUrl,
+  AddTestPlanUrl,
   DeleteTestPlanModuleUrl,
   GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
@@ -12,7 +13,7 @@ import {
 import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import { ModuleTreeNode } from '@/models/common';
-import type { TestPlanItem } from '@/models/testPlan/testPlan';
+import type { AddTestPlanParams, TestPlanItem } from '@/models/testPlan/testPlan';
 
 // 获取模块树
 export function getTestPlanModule(params: TableQueryParams) {
@@ -47,4 +48,9 @@ export function getPlanModulesCounts(data: TableQueryParams) {
 // 获取计划列表
 export function getTestPlanList(data: TableQueryParams) {
   return MSR.post<CommonList<TestPlanItem>>({ url: GetTestPlanListUrl, data });
+}
+
+// 创建测试计划
+export function addTestPlan(data: AddTestPlanParams) {
+  return MSR.post({ url: AddTestPlanUrl, data });
 }

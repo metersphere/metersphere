@@ -60,4 +60,11 @@ export default {
   'project.testPlanIndex.functionalUseCase': '功能用例',
   'project.testPlanIndex.apiCase': '接口用例',
   'project.testPlanIndex.apiScenarioCase': '接口场景用例',
+  'testPlan.planForm.namePlaceholder': '请输入测试计划名称',
+  'testPlan.planForm.nameRequired': '测试计划名称不能为空',
+  'testPlan.planForm.planStartAndEndTime': '计划起止时间',
+  'testPlan.planForm.associateRepeatCase': '允许关联重复用例',
+  'testPlan.planForm.passThreshold': '通过阀值',
+  'testPlan.planForm.repeatCaseTip1': '开启：可重复关联同一个用例',
+  'testPlan.planForm.repeatCaseTip2': '关闭：不可重复关联同一用例',
 };

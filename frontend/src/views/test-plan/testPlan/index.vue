@@ -9,7 +9,7 @@
               :placeholder="t('caseManagement.featureCase.searchTip')"
               allow-clear
             />
-            <a-dropdown-button class="ml-2" type="primary" @click="handleSelect">
+            <a-dropdown-button class="ml-2" type="primary" @click="handleSelect('createPlan')">
               {{ t('common.newCreate') }}
               <template #icon>
                 <icon-down />
@@ -87,6 +87,7 @@
         </div>
       </template>
     </MsSplitBox>
+    <CreateAndEditPlanDrawer v-model:visible="showPlanDrawer" :module-tree="folderTree" />
   </MsCard>
 </template>
 
@@ -101,12 +102,14 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import PlanTable from './components/planTable.vue';
   import TestPlanTree from './components/testPlanTree.vue';
+  import CreateAndEditPlanDrawer from './createAndEditPlanDrawer.vue';
 
   import { createPlanModuleTree } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
+  import type { ModuleTreeNode } from '@/models/common';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -141,7 +144,6 @@
   };
 
   const addSubVisible = ref(false);
-  const rootModulesName = ref<string[]>([]);
   const planTreeRef = ref();
   const confirmLoading = ref(false);
   const confirmRef = ref();
@@ -186,8 +188,11 @@
    * 设置根模块名称列表
    * @param names 根模块名称列表
    */
-  function setRootModules(names: string[]) {
-    rootModulesName.value = names;
+  const rootModulesName = ref<string[]>([]);
+  const folderTree = ref<ModuleTreeNode[]>([]);
+  function setRootModules(treeNode: ModuleTreeNode[]) {
+    folderTree.value = treeNode;
+    rootModulesName.value = treeNode.map((e) => e.name);
   }
 
   /**
@@ -195,7 +200,16 @@
    */
   function initModulesCount(params: any) {}
 
-  function handleSelect() {}
+  const showPlanDrawer = ref(false);
+  function handleSelect(value: string | number | Record<string, any> | undefined) {
+    switch (value) {
+      case 'createPlan':
+        showPlanDrawer.value = true;
+        break;
+      default:
+        break;
+    }
+  }
 </script>
 
 <style scoped lang="less">
