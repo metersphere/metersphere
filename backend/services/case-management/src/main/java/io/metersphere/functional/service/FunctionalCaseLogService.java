@@ -8,6 +8,7 @@ import io.metersphere.functional.constants.MinderLabel;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
+import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.project.domain.FileAssociation;
@@ -18,7 +19,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -192,16 +192,16 @@ public class FunctionalCaseLogService {
         return dtoList;
     }
 
-    public List<LogDTO> deleteBatchMinderFunctionalCaseLog(List<OptionDTO> resourceList) {
+    public List<LogDTO> deleteBatchMinderFunctionalCaseLog(List<MinderOptionDTO> resourceList) {
         if (CollectionUtils.isEmpty(resourceList)) {
             return new ArrayList<>();
         }
-        Map<String, List<OptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(OptionDTO::getName));
-        List<OptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
+        Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
+        List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
         if (CollectionUtils.isEmpty(caseOptionDTOS)) {
             return new ArrayList<>();
         }
-        List<String> caseIds = caseOptionDTOS.stream().map(OptionDTO::getId).toList();
+        List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
         return batchDeleteFunctionalCaseLogByIds(caseIds);
     }
 
