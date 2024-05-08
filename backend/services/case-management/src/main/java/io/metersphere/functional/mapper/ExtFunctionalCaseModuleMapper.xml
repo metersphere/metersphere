@@ -127,4 +127,13 @@
 
         </where>
     </sql>
+
+    <update id="batchUpdateStringColumn">
+        update functional_case_module
+        set  ${column} = #{value}
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

@@ -1,30 +1,38 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.constants.MinderLabel;
-import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseCustomField;
-import io.metersphere.functional.dto.FunctionalCaseMindDTO;
-import io.metersphere.functional.dto.FunctionalCaseStepDTO;
-import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
-import io.metersphere.functional.dto.FunctionalMinderTreeNodeDTO;
-import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
-import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.domain.*;
+import io.metersphere.functional.dto.*;
+import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
+import io.metersphere.functional.request.FunctionalCaseMinderRemoveRequest;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.mapper.CustomFieldMapper;
+import io.metersphere.system.mapper.ExtCheckOwnerMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 功能用例脑图
@@ -35,11 +43,24 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class FunctionalCaseMinderService {
 
+
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
     @Resource
-    private FunctionalCaseMapper functionalCaseMapper;
+    private FunctionalCaseBlobMapper functionalCaseBlobMapper;
+
+    @Resource
+    private ExtFunctionalCaseBlobMapper extFunctionalCaseBlobMapper;
+
+    @Resource
+    private FunctionalCaseModuleMapper functionalCaseModuleMapper;
+
+    @Resource
+    private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
 
     @Resource
     private CustomFieldMapper customFieldMapper;
@@ -47,6 +68,21 @@ public class FunctionalCaseMinderService {
     @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
 
+    @Resource
+    private ExtCheckOwnerMapper extCheckOwnerMapper;
+
+    @Resource
+    private FunctionalCaseService functionalCaseService;
+
+    @Resource
+    private FunctionalCaseModuleService functionalCaseModuleService;
+
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
+
+    private static final String FUNCTIONAL_CASE = "functional_case";
+    private static final String FUNCTIONAL_CASE_MODULE = "functional_case_module";
+    private static final String  CHECK_OWNER_CASE = "check_owner_case";
     /**
      * 功能用例-脑图用例列表查询
      *
@@ -77,38 +113,49 @@ public class FunctionalCaseMinderService {
 
     private List<FunctionalMinderTreeDTO> buildChildren(FunctionalCaseMindDTO functionalCaseMindDTO) {
         List<FunctionalMinderTreeDTO> children = new ArrayList<>();
-        if (functionalCaseMindDTO.getTextDescription() != null) {
-            String textDescription = new String(functionalCaseMindDTO.getTextDescription(), StandardCharsets.UTF_8);
-            FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(textDescription, MinderLabel.TEXT_DESCRIPTION.toString(), 0L);
-            if (functionalCaseMindDTO.getExpectedResult() != null) {
-                String expectedResultText = new String(functionalCaseMindDTO.getExpectedResult(), StandardCharsets.UTF_8);
-                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(expectedResultText, MinderLabel.EXPECTED_RESULT.toString(), 0L);
-                stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
-            }
-            children.add(stepFunctionalMinderTreeDTO);
-        }
-
-        if (functionalCaseMindDTO.getSteps() != null) {
-            String stepText = new String(functionalCaseMindDTO.getSteps(), StandardCharsets.UTF_8);
-            List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
-            for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
-                FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getDesc(), MinderLabel.STEPS.toString(), Long.valueOf(functionalCaseStepDTO.getNum()));
-                if (functionalCaseMindDTO.getExpectedResult() != null) {
-                    FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getResult(), MinderLabel.EXPECTED_RESULT.toString(), 0L);
-                    stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
-                }
-                children.add(stepFunctionalMinderTreeDTO);
-            }
-        }
-
         if (functionalCaseMindDTO.getPrerequisite() != null) {
             String prerequisiteText = new String(functionalCaseMindDTO.getPrerequisite(), StandardCharsets.UTF_8);
             FunctionalMinderTreeDTO prerequisiteFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(prerequisiteText, MinderLabel.PREREQUISITE.toString(), 0L);
             children.add(prerequisiteFunctionalMinderTreeDTO);
         }
+
+        if (StringUtils.equalsIgnoreCase(functionalCaseMindDTO.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name()) && functionalCaseMindDTO.getTextDescription() != null) {
+            String textDescription = new String(functionalCaseMindDTO.getTextDescription(), StandardCharsets.UTF_8);
+            FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(textDescription, MinderLabel.TEXT_DESCRIPTION.toString(), 1L);
+            if (functionalCaseMindDTO.getExpectedResult() != null) {
+                String expectedResultText = new String(functionalCaseMindDTO.getExpectedResult(), StandardCharsets.UTF_8);
+                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(expectedResultText, MinderLabel.TEXT_EXPECTED_RESULT.toString(), 1L);
+                stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
+            } else {
+                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO("", MinderLabel.TEXT_EXPECTED_RESULT.toString(), 1L);
+                stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
+            }
+            children.add(stepFunctionalMinderTreeDTO);
+        }
+
+        int i = 1;
+        if (StringUtils.equalsIgnoreCase(functionalCaseMindDTO.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.STEP.name()) && functionalCaseMindDTO.getSteps() != null) {
+            String stepText = new String(functionalCaseMindDTO.getSteps(), StandardCharsets.UTF_8);
+            List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
+            for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
+                i = i + 1;
+                FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getDesc(), MinderLabel.STEPS.toString(), Long.valueOf(functionalCaseStepDTO.getNum()));
+                stepFunctionalMinderTreeDTO.getData().setId(functionalCaseStepDTO.getId());
+                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO;
+                if (functionalCaseMindDTO.getExpectedResult() != null) {
+                    expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getResult(), MinderLabel.STEPS_EXPECTED_RESULT.toString(), Long.valueOf(functionalCaseStepDTO.getNum()));
+                } else {
+                    expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO("", MinderLabel.STEPS_EXPECTED_RESULT.toString(), Long.valueOf(functionalCaseStepDTO.getNum()));
+                }
+                stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
+                children.add(stepFunctionalMinderTreeDTO);
+            }
+        }
+
+
         if (functionalCaseMindDTO.getDescription() != null) {
             String descriptionText = new String(functionalCaseMindDTO.getDescription(), StandardCharsets.UTF_8);
-            FunctionalMinderTreeDTO descriptionFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(descriptionText, MinderLabel.DESCRIPTION.toString(), 0L);
+            FunctionalMinderTreeDTO descriptionFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(descriptionText, MinderLabel.DESCRIPTION.toString(), (long) (i + 1));
             children.add(descriptionFunctionalMinderTreeDTO);
         }
         return children;
@@ -126,13 +173,56 @@ public class FunctionalCaseMinderService {
         return functionalMinderTreeDTO;
     }
 
-    public FunctionalCase updateFunctionalCase(FunctionalCaseMinderEditRequest request, String userId) {
+    public void updateFunctionalCase(FunctionalCaseMinderEditRequest request, String userId) {
         if (StringUtils.isNotBlank(request.getName())) {
-            FunctionalCase functionalCase = new FunctionalCase();
-            functionalCase.setName(request.getName());
-            buildUpdateCaseParam(request, userId, functionalCase);
-            functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
-            return functionalCase;
+            switch (request.getType()) {
+                case CASE -> {
+                    FunctionalCase functionalCase = new FunctionalCase();
+                    functionalCase.setName(request.getName());
+                    buildUpdateCaseParam(request.getId(), userId, functionalCase);
+                    functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+                }
+                case MODULE -> {
+                    FunctionalCaseModule functionalCaseModule = new FunctionalCaseModule();
+                    functionalCaseModule.setName(request.getName());
+                    buildUpdateCaseModuleParam(request.getId(), userId, functionalCaseModule);
+                    functionalCaseModuleMapper.updateByPrimaryKeySelective(functionalCaseModule);
+                }
+                case PREREQUISITE -> {
+                    FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+                    functionalCaseBlob.setId(request.getId());
+                    functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(request.getName(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+                    functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+                }
+                case STEPS -> {
+                    FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMapper.selectByPrimaryKey(request.getId());
+                    updateSteps(request, functionalCaseBlob);
+                }
+                case STEPS_EXPECTED_RESULT -> {
+                    FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMapper.selectByPrimaryKey(request.getId());
+                    updateStepResult(request, functionalCaseBlob);
+                }
+                case TEXT_DESCRIPTION -> {
+                    FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+                    functionalCaseBlob.setId(request.getId());
+                    functionalCaseBlob.setTextDescription(StringUtils.defaultIfBlank(request.getName(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+                    functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+                }
+                case TEXT_EXPECTED_RESULT -> {
+                    FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+                    functionalCaseBlob.setId(request.getId());
+                    functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(request.getName(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+                    functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+                }
+                case DESCRIPTION -> {
+                    FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+                    functionalCaseBlob.setId(request.getId());
+                    functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(request.getName(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+                    functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+                }
+                default -> {
+                }
+            }
         }
         if (StringUtils.isNotBlank(request.getPriority())) {
             CustomFieldExample example = new CustomFieldExample();
@@ -145,16 +235,236 @@ public class FunctionalCaseMinderService {
             customField.setValue(request.getPriority());
             functionalCaseCustomFieldMapper.updateByPrimaryKeySelective(customField);
             FunctionalCase functionalCase = new FunctionalCase();
-            buildUpdateCaseParam(request, userId, functionalCase);
+            buildUpdateCaseParam(request.getId(), userId, functionalCase);
             functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
-            return functionalCase;
         }
-        return new FunctionalCase();
     }
 
-    private static void buildUpdateCaseParam(FunctionalCaseMinderEditRequest request, String userId, FunctionalCase functionalCase) {
-        functionalCase.setId(request.getId());
+    private void updateStepResult(FunctionalCaseMinderEditRequest request, FunctionalCaseBlob functionalCaseBlob) {
+        String stepText = new String(functionalCaseBlob.getSteps(), StandardCharsets.UTF_8);
+        List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
+        for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
+            if (functionalCaseStepDTO.getNum() == request.getPos().intValue()) {
+                functionalCaseStepDTO.setResult(request.getName());
+            }
+        }
+        functionalCaseBlob.setSteps(StringUtils.defaultIfBlank(JSON.toJSONString(functionalCaseStepDTOS), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+    }
+
+    private void updateSteps(FunctionalCaseMinderEditRequest request, FunctionalCaseBlob functionalCaseBlob) {
+        if (functionalCaseBlob.getSteps() != null) {
+            String stepText = new String(functionalCaseBlob.getSteps(), StandardCharsets.UTF_8);
+            List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
+            for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
+                if (functionalCaseStepDTO.getNum() == request.getPos().intValue()) {
+                    functionalCaseStepDTO.setDesc(request.getName());
+                }
+            }
+            functionalCaseBlob.setSteps(StringUtils.defaultIfBlank(JSON.toJSONString(functionalCaseStepDTOS), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+        }
+    }
+
+    private void buildUpdateCaseModuleParam(String id, String userId, FunctionalCaseModule functionalCaseModule) {
+        functionalCaseModule.setId(id);
+        functionalCaseModule.setUpdateUser(userId);
+        functionalCaseModule.setUpdateTime(System.currentTimeMillis());
+    }
+
+    private void buildUpdateCaseParam(String id, String userId, FunctionalCase functionalCase) {
+        functionalCase.setId(id);
         functionalCase.setUpdateUser(userId);
         functionalCase.setUpdateTime(System.currentTimeMillis());
     }
+
+    public void removeFunctionalCaseBatch(FunctionalCaseMinderRemoveRequest request, String userId) {
+        List<MinderOptionDTO> resourceList = request.getResourceList();
+        if (CollectionUtils.isEmpty(resourceList)) {
+            throw new MSException(Translator.get("node.not_blank"));
+        }
+        Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
+        MinderTargetDTO caseMinderTargetDTO = request.getCaseMinderTargetDTO();
+        MinderTargetDTO moduleMinderTargetDTO = request.getModuleMinderTargetDTO();
+        List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
+        List<String> caseIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
+            caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, caseIds)) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+        }
+        List<String> moduleIds = new ArrayList<>();
+        List<MinderOptionDTO> moduleOptionDTOS = resourceMap.get(MinderLabel.MODULE.toString());
+        if (CollectionUtils.isNotEmpty(moduleOptionDTOS)) {
+            moduleIds = moduleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE_MODULE, userId, moduleIds)) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+        }
+        if (StringUtils.isNotBlank(request.getParentTargetId()) ) {
+            //移动到某节点下
+            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE_MODULE, userId, List.of(request.getParentTargetId()))) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+            if (CollectionUtils.isNotEmpty(caseIds)) {
+                //拖拽到别的节点
+                FunctionalCaseBatchMoveRequest functionalCaseBatchMoveRequest = new FunctionalCaseBatchMoveRequest();
+                functionalCaseBatchMoveRequest.setModuleId(request.getParentTargetId());
+                functionalCaseBatchMoveRequest.setProjectId(request.getProjectId());
+                functionalCaseService.batchMoveFunctionalCaseByIds(functionalCaseBatchMoveRequest, userId, caseIds);
+                moveSortCase(userId, caseMinderTargetDTO, caseIds);
+            }
+            if (CollectionUtils.isNotEmpty(moduleIds)) {
+                //处理模块拖拽以及移动
+                //拖拽到别的节点
+                extFunctionalCaseModuleMapper.batchUpdateStringColumn("parent_id", moduleIds, request.getParentTargetId());
+                moveSortModule(request.getProjectId(), userId, moduleMinderTargetDTO, moduleIds);
+            }
+        } else if ( CollectionUtils.isNotEmpty(caseIds)) {
+            //直接给用例排序
+            moveSortCase(userId, caseMinderTargetDTO, caseIds);
+
+        } else if (CollectionUtils.isNotEmpty(moduleIds)) {
+            //直接给模块排序
+            moveSortModule(request.getProjectId(), userId, moduleMinderTargetDTO, moduleIds);
+        }
+        updateSteps(request, resourceList);
+
+    }
+
+    private void moveSortModule(String projectId, String userId, MinderTargetDTO moduleMinderTargetDTO, List<String> moduleIds) {
+        if (moduleMinderTargetDTO != null && StringUtils.isNotBlank(moduleMinderTargetDTO.getTargetId())) {
+            //排序
+            String targetId = moduleMinderTargetDTO.getTargetId();
+            FunctionalCaseModule functionalCaseModule = functionalCaseModuleMapper.selectByPrimaryKey(targetId);
+            if (functionalCaseModule != null){
+                FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
+                functionalCaseModuleExample.createCriteria().andProjectIdEqualTo(projectId);
+                List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+                List<String> ids = new ArrayList<>(functionalCaseModules.stream().map(FunctionalCaseModule::getId).toList());
+                List<String> finalIds = getFinalIds(moduleMinderTargetDTO, moduleIds, ids, targetId);
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                FunctionalCaseModuleMapper moduleMapper = sqlSession.getMapper(FunctionalCaseModuleMapper.class);
+                for (int i = 0; i < finalIds.size(); i++) {
+                    FunctionalCaseModule updateModule = new FunctionalCaseModule();
+                    updateModule.setId(finalIds.get(i));
+                    updateModule.setPos(5000L * i);
+                    updateModule.setUpdateUser(userId);
+                    updateModule.setUpdateTime(System.currentTimeMillis());
+                    moduleMapper.updateByPrimaryKeySelective(updateModule);
+                }
+                sqlSession.flushStatements();
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+    }
+
+    private void moveSortCase(String userId, MinderTargetDTO caseMinderTargetDTO, List<String> caseIds) {
+        if (caseMinderTargetDTO != null && StringUtils.isNotBlank(caseMinderTargetDTO.getTargetId())) {
+            String targetId = caseMinderTargetDTO.getTargetId();
+            //排序
+            FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(targetId);
+            if (functionalCase != null && !functionalCase.getDeleted()) {
+                FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+                functionalCaseExample.createCriteria().andDeletedEqualTo(false).andModuleIdEqualTo(functionalCase.getModuleId()).andProjectIdEqualTo(functionalCase.getProjectId());
+                List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+                List<String> ids = new ArrayList<>(functionalCases.stream().map(FunctionalCase::getId).toList());
+                List<String> finalIds = getFinalIds(caseMinderTargetDTO, caseIds, ids, targetId);
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+                for (int i = 0; i < finalIds.size(); i++) {
+                    FunctionalCase updateCase = new FunctionalCase();
+                    updateCase.setId(finalIds.get(i));
+                    updateCase.setPos(5000L * i);
+                    updateCase.setUpdateUser(userId);
+                    updateCase.setUpdateTime(System.currentTimeMillis());
+                    caseMapper.updateByPrimaryKeySelective(updateCase);
+                }
+                sqlSession.flushStatements();
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+    }
+
+    @NotNull
+    private static List<String> getFinalIds(MinderTargetDTO minderTargetDTO, List<String> paramIds, List<String> selectIds, String targetId) {
+        List<String> finalIds = new ArrayList<>();
+        int i1 = selectIds.indexOf(targetId);
+        List<String> beforeIds;
+        List<String> afterIds;
+        if (StringUtils.equals(minderTargetDTO.getMoveMode(), MoveTypeEnum.AFTER.name())) {
+            beforeIds = selectIds.subList(0, i1 + 1);
+            afterIds = selectIds.subList(i1 + 1, selectIds.size());
+        } else {
+            beforeIds = selectIds.subList(0, i1);
+            afterIds = selectIds.subList(i1, selectIds.size());
+        }
+        finalIds.addAll(beforeIds);
+        finalIds.addAll(paramIds);
+        finalIds.addAll(afterIds);
+        return finalIds;
+    }
+
+    private void updateSteps(FunctionalCaseMinderRemoveRequest request, List<MinderOptionDTO> resourceList) {
+        if (StringUtils.isNotBlank(request.getSteps())) {
+            List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(request.getSteps(), FunctionalCaseStepDTO.class);
+            for (int i = 0; i < functionalCaseStepDTOS.size(); i++) {
+                functionalCaseStepDTOS.get(i).setNum(i + 1);
+            }
+            byte[] bytes = StringUtils.defaultIfBlank(JSON.toJSONString(functionalCaseStepDTOS), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8);
+            extFunctionalCaseBlobMapper.batchUpdateColumn("steps", List.of(resourceList.get(0).getId()), bytes);
+        }
+    }
+
+
+    public void deleteFunctionalCaseBatch(String projectId, List<MinderOptionDTO> resourceList, String userId) {
+        if (CollectionUtils.isEmpty(resourceList)) {
+            throw new MSException(Translator.get("node.not_blank"));
+        }
+        Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
+
+        List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
+        if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
+            List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, caseIds)) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+            functionalCaseService.handDeleteFunctionalCase(caseIds, false, userId, projectId);
+        }
+        List<MinderOptionDTO> caseModuleOptionDTOS = resourceMap.get(MinderLabel.MODULE.toString());
+        if (CollectionUtils.isNotEmpty(caseModuleOptionDTOS)) {
+            List<String> moduleIds = caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE_MODULE, userId, moduleIds)) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+            List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), userId);
+            functionalCaseModuleService.batchDelLog(functionalCases, projectId);
+        }
+        List<MinderOptionDTO> prerequisiteOptionDTOS = resourceMap.get(MinderLabel.PREREQUISITE.toString());
+        updateBlob(userId, "prerequisite", prerequisiteOptionDTOS);
+        List<MinderOptionDTO> descriptionOptionDTOS = resourceMap.get(MinderLabel.DESCRIPTION.toString());
+        updateBlob(userId, "description", descriptionOptionDTOS);
+        List<MinderOptionDTO> stepOptionDTOS = resourceMap.get(MinderLabel.STEPS.toString());
+        if (CollectionUtils.isNotEmpty(stepOptionDTOS)) {
+            List<MinderOptionDTO> stepResultOptionDTOS = resourceMap.get(MinderLabel.STEPS_EXPECTED_RESULT.toString());
+            stepOptionDTOS.addAll(stepResultOptionDTOS);
+            updateBlob(userId, "steps", stepOptionDTOS);
+        }
+        List<MinderOptionDTO> textOptionDTOS = resourceMap.get(MinderLabel.TEXT_DESCRIPTION.toString());
+        updateBlob(userId, "text_description", textOptionDTOS);
+        List<MinderOptionDTO> resultOptionDTOS = resourceMap.get(MinderLabel.TEXT_EXPECTED_RESULT.toString());
+        updateBlob(userId, "expected_result", resultOptionDTOS);
+    }
+
+    private void updateBlob(String userId, String column, List<MinderOptionDTO> preRequisiteOptionDTOS) {
+        if (CollectionUtils.isNotEmpty(preRequisiteOptionDTOS)) {
+            List<String> caseIds = preRequisiteOptionDTOS.stream().map(MinderOptionDTO::getId).distinct().toList();
+            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, caseIds)) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+            extFunctionalCaseBlobMapper.batchUpdateColumn(column, caseIds, null);
+        }
+    }
+
 }

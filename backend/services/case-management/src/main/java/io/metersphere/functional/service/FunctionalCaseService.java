@@ -615,7 +615,7 @@ public class FunctionalCaseService {
         handDeleteFunctionalCase(Collections.singletonList(request.getId()), request.getDeleteAll(), userId, request.getProjectId());
     }
 
-    private void handDeleteFunctionalCase(List<String> ids, Boolean deleteAll, String userId, String projectId) {
+    public void handDeleteFunctionalCase(List<String> ids, Boolean deleteAll, String userId, String projectId) {
         Map<String, Object> param = new HashMap<>();
         if (deleteAll) {
             //全部删除  进入回收站
@@ -631,7 +631,7 @@ public class FunctionalCaseService {
             doDelete(ids, userId);
         }
         User user = userMapper.selectByPrimaryKey(userId);
-        batchSendNotice(projectId, ids, user, NoticeConstants.Event.DELETE);
+        functionalCaseNoticeService.batchSendNotice(projectId, ids, user, NoticeConstants.Event.DELETE);
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.DELETE_FUNCTIONAL_CASE);
         provider.updateCaseReview(param);
@@ -750,31 +750,16 @@ public class FunctionalCaseService {
      * @param userId  userId
      */
     public void batchMoveFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
-        User user = userMapper.selectByPrimaryKey(userId);
         List<String> ids = doSelectIds(request, request.getProjectId());
-        if (CollectionUtils.isNotEmpty(ids)) {
-            List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
-            extFunctionalCaseMapper.batchMoveModule(request, refId, userId);
-            batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
-        }
+        batchMoveFunctionalCaseByIds(request, userId, ids);
     }
 
-    private void batchSendNotice(String projectId, List<String> ids, User user, String event) {
-        int amount = 100;//每次读取的条数
-        long roundTimes = Double.valueOf(Math.ceil((double) ids.size() / amount)).longValue();//循环的次数
-        for (int i = 0; i < (int) roundTimes; i++) {
-            int fromIndex = (i * amount);
-            int toIndex = ((i + 1) * amount);
-            if (i == roundTimes - 1) {//最后一次遍历
-                toIndex = ids.size();
-            } else if (toIndex > ids.size()) {
-                toIndex = ids.size();
-            }
-            List<String> subList = ids.subList(fromIndex, toIndex);
-            List<FunctionalCaseDTO> functionalCaseDTOS = functionalCaseNoticeService.handleBatchNotice(projectId, subList);
-            List<Map> resources = new ArrayList<>();
-            resources.addAll(JSON.parseArray(JSON.toJSONString(functionalCaseDTOS), Map.class));
-            commonNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event, resources, user, projectId);
+    public void batchMoveFunctionalCaseByIds(FunctionalCaseBatchMoveRequest request, String userId, List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            User user = userMapper.selectByPrimaryKey(userId);
+            List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
+            extFunctionalCaseMapper.batchMoveModule(request, refId, userId);
+            functionalCaseNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
         }
     }
 
@@ -862,7 +847,7 @@ public class FunctionalCaseService {
                 saveAddDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.FUNCTIONAL_CASE);
             }
             User user = userMapper.selectByPrimaryKey(userId);
-            batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.CREATE);
+            functionalCaseNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.CREATE);
 
 
         }
@@ -918,7 +903,7 @@ public class FunctionalCaseService {
             functionalCase.setUpdateTime(System.currentTimeMillis());
             functionalCase.setUpdateUser(userId);
             extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
-            batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
+            functionalCaseNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
         }
 
     }

@@ -1,5 +1,6 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.constants.MinderLabel;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
@@ -12,12 +13,15 @@ import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ExtOrganizationCustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.service.CommonNoticeSendService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +53,9 @@ public class FunctionalCaseNoticeService {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private CaseReviewMapper caseReviewMapper;
+
+    @Resource
+    private CommonNoticeSendService commonNoticeSendService;
 
 
     public FunctionalCaseDTO getFunctionalCaseDTO(FunctionalCaseCommentRequest functionalCaseCommentRequest) {
@@ -254,6 +261,9 @@ public class FunctionalCaseNoticeService {
 
     public FunctionalCaseDTO  getMainFunctionalCaseMinderDTO(FunctionalCaseMinderEditRequest request) {
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
+        if (request.getType() == MinderLabel.MODULE) {
+            return functionalCaseDTO;
+        }
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getId());
         BeanUtils.copyBean(functionalCaseDTO, functionalCase);
         setReviewName(request.getId(), functionalCaseDTO);
@@ -287,6 +297,23 @@ public class FunctionalCaseNoticeService {
         //TODO:设置测试计划名称
         return functionalCaseDTO;
 
+    }
+
+    public void batchSendNotice(String projectId, List<String> ids, User user, String event) {
+        int amount = 100;//每次读取的条数
+        long roundTimes = Double.valueOf(Math.ceil((double) ids.size() / amount)).longValue();//循环的次数
+        for (int i = 0; i < (int) roundTimes; i++) {
+            int fromIndex = (i * amount);
+            int toIndex = ((i + 1) * amount);
+            if (i == roundTimes - 1 || toIndex > ids.size()) {//最后一次遍历
+                toIndex = ids.size();
+            }
+            List<String> subList = ids.subList(fromIndex, toIndex);
+            List<FunctionalCaseDTO> functionalCaseDTOS = handleBatchNotice(projectId, subList);
+            List<Map> resources = new ArrayList<>();
+            resources.addAll(JSON.parseArray(JSON.toJSONString(functionalCaseDTOS), Map.class));
+            commonNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event, resources, user, projectId);
+        }
     }
 
 }

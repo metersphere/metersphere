@@ -50,6 +50,11 @@ public class FunctionalCaseMindDTO {
     @NotNull(message = "{functional_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
+    @Schema(description = "编辑模式：步骤模式/文本模式", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.case_edit_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case.case_edit_type.length_range}", groups = {Created.class, Updated.class})
+    private String caseEditType;
+
     @Schema(description =  "用例步骤（JSON)，step_model 为 Step 时启用")
     private byte[] steps;
 

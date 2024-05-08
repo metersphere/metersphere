@@ -4,6 +4,7 @@ import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.functional.constants.MinderLabel;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
@@ -17,6 +18,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -31,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author wx
@@ -162,6 +166,10 @@ public class FunctionalCaseLogService {
 
     public List<LogDTO> batchDeleteFunctionalCaseLog(FunctionalCaseBatchRequest request) {
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
+        return batchDeleteFunctionalCaseLogByIds(ids);
+    }
+
+    public List<LogDTO> batchDeleteFunctionalCaseLogByIds(List<String> ids) {
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
@@ -182,6 +190,19 @@ public class FunctionalCaseLogService {
             });
         }
         return dtoList;
+    }
+
+    public List<LogDTO> deleteBatchMinderFunctionalCaseLog(List<OptionDTO> resourceList) {
+        if (CollectionUtils.isEmpty(resourceList)) {
+            return new ArrayList<>();
+        }
+        Map<String, List<OptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(OptionDTO::getName));
+        List<OptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
+        if (CollectionUtils.isEmpty(caseOptionDTOS)) {
+            return new ArrayList<>();
+        }
+        List<String> caseIds = caseOptionDTOS.stream().map(OptionDTO::getId).toList();
+        return batchDeleteFunctionalCaseLogByIds(caseIds);
     }
 
     /**
@@ -416,6 +437,9 @@ public class FunctionalCaseLogService {
     }
 
     public LogDTO updateMinderFunctionalCaseLog(FunctionalCaseMinderEditRequest request) {
+        if (request.getType() == MinderLabel.MODULE) {
+            return null;
+        }
         FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getId());
         LogDTO dto = getUpdateLogDTO(request.getProjectId(), request.getId(), request.getName(), "/functional/case/update");
         dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
