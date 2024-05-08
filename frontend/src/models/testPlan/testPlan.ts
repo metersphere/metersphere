@@ -1,12 +1,14 @@
 import { BatchApiParams } from '../common';
 
+export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
+
 // 计划分页
 export interface TestPlanItem {
   id?: string;
   projectId: string;
   num: number;
   name: string;
-  status: string;
+  status: planStatusType;
   type: string;
   tags: string[];
   schedule: string; // 是否定时
