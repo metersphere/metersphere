@@ -10,3 +10,14 @@ VALUES
 
 INSERT INTO `test_plan_functional_case`(`id`, `num`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`)
 VALUES ('wx_tpfc_1', 5000, 'wx_test_plan_id_4', 'wx_fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1);
+
+
+INSERT INTO `test_plan_module`(`id`, `project_id`, `name`, `parent_id`, `pos`, `create_time`, `update_time`, `create_user`, `update_user`)
+VALUES
+    ('1', '123', 'wx_测试模块名称', 'ROOT', 1, 1714980158000, 1714980158000, 'admin', 'admin');
+
+
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `test_planning`)
+VALUES
+    ('wx_test_plan_id_1', b'0', b'0', 100, b'0'),
+    ('wx_test_plan_id_4', b'0', b'0', 100, b'0');
