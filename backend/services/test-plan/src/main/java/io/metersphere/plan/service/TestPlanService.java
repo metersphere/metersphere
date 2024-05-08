@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService {
-    private static final long MAX_TEST_PLAN_SIZE = 999;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
@@ -52,13 +51,6 @@ public class TestPlanService {
     private TestPlanModuleMapper testPlanModuleMapper;
     @Resource
     private TestPlanFollowerMapper testPlanFollowerMapper;
-    @Resource
-    private TestPlanXPackFactory testPlanXPackFactory;
-
-    @Resource
-    private TestPlanApiCaseService testPlanApiCaseService;
-    @Resource
-    private TestPlanApiScenarioService testPlanApiScenarioService;
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionCaseService;
 
@@ -113,21 +105,12 @@ public class TestPlanService {
         createTestPlan.setUpdateTime(operateTime);
         createTestPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
 
-        if (StringUtils.equals(createTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(createTestPlan.getGroupId());
-            createTestPlan.setModuleId(testPlan.getModuleId());
-        }
-
         TestPlanConfig testPlanConfig = new TestPlanConfig();
         testPlanConfig.setTestPlanId(createTestPlan.getId());
         testPlanConfig.setAutomaticStatusUpdate(createOrCopyRequest.isAutomaticStatusUpdate());
         testPlanConfig.setRepeatCase(createOrCopyRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(createOrCopyRequest.getPassThreshold());
         testPlanConfig.setTestPlanning(createOrCopyRequest.isTestPlanning());
-
-        if (createOrCopyRequest.isGroupOption()) {
-            testPlanXPackFactory.getTestPlanGroupService().validateGroup(createTestPlan, testPlanConfig);
-        }
 
         if (StringUtils.isBlank(id)) {
             handleAssociateCase(createOrCopyRequest, createTestPlan);
@@ -167,23 +150,20 @@ public class TestPlanService {
     }
 
     private void validateTestPlan(TestPlan testPlan) {
+        if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            TestPlan group = testPlanMapper.selectByPrimaryKey(testPlan.getGroupId());
+            testPlan.setModuleId(group.getModuleId());
+        }
         TestPlanExample example = new TestPlanExample();
         if (StringUtils.isBlank(testPlan.getId())) {
-            TestPlanExample.Criteria criteria = example.createCriteria();
-            //测试计划第一层的数据还不能超过1000个
-            if (StringUtils.equals(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-                criteria.andGroupIdEqualTo(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
-                if (testPlanMapper.countByExample(example) >= MAX_TEST_PLAN_SIZE) {
-                    throw new MSException(Translator.getWithArgs("test_plan.too_many", MAX_TEST_PLAN_SIZE));
-                }
-            }
-            example.clear();
-            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId());
+            //新建 校验
+            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andModuleIdEqualTo(testPlan.getModuleId());
             if (testPlanMapper.countByExample(example) > 0) {
                 throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
             }
-        } else {
-            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId());
+        }else{
+            //更新 校验
+            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId()).andModuleIdEqualTo(testPlan.getModuleId());
             if (testPlanMapper.countByExample(example) > 0) {
                 throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
             }
@@ -326,15 +306,15 @@ public class TestPlanService {
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
             updateTestPlan.setId(request.getId());
-            if (StringUtils.isNotBlank(request.getName())) {
-                updateTestPlan.setName(request.getName());
-                updateTestPlan.setProjectId(testPlan.getProjectId());
-                this.validateTestPlan(updateTestPlan);
-            }
             if (StringUtils.isNotBlank(request.getModuleId())) {
                 //检查模块的合法性
                 this.checkModule(request.getModuleId());
                 updateTestPlan.setModuleId(request.getModuleId());
+            }
+            if (StringUtils.isNotBlank(request.getName())) {
+                updateTestPlan.setName(request.getName());
+                updateTestPlan.setProjectId(testPlan.getProjectId());
+                this.validateTestPlan(updateTestPlan);
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateTestPlan.setTags(new ArrayList<>(request.getTags()));
@@ -344,16 +324,6 @@ public class TestPlanService {
             updateTestPlan.setDescription(request.getDescription());
             updateTestPlan.setGroupId(request.getTestPlanGroupId());
             updateTestPlan.setType(testPlan.getType());
-
-            if (StringUtils.equals(updateTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(updateTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-                TestPlan group = testPlanMapper.selectByPrimaryKey(updateTestPlan.getGroupId());
-                updateTestPlan.setModuleId(group.getModuleId());
-            }
-
-            if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP) || StringUtils.isNotEmpty(request.getTestPlanGroupId())) {
-                //修改组、移动测试计划进组出组，需要特殊的处理方式
-                testPlanXPackFactory.getTestPlanGroupService().validateGroup(testPlan, null);
-            }
             testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
         }
 
