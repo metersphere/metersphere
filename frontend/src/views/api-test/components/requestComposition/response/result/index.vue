@@ -1,99 +1,101 @@
 <template>
-  <div class="flex h-[calc(100%-64px)] flex-col" @click.stop="() => {}">
-    <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
-      <a-pagination
-        v-model:page-size="controlPageSize"
-        v-model:current="controlCurrent"
-        :total="controlTotal"
-        size="mini"
-        show-total
-        :show-jumper="controlTotal > 5"
-        @change="loadControlLoop"
-      />
-      <!-- <loopPagination v-model:current-loop="controlCurrent" :loop-total="controlTotal" /> -->
-    </div>
-    <div class="mt-4 flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
-      <div class="font-medium">
-        <span
-          :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"
-          @click.stop="setActiveType('ResContent')"
-          >{{ t('report.detail.api.resContent') }}</span
-        >
-        <span
-          v-if="total > 0"
-          :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'SubRequest' }"
-          @click.stop="setActiveType('SubRequest')"
-        >
-          <a-divider direction="vertical" :margin="8"></a-divider>
-          {{ t('report.detail.api.subRequest') }}</span
-        >
+  <div class="flex flex-col" @click.stop="() => {}">
+    <div class="response-header">
+      <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
+        <a-pagination
+          v-model:page-size="controlPageSize"
+          v-model:current="controlCurrent"
+          :total="controlTotal"
+          size="mini"
+          show-total
+          :show-jumper="controlTotal > 5"
+          @change="loadControlLoop"
+        />
+        <!-- <loopPagination v-model:current-loop="controlCurrent" :loop-total="controlTotal" /> -->
       </div>
-      <div class="flex flex-row gap-6 text-center">
-        <a-popover position="left" content-class="response-popover-content">
-          <div
-            v-if="activeStepDetailCopy?.content?.responseResult.responseCode"
-            class="one-line-text max-w-[200px]"
-            :style="{ color: statusCodeColor }"
+      <div class="flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
+        <div class="font-medium">
+          <span
+            :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"
+            @click.stop="setActiveType('ResContent')"
+            >{{ t('report.detail.api.resContent') }}</span
           >
-            {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
-          </div>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
-              <div :style="{ color: statusCodeColor }">
-                {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
-              </div>
-            </div>
-          </template>
-        </a-popover>
-        <a-popover position="left" content-class="w-[400px]">
-          <div v-if="timingInfo?.responseTime" class="one-line-text text-[rgb(var(--success-7))]">
-            {{ timingInfo?.responseTime || 0 }} ms
-          </div>
-          <template #content>
-            <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
-              <div class="text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime }} ms </div>
-            </div>
-            <responseTimeLine v-if="timingInfo" :response-timing="timingInfo" />
-          </template>
-        </a-popover>
-        <a-popover position="left" content-class="response-popover-content">
-          <div
-            v-if="activeStepDetail?.content?.responseResult.responseSize"
-            class="one-line-text text-[rgb(var(--success-7))]"
+          <span
+            v-if="total > 0"
+            :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'SubRequest' }"
+            @click.stop="setActiveType('SubRequest')"
           >
-            {{ activeStepDetail?.content?.responseResult.responseSize || '-' }} bytes
-          </div>
-          <template #content>
-            <div class="flex items-center gap-[8px] text-[14px]">
-              <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
-              <div class="one-line-text text-[rgb(var(--success-7))]">
-                {{ activeStepDetail?.content?.responseResult.responseSize }} bytes
-              </div>
+            <a-divider direction="vertical" :margin="8"></a-divider>
+            {{ t('report.detail.api.subRequest') }}</span
+          >
+        </div>
+        <div class="flex flex-row gap-6 text-center">
+          <a-popover position="left" content-class="response-popover-content">
+            <div
+              v-if="activeStepDetailCopy?.content?.responseResult.responseCode"
+              class="one-line-text max-w-[200px]"
+              :style="{ color: statusCodeColor }"
+            >
+              {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
             </div>
-          </template>
-        </a-popover>
-        <a-popover position="left" content-class="response-popover-content">
-          <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">{{
-            props.environmentName
-          }}</div>
-          <template #content>
-            <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">{{
+            <template #content>
+              <div class="flex items-center gap-[8px] text-[14px]">
+                <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
+                <div :style="{ color: statusCodeColor }">
+                  {{ activeStepDetailCopy?.content?.responseResult.responseCode || '-' }}
+                </div>
+              </div>
+            </template>
+          </a-popover>
+          <a-popover position="left" content-class="w-[400px]">
+            <div v-if="timingInfo?.responseTime" class="one-line-text text-[rgb(var(--success-7))]">
+              {{ timingInfo?.responseTime || 0 }} ms
+            </div>
+            <template #content>
+              <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
+                <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
+                <div class="text-[rgb(var(--success-7))]"> {{ timingInfo?.responseTime }} ms </div>
+              </div>
+              <responseTimeLine v-if="timingInfo" :response-timing="timingInfo" />
+            </template>
+          </a-popover>
+          <a-popover position="left" content-class="response-popover-content">
+            <div
+              v-if="activeStepDetail?.content?.responseResult.responseSize"
+              class="one-line-text text-[rgb(var(--success-7))]"
+            >
+              {{ activeStepDetail?.content?.responseResult.responseSize || '-' }} bytes
+            </div>
+            <template #content>
+              <div class="flex items-center gap-[8px] text-[14px]">
+                <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
+                <div class="one-line-text text-[rgb(var(--success-7))]">
+                  {{ activeStepDetail?.content?.responseResult.responseSize }} bytes
+                </div>
+              </div>
+            </template>
+          </a-popover>
+          <a-popover position="left" content-class="response-popover-content">
+            <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">{{
               props.environmentName
             }}</div>
-          </template>
-        </a-popover>
+            <template #content>
+              <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">{{
+                props.environmentName
+              }}</div>
+            </template>
+          </a-popover>
+        </div>
       </div>
-    </div>
-    <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
-      <MsPagination
-        v-model:page-size="pageSize"
-        v-model:current="current"
-        :total="total"
-        size="mini"
-        @change="loadLoop"
-      />
+      <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
+        <MsPagination
+          v-model:page-size="pageSize"
+          v-model:current="current"
+          :total="total"
+          size="mini"
+          @change="loadLoop"
+        />
+      </div>
     </div>
     <!-- 平铺 -->
     <a-spin v-if="props.mode === 'tiled'" class="w-full" :loading="loading">
@@ -108,8 +110,8 @@
       </Suspense>
     </a-spin>
     <!-- 响应内容tab -->
-    <div v-else class="h-full">
-      <a-spin :loading="loading" class="h-full w-full pb-1">
+    <div v-else>
+      <a-spin :loading="loading" class="w-full pb-1">
         <result
           v-model:active-tab="activeTab"
           :request-result="activeStepDetailCopy?.content"
@@ -371,4 +373,10 @@
   });
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  .response-header {
+    position: sticky;
+    top: 0;
+    z-index: 9999999;
+  }
+</style>

@@ -105,12 +105,12 @@
   import TestPlanTree from './components/testPlanTree.vue';
   import CreateAndEditPlanDrawer from './createAndEditPlanDrawer.vue';
 
-  import { createPlanModuleTree } from '@/api/modules/test-plan/testPlan';
+  import { createPlanModuleTree, getPlanModulesCount } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
-  import type { ModuleTreeNode } from '@/models/common';
+  import type { CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
+  import { ModuleTreeNode, TableQueryParams } from '@/models/common';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -202,7 +202,13 @@
   /**
    * 刷新模块树的统计数量
    */
-  function initModulesCount(params: any) {}
+  async function initModulesCount(params: TableQueryParams) {
+    try {
+      modulesCount.value = await getPlanModulesCount(params);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const showPlanDrawer = ref(false);
   function handleSelect(value: string | number | Record<string, any> | undefined) {

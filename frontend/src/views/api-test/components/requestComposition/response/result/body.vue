@@ -32,6 +32,7 @@
     show-language-change
     show-charset-change
     read-only
+    is-adaptive
   >
     <template #rightTitle>
       <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="emits('copy')">

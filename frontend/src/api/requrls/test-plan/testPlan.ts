@@ -14,3 +14,11 @@ export const GetTestPlanModuleCountUrl = '/test-plan/module/count';
 export const GetTestPlanListUrl = '/test-plan/page';
 // 创建测试计划
 export const AddTestPlanUrl = '/test-plan/add';
+// 批量删除测试计划
+export const batchDeletePlanUrl = '/test-plan/batch-delete';
+// 删除测试计划
+export const deletePlanUrl = '/test-plan/delete';
+// 获取统计数量
+export const getStatisticalCountUrl = '/test-plan/getCount';
+// 归档
+export const archivedPlanUrl = '/test-plan/archived';

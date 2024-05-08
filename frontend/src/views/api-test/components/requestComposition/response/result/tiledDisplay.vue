@@ -29,10 +29,10 @@
         </div>
         <transition name="fade">
           <div v-show="!expandIds.includes(item.value) && isShowContent(item.value)" class="expandContent">
-            <div v-if="item.value === ResponseComposition.BODY" class="res-item">
+            <div v-if="item.value === ResponseComposition.BODY">
               <ResBody ref="resBodyRef" :request-result="props.requestResult" @copy="copyScript" />
             </div>
-            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.CONSOLE" class="res-item">
+            <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.CONSOLE">
               <ResConsole :console="props.console?.trim()" />
             </div>
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.HEADER" class="">
@@ -49,7 +49,7 @@
             </div>
           </div>
         </transition>
-        <a-divider v-if="isShowContent(item.value)" type="dashed" :margin="0" class="!mb-4"></a-divider>
+        <a-divider v-if="isShowContent(item.value)" type="dashed" :margin="0"></a-divider>
       </div>
     </div>
   </div>
@@ -155,10 +155,13 @@
   .tiledList {
     @apply px-4;
     .menu-list-wrapper {
-      @apply mt-4;
       .menu-list {
-        height: 32px;
-        // border-bottom: 1px dashed var(--color-text-n8);
+        position: sticky;
+        top: 50px;
+        z-index: 999999;
+        height: 40px;
+        line-height: 40px;
+        background: white;
         @apply flex items-start justify-between px-4;
         .menu-title {
           @apply font-medium;
@@ -166,9 +169,6 @@
       }
       .expandContent {
         background: var(--color-text-n9);
-        .res-item {
-          height: 210px;
-        }
       }
     }
   }

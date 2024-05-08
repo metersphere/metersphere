@@ -95,7 +95,7 @@
       >
     </template>
     <template #statusFilter="{ columnConfig }">
-      <a-trigger v-model:popup-visible="statusFilterVisible" @popup-visible-change="handleFilterHidden">
+      <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
         <a-button type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
           {{ t(columnConfig.title as string) }}
           <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
@@ -242,7 +242,7 @@
     @save="handleMoveOrCopy"
   />
   <ScheduledModal v-model:visible="showScheduledTaskModal" />
-  <ActionModal v-model:visible="showStatusDeleteModal" :record="activeRecord" />
+  <ActionModal v-model:visible="showStatusDeleteModal" :record="activeRecord" @success="fetchData()" />
   <BatchEditModal
     v-model:visible="showEditModel"
     :batch-params="batchParams"
@@ -274,13 +274,12 @@
   import StatusProgress from './statusProgress.vue';
   import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 
-  import { getTestPlanList, getTestPlanModule } from '@/api/modules/test-plan/testPlan';
+  import { archivedPlan, batchDeletePlan, getTestPlanList, getTestPlanModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
-  import { ReviewStatus } from '@/models/caseManagement/caseReview';
   import type { planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
@@ -537,110 +536,8 @@
       eventTag: 'delete',
     },
   ];
-  // TODO 临时数据
-  const data = [
-    {
-      id: '100944',
-      projectId: 'string',
-      num: '100944',
-      name: '系统示例',
-      status: 'COMPLETED',
-      tags: ['string'],
-      schedule: 'string',
-      createUser: 'string',
-      createTime: 'string',
-      moduleName: 'string',
-      moduleId: 'string',
-      passCount: 0,
-      unPassCount: 0,
-      reviewedCount: 0,
-      underReviewedCount: 0,
-      childrenCount: 2,
-      statusDetail: {
-        tolerance: 100,
-        UNPENDING: 100,
-        RUNNING: 30,
-        SUCCESS: 30,
-        ERROR: 30,
-        executionProgress: '100%',
-      },
-      useCaseCount: {
-        caseCount: 3,
-        apiCount: 3,
-        scenarioCount: 3,
-      },
-      // children: [
-      //   {
-      //     id: '100945',
-      //     projectId: 'string',
-      //     num: '100945',
-      //     name: '系统示例',
-      //     status: 'COMPLETED',
-      //     tags: ['string'],
-      //     schedule: 'string',
-      //     createUser: 'string',
-      //     createTime: 'string',
-      //     moduleName: 'string',
-      //     moduleId: 'string',
-      //     testPlanItem: [],
-      //     testPlanGroupId: 'string',
-      //     passCount: 0,
-      //     unPassCount: 0,
-      //     reviewedCount: 0,
-      //     underReviewedCount: 0,
-      //     childrenCount: 0,
-      //     useCaseCount: {
-      //       caseCount: 3,
-      //       apiCount: 3,
-      //       scenarioCount: 3,
-      //     },
-      //     statusDetail: {
-      //       tolerance: 100,
-      //       UNPENDING: 100,
-      //       RUNNING: 30,
-      //       SUCCESS: 30,
-      //       ERROR: 30,
-      //       executionProgress: '100%',
-      //     },
-      //   },
-      //   {
-      //     id: '100955',
-      //     projectId: 'string',
-      //     num: '100955',
-      //     name: '系统示例',
-      //     status: 'COMPLETED',
-      //     tags: ['string'],
-      //     schedule: 'string',
-      //     createUser: 'string',
-      //     createTime: 'string',
-      //     moduleName: 'string',
-      //     moduleId: 'string',
-      //     testPlanItem: [],
-      //     testPlanGroupId: 'string',
-      //     passCount: 0,
-      //     unPassCount: 0,
-      //     reviewedCount: 0,
-      //     underReviewedCount: 0,
-      //     childrenCount: 0,
-      //     useCaseCount: {
-      //       caseCount: 3,
-      //       apiCount: 3,
-      //       scenarioCount: 3,
-      //     },
-      //     statusDetail: {
-      //       tolerance: 100,
-      //       UNPENDING: 100,
-      //       RUNNING: 30,
-      //       SUCCESS: 30,
-      //       ERROR: 30,
-      //       executionProgress: '100%',
-      //     },
-      //   },
-      // ],
-    },
-  ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getTestPlanList,
     {
       tableKey: TableKeyEnum.TEST_PLAN_ALL_TABLE,
@@ -821,6 +718,19 @@
       onBeforeOk: async () => {
         try {
           const { selectedIds, selectAll, excludeIds } = batchParams.value;
+          await batchDeletePlan({
+            projectId: appStore.currentProjectId,
+            selectIds: selectedIds || [],
+            excludeIds: excludeIds || [],
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+            condition: {
+              keyword: keyword.value,
+              filter: {},
+              combine: batchParams.value.condition,
+            },
+            selectAll: !!selectAll,
+            type: showType.value,
+          });
           Message.success(t('common.deleteSuccess'));
           fetchData();
         } catch (error) {
@@ -908,6 +818,7 @@
       },
       onBeforeOk: async () => {
         try {
+          await archivedPlan(record.id);
           Message.success(t('common.batchArchiveSuccess'));
           fetchData();
         } catch (error) {
