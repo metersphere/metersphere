@@ -111,11 +111,7 @@
           mode="remote"
           value-key="id"
           label-key="name"
-          :type="
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM
-              ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
-              : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
-          "
+          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
           :placeholder-text="t('project.taskCenter.filterOrgPlaceholderText')"
           @search="initData()"
         >
