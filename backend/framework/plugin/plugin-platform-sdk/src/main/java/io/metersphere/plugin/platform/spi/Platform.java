@@ -72,10 +72,11 @@ public interface Platform extends ExtensionPoint {
      * 获取第三方平台缺陷状态选项
      * @param projectConfig 项目配置信息
      * @param issueKey 缺陷ID
+     * @param previousStatus 当前状态
      * @return 缺陷平台状态
      * @throws Exception 获取平台状态异常
      */
-    List<SelectOption> getStatusTransitions(String projectConfig, String issueKey) throws Exception;
+    List<SelectOption> getStatusTransitions(String projectConfig, String issueKey, String previousStatus) throws Exception;
 
     /**
      * 获取第三方平台关联需求列表

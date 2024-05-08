@@ -694,7 +694,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(99)
-    void coverZentaoBugTests() throws Exception {
+    void coverExtraBugTests() throws Exception {
         // 批量删除
         BugBatchRequest request = new BugBatchRequest();
         request.setProjectId("default-project-for-bug");

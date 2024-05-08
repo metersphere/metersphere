@@ -43,10 +43,17 @@ public class BugStatusService {
             // 第三方平台状态流
             Platform platform = projectApplicationService.getPlatform(projectId, true);
             String projectConfig = projectApplicationService.getProjectBugThirdPartConfig(projectId);
-            // 获取一条最新的Jira默认模板缺陷Key
+            String issueKey;
+            if (StringUtils.equals(platformName, BugPlatform.JIRA.name())) {
+                // 如果是Jira平台, 获取一条最新的缺陷默认Key作为参数
+                issueKey = getJiraPlatformBugKeyLatest(projectId);
+            } else {
+                // 其余平台获取表头状态流暂不需要issue key参数
+                issueKey = platformName;
+            }
             List<SelectOption> platformStatusOption = new ArrayList<>();
             try {
-                platformStatusOption = platform.getStatusTransitions(projectConfig, getJiraPlatformBugKeyLatest(projectId));
+                platformStatusOption = platform.getStatusTransitions(projectConfig, issueKey, null);
             } catch (Exception e) {
                 LogUtils.error("获取平台状态选项有误: " + e.getMessage());
             }
@@ -73,7 +80,7 @@ public class BugStatusService {
            String projectConfig = projectApplicationService.getProjectBugThirdPartConfig(projectId);
            List<SelectOption> platformOption = new ArrayList<>();
            try {
-               platformOption =  platform.getStatusTransitions(projectConfig, platformBugKey);
+               platformOption =  platform.getStatusTransitions(projectConfig, platformBugKey, fromStatusId);
            } catch (Exception e) {
                LogUtils.error("获取平台状态选项有误: " + e.getMessage());
            }
@@ -102,7 +109,7 @@ public class BugStatusService {
 
    public String getJiraPlatformBugKeyLatest(String projectId) {
        BugExample example = new BugExample();
-       example.createCriteria().andPlatformEqualTo("JIRA").andProjectIdEqualTo(projectId);
+       example.createCriteria().andPlatformEqualTo(BugPlatform.JIRA.name()).andProjectIdEqualTo(projectId);
        example.setOrderByClause("create_time desc");
        List<Bug> bugs = bugMapper.selectByExample(example);
        if (CollectionUtils.isNotEmpty(bugs)) {

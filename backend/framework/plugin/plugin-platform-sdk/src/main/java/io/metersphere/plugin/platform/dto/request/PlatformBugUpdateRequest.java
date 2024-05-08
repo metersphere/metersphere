@@ -34,4 +34,8 @@ public class PlatformBugUpdateRequest extends PlatformBugDTO {
      * MS平台缺陷富文本文件集合
      */
     private Map<String, File> richFileMap = new HashMap<>();
+    /**
+     * 当前MS站点URL
+     */
+    private String baseUrl;
 }

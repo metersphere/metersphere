@@ -46,10 +46,7 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
-import io.metersphere.system.service.BaseTemplateCustomFieldService;
-import io.metersphere.system.service.BaseTemplateService;
-import io.metersphere.system.service.PlatformPluginService;
-import io.metersphere.system.service.UserPlatformAccountService;
+import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -160,6 +157,8 @@ public class BugService {
     private BugAttachmentService bugAttachmentService;
     @Resource
     private BugPlatformService bugPlatformService;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public static final Long INTERVAL_POS = 5000L;
 
@@ -1193,6 +1192,7 @@ public class BugService {
                }
            });
        }
+       platformRequest.setBaseUrl(systemParameterService.getBaseInfo().getUrl());
        return platformRequest;
    }
 

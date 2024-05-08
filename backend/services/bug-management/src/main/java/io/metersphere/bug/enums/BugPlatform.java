@@ -12,7 +12,11 @@ public enum BugPlatform {
     /**
      * 本地
      */
-    LOCAL("Local");
+    LOCAL("Local"),
+    JIRA("JIRA"),
+    ZENTAO("禅道"),
+    TAPD("TAPD");
+
 
     private final String name;
 
