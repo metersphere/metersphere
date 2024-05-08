@@ -7,6 +7,7 @@ import io.metersphere.plan.dto.request.TestPlanCopyRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
+import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
@@ -19,6 +20,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.TestPlanModule;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.uid.IDGenerator;
@@ -476,5 +478,48 @@ public class TestPlanService {
         testPlanFunctionCaseService.saveTestPlanByPlanId(ids, testPlan);
         //TODO 复制关联接口用例/接口场景用例
 
+    }
+
+
+    /**
+     * 获取单个测试计划或测试计划组详情（用于编辑）
+     *
+     * @param id
+     * @return
+     */
+    public TestPlanDetailResponse detail(String id) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+        TestPlanDetailResponse response = new TestPlanDetailResponse();
+        TestPlanModule testPlanModule = testPlanModuleMapper.selectByPrimaryKey(testPlan.getModuleId());
+        //计划组只有几个参数
+        response.setName(testPlan.getName());
+        response.setTags(testPlan.getTags());
+        response.setModuleId(testPlan.getModuleId());
+        response.setModuleName(testPlanModule.getName());
+        response.setDescription(testPlan.getDescription());
+        if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+            //计划的 其他参数
+            getGroupName(response, testPlan);
+            response.setPlannedStartTime(testPlan.getPlannedStartTime());
+            response.setPlannedEndTime(testPlan.getPlannedEndTime());
+            getOtherConfig(response, testPlan);
+        }
+        return response;
+    }
+
+    private void getOtherConfig(TestPlanDetailResponse response, TestPlan testPlan) {
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlan.getId());
+        response.setAutomaticStatusUpdate(testPlanConfig.getAutomaticStatusUpdate());
+        response.setRepeatCase(testPlanConfig.getRepeatCase());
+        response.setPassThreshold(testPlanConfig.getPassThreshold());
+        response.setTestPlanning(testPlanConfig.getTestPlanning());
+    }
+
+    private void getGroupName(TestPlanDetailResponse response, TestPlan testPlan) {
+        if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            TestPlan group = testPlanMapper.selectByPrimaryKey(testPlan.getGroupId());
+            response.setGroupId(testPlan.getGroupId());
+            response.setGroupName(group.getName());
+        }
     }
 }

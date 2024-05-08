@@ -4,6 +4,7 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
+import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.service.TestPlanLogService;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -128,11 +129,18 @@ public class TestPlanController {
 
     @PostMapping("/copy")
     @Operation(summary = "测试计划-复制测试计划")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @Log(type = OperationLogType.COPY, expression = "#msClass.copyLog(#request)", msClass = TestPlanLogService.class)
     public TestPlan copy(@Validated @RequestBody TestPlanCopyRequest request) {
         return testPlanService.copy(request, SessionUtils.getUserId());
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "测试计划-抽屉详情(单个测试计划获取详情用于编辑)")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "test_plan")
+    public TestPlanDetailResponse detail(@NotBlank @PathVariable String id) {
+        return testPlanService.detail(id);
+    }
 }

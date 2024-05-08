@@ -122,6 +122,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_TEST_PLAN_EDIT_FOLLOWER = "/test-plan/edit/follower";
     private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
     private static final String URL_TEST_PLAN_COPY = "/test-plan/copy";
+    private static final String URL_TEST_PLAN_DETAIL = "/test-plan/%s";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -2152,4 +2153,29 @@ public class TestPlanTests extends BaseTest {
     }
 
 
+    @Test
+    @Order(303)
+    public void testDetail() throws Exception {
+        //计划
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_DETAIL, "wx_test_plan_id_1"));
+        String returnStr = mvcResult.getResponse().getContentAsString();
+        ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+        String returnId = holder.getData().toString();
+        Assertions.assertNotNull(returnId);
+
+        //计划组
+        MvcResult mvcResult1 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_DETAIL, "wx_test_plan_id_2"));
+        String returnStr1 = mvcResult1.getResponse().getContentAsString();
+        ResultHolder holder1 = JSON.parseObject(returnStr1, ResultHolder.class);
+        String returnId1 = holder1.getData().toString();
+        Assertions.assertNotNull(returnId1);
+
+        //计划
+        MvcResult mvcResult2 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_DETAIL, "wx_test_plan_id_4"));
+        String returnStr2 = mvcResult2.getResponse().getContentAsString();
+        ResultHolder holder2 = JSON.parseObject(returnStr2, ResultHolder.class);
+        String returnId2 = holder2.getData().toString();
+        Assertions.assertNotNull(returnId2);
+
+    }
 }
