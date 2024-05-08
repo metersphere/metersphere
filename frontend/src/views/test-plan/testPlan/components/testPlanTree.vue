@@ -105,7 +105,7 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'planTreeNodeSelect', 'init', 'dragUpdate']);
+  const emits = defineEmits(['update:selectedKeys', 'planTreeNodeSelect', 'init', 'dragUpdate', 'getNodeName']);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -216,7 +216,7 @@
       offspringIds.push(e.id);
       return e;
     });
-    emits('planTreeNodeSelect', selectedKeys, offspringIds);
+    emits('planTreeNodeSelect', selectedKeys, offspringIds, node.name);
   };
 
   // 用例树节点更多事件

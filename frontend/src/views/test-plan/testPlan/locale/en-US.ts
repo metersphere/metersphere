@@ -36,6 +36,7 @@ export default {
   'testPlan.testPlanIndex.confirmBatchDeletePlan': 'Are you sure to delete {count} test plans?',
   'testPlan.testPlanIndex.confirmBatchDeletePlanContentTip':
     'Only sub-plans within the test plan and plan group are deleted',
+  'testPlan.testPlanIndex.confirmBatchDeletePlanContent': 'After delete, data unrecoverable, please careful operation.',
   'testPlan.testPlanIndex.confirmBatchArchivePlan': 'Are you sure to archive {count} test plans?',
   'testPlan.testPlanIndex.confirmBatchArchivePlanContent':
     'Only completed test plans can be archived! \n after filing, implement information no longer update and editing, data unrecoverable, please careful operation.',
@@ -49,15 +50,26 @@ export default {
   'testPlan.testPlanIndex.timingState': 'Timing state',
   'testPlan.testPlanIndex.timingStateEnable': 'Enable: Executes scheduled tasks',
   'testPlan.testPlanIndex.timingStateClose': 'Close: Stops a scheduled task',
-  'project.testPlanIndex.customFrequency': 'Custom frequency',
-  'project.testPlanIndex.doing': 'Doing',
-  'project.testPlanIndex.inFreeTime': 'In free time',
-  'project.testPlanIndex.defaultEnv': 'Default Environment',
-  'project.testPlanIndex.newEnv': 'New Environment',
-  'project.testPlanIndex.executionProgress': 'Execution progress',
-  'project.testPlanIndex.tolerance': 'tolerance',
-  'project.testPlanIndex.TotalCases': 'Total use cases',
-  'project.testPlanIndex.functionalUseCase': 'case',
-  'project.testPlanIndex.apiCase': 'Api use case',
-  'project.testPlanIndex.apiScenarioCase': 'Api scenario use cases',
+  'testPlan.testPlanIndex.customFrequency': 'Custom frequency',
+  'testPlan.testPlanIndex.doing': 'Doing',
+  'testPlan.testPlanIndex.inFreeTime': 'In free time',
+  'testPlan.testPlanIndex.defaultEnv': 'Default Environment',
+  'testPlan.testPlanIndex.newEnv': 'New Environment',
+  'testPlan.testPlanIndex.executionProgress': 'Execution progress',
+  'testPlan.testPlanIndex.tolerance': 'tolerance',
+  'testPlan.testPlanIndex.TotalCases': 'Total use cases',
+  'testPlan.testPlanIndex.functionalUseCase': 'case',
+  'testPlan.testPlanIndex.apiCase': 'Api use case',
+  'testPlan.testPlanIndex.apiScenarioCase': 'Api scenario use cases',
+  'testPlan.testPlanIndex.deleteArchivedPlan':
+    'After the program has been archived, delete data unrecoverable, please careful operation.',
+  'testPlan.testPlanIndex.deletePendingPlan':
+    'The plan is not executed, the data cannot be recovered after deletion, please operate carefully!',
+  'testPlan.testPlanIndex.deleteRunningPlan':
+    'Scheduled tasks are stopped and deleted. Exercise caution when performing this operation',
+  'testPlan.testPlanIndex.deleteCompletedPlan':
+    'The proposed plan is completed, the option is archived, and the use case information and execution results are retained;If you continue to delete, the data will not be restored, please be careful!',
+  'testPlan.testPlanIndex.confirmArchivePlan':
+    'After filing, implement information no longer update and editing, data unrecoverable, please careful operation！',
+  'testPlan.testPlanIndex.passRateTitleTip': 'Passed use cases/all use cases *100%',
 };

@@ -1,10 +1,11 @@
+import type { ReviewStatus } from '@/models/caseManagement/caseReview';
 // 计划分页
 export interface TestPlanItem {
   id?: string;
   projectId: string;
   num: number;
   name: string;
-  status: string;
+  status: ReviewStatus;
   type: string;
   tags: string[];
   schedule: string; // 是否定时

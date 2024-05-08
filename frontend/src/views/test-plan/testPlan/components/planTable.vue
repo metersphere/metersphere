@@ -10,31 +10,47 @@
     @refresh="fetchData"
   >
     <template #left>
-      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
+      <!-- TODO 这个版本不上 -->
+      <!-- <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
         <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">{{
           t('testPlan.testPlanIndex.all')
         }}</a-radio>
         <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">{{
           t('testPlan.testPlanIndex.testPlan')
         }}</a-radio>
-        <!-- <a-radio value="testPlanGroup" class="show-type-icon p-[2px]">{{
-            t('testPlan.testPlanIndex.testPlanGroup')
-          }}</a-radio> -->
-      </a-radio-group>
+        <a-radio value="testPlanGroup" class="show-type-icon p-[2px]">{{
+          t('testPlan.testPlanIndex.testPlanGroup')
+        }}</a-radio>
+      </a-radio-group> -->
+      <a-popover title="" position="bottom">
+        <div class="flex">
+          <div class="one-line-text mr-1 max-h-[32px] max-w-[116px] text-[var(--color-text-1)]">
+            {{ props.activeFolder === 'all' ? t('testPlan.testPlanIndex.allTestPlan') : props.nodeName }}
+          </div>
+          <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+        </div>
+        <template #content>
+          <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
+            {{ props.nodeName }}
+            <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+          </div>
+        </template>
+      </a-popover>
     </template>
   </MsAdvanceFilter>
   <MsBaseTable
     v-bind="propsRes"
     ref="tableRef"
     class="mt-4"
-    :action-config="tableBatchActions"
-    :expanded-keys="expandedKeys"
+    :action-config="testPlanBatchActions"
     filter-icon-align-left
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
+    <!-- :expanded-keys="expandedKeys" -->
     <template #num="{ record }">
-      <div class="flex items-center">
+      <!-- TODO 这个版本不做 -->
+      <!-- <div class="flex items-center">
         <div v-if="record.childrenCount" class="mr-2 flex items-center" @click="expandHandler(record)">
           <MsIcon
             type="icon-icon_split-turn-down-left"
@@ -56,17 +72,30 @@
             <div>
               <div>{{ t('testPlan.testPlanIndex.scheduledTaskOpened') }}</div>
               <div>{{ t('testPlan.testPlanIndex.nextExecutionTime') }}</div>
-              <!-- TODO 缺少字段 -->
               <div>---</div>
             </div>
-            <!-- TODO 缺少字段 -->
-            <!-- <div> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div> -->
+            <div> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div>
           </template>
         </a-tooltip>
-      </div>
+      </div> -->
+      <div class="flex items-center">
+        <div class="one-line-text cursor-pointer text-[rgb(var(--primary-5))]">{{ record.num }}</div>
+        <a-tooltip position="right" :disabled="!record.schedule" :mouse-enter-delay="300">
+          <MsTag v-if="record.schedule" size="small" type="link" theme="outline" class="ml-2">{{
+            t('testPlan.testPlanIndex.timing')
+          }}</MsTag>
+          <template #content>
+            <div>
+              <div>{{ t('testPlan.testPlanIndex.scheduledTaskOpened') }}</div>
+              <div>{{ t('testPlan.testPlanIndex.nextExecutionTime') }}</div>
+            </div>
+            <div> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div>
+          </template>
+        </a-tooltip></div
+      >
     </template>
     <template #statusFilter="{ columnConfig }">
-      <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
+      <a-trigger v-model:popup-visible="statusFilterVisible" @popup-visible-change="handleFilterHidden">
         <a-button type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
           {{ t(columnConfig.title as string) }}
           <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
@@ -114,16 +143,11 @@
     <template #passRateTitleSlot="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t(columnConfig.title as string) }}
-        <a-tooltip position="right">
+        <a-tooltip position="right" :content="t('testPlan.testPlanIndex.passRateTitleTip')">
           <icon-question-circle
-            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
             size="16"
           />
-          <template #content>
-            <!-- TODO 需要提供文案 -->
-            <!-- <div>{{ t('apiTestDebug.encodeTip1') }}</div>
-            <div>{{ t('apiTestDebug.encodeTip2') }}</div> -->
-          </template>
         </a-tooltip>
       </div>
     </template>
@@ -134,7 +158,7 @@
           <table class="min-w-[144px]">
             <tr>
               <td class="popover-label-td">
-                <div>{{ t('project.testPlanIndex.TotalCases') }}</div>
+                <div>{{ t('testPlan.testPlanIndex.TotalCases') }}</div>
               </td>
               <td class="popover-value-td">
                 {{ record.useCaseCount.caseCount }}
@@ -142,7 +166,7 @@
             </tr>
             <tr>
               <td class="popover-label-td">
-                <div class="text-[var(--color-text-1)]">{{ t('project.testPlanIndex.functionalUseCase') }}</div>
+                <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.functionalUseCase') }}</div>
               </td>
               <td class="popover-value-td">
                 {{ record.useCaseCount.caseCount }}
@@ -150,7 +174,7 @@
             </tr>
             <tr>
               <td class="popover-label-td">
-                <div class="text-[var(--color-text-1)]">{{ t('project.testPlanIndex.apiCase') }}</div>
+                <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiCase') }}</div>
               </td>
               <td class="popover-value-td">
                 {{ record.useCaseCount.caseCount }}
@@ -158,7 +182,7 @@
             </tr>
             <tr>
               <td class="popover-label-td">
-                <div class="text-[var(--color-text-1)]">{{ t('project.testPlanIndex.apiScenarioCase') }}</div>
+                <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiScenarioCase') }}</div>
               </td>
               <td class="popover-value-td">
                 {{ record.useCaseCount.caseCount }}
@@ -218,22 +242,33 @@
     @save="handleMoveOrCopy"
   />
   <ScheduledModal v-model:visible="showScheduledTaskModal" />
+  <ActionModal v-model:visible="showStatusDeleteModal" :record="activeRecord" />
+  <BatchEditModal
+    v-model:visible="showEditModel"
+    :batch-params="batchParams"
+    :active-folder="props.activeFolder"
+    :offspring-ids="props.offspringIds"
+    :condition="conditionParams"
+    @success="successHandler"
+  />
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import ActionModal from './actionModal.vue';
+  import BatchEditModal from './batchEditModal.vue';
   import BatchMoveOrCopy from './batchMoveOrCopy.vue';
   import ScheduledModal from './scheduledModal.vue';
   import StatusProgress from './statusProgress.vue';
@@ -244,8 +279,10 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
   import { ReviewStatus } from '@/models/caseManagement/caseReview';
+  import type { TestPlanItem } from '@/models/testPlan/testPlan';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
@@ -259,6 +296,7 @@
     activeFolderType: 'folder' | 'module';
     offspringIds: string[]; // 当前选中文件夹的所有子孙节点id
     modulesCount: Record<string, number>; // 模块数量
+    nodeName: string; // 选中模块名称
   }>();
 
   const emit = defineEmits<{
@@ -413,13 +451,20 @@
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
+  const showType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
 
-  const tableBatchActions = {
+  const testPlanBatchActions = {
     baseAction: [
+      // TODO 批量执行不上这个版本
+      // {
+      //   label: 'testPlan.testPlanIndex.execute',
+      //   eventTag: 'execute',
+      //   permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+      // },
       {
-        label: 'testPlan.testPlanIndex.execute',
-        eventTag: 'execute',
-        permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+        label: 'common.edit',
+        eventTag: 'edit',
+        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
       },
       {
         label: 'common.copy',
@@ -430,21 +475,21 @@
       //   label: 'common.export',
       //   eventTag: 'export',
       // },
+    ],
+    moreAction: [
+      // {
+      //   label: 'testPlan.testPlanIndex.openTimingTask',
+      //   eventTag: 'openTimingTask',
+      //   permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+      // },
+      // {
+      //   label: 'testPlan.testPlanIndex.closeTimingTask',
+      //   eventTag: 'closeTimingTask',
+      //   permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+      // },
       {
         label: 'common.move',
         eventTag: 'move',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-    ],
-    moreAction: [
-      {
-        label: 'testPlan.testPlanIndex.openTimingTask',
-        eventTag: 'openTimingTask',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-      {
-        label: 'testPlan.testPlanIndex.closeTimingTask',
-        eventTag: 'closeTimingTask',
         permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
       },
       {
@@ -469,14 +514,15 @@
       label: 'common.copy',
       eventTag: 'copy',
     },
-    {
-      label: 'testPlan.testPlanIndex.createScheduledTask',
-      eventTag: 'createScheduledTask',
-    },
-    {
-      label: 'testPlan.testPlanIndex.configuration',
-      eventTag: 'config',
-    },
+    // TODO 这个版本不上
+    // {
+    //   label: 'testPlan.testPlanIndex.createScheduledTask',
+    //   eventTag: 'createScheduledTask',
+    // },
+    // {
+    //   label: 'testPlan.testPlanIndex.configuration',
+    //   eventTag: 'config',
+    // },
     {
       label: 'common.archive',
       eventTag: 'archive',
@@ -497,7 +543,7 @@
       projectId: 'string',
       num: '100944',
       name: '系统示例',
-      status: 'PREPARED',
+      status: 'COMPLETED',
       tags: ['string'],
       schedule: 'string',
       createUser: 'string',
@@ -522,74 +568,74 @@
         apiCount: 3,
         scenarioCount: 3,
       },
-      children: [
-        {
-          id: '100945',
-          projectId: 'string',
-          num: '100945',
-          name: '系统示例',
-          status: 'COMPLETED',
-          tags: ['string'],
-          schedule: 'string',
-          createUser: 'string',
-          createTime: 'string',
-          moduleName: 'string',
-          moduleId: 'string',
-          testPlanItem: [],
-          testPlanGroupId: 'string',
-          passCount: 0,
-          unPassCount: 0,
-          reviewedCount: 0,
-          underReviewedCount: 0,
-          childrenCount: 0,
-          useCaseCount: {
-            caseCount: 3,
-            apiCount: 3,
-            scenarioCount: 3,
-          },
-          statusDetail: {
-            tolerance: 100,
-            UNPENDING: 100,
-            RUNNING: 30,
-            SUCCESS: 30,
-            ERROR: 30,
-            executionProgress: '100%',
-          },
-        },
-        {
-          id: '100955',
-          projectId: 'string',
-          num: '100955',
-          name: '系统示例',
-          status: 'COMPLETED',
-          tags: ['string'],
-          schedule: 'string',
-          createUser: 'string',
-          createTime: 'string',
-          moduleName: 'string',
-          moduleId: 'string',
-          testPlanItem: [],
-          testPlanGroupId: 'string',
-          passCount: 0,
-          unPassCount: 0,
-          reviewedCount: 0,
-          underReviewedCount: 0,
-          childrenCount: 0,
-          useCaseCount: {
-            caseCount: 3,
-            apiCount: 3,
-            scenarioCount: 3,
-          },
-          statusDetail: {
-            tolerance: 100,
-            UNPENDING: 100,
-            RUNNING: 30,
-            SUCCESS: 30,
-            ERROR: 30,
-            executionProgress: '100%',
-          },
-        },
-      ],
+      // children: [
+      //   {
+      //     id: '100945',
+      //     projectId: 'string',
+      //     num: '100945',
+      //     name: '系统示例',
+      //     status: 'COMPLETED',
+      //     tags: ['string'],
+      //     schedule: 'string',
+      //     createUser: 'string',
+      //     createTime: 'string',
+      //     moduleName: 'string',
+      //     moduleId: 'string',
+      //     testPlanItem: [],
+      //     testPlanGroupId: 'string',
+      //     passCount: 0,
+      //     unPassCount: 0,
+      //     reviewedCount: 0,
+      //     underReviewedCount: 0,
+      //     childrenCount: 0,
+      //     useCaseCount: {
+      //       caseCount: 3,
+      //       apiCount: 3,
+      //       scenarioCount: 3,
+      //     },
+      //     statusDetail: {
+      //       tolerance: 100,
+      //       UNPENDING: 100,
+      //       RUNNING: 30,
+      //       SUCCESS: 30,
+      //       ERROR: 30,
+      //       executionProgress: '100%',
+      //     },
+      //   },
+      //   {
+      //     id: '100955',
+      //     projectId: 'string',
+      //     num: '100955',
+      //     name: '系统示例',
+      //     status: 'COMPLETED',
+      //     tags: ['string'],
+      //     schedule: 'string',
+      //     createUser: 'string',
+      //     createTime: 'string',
+      //     moduleName: 'string',
+      //     moduleId: 'string',
+      //     testPlanItem: [],
+      //     testPlanGroupId: 'string',
+      //     passCount: 0,
+      //     unPassCount: 0,
+      //     reviewedCount: 0,
+      //     underReviewedCount: 0,
+      //     childrenCount: 0,
+      //     useCaseCount: {
+      //       caseCount: 3,
+      //       apiCount: 3,
+      //       scenarioCount: 3,
+      //     },
+      //     statusDetail: {
+      //       tolerance: 100,
+      //       UNPENDING: 100,
+      //       RUNNING: 30,
+      //       SUCCESS: 30,
+      //       ERROR: 30,
+      //       executionProgress: '100%',
+      //     },
+      //   },
+      // ],
     },
   ];
 
@@ -622,8 +668,6 @@
     filter: {},
     combine: {},
   });
-
-  const showType = ref<keyof typeof testPlanTypeEnum>('ALL');
 
   async function initTableParams() {
     conditionParams.value = {
@@ -740,7 +784,7 @@
       title: t('testPlan.testPlanIndex.confirmBatchArchivePlan', {
         count: batchParams.value.currentSelectCount,
       }),
-      content: t('testPlan.testPlanIndex.confirmBatchDeletePlanContentTip'),
+      content: t('testPlan.testPlanIndex.confirmBatchArchivePlanContent'),
       okText: t('common.archive'),
       cancelText: t('common.cancel'),
       okButtonProps: {
@@ -749,7 +793,7 @@
       onBeforeOk: async () => {
         try {
           const { selectedIds, selectAll, excludeIds } = batchParams.value;
-          Message.success(t('common.deleteSuccess'));
+          Message.success(t('common.batchArchiveSuccess'));
           fetchData();
         } catch (error) {
           console.log(error);
@@ -759,7 +803,7 @@
     });
   }
   /**
-   * 归档
+   * 删除
    */
   function handleDelete() {
     openModal({
@@ -767,7 +811,7 @@
       title: t('testPlan.testPlanIndex.confirmBatchDeletePlan', {
         count: batchParams.value.currentSelectCount,
       }),
-      content: t('testPlan.testPlanIndex.confirmBatchDeletePlanContentTip'),
+      content: t('testPlan.testPlanIndex.confirmBatchDeletePlanContent'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
       okButtonProps: {
@@ -784,6 +828,19 @@
       },
       hideCancel: false,
     });
+  }
+
+  /**
+   * 批量编辑
+   */
+  const showEditModel = ref<boolean>(false);
+
+  function handleEdit() {
+    showEditModel.value = true;
+  }
+
+  function successHandler() {
+    fetchData();
   }
 
   /**
@@ -813,6 +870,9 @@
       case 'delete':
         handleDelete();
         break;
+      case 'edit':
+        handleEdit();
+        break;
 
       default:
         break;
@@ -828,13 +888,48 @@
     showScheduledTaskModal.value = true;
   }
 
-  function handleMoreActionSelect(item: ActionsItem, record: any) {
+  const showStatusDeleteModal = ref<boolean>(false);
+  const activeRecord = ref<TestPlanItem>();
+  function deleteStatusHandler(record: TestPlanItem) {
+    activeRecord.value = cloneDeep(record);
+    showStatusDeleteModal.value = true;
+  }
+
+  function archiveHandle(record: TestPlanItem) {
+    openModal({
+      type: 'warning',
+      title: t('common.archiveConfirmTitle', { name: characterLimit(record.name) }),
+      content: t('testPlan.testPlanIndex.confirmArchivePlan'),
+      okText: t('common.archive'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'normal',
+      },
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('common.batchArchiveSuccess'));
+          fetchData();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  function handleMoreActionSelect(item: ActionsItem, record: TestPlanItem) {
     switch (item.eventTag) {
       case 'copy':
         copyHandler();
         break;
       case 'createScheduledTask':
         handleScheduledTask();
+        break;
+      case 'delete':
+        deleteStatusHandler(record);
+        break;
+      case 'archive':
+        archiveHandle(record);
         break;
       default:
         break;
@@ -843,17 +938,18 @@
 
   const expandedKeys = ref<string[]>([]);
 
-  function expandHandler(record: any) {
-    if (expandedKeys.value.includes(record.id)) {
-      expandedKeys.value = expandedKeys.value.filter((key) => key !== record.id);
-    } else {
-      expandedKeys.value = [...expandedKeys.value, record.id];
-    }
-  }
-
-  function getIconClass(record: any) {
-    return expandedKeys.value.includes(record.id) ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]';
-  }
+  // TODO先不做展开折叠
+  // function expandHandler(record: any) {
+  //   if (expandedKeys.value.includes(record.id)) {
+  //     expandedKeys.value = expandedKeys.value.filter((key) => key !== record.id);
+  //   } else {
+  //     expandedKeys.value = [...expandedKeys.value, record.id];
+  //   }
+  // }
+  // TODO先不做展开折叠
+  // function getIconClass(record: any) {
+  //   return expandedKeys.value.includes(record.id) ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]';
+  // }
 
   function handleFilterHidden(val: boolean) {
     if (!val) {
@@ -893,11 +989,6 @@
     }
   );
 
-  // TODO 临时数据模拟
-  // onMounted(() => {
-  //   setProps({ data });
-  // });
-
   onBeforeMount(() => {
     fetchData();
   });
@@ -906,18 +997,16 @@
 </script>
 
 <style scoped lang="less">
-  :deep(.arco-table-cell-expand-icon .arco-table-cell-inline-icon) {
-    display: none;
-  }
-  :deep(.arco-table-cell-align-left) > span:first-child {
-    padding-left: 0 !important;
-  }
-  .arrowIcon {
-    transform: scaleX(-1);
-  }
-  :deep(.ms-modal-form .arco-modal-body) {
-    padding: 0 !important;
-  }
+  // TODO先不做展开折叠
+  // :deep(.arco-table-cell-expand-icon .arco-table-cell-inline-icon) {
+  //   display: none;
+  // }
+  // :deep(.arco-table-cell-align-left) > span:first-child {
+  //   padding-left: 0 !important;
+  // }
+  // .arrowIcon {
+  //   transform: scaleX(-1);
+  // }
   .popover-label-td {
     @apply flex items-center;
 

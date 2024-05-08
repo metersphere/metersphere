@@ -20,7 +20,7 @@
           <template #footer>
             <div class="mb-[6px] mt-[4px] p-[3px_8px]">
               <MsButton type="text" class="text-[rgb(var(--primary-5))]" @click="createCustomFrequency">
-                {{ t('project.testPlanIndex.customFrequency') }}
+                {{ t('testPlan.testPlanIndex.customFrequency') }}
               </MsButton>
             </div>
           </template>
@@ -28,14 +28,14 @@
       </a-form-item>
       <a-radio-group v-model="form.env" class="mb-4">
         <a-radio value="">
-          {{ t('project.testPlanIndex.defaultEnv') }}
+          {{ t('testPlan.testPlanIndex.defaultEnv') }}
           <span class="float-right mx-1 mt-[1px]">
             <a-tooltip :content="t('testPlan.testPlanIndex.envTip')" position="top">
               <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
             /></a-tooltip>
           </span>
         </a-radio>
-        <a-radio value="new"> {{ t('project.testPlanIndex.newEnv') }}</a-radio>
+        <a-radio value="new"> {{ t('testPlan.testPlanIndex.newEnv') }}</a-radio>
       </a-radio-group>
       <a-radio-group v-model="form.methods">
         <a-radio value="serial">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
@@ -59,7 +59,7 @@
                 <span class="text-[var(--color-text-4)]">CPU</span>
                 <span class="mx-2"> {{ item.cpuRate }}</span>
                 <MsTag theme="outline" :type="item.status ? 'link' : 'success'" size="small">
-                  {{ item.status ? t('project.testPlanIndex.doing') : t('project.testPlanIndex.inFreeTime') }}
+                  {{ item.status ? t('testPlan.testPlanIndex.doing') : t('testPlan.testPlanIndex.inFreeTime') }}
                 </MsTag>
               </div>
             </div>

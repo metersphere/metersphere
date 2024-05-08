@@ -82,6 +82,7 @@
             :offspring-ids="offspringIds"
             :active-folder-type="activeCaseType"
             :modules-count="modulesCount"
+            :node-name="nodeName"
             @init="initModulesCount"
           />
         </div>
@@ -175,11 +176,14 @@
   const activeCaseType = ref<'folder' | 'module'>('folder'); // 激活计划树类型
 
   const offspringIds = ref<string[]>([]);
+  const nodeName = ref<string>('');
+
   // 处理计划树节点选中
-  function planNodeSelect(keys: string[], _offspringIds: string[]) {
+  function planNodeSelect(keys: string[], _offspringIds: string[], moduleName: string) {
     [activeFolder.value] = keys;
     activeCaseType.value = 'module';
     offspringIds.value = [..._offspringIds];
+    nodeName.value = moduleName;
   }
 
   /**
@@ -191,7 +195,7 @@
   }
 
   /**
-   * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
+   * 刷新模块树的统计数量
    */
   function initModulesCount(params: any) {}
 
