@@ -1,6 +1,7 @@
 package io.metersphere.plan.controller;
 
 import io.metersphere.plan.constants.TestPlanResourceConfig;
+import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
@@ -122,6 +123,16 @@ public class TestPlanController {
     public void archived(@NotBlank @PathVariable String id) {
         String userId = SessionUtils.getUserId();
         testPlanService.archived(id, userId);
+    }
+
+
+    @PostMapping("/copy")
+    @Operation(summary = "测试计划-复制测试计划")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.COPY, expression = "#msClass.copyLog(#request)", msClass = TestPlanLogService.class)
+    public TestPlan copy(@Validated @RequestBody TestPlanCopyRequest request) {
+        return testPlanService.copy(request, SessionUtils.getUserId());
     }
 
 }

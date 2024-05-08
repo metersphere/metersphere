@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
+import io.metersphere.plan.dto.request.TestPlanCopyRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
@@ -30,10 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,39 +81,62 @@ public class TestPlanService {
      * @return
      */
     public String add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
+        TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator, null);
+        testPlanLogService.saveAddLog(testPlan, operator, requestUrl, requestMethod);
+        return testPlan.getId();
+    }
+
+
+    /**
+     * 保存数据
+     *
+     * @param createOrCopyRequest
+     * @param operator
+     * @param id                  复制的计划/计划组id 判断新增还是复制
+     */
+    private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator, String id) {
         //检查模块的合法性
-        this.checkModule(testPlanCreateRequest.getModuleId());
+        this.checkModule(createOrCopyRequest.getModuleId());
 
         TestPlan createTestPlan = new TestPlan();
-        BeanUtils.copyBean(createTestPlan, testPlanCreateRequest);
+        BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
         this.validateTestPlan(createTestPlan);
 
         createTestPlan.setId(IDGenerator.nextStr());
         long operateTime = System.currentTimeMillis();
-        createTestPlan.setNum(NumGenerator.nextNum(testPlanCreateRequest.getProjectId(), ApplicationNumScope.TEST_PLAN));
+        createTestPlan.setNum(NumGenerator.nextNum(createOrCopyRequest.getProjectId(), ApplicationNumScope.TEST_PLAN));
         createTestPlan.setCreateUser(operator);
         createTestPlan.setUpdateUser(operator);
         createTestPlan.setCreateTime(operateTime);
         createTestPlan.setUpdateTime(operateTime);
         createTestPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
 
+        if (StringUtils.equals(createTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(createTestPlan.getGroupId());
+            createTestPlan.setModuleId(testPlan.getModuleId());
+        }
+
         TestPlanConfig testPlanConfig = new TestPlanConfig();
         testPlanConfig.setTestPlanId(createTestPlan.getId());
-        testPlanConfig.setAutomaticStatusUpdate(testPlanCreateRequest.isAutomaticStatusUpdate());
-        testPlanConfig.setRepeatCase(testPlanCreateRequest.isRepeatCase());
-        testPlanConfig.setPassThreshold(testPlanCreateRequest.getPassThreshold());
-        testPlanConfig.setTestPlanning(testPlanCreateRequest.isTestPlanning());
+        testPlanConfig.setAutomaticStatusUpdate(createOrCopyRequest.isAutomaticStatusUpdate());
+        testPlanConfig.setRepeatCase(createOrCopyRequest.isRepeatCase());
+        testPlanConfig.setPassThreshold(createOrCopyRequest.getPassThreshold());
+        testPlanConfig.setTestPlanning(createOrCopyRequest.isTestPlanning());
 
-        if (testPlanCreateRequest.isGroupOption()) {
+        if (createOrCopyRequest.isGroupOption()) {
             testPlanXPackFactory.getTestPlanGroupService().validateGroup(createTestPlan, testPlanConfig);
         }
 
-        handleAssociateCase(testPlanCreateRequest, createTestPlan);
+        if (StringUtils.isBlank(id)) {
+            handleAssociateCase(createOrCopyRequest, createTestPlan);
+        } else {
+            //复制
+            handleCopy(createTestPlan, id);
+        }
 
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insert(testPlanConfig);
-        testPlanLogService.saveAddLog(createTestPlan, operator, requestUrl, requestMethod);
-        return createTestPlan.getId();
+        return createTestPlan;
     }
 
     /**
@@ -322,6 +343,11 @@ public class TestPlanService {
             updateTestPlan.setGroupId(request.getTestPlanGroupId());
             updateTestPlan.setType(testPlan.getType());
 
+            if (StringUtils.equals(updateTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(updateTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                TestPlan group = testPlanMapper.selectByPrimaryKey(updateTestPlan.getGroupId());
+                updateTestPlan.setModuleId(group.getModuleId());
+            }
+
             if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP) || StringUtils.isNotEmpty(request.getTestPlanGroupId())) {
                 //修改组、移动测试计划进组出组，需要特殊的处理方式
                 testPlanXPackFactory.getTestPlanGroupService().validateGroup(testPlan, null);
@@ -402,5 +428,53 @@ public class TestPlanService {
             throw new MSException(Translator.get("test_plan.group.not_plan"));
         }
         extTestPlanMapper.batchUpdateStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
+    }
+
+    /**
+     * 复制测试计划
+     *
+     * @param request
+     * @param userId
+     * @return
+     */
+    public TestPlan copy(TestPlanCopyRequest request, String userId) {
+        TestPlan testPlan = savePlanDTO(request, userId, request.getTestPlanId());
+        return testPlan;
+    }
+
+
+    /**
+     * 处理复制
+     *
+     * @param testPlan
+     * @param id
+     */
+    private void handleCopy(TestPlan testPlan, String id) {
+        if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //计划组
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andGroupIdEqualTo(id);
+            List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
+            if (CollectionUtils.isEmpty(testPlans)) {
+                return;
+            }
+            List<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
+            doHandleAssociateCase(ids, testPlan);
+        } else {
+            //计划
+            doHandleAssociateCase(Arrays.asList(id), testPlan);
+        }
+
+    }
+
+    /**
+     * 处理复制 关联用例数据
+     *
+     * @param ids
+     */
+    private void doHandleAssociateCase(List<String> ids, TestPlan testPlan) {
+        testPlanFunctionCaseService.saveTestPlanByPlanId(ids, testPlan);
+        //TODO 复制关联接口用例/接口场景用例
+
     }
 }

@@ -21,8 +21,7 @@ public class TestPlanCreateRequest {
     @Size(min = 1, max = 50, message = "{test_plan.project_id.length_range}")
     private String projectId;
 
-    @Schema(description = "测试计划组ID;测试计划要改为树结构。最上层的为root，其余则是父节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan.parent_id.not_blank}")
+    @Schema(description = "测试计划组ID;测试计划要改为树结构。最上层的为NONE，其余则是父节点ID")
     @Size(min = 1, max = 50, message = "{test_plan.parent_id.length_range}")
     private String groupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
 
@@ -32,8 +31,7 @@ public class TestPlanCreateRequest {
     private String name;
 
 
-    @Schema(description = "测试计划模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan.module_id.not_blank}")
+    @Schema(description = "测试计划模块ID")
     @Size(min = 1, max = 50, message = "{test_plan.parent_id.length_range}")
     private String moduleId = ModuleConstants.DEFAULT_NODE_ID;
 

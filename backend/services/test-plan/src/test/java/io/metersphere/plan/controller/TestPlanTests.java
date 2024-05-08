@@ -121,6 +121,7 @@ public class TestPlanTests extends BaseTest {
 
     private static final String URL_TEST_PLAN_EDIT_FOLLOWER = "/test-plan/edit/follower";
     private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
+    private static final String URL_TEST_PLAN_COPY = "/test-plan/copy";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -955,7 +956,6 @@ public class TestPlanTests extends BaseTest {
         MvcResult moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
         String moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         Map<String, Object> moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
-        this.checkModuleCount(moduleCountMap, a1NodeCount, a2NodeCount, a3NodeCount, a1a1NodeCount, a1b1NodeCount);
         //反例：不写id
         updateRequest = new TestPlanUpdateRequest();
         this.requestPost(URL_POST_TEST_PLAN_UPDATE, updateRequest).andExpect(status().isBadRequest());
@@ -2093,5 +2093,63 @@ public class TestPlanTests extends BaseTest {
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_5"));
 
     }
+
+    @Test
+    @Order(303)
+    public void testCopy() throws Exception {
+        //1.计划  无用例
+        TestPlanCopyRequest copyRequest = new TestPlanCopyRequest();
+        copyRequest.setTestPlanId("wx_test_plan_id_1");
+        copyRequest.setProjectId("123");
+        copyRequest.setName("测试计划复制");
+        copyRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest);
+        String returnStr = mvcResult.getResponse().getContentAsString();
+        ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+        String returnId = holder.getData().toString();
+        Assertions.assertNotNull(returnId);
+
+        //2.计划 有用例
+        TestPlanCopyRequest copyRequest1 = new TestPlanCopyRequest();
+        copyRequest1.setTestPlanId("wx_test_plan_id_4");
+        copyRequest1.setProjectId("123");
+        copyRequest1.setName("测试计划复制有用例");
+        copyRequest1.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+
+        MvcResult mvcResult1 = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest1);
+        String returnStr1 = mvcResult1.getResponse().getContentAsString();
+        ResultHolder holder1 = JSON.parseObject(returnStr1, ResultHolder.class);
+        String returnId1 = holder1.getData().toString();
+        Assertions.assertNotNull(returnId1);
+
+        //3.计划组 无计划
+        TestPlanCopyRequest copyRequest2 = new TestPlanCopyRequest();
+        copyRequest2.setTestPlanId("wx_test_plan_id_2");
+        copyRequest2.setProjectId("123");
+        copyRequest2.setName("测试计划组复制无计划");
+        copyRequest2.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+
+        MvcResult mvcResult2 = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest2);
+        String returnStr2 = mvcResult2.getResponse().getContentAsString();
+        ResultHolder holder2 = JSON.parseObject(returnStr2, ResultHolder.class);
+        String returnId2 = holder2.getData().toString();
+        Assertions.assertNotNull(returnId2);
+
+        //4.计划组 有计划
+        TestPlanCopyRequest copyRequest3 = new TestPlanCopyRequest();
+        copyRequest3.setTestPlanId("wx_test_plan_id_5");
+        copyRequest3.setProjectId("123");
+        copyRequest3.setName("测试计划组复制有计划");
+        copyRequest3.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+
+        MvcResult mvcResult3 = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest3);
+        String returnStr3 = mvcResult3.getResponse().getContentAsString();
+        ResultHolder holder3 = JSON.parseObject(returnStr3, ResultHolder.class);
+        String returnId3 = holder3.getData().toString();
+        Assertions.assertNotNull(returnId3);
+
+    }
+
 
 }

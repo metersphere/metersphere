@@ -1,5 +1,7 @@
 package io.metersphere.plan.dto.request;
 
+import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -20,7 +22,7 @@ public class TestPlanUpdateRequest {
     private String name;
 
     @Schema(description = "模块ID")
-    private String moduleId;
+    private String moduleId = ModuleConstants.DEFAULT_NODE_ID;
 
     @Schema(description = "标签")
     private LinkedHashSet<String> tags;
@@ -49,6 +51,6 @@ public class TestPlanUpdateRequest {
     private Double passThreshold;
 
     @Schema(description = "测试计划组Id")
-    private String testPlanGroupId;
+    private String testPlanGroupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
     
 }

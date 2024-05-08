@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.dto.request.TestPlanCopyRequest;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -148,4 +149,27 @@ public class TestPlanLogService {
         dto.setOriginalValue(JSON.toJSONBytes(testPlan));
         return dto;
     }
+
+    /**
+     * 复制日志
+     *
+     * @param request
+     * @return
+     */
+    public LogDTO copyLog(TestPlanCopyRequest request) {
+        LogDTO dto = new LogDTO(
+                request.getProjectId(),
+                null,
+                null,
+                null,
+                OperationLogType.COPY.name(),
+                logModule,
+                request.getName());
+        dto.setPath("/test-plan/copy");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+
 }
