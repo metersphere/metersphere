@@ -4,7 +4,7 @@
       <table class="min-w-[144px]">
         <tr>
           <td class="popover-label-td">
-            <div>{{ t('project.testPlanIndex.tolerance') }}</div>
+            <div>{{ t('testPlan.testPlanIndex.tolerance') }}</div>
           </td>
           <td class="popover-value-td">
             {{ props.statusDetail.tolerance }}
@@ -12,7 +12,7 @@
         </tr>
         <tr>
           <td class="popover-label-td">
-            <div>{{ t('project.testPlanIndex.executionProgress') }}</div>
+            <div>{{ t('testPlan.testPlanIndex.executionProgress') }}</div>
           </td>
           <td class="popover-value-td">
             {{ props.statusDetail.executionProgress }}
