@@ -76,7 +76,7 @@
     }
   }
 
-  function getDeleteTip() {
+  const contentTip = computed(() => {
     switch (props.record && props.record.status) {
       case 'ARCHIVED':
         return t('testPlan.testPlanIndex.deleteArchivedPlan');
@@ -87,10 +87,6 @@
       default:
         return t('testPlan.testPlanIndex.deletePendingPlan');
     }
-  }
-
-  const contentTip = computed(() => {
-    return getDeleteTip();
   });
 </script>
 

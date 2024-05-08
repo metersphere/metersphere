@@ -71,7 +71,8 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance } from '@arco-design/web-vue';
+  import { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
@@ -108,7 +109,7 @@
     tags: [],
     value: '',
   };
-  const form = ref({ ...initForm });
+  const form = ref(cloneDeep(initForm));
 
   const attrOptions = [
     {
@@ -123,12 +124,11 @@
     isVisible.value = false;
     formRef.value?.resetFields();
     form.value = { ...initForm };
-    form.value.tags = [];
   }
 
   async function confirmHandler(enable: boolean | undefined) {
-    await formRef.value?.validate().then(async (error) => {
-      if (!error) {
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
         try {
           const customField = {
             fieldId: '',
