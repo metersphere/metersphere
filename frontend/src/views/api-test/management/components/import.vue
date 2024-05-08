@@ -313,8 +313,7 @@
       </a-form>
     </MsDrawer>
     <MsDrawer v-model:visible="taskDrawerVisible" :width="960" :title="t('apiTestManagement.timeTask')" :footer="false">
-      <div class="mb-[16px] flex items-center justify-between">
-        {{ t('apiTestManagement.timeTaskList') }}
+      <div class="mb-[16px] flex items-center justify-end">
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('apiTestManagement.searchTaskPlaceholder')"

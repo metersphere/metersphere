@@ -83,7 +83,8 @@
       <template
         v-if="
           hasAnyPermission(
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM ||
+              groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM
               ? ['SYSTEM_ORGANIZATION_PROJECT:READ']
               : ['ORGANIZATION_PROJECT:READ']
           )
@@ -98,7 +99,8 @@
           :load-option-params="{ organizationId: appStore.currentOrgId }"
           :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
           :type="
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM ||
+            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM
               ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
               : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
           "
@@ -273,7 +275,6 @@
       showDrag: false,
       sortIndex: 1,
       columnSelectorDisabled: true,
-      fixed: 'left',
     },
     {
       title: 'project.taskCenter.resourceName',
@@ -334,18 +335,59 @@
     },
   ];
 
-  const groupColumnsMap = {
+  const swaggerUrlColumn: MsTableColumn = [
+    {
+      title: 'project.taskCenter.swaggerUrl',
+      slotName: 'swaggerUrl',
+      dataIndex: 'swaggerUrl',
+      width: 300,
+      showDrag: false,
+      showTooltip: true,
+      columnSelectorDisabled: true,
+      showInTable: true,
+    },
+  ];
+
+  const groupColumnsMap: Record<string, any> = {
     system: {
-      key: TableKeyEnum.TASK_SCHEDULE_TASK_SYSTEM,
-      columns: [...ordAndProjectColumn, ...columns],
+      API_IMPORT: {
+        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM,
+        columns: [
+          ...ordAndProjectColumn,
+          ...columns.slice(0, 2),
+          ...swaggerUrlColumn,
+          ...columns.slice(2, columns.length),
+        ],
+      },
+      API_SCENARIO: {
+        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM,
+        columns: [...ordAndProjectColumn, ...columns],
+      },
     },
     organization: {
-      key: TableKeyEnum.TASK_SCHEDULE_TASK_ORGANIZATION,
-      columns: [...ordAndProjectColumn.slice(-1), ...columns],
+      API_IMPORT: {
+        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_ORGANIZATION,
+        columns: [
+          ...ordAndProjectColumn.slice(-1),
+          ...columns.slice(0, 2),
+          ...swaggerUrlColumn,
+          ...columns.slice(2, columns.length),
+        ],
+      },
+      API_SCENARIO: {
+        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_ORGANIZATION,
+        columns: [...ordAndProjectColumn.slice(-1), ...columns],
+      },
     },
     project: {
-      key: TableKeyEnum.TASK_SCHEDULE_TASK_PROJECT,
-      columns,
+      API_IMPORT: {
+        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_PROJECT,
+        columns: [...columns.slice(0, 2), ...swaggerUrlColumn, ...columns.slice(2, columns.length)],
+      },
+      API_SCENARIO: {
+        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_PROJECT,
+        columns,
+      },
     },
   };
   const orgFilterVisible = ref<boolean>(false);
@@ -373,7 +415,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     loadRealMap.value[props.group].list,
     {
-      tableKey: groupColumnsMap[props.group].key,
+      tableKey: groupColumnsMap[props.group][props.moduleType].key,
       scroll: {
         x: 1200,
       },
@@ -602,7 +644,22 @@
     }
   );
 
-  await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
+  await tableStore.initColumn(
+    groupColumnsMap[props.group][props.moduleType].key,
+    groupColumnsMap[props.group][props.moduleType].columns,
+    'drawer',
+    true
+  );
+
+  const tableRef = ref();
+  watch(
+    () => props.moduleType,
+    (val) => {
+      if (val) {
+        tableRef.value.initColumn(groupColumnsMap[props.group][props.moduleType].columns);
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">

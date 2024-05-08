@@ -66,9 +66,12 @@ export enum TableKeyEnum {
   TASK_API_CASE_SYSTEM = 'taskCenterApiCaseSystem',
   TASK_API_CASE_ORGANIZATION = 'taskCenterApiCaseOrganization',
   TASK_API_CASE_PROJECT = 'taskCenterApiCaseProject',
-  TASK_SCHEDULE_TASK_SYSTEM = 'taskCenterScheduleSystem',
-  TASK_SCHEDULE_TASK_ORGANIZATION = 'taskCenterScheduleOrganization',
-  TASK_SCHEDULE_TASK_PROJECT = 'taskCenterScheduleProject',
+  TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM = 'taskCenterScheduleApiImportSystem',
+  TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM = 'taskCenterScheduleApiScenarioSystem',
+  TASK_SCHEDULE_TASK_API_IMPORT_ORGANIZATION = 'taskCenterScheduleApiImportOrganization',
+  TASK_SCHEDULE_TASK_API_SCENARIO_ORGANIZATION = 'taskCenterScheduleApiScenarioOrganization',
+  TASK_SCHEDULE_TASK_API_IMPORT_PROJECT = 'taskCenterScheduleApiImportProject',
+  TASK_SCHEDULE_TASK_API_SCENARIO_PROJECT = 'taskCenterScheduleApiScenarioProject',
 }
 
 // 具有特殊功能的列
