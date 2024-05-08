@@ -71,7 +71,7 @@
       <MsMoreSettingCollapse>
         <template #content>
           <div v-for="item in switchList" :key="item.key" class="mb-[24px] flex items-center gap-[8px]">
-            <a-switch v-model="form[item.key as keyof AddTestPlanParams] as boolean" size="small" />
+            <a-switch v-model="form[item.key]" size="small" />
             {{ t(item.label) }}
             <a-tooltip :position="item.tooltipPosition">
               <template #content>
@@ -111,15 +111,8 @@
   import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { AddTestPlanParams } from '@/models/testPlan/testPlan';
+  import type { AddTestPlanParams, SwitchListModel } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
-
-  interface SwitchListModel {
-    key: string;
-    label: string;
-    desc: string[];
-    tooltipPosition: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb';
-  }
 
   const { t } = useI18n();
   const appStore = useAppStore();
