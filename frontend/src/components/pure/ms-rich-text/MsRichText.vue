@@ -337,7 +337,7 @@
             // return `${options.suggestion.char}${userMap[node.attrs.id]}`;
           },
           suggestion,
-        }),
+        }) as Extension<any, any>,
       ],
       autofocus: false,
       onUpdate: () => {

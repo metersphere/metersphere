@@ -55,4 +55,11 @@ export interface AddTestPlanParams {
   groupOption?: boolean;
 }
 
+export interface SwitchListModel {
+  key: 'repeatCase' | 'automaticStatusUpdate' | 'testPlanning';
+  label: string;
+  desc: string[];
+  tooltipPosition: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb';
+}
+
 export default {};

@@ -1,5 +1,5 @@
 <script lang="tsx">
-  import { compile, computed, defineComponent, h, ref } from 'vue';
+  import { computed, defineComponent, h, ref } from 'vue';
   import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
@@ -461,7 +461,7 @@
                     key={element?.name}
                     v-slots={{
                       icon,
-                      title: () => h(compile(t(element?.meta?.locale || ''))),
+                      title: () => h(t(element?.meta?.locale || '')),
                     }}
                     class={BOTTOM_MENU_LIST.includes(element?.name as string) ? 'arco-menu-inline--bottom' : ''}
                   >
