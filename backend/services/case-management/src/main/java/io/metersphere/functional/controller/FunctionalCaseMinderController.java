@@ -1,9 +1,10 @@
 package io.metersphere.functional.controller;
 
-import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
+import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
+import io.metersphere.functional.request.FunctionalCaseMinderRemoveRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.functional.service.FunctionalCaseNoticeService;
@@ -15,6 +16,7 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -48,20 +50,37 @@ public class FunctionalCaseMinderController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateMinderFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseMinderDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "functional_case")
-    public FunctionalCase updateFunctionalCaseName(@Validated @RequestBody FunctionalCaseMinderEditRequest request) {
+    public void updateFunctionalCaseName(@Validated @RequestBody FunctionalCaseMinderEditRequest request) {
         String userId = SessionUtils.getUserId();
-        return functionalCaseMinderService.updateFunctionalCase(request, userId);
+         functionalCaseMinderService.updateFunctionalCase(request, userId);
     }
 
     @PostMapping("/update/source/priority")
-    @Operation(summary = "脑图更新资源名称")
+    @Operation(summary = "脑图更新用例等级")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateMinderFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseMinderDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "functional_case")
-    public FunctionalCase updateFunctionalCasePriority(@Validated @RequestBody FunctionalCaseMinderEditRequest request) {
+    public void updateFunctionalCasePriority(@Validated @RequestBody FunctionalCaseMinderEditRequest request) {
         String userId = SessionUtils.getUserId();
-        return functionalCaseMinderService.updateFunctionalCase(request, userId);
+        functionalCaseMinderService.updateFunctionalCase(request, userId);
+    }
+
+    @PostMapping("/batch/remove")
+    @Operation(summary = "脑图批量移动（移动到某个节点下或者移动排序）")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public void removeFunctionalCaseBatch(@Validated @RequestBody FunctionalCaseMinderRemoveRequest request) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseMinderService.removeFunctionalCaseBatch(request, userId);
+    }
+
+    @PostMapping("/batch/delete/{projectId}")
+    @Operation(summary = "脑图批量删除")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteBatchMinderFunctionalCaseLog(#resourceList)", msClass = FunctionalCaseLogService.class)
+    public void deleteFunctionalCaseBatch(@PathVariable String projectId, @Validated @RequestBody @Schema(description = "节点和节点类型的集合", requiredMode = Schema.RequiredMode.REQUIRED) List<MinderOptionDTO> resourceList) {
+        String userId = SessionUtils.getUserId();
+        functionalCaseMinderService.deleteFunctionalCaseBatch(projectId, resourceList, userId);
     }
 
 }

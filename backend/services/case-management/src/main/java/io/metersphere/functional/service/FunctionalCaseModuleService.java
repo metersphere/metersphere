@@ -22,12 +22,15 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -58,6 +61,11 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private FunctionalCaseNoticeService functionalCaseNoticeService;
+
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
@@ -122,6 +130,9 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         if (deleteModule != null) {
             List<FunctionalCase> functionalCases = this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>(), userId);
             batchDelLog(functionalCases, deleteModule.getProjectId());
+            List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
+            User user = userMapper.selectByPrimaryKey(userId);
+            functionalCaseNoticeService.batchSendNotice(deleteModule.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
         }
     }
 

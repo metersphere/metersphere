@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseBlobMapper">
+    <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseBlob">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseBlob">
+        <result column="steps" jdbcType="LONGVARBINARY" property="steps" />
+        <result column="text_description" jdbcType="LONGVARBINARY" property="textDescription" />
+        <result column="expected_result" jdbcType="LONGVARBINARY" property="expectedResult" />
+        <result column="prerequisite" jdbcType="LONGVARBINARY" property="prerequisite" />
+        <result column="description" jdbcType="LONGVARBINARY" property="description" />
+    </resultMap>
+    <update id="batchUpdateColumn">
+        update functional_case_blob
+        set  ${column} = #{value,jdbcType=LONGVARBINARY}
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+
+</mapper>
