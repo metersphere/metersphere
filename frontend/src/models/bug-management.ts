@@ -17,6 +17,7 @@ export interface BugListItem {
   createTime: string; // 创建时间
   updateTime: string; // 更新时间
   deleted: boolean; // 删除标志
+  testPlanId: string; // 测试计划ID
 }
 
 export interface BugOptionItem {

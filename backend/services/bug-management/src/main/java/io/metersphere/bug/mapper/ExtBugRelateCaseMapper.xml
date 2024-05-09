@@ -136,6 +136,9 @@
         <if test="request.caseId != null and request.caseId != ''">
             and brc.case_id = #{request.caseId}
         </if>
+        <if test="request.testPlanCaseId != null and request.testPlanCaseId != ''">
+            and brc.test_plan_case_id = #{request.testPlanCaseId}
+        </if>
         <if test="request.keyword != null and request.keyword != ''">
             and b.title like concat('%', #{request.keyword},'%')
         </if>
