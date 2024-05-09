@@ -151,3 +151,6 @@ export const getChangeHistoryListUrl = '/functional/case/operation-history';
 export const cancelDisassociate = '/functional/case/test/disassociate/case';
 // 关联用例关联功能用例项目下拉
 export const associatedProjectOptionsUrl = '/project/list/options';
+
+// 获取详情已关联测试计划列表
+export const GetAssociatedTestPlanUrl = '/functional/case/test/has/associate/plan/page';

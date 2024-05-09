@@ -58,7 +58,7 @@
 
     <select id="getPlanList" parameterType="io.metersphere.functional.request.AssociatePlanPageRequest" resultType="io.metersphere.functional.dto.FunctionalCaseTestPlanDTO">
         SELECT
-        tpfc.*, tp.num as testPlanNum, tp.status as planStatus, p.name as projectName
+        tpfc.*, tp.name as testPlanName, tp.num as testPlanNum, tp.status as planStatus, p.name as projectName
         FROM
         test_plan_functional_case tpfc
         LEFT JOIN test_plan tp ON tpfc.test_plan_id = tp.id
@@ -71,6 +71,9 @@
             OR tp.num LIKE concat('%', #{request.keyword},'%')
             )
         </if>
+        <include refid="planFilters">
+            <property name="filter" value="request.filter"/>
+        </include>
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
@@ -133,5 +136,22 @@
         </if>
     </sql>
 
-
+    <sql id="planFilters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='planStatus'">
+                            AND tp.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='lastExecResult'">
+                            AND tpfc.last_exec_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 </mapper>

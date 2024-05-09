@@ -36,6 +36,7 @@ import {
   GetAssociatedDebuggerUrl,
   GetAssociatedDrawerCaseUrl,
   GetAssociatedFilePageUrl,
+  GetAssociatedTestPlanUrl,
   GetAssociationPublicCaseModuleCountUrl,
   GetAssociationPublicCasePageUrl,
   GetAssociationPublicModuleTreeUrl,
@@ -96,6 +97,7 @@ import type {
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, ModuleTreeNode, MoveModules, TableQueryParams } from '@/models/common';
 import { ProjectListItem } from '@/models/setting/project';
+import { AssociateFunctionalCaseItem, TestPlanItem } from '@/models/testPlan/testPlan';
 
 // 获取模块树
 export function getCaseModuleTree(params: TableQueryParams) {
@@ -426,6 +428,11 @@ export function getChangeHistoryList(data: TableQueryParams) {
 // 获取已关联缺陷列表
 export function getAssociatedProjectOptions(orgId: string, module: string) {
   return MSR.get<ProjectListItem[]>({ url: `${associatedProjectOptionsUrl}/${orgId}/${module}` });
+}
+
+// 获取已关联测试计划列表
+export function getLinkedCaseTestPlanList(data: TableQueryParams) {
+  return MSR.post<CommonList<AssociateFunctionalCaseItem>>({ url: GetAssociatedTestPlanUrl, data });
 }
 
 export default {};
