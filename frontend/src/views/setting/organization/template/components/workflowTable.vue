@@ -32,7 +32,6 @@
       :data="dataList"
       row-key="id"
       :bordered="{ cell: true }"
-      :hoverable="false"
       :pagination="false"
       :scroll="{ x: 'auto' }"
       :draggable="{ type: 'handle', width: 39 }"
@@ -53,31 +52,27 @@
               <MsTag class="relative" size="large" theme="light">{{ column.title }} </MsTag></div
             >
             <div v-else class="splitBox">
-              <div class="startStatus"> {{ t('system.orgTemplate.startState') }} </div>
+              <div class="startStatus font-normal"> {{ t('system.orgTemplate.startState') }} </div>
               <div class="line"></div>
-              <div class="endStatus"> {{ t('system.orgTemplate.flowState') }} </div>
+              <div class="endStatus font-normal"> {{ t('system.orgTemplate.flowState') }} </div>
             </div>
           </template>
           <template #cell="{ record }">
             <div v-if="column.dataIndex === 'statusName'">
               <div class="flex items-center justify-between">
                 <div class="relative">
-                  <MsTag class="relative" size="large" theme="light">{{ record.name }}</MsTag>
+                  <MsTag class="relative font-normal" size="large" theme="light">{{ record.name }}</MsTag>
                   <span v-if="record.statusDefinitions.join().includes('START')" class="absolute -top-6 left-7">
                     <svg-icon width="36px" height="36px" class="inline-block text-[white]" name="start"></svg-icon
                   ></span>
                 </div>
 
-                <div
+                <MsTableMoreAction
                   v-if="!isEnableProjectState"
-                  v-permission="props.updatePermission"
-                  class="action mr-2 flex h-8 w-8 items-center justify-center rounded opacity-0"
-                >
-                  <MsTableMoreAction
-                    :list="getMoreActions(record)"
-                    @select="(item) => handleMoreActionSelect(item, record)"
-                  ></MsTableMoreAction
-                ></div>
+                  class="mr-2"
+                  :list="getMoreActions(record)"
+                  @select="(item) => handleMoreActionSelect(item, record)"
+                ></MsTableMoreAction>
               </div>
             </div>
             <div v-else class="!h-[82px] min-w-[116px] p-[2px]">
@@ -98,7 +93,7 @@
         </a-table-column>
         <a-table-column
           :title="t('system.orgTemplate.operation')"
-          :width="320"
+          :width="260"
           header-cell-class="splitOperation"
           fixed="right"
         >
@@ -252,6 +247,7 @@
         label: 'system.orgTemplate.setInitState',
         eventTag: 'setInit',
         disabled: record.statusDefinitions.join().includes('START'),
+        permission: props.updatePermission,
       },
       {
         isDivider: true,
@@ -260,6 +256,7 @@
         label: 'system.orgTemplate.delete',
         eventTag: 'delete',
         danger: true,
+        permission: props.updatePermission,
       },
     ];
     return moreActions;
@@ -390,6 +387,7 @@
     if (isChange) return false;
     try {
       await dragChangeRequest(scopedId.value, route.query.type, dataIds);
+      Message.success(t('common.updateSuccess'));
       getWorkFetchList();
     } catch (error) {
       console.log(error);
@@ -490,7 +488,7 @@
     }
   }
   :deep(.arco-table-drag-handle) {
-    border-right: 1px solid transparent !important;
+    border-right: none !important;
     .arco-icon-drag-dot-vertical {
       color: var(--color-text-brand);
     }
@@ -506,7 +504,7 @@
     }
   }
   :deep(.arco-table-operation) {
-    border-right: 1px solid transparent !important;
+    border-right: none;
   }
   .startStatus {
     position: absolute;
@@ -520,11 +518,11 @@
   }
   .line {
     position: absolute;
-    left: -35px;
-    width: 117%;
+    left: -45px;
+    width: 128%;
     height: 1px;
     background: var(--color-text-n8);
-    transform: rotateZ(18deg);
+    transform: rotateZ(19deg);
   }
   .label {
     margin-top: 16px;
@@ -543,5 +541,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  :deep(.arco-table-border) {
+    border-right: none !important;
+    border-bottom: none !important;
+  }
+  :deep(.arco-table-tr):hover {
+    .arco-table-td:not(.arco-table-col-fixed-right) {
+      background: transparent !important;
+    }
+    .arco-table-td.arco-table-col-fixed-right::before {
+      background: transparent !important;
+    }
   }
 </style>

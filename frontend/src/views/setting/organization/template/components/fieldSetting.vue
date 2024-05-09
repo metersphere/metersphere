@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-alert
-      v-if="isShowTip"
+      v-if="isShowTip && hasAnyPermission([...props.createPermission, ...props.updatePermission])"
       class="mb-6"
       :type="isEnabledTemplate && props.mode === 'organization' ? 'warning' : 'info'"
     >

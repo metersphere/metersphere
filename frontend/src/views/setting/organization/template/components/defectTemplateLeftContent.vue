@@ -9,10 +9,8 @@
     >
       <a-input
         v-model="viewForm.name"
-        :disabled="true"
         :max-length="255"
         :placeholder="t('system.orgTemplate.defectNamePlaceholder')"
-        show-word-limit
         allow-clear
       ></a-input>
     </a-form-item>

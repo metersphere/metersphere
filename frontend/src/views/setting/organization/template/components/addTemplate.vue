@@ -742,7 +742,7 @@
           position: absolute;
           top: -12px;
           right: 16px;
-          z-index: 99999999 !important;
+          z-index: 9 !important;
           background: white;
           opacity: 0;
           @apply flex items-center justify-end;

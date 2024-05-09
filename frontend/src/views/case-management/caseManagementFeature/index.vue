@@ -162,17 +162,13 @@
   import ValidateModal from './components/export/validateModal.vue';
   import ValidateResult from './components/export/validateResult.vue';
 
-  import featureCase, {
-    createCaseModuleTree,
-    importExcelCase,
-    importExcelChecked,
-  } from '@/api/modules/case-management/featureCase';
+  import { createCaseModuleTree, importExcelCase, importExcelChecked } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
-  import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
+  import type { CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 

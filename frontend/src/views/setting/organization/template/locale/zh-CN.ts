@@ -130,7 +130,7 @@ export default {
   'system.orgTemplate.deleteFiledContentNotUsed': '删除后，字段将从字段列表移除，请谨慎操作！',
   'system.orgTemplate.deleteSuccess': '删除成功',
   'system.orgTemplate.setInitStateSuccess': '设置初始态成功',
-  'system.orgTemplate.setEndStateSuccess': '设置结束状态成功',
+  'system.orgTemplate.setEndStateSuccess': '设置成功，结束状态在项目中立即生效',
   'system.orgTemplate.noAllowDeleteInitState': '初始状态不可删除',
   'system.orgTemplate.deleteStateStepTitle': '确定删除 {name} 步骤吗？',
   'system.orgTemplate.deleteStateStepContent': '删除后，会在项目中立即生效且删除不可撤回，请谨慎操作！',
@@ -201,4 +201,5 @@ export default {
   'system.orgTemplate.apiFieldNotEmpty': '字段 API 不能为空',
   'system.orgTemplate.selectThirdPlatType': '请选择三方平台',
   'system.orgTemplate.orgNameTip': '组织名称不正确',
+  'system.orgTemplate.notAllowEditView': '当前为模板预览,不可编辑',
 };

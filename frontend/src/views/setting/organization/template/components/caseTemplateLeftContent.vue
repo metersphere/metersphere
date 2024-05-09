@@ -11,9 +11,7 @@
         v-model="viewForm.name"
         :max-length="255"
         :placeholder="t('system.orgTemplate.caseNamePlaceholder')"
-        show-word-limit
         allow-clear
-        :disabled="isDisabled"
       ></a-input>
     </a-form-item>
     <a-form-item field="precondition" :label="t('system.orgTemplate.precondition')" asterisk-position="end">

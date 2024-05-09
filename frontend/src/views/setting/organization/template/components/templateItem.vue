@@ -247,10 +247,11 @@
             cursor: pointer;
           }
           .enable {
+            height: 20px;
             font-size: 12px;
             color: var(--color-text-4);
             background: var(--color-text-n8);
-            line-height: 20px;
+            line-height: 14px;
             @apply ml-4 rounded p-1;
           }
           @apply flex flex-col justify-between;
