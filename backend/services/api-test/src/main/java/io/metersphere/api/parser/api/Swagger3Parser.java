@@ -468,6 +468,18 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                     return parseArraySchema(arraySchema.getItems(), false);
                 } else if (modelByRef instanceof ObjectSchema objectSchema) {
                     return parseObject(objectSchema, false);
+                } else {
+                    JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
+                    Map<String, Schema> properties = modelByRef.getProperties();
+                    Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
+                    if (MapUtils.isNotEmpty(properties)) {
+                        properties.forEach((key, value) -> {
+                            JsonSchemaItem item = parseProperty(value, false);
+                            jsonSchemaProperties.put(key, item);
+                        });
+                    }
+                    jsonSchemaItem.setProperties(jsonSchemaProperties);
+                    return jsonSchemaItem;
                 }
             }
 
