@@ -415,7 +415,6 @@
   };
   const globalEnvRef = ref();
   const handleSubmit = (shouldSearch: boolean) => {
-    console.log(1111);
     if (shouldSearch) {
       if (importAuthType.value === EnvAuthTypeEnum.GLOBAL && store.currentId === ALL_PARAM) {
         globalEnvRef.value.initEnvDetail();
