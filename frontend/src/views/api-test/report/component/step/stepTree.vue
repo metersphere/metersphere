@@ -22,6 +22,7 @@
         action-on-node-click="expand"
         disabled-title-tooltip
         block-node
+        hide-switcher
         @select="(selectedKeys, node) => handleStepSelect(selectedKeys, node as ScenarioItemType)"
         @expand="handleStepExpand"
         @more-actions-close="() => setFocusNodeKey('')"

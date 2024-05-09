@@ -1,5 +1,9 @@
 <template>
-  <div ref="fullRef" class="flex flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]">
+  <div
+    ref="fullRef"
+    class="flex flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]"
+    :class="[!isAdaptive ? 'h-full' : '']"
+  >
     <div v-if="showTitleLine" class="mb-[8px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">
         <a-select
@@ -391,11 +395,9 @@
 
 <style lang="less" scoped>
   .ms-code-editor {
-    width: 100%;
+    width: v-bind(width);
     height: v-bind(codeheight);
-
     @apply z-10;
-    // height: 100vh;
 
     // &.MS-text[data-mode-id='plaintext'] {
     //   :deep(.mtk1) {
