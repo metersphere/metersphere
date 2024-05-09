@@ -45,7 +45,7 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(module.getId())
-                .content(generateTestPlanSimpleContent(module))
+                .content(generateTestPlanSimpleContent(module,"test_plan.test_plan_group","test_plan.test_plan"))
                 .originalValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
@@ -62,7 +62,7 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(newTestPlan.getId())
-                .content(newTestPlan.getName())
+                .content(generateTestPlanSimpleContent(newTestPlan,"log.update.test_plan_group","log.update.test_plan"))
                 .originalValue(JSON.toJSONBytes(oldTestPlan))
                 .modifiedValue(JSON.toJSONBytes(newTestPlan))
                 .createUser(operator)
@@ -80,7 +80,7 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(deleteTestPlan.getId())
-                .content(this.generateTestPlanDeleteContent(deleteTestPlan))
+                .content(generateTestPlanSimpleContent(deleteTestPlan,"log.delete.test_plan_group","log.delete.test_plan"))
                 .originalValue(JSON.toJSONBytes(deleteTestPlan))
                 .createUser(operator)
                 .build().getLogDTO();
@@ -99,7 +99,7 @@ public class TestPlanLogService {
                     .method(requestMethod)
                     .path(requestUrl)
                     .sourceId(testPlan.getId())
-                    .content(this.generateTestPlanDeleteContent(testPlan))
+                    .content(generateTestPlanSimpleContent(testPlan, "log.delete.test_plan_group", "log.delete.test_plan"))
                     .originalValue(JSON.toJSONBytes(testPlan))
                     .createUser(operator)
                     .build().getLogDTO();
@@ -108,22 +108,12 @@ public class TestPlanLogService {
         operationLogService.batchAdd(list);
     }
 
-    private String generateTestPlanSimpleContent(TestPlan testPlan) {
+    private String generateTestPlanSimpleContent(TestPlan testPlan,String groupKey,String planKey) {
         StringBuilder content = new StringBuilder();
         if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            content.append(Translator.get("test_plan.test_plan_group")).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
+            content.append(Translator.get(groupKey)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
         } else {
-            content.append(Translator.get("test_plan.test_plan")).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
-        }
-        return content.toString();
-    }
-
-    private String generateTestPlanDeleteContent(TestPlan deleteTestPlan) {
-        StringBuilder content = new StringBuilder();
-        if (StringUtils.equals(deleteTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            content.append(Translator.get("log.delete.test_plan_group")).append(":").append(deleteTestPlan.getName()).append(StringUtils.SPACE);
-        } else {
-            content.append(Translator.get("log.delete.test_plan")).append(":").append(deleteTestPlan.getName()).append(StringUtils.SPACE);
+            content.append(Translator.get(planKey)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
         }
         return content.toString();
     }
@@ -157,6 +147,8 @@ public class TestPlanLogService {
      * @return
      */
     public LogDTO copyLog(TestPlanCopyRequest request) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        testPlan.setName(request.getName());
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
                 null,
@@ -164,12 +156,52 @@ public class TestPlanLogService {
                 null,
                 OperationLogType.COPY.name(),
                 logModule,
-                request.getName());
+                generateTestPlanSimpleContent(testPlan, "log.copy.test_plan_group", "log.copy.test_plan"));
         dto.setPath("/test-plan/copy");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
 
+    public void saveBatchCopyLog(List<TestPlan> testPlanList, String operator, String requestUrl, String requestMethod) {
+        Project project = projectMapper.selectByPrimaryKey(testPlanList.get(0).getProjectId());
+        List<LogDTO> list = new ArrayList<>();
+        for (TestPlan testPlan : testPlanList) {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(testPlan.getProjectId())
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.COPY.name())
+                    .module(logModule)
+                    .method(requestMethod)
+                    .path(requestUrl)
+                    .sourceId(testPlan.getId())
+                    .content(generateTestPlanSimpleContent(testPlan, "log.copy.test_plan_group", "log.copy.test_plan"))
+                    .originalValue(JSON.toJSONBytes(testPlan))
+                    .createUser(operator)
+                    .build().getLogDTO();
+            list.add(dto);
+        }
+        operationLogService.batchAdd(list);
+    }
 
+    public void saveBatchMoveLog(List<TestPlan> testPlanList, String operator, String requestUrl, String requestMethod) {
+        Project project = projectMapper.selectByPrimaryKey(testPlanList.get(0).getProjectId());
+        List<LogDTO> list = new ArrayList<>();
+        for (TestPlan testPlan : testPlanList) {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(testPlan.getProjectId())
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.UPDATE.name())
+                    .module(logModule)
+                    .method(requestMethod)
+                    .path(requestUrl)
+                    .sourceId(testPlan.getId())
+                    .content(generateTestPlanSimpleContent(testPlan, "log.move.test_plan_group", "log.move.test_plan"))
+                    .originalValue(JSON.toJSONBytes(testPlan))
+                    .createUser(operator)
+                    .build().getLogDTO();
+            list.add(dto);
+        }
+        operationLogService.batchAdd(list);
+    }
 }

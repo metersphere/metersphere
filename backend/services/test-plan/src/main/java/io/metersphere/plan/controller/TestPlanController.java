@@ -142,4 +142,13 @@ public class TestPlanController {
     public void batchCopy(@Validated @RequestBody TestPlanBatchRequest request) {
         testPlanService.batchCopy(request, SessionUtils.getUserId(), "/test-plan/batch/copy", HttpMethodConstants.POST.name());
     }
+
+
+    @PostMapping("/batch/move")
+    @Operation(summary = "测试计划-批量移动测试计划")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchMove(@Validated @RequestBody TestPlanBatchRequest request) {
+        testPlanService.batchMove(request, SessionUtils.getUserId(), "/test-plan/batch/move", HttpMethodConstants.POST.name());
+    }
 }
