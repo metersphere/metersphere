@@ -80,4 +80,5 @@ export default {
   'testPlan.planForm.repeatCaseTip1': 'Enable: Repeatedly associate the same case',
   'testPlan.planForm.repeatCaseTip2': 'Close: Cannot be associated with the same case repeatedly',
   'testPlan.planForm.pickCases': 'Select cases',
+  'testPlan.testPlanDetail.executed': 'Executed',
 };

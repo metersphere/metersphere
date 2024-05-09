@@ -20,6 +20,7 @@ export default {
   message: {
     'menu.workbench': '工作台',
     'menu.testPlan': '测试计划',
+    'menu.testPlan.testPlanDetail': '测试计划详情',
     'menu.bugManagement': '缺陷管理',
     'menu.bugManagement.bugDetail': '缺陷',
     'menu.bugManagement.bugRecycle': '回收站',

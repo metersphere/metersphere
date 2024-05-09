@@ -79,7 +79,9 @@
         </a-tooltip>
       </div> -->
       <div class="flex items-center">
-        <div class="one-line-text cursor-pointer text-[rgb(var(--primary-5))]">{{ record.num }}</div>
+        <div class="one-line-text cursor-pointer text-[rgb(var(--primary-5))]" @click="openDetail(record.id)">{{
+          record.num
+        }}</div>
         <a-tooltip position="right" :disabled="!record.schedule" :mouse-enter-delay="300">
           <MsTag v-if="record.schedule" size="small" type="link" theme="outline" class="ml-2">{{
             t('testPlan.testPlanIndex.timing')
@@ -257,6 +259,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -283,6 +286,7 @@
   import { characterLimit } from '@/utils';
 
   import type { planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
@@ -290,6 +294,7 @@
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
+  const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -608,6 +613,16 @@
       ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
+    });
+  }
+
+  // 测试计划详情
+  function openDetail(id: string) {
+    router.push({
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+      query: {
+        id,
+      },
     });
   }
 
