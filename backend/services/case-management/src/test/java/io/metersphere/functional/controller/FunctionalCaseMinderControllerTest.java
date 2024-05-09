@@ -86,12 +86,12 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlobMapper.insert(functionalCaseBlob);
         FunctionalCaseBlob functionalCaseBlob6 = new FunctionalCaseBlob();
         functionalCaseBlob6.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
-        functionalCaseBlob.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setPrerequisite(prerequisite.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setDescription(description.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
+        functionalCaseBlob6.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setPrerequisite(prerequisite.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setDescription(description.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
 
         FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
@@ -269,9 +269,11 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseMinderRemoveRequest.setParentTargetId(null);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_MOVE, functionalCaseMinderRemoveRequest);
         functionalCaseModule = functionalCaseModuleMapper.selectByPrimaryKey("TEST_MINDER_MODULE_ID_GYQ5");
+        functionalCaseMinderRemoveRequest.setSteps("[{\"id\":\"aa159262-baf9-4a11-91b9-0ab50a9f199e\",\"num\":0,\"desc\":\"点点滴滴\",\"result\":\"点点滴滴的\"},{\"id\":\"2bf16247-96a2-44c4-92c8-f620f85eb351\",\"num\":1,\"desc\":\"d d d\",\"result\":\" 得到的\"}]");
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_MOVE, functionalCaseMinderRemoveRequest);
         Assertions.assertTrue(functionalCaseModule.getPos() !=0);
         caseMinderTargetDTO = new MinderTargetDTO();
-        caseMinderTargetDTO.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
+        caseMinderTargetDTO.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_8");
         caseMinderTargetDTO.setMoveMode(MoveTypeEnum.BEFORE.name());
         functionalCaseMinderRemoveRequest.setCaseMinderTargetDTO(caseMinderTargetDTO);
         moduleMinderTargetDTO = new MinderTargetDTO();
@@ -280,12 +282,12 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseMinderRemoveRequest.setModuleMinderTargetDTO(moduleMinderTargetDTO);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_MOVE, functionalCaseMinderRemoveRequest);
         functionalCaseModule = functionalCaseModuleMapper.selectByPrimaryKey("TEST_MINDER_MODULE_ID_GYQ5");
-        Assertions.assertTrue(functionalCaseModule.getPos()==20000);
+        Assertions.assertTrue(functionalCaseModule.getPos()==5000);
         functionalCaseMinderRemoveRequest.setCaseMinderTargetDTO(null);
         functionalCaseMinderRemoveRequest.setModuleMinderTargetDTO(null);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_MOVE, functionalCaseMinderRemoveRequest);
         functionalCaseModule = functionalCaseModuleMapper.selectByPrimaryKey("TEST_MINDER_MODULE_ID_GYQ5");
-        Assertions.assertTrue(functionalCaseModule.getPos()==20000);
+        Assertions.assertTrue(functionalCaseModule.getPos()==5000);
         functionalCaseMinderRemoveRequest.setParentTargetId("TEST_MINDER_MODULE_ID_GYQ6");
         this.requestPost(FUNCTIONAL_CASE_BATCH_MOVE, functionalCaseMinderRemoveRequest).andExpect(status().is5xxServerError());
         resourceList = new ArrayList<>();

@@ -288,20 +288,10 @@ public class FunctionalCaseMinderService {
         MinderTargetDTO moduleMinderTargetDTO = request.getModuleMinderTargetDTO();
         List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
         List<String> caseIds = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
-            caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, caseIds)) {
-                throw new MSException(Translator.get(CHECK_OWNER_CASE));
-            }
-        }
+        caseIds = checkPermission(caseOptionDTOS, caseIds, FUNCTIONAL_CASE, userId);
         List<String> moduleIds = new ArrayList<>();
         List<MinderOptionDTO> moduleOptionDTOS = resourceMap.get(MinderLabel.MODULE.toString());
-        if (CollectionUtils.isNotEmpty(moduleOptionDTOS)) {
-            moduleIds = moduleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-            if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE_MODULE, userId, moduleIds)) {
-                throw new MSException(Translator.get(CHECK_OWNER_CASE));
-            }
-        }
+        moduleIds = checkPermission(moduleOptionDTOS, moduleIds, FUNCTIONAL_CASE_MODULE, userId);
         if (StringUtils.isNotBlank(request.getParentTargetId()) ) {
             //移动到某节点下
             if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE_MODULE, userId, List.of(request.getParentTargetId()))) {
@@ -331,6 +321,16 @@ public class FunctionalCaseMinderService {
         }
         updateSteps(request, resourceList);
 
+    }
+
+    private List<String> checkPermission(List<MinderOptionDTO> caseOptionDTOS, List<String> caseIds, String functionalCase, String userId) {
+        if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
+            caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            if (!extCheckOwnerMapper.checkoutOwner(functionalCase, userId, caseIds)) {
+                throw new MSException(Translator.get(CHECK_OWNER_CASE));
+            }
+        }
+        return caseIds;
     }
 
     private void moveSortModule(String projectId, String userId, MinderTargetDTO moduleMinderTargetDTO, List<String> moduleIds) {
@@ -403,14 +403,14 @@ public class FunctionalCaseMinderService {
         finalIds.addAll(beforeIds);
         finalIds.addAll(paramIds);
         finalIds.addAll(afterIds);
-        return finalIds;
+        return finalIds.stream().distinct().toList();
     }
 
     private void updateSteps(FunctionalCaseMinderRemoveRequest request, List<MinderOptionDTO> resourceList) {
         if (StringUtils.isNotBlank(request.getSteps())) {
             List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(request.getSteps(), FunctionalCaseStepDTO.class);
             for (int i = 0; i < functionalCaseStepDTOS.size(); i++) {
-                functionalCaseStepDTOS.get(i).setNum(i + 1);
+                functionalCaseStepDTOS.get(i).setNum(i);
             }
             byte[] bytes = StringUtils.defaultIfBlank(JSON.toJSONString(functionalCaseStepDTOS), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8);
             extFunctionalCaseBlobMapper.batchUpdateColumn("steps", List.of(resourceList.get(0).getId()), bytes);
