@@ -14,7 +14,7 @@
     <template #left>
       <a-popover title="" position="bottom">
         <div class="show-table-top-title">
-          <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]">
+          <div class="one-line-text max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
             {{ moduleNamePath }}
           </div>
           <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
