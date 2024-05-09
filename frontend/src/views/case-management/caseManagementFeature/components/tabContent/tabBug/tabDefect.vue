@@ -36,14 +36,14 @@
         t('caseManagement.featureCase.testPlanLinkList')
       }}</div>
       <div class="mb-4">
-        <!--        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
+        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="link" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.directLink')
           }}</a-radio>
-           <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
+          <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.testPlan')
           }}</a-radio>
-        </a-radio-group>-->
+        </a-radio-group>
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('caseManagement.featureCase.searchByName')"
@@ -149,6 +149,9 @@
           </template>
         </a-popover>
       </template>
+      <template #testPlanName="{ record }">
+        <a-button type="text" class="px-0" @click="goToPlan(record)">{{ record.testPlanName }}</a-button>
+      </template>
       <template #handleUserFilter="{ columnConfig }">
         <TableFilter
           v-model:visible="handleUserFilterVisible"
@@ -197,10 +200,7 @@
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-          {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="createDefect">
-            {{ t('caseManagement.featureCase.createDefect') }}
-          </MsButton>
+          {{ t('caseManagement.caseReview.tableNoDataNoPermission') }}
         </div>
       </template>
     </ms-base-table>
@@ -219,6 +219,7 @@
    * @description 用例管理-详情抽屉-tab-缺陷
    */
   import { ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -240,8 +241,9 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { BugOptionItem } from '@/models/bug-management';
+  import { BugListItem, BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -265,6 +267,9 @@
   const severityFilterVisible = ref(false);
   const severityFilterValue = ref<string[]>([]);
   const severityColumnId = ref('');
+
+  const router = useRouter();
+  const route = useRoute();
 
   const columns: MsTableColumn = [
     {
@@ -341,7 +346,7 @@
   const testPlanColumns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       width: 200,
       showInTable: true,
       showTooltip: true,
@@ -360,8 +365,8 @@
     },
     {
       title: 'caseManagement.featureCase.planName',
-      slotName: 'testPlan',
-      dataIndex: 'testPlan',
+      slotName: 'testPlanName',
+      dataIndex: 'testPlanName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -377,6 +382,16 @@
       width: 300,
       ellipsis: true,
       showDrag: false,
+    },
+    {
+      title: 'caseManagement.featureCase.updateUser',
+      slotName: 'handleUserName',
+      dataIndex: 'handleUserName',
+      titleSlotName: 'handleUserFilter',
+      showInTable: true,
+      showTooltip: true,
+      width: 300,
+      ellipsis: true,
     },
   ];
 
@@ -438,7 +453,11 @@
       const { msPagination } = linkPropsRes.value;
       featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
     } else {
-      setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
+      setTestPlanListParams({
+        keyword: keyword.value,
+        projectId: appStore.currentProjectId,
+        testPlanCaseId: props.caseId,
+      });
       await testPlanLinkList();
       featureCaseStore.getCaseCounts(props.caseId);
     }
@@ -534,10 +553,23 @@
   }
 
   function changeHandler() {
-    console.log(keyword.value);
     if (keyword.value.trim().length === 0) {
       getFetch();
     }
+  }
+
+  // 去测试计划页面
+  function goToPlan(record: BugListItem) {
+    router.push({
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX,
+      query: {
+        ...route.query,
+        id: record.testPlanId,
+      },
+      state: {
+        params: JSON.stringify(setTestPlanListParams()),
+      },
+    });
   }
 
   watch(

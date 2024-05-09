@@ -21,8 +21,10 @@ import java.util.Map;
 public class AssociateBugPageRequest extends BaseProviderCondition {
 
     @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case.id.not_blank}")
     private String caseId;
+
+    @Schema(description = "关联测试计划用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String testPlanCaseId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.project_id.not_blank}")
