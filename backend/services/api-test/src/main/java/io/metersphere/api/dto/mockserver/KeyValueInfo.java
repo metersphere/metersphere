@@ -23,48 +23,19 @@ public class KeyValueInfo {
     private String description;
 
     public boolean matchValue(String value) {
-        if (StringUtils.isBlank(this.condition) || StringUtils.equals(this.condition, ParamConditionEnums.EQUALS.name())) {
-            return StringUtils.equals(this.value, value);
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.NOT_EQUALS.name())) {
-            return !StringUtils.equals(this.value, value);
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.CONTAINS.name())) {
-            return StringUtils.contains(this.value, value);
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_EQUALS.name())) {
-            try {
-                int length = value.length();
-                return this.value.length() == length;
-            } catch (Exception e) {
-                return false;
-            }
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_NOT_EQUALS.name())) {
-            try {
-                int length = value.length();
-                return this.value.length() != length;
-            } catch (Exception e) {
-                return false;
-            }
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_SHOT.name())) {
-            try {
-                int length = value.length();
-                return this.value.length() < length;
-            } catch (Exception e) {
-                return false;
-            }
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.LENGTH_LARGE.name())) {
-            try {
-                int length = value.length();
-                return this.value.length() > length;
-            } catch (Exception e) {
-                return false;
-            }
-        } else if (StringUtils.equals(this.condition, ParamConditionEnums.REGULAR_MATCH.name())) {
-            try {
-                return this.value.matches(Pattern.quote(value));
-            } catch (Exception e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return switch (ParamConditionEnums.valueOf(this.condition)) {
+            case EQUALS -> StringUtils.equals(this.value, value);
+            case NOT_EQUALS -> !StringUtils.equals(this.value, value);
+            case CONTAINS -> StringUtils.contains(this.value, value);
+            case NOT_CONTAINS -> !StringUtils.contains(this.value, value);
+            case LENGTH_EQUALS -> this.value.length() == value.length();
+            case LENGTH_NOT_EQUALS -> this.value.length() != value.length();
+            case LENGTH_SHOT -> this.value.length() < value.length();
+            case LENGTH_LARGE -> this.value.length() > value.length();
+            case REGULAR_MATCH -> this.value.matches(Pattern.quote(value));
+            case IS_EMPTY -> StringUtils.isBlank(value);
+            case IS_NOT_EMPTY -> StringUtils.isNotBlank(value);
+            default -> false;
+        };
     }
 }

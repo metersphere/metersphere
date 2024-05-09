@@ -4,6 +4,7 @@ import io.metersphere.api.service.mockserver.MockServerService;
 import io.metersphere.system.controller.handler.annotation.NoResultHolder;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/mock-server/{projectNum}/{apiNum}/**")
 @Tag(name = "接口测试-接口管理-接口定义-Mock")
+@MultipartConfig
 public class MockServerController {
 
     @Resource
