@@ -82,4 +82,21 @@ export interface UseCountType {
   testProgress: string; // 测试进度
 }
 
+// TODO: 对后端
+// 测试计划详情
+export interface TestPlanDetail {
+  id: string;
+  name: string;
+  num: number;
+  status: planStatusType;
+  followFlag: boolean;
+  passRate: number;
+  executedCount: number;
+  caseCount: number;
+  passCount: number;
+  unPassCount: number;
+  reReviewedCount: number;
+  underReviewedCount: number;
+}
+
 export default {};
