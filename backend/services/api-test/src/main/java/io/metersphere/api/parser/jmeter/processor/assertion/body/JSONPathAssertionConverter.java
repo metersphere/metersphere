@@ -1,9 +1,10 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
-import io.metersphere.project.api.assertion.body.MsJSONPathAssertion;
-import io.metersphere.project.api.assertion.body.MsJSONPathAssertionItem;
 import io.metersphere.assertions.JSONPathAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.assertion.body.MsJSONPathAssertion;
+import io.metersphere.project.api.assertion.body.MsJSONPathAssertionItem;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -34,6 +35,9 @@ public class JSONPathAssertionConverter extends ResponseBodyTypeAssertionConvert
         String condition = msAssertion.getCondition();
         String expression = msAssertion.getExpression();
         String expectedValue = msAssertion.getExpectedValue();
+
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.JSON_PATH.name(), expression, condition, expectedValue);
+
         assertion.setName(String.format("Response data JSONPath expect %s %s %s", expression, condition.toLowerCase().replace("_", ""), expectedValue));
         assertion.setEnabled(msAssertion.getEnable());
         if (BooleanUtils.isFalse(globalEnable)) {

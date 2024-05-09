@@ -38,6 +38,7 @@ public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
         extractor.setEnabled(msExtract.getEnable());
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));
+        setMsExtractInfoProperty(extractor, msExtract.getVariableType(), msExtract.getExpression());
         return extractor;
     }
 
@@ -51,6 +52,7 @@ public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
         extractor.setEnabled(msExtract.getEnable());
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));
+        setMsExtractInfoProperty(extractor, msExtract.getVariableType(), msExtract.getExpression());
         return extractor;
     }
 }

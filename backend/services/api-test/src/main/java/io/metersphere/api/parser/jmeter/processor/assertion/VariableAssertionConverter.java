@@ -6,6 +6,7 @@ import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.processor.ScriptProcessorConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -59,6 +60,8 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         scriptProcessor.setScriptLanguage(ScriptLanguageType.GROOVY.name());
         JSR223Assertion jsr223Assertion = new JSR223Assertion();
         ScriptProcessorConverter.parse(jsr223Assertion, scriptProcessor, config);
+
+        setMsAssertionInfoProperty(jsr223Assertion, ResponseAssertionResult.AssertionResultType.VARIABLE.name(), variableName, condition, expectedValue);
         return jsr223Assertion;
     }
 
@@ -207,13 +210,13 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         }
 
         script += """
-                if (!result) {
+                if (!result){
                     if (flag) {
                         msg = "assertion [" + msg + "]: false;";
                     }
-                    AssertionResult.setFailureMessage(msg);
                     AssertionResult.setFailure(true);
                 }
+                AssertionResult.setFailureMessage(msg + "&&&" + variableValue);
                 """;
         return script;
     }

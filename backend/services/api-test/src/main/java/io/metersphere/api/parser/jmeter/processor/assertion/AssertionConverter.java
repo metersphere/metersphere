@@ -8,6 +8,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
@@ -63,5 +64,17 @@ public abstract class AssertionConverter<T extends MsAssertion> {
             return regexgenerateMap.get(msAssertionCondition).apply(text);
         }
         return text;
+    }
+
+    public static void setMsAssertionInfoProperty(AbstractTestElement assertion, String assertionType, String name, String condition, String expectedValue) {
+        // 保存断言信息
+        assertion.setProperty("name", name);
+        assertion.setProperty("assertionType", assertionType);
+        assertion.setProperty("condition", condition);
+        assertion.setProperty("expectedValue", expectedValue);
+    }
+
+    public static void setMsAssertionInfoProperty(AbstractTestElement assertion, String assertionType, String name) {
+        AssertionConverter.setMsAssertionInfoProperty(assertion, assertionType, name, null, null);
     }
 }

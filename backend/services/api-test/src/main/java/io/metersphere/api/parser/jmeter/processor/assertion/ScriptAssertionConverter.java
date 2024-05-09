@@ -7,11 +7,13 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import io.metersphere.sdk.util.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.BeanShellAssertion;
 import org.apache.jmeter.assertions.JSR223Assertion;
 import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
@@ -28,7 +30,7 @@ public class ScriptAssertionConverter extends AssertionConverter<MsScriptAsserti
             return;
         }
 
-        TestElement assertion;
+        AbstractTestElement assertion;
         if (isJSR233(msAssertion)) {
             assertion = new JSR223Assertion();
         } else {
@@ -46,6 +48,8 @@ public class ScriptAssertionConverter extends AssertionConverter<MsScriptAsserti
         // 添加公共脚本的参数
         Optional.ofNullable(ScriptProcessorConverter.getScriptArguments(scriptProcessor))
                 .ifPresent(hashTree::add);
+
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.SCRIPT.name(), assertion.getName());
 
         hashTree.add(assertion);
     }

@@ -51,10 +51,7 @@ public class ResponseResult {
      */
     private String contentType;
 
-    /**
-     * 过程变量处理信息
-     */
-    private String vars;
+    private List<ExtractResult> extractResults;
 
     /**
      * 图片内容

@@ -2,6 +2,7 @@ package io.metersphere.api.parser.jmeter.processor.assertion;
 
 import io.metersphere.project.api.assertion.MsResponseTimeAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.jmeter.assertions.DurationAssertion;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -31,6 +32,7 @@ public class ResponseTimeAssertionConverter extends AssertionConverter<MsRespons
         assertion.setProperty(TestElement.TEST_CLASS, DurationAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(DURATION_ASSERTION_GUI));
         assertion.setAllowedDuration(msAssertion.getExpectedValue());
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.RESPONSE_TIME.name(), String.valueOf(msAssertion.getExpectedValue()), null, String.valueOf(msAssertion.getExpectedValue()));
         return assertion;
     }
 

@@ -4,6 +4,7 @@ import io.metersphere.project.api.assertion.body.MsRegexAssertion;
 import io.metersphere.project.api.assertion.body.MsRegexAssertionItem;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;
@@ -31,6 +32,9 @@ public class RegexAssertionConverter extends ResponseBodyTypeAssertionConverter<
 
     private ResponseAssertion parse2RegexResponseAssertion(MsRegexAssertionItem msAssertion, Boolean globalEnable) {
         ResponseAssertion assertion = AssertionConverter.createResponseAssertion();
+
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.REGEX.name(), msAssertion.getExpression());
+
         assertion.setEnabled(msAssertion.getEnable());
         assertion.setName("Response data expect regex " + msAssertion.getExpression());
         assertion.addTestString(msAssertion.getExpression());
