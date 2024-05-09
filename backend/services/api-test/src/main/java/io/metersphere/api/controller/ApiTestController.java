@@ -14,10 +14,12 @@ import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -143,6 +145,10 @@ public class ApiTestController {
             PermissionConstants.PROJECT_API_REPORT_READ,
     }, logical = Logical.OR)
     public void download(@RequestBody TextNode path, HttpServletResponse response) throws Exception {
+        // 不属于当前项目的文件不允许下载
+        if (!StringUtils.contains(path.asText(), SessionUtils.getCurrentProjectId())) {
+            return;
+        }
         apiTestService.download(path.asText(), response);
     }
 }
