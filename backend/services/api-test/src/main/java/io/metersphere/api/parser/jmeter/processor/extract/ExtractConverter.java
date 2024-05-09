@@ -4,6 +4,7 @@ import io.metersphere.project.api.processor.extract.MsExtract;
 import io.metersphere.project.api.processor.extract.ResultMatchingExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jorphan.collections.HashTree;
 
 /**
@@ -35,5 +36,11 @@ public abstract class ExtractConverter<T extends MsExtract> {
             return extract.getResultMatchingRuleNum();
         }
         return 1;
+    }
+
+    public static void setMsExtractInfoProperty(AbstractTestElement extract, String type, String expression) {
+        // 保存断言信息
+        extract.setProperty("type", type);
+        extract.setProperty("expression", expression);
     }
 }

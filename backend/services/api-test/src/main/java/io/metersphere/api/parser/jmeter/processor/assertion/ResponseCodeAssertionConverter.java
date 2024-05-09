@@ -2,6 +2,7 @@ package io.metersphere.api.parser.jmeter.processor.assertion;
 
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;
@@ -27,7 +28,6 @@ public class ResponseCodeAssertionConverter extends AssertionConverter<MsRespons
         ResponseAssertion assertion = createResponseAssertion();
         String expectedValue = msAssertion.getExpectedValue();
         assertion.setEnabled(msAssertion.getEnable());
-
         assertion.setAssumeSuccess(true);
         assertion.setEnabled(msAssertion.getEnable());
 
@@ -36,6 +36,8 @@ public class ResponseCodeAssertionConverter extends AssertionConverter<MsRespons
         assertion.addTestString(generateRegexExpression(condition, expectedValue));
         assertion.setToContainsType();
         assertion.setTestFieldResponseCode();
+
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.RESPONSE_CODE.name(), assertion.getName(), condition, expectedValue);
         return assertion;
     }
 }

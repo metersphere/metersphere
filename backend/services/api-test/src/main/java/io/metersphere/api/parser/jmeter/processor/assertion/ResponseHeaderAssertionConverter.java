@@ -3,6 +3,7 @@ package io.metersphere.api.parser.jmeter.processor.assertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.assertion.MsResponseHeaderAssertion;
 import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import io.metersphere.sdk.util.EnumValidator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +51,9 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         String condition = msAssertion.getCondition();
         MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
         String header = msAssertion.getHeader();
+
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.RESPONSE_HEADER.name(), header, condition, expectedValue);
+
         String regexTemplate = switch (msAssertionCondition) {
             case NOT_CONTAINS, CONTAINS -> "((?:[\\r\\n]%key|^%key):.*%value)";
             case EQUALS, NOT_EQUALS -> "((?:[\\r\\n]%key|^%key):\\s*(?:%value[\\r\\n]|%value$))";

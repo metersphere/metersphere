@@ -30,6 +30,7 @@ public class RegexExtractConverter extends ExtractConverter<RegexExtract> {
         extractor.setTemplate(getTemplate(msExtract.getExpressionMatchingRule()));
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));
+        setMsExtractInfoProperty(extractor, msExtract.getVariableType(), msExtract.getExpression());
         hashTree.add(extractor);
     }
 

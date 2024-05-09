@@ -1,8 +1,10 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
+import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverter;
 import io.metersphere.project.api.assertion.body.MsBodyAssertionItem;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jorphan.collections.HashTree;
 
 /**
@@ -25,5 +27,13 @@ public abstract class ResponseBodyTypeAssertionConverter <T> {
             return true;
         }
         return false;
+    }
+
+    public void setMsAssertionInfoProperty(AbstractTestElement assertion, String assertionType, String name, String condition, String expectedValue) {
+        AssertionConverter.setMsAssertionInfoProperty(assertion, assertionType, name, condition, expectedValue);
+    }
+
+    public void setMsAssertionInfoProperty(AbstractTestElement assertion, String assertionType, String name) {
+        AssertionConverter.setMsAssertionInfoProperty(assertion, assertionType, name);
     }
 }

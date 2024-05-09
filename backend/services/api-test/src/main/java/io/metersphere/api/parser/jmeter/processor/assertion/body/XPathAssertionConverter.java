@@ -4,6 +4,7 @@ import io.metersphere.project.api.assertion.body.MsXPathAssertion;
 import io.metersphere.project.api.assertion.body.MsXPathAssertionItem;
 import io.metersphere.project.api.processor.extract.XPathExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.XPath2Assertion;
@@ -43,13 +44,15 @@ public class XPathAssertionConverter extends ResponseBodyTypeAssertionConverter<
 
     private XPathAssertion parse2XPathAssertion(MsXPathAssertionItem msAssertion, Boolean globalEnable) {
         XPathAssertion assertion = new XPathAssertion();
+        String expression = msAssertion.getExpression();
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.XPATH.name(), expression);
         assertion.setEnabled(msAssertion.getEnable());
         assertion.setTolerant(true);
         assertion.setValidating(false);
-        assertion.setName("Response data expect xpath " + msAssertion.getExpression());
+        assertion.setName("Response data expect xpath " + expression);
         assertion.setProperty(TestElement.TEST_CLASS, XPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(XPATH_ASSERTION_GUI));
-        assertion.setXPathString(msAssertion.getExpression());
+        assertion.setXPathString(expression);
         assertion.setNegated(false);
         assertion.setEnabled(msAssertion.getEnable());
         if (BooleanUtils.isFalse(globalEnable)) {
@@ -61,11 +64,13 @@ public class XPathAssertionConverter extends ResponseBodyTypeAssertionConverter<
 
     private XPath2Assertion parse2XPath2Assertion(MsXPathAssertionItem msAssertion, Boolean globalEnable) {
         XPath2Assertion assertion = new XPath2Assertion();
+        String expression = msAssertion.getExpression();
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.XPATH.name(), expression);
         assertion.setEnabled(msAssertion.getEnable());
-        assertion.setName("Response date expect xpath " + msAssertion.getExpression());
+        assertion.setName("Response date expect xpath " +expression);
         assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(X_PATH_2_ASSERTION_GUI));
-        assertion.setXPathString(msAssertion.getExpression());
+        assertion.setXPathString(expression);
         assertion.setNegated(false);
         assertion.setEnabled(msAssertion.getEnable());
         if (BooleanUtils.isFalse(globalEnable)) {

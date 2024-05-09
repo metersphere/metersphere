@@ -30,6 +30,7 @@ public class JSONPathExtractConverter extends ExtractConverter<JSONPathExtract> 
             extractor.setComputeConcatenation(true);
         }
         extractor.setEnabled(msExtract.getEnable());
+        setMsExtractInfoProperty(extractor, msExtract.getVariableType(), msExtract.getExpression());
         hashTree.add(extractor);
     }
 }
