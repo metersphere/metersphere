@@ -137,7 +137,8 @@ export default {
   'system.orgTemplate.deleteFiledContentNotUsed': 'This field will be lost, please be careful!',
   'system.orgTemplate.deleteSuccess': 'Delete Successfully',
   'system.orgTemplate.setInitStateSuccess': 'Set the initial state successfully',
-  'system.orgTemplate.setEndStateSuccess': 'Setting the end status succeeded',
+  'system.orgTemplate.setEndStateSuccess':
+    'If the setting is successful, the end state takes effect immediately in the project',
   'system.orgTemplate.noAllowDeleteInitState': 'The initial status cannot be deleted',
   'system.orgTemplate.deleteStateStepTitle': 'Are you sure about the delete {name} step?',
   'system.orgTemplate.deleteStateStepContent':
@@ -212,4 +213,5 @@ export default {
   'system.orgTemplate.apiFieldNotEmpty': 'The field API cannot be empty',
   'system.orgTemplate.selectThirdPlatType': 'Please select the third party platform',
   'system.orgTemplate.orgNameTip': 'The organization name is incorrect',
+  'system.orgTemplate.notAllowEditView': 'The template is preview and cannot be edited',
 };

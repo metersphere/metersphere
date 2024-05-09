@@ -15,8 +15,7 @@
       <div class="inner-wrapper">
         <div class="optional-field">
           <div class="optional-header">
-            <div class="font-medium">{{ t('system.orgTemplate.optionalField') }}</div>
-            <a-checkbox :model-value="isCheckedAll" :indeterminate="indeterminate" @change="handleChangeAll">
+            <a-checkbox :model-value="isCheckedAll" :indeterminate="!indeterminate" @change="handleChangeAll">
               <span class="font-medium text-[var(--color-text-3)]">{{ t('system.orgTemplate.selectAll') }}</span>
             </a-checkbox>
           </div>
@@ -28,7 +27,7 @@
                   <div v-for="field in systemField" :key="field.id" class="item checkbox">
                     <a-checkbox :value="field.id" :disabled="field.internal && field.name == t('case.caseLevel')"
                       ><a-tooltip :content="field.name">
-                        <div>{{ field.name }}</div></a-tooltip
+                        <div class="one-line-text max-w-[100px]">{{ field.name }}</div></a-tooltip
                       ></a-checkbox
                     >
                   </div>
@@ -43,7 +42,7 @@
                 <div v-for="field in customField" :key="field.id" class="item">
                   <a-checkbox :value="field.id"
                     ><a-tooltip :content="field.name">
-                      <div class="checkbox">{{ field.name }}</div></a-tooltip
+                      <div class="one-line-text max-w-[100px]">{{ field.name }}</div></a-tooltip
                     ></a-checkbox
                   >
                 </div>
@@ -74,9 +73,13 @@
           <div class="selected-list p-4">
             <VueDraggable v-model="selectedList" ghost-class="ghost">
               <div v-for="element in selectedList" :key="element.dateIndex" class="selected-item">
-                <a-tooltip :content="element.name">
-                  <span> <MsIcon type="icon-icon_drag" class="mt-[3px] text-[16px] text-[var(--color-text-4)]" /></span>
-                  <span class="one-line-text ml-2 w-[270px]">{{ element.name }}</span>
+                <a-tooltip :content="element.name" position="left">
+                  <div class="flex flex-row flex-nowrap">
+                    <span>
+                      <MsIcon type="icon-icon_drag" class="mt-[3px] text-[16px] text-[var(--color-text-4)]"
+                    /></span>
+                    <span class="one-line-text ml-2 max-w-[180px]">{{ element.name }}</span>
+                  </div>
                 </a-tooltip>
                 <icon-close
                   v-if="!element.internal"
@@ -169,7 +172,7 @@
   });
   // 计算是否半选
   const indeterminate = computed(() => {
-    return selectSystemIds.value.length + selectCustomIds.value.length === selectCustomIds.value.length;
+    return isCheckSystemIdsAll.value && isCheckCustomIdsAll.value;
   });
 
   // 全选
@@ -265,6 +268,7 @@
       width: 100%;
       height: 100%;
       border: 1px solid var(--color-text-n8);
+      border-radius: 6px;
       // 可选字段
       .optional-field {
         flex-grow: 1;
@@ -302,12 +306,7 @@
   .checkboxContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
-    grid-gap: 16px;
-    .checkbox {
-      width: 90px;
-      white-space: nowrap;
-      @apply overflow-hidden text-ellipsis;
-    }
+    grid-gap: 8px;
   }
   .ghost {
     border: 1px dashed rgba(var(--primary-5));
