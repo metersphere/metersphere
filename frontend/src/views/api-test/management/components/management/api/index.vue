@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div v-if="activeApiTab.id === 'all'" class="flex-1 pt-[8px]">
+    <div v-if="activeApiTab.id === 'all' && currentTab === 'api'" class="flex-1 pt-[8px]">
       <apiTable
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
@@ -175,6 +175,7 @@
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
     protocol: string;
+    currentTab: string;
     memberOptions: { label: string; value: string }[];
   }>();
 

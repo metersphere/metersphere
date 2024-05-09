@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div v-if="activeApiTab.id === 'all'" class="flex-1 overflow-hidden">
+    <div v-if="activeApiTab.id === 'all' && currentTab === 'case'" class="flex-1 overflow-hidden">
       <caseTable
         ref="caseTableRef"
         :offspring-ids="props.offspringIds"
@@ -48,6 +48,7 @@
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
     memberOptions: { label: string; value: string }[];
+    currentTab: string;
   }>();
   const emit = defineEmits<{
     (e: 'deleteCase', id: string): void;
