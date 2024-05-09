@@ -41,7 +41,7 @@
           </a-drawer>
           <a-layout class="layout-content" :style="paddingStyle">
             <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
-              <a-scrollbar class="flex h-[calc(100vh-56px)] flex-col gap-[8px] overflow-auto">
+              <div class="layout-scroll-container">
                 <MsBreadCrumb />
                 <a-layout-content>
                   <slot name="page">
@@ -52,7 +52,7 @@
                   <slot></slot>
                 </a-layout-content>
                 <Footer v-if="footer" />
-              </a-scrollbar>
+              </div>
             </a-spin>
           </a-layout>
         </a-layout>
@@ -75,7 +75,6 @@
   import { GetTitleImgUrl } from '@/api/requrls/setting/config';
   import usePermission from '@/hooks/usePermission';
   import { useAppStore, useUserStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
 
   interface Props {
     isPreview?: boolean;
@@ -87,7 +86,6 @@
   const props = defineProps<Props>();
 
   const innerProps = ref<Props>(props);
-  const licenseStore = useLicenseStore();
   watch(
     () => props.logo,
     () => {
@@ -214,6 +212,13 @@
       overflow: hidden;
       padding: 0 16px 16px 0;
     }
+  }
+  .layout-scroll-container {
+    @apply flex flex-col  overflow-auto;
+    .ms-scroll-bar();
+
+    gap: 8px;
+    height: calc(100vh - 56px);
   }
   .arco-layout-sider-light {
     @apply bg-transparent;
