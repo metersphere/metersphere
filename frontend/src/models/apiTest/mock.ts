@@ -1,13 +1,26 @@
-import type { RequestBodyFormat } from '@/enums/apiEnum';
+import type { MsFileItem } from '@/components/pure/ms-upload/types';
 
+import type { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
+
+import type { BatchApiParams } from '../common';
 import type { ExecuteBinaryBody, KeyValueParam, ResponseDefinitionBody } from './common';
 
 // mock 信息-匹配项
 export interface MatchRuleItem {
+  id?: string; // 用于前端标识
   key: string;
   value: string;
   condition: string;
   description: string;
+  paramType: RequestParamsType;
+  files: ({
+    fileId: string;
+    fileName: string;
+    local: boolean; // 是否是本地上传的文件
+    fileAlias: string; // 文件别名
+    delete: boolean; // 是否删除
+    [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
+  } & MsFileItem)[];
 }
 // mock 信息-响应内容
 export interface MockResponse {
@@ -45,9 +58,28 @@ export interface MockParams {
   tags: string[];
   mockMatchRule: MockMatchRule;
   response: MockResponse;
-  apiDefinitionId: string;
+  apiDefinitionId: string | number;
   uploadFileIds: string[];
   linkFileIds: string[];
   // 前端扩展字段
   unSaved?: boolean;
+  isNew: boolean;
+}
+// mock 信息-更新
+export interface UpdateMockParams extends MockParams {
+  id: string;
+  deleteFileIds: string[];
+  unLinkFileIds: string[];
+}
+// mock 信息-详情
+export interface MockDetail extends MockParams {
+  id: string;
+  matching: MockMatchRule;
+}
+// 批量编辑 mock
+export interface BatchEditMockParams extends BatchApiParams {
+  type: 'Status' | 'Tags'; // 编辑类型
+  tags: string[]; // 标签
+  append: boolean; // 是否追加
+  enable: boolean; // 是否启用
 }

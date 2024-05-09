@@ -1,14 +1,18 @@
 <template>
   <MsDrawer
     v-model:visible="visible"
-    unmount-on-close
-    :title="mockDetail.id ? t('mockManagement.mockDetail') : t('mockManagement.createMock')"
+    :title="title"
     :width="960"
-    :footer="!mockDetail.id || isEdit"
+    :footer="!isReadOnly || isEdit"
     :ok-text="isEdit ? t('common.save') : t('common.create')"
     :save-continue-text="t('mockManagement.saveAndContinue')"
     :show-continue="!isEdit"
+    :ok-loading="loading"
     no-content-padding
+    unmount-on-close
+    @confirm="handleSave"
+    @cancel="handleCancel"
+    @close="handleCancel"
   >
     <template #tbutton>
       <div v-if="mockDetail.id" class="right-operation-button-icon flex items-center gap-[4px]">
@@ -23,11 +27,12 @@
         </MsButton>
         <MsButton
           v-permission="['PROJECT_API_DEFINITION_MOCK:READ+DELETE']"
+          class="mr-0"
           type="icon"
-          status="danger"
+          status="secondary"
           @click="handleDelete"
         >
-          <MsIcon type="icon-icon_delete-trash_outlined" class="text-[rgb(var(--danger-6))]" />
+          <MsIcon type="icon-icon_delete-trash_outlined" />
           {{ t('common.delete') }}
         </MsButton>
       </div>
@@ -53,7 +58,7 @@
           </div>
         </template>
       </MsDetailCard>
-      <a-form ref="mockForm" :model="mockDetail">
+      <a-form ref="mockForm" :model="mockDetail" :disabled="isReadOnly">
         <a-form-item
           class="hidden-item"
           field="name"
@@ -63,7 +68,6 @@
             v-model:model-value="mockDetail.name"
             :placeholder="t('mockManagement.namePlaceholder')"
             class="mb-[16px] w-[732px]"
-            :disabled="isReadOnly"
           ></a-input>
         </a-form-item>
         <a-form-item class="hidden-item" :rules="[{ required: true, message: t('mockManagement.nameNotNull') }]">
@@ -74,7 +78,6 @@
             unique-value
             retain-input-value
             :max-tag-count="5"
-            :disabled="isReadOnly"
           />
         </a-form-item>
       </a-form>
@@ -91,9 +94,11 @@
           activeTab === RequestComposition.QUERY ||
           activeTab === RequestComposition.REST
         "
+        :id="mockDetail.id"
         v-model:matchAll="currentMatchAll"
         v-model:matchRules="currentMatchRules"
         :key-options="currentKeyOptions"
+        :disabled="isReadOnly"
       />
       <template v-else>
         <div class="mb-[8px] flex items-center justify-between">
@@ -101,6 +106,7 @@
             v-model:model-value="mockDetail.mockMatchRule.body.paramType"
             type="button"
             size="small"
+            :disabled="isReadOnly"
             @change="handleMockBodyTypeChange"
           >
             <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">
@@ -118,9 +124,11 @@
           v-else-if="
             [RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(mockDetail.mockMatchRule.body.paramType)
           "
+          :id="mockDetail.id"
           v-model:matchAll="mockDetail.mockMatchRule.body.formDataMatch.matchAll"
           v-model:matchRules="mockDetail.mockMatchRule.body.formDataMatch.matchRules"
           :key-options="currentBodyKeyOptions"
+          :disabled="isReadOnly"
         />
         <div v-else-if="mockDetail.mockMatchRule.body.paramType === RequestBodyFormat.BINARY">
           <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
@@ -132,6 +140,10 @@
                 id: 'fileId',
                 name: 'fileName',
               }"
+              :file-save-as-source-id="mockDetail.id"
+              :file-save-as-api="transferMockFile"
+              :file-module-options-api="getMockTransferOptions"
+              :disabled="isReadOnly"
               @change="handleFileChange"
             />
           </div>
@@ -160,6 +172,7 @@
             :show-theme-change="false"
             :show-code-format="true"
             :language="currentCodeLanguage"
+            :read-only="isReadOnly"
           >
           </MsCodeEditor>
         </div>
@@ -167,13 +180,14 @@
       <mockResponse
         v-model:mock-response="mockDetail.response"
         :definition-responses="props.definitionDetail.responseDefinition || []"
+        :disabled="isReadOnly"
       />
     </a-spin>
   </MsDrawer>
 </template>
 
 <script setup lang="ts">
-  import { cloneDeep } from 'lodash-es';
+  import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -190,26 +204,40 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
+  import {
+    addMock,
+    getMockDetail,
+    getMockTransferOptions,
+    transferMockFile,
+    updateMock,
+    uploadMockTempFile,
+  } from '@/api/modules/api-test/management';
   import { requestBodyTypeMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { MockParams } from '@/models/apiTest/mock';
   import { RequestBodyFormat, RequestComposition } from '@/enums/apiEnum';
 
   import {
     defaultHeaderParamsItem,
+    defaultMatchRuleItem,
     defaultRequestParamsItem,
-    mockDefaultParams,
+    makeDefaultParams,
   } from '@/views/api-test/components/config';
-  import { filterKeyValParams } from '@/views/api-test/components/utils';
+  import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     definitionDetail: RequestParam;
+    detailId?: string;
+    isCopy?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'delete'): void;
+    (e: 'addDone'): void;
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', {
@@ -218,8 +246,17 @@
 
   const loading = ref(false);
   const isEdit = ref(false);
-  const mockDetail = ref<MockParams>(cloneDeep(mockDefaultParams));
-  const isReadOnly = computed(() => !!mockDetail.value.id && !isEdit.value);
+  const mockDetail = ref<MockParams>(makeDefaultParams());
+  const isReadOnly = computed(() => !mockDetail.value.isNew && !isEdit.value);
+  const title = computed(() => {
+    if (isReadOnly.value) {
+      return t('mockManagement.mockDetail');
+    }
+    if (isEdit.value) {
+      return t('mockManagement.updateMock');
+    }
+    return t('mockManagement.createMock');
+  });
   const activeTab = ref<RequestComposition>(RequestComposition.BODY);
   const mockTabList = [
     {
@@ -329,17 +366,17 @@
   const currentKeyOptions = computed(() => {
     switch (activeTab.value) {
       case RequestComposition.HEADER:
-        return props.definitionDetail.headers.filter((e) => ({
+        return filterKeyValParams(props.definitionDetail.headers, defaultMatchRuleItem).validParams.filter((e) => ({
           label: e.key,
           value: e.value,
         }));
       case RequestComposition.QUERY:
-        return props.definitionDetail.query.filter((e) => ({
+        return filterKeyValParams(props.definitionDetail.query, defaultMatchRuleItem).validParams.filter((e) => ({
           label: e.key,
           value: e.value,
         }));
       case RequestComposition.REST:
-        return props.definitionDetail.rest.filter((e) => ({
+        return filterKeyValParams(props.definitionDetail.rest, defaultMatchRuleItem).validParams.filter((e) => ({
           label: e.key,
           value: e.value,
         }));
@@ -350,12 +387,19 @@
   const currentBodyKeyOptions = computed(() => {
     switch (mockDetail.value.mockMatchRule.body.paramType) {
       case RequestBodyFormat.FORM_DATA:
-        return props.definitionDetail.body.formDataBody.formValues.filter((e) => ({
+        return filterKeyValParams(
+          props.definitionDetail.body.formDataBody.formValues,
+          defaultMatchRuleItem
+        ).validParams.map((e) => ({
           label: e.key,
           value: e.value,
+          paramType: e.paramType,
         }));
       case RequestBodyFormat.WWW_FORM:
-        return props.definitionDetail.body.wwwFormBody.formValues.filter((e) => ({
+        return filterKeyValParams(
+          props.definitionDetail.body.wwwFormBody.formValues,
+          defaultMatchRuleItem
+        ).validParams.filter((e) => ({
           label: e.key,
           value: e.value,
         }));
@@ -374,6 +418,61 @@
     return LanguageEnum.PLAINTEXT;
   });
 
+  async function initMockDetail() {
+    try {
+      loading.value = true;
+      const res = await getMockDetail({
+        id: props.detailId || '',
+        projectId: appStore.currentProjectId,
+      });
+      const parseFileResult = parseRequestBodyFiles(res.matching.body);
+      const formDataMatch =
+        res.matching.body.paramType === RequestBodyFormat.FORM_DATA
+          ? res.matching.body.formDataMatch.matchRules.map((item) => {
+              const newParamType =
+                currentBodyKeyOptions.value.find((e) => e.value === item.key)?.paramType ||
+                defaultMatchRuleItem.paramType;
+              item.paramType = newParamType;
+              item.files = item.files || [];
+              return item;
+            })
+          : res.matching.body.formDataMatch.matchRules;
+      mockDetail.value = {
+        ...res,
+        id: props.isCopy ? '' : res.id,
+        isNew: props.isCopy,
+        mockMatchRule: {
+          ...res.matching,
+          body: {
+            ...res.matching.body,
+            formDataMatch: {
+              ...res.matching.body.formDataMatch,
+              matchRules: formDataMatch,
+            },
+          },
+        },
+        ...parseFileResult,
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val && props.detailId) {
+        initMockDetail();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
   const fileList = ref<MsFileItem[]>([]);
 
   async function handleFileChange(files: MsFileItem[], file?: MsFileItem) {
@@ -381,7 +480,7 @@
       if (file?.local && file.file) {
         // 本地上传
         loading.value = true;
-        const res = await Promise.resolve({ data: 'fileId' });
+        const res = await uploadMockTempFile(file.file);
         mockDetail.value.mockMatchRule.body.binaryBody.file = {
           ...file,
           fileId: res.data,
@@ -426,8 +525,90 @@
     }
   );
 
+  function handleCancel() {
+    mockDetail.value = makeDefaultParams();
+    isEdit.value = false;
+    visible.value = false;
+  }
+
   function handleDelete() {
     emit('delete');
+    handleCancel();
+  }
+
+  async function handleSave() {
+    try {
+      loading.value = true;
+      const { body } = mockDetail.value.mockMatchRule;
+      const validBodyMatchRules = filterKeyValParams(body.formDataMatch.matchRules, defaultMatchRuleItem).validParams;
+      const validHeaderMatchRules = filterKeyValParams(
+        mockDetail.value.mockMatchRule.header.matchRules,
+        defaultMatchRuleItem
+      ).validParams;
+      const validQueryMatchRules = filterKeyValParams(
+        mockDetail.value.mockMatchRule.query.matchRules,
+        defaultMatchRuleItem
+      ).validParams;
+      const validRestMatchRules = filterKeyValParams(
+        mockDetail.value.mockMatchRule.rest.matchRules,
+        defaultMatchRuleItem
+      ).validParams;
+      const validResponseHeaders = filterKeyValParams(
+        mockDetail.value.response.headers,
+        defaultHeaderParamsItem
+      ).validParams;
+      const parseFileResult = parseRequestBodyFiles(mockDetail.value.mockMatchRule.body);
+      const params = {
+        ...mockDetail.value,
+        statusCode: mockDetail.value.response.statusCode,
+        mockMatchRule: {
+          ...mockDetail.value.mockMatchRule,
+          body: {
+            ...mockDetail.value.mockMatchRule.body,
+            formDataMatch: {
+              ...mockDetail.value.mockMatchRule.body.formDataMatch,
+              matchRules: validBodyMatchRules,
+            },
+          },
+          header: {
+            ...mockDetail.value.mockMatchRule.header,
+            matchRules: validHeaderMatchRules,
+          },
+          query: {
+            ...mockDetail.value.mockMatchRule.query,
+            matchRules: validQueryMatchRules,
+          },
+          rest: {
+            ...mockDetail.value.mockMatchRule.rest,
+            matchRules: validRestMatchRules,
+          },
+        },
+        response: {
+          ...mockDetail.value.response,
+          headers: validResponseHeaders,
+        },
+        ...parseFileResult,
+        apiDefinitionId: props.definitionDetail.id,
+        projectId: appStore.currentProjectId,
+      };
+      if (isEdit.value) {
+        await updateMock({
+          id: mockDetail.value.id || '',
+          ...params,
+        });
+        Message.success(t('common.updateSuccess'));
+      } else {
+        await addMock(params);
+        Message.success(t('common.createSuccess'));
+      }
+      emit('addDone');
+      handleCancel();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 </script>
 

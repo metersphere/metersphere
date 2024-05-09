@@ -42,6 +42,16 @@ export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取
 export const DefinitionMockPageUrl = '/api/definition/mock/page'; // mock列表
 export const UpdateMockStatusUrl = '/api/definition/mock/enable'; // 更新mock状态
 export const DeleteMockUrl = '/api/definition/mock/delete'; // 刪除mock
+export const UploadTempMockFileUrl = '/api/definition/mock/upload/temp/file'; // mock临时上传文件
+export const TransferMockFileUrl = '/api/definition/mock/transfer'; // mock临时文件转存
+export const TransferMockFileModuleOptionUrl = '/api/definition/mock/transfer/options'; // mock临时文件转存目录下拉框
+export const UpdateMockUrl = '/api/definition/mock/update'; // mock更新
+export const MockDetailUrl = '/api/definition/mock/detail'; // mock详情
+export const CopyMockUrl = '/api/definition/mock/copy'; // 复制mock
+export const BatchEditMockUrl = '/api/definition/mock/batch/edit'; // 批量编辑mock
+export const BatchDeleteMockUrl = '/api/definition/mock/batch/delete'; // 批量删除mock
+export const AddMockUrl = '/api/definition/mock/add'; // 添加mock
+export const GetMockUrlUrl = '/api/definition/mock/get-url'; // 获取mock url
 
 /**
  * api回收站

@@ -78,22 +78,6 @@
           <a-option v-for="org of orgOptions" :key="org.id" :value="org.id">{{ org.name }}</a-option>
         </a-select>
       </a-form-item>
-      <a-form-item
-        :label="t('system.resourcePool.use')"
-        field="use"
-        class="form-item"
-        :rules="[{ required: true, message: t('system.resourcePool.useRequired') }]"
-        asterisk-position="end"
-      >
-        <a-checkbox-group v-model:model-value="form.use" @change="() => setIsSave(false)">
-          <a-checkbox v-for="use of useList" :key="use.value" :value="use.value">{{ t(use.label) }}</a-checkbox>
-        </a-checkbox-group>
-        <MsFormItemSub
-          v-if="form.use.length === 3"
-          :text="t('system.resourcePool.allUseTip')"
-          :show-fill-icon="false"
-        />
-      </a-form-item>
       <!--TODO:暂无性能测试-->
       <!-- <template v-if="isCheckedPerformance">
         <a-form-item :label="t('system.resourcePool.mirror')" field="testResourceDTO.loadTestImage" class="form-item">
@@ -584,13 +568,6 @@
       placeholder: 'system.resourcePool.portPlaceholder',
     },
     {
-      filed: 'monitor',
-      type: 'input',
-      label: 'system.resourcePool.monitor',
-      rules: [{ required: true, message: t('system.resourcePool.monitorRequired') }],
-      placeholder: 'system.resourcePool.monitorPlaceholder',
-    },
-    {
       filed: 'concurrentNumber',
       type: 'inputNumber',
       label: 'system.resourcePool.concurrentNumber',
@@ -628,8 +605,8 @@
       // 按顺序拼接：ip、port、monitor、concurrentNumber
       if (!Object.values(node).every((e) => isEmpty(e))) {
         res += `${node.ip},${node.port === undefined ? '' : node.port},${
-          node.monitor === undefined ? '' : node.monitor
-        },${node.concurrentNumber === undefined ? '' : node.concurrentNumber}\r`;
+          node.concurrentNumber === undefined ? '' : node.concurrentNumber
+        }\r`;
       }
     }
     editorContent.value = res;
@@ -655,12 +632,11 @@
       if (e.trim() !== '') {
         // 排除空串
         const line = e.split(',');
-        if (line.every((s) => s.trim() !== '') && !Number.isNaN(Number(line[3]))) {
+        if (line.every((s) => s.trim() !== '') && !Number.isNaN(Number(line[2]))) {
           const item = {
             ip: line[0],
             port: line[1],
-            monitor: line[2],
-            concurrentNumber: Number(line[3]),
+            concurrentNumber: Number(line[2]),
           };
           if (i === 0) {
             // 第四个是concurrentNumber，需要是数字

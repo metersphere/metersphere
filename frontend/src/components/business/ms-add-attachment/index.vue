@@ -73,7 +73,7 @@
         arrow-class="hidden"
         :popup-offset="0"
       >
-        <div class="!w-[calc(100%-28px)]">
+        <div class="h-full flex-1">
           <MsTagsInput
             v-model:model-value="inputFiles"
             :input-class="props.inputClass"

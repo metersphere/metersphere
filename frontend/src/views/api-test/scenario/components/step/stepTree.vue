@@ -25,6 +25,7 @@
         checkable
         block-node
         draggable
+        hide-switcher
         @select="(selectedKeys, node) => handleStepSelect(selectedKeys, node as ScenarioStepItem)"
         @expand="handleStepExpand"
         @more-actions-close="() => setFocusNodeKey('')"

@@ -111,11 +111,17 @@
         <statusTag :status="record.status" size="small" />
       </template>
       <template #reviewPassRule="{ record }">
-        {{
-          record.reviewPassRule === 'SINGLE'
-            ? t('caseManagement.caseReview.single')
-            : t('caseManagement.caseReview.multi')
-        }}
+        <a-tag
+          :color="record.reviewPassRule === 'SINGLE' ? 'rgb(var(--success-2))' : 'rgb(var(--link-2))'"
+          :class="record.reviewPassRule === 'SINGLE' ? '!text-[rgb(var(--success-6))]' : '!text-[rgb(var(--link-6))]'"
+          size="small"
+        >
+          {{
+            record.reviewPassRule === 'SINGLE'
+              ? t('caseManagement.caseReview.single')
+              : t('caseManagement.caseReview.multi')
+          }}
+        </a-tag>
       </template>
       <template #reviewers="{ record }">
         <a-tooltip :content="record.reviewers.join('、')">
@@ -435,6 +441,7 @@
     {
       title: 'caseManagement.caseReview.caseCount',
       dataIndex: 'caseCount',
+      showDrag: true,
       width: 90,
     },
     {
@@ -442,18 +449,21 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
+      showDrag: true,
       width: 150,
     },
     {
       title: 'caseManagement.caseReview.passRate',
       slotName: 'passRate',
       titleSlotName: 'passRateColumn',
+      showDrag: true,
       width: 200,
     },
     {
       title: 'caseManagement.caseReview.type',
       slotName: 'reviewPassRule',
       dataIndex: 'reviewPassRule',
+      showDrag: true,
       width: 90,
     },
     {
@@ -461,35 +471,41 @@
       slotName: 'reviewers',
       dataIndex: 'reviewers',
       titleSlotName: 'reviewersFilter',
+      showDrag: true,
       width: 150,
     },
     {
       title: 'caseManagement.caseReview.creator',
       dataIndex: 'createUserName',
       showTooltip: true,
+      showDrag: true,
       width: 120,
     },
     {
       title: 'caseManagement.caseReview.module',
       dataIndex: 'moduleName',
       slotName: 'moduleName',
+      showDrag: true,
       width: 120,
     },
     {
       title: 'caseManagement.caseReview.tag',
       dataIndex: 'tags',
       isTag: true,
+      showDrag: true,
       width: 170,
     },
     {
       title: 'caseManagement.caseReview.desc',
       dataIndex: 'description',
       width: 150,
+      showDrag: true,
       showTooltip: true,
     },
     {
       title: 'caseManagement.caseReview.cycle',
       dataIndex: 'cycle',
+      showDrag: true,
       width: 350,
     },
     {

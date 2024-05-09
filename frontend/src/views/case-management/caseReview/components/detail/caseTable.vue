@@ -455,7 +455,7 @@
     {
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
-      heightUsed: 372,
+      heightUsed: 375,
       showSetting: true,
       selectable: true,
       showSelectAll: true,
@@ -503,9 +503,6 @@
       keyword: keyword.value,
       viewFlag: props.onlyMine,
       filter: { status: statusFilters.value, caseLevel: caseFilters.value },
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-      total: propsRes.value.msPagination?.total,
       combine: filter
         ? {
             ...filter.combine,
@@ -516,6 +513,9 @@
     loadList();
     emit('init', {
       ...tableParams.value,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+      total: propsRes.value.msPagination?.total,
       moduleIds: [],
     });
   }
