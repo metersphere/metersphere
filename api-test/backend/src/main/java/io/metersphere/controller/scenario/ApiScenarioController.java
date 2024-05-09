@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -435,8 +436,8 @@ public class ApiScenarioController {
     }
 
     @GetMapping("versions/{scenarioId}")
-    @CheckOwner(resourceId = "#scenarioId", resourceType = "api_scenario")
     public List<ApiScenarioDTO> getApiScenarioVersions(@PathVariable String scenarioId) {
+        apiAutomationService.checkOwner(scenarioId, SessionUtils.getCurrentProjectId());
         return apiAutomationService.getApiScenarioVersions(scenarioId);
     }
 
