@@ -318,7 +318,7 @@
             ? [
                 {
                   label: t('system.resourcePool.detailResources'),
-                  value: nodesList?.map((e) => `${e.ip},${e.port},${e.monitor},${e.concurrentNumber}`),
+                  value: nodesList?.map((e) => `${e.ip},${e.port},${e.concurrentNumber}`),
                   tagTheme: 'light' as Theme,
                   tagType: 'default' as TagType,
                   tagMaxWidth: '280px',

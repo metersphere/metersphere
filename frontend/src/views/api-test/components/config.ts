@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash-es';
+
 import { EQUAL } from '@/components/pure/ms-advance-filter';
 
 import {
@@ -237,57 +239,39 @@ export const regexDefaultParamItem = {
   responseFormat: ResponseBodyXPathAssertionFormat.XML,
   moreSettingPopoverVisible: false,
 };
+// mock 匹配规则默认项
+export const defaultMatchRuleItem = {
+  key: '',
+  value: '',
+  condition: 'EQUALS',
+  description: '',
+  paramType: RequestParamsType.STRING,
+  files: [],
+};
 // mock 默认参数
 export const mockDefaultParams: MockParams = {
+  isNew: true,
   projectId: '',
   name: '',
   statusCode: 200,
   tags: [],
   mockMatchRule: {
     header: {
-      matchRules: [
-        {
-          key: '',
-          value: '',
-          condition: 'EQUALS',
-          description: '',
-        },
-      ],
+      matchRules: [],
       matchAll: true,
     },
     query: {
-      matchRules: [
-        {
-          key: '',
-          value: '',
-          condition: 'EQUALS',
-          description: '',
-        },
-      ],
+      matchRules: [],
       matchAll: true,
     },
     rest: {
-      matchRules: [
-        {
-          key: '',
-          value: '',
-          condition: 'EQUALS',
-          description: '',
-        },
-      ],
+      matchRules: [],
       matchAll: true,
     },
     body: {
       paramType: RequestBodyFormat.FORM_DATA,
       formDataMatch: {
-        matchRules: [
-          {
-            key: '',
-            value: '',
-            condition: 'EQUALS',
-            description: '',
-          },
-        ],
+        matchRules: [],
         matchAll: true,
       },
       binaryBody: {
@@ -300,13 +284,7 @@ export const mockDefaultParams: MockParams = {
   },
   response: {
     statusCode: 200,
-    headers: [
-      {
-        key: '',
-        value: '',
-        description: '',
-      },
-    ],
+    headers: [],
     useApiResponse: false,
     apiResponseId: '',
     body: {
@@ -333,3 +311,65 @@ export const mockDefaultParams: MockParams = {
   uploadFileIds: [],
   linkFileIds: [],
 };
+export const makeDefaultParams = () => {
+  const defaultParams = cloneDeep(mockDefaultParams);
+  defaultParams.id = Date.now().toString();
+  defaultParams.mockMatchRule.body.formDataMatch.matchRules.push({
+    ...cloneDeep(defaultMatchRuleItem),
+    id: Date.now().toString(),
+  });
+  defaultParams.mockMatchRule.header.matchRules.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
+  defaultParams.mockMatchRule.query.matchRules.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
+  defaultParams.mockMatchRule.rest.matchRules.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
+  defaultParams.response.headers.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
+  return defaultParams;
+};
+// mock 匹配规则选项
+export const matchRuleOptions = [
+  {
+    label: 'mockManagement.equals',
+    value: 'EQUALS',
+  },
+  {
+    label: 'mockManagement.notEquals',
+    value: 'NOT_EQUALS',
+  },
+  {
+    label: 'mockManagement.lengthEquals',
+    value: 'LENGTH_EQUALS',
+  },
+  {
+    label: 'mockManagement.lengthNotEquals',
+    value: 'LENGTH_NOT_EQUALS',
+  },
+  {
+    label: 'mockManagement.lengthLarge',
+    value: 'LENGTH_LARGE',
+  },
+  {
+    label: 'mockManagement.lengthLess',
+    value: 'LENGTH_SHOT',
+  },
+  {
+    label: 'mockManagement.contain',
+    value: 'CONTAINS',
+  },
+  {
+    label: 'mockManagement.notContain',
+    value: 'NOT_CONTAINS',
+  },
+  {
+    label: 'mockManagement.empty',
+    value: 'IS_EMPTY',
+  },
+  {
+    label: 'mockManagement.notEmpty',
+    value: 'IS_NOT_EMPTY',
+  },
+  {
+    label: 'mockManagement.regular',
+    value: 'REGULAR_MATCH',
+  },
+];
+// mock 参数为文件类型的匹配规则选项
+export const mockFileMatchRules = ['EQUALS', 'NOT_EQUALS', 'IS_EMPTY', 'IS_NOT_EMPTY'];

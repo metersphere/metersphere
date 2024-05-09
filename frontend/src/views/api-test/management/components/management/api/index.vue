@@ -115,6 +115,7 @@
             :active-module="props.activeModule"
             :offspring-ids="props.offspringIds"
             :definition-detail="activeApiTab"
+            :protocol="activeApiTab.protocol"
             is-api
           />
         </a-tab-pane>

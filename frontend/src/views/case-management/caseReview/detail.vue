@@ -92,15 +92,15 @@
         <passRateLine :review-detail="reviewDetail" height="8px" radius="var(--border-radius-mini)" />
       </div>
     </template>
-    <div class="px-[24px]">
+    <!-- <div class="px-[24px]">
       <a-divider class="my-0" />
       <a-tabs v-model:active-key="showTab" class="no-content">
         <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.title" />
       </a-tabs>
-    </div>
+    </div> -->
   </MsCard>
-  <!-- special-height的170: 上面卡片高度154 + mt的16 -->
-  <MsCard class="mt-[16px]" :special-height="170" simple has-breadcrumb no-content-padding>
+  <!-- special-height的170: 上面卡片高度105 + mt的16 -->
+  <MsCard class="mt-[16px]" :special-height="121" simple has-breadcrumb no-content-padding>
     <MsSplitBox>
       <template #first>
         <div class="p-[16px]">
@@ -203,13 +203,13 @@
 
   const onlyMine = ref(false);
 
-  const showTab = ref(0);
-  const tabList = ref([
-    {
-      key: 0,
-      title: t('menu.caseManagement.featureCase'),
-    },
-  ]);
+  // const showTab = ref(0);
+  // const tabList = ref([
+  //   {
+  //     key: 0,
+  //     title: t('menu.caseManagement.featureCase'),
+  //   },
+  // ]);
 
   const modulesCount = ref<Record<string, any>>({});
 

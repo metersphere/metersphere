@@ -147,6 +147,7 @@
     drawerStyle?: Record<string, string>; // 抽屉样式
     showFullScreen?: boolean; // 是否显示全屏按钮
     maskClosable?: boolean; // 点击遮罩是否关闭
+    unmountOnClose?: boolean; // 关闭时销毁组件
     handleBeforeCancel?: () => boolean;
   }
 
@@ -160,6 +161,7 @@
     disabledWidthDrag: false,
     showFullScreen: false,
     maskClosable: true,
+    unmountOnClose: false,
     okPermission: () => [], // 确认按钮权限
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue', 'close']);

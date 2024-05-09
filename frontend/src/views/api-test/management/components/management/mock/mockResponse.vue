@@ -2,7 +2,7 @@
   <a-spin :loading="loading" class="block">
     <div class="mt-[16px] font-medium">{{ t('apiTestManagement.responseContent') }}</div>
     <div class="mt-[8px] flex items-center gap-[4px]">
-      <a-switch v-model:model-value="mockResponse.useApiResponse" size="small"></a-switch>
+      <a-switch v-model:model-value="mockResponse.useApiResponse" size="small" :disabled="props.disabled"></a-switch>
       {{ t('mockManagement.followDefinition') }}
     </div>
     <template v-if="!mockResponse.useApiResponse">
@@ -19,6 +19,7 @@
               v-model:model-value="mockResponse.body.bodyType"
               type="button"
               size="small"
+              :disabled="props.disabled"
               @change="(val) => emit('change')"
             >
               <a-radio
@@ -67,6 +68,7 @@
               :show-language-change="false"
               :show-charset-change="false"
               show-code-format
+              :read-only="props.disabled"
             >
             </MsCodeEditor>
           </div>
@@ -76,6 +78,7 @@
                 v-model:model-value="mockResponse.body.binaryBody.description"
                 :placeholder="t('common.desc')"
                 :max-length="255"
+                :disabled="props.disabled"
               />
               <MsAddAttachment
                 v-model:file-list="fileList"
@@ -85,6 +88,7 @@
                   id: 'fileId',
                   name: 'fileName',
                 }"
+                :disabled="props.disabled"
                 @change="handleFileChange"
               />
             </div>
@@ -94,6 +98,7 @@
                 class="mr-[8px]"
                 size="small"
                 type="line"
+                :disabled="props.disabled"
               ></a-switch>
               <span>{{ t('apiTestDebug.sendAsMainText') }}</span>
               <a-tooltip position="right">
@@ -115,6 +120,8 @@
           :columns="columns"
           :default-param-item="defaultKeyValueParamItem"
           :selectable="false"
+          :disabled-param-value="props.disabled"
+          :disabled-except-param="props.disabled"
           @change="handleResponseTableChange"
         />
         <a-select
@@ -122,6 +129,7 @@
           v-model:model-value="mockResponse.statusCode"
           :options="statusCodeOptions"
           class="w-[200px]"
+          :disabled="props.disabled"
           @change="() => emit('change')"
         />
       </div>
@@ -131,6 +139,7 @@
         v-model:model-value="mockResponse.apiResponseId"
         :options="mockResponseOptions"
         class="w-[150px]"
+        :disabled="props.disabled"
       ></a-select>
     </div>
   </a-spin>
@@ -156,6 +165,7 @@
   const props = defineProps<{
     definitionResponses: ResponseItem[];
     uploadTempFileApi?: (...args: any) => Promise<any>; // 上传临时文件接口
+    disabled: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'change'): void;

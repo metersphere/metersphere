@@ -2,7 +2,6 @@
 export interface NodesListItem {
   ip: string;
   port: string;
-  monitor: string;
   concurrentNumber: number;
 }
 

@@ -3,12 +3,15 @@ import {
   AddCaseUrl,
   AddDefinitionScheduleUrl,
   AddDefinitionUrl,
+  AddMockUrl,
   AddModuleUrl,
   BatchCleanOutApiUrl,
   BatchDeleteCaseUrl,
   BatchDeleteDefinitionUrl,
+  BatchDeleteMockUrl,
   BatchDeleteRecycleCaseUrl,
   BatchEditCaseUrl,
+  BatchEditMockUrl,
   BatchExecuteCaseUrl,
   BatchMoveDefinitionUrl,
   BatchRecoverApiUrl,
@@ -16,6 +19,7 @@ import {
   BatchUpdateDefinitionUrl,
   CasePageUrl,
   CheckDefinitionScheduleUrl,
+  CopyMockUrl,
   DebugCaseUrl,
   DebugDefinitionUrl,
   DefinitionMockPageUrl,
@@ -39,6 +43,7 @@ import {
   GetEnvListUrl,
   GetEnvModuleUrl,
   GetExecuteHistoryUrl,
+  GetMockUrlUrl,
   GetModuleCountUrl,
   GetModuleOnlyTreeUrl,
   GetModuleTreeUrl,
@@ -46,6 +51,7 @@ import {
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   ImportDefinitionUrl,
+  MockDetailUrl,
   MoveModuleUrl,
   OperationHistoryUrl,
   PoolOption,
@@ -64,15 +70,19 @@ import {
   TransferFileModuleOptionCaseUrl,
   TransferFileModuleOptionUrl,
   TransferFileUrl,
+  TransferMockFileModuleOptionUrl,
+  TransferMockFileUrl,
   UpdateCasePriorityUrl,
   UpdateCaseStatusUrl,
   UpdateCaseUrl,
   UpdateDefinitionScheduleUrl,
   UpdateDefinitionUrl,
   UpdateMockStatusUrl,
+  UpdateMockUrl,
   UpdateModuleUrl,
   UploadTempFileCaseUrl,
   UploadTempFileUrl,
+  UploadTempMockFileUrl,
 } from '@/api/requrls/api-test/management';
 
 import { ApiCaseReportDetail, ExecuteRequestParams } from '@/models/apiTest/common';
@@ -113,8 +123,10 @@ import {
   RecoverDefinitionParams,
   UpdateScheduleParams,
 } from '@/models/apiTest/management';
+import type { BatchEditMockParams, MockDetail, MockParams, UpdateMockParams } from '@/models/apiTest/mock';
 import {
   AddModuleParams,
+  type BatchApiParams,
   CommonList,
   DragSortParams,
   ModuleTreeNode,
@@ -302,10 +314,59 @@ export function updateMockStatusPage(id: string) {
 }
 
 // 刪除mock接口
-export function deleteDefinitionMockMock(data: mockParams) {
+export function deleteMock(data: mockParams) {
   return MSR.post({ url: DeleteMockUrl, data });
 }
 
+// 上传文件
+export function uploadMockTempFile(file: File) {
+  return MSR.uploadFile({ url: UploadTempMockFileUrl }, { fileList: [file] }, 'file');
+}
+
+// 文件转存
+export function transferMockFile(data: TransferFileParams) {
+  return MSR.post({ url: TransferMockFileUrl, data });
+}
+
+// 文件转存目录
+export function getMockTransferOptions(projectId: string) {
+  return MSR.get<ModuleTreeNode[]>({ url: TransferMockFileModuleOptionUrl, params: projectId });
+}
+
+// 更新 mock
+export function updateMock(data: UpdateMockParams) {
+  return MSR.post({ url: UpdateMockUrl, data });
+}
+
+// 获取 mock 详情
+export function getMockDetail(data: { id: string; projectId: string }) {
+  return MSR.post<MockDetail>({ url: MockDetailUrl, data });
+}
+
+// 复制 mock
+export function copyMock(data: { id: string; projectId: string }) {
+  return MSR.post({ url: CopyMockUrl, data });
+}
+
+// 批量编辑 mock
+export function batchEditMock(data: BatchEditMockParams) {
+  return MSR.post({ url: BatchEditMockUrl, data });
+}
+
+// 批量删除 mock
+export function batchDeleteMock(data: BatchApiParams) {
+  return MSR.post({ url: BatchDeleteMockUrl, data });
+}
+
+// 添加 mock
+export function addMock(data: MockParams) {
+  return MSR.post({ url: AddMockUrl, data });
+}
+
+// 获取 mock url
+export function getMockUrl(id: string) {
+  return MSR.get({ url: GetMockUrlUrl, params: id });
+}
 /**
  * 回收站
  */

@@ -274,7 +274,7 @@
   width: 100%;
   border: 1px solid var(--color-text-input-border);
   background-color: var(--color-text-fff);
-  &:not(:disabled):hover {
+  &:not(:disabled, .arco-input-tag-disabled, .arco-input-disabled, .arco-select-view-disabled):hover {
     border-color: rgb(var(--primary-5)) !important;
     background-color: white;
   }
@@ -282,6 +282,7 @@
     color: var(--color-text-brand);
   }
 }
+.arco-input-tag-disabled,
 .arco-select-view-disabled,
 .arco-input-disabled {
   border-color: var(--color-text-n8) !important;

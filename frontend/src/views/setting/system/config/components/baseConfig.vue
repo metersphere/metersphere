@@ -91,18 +91,6 @@
           ></a-input>
           <MsFormItemSub :text="t('system.config.baseInfo.pageUrlSub', { url: defaultUrl })" @fill="fillDefaultUrl" />
         </a-form-item>
-        <a-form-item v-xpack :label="t('system.config.prometheus')" field="prometheusHost" asterisk-position="end">
-          <a-input
-            v-model:model-value="baseInfoForm.prometheusHost"
-            :max-length="255"
-            :placeholder="t('system.config.baseInfo.prometheusPlaceholder')"
-            allow-clear
-          ></a-input>
-          <MsFormItemSub
-            :text="t('system.config.baseInfo.prometheusSub', { prometheus: defaultPrometheus })"
-            @fill="fillDefaultPrometheus"
-          />
-        </a-form-item>
       </a-form>
     </MsDrawer>
     <MsDrawer
@@ -239,20 +227,14 @@
   const baseFormRef = ref<FormInstance>();
   const baseInfo = ref({
     url: 'http://127.0.0.1:8081',
-    prometheusHost: 'http://prometheus:9090',
   });
   const baseInfoForm = ref({ ...baseInfo.value });
   const baseInfoDesc = ref<Description[]>([]);
   // 默认示例
   const defaultUrl = 'https://metersphere.com';
-  const defaultPrometheus = 'http://prometheus:9090';
 
   function fillDefaultUrl() {
     baseInfoForm.value.url = defaultUrl;
-  }
-
-  function fillDefaultPrometheus() {
-    baseInfoForm.value.prometheusHost = defaultPrometheus;
   }
 
   /**
@@ -271,10 +253,6 @@
           {
             label: t('system.config.pageUrl'),
             value: res.url,
-          },
-          {
-            label: t('system.config.prometheus'),
-            value: res.prometheusHost,
           },
         ];
       } else {
@@ -297,11 +275,8 @@
    * 拼接基础信息参数
    */
   function makeBaseInfoParams() {
-    const { url, prometheusHost } = baseInfoForm.value;
-    return [
-      { paramKey: 'base.url', paramValue: url, type: 'text' },
-      { paramKey: 'base.prometheus.host', paramValue: prometheusHost, type: 'text' },
-    ];
+    const { url } = baseInfoForm.value;
+    return [{ paramKey: 'base.url', paramValue: url, type: 'text' }];
   }
 
   /**

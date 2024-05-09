@@ -6,6 +6,7 @@ import {
   type ExecuteConditionConfig,
   type ResponseDefinition,
 } from '@/models/apiTest/common';
+import type { MockBody } from '@/models/apiTest/mock';
 import { RequestConditionProcessor, RequestParamsType } from '@/enums/apiEnum';
 
 import {
@@ -28,22 +29,24 @@ export interface ParseResult {
 }
 
 /**
- * 解析接口请求 body 内的文件列表
+ * 解析接口请求/Mock body 内的文件列表
  * @param body body 参数对象
  */
 export function parseRequestBodyFiles(
-  body: ExecuteBody,
+  body: ExecuteBody | MockBody,
   response?: ResponseDefinition[],
   saveUploadFileIds?: string[],
   saveLinkFileIds?: string[]
 ): ParseResult {
-  const { formDataBody, binaryBody } = body;
+  const { binaryBody } = body;
   const uploadFileIds = new Set<string>(); // 存储本地上传的文件 id 集合
   const linkFileIds = new Set<string>(); // 存储关联文件 id 集合
   const tempSaveUploadFileIds = new Set<string>(); // 临时存储 body 内已保存的上传文件 id 集合，用于对比 saveUploadFileIds 以判断有哪些文件被删除
   const tempSaveLinkFileIds = new Set<string>(); // 临时存储 body 内已保存的关联文件 id 集合，用于对比 saveLinkFileIds 以判断有哪些文件被取消关联
   // 获取上传文件和关联文件
-  const formValues = formDataBody?.formValues.filter((e) => e) || [];
+  const formValues =
+    ((body as ExecuteBody).formDataBody?.formValues || (body as MockBody).formDataMatch.matchRules).filter((e) => e) ||
+    [];
   for (let i = 0; i < formValues.length; i++) {
     const item = formValues[i];
     if (item.paramType === RequestParamsType.FILE) {

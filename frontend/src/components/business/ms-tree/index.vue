@@ -21,15 +21,17 @@
       </template>
       <template #title="_props">
         <div class="flex w-full items-center gap-[4px] overflow-hidden">
-          <div
-            v-if="_props.children && _props.children.length > 0"
-            class="cursor-pointer"
-            @click.stop="handleExpand(_props)"
-          >
-            <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
-            <icon-caret-right v-else class="text-[var(--color-text-4)]" />
-          </div>
-          <div v-else class="h-full w-[16px]"></div>
+          <template v-if="!props.hideSwitcher">
+            <div
+              v-if="_props.children && _props.children.length > 0"
+              class="cursor-pointer"
+              @click.stop="handleExpand(_props)"
+            >
+              <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
+              <icon-caret-right v-else class="text-[var(--color-text-4)]" />
+            </div>
+            <div v-else class="h-full w-[16px]"></div>
+          </template>
           <a-tooltip
             v-if="$slots['title']"
             :content="_props[props.fieldNames.title]"
@@ -121,6 +123,7 @@
       disabledTitleTooltip?: boolean; // 是否禁用标题 tooltip
       actionOnNodeClick?: 'expand'; // 点击节点时的操作
       nodeHighlightClass?: string; // 节点高亮背景色
+      hideSwitcher?: boolean; // 隐藏展开折叠图标
       titleTooltipPosition?:
         | 'top'
         | 'tl'

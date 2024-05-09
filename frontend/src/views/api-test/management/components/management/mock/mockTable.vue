@@ -36,9 +36,9 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template #num="{ record }">
-        <MsButton type="text" @click="openMockDetailDrawer(record)">
-          {{ record.num }}
+      <template #expectNum="{ record }">
+        <MsButton type="text" @click="handleOpenDetail(record)">
+          {{ record.expectNum }}
         </MsButton>
       </template>
       <template #enable="{ record }">
@@ -50,8 +50,12 @@
         ></a-switch>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" @click="debugMock(record)">
+        <MsButton type="text" class="!mr-0" @click="debugMock(record)">
           {{ t('apiTestManagement.debug') }}
+        </MsButton>
+        <a-divider direction="vertical" :margin="8"></a-divider>
+        <MsButton type="text" class="!mr-0" @click="handleCopyMock(record)">
+          {{ t('common.copy') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
@@ -66,10 +70,19 @@
       </template>
     </ms-base-table>
   </div>
-  <mockDetailDrawer v-model:visible="mockDetailDrawerVisible" :definition-detail="props.definitionDetail" />
+  <mockDetailDrawer
+    v-if="mockDetailDrawerVisible"
+    v-model:visible="mockDetailDrawerVisible"
+    :definition-detail="mockBelongDefinitionDetail"
+    :detail-id="activeMockRecord?.id"
+    :is-copy="isCopy"
+    @add-done="loadMockList"
+    @delete="() => removeMock(activeMockRecord)"
+  />
 </template>
 
 <script setup lang="ts">
+  import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -82,8 +95,11 @@
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import {
-    deleteDefinitionMockMock,
+    batchDeleteMock,
+    deleteMock,
+    getDefinitionDetail,
     getDefinitionMockPage,
+    getMockUrl,
     updateMockStatusPage,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
@@ -94,6 +110,7 @@
 
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
   import { OrdTemplateManagement } from '@/models/setting/template';
+  import { RequestComposition } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const mockDetailDrawer = defineAsyncComponent(() => import('./mockDetailDrawer.vue'));
@@ -105,6 +122,7 @@
     offspringIds: string[];
     definitionDetail: RequestParam;
     readOnly?: boolean; // 是否是只读模式
+    protocol: string; // 查看的协议类型
   }>();
   const emit = defineEmits<{
     (e: 'init', params: any): void;
@@ -112,6 +130,7 @@
   }>();
 
   const appStore = useAppStore();
+  const tableStore = useTableStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -120,8 +139,8 @@
   let columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
-      slotName: 'id',
+      dataIndex: 'expectNum',
+      slotName: 'expectNum',
       sortIndex: 1,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -235,11 +254,27 @@
 
   const tableQueryParams = ref<any>();
 
-  function loadMockList() {
+  async function getModuleIds() {
+    let moduleIds: string[] = [];
+    if (props.activeModule !== 'all') {
+      moduleIds = [props.activeModule];
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST_MANAGEMENT_CASE);
+      if (getAllChildren) {
+        moduleIds = [props.activeModule, ...props.offspringIds];
+      }
+    }
+    return moduleIds;
+  }
+
+  async function loadMockList() {
+    const selectModules = await getModuleIds();
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
+      protocol: props.protocol,
+      apiDefinitionId: props.definitionDetail.id !== 'all' ? props.definitionDetail.id : undefined,
       filter: {},
+      moduleIds: selectModules,
     };
     setLoadListParams(params);
     loadList();
@@ -253,19 +288,11 @@
     });
   }
 
-  watch(
-    () => props.activeModule,
-    () => {
+  watchEffect(() => {
+    if (props.activeModule || props.protocol) {
       loadMockList();
     }
-  );
-
-  watch(
-    () => props.definitionDetail.protocol,
-    () => {
-      loadMockList();
-    }
-  );
+  });
 
   const changeDefault = async (value: any, record: OrdTemplateManagement) => {
     try {
@@ -278,10 +305,6 @@
     }
   };
 
-  onBeforeMount(() => {
-    loadMockList();
-  });
-
   const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
     selectedIds: [],
@@ -293,7 +316,7 @@
   /**
    * 删除接口
    */
-  function deleteMock(record?: ApiDefinitionMockDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function removeMock(record?: ApiDefinitionMockDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('apiTestManagement.deleteApiTipTitle', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -315,15 +338,17 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
-            // await batchDeleteMock({
-            //   selectIds,
-            //   selectAll: !!params?.selectAll,
-            //   excludeIds: params?.excludeIds || [],
-            //   condition: { keyword: keyword.value },
-            //   projectId: appStore.currentProjectId,
-            // });
+            const selectModules = await getModuleIds();
+            await batchDeleteMock({
+              selectIds,
+              selectAll: !!params?.selectAll,
+              excludeIds: params?.excludeIds || [],
+              condition: { keyword: keyword.value },
+              projectId: appStore.currentProjectId,
+              moduleIds: selectModules,
+            });
           } else {
-            await deleteDefinitionMockMock({
+            await deleteMock({
               id: record?.id as string,
               projectId: appStore.currentProjectId,
             });
@@ -340,6 +365,26 @@
     });
   }
 
+  const { copy, isSupported } = useClipboard({ legacy: true });
+
+  async function copyMockUrl(record: ApiDefinitionMockDetail) {
+    try {
+      appStore.showLoading();
+      const url = await getMockUrl(record.id);
+      if (isSupported) {
+        copy(url);
+        Message.success(t('common.copySuccess'));
+      } else {
+        Message.warning(t('common.copyNotSupport'));
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
+  }
+
   /**
    * 处理表格更多按钮事件
    * @param item
@@ -348,6 +393,9 @@
     switch (item.eventTag) {
       case 'delete':
         deleteMock(record);
+        break;
+      case 'copyMock':
+        copyMockUrl(record);
         break;
       default:
         break;
@@ -370,7 +418,7 @@
     batchParams.value = params;
     switch (event.eventTag) {
       case 'delete':
-        deleteMock(undefined, true, params);
+        removeMock(undefined, true, params);
         break;
       default:
         break;
@@ -385,15 +433,50 @@
     mockDetailDrawerVisible.value = true;
   }
 
-  function openMockDetailDrawer(record: ApiDefinitionMockDetail) {
-    activeMockRecord.value = record;
-    mockDetailDrawerVisible.value = true;
+  const mockBelongDefinitionDetail = ref<RequestParam>(props.definitionDetail);
+  async function openMockDetailDrawer(record: ApiDefinitionMockDetail) {
+    try {
+      activeMockRecord.value = record;
+      if (props.definitionDetail.id === 'all') {
+        // 从全部 mock 列表页查看 mock 详情，需要先加载其接口定义详情
+        appStore.showLoading();
+        const res = await getDefinitionDetail(record.apiDefinitionId);
+        mockBelongDefinitionDetail.value = {
+          ...(res.request as RequestParam),
+          id: res.id,
+          type: 'mock',
+          isNew: false,
+          protocol: res.protocol,
+          activeTab: RequestComposition.BODY,
+          executeLoading: false,
+          responseDefinition: res.response,
+        };
+      } else {
+        mockBelongDefinitionDetail.value = props.definitionDetail;
+      }
+      mockDetailDrawerVisible.value = true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
   }
 
-  const mockDebugDrawerVisible = ref(false);
+  const isCopy = ref(false);
+
+  function handleOpenDetail(record: ApiDefinitionMockDetail) {
+    isCopy.value = false;
+    openMockDetailDrawer(record);
+  }
+
+  function handleCopyMock(record: ApiDefinitionMockDetail) {
+    isCopy.value = true;
+    openMockDetailDrawer(record);
+  }
+
   function debugMock(record: ApiDefinitionMockDetail) {
     activeMockRecord.value = record;
-    mockDebugDrawerVisible.value = true;
   }
 
   defineExpose({
@@ -401,7 +484,6 @@
   });
 
   if (!props.readOnly) {
-    const tableStore = useTableStore();
     await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
   } else {
     columns = columns.filter(
