@@ -2,17 +2,10 @@ package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
-import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
-import io.metersphere.plan.dto.request.TestPlanCopyRequest;
-import io.metersphere.plan.dto.request.TestPlanCreateRequest;
-import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
-import io.metersphere.plan.mapper.ExtTestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
-import io.metersphere.plan.mapper.TestPlanFollowerMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.plan.utils.TestPlanXPackFactory;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
@@ -20,7 +13,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.TestPlanModule;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.uid.IDGenerator;
@@ -53,6 +45,8 @@ public class TestPlanService {
     private TestPlanFollowerMapper testPlanFollowerMapper;
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionCaseService;
+    @Resource
+    private TestPlanAllocationMapper testPlanAllocationMapper;
 
     public void checkModule(String moduleId) {
         if (!StringUtils.equals(moduleId, ModuleConstants.DEFAULT_NODE_ID)) {
@@ -161,7 +155,7 @@ public class TestPlanService {
             if (testPlanMapper.countByExample(example) > 0) {
                 throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
             }
-        }else{
+        } else {
             //更新 校验
             example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId()).andModuleIdEqualTo(testPlan.getModuleId());
             if (testPlanMapper.countByExample(example) > 0) {
@@ -228,31 +222,39 @@ public class TestPlanService {
      * @param requestMethod
      */
     public void batchDelete(TestPlanBatchProcessRequest request, String operator, String requestUrl, String requestMethod) {
-        List<String> deleteIdList = request.getSelectIds();
-        if (request.isSelectAll()) {
-            deleteIdList = extTestPlanMapper.selectIdByConditions(request);
-        }
-        if (CollectionUtils.isEmpty(deleteIdList)) {
-            return;
-        }
-        List<TestPlan> deleteTestPlanList = extTestPlanMapper.selectBaseInfoByIds(deleteIdList);
-        if (CollectionUtils.isNotEmpty(deleteTestPlanList)) {
-            List<String> testPlanGroupList = new ArrayList<>();
-            List<String> testPlanIdList = new ArrayList<>();
-            for (TestPlan testPlan : deleteTestPlanList) {
-                if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                    testPlanGroupList.add(testPlan.getId());
-                } else {
-                    testPlanIdList.add(testPlan.getId());
+        List<String> deleteIdList = getSelectIds(request);
+        if (CollectionUtils.isNotEmpty(deleteIdList)) {
+            List<TestPlan> deleteTestPlanList = extTestPlanMapper.selectBaseInfoByIds(deleteIdList);
+            if (CollectionUtils.isNotEmpty(deleteTestPlanList)) {
+                List<String> testPlanGroupList = new ArrayList<>();
+                List<String> testPlanIdList = new ArrayList<>();
+                for (TestPlan testPlan : deleteTestPlanList) {
+                    if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+                        testPlanGroupList.add(testPlan.getId());
+                    } else {
+                        testPlanIdList.add(testPlan.getId());
+                    }
                 }
+                this.deleteByList(deleteIdList);
+                this.deleteGroupByList(testPlanGroupList);
+                //记录日志
+                testPlanLogService.saveBatchDeleteLog(deleteTestPlanList, operator, requestUrl, requestMethod);
             }
-            this.deleteByList(deleteIdList);
-            this.deleteGroupByList(testPlanGroupList);
-            //记录日志
-            testPlanLogService.saveBatchDeleteLog(deleteTestPlanList, operator, requestUrl, requestMethod);
         }
     }
 
+
+    private List<String> getSelectIds(TestPlanBatchProcessRequest request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extTestPlanMapper.selectIdByConditions(request);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
+    }
 
     private void cascadeDeleteTestPlanIds(List<String> testPlanIds) {
         //删除当前计划对应的资源
@@ -460,12 +462,12 @@ public class TestPlanService {
     public TestPlanDetailResponse detail(String id) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         TestPlanDetailResponse response = new TestPlanDetailResponse();
-        TestPlanModule testPlanModule = testPlanModuleMapper.selectByPrimaryKey(testPlan.getModuleId());
+        String moduleName = getModuleName(testPlan.getModuleId());
         //计划组只有几个参数
         response.setName(testPlan.getName());
         response.setTags(testPlan.getTags());
         response.setModuleId(testPlan.getModuleId());
-        response.setModuleName(testPlanModule.getName());
+        response.setModuleName(moduleName);
         response.setDescription(testPlan.getDescription());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
             //计划的 其他参数
@@ -491,5 +493,123 @@ public class TestPlanService {
             response.setGroupId(testPlan.getGroupId());
             response.setGroupName(group.getName());
         }
+    }
+
+
+    public String getModuleName(String id) {
+        if (ModuleConstants.DEFAULT_NODE_ID.equals(id)) {
+            return Translator.get("functional_case.module.default.name");
+        }
+        return testPlanModuleMapper.selectByPrimaryKey(id).getName();
+    }
+
+
+    /**
+     * 批量复制 （计划/计划组）
+     *
+     * @param request
+     * @param userId
+     * @param url
+     * @param method
+     * @return
+     */
+    public void batchCopy(TestPlanBatchRequest request, String userId, String url, String method) {
+        List<String> copyIds = getSelectIds(request);
+        if (CollectionUtils.isNotEmpty(copyIds)) {
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andIdIn(copyIds);
+            List<TestPlan> copyTestPlanList = testPlanMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(copyTestPlanList)) {
+                Map<String, List<TestPlan>> plans = copyTestPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
+                batchCopyGroup(plans, request, userId);
+                batchCopyPlan(plans, request, userId);
+                // TODO 日志
+            }
+        }
+    }
+
+    /**
+     * 批量复制计划
+     *
+     * @param plans
+     */
+    private void batchCopyPlan(Map<String, List<TestPlan>> plans, TestPlanBatchRequest request, String userId) {
+        if (plans.containsKey(TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+            List<TestPlan> testPlans = plans.get(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+            List<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
+            //额外信息
+
+            TestPlanConfigExample configExample = new TestPlanConfigExample();
+            configExample.createCriteria().andTestPlanIdIn(ids);
+            List<TestPlanConfig> testPlanConfigs = testPlanConfigMapper.selectByExample(configExample);
+            //测试规划配置信息
+            TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
+            allocationExample.createCriteria().andTestPlanIdIn(ids);
+            List<TestPlanAllocation> testPlanAllocations = testPlanAllocationMapper.selectByExampleWithBLOBs(allocationExample);
+            batchInsertPlan(testPlans, testPlanConfigs, testPlanAllocations, request, userId);
+        }
+    }
+
+    private void batchInsertPlan(List<TestPlan> testPlans, List<TestPlanConfig> testPlanConfigs, List<TestPlanAllocation> testPlanAllocations, TestPlanBatchRequest request, String userId) {
+        Map<String, List<TestPlanConfig>> configs = testPlanConfigs.stream().collect(Collectors.groupingBy(TestPlanConfig::getTestPlanId));
+        Map<String, List<TestPlanAllocation>> allocationsList = testPlanAllocations.stream().collect(Collectors.groupingBy(TestPlanAllocation::getTestPlanId));
+        List<TestPlanConfig> newConfigs = new ArrayList<>();
+        List<TestPlanAllocation> newAllocations = new ArrayList<>();
+        testPlans.forEach(testPlan -> {
+            List<TestPlanConfig> config = configs.get(testPlan.getId());
+            List<TestPlanAllocation> allocations = allocationsList.get(testPlan.getId());
+            Long num = testPlan.getNum();
+            testPlan.setId(IDGenerator.nextStr());
+            testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+            testPlan.setNum(NumGenerator.nextNum(testPlan.getProjectId(), ApplicationNumScope.TEST_PLAN));
+            testPlan.setName(getCopyName(testPlan.getName(), num, testPlan.getNum()));
+            testPlan.setModuleId(request.getModuleId());
+            testPlan.setCreateTime(System.currentTimeMillis());
+            testPlan.setUpdateTime(System.currentTimeMillis());
+            testPlan.setCreateUser(userId);
+            testPlan.setUpdateUser(userId);
+
+            if (CollectionUtils.isNotEmpty(config)) {
+                TestPlanConfig testPlanConfig = config.get(0);
+                testPlanConfig.setTestPlanId(testPlan.getId());
+                newConfigs.add(testPlanConfig);
+            }
+            if (CollectionUtils.isNotEmpty(allocations)) {
+                TestPlanAllocation testPlanAllocation = allocations.get(0);
+                testPlanAllocation.setTestPlanId(testPlan.getId());
+                testPlanAllocation.setId(IDGenerator.nextStr());
+                newAllocations.add(testPlanAllocation);
+            }
+        });
+        testPlanMapper.batchInsert(testPlans);
+        if (CollectionUtils.isNotEmpty(newConfigs)) {
+            testPlanConfigMapper.batchInsert(newConfigs);
+        }
+        if (CollectionUtils.isNotEmpty(newAllocations)) {
+            testPlanAllocationMapper.batchInsert(newAllocations);
+        }
+    }
+
+    private String getCopyName(String name, long oldNum, long newNum) {
+        if (!StringUtils.startsWith(name, "copy_")) {
+            name = "copy_" + name;
+        }
+        if (name.length() > 250) {
+            name = name.substring(0, 200) + "...";
+        }
+        if (StringUtils.endsWith(name, "_" + oldNum)) {
+            name = StringUtils.substringBeforeLast(name, "_" + oldNum);
+        }
+        name = name + "_" + newNum;
+        return name;
+    }
+
+    /**
+     * 批量复制组
+     *
+     * @param plans
+     */
+    private void batchCopyGroup(Map<String, List<TestPlan>> plans, TestPlanBatchProcessRequest request, String userId) {
+        //TODO 批量复制计划组
     }
 }
