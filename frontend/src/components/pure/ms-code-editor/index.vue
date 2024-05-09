@@ -1,8 +1,9 @@
 <template>
   <div
     ref="fullRef"
-    class="flex flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]"
-    :class="[!isAdaptive ? 'h-full' : '']"
+    :class="`${
+      !isAdaptive ? 'h-full' : ''
+    } flex flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]`"
   >
     <div v-if="showTitleLine" class="mb-[8px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">

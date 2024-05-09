@@ -8,7 +8,8 @@
     :footer="false"
     modal-class="modalSelf"
     :body-style="{
-      height: '100%',
+      'height': '100%',
+      'max-height': 'none',
     }"
     :modal-style="{
       padding: '16px 16px 0',
