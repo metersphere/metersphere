@@ -113,6 +113,8 @@
       v-model:visible="showDetailVisible"
       :width="480"
       :footer="false"
+      :mask-closable="true"
+      :mask="false"
       :title="t('system.orgTemplate.filedDetail', { name: characterLimit(detailInfo?.name) })"
     >
       <div class="p-4">

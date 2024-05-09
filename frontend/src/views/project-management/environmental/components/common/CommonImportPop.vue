@@ -4,7 +4,6 @@
     title-align="start"
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('common.import')"
-    :ok-loading="confirmLoading"
     :ok-button-props="{ disabled: fileList.length === 0 }"
     unmount-on-close
     @cancel="handleCancel(false)"

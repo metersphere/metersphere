@@ -95,6 +95,7 @@
       :show-theme-change="false"
       :show-code-format="true"
       :language="currentCodeLanguage"
+      is-adaptive
     >
     </MsCodeEditor>
   </div>
