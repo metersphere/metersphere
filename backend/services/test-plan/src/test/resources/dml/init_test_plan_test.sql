@@ -26,3 +26,8 @@ VALUES
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
 VALUES
     ('123', 2, 1, 'wx', 'wx', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["bugManagement","caseManagement","apiTest","testPlan"]');
+
+
+INSERT INTO `test_plan_allocation`(`id`, `test_plan_id`, `run_mode_config`)
+VALUES
+    ('1', 'wx_test_plan_id_1', '111');

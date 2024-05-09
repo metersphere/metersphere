@@ -25,6 +25,19 @@ ALTER TABLE test_resource_pool DROP COLUMN api_test;
 ALTER TABLE test_resource_pool DROP COLUMN load_test;
 ALTER TABLE test_resource_pool DROP COLUMN ui_test;
 
+
+CREATE TABLE IF NOT EXISTS test_plan_allocation
+(
+    `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
+    `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID',
+    `run_mode_config` LONGBLOB NOT NULL COMMENT '运行配置',
+    PRIMARY KEY (id)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '测试计划配置';
+
+CREATE INDEX idx_test_plan_id ON test_plan_allocation(test_plan_id);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

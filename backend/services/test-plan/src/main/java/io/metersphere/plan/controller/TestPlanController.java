@@ -143,4 +143,13 @@ public class TestPlanController {
     public TestPlanDetailResponse detail(@NotBlank @PathVariable String id) {
         return testPlanService.detail(id);
     }
+
+
+    @PostMapping("/batch/copy")
+    @Operation(summary = "测试计划-批量复制测试计划")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchCopy(@Validated @RequestBody TestPlanBatchRequest request) {
+        testPlanService.batchCopy(request, SessionUtils.getUserId(), "/test-plan/batch/copy", HttpMethodConstants.POST.name());
+    }
 }

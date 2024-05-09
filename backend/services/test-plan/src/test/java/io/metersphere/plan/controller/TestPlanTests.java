@@ -123,6 +123,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
     private static final String URL_TEST_PLAN_COPY = "/test-plan/copy";
     private static final String URL_TEST_PLAN_DETAIL = "/test-plan/%s";
+    private static final String URL_TEST_PLAN_BATCH_COPY = "/test-plan/batch/copy";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -748,7 +749,6 @@ public class TestPlanTests extends BaseTest {
             Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
 
 
-
             //测试根据名称模糊查询： Plan_2  预期结果： a1Node下有11条（testPlan_2,testPlan_20~testPlan_29), a1b1Node下有100条（testPlan_200~testPlan_299）
             testPlanTableRequest.setModuleIds(null);
             testPlanTableRequest.initKeyword("Plan_2");
@@ -765,7 +765,6 @@ public class TestPlanTests extends BaseTest {
             Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
             //返回的数据量不超过规定要返回的数据量相同
             Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
-
 
 
             //测试根据名称模糊查询（包含测试组的）： Plan_7  预期结果： a1Node下有1条（testPlan_7), a2Node下有10条（testPlan_70~testPlan_79）,a1b1Node下有100条（testPlan_700~testPlan_799）
@@ -2182,6 +2181,20 @@ public class TestPlanTests extends BaseTest {
         ResultHolder holder2 = JSON.parseObject(returnStr2, ResultHolder.class);
         String returnId2 = holder2.getData().toString();
         Assertions.assertNotNull(returnId2);
+
+    }
+
+
+    @Test
+    @Order(304)
+    public void testBatchCopy() throws Exception {
+        TestPlanBatchRequest request = new TestPlanBatchRequest();
+        request.setProjectId("123");
+        request.setType("ALL");
+        request.setSelectAll(true);
+        request.setModuleId("2");
+
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
 
     }
 }
