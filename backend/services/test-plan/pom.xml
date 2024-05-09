@@ -36,6 +36,11 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-bug-management</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 
 

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.ExtTestPlanBugMapper">
+    <select id="list" parameterType="io.metersphere.plan.dto.request.TestPlanBugPageRequest" resultType="io.metersphere.plan.dto.response.TestPlanBugPageResponse">
+        select b.id as id, b.num as num, b.title as title, b.handle_user handleUser, b.status as status, b.create_user createUser, b.create_time createTime
+        from bug_relation_case brc join bug b on brc.bug_id = b.id
+        where brc.test_plan_id = #{request.planId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            b.title like concat('%', #{request.keyword},'%')
+            or b.num like concat('%', #{request.keyword},'%')
+            or b.tags like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+        <include refid="combine">
+            <property name="condition" value="request.combine"/>
+            <property name="searchMode" value="request.searchMode"/>
+            <property name="combineTag" value="request.combine.tag"/>
+        </include>
+        group by brc.bug_id
+    </select>
+
+    <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
+        select brc.test_plan_case_id as id, brc.bug_id as bugId, fc.name as name
+        from bug_relation_case brc
+            join functional_case fc on brc.test_plan_case_id = fc.id
+        # 后续会有其他用例, 根据关联用例类型, 取不同用例表
+        where brc.test_plan_id = #{planId}
+        and brc.bug_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 处理人 -->
+                        <when test="key == 'handleUser'">
+                            and b.handle_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 状态 -->
+                        <when test="key=='status'">
+                            and b.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            and (
+            <!-- 任意/所有拼接 -->
+            <include refid="prefixMode">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+            <!-- ID -->
+            <if test='${condition}.num != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.num
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.num"/>
+                </include>
+            </if>
+            <!-- 名称 -->
+            <if test='${condition}.title != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.title
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.title"/>
+                </include>
+            </if>
+            <!-- 所属平台 -->
+            <if test='${condition}.platform != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.platform
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.platform"/>
+                </include>
+            </if>
+            <!-- 处理人 -->
+            <if test='${condition}.handleUser != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.handle_user
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.handleUser"/>
+                </include>
+            </if>
+            <!-- 状态 -->
+            <if test='${condition}.status != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.status
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.status"/>
+                </include>
+            </if>
+            <!-- 创建人 -->
+            <if test='${condition}.createUser != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.create_user
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createUser"/>
+                </include>
+            </if>
+            <!-- 创建时间 -->
+            <if test='${condition}.createTime != null'>
+                <include refid="queryType">
+                    <property name="searchMode" value="${searchMode}"/>
+                </include>
+                b.create_time
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createTime"/>
+                </include>
+            </if>
+            <!-- 标签 -->
+            <if test='${condition}.tags != null'>
+                <include refid="queryTag">
+                    <property name="searchMode" value="${searchMode}"/>
+                    <property name="combineTag" value="${condition}.tags"/>
+                </include>
+            </if>
+            <!-- 自定义字段 -->
+            <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+                <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                    <if test="custom.value != ''">
+                        <include refid="queryType">
+                            <property name="searchMode" value="${searchMode}"/>
+                        </include>
+                        <if test='custom.operator == "not like" or custom.operator == "not in"'>
+                            b.id not in (
+                        </if>
+                        <if test='custom.operator != "not like" and custom.operator != "not in"'>
+                            b.id in (
+                        </if>
+                        select bug_id from bug_custom_field where field_id = #{custom.id} and
+                        <choose>
+                            <when test="custom.type == 'array'">
+                                <foreach collection="custom.value" item="val" separator="or" open="(" close=")">
+                                    JSON_CONTAINS(`value`, JSON_ARRAY(#{val}))
+                                </foreach>
+                            </when>
+                            <when test="custom.type == 'time'">
+                                left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="object" value="custom"/>
+                                </include>
+                            </when>
+                            <otherwise>
+                                trim(both '"' from `value`)
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="object" value="custom"/>
+                                </include>
+                            </otherwise>
+                        </choose>
+                        )
+                    </if>
+                </foreach>
+            </if>
+            )
+        </if>
+    </sql>
+
+    <sql id="prefixMode">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                1 = 1
+            </when>
+            <when test='${searchMode} == "OR"'>
+                1 = 2
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="queryType">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                and
+            </when>
+            <when test='${searchMode} == "OR"'>
+                or
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="queryTag">
+        <!-- 不包含 -->
+        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "not like"'>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+            (
+            b.tags is null or b.tags = '[]' or
+            <foreach collection="${combineTag}.value" item="tag" separator="and" open="(" close=")">
+                !JSON_CONTAINS(b.tags, JSON_ARRAY(#{tag}))
+            </foreach>
+            )
+        </if>
+        <!-- 包含 -->
+        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "like"'>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+            <foreach collection="${combineTag}.value" item="tag" separator="or" open="(" close=")">
+                JSON_CONTAINS(b.tags, JSON_ARRAY(#{tag}))
+            </foreach>
+        </if>
+        <!-- 空 -->
+        <if test='${combineTag}.operator == "is null"'>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+            (b.tags is null or b.tags = '[]')
+        </if>
+    </sql>
+</mapper>

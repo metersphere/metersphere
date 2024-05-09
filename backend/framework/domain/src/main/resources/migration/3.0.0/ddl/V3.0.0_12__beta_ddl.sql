@@ -24,6 +24,7 @@ CREATE INDEX idx_num ON test_plan_functional_case(num);
 ALTER TABLE test_resource_pool DROP COLUMN api_test;
 ALTER TABLE test_resource_pool DROP COLUMN load_test;
 ALTER TABLE test_resource_pool DROP COLUMN ui_test;
+DROP TABLE test_plan_bug;
 
 
 CREATE TABLE IF NOT EXISTS test_plan_allocation
