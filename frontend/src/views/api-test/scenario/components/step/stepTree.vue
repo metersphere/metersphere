@@ -561,7 +561,8 @@
   const loading = ref(false);
   const treeRef = ref<InstanceType<typeof MsTree>>();
   const focusStepKey = ref<string | number>(''); // 聚焦的key
-  const activeStep = ref<ScenarioStepItem>(); // 用于抽屉操作创建步骤、弹窗配置时记录当前操作的步骤节点
+  const activeStep = ref<ScenarioStepItem>(); // 用于弹窗配置时记录当前操作的步骤节点
+  const activeStepByCreate = ref<ScenarioStepItem | undefined>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
 
   function setFocusNodeKey(id: string | number) {
     focusStepKey.value = id || '';
@@ -1151,11 +1152,13 @@
     if (activeStep.value) {
       return stepDetails.value[activeStep.value.id];
     }
+    return undefined;
   });
   const currentStepFileParams = computed<ScenarioStepFileParams | undefined>(() => {
     if (activeStep.value) {
       return scenario.value.stepFileParam[activeStep.value.id];
     }
+    return undefined;
   });
 
   function handleAddStepDone(newStep: ScenarioStepItem) {
@@ -1447,7 +1450,7 @@
     step?: ScenarioStepItem,
     _activeCreateAction?: CreateStepAction
   ) {
-    activeStep.value = step;
+    activeStepByCreate.value = step;
     activeCreateAction.value = _activeCreateAction;
     switch (type) {
       case ScenarioAddStepActionType.IMPORT_SYSTEM_API:
@@ -1473,16 +1476,16 @@
    */
   function handleImportApiApply(type: 'copy' | 'quote', data: ImportData) {
     let sort = steps.value.length + 1;
-    if (activeStep.value && activeCreateAction.value) {
+    if (activeStepByCreate.value && activeCreateAction.value) {
       switch (activeCreateAction.value) {
         case 'inside':
-          sort = activeStep.value.children ? activeStep.value.children.length : 0;
+          sort = activeStepByCreate.value.children ? activeStepByCreate.value.children.length : 0;
           break;
         case 'before':
-          sort = activeStep.value.sort;
+          sort = activeStepByCreate.value.sort;
           break;
         case 'after':
-          sort = activeStep.value.sort + 1;
+          sort = activeStepByCreate.value.sort + 1;
           break;
         default:
           break;
@@ -1511,8 +1514,14 @@
       appStore.currentProjectId
     );
     const insertSteps = insertApiSteps.concat(insertCaseSteps).concat(insertScenarioSteps);
-    if (activeStep.value && activeCreateAction.value) {
-      handleCreateSteps(activeStep.value, insertSteps, steps.value, activeCreateAction.value, selectedKeys.value);
+    if (activeStepByCreate.value && activeCreateAction.value) {
+      handleCreateSteps(
+        activeStepByCreate.value,
+        insertSteps,
+        steps.value,
+        activeCreateAction.value,
+        selectedKeys.value
+      );
     } else {
       steps.value = steps.value.concat(insertSteps);
     }
@@ -1533,7 +1542,7 @@
       unLinkFileIds: request.unLinkFileIds,
     };
     emit('updateResource', request.uploadFileIds, request.linkFileIds);
-    if (activeStep.value && activeCreateAction.value) {
+    if (activeStepByCreate.value && activeCreateAction.value) {
       handleCreateStep(
         {
           stepType: ScenarioStepType.CUSTOM_REQUEST,
@@ -1546,7 +1555,7 @@
           uniqueId: request.stepId,
           projectId: appStore.currentProjectId,
         },
-        activeStep.value,
+        activeStepByCreate.value,
         steps.value,
         activeCreateAction.value,
         selectedKeys.value
@@ -1641,7 +1650,7 @@
   function addScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor) {
     const id = getGenerateId();
     stepDetails.value[id] = cloneDeep(scriptProcessor);
-    if (activeStep.value && activeCreateAction.value) {
+    if (activeStepByCreate.value && activeCreateAction.value) {
       handleCreateStep(
         {
           id,
@@ -1651,7 +1660,7 @@
           name,
           projectId: appStore.currentProjectId,
         },
-        activeStep.value,
+        activeStepByCreate.value,
         steps.value,
         activeCreateAction.value,
         selectedKeys.value

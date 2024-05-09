@@ -6,6 +6,15 @@
       :selectable="false"
       :scroll="props.scroll"
     >
+      <template #assertionItem="{ record }">
+        <div class="flex items-center gap-[4px]">
+          【{{ t(responseAssertionTypeMap[(record as ResponseAssertionTableItem).assertionType]) }}】
+          {{ record.name }}
+        </div>
+      </template>
+      <template #condition="{ record }">
+        {{ t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '') }}
+      </template>
       <template #status="{ record }">
         <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
           {{ record.pass === true ? t('common.success') : t('common.fail') }}
@@ -16,13 +25,16 @@
 </template>
 
 <script setup lang="ts">
+  import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import MsFormTable from '@/components/pure/ms-form-table/index.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { RequestResult } from '@/models/apiTest/common';
+  import { RequestResult, ResponseAssertionTableItem } from '@/models/apiTest/common';
+
+  import { responseAssertionTypeMap } from '@/views/api-test/components/config';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -37,10 +49,29 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'apiTestDebug.content',
-      dataIndex: 'content',
+      title: 'apiTestDebug.assertionItem',
+      dataIndex: 'assertionItem',
       showTooltip: true,
-      width: 300,
+      slotName: 'assertionItem',
+      width: 200,
+    },
+    {
+      title: 'apiTestDebug.actualValue',
+      dataIndex: 'actualValue',
+      showTooltip: true,
+      width: 200,
+    },
+    {
+      title: 'apiTestDebug.condition',
+      dataIndex: 'condition',
+      slotName: 'condition',
+      width: 120,
+    },
+    {
+      title: 'apiTestDebug.expectedValue',
+      dataIndex: 'expectedValue',
+      showTooltip: true,
+      width: 200,
     },
     {
       title: 'apiTestDebug.status',

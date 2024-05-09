@@ -15,7 +15,7 @@
     @close="handleCancel"
   >
     <template #tbutton>
-      <div v-if="mockDetail.id" class="right-operation-button-icon flex items-center gap-[4px]">
+      <div v-if="isReadOnly" class="right-operation-button-icon flex items-center gap-[4px]">
         <MsButton
           v-permission="['PROJECT_API_DEFINITION_MOCK:READ+UPDATE']"
           type="icon"

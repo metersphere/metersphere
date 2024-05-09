@@ -10,8 +10,8 @@
   </a-empty>
   <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
     <div v-if="!props.isCase" class="px-[18px] pt-[8px]">
-      <div class="flex flex-wrap items-center justify-between gap-[12px]">
-        <div class="flex flex-1 items-center gap-[16px]">
+      <div class="flex flex-wrap items-baseline justify-between gap-[12px]">
+        <div class="flex flex-1 flex-wrap items-center gap-[16px]">
           <a-select
             v-if="requestVModel.isNew"
             v-model:model-value="requestVModel.protocol"
@@ -53,6 +53,9 @@
               @change="handleUrlChange"
             />
           </a-input-group>
+          <div v-if="isUrlError" class="url-input-tip">
+            <span>{{ t('apiTestDebug.apiUrlRequired') }}</span>
+          </div>
         </div>
         <div>
           <a-radio-group
@@ -183,9 +186,6 @@
           </template>
         </div>
       </div>
-    </div>
-    <div v-if="isUrlError" class="url-input-tip">
-      <span>{{ t('apiTestDebug.apiUrlRequired') }}</span>
     </div>
     <div :class="`${!props.isCase ? 'request-tab-and-response' : ''} mt-[8px] flex-1`">
       <MsTab
@@ -1622,11 +1622,13 @@
     @apply leading-none;
   }
   .url-input-tip {
-    margin-top: 2px 0 250px;
+    @apply w-full;
+
+    margin-top: -14px;
+    padding-left: 226px;
     font-size: 12px;
     color: rgb(var(--danger-6));
     line-height: 16px;
-    @apply flex flex-col flex-nowrap items-center justify-start;
   }
   .request-tab-and-response {
     overflow-x: hidden;

@@ -192,4 +192,9 @@ export default {
   'apiTestDebug.extractValueTitleTip': '输入按列存储中的列名和对应的数值，如提取name列的第一个值则输入name_1',
   'apiTestDebug.responseRepeatMessage': '名称重复，请重新输入',
   'apiTestDebug.saveAsApi': '另存为接口',
+  'apiTestDebug.assertionItem': '断言项',
+  'apiTestDebug.actualValue': '返回值',
+  'apiTestDebug.condition': '匹配条件',
+  'apiTestDebug.expectedValue': '匹配值',
+  'apiTestDebug.extractValue': '提取值',
 };

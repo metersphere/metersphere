@@ -78,6 +78,22 @@
           <a-option v-for="org of orgOptions" :key="org.id" :value="org.id">{{ org.name }}</a-option>
         </a-select>
       </a-form-item>
+      <!-- <a-form-item
+        :label="t('system.resourcePool.use')"
+        field="use"
+        class="form-item"
+        :rules="[{ required: true, message: t('system.resourcePool.useRequired') }]"
+        asterisk-position="end"
+      >
+        <a-checkbox-group v-model:model-value="form.use" @change="() => setIsSave(false)">
+          <a-checkbox v-for="use of useList" :key="use.value" :value="use.value">{{ t(use.label) }}</a-checkbox>
+        </a-checkbox-group>
+        <MsFormItemSub
+          v-if="form.use.length === 3"
+          :text="t('system.resourcePool.allUseTip')"
+          :show-fill-icon="false"
+        />
+      </a-form-item> -->
       <!--TODO:暂无性能测试-->
       <!-- <template v-if="isCheckedPerformance">
         <a-form-item :label="t('system.resourcePool.mirror')" field="testResourceDTO.loadTestImage" class="form-item">
@@ -342,7 +358,7 @@
       </template>
     </a-form>
     <template #footerLeft>
-      <MsButton v-if="isCheckedPerformance && isShowK8SResources" @click="showJobDrawer = true">
+      <MsButton v-if="isShowK8SResources" @click="showJobDrawer = true">
         {{ t('system.resourcePool.customJobTemplate') }}
         <a-tooltip :content="t('system.resourcePool.jobTemplateTip')" position="tl" mini>
           <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
@@ -405,8 +421,6 @@
     type: 'Node',
     addType: 'single',
     testResourceDTO: {
-      loadTestImage: '',
-      loadTestHeap: '',
       uiGrid: '',
       girdConcurrentNumber: 1,
       podThreads: 1,
@@ -466,7 +480,7 @@
         ...res,
         addType: 'single',
         orgType: res.allOrg ? 'allOrg' : 'set',
-        use: [res.loadTest ? 'performance' : '', res.apiTest ? 'API' : '', res.uiTest ? 'UI' : ''].filter((e) => e),
+        use: [res.apiTest ? 'API' : '', res.uiTest ? 'UI' : ''].filter((e) => e),
         testResourceDTO: {
           ...testResourceReturnDTO,
           girdConcurrentNumber: girdConcurrentNumber || 1,
@@ -522,14 +536,12 @@
    */
   // 是否选择应用组织为指定组织
   const isSpecifiedOrg = computed(() => form.value.orgType === 'set');
-  // 是否勾选了性能测试
-  const isCheckedPerformance = computed(() => form.value.use.includes('performance'));
   // 是否勾选了UI测试
   const isCheckedUI = computed(() => form.value.use.includes('UI'));
   // 是否勾选了接口测试
   const isCheckedAPI = computed(() => form.value.use.includes('API'));
   // 是否显示类型切换表单项
-  const isShowTypeItem = computed(() => ['API', 'performance'].some((s) => form.value.use.includes(s)));
+  const isShowTypeItem = computed(() => ['API'].some((s) => form.value.use.includes(s)));
   // 是否显示Node资源配置信息
   const isShowNodeResources = computed(() => form.value.type === 'Node' && isShowTypeItem.value);
   // 是否显示K8S资源配置信息
@@ -566,6 +578,13 @@
       label: 'system.resourcePool.port',
       rules: [{ required: true, message: t('system.resourcePool.portRequired') }],
       placeholder: 'system.resourcePool.portPlaceholder',
+    },
+    {
+      filed: 'monitor',
+      type: 'input',
+      label: 'system.resourcePool.monitor',
+      rules: [{ required: true, message: t('system.resourcePool.monitorRequired') }],
+      placeholder: 'system.resourcePool.monitorPlaceholder',
     },
     {
       filed: 'concurrentNumber',
@@ -632,11 +651,12 @@
       if (e.trim() !== '') {
         // 排除空串
         const line = e.split(',');
-        if (line.every((s) => s.trim() !== '') && !Number.isNaN(Number(line[2]))) {
+        if (line.every((s) => s.trim() !== '') && !Number.isNaN(Number(line[3]))) {
           const item = {
             ip: line[0],
             port: line[1],
-            concurrentNumber: Number(line[2]),
+            monitor: line[2],
+            concurrentNumber: Number(line[3]),
           };
           if (i === 0) {
             // 第四个是concurrentNumber，需要是数字
@@ -727,8 +747,6 @@
       jobDefinition, // k8s job自定义模板
       deployName, // k8s api测试部署名称
       nodesList,
-      loadTestImage,
-      loadTestHeap,
       uiGrid,
       girdConcurrentNumber,
     } = testResourceDTO;
@@ -748,15 +766,6 @@
             deployName: isCheckedAPI.value ? deployName : null, // 勾选了接口测试才需要传
           }
         : {};
-    // 性能测试资源
-    const performanceDTO = isCheckedPerformance.value
-      ? {
-          loadTestImage,
-          loadTestHeap,
-          ...nodeResourceDTO,
-          ...k8sResourceDTO,
-        }
-      : {};
     // 接口测试资源
     const apiDTO = isCheckedAPI.value
       ? {
@@ -772,15 +781,14 @@
         }
       : {};
 
-    const jobDTO = isCheckedPerformance.value && isShowK8SResources ? { jobDefinition } : {};
+    const jobDTO = isShowK8SResources ? { jobDefinition } : {};
     return {
       ...form.value,
       type: isShowTypeItem.value ? form.value.type : 'Node', // 默认给 Node，后台需要
       allOrg: form.value.orgType === 'allOrg',
       apiTest: form.value.use.includes('API'), // 是否支持api测试
-      loadTest: form.value.use.includes('performance'), // 是否支持性能测试
       uiTest: form.value.use.includes('UI'), // 是否支持ui测试
-      testResourceDTO: { ...performanceDTO, ...apiDTO, ...uiDTO, ...jobDTO, orgIds: form.value.testResourceDTO.orgIds },
+      testResourceDTO: { ...apiDTO, ...uiDTO, ...jobDTO, orgIds: form.value.testResourceDTO.orgIds },
     };
   }
 

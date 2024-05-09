@@ -274,6 +274,7 @@
             // 如果有父节点
             node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
             node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+            node.draggable = !node.parent.isQuoteScenarioStep; // 引用场景下的任何步骤不可拖拽
           }
           return {
             ...node,

@@ -13,8 +13,6 @@ export interface OrgIdNameMap {
 
 // 资源池配置信息对象
 export interface TestResourceDTO {
-  loadTestImage: string; // 镜像
-  loadTestHeap: string; // Jmeter heap
   nodesList: NodesListItem[]; // node资源
   ip: string; // k8s ip
   token: string; // k8s token
@@ -36,7 +34,6 @@ export interface ResourcePoolInfo {
   type: string; // 资源池类型
   enable: boolean; // 是否启用
   apiTest: boolean; // 是否支持api测试
-  loadTest: boolean; // 是否支持性能测试
   uiTest: boolean; // 是否支持ui测试
   serverUrl: string; // 资源池地址
   allOrg: boolean; // 是否应用范围选择全部组织

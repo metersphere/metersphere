@@ -76,13 +76,13 @@
             </template>
           </a-popover>
           <a-popover position="left" content-class="response-popover-content">
-            <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">{{
-              props.environmentName
-            }}</div>
+            <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">
+              {{ props.environmentName }}
+            </div>
             <template #content>
-              <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">{{
-                props.environmentName
-              }}</div>
+              <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">
+                {{ props.environmentName }}
+              </div>
             </template>
           </a-popover>
         </div>
