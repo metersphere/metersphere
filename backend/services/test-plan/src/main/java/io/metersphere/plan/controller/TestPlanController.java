@@ -3,7 +3,6 @@ package io.metersphere.plan.controller;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.service.TestPlanLogService;
@@ -45,15 +44,6 @@ public class TestPlanController {
     public Pager<List<TestPlanResponse>> page(@Validated @RequestBody TestPlanTableRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanManagementService.page(request);
-    }
-
-    @GetMapping("/getCount/{id}")
-    @Operation(summary = "测试计划-获取统计数据")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
-    @CheckOwner(resourceId = "#id", resourceType = "test_plan")
-    public TestPlanCountResponse getCount(@PathVariable String id) {
-        testPlanManagementService.checkModuleIsOpen(id, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        return testPlanService.getCount(id);
     }
 
 

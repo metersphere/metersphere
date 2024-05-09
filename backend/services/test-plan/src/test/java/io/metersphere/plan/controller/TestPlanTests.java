@@ -8,7 +8,6 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
-import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanModuleService;
@@ -726,11 +725,6 @@ public class TestPlanTests extends BaseTest {
             Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
             Assertions.assertEquals(result.getTotal(), 1010);
 
-            //查询详情
-            List<TestPlanResponse> testPlanResponseList = JSON.parseArray(JSON.toJSONString(result.getList()), TestPlanResponse.class);
-            for (TestPlanResponse response : testPlanResponseList) {
-                this.requestGetWithOk(String.format(URL_GET_TEST_PLAN_COUNT, response.getId()));
-            }
 
             //指定模块ID查询 (查询count时，不会因为选择了模块而更改了总量
             testPlanTableRequest.setModuleIds(Arrays.asList(a1Node.getId(), a1a1Node.getId(), a1b1Node.getId()));

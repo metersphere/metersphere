@@ -3,7 +3,6 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -270,27 +269,15 @@ public class TestPlanService {
         TestPlanFollowerExample testPlanFollowerExample = new TestPlanFollowerExample();
         testPlanFollowerExample.createCriteria().andTestPlanIdIn(testPlanIds);
         testPlanFollowerMapper.deleteByExample(testPlanFollowerExample);
+
+        TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
+        allocationExample.createCriteria().andTestPlanIdIn(testPlanIds);
+        testPlanAllocationMapper.deleteByExample(allocationExample);
         /*
         todo
-            删除计划定时任务  执行相关配置
+            删除计划定时任务
          */
 
-    }
-
-
-    public TestPlanCountResponse getCount(String id) {
-        TestPlanCountResponse response = new TestPlanCountResponse();
-        response.setId(id);
-        /*
-        todo  统计：测试进度、通过率、用例数、Bug数量（这些比较慢的查询，是否需要另开接口查询)
-         */
-
-        response.setFunctionalCaseCount(0);
-        response.setApiCaseCount(0);
-        response.setApiScenarioCount(0);
-        response.setPassRate("3.14%");
-        response.setTestProgress("15.92%");
-        return response;
     }
 
 
