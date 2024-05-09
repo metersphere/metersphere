@@ -60,7 +60,7 @@ export interface AddTestPlanParams {
   repeatCase: boolean; // 是否允许重复添加用例
   passThreshold: number;
   type: string;
-  baseAssociateCaseRequest: AssociateCaseRequest;
+  baseAssociateCaseRequest?: AssociateCaseRequest;
   groupOption?: boolean;
 }
 

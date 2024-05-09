@@ -75,7 +75,7 @@
             <a-divider margin="4px" direction="vertical" />
             <MsButton
               type="text"
-              :disabled="form.baseAssociateCaseRequest.selectIds.length === 0"
+              :disabled="form.baseAssociateCaseRequest?.selectIds.length === 0"
               @click="clearSelectedCases"
             >
               {{ t('caseManagement.caseReview.clearSelectedCases') }}
@@ -86,9 +86,9 @@
           <div class="text-[var(--color-text-2)]">
             {{
               t('caseManagement.caseReview.selectedCases', {
-                count: form.baseAssociateCaseRequest.selectAll
-                  ? form.baseAssociateCaseRequest.totalCount
-                  : form.baseAssociateCaseRequest.selectIds.length,
+                count: form.baseAssociateCaseRequest?.selectAll
+                  ? form.baseAssociateCaseRequest?.totalCount
+                  : form.baseAssociateCaseRequest?.selectIds.length,
               })
             }}
           </div>
@@ -127,7 +127,7 @@
   </MsDrawer>
   <AssociateDrawer
     v-model:visible="caseAssociateVisible"
-    :has-not-associated-ids="form.baseAssociateCaseRequest.selectIds"
+    :has-not-associated-ids="form.baseAssociateCaseRequest?.selectIds"
     @success="writeAssociateCases"
   />
 </template>
