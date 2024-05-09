@@ -78,17 +78,25 @@
       <template #second>
         <div class="p-[16px]">
           <PlanTable
+            ref="planTableRef"
             :active-folder="activeFolder"
             :offspring-ids="offspringIds"
             :active-folder-type="activeCaseType"
             :modules-count="modulesCount"
             :node-name="nodeName"
             @init="initModulesCount"
+            @edit="handleEdit"
           />
         </div>
       </template>
     </MsSplitBox>
-    <CreateAndEditPlanDrawer v-model:visible="showPlanDrawer" :module-tree="folderTree" />
+    <CreateAndEditPlanDrawer
+      v-model:visible="showPlanDrawer"
+      :plan-id="planId"
+      :module-tree="folderTree"
+      @close="resetPlanId"
+      @load-plan-list="loadPlanList"
+    />
   </MsCard>
 </template>
 
@@ -219,6 +227,19 @@
       default:
         break;
     }
+  }
+
+  const planTableRef = ref<InstanceType<typeof PlanTable>>();
+  const planId = ref('');
+  function handleEdit(id: string) {
+    planId.value = id;
+    showPlanDrawer.value = true;
+  }
+  function resetPlanId() {
+    planId.value = '';
+  }
+  function loadPlanList() {
+    planTableRef.value?.loadPlanList();
   }
 </script>
 

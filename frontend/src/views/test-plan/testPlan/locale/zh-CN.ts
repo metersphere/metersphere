@@ -77,4 +77,5 @@ export default {
   'testPlan.planForm.passThreshold': '通过阀值',
   'testPlan.planForm.repeatCaseTip1': '开启：可重复关联同一个用例',
   'testPlan.planForm.repeatCaseTip2': '关闭：不可重复关联同一用例',
+  'testPlan.planForm.pickCases': '选择用例',
 };

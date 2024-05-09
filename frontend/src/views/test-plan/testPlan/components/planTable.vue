@@ -198,7 +198,9 @@
         <MsButton class="!mx-0">{{ t('testPlan.testPlanIndex.execution') }}</MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
 
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']" class="!mx-0">{{ t('common.edit') }}</MsButton>
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']" class="!mx-0" @click="emit('edit', record.id)">{{
+          t('common.edit')
+        }}</MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
 
         <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
@@ -301,6 +303,7 @@
 
   const emit = defineEmits<{
     (e: 'init', params: any): void;
+    (e: 'edit', id: string): void;
   }>();
 
   const columns: MsTableColumn = [
@@ -592,10 +595,14 @@
     };
   }
 
-  async function fetchData() {
-    resetSelector();
+  async function loadPlanList() {
     setLoadListParams(await initTableParams());
     loadList();
+  }
+
+  async function fetchData() {
+    resetSelector();
+    await loadPlanList();
     const tableParams = await initTableParams();
     emit('init', {
       ...tableParams,
@@ -903,6 +910,10 @@
 
   onBeforeMount(() => {
     fetchData();
+  });
+
+  defineExpose({
+    loadPlanList,
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_ALL_TABLE, columns, 'drawer');
