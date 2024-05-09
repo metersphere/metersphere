@@ -369,4 +369,13 @@
         </foreach>
     </update>
 
+    <update id="batchMove">
+        UPDATE test_plan
+        SET module_id = #{moduleId}, update_user = #{userId}, update_time = #{updateTime}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
 </mapper>

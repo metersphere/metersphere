@@ -123,6 +123,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_TEST_PLAN_COPY = "/test-plan/copy";
     private static final String URL_TEST_PLAN_DETAIL = "/test-plan/%s";
     private static final String URL_TEST_PLAN_BATCH_COPY = "/test-plan/batch/copy";
+    private static final String URL_TEST_PLAN_BATCH_MOVE = "/test-plan/batch/move";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -2191,4 +2192,18 @@ public class TestPlanTests extends BaseTest {
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
 
     }
+
+    @Test
+    @Order(304)
+    public void testBatchMove() throws Exception {
+        TestPlanBatchRequest request = new TestPlanBatchRequest();
+        request.setProjectId("123");
+        request.setType("ALL");
+        request.setSelectAll(true);
+        request.setModuleId("3");
+
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
+
+    }
+
 }

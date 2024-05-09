@@ -12,7 +12,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanService {
+public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
@@ -46,16 +45,10 @@ public class TestPlanService {
     private TestPlanFunctionalCaseService testPlanFunctionCaseService;
     @Resource
     private TestPlanAllocationMapper testPlanAllocationMapper;
-
-    public void checkModule(String moduleId) {
-        if (!StringUtils.equals(moduleId, ModuleConstants.DEFAULT_NODE_ID)) {
-            TestPlanModuleExample example = new TestPlanModuleExample();
-            example.createCriteria().andIdEqualTo(moduleId);
-            if (testPlanModuleMapper.countByExample(example) == 0) {
-                throw new MSException(Translator.get("module.not.exist"));
-            }
-        }
-    }
+    @Resource
+    private TestPlanBatchCopyService testPlanBatchCopyService;
+    @Resource
+    private TestPlanBatchMoveService testPlanBatchMoveService;
 
 
     /**
@@ -83,11 +76,11 @@ public class TestPlanService {
      */
     private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator, String id) {
         //检查模块的合法性
-        this.checkModule(createOrCopyRequest.getModuleId());
+        checkModule(createOrCopyRequest.getModuleId());
 
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
-        this.validateTestPlan(createTestPlan);
+        validateTestPlan(createTestPlan);
 
         createTestPlan.setId(IDGenerator.nextStr());
         long operateTime = System.currentTimeMillis();
@@ -139,27 +132,6 @@ public class TestPlanService {
         if (CollectionUtils.isNotEmpty(functionalSelectIds)) {
             TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(functionalSelectIds, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), testPlan.getCreateUser());
             testPlanFunctionCaseService.saveTestPlanResource(associationParam);
-        }
-    }
-
-    private void validateTestPlan(TestPlan testPlan) {
-        if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            TestPlan group = testPlanMapper.selectByPrimaryKey(testPlan.getGroupId());
-            testPlan.setModuleId(group.getModuleId());
-        }
-        TestPlanExample example = new TestPlanExample();
-        if (StringUtils.isBlank(testPlan.getId())) {
-            //新建 校验
-            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andModuleIdEqualTo(testPlan.getModuleId());
-            if (testPlanMapper.countByExample(example) > 0) {
-                throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
-            }
-        } else {
-            //更新 校验
-            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId()).andModuleIdEqualTo(testPlan.getModuleId());
-            if (testPlanMapper.countByExample(example) > 0) {
-                throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
-            }
         }
     }
 
@@ -243,18 +215,6 @@ public class TestPlanService {
     }
 
 
-    private List<String> getSelectIds(TestPlanBatchProcessRequest request) {
-        if (request.isSelectAll()) {
-            List<String> ids = extTestPlanMapper.selectIdByConditions(request);
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                ids.removeAll(request.getExcludeIds());
-            }
-            return ids;
-        } else {
-            return request.getSelectIds();
-        }
-    }
-
     private void cascadeDeleteTestPlanIds(List<String> testPlanIds) {
         //删除当前计划对应的资源
         Map<String, TestPlanResourceService> subTypes = CommonBeanFactory.getBeansOfType(TestPlanResourceService.class);
@@ -297,13 +257,13 @@ public class TestPlanService {
             updateTestPlan.setId(request.getId());
             if (StringUtils.isNotBlank(request.getModuleId())) {
                 //检查模块的合法性
-                this.checkModule(request.getModuleId());
+                checkModule(request.getModuleId());
                 updateTestPlan.setModuleId(request.getModuleId());
             }
             if (StringUtils.isNotBlank(request.getName())) {
                 updateTestPlan.setName(request.getName());
                 updateTestPlan.setProjectId(testPlan.getProjectId());
-                this.validateTestPlan(updateTestPlan);
+                validateTestPlan(updateTestPlan);
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateTestPlan.setTags(new ArrayList<>(request.getTags()));
@@ -508,95 +468,25 @@ public class TestPlanService {
             List<TestPlan> copyTestPlanList = testPlanMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(copyTestPlanList)) {
                 Map<String, List<TestPlan>> plans = copyTestPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
-                batchCopyGroup(plans, request, userId);
-                batchCopyPlan(plans, request, userId);
-                // TODO 日志
+                testPlanBatchCopyService.batchCopy(plans, request, userId);
+                //日志
+                testPlanLogService.saveBatchCopyLog(copyTestPlanList, userId, url, method);
             }
         }
     }
 
-    /**
-     * 批量复制计划
-     *
-     * @param plans
-     */
-    private void batchCopyPlan(Map<String, List<TestPlan>> plans, TestPlanBatchRequest request, String userId) {
-        if (plans.containsKey(TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
-            List<TestPlan> testPlans = plans.get(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
-            List<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
-            //额外信息
-
-            TestPlanConfigExample configExample = new TestPlanConfigExample();
-            configExample.createCriteria().andTestPlanIdIn(ids);
-            List<TestPlanConfig> testPlanConfigs = testPlanConfigMapper.selectByExample(configExample);
-            //测试规划配置信息
-            TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
-            allocationExample.createCriteria().andTestPlanIdIn(ids);
-            List<TestPlanAllocation> testPlanAllocations = testPlanAllocationMapper.selectByExampleWithBLOBs(allocationExample);
-            batchInsertPlan(testPlans, testPlanConfigs, testPlanAllocations, request, userId);
-        }
-    }
-
-    private void batchInsertPlan(List<TestPlan> testPlans, List<TestPlanConfig> testPlanConfigs, List<TestPlanAllocation> testPlanAllocations, TestPlanBatchRequest request, String userId) {
-        Map<String, List<TestPlanConfig>> configs = testPlanConfigs.stream().collect(Collectors.groupingBy(TestPlanConfig::getTestPlanId));
-        Map<String, List<TestPlanAllocation>> allocationsList = testPlanAllocations.stream().collect(Collectors.groupingBy(TestPlanAllocation::getTestPlanId));
-        List<TestPlanConfig> newConfigs = new ArrayList<>();
-        List<TestPlanAllocation> newAllocations = new ArrayList<>();
-        testPlans.forEach(testPlan -> {
-            List<TestPlanConfig> config = configs.get(testPlan.getId());
-            List<TestPlanAllocation> allocations = allocationsList.get(testPlan.getId());
-            Long num = testPlan.getNum();
-            testPlan.setId(IDGenerator.nextStr());
-            testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
-            testPlan.setNum(NumGenerator.nextNum(testPlan.getProjectId(), ApplicationNumScope.TEST_PLAN));
-            testPlan.setName(getCopyName(testPlan.getName(), num, testPlan.getNum()));
-            testPlan.setModuleId(request.getModuleId());
-            testPlan.setCreateTime(System.currentTimeMillis());
-            testPlan.setUpdateTime(System.currentTimeMillis());
-            testPlan.setCreateUser(userId);
-            testPlan.setUpdateUser(userId);
-
-            if (CollectionUtils.isNotEmpty(config)) {
-                TestPlanConfig testPlanConfig = config.get(0);
-                testPlanConfig.setTestPlanId(testPlan.getId());
-                newConfigs.add(testPlanConfig);
+    public void batchMove(TestPlanBatchRequest request, String userId, String url, String method) {
+        List<String> moveIds = getSelectIds(request);
+        if (CollectionUtils.isNotEmpty(moveIds)) {
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andIdIn(moveIds);
+            List<TestPlan> moveTestPlanList = testPlanMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(moveTestPlanList)) {
+                Map<String, List<TestPlan>> plans = moveTestPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
+                testPlanBatchMoveService.batchMove(plans, request, userId);
+                //日志
+                testPlanLogService.saveBatchMoveLog(moveTestPlanList, userId, url, method);
             }
-            if (CollectionUtils.isNotEmpty(allocations)) {
-                TestPlanAllocation testPlanAllocation = allocations.get(0);
-                testPlanAllocation.setTestPlanId(testPlan.getId());
-                testPlanAllocation.setId(IDGenerator.nextStr());
-                newAllocations.add(testPlanAllocation);
-            }
-        });
-        testPlanMapper.batchInsert(testPlans);
-        if (CollectionUtils.isNotEmpty(newConfigs)) {
-            testPlanConfigMapper.batchInsert(newConfigs);
         }
-        if (CollectionUtils.isNotEmpty(newAllocations)) {
-            testPlanAllocationMapper.batchInsert(newAllocations);
-        }
-    }
-
-    private String getCopyName(String name, long oldNum, long newNum) {
-        if (!StringUtils.startsWith(name, "copy_")) {
-            name = "copy_" + name;
-        }
-        if (name.length() > 250) {
-            name = name.substring(0, 200) + "...";
-        }
-        if (StringUtils.endsWith(name, "_" + oldNum)) {
-            name = StringUtils.substringBeforeLast(name, "_" + oldNum);
-        }
-        name = name + "_" + newNum;
-        return name;
-    }
-
-    /**
-     * 批量复制组
-     *
-     * @param plans
-     */
-    private void batchCopyGroup(Map<String, List<TestPlan>> plans, TestPlanBatchProcessRequest request, String userId) {
-        //TODO 批量复制计划组
     }
 }
