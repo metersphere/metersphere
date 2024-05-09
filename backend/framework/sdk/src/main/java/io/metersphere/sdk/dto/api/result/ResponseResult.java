@@ -102,6 +102,11 @@ public class ResponseResult {
     private long headerSize = 0;
 
     /**
+     * 文件地址
+     */
+    private String filePath;
+
+    /**
      * 断言结果
      */
     private final List<ResponseAssertionResult> assertions = new ArrayList<>();

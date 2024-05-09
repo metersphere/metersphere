@@ -245,4 +245,9 @@ public class ApiTestControllerTests extends BaseTest {
         projectTestResourcePoolMapper.batchInsert(projectTestResourcePools);
     }
 
+    @Test
+    public void fileDownloadTestSuccess() throws Exception {
+        this.requestPostAndReturn(BASE_PATH + "download", "test");
+
+    }
 }

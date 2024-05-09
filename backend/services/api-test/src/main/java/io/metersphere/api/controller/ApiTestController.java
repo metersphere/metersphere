@@ -17,6 +17,7 @@ import io.metersphere.system.security.CheckOwner;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -133,5 +134,15 @@ public class ApiTestController {
         return apiTestService.getPoolId(projectId);
     }
 
-
+    @PostMapping("/download")
+    @Operation(summary = "执行结果附件下载")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_SCENARIO_EXECUTE,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE,
+            PermissionConstants.PROJECT_API_DEBUG_EXECUTE,
+            PermissionConstants.PROJECT_API_REPORT_READ,
+    }, logical = Logical.OR)
+    public void download(@RequestBody TextNode path, HttpServletResponse response) throws Exception {
+        apiTestService.download(path.asText(), response);
+    }
 }

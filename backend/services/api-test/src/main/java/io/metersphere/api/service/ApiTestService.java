@@ -11,21 +11,28 @@ import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.service.EnvironmentService;
+import io.metersphere.project.service.FileService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +57,8 @@ public class ApiTestService {
     private ExtProjectMapper extProjectMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private FileService fileService;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -121,5 +130,32 @@ public class ApiTestService {
             return null;
         }
         return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
+    }
+
+    public void download(String path, HttpServletResponse response) {
+        if (StringUtils.isBlank(path)) {
+            return;
+        }
+        try {
+            String fileName = path.substring(path.lastIndexOf("/") + 1);
+            String folder = path.substring(0, path.lastIndexOf("/"));
+            FileRequest fileRequest = new FileRequest();
+            fileRequest.setFileName(fileName);
+            fileRequest.setFolder(folder);
+            fileRequest.setStorage(StorageType.MINIO.name());
+
+            byte[] bytes = fileService.download(fileRequest);
+            fileWithResponse(bytes, fileName, response);
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+    }
+
+    private void fileWithResponse(byte[] content, String fileName, HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        response.getOutputStream().write(content);
+        response.getOutputStream().flush();
     }
 }
