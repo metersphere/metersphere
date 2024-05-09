@@ -382,7 +382,6 @@
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel } from '@/components/business/ms-batch-form/types';
-  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
   import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
@@ -480,7 +479,7 @@
         ...res,
         addType: 'single',
         orgType: res.allOrg ? 'allOrg' : 'set',
-        use: [res.apiTest ? 'API' : '', res.uiTest ? 'UI' : ''].filter((e) => e),
+        use: ['API', res.uiTest ? 'UI' : ''].filter((e) => e), // TODO:暂时只有接口测试
         testResourceDTO: {
           ...testResourceReturnDTO,
           girdConcurrentNumber: girdConcurrentNumber || 1,
