@@ -33,6 +33,7 @@ export interface AssociateCaseRequest extends BatchApiParams {
   apiSelectIds?: string[];
   apiCaseSelectIds?: string[];
   apiScenarioSelectIds?: string[];
+  totalCount?: number;
 }
 
 export interface AddTestPlanParams {

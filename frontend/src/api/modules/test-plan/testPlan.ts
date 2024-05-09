@@ -7,11 +7,13 @@ import {
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
   getStatisticalCountUrl,
+  GetTestPlanDetailUrl,
   GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
   MoveTestPlanModuleUrl,
   updateTestPlanModuleUrl,
+  UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
 
 import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
@@ -57,6 +59,16 @@ export function getTestPlanList(data: TableQueryParams) {
 // 创建测试计划
 export function addTestPlan(data: AddTestPlanParams) {
   return MSR.post({ url: AddTestPlanUrl, data });
+}
+
+// 获取测试计划详情
+export function getTestPlanDetail(id: string) {
+  return MSR.get<AddTestPlanParams>({ url: `${GetTestPlanDetailUrl}/${id}` });
+}
+
+//  更新测试计划
+export function updateTestPlan(data: AddTestPlanParams) {
+  return MSR.post({ url: UpdateTestPlanUrl, data });
 }
 // 批量删除测试计划
 export function batchDeletePlan(data: TableQueryParams) {

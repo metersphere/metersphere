@@ -1,12 +1,12 @@
 <template>
   <MsDrawer
     v-model:visible="innerVisible"
-    :title="form.id ? t('case.updateCase') : t('testPlan.testPlanIndex.createTestPlan')"
+    :title="props.planId?.length ? t('case.updateCase') : t('testPlan.testPlanIndex.createTestPlan')"
     :width="800"
     unmount-on-close
-    :ok-text="form.id ? 'common.update' : 'common.create'"
+    :ok-text="props.planId?.length ? 'common.update' : 'common.create'"
     :save-continue-text="t('case.saveContinueText')"
-    :show-continue="!form.id"
+    :show-continue="!props.planId?.length"
     :ok-loading="drawerLoading"
     @confirm="handleDrawerConfirm(false)"
     @continue="handleDrawerConfirm(true)"
@@ -68,6 +68,36 @@
       <a-form-item field="tags" :label="t('common.tag')" class="w-[436px]">
         <MsTagsInput v-model:model-value="form.tags" :max-tag-count="10" :max-length="50" />
       </a-form-item>
+      <a-form-item v-if="!props.planId?.length">
+        <template #label>
+          <div class="flex items-center">
+            {{ t('testPlan.planForm.pickCases') }}
+            <a-divider margin="4px" direction="vertical" />
+            <MsButton
+              type="text"
+              :disabled="form.baseAssociateCaseRequest.selectIds.length === 0"
+              @click="clearSelectedCases"
+            >
+              {{ t('caseManagement.caseReview.clearSelectedCases') }}
+            </MsButton>
+          </div>
+        </template>
+        <div class="flex w-[436px] items-center rounded bg-[var(--color-text-n9)] p-[12px]">
+          <div class="text-[var(--color-text-2)]">
+            {{
+              t('caseManagement.caseReview.selectedCases', {
+                count: form.baseAssociateCaseRequest.selectAll
+                  ? form.baseAssociateCaseRequest.totalCount
+                  : form.baseAssociateCaseRequest.selectIds.length,
+              })
+            }}
+          </div>
+          <a-divider margin="8px" direction="vertical" />
+          <MsButton type="text" class="font-medium" @click="caseAssociateVisible = true">
+            {{ t('ms.case.associate.title') }}
+          </MsButton>
+        </div>
+      </a-form-item>
       <MsMoreSettingCollapse>
         <template #content>
           <div v-for="item in switchList" :key="item.key" class="mb-[24px] flex items-center gap-[8px]">
@@ -95,34 +125,47 @@
       </MsMoreSettingCollapse>
     </a-form>
   </MsDrawer>
+  <AssociateDrawer
+    v-model:visible="caseAssociateVisible"
+    :has-not-associated-ids="form.baseAssociateCaseRequest.selectIds"
+    @success="writeAssociateCases"
+  />
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message, TreeNodeData } from '@arco-design/web-vue';
+  import { FormInstance, Message, TreeNodeData, ValidatedError } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsMoreSettingCollapse from '@/components/pure/ms-more-setting-collapse/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import AssociateDrawer from './components/associateDrawer.vue';
 
-  import { addTestPlan } from '@/api/modules/test-plan/testPlan';
+  import { addTestPlan, getTestPlanDetail, updateTestPlan } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { AddTestPlanParams, SwitchListModel } from '@/models/testPlan/testPlan';
+  import type { AddTestPlanParams, AssociateCaseRequest, SwitchListModel } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
-  const { t } = useI18n();
-  const appStore = useAppStore();
-
   const props = defineProps<{
+    planId?: string;
     moduleTree?: ModuleTreeNode[];
   }>();
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
   });
+
+  const emit = defineEmits<{
+    (e: 'close'): void;
+    (e: 'loadPlanList'): void;
+  }>();
+
+  const { t } = useI18n();
+  const appStore = useAppStore();
 
   const drawerLoading = ref(false);
   const formRef = ref<FormInstance>();
@@ -155,29 +198,40 @@
     },
   ];
 
+  const caseAssociateVisible = ref(false);
+  function clearSelectedCases() {
+    form.value.baseAssociateCaseRequest = cloneDeep(initForm.baseAssociateCaseRequest);
+  }
+  function writeAssociateCases(param: AssociateCaseRequest) {
+    form.value.baseAssociateCaseRequest = { ...param };
+  }
+
   function handleCancel() {
     innerVisible.value = false;
     formRef.value?.resetFields();
     form.value = cloneDeep(initForm);
+    emit('close');
   }
 
   function handleDrawerConfirm(isContinue: boolean) {
-    formRef.value?.validate(async (errors) => {
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
         drawerLoading.value = true;
         try {
-          // TODO 更新
           const params: AddTestPlanParams = {
             ...cloneDeep(form.value),
             plannedStartTime: form.value.cycle ? form.value.cycle[0] : undefined,
             plannedEndTime: form.value.cycle ? form.value.cycle[1] : undefined,
             projectId: appStore.currentProjectId,
           };
-          if (!form.value?.id) {
+          if (!props.planId?.length) {
             await addTestPlan(params);
             Message.success(t('common.createSuccess'));
+          } else {
+            await updateTestPlan(params);
+            Message.success(t('common.updateSuccess'));
           }
-          // TODO 刷新外层数据
+          emit('loadPlanList');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -191,4 +245,26 @@
       }
     });
   }
+
+  async function getDetail() {
+    try {
+      if (props.planId?.length) {
+        const result = await getTestPlanDetail(props.planId);
+        form.value = cloneDeep(result);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        form.value = cloneDeep(initForm);
+        getDetail();
+      }
+    }
+  );
 </script>
