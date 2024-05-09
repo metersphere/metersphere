@@ -106,7 +106,7 @@ public class ApiDefinitionMockService {
     public void handleMockConfig(String id, ApiDefinitionMockDTO apiDefinitionMockDTO) {
         Optional<ApiDefinitionMockConfig> apiDefinitionMockConfigOptional = Optional.ofNullable(apiDefinitionMockConfigMapper.selectByPrimaryKey(id));
         apiDefinitionMockConfigOptional.ifPresent(config -> {
-            apiDefinitionMockDTO.setMatching(ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class));
+            apiDefinitionMockDTO.setMockMatchRule(ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class));
             apiDefinitionMockDTO.setResponse(ApiDataUtils.parseObject(new String(config.getResponse()), MockResponse.class));
         });
     }

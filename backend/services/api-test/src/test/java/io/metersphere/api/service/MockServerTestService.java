@@ -190,10 +190,10 @@ public class MockServerTestService {
             mockMatchRule.setHeader(headerMatchRule);
         }
 
-        if (StringUtils.equalsIgnoreCase(bodyParamType, "kv")) {
+        if (StringUtils.equalsIgnoreCase(bodyParamType, "www")) {
             mockMatchRule.setBody(new BodyParamMatchRule() {{
-                this.setParamType(Body.BodyType.FORM_DATA.name());
-                this.setFormDataMatch(new keyValueMatchRule() {{
+                this.setBodyType(Body.BodyType.WWW_FORM.name());
+                this.setWwwFormBody(new keyValueMatchRule() {{
                     this.setMatchAll(matchAll);
                     this.setMatchRules(new ArrayList<>() {{
                         this.add(new KeyValueInfo() {{
@@ -213,18 +213,39 @@ public class MockServerTestService {
             }});
         } else if (StringUtils.equalsIgnoreCase(bodyParamType, "raw")) {
             mockMatchRule.setBody(new BodyParamMatchRule() {{
-                this.setParamType(Body.BodyType.RAW.name());
-                this.setRaw(valuePrefix + "_inputRawBody");
+                this.setBodyType(Body.BodyType.RAW.name());
+                this.getRawBody().setValue(valuePrefix + "_inputRawBody");
             }});
         } else if (StringUtils.equalsIgnoreCase(bodyParamType, "json")) {
             mockMatchRule.setBody(new BodyParamMatchRule() {{
-                this.setParamType(Body.BodyType.JSON.name());
-                this.setRaw("{\"inputAge\":123}");
+                this.setBodyType(Body.BodyType.JSON.name());
+                this.getJsonBody().setJsonValue("{\"inputAge\":123}");
             }});
         } else if (StringUtils.equalsIgnoreCase(bodyParamType, "xml")) {
             mockMatchRule.setBody(new BodyParamMatchRule() {{
-                this.setParamType(Body.BodyType.XML.name());
-                this.setRaw("<xml>input123</xml>");
+                this.setBodyType(Body.BodyType.XML.name());
+                this.getXmlBody().setValue("<xml>input123</xml>");
+            }});
+        } else if(StringUtils.equalsIgnoreCase(bodyParamType, "kv")) {
+            mockMatchRule.setBody(new BodyParamMatchRule() {{
+                this.setBodyType(Body.BodyType.FORM_DATA.name());
+                this.setFormDataBody(new MockFormDataBody() {{
+                    this.setMatchAll(matchAll);
+                    this.setMatchRules(new ArrayList<>() {{
+                        this.add(new FormKeyValueInfo() {{
+                            this.setKey("bodyKvParam1");
+                            this.setValue(valuePrefix + "_bodyKvParam1");
+                        }});
+                        this.add(new FormKeyValueInfo() {{
+                            this.setKey("bodyParam2");
+                            this.setValue(valuePrefix + "_bodyKvParam2");
+                        }});
+                        this.add(new FormKeyValueInfo() {{
+                            this.setKey("bodyParam3");
+                            this.setValue(valuePrefix + "_bodyKvParam3");
+                        }});
+                    }});
+                }});
             }});
         }
         return mockMatchRule;

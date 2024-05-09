@@ -6,17 +6,17 @@ import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.springframework.http.MediaType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MockServerUtils {
 
@@ -40,13 +40,39 @@ public class MockServerUtils {
 
         //解析k-v参数
         LinkedHashMap<String, String> queryParamsMap = new LinkedHashMap<>();
-        Enumeration<String> paramNameItr = request.getParameterNames();
-        while (paramNameItr.hasMoreElements()) {
-            String key = paramNameItr.nextElement();
-            String value = request.getParameter(key);
-            queryParamsMap.put(key, value);
+
+        try {
+            if (request instanceof ShiroHttpServletRequest shiroHttpServletRequest) {
+                InputStream inputStream = shiroHttpServletRequest.getRequest().getInputStream();
+                if (inputStream != null) {
+                    queryParamsMap.put("binaryFile", new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).readLine());
+                }
+            }
+            Collection<Part> parts = request.getParts();
+            for (Part part : parts) {
+                String name = part.getName();
+                String fileName = part.getSubmittedFileName();
+                String value = new BufferedReader(new InputStreamReader(part.getInputStream(), StandardCharsets.UTF_8)).readLine();
+
+                if (StringUtils.isBlank(fileName)) {
+                    queryParamsMap.put(name, value);
+                }
+                if (StringUtils.isNotEmpty(fileName)) {
+                    queryParamsMap.computeIfPresent(name, (key, currentValue) -> {
+                        List<String> current = JSON.parseArray(currentValue, String.class);
+                        current.add(fileName);
+                        return JSON.toJSONString(current);
+                    });
+                    if (!queryParamsMap.containsKey(name)) {
+                        List<String> current = new ArrayList<>();
+                        current.add(fileName);
+                        queryParamsMap.put(name, JSON.toJSONString(current));
+                    }
+                }
+            }
+        }catch (Exception e){
+            LogUtils.error(e.getMessage());
         }
-        requestParam.setQueryParamsObj(queryParamsMap);
 
         //解析body参数
         String requestPostString = getRequestStr(request);

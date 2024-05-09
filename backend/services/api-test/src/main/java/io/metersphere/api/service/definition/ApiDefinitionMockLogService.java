@@ -178,7 +178,7 @@ public class ApiDefinitionMockLogService {
     public void handleMockConfig(String id, ApiDefinitionMockDTO apiDefinitionMockDTO) {
         Optional<ApiDefinitionMockConfig> apiDefinitionMockConfigOptional = Optional.ofNullable(apiDefinitionMockConfigMapper.selectByPrimaryKey(id));
         apiDefinitionMockConfigOptional.ifPresent(config -> {
-            apiDefinitionMockDTO.setMatching(ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class));
+            apiDefinitionMockDTO.setMockMatchRule(ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class));
             apiDefinitionMockDTO.setResponse(ApiDataUtils.parseObject(new String(config.getResponse()), MockResponse.class));
         });
     }
@@ -199,7 +199,7 @@ public class ApiDefinitionMockLogService {
                     ApiDefinitionMockDTO mockDTO = new ApiDefinitionMockDTO();
                     BeanUtils.copyBean(mockDTO, mockMap.get(item.getId()));
                     if (blobMap.get(item.getId()) != null) {
-                        mockDTO.setMatching(ApiDataUtils.parseObject(new String(blobMap.get(item.getId()).getMatching()), MockMatchRule.class));
+                        mockDTO.setMockMatchRule(ApiDataUtils.parseObject(new String(blobMap.get(item.getId()).getMatching()), MockMatchRule.class));
                         mockDTO.setResponse(ApiDataUtils.parseObject(new String(blobMap.get(item.getId()).getResponse()), MockResponse.class));
                     }
                     LogDTO dto = LogDTOBuilder.builder()

@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 public class ApiDefinitionMockDTO extends ApiDefinitionMock {
 
     @Schema(description = "请求内容")
-    private MockMatchRule matching;
+    private MockMatchRule mockMatchRule;
 
     @Schema(description = "响应内容")
     private MockResponse response;

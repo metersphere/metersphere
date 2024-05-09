@@ -1,8 +1,10 @@
 package io.metersphere.api.dto.mockserver;
 
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -24,25 +26,12 @@ public class MockMatchRule implements Serializable {
     private BodyParamMatchRule body = new BodyParamMatchRule();
 
     public boolean keyValueMatch(String matchType, Map<String, String> matchParam) {
-        keyValueMatchRule matchRule = null;
-        switch (matchType) {
-            case "header":
-                matchRule = header;
-                break;
-            case "query":
-                matchRule = query;
-                break;
-            case "rest":
-                matchRule = rest;
-                break;
-            case "body":
-                if (body != null) {
-                    matchRule = body.getFormDataMatch();
-                }
-                break;
-            default:
-                break;
-        }
+        keyValueMatchRule matchRule = switch (matchType) {
+            case "header" -> header;
+            case "query" -> query;
+            case "rest" -> rest;
+            default -> null;
+        };
         if (matchRule == null) {
             return true;
         }
@@ -54,18 +43,40 @@ public class MockMatchRule implements Serializable {
             return false;
         }
         if (httpRequestParam.isPost()) {
-            if (StringUtils.equalsIgnoreCase(body.getParamType(), Body.BodyType.XML.name())) {
-                return body.matchXml(httpRequestParam.getXmlToJsonParam());
-            } else if (StringUtils.equalsIgnoreCase(body.getParamType(), Body.BodyType.JSON.name())) {
-                return body.matchJson(httpRequestParam.getJsonString());
-            } else if (StringUtils.equalsIgnoreCase(body.getParamType(), Body.BodyType.FORM_DATA.name())) {
-                return this.keyValueMatch("body", httpRequestParam.getQueryParamsObj());
-            } else if (StringUtils.isNotBlank(body.getRaw())) {
-                return StringUtils.contains(body.getRaw(), httpRequestParam.getRaw());
+            switch (Body.BodyType.valueOf(body.getBodyType())) {
+                case XML:
+                    return body.matchXml(httpRequestParam.getXmlToJsonParam());
+                case JSON:
+                    return body.matchJson(httpRequestParam.getJsonString());
+                case FORM_DATA:
+                    MockFormDataBody formDataBody = body.getFormDataBody();
+                    keyValueMatchRule formDataBodyRule = new keyValueMatchRule();
+                    if (formDataBody != null) {
+                        formDataBodyRule.setMatchAll(formDataBody.isMatchAll());
+                        formDataBody.getMatchRules().stream()
+                                .filter(keyValueInfo -> StringUtils.isNotBlank(keyValueInfo.getKey()))
+                                .forEach(keyValueInfo -> {
+                                    if (CollectionUtils.isNotEmpty(keyValueInfo.getFiles())) {
+                                        keyValueInfo.setValue(
+                                                keyValueInfo.getFiles().stream()
+                                                        .map(ApiFile::getFileName)
+                                                        .toList()
+                                                        .toString()
+                                        );
+                                    }
+                                    formDataBodyRule.getMatchRules().add(keyValueInfo);
+                                });
+                    }
+                    return formDataBodyRule.match(httpRequestParam.getQueryParamsObj());
+                case RAW:
+                    return StringUtils.contains(body.getRawBody().getValue(), httpRequestParam.getRaw());
+                case WWW_FORM:
+                    return body.getWwwFormBody().match(httpRequestParam.getQueryParamsObj());
+                default:
+                    return true;
             }
         } else {
             return this.keyValueMatch("query", httpRequestParam.getQueryParamsObj());
         }
-        return true;
     }
 }
