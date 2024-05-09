@@ -317,7 +317,7 @@
 
     <select id="selectBaseInfoByIds" resultType="io.metersphere.plan.domain.TestPlan">
         SELECT
-        t.id,t.name,t.type,t.project_id
+        t.id,t.name,t.type,t.project_id,t.type
         FROM test_plan t
         WHERE t.id IN
         <foreach collection="list" item="item" open="(" separator="," close=")">

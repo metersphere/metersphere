@@ -26,6 +26,7 @@ import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -40,6 +42,8 @@ public class BugCommonService {
 
 	@Resource
 	private FileService fileService;
+	@Resource
+	private BugStatusService bugStatusService;
 	@Resource
 	private BugCommentMapper bugCommentMapper;
 	@Resource
@@ -171,5 +175,31 @@ public class BugCommonService {
 		BugFollowerExample followerExample = new BugFollowerExample();
 		followerExample.createCriteria().andBugIdIn(bugIds);
 		bugFollowerMapper.deleteByExample(followerExample);
+	}
+
+	/**
+	 * 获取状态集合
+	 * @param projectId 项目ID
+	 * @return 处理人集合
+	 */
+	public Map<String, String> getAllHandlerMap(String projectId) {
+		// 缺陷表头处理人选项
+		List<SelectOption> headerOptions = getHeaderHandlerOption(projectId);
+		List<SelectOption> localOptions = getLocalHandlerOption(projectId);
+		List<SelectOption> allHandleOption = ListUtils.union(headerOptions, localOptions).stream().distinct().toList();
+		return allHandleOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+	}
+
+	/**
+	 * 获取状态选项
+	 * @param projectId 项目ID
+	 * @return 状态集合
+	 */
+	public Map<String, String> getAllStatusMap(String projectId) {
+		// 缺陷表头状态选项
+		List<SelectOption> headerOptions = bugStatusService.getHeaderStatusOption(projectId);
+		List<SelectOption> localOptions = bugStatusService.getAllLocalStatusOptions(projectId);
+		List<SelectOption> allStatusOption = ListUtils.union(headerOptions, localOptions).stream().distinct().toList();
+		return allStatusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
 	}
 }
