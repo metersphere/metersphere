@@ -170,6 +170,8 @@ public class ApiScenarioService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private BaseProjectService baseProjectService;
+    @Resource
+    private ExtCheckOwnerMapper extCheckOwnerMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -2192,6 +2194,17 @@ public class ApiScenarioService {
         ApiScenarioRequest request = new ApiScenarioRequest();
         request.setRefId(scenario.getRefId());
         return this.list(request);
+    }
+
+    public void checkOwner(String scenarioId, String projectId) {
+        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(scenarioId);
+        if (scenario == null) {
+            return;
+        }
+        if (!extCheckOwnerMapper.checkoutOwner("api_scenario", projectId, List.of(scenarioId))) {
+            MSException.throwException(Translator.get("check_owner_case"));
+        }
+
     }
 
     public ApiScenarioDTO getApiScenarioByVersion(String refId, String versionId) {
