@@ -21,6 +21,14 @@ export interface TestPlanItem {
   groupId: string;
 }
 
+export interface AssociateFunctionalCaseItem {
+  testPlanId: string;
+  testPlanNum: number;
+  testPlanName: string;
+  projectName: string;
+  planStatus: string;
+}
+
 export interface ResourcesItem {
   id: string;
   name: string;

@@ -141,7 +141,7 @@
                   <TabCaseReview :case-id="props.detailId" />
                 </template>
                 <template v-if="activeTab === 'testPlan'">
-                  <TabTestPlan />
+                  <TabTestPlan :case-id="props.detailId" />
                 </template>
                 <template v-if="activeTab === 'comments'">
                   <TabComment ref="commentRef" :case-id="props.detailId" />
@@ -663,6 +663,12 @@
     {
       value: 'caseReview',
       label: t('caseManagement.featureCase.caseReview'),
+      canHide: true,
+      isShow: true,
+    },
+    {
+      value: 'testPlan',
+      label: t('caseManagement.featureCase.testPlan'),
       canHide: true,
       isShow: true,
     },

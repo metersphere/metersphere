@@ -65,12 +65,12 @@ export const executionResultMap: Record<string, any> = {
     statusText: t('caseManagement.featureCase.passed'),
     color: '',
   },
-  SKIPPED: {
+  /* SKIPPED: {
     key: 'SKIPPED',
     icon: StatusType.SKIPPED,
     statusText: t('caseManagement.featureCase.skip'),
     color: 'text-[rgb(var(--link-6))]',
-  },
+  }, */
   BLOCKED: {
     key: 'BLOCKED',
     icon: StatusType.BLOCKED,
