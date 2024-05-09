@@ -47,7 +47,7 @@ pipeline {
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
                         ./mvnw deploy -N -Drevision=${REVISION} --settings ./settings.xml
-                        ./mvnw clean deploy -Drevision=${REVISION} -DskipTests -DskipAntRunForJenkins -pl !app --file backend/pom.xml  --settings ./settings.xml
+                        ./mvnw clean deploy -T 1C -B -Drevision=${REVISION} -DskipTests -DskipAntRunForJenkins -pl !app --file backend/pom.xml  --settings ./settings.xml
                     '''
                 }
             }
