@@ -1,6 +1,7 @@
 import { Language } from '@/components/pure/ms-code-editor/types';
 
 import {
+  type FullResponseAssertionType,
   RequestAssertionCondition,
   RequestAuthType,
   RequestBodyFormat,
@@ -385,6 +386,24 @@ export interface ExecuteRequestParams {
   frontendDebug?: boolean; // 是否本地调试，该模式下接口会返回执行参数，用来调用本地执行服务
   apiDefinitionId?: string | number; // 接口用例执行和调试时需要传
 }
+// 断言-断言列表表格子项
+export interface ResponseAssertionTableItem {
+  actualValue: string;
+  assertionType: FullResponseAssertionType;
+  condition: RequestAssertionConditionType;
+  content: string;
+  expectedValue: string;
+  message: string;
+  name: string;
+  pass: boolean;
+}
+// 请求提取结果项
+export interface ResponseExtractItem {
+  name: string;
+  value: string;
+  type: RequestExtractEnvType;
+  expression: string;
+}
 // 响应结果
 export interface ResponseResult {
   body: string;
@@ -402,7 +421,8 @@ export interface ResponseResult {
   tcpHandshakeTime: number;
   transferStartTime: number;
   vars: string;
-  assertions: any;
+  extractResults: ResponseExtractItem[];
+  assertions: ResponseAssertionTableItem[];
   imageUrl?: string; // 返回为图片时的图片地址
 }
 

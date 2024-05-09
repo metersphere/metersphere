@@ -517,7 +517,7 @@
     ResponseBodyXPathAssertionFormat,
   } from '@/enums/apiEnum';
 
-  import { defaultKeyValueParamItem } from '@/views/api-test/components/config';
+  import { defaultKeyValueParamItem, extractTypeOptions } from '@/views/api-test/components/config';
 
   const { openModal } = useModal();
 
@@ -782,21 +782,12 @@ if (!result){
       title: 'apiTestDebug.paramType',
       dataIndex: 'variableType',
       slotName: 'variableType',
-      typeOptions: [
-        // 全局参数，暂时不上
-        // {
-        //   label: t('apiTestDebug.globalParameter'),
-        //   value: RequestExtractEnvType.GLOBAL,
-        // },
-        {
-          label: t('apiTestDebug.envParameter'),
-          value: RequestExtractEnvType.ENVIRONMENT,
-        },
-        {
-          label: t('apiTestDebug.tempParameter'),
-          value: RequestExtractEnvType.TEMPORARY,
-        },
-      ],
+      typeOptions: extractTypeOptions.map((item) => {
+        return {
+          label: t(item.label),
+          value: item.value,
+        };
+      }),
       width: 150,
     },
     {

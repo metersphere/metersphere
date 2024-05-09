@@ -352,6 +352,7 @@
                 // 如果有父节点
                 child.isQuoteScenarioStep = child.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
                 child.isRefScenarioStep = child.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+                child.draggable = !node.parent.isQuoteScenarioStep; // 引用场景下的任何步骤不可拖拽
               }
               if (selectedKeys.value.includes(node.uniqueId) && !selectedKeys.value.includes(child.uniqueId)) {
                 // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中

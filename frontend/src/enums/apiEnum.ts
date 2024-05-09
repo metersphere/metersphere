@@ -310,6 +310,7 @@ export enum WhileConditionType {
   CONDITION = 'CONDITION',
   SCRIPT = 'SCRIPT',
 }
+// 场景步骤多态名
 export enum ScenarioStepPolymorphicName {
   COMMON_SCRIPT = 'MsCommentScriptElement',
   IF_CONTROLLER = 'MsIfController',
@@ -317,7 +318,20 @@ export enum ScenarioStepPolymorphicName {
   ONLY_ONCE = 'MsOnceOnlyController',
   TIME_CONTROLLER = 'MsConstantTimerController',
 }
+// 场景设置-失败执行策略
 export enum ScenarioFailureStrategy {
   CONTINUE = 'CONTINUE',
   STOP = 'STOP',
+}
+// 接口响应-断言项类型
+export enum FullResponseAssertionType {
+  DOCUMENT = 'DOCUMENT',
+  RESPONSE_CODE = 'RESPONSE_CODE',
+  RESPONSE_HEADER = 'RESPONSE_HEADER',
+  RESPONSE_TIME = 'RESPONSE_TIME',
+  SCRIPT = 'SCRIPT',
+  VARIABLE = 'VARIABLE',
+  JSON_PATH = 'JSON_PATH',
+  XPATH = 'XPATH',
+  REGEX = 'REGEX',
 }

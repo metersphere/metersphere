@@ -30,8 +30,6 @@
               props.requestResult.headers
             }\nBody:\n${props.requestResult.body.trim()}`
           : '';
-      case ResponseComposition.EXTRACT:
-        return props.requestResult?.responseResult?.vars?.trim();
       default:
         return '';
     }

@@ -1,5 +1,5 @@
 <template>
-  <a-spin class="!block" :loading="props.loading" :size="28">
+  <a-spin class="z-[100] !block" :loading="props.loading" :size="28">
     <div
       ref="fullRef"
       :class="[

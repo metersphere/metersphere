@@ -14,6 +14,7 @@ import {
 } from '@/models/apiTest/common';
 import type { MockParams } from '@/models/apiTest/mock';
 import {
+  FullResponseAssertionType,
   RequestAssertionCondition,
   RequestBodyFormat,
   RequestCaseStatus,
@@ -144,6 +145,7 @@ export const defaultResponse: RequestTaskResult = {
         transferStartTime: 0,
         sslHandshakeTime: 0,
         vars: '',
+        extractResults: [],
         assertions: [],
       },
     },
@@ -239,6 +241,34 @@ export const regexDefaultParamItem = {
   responseFormat: ResponseBodyXPathAssertionFormat.XML,
   moreSettingPopoverVisible: false,
 };
+// 响应断言类型映射
+export const responseAssertionTypeMap: Record<FullResponseAssertionType, string> = {
+  [FullResponseAssertionType.DOCUMENT]: 'apiTestManagement.document',
+  [FullResponseAssertionType.RESPONSE_CODE]: 'apiTestManagement.responseCode',
+  [FullResponseAssertionType.RESPONSE_HEADER]: 'apiTestManagement.responseHeader',
+  [FullResponseAssertionType.RESPONSE_TIME]: 'apiTestManagement.responseTime',
+  [FullResponseAssertionType.SCRIPT]: 'apiTestManagement.script',
+  [FullResponseAssertionType.VARIABLE]: 'apiTestManagement.variable',
+  [FullResponseAssertionType.JSON_PATH]: 'jsonPath',
+  [FullResponseAssertionType.XPATH]: 'xPath',
+  [FullResponseAssertionType.REGEX]: 'apiTestManagement.regex',
+};
+// 提取类型选项
+export const extractTypeOptions = [
+  // 全局参数，暂时不上
+  // {
+  //   label: t('apiTestDebug.globalParameter'),
+  //   value: RequestExtractEnvType.GLOBAL,
+  // },
+  {
+    label: 'apiTestDebug.envParameter',
+    value: RequestExtractEnvType.ENVIRONMENT,
+  },
+  {
+    label: 'apiTestDebug.tempParameter',
+    value: RequestExtractEnvType.TEMPORARY,
+  },
+];
 // mock 匹配规则默认项
 export const defaultMatchRuleItem = {
   key: '',

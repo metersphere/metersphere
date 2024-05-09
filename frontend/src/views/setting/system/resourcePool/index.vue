@@ -76,7 +76,6 @@
   /**
    * @description 系统设置-资源池
    */
-  import { onMounted, Ref, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
@@ -192,6 +191,7 @@
       Message.success(t('system.resourcePool.enablePoolSuccess'));
       loadList();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -298,7 +298,7 @@
           activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
           activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
         ];
-        const { type, testResourceReturnDTO, loadTest, apiTest, uiTest } = activePool.value;
+        const { type, testResourceReturnDTO, apiTest, uiTest } = activePool.value;
         const {
           ip,
           token, // k8s token
@@ -308,8 +308,6 @@
           deployName, // k8s api测试部署名称
           girdConcurrentNumber,
           nodesList,
-          loadTestImage,
-          loadTestHeap,
           uiGrid,
         } = testResourceReturnDTO;
         // Node
@@ -358,7 +356,7 @@
               ]
             : [];
         const jobTemplate =
-          loadTest && type === 'Kubernetes'
+          type === 'Kubernetes'
             ? [
                 {
                   label: t('system.resourcePool.jobTemplate'),
@@ -370,21 +368,8 @@
                 },
               ]
             : [];
-        // 性能测试
-        const performanceDesc = loadTest
-          ? [
-              {
-                label: t('system.resourcePool.mirror'),
-                value: loadTestImage,
-              },
-              {
-                label: t('system.resourcePool.testHeap'),
-                value: loadTestHeap,
-              },
-            ]
-          : [];
-        // 接口测试/性能测试
-        const resourceDesc = apiTest || loadTest ? [...nodeResourceDesc, ...k8sResourceDesc] : [];
+        // 接口测试
+        const resourceDesc = apiTest ? [...nodeResourceDesc, ...k8sResourceDesc] : [];
         // ui 测试资源
         const uiDesc = uiTest
           ? [
@@ -399,15 +384,14 @@
             ]
           : [];
 
-        const detailType =
-          apiTest || loadTest
-            ? [
-                {
-                  label: t('system.resourcePool.detailType'),
-                  value: activePool.value.type,
-                },
-              ]
-            : [];
+        const detailType = apiTest
+          ? [
+              {
+                label: t('system.resourcePool.detailType'),
+                value: activePool.value.type,
+              },
+            ]
+          : [];
         activePoolDesc.value = [
           {
             label: t('system.resourcePool.detailDesc'),
@@ -433,7 +417,6 @@
             tagType: 'default',
             isTag: true,
           },
-          ...performanceDesc,
           ...uiDesc,
           ...detailType,
           ...resourceDesc,

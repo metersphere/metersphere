@@ -12,16 +12,17 @@
       />
       <ResConsole v-else-if="activeTab === ResponseComposition.CONSOLE" :console="props.console?.trim()" />
       <ResValueScript
-        v-else-if="
-          activeTab === ResponseComposition.HEADER ||
-          activeTab === ResponseComposition.REAL_REQUEST ||
-          activeTab === ResponseComposition.EXTRACT
-        "
+        v-else-if="activeTab === ResponseComposition.HEADER || activeTab === ResponseComposition.REAL_REQUEST"
         :active-tab="activeTab"
         :request-result="props.requestResult"
       />
+      <ExtractTable
+        v-else-if="activeTab === ResponseComposition.EXTRACT"
+        :request-result="props.requestResult"
+        :scroll="{ x: '100%' }"
+      />
       <ResAssertion
-        v-else-if="activeTab === 'ASSERTION'"
+        v-else-if="activeTab === ResponseComposition.ASSERTION"
         :request-result="props.requestResult"
         :scroll="{ x: '100%' }"
       />
@@ -58,6 +59,7 @@
   import ResAssertion from './result/assertionTable.vue';
   import ResBody from './result/body.vue';
   import ResConsole from './result/console.vue';
+  import ExtractTable from './result/extractTable.vue';
   import ResValueScript from './result/resValueScript.vue';
 
   import { useI18n } from '@/hooks/useI18n';
