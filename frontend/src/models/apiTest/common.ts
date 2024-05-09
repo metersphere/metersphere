@@ -389,6 +389,7 @@ export interface ExecuteRequestParams {
 export interface ResponseResult {
   body: string;
   contentType: string;
+  filePath?: string;
   headers: string;
   dnsLookupTime: number;
   downloadTime: number;

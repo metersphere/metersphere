@@ -105,4 +105,10 @@ export function getShareReportInfo(shareId: string) {
 export function getShareTime(projectId: string) {
   return MSR.get<string>({ url: `${reportUrl.getShareTimeUrl}/${projectId}` });
 }
+
+// 下载文件
+export function downloadFile(data: string | undefined) {
+  return MSR.post({ url: reportUrl.DownloadFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
+}
+
 export default {};

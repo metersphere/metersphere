@@ -45,3 +45,5 @@ export const reportCaseShareUrl = '/api/report/case/share';
 export const getShareIdUrl = '/api/report/share/gen';
 export const getShareReportInfoUrl = '/api/report/share/get';
 export const getShareTimeUrl = '/api/report/share/get-share-time';
+// 下载文件地址
+export const DownloadFileUrl = '/api/test/download';
