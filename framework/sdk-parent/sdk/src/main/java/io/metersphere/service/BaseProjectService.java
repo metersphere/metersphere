@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
@@ -240,6 +241,13 @@ public class BaseProjectService {
 
     public void checkProjectOwner(String projectId, List<UserGroup> userGroups) {
         boolean hasPermission = false;
+        //如果是超级管理员 直接返回
+        Optional<UserGroup> any =userGroups.stream()
+                .filter(ug -> (ug.getGroupId().equals(UserGroupConstants.SUPER_GROUP)))
+                .findAny();
+        if (any.isPresent()) {
+            return;
+        }
         for (UserGroup userGroup : userGroups) {
             // 校验是否有当前项目的用户组
             if (StringUtils.equals(userGroup.getSourceId(), projectId)) {
