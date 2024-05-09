@@ -299,7 +299,6 @@
           ...props,
           language: props.language.toLowerCase(),
           theme: currentTheme.value,
-          selectOnLineNumbers: true,
         });
 
         // 监听值的变化

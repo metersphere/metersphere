@@ -415,12 +415,13 @@
   };
   const globalEnvRef = ref();
   const handleSubmit = (shouldSearch: boolean) => {
+    console.log(1111);
     if (shouldSearch) {
       if (importAuthType.value === EnvAuthTypeEnum.GLOBAL && store.currentId === ALL_PARAM) {
         globalEnvRef.value.initEnvDetail();
       } else if (importAuthType.value === EnvAuthTypeEnum.ENVIRONMENT && store.currentId !== ALL_PARAM) {
         // eslint-disable-next-line no-use-before-define
-        initData();
+        initData(keyword.value, true);
       }
     }
   };

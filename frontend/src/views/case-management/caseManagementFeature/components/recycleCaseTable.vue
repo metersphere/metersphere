@@ -510,7 +510,7 @@
       fixed: 'right',
       showInTable: true,
       showDrag: false,
-      width: hasOperationPermission.value ? 260 : 50,
+      width: hasOperationPermission.value ? 150 : 50,
     },
   ];
 
