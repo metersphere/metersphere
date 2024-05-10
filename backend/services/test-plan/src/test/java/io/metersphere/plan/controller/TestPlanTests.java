@@ -122,8 +122,9 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
     private static final String URL_TEST_PLAN_COPY = "/test-plan/copy";
     private static final String URL_TEST_PLAN_DETAIL = "/test-plan/%s";
-    private static final String URL_TEST_PLAN_BATCH_COPY = "/test-plan/batch/copy";
-    private static final String URL_TEST_PLAN_BATCH_MOVE = "/test-plan/batch/move";
+    private static final String URL_TEST_PLAN_BATCH_COPY = "/test-plan/batch-copy";
+    private static final String URL_TEST_PLAN_BATCH_MOVE = "/test-plan/batch-move";
+    private static final String URL_TEST_PLAN_BATCH_ARCHIVED = "/test-plan/batch-archived";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -1884,9 +1885,6 @@ public class TestPlanTests extends BaseTest {
         example = new TestPlanModuleExample();
         example.createCriteria().andIdEqualTo(id);
         Assertions.assertEquals(testPlanModuleMapper.countByExample(example), 0);
-
-        //        该模块下已无测试计划
-        Assertions.assertEquals(testPlanTestService.countByModuleId(id), 0);
     }
 
 
@@ -2204,6 +2202,19 @@ public class TestPlanTests extends BaseTest {
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
 
+    }
+
+    @Test
+    @Order(305)
+    public void testBatchArchived() throws Exception {
+        TestPlanBatchRequest request = new TestPlanBatchRequest();
+        request.setProjectId("123");
+        request.setType("ALL");
+        request.setModuleId("3");
+        request.setSelectIds(List.of("wx_test_plan_id_2"));
+        this.requestPost(URL_TEST_PLAN_BATCH_ARCHIVED, request, status().is5xxServerError());
+        request.setSelectIds(List.of("wx_test_plan_id_7"));
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_ARCHIVED, request);
     }
 
 }

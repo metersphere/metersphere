@@ -85,17 +85,6 @@ public class TestPlanController {
         testPlanService.delete(id, SessionUtils.getUserId(), "/test-plan/delete", HttpMethodConstants.GET.name());
     }
 
-
-    @PostMapping(value = "/batch-delete")
-    @Operation(summary = "测试计划-批量删除")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
-        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
-    }
-
-
     @PostMapping("/edit/follower")
     @Operation(summary = "测试计划-关注/取消关注")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
@@ -116,7 +105,6 @@ public class TestPlanController {
         testPlanService.archived(id, userId);
     }
 
-
     @PostMapping("/copy")
     @Operation(summary = "测试计划-复制测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
@@ -134,21 +122,40 @@ public class TestPlanController {
         return testPlanService.detail(id);
     }
 
+    @PostMapping(value = "/batch-delete")
+    @Operation(summary = "测试计划-批量删除")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
+    }
 
-    @PostMapping("/batch/copy")
+    @PostMapping("/batch-copy")
     @Operation(summary = "测试计划-批量复制测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchCopy(@Validated @RequestBody TestPlanBatchRequest request) {
-        testPlanService.batchCopy(request, SessionUtils.getUserId(), "/test-plan/batch/copy", HttpMethodConstants.POST.name());
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.batchCopy(request, SessionUtils.getUserId(), "/test-plan/batch-copy", HttpMethodConstants.POST.name());
     }
 
 
-    @PostMapping("/batch/move")
+    @PostMapping("/batch-move")
     @Operation(summary = "测试计划-批量移动测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchMove(@Validated @RequestBody TestPlanBatchRequest request) {
-        testPlanService.batchMove(request, SessionUtils.getUserId(), "/test-plan/batch/move", HttpMethodConstants.POST.name());
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.batchMove(request, SessionUtils.getUserId(), "/test-plan/batch-move", HttpMethodConstants.POST.name());
+    }
+
+    @PostMapping("/batch-archived")
+    @Operation(summary = "测试计划-批量归档")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchArchived(@Validated @RequestBody TestPlanBatchRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.batchArchived(request, SessionUtils.getUserId());
     }
 }

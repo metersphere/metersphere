@@ -6,18 +6,21 @@ import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.BatchProcessUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanBatchCopyService testPlanBatchCopyService;
     @Resource
     private TestPlanBatchMoveService testPlanBatchMoveService;
+    @Resource
+    private TestPlanBatchArchivedService testPlanBatchArchivedService;
 
 
     /**
@@ -147,6 +152,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public void delete(String id, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            // 计划组的删除暂时预留
             this.deleteGroupByList(Collections.singletonList(testPlan.getId()));
         } else {
             testPlanMapper.deleteByPrimaryKey(id);
@@ -169,16 +175,29 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         }
     }
 
+    /**
+     * 计划组删除的相关逻辑(待定)
+     * @param testPlanGroupIds 计划组ID集合
+     */
     private void deleteGroupByList(List<String> testPlanGroupIds) {
         if (CollectionUtils.isNotEmpty(testPlanGroupIds)) {
             BatchProcessUtils.consumerByString(testPlanGroupIds, (deleteGroupIds) -> {
+                /*
+                 * 计划组删除逻辑{第一版需求: 删除组, 组下的子计划Group置为None}:
+                 * 1. 查询计划组下的全部子计划并删除(级联删除这些子计划的关联资源)
+                 * 2. 删除所有计划组
+                 */
                 TestPlanExample testPlanExample = new TestPlanExample();
-                testPlanExample.createCriteria().andIdIn(deleteGroupIds);
+                testPlanExample.createCriteria().andGroupIdIn(deleteGroupIds);
+                List<TestPlan> deleteGroupPlans = testPlanMapper.selectByExample(testPlanExample);
+                List<String> deleteGroupPlanIds = deleteGroupPlans.stream().map(TestPlan::getId).toList();
+                if (CollectionUtils.isNotEmpty(deleteGroupPlanIds)) {
+                    // 级联删除子计划关联的资源(计划组不存在关联的资源)
+                    this.cascadeDeleteTestPlanIds(deleteGroupPlanIds);
+                }
+                testPlanExample.clear();
+                testPlanExample.createCriteria().andIdIn(ListUtils.union(deleteGroupIds, deleteGroupPlanIds));
                 testPlanMapper.deleteByExample(testPlanExample);
-                //级联删除
-                this.cascadeDeleteTestPlanIds(deleteGroupIds);
-                //更新组下的数据
-                extTestPlanMapper.updateDefaultGroupId(deleteGroupIds);
             });
         }
     }
@@ -187,13 +206,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 批量删除测试计划
      *
-     * @param request
-     * @param operator
-     * @param requestUrl
-     * @param requestMethod
+     * @param request 批量请求参数
+     * @param operator 当前登录操作人
+     * @param requestUrl 请求URL
+     * @param requestMethod 请求方法
      */
     public void batchDelete(TestPlanBatchProcessRequest request, String operator, String requestUrl, String requestMethod) {
-        List<String> deleteIdList = getSelectIds(request);
+        // 目前计划的批量操作不支持全选所有页
+        List<String> deleteIdList = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(deleteIdList)) {
             List<TestPlan> deleteTestPlanList = extTestPlanMapper.selectBaseInfoByIds(deleteIdList);
             if (CollectionUtils.isNotEmpty(deleteTestPlanList)) {
@@ -206,15 +226,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                         testPlanIdList.add(testPlan.getId());
                     }
                 }
-                this.deleteByList(deleteIdList);
+                this.deleteByList(testPlanIdList);
+                // 计划组的删除暂时预留
                 this.deleteGroupByList(testPlanGroupList);
                 //记录日志
-                testPlanLogService.saveBatchDeleteLog(deleteTestPlanList, operator, requestUrl, requestMethod);
+                testPlanLogService.saveBatchLog(deleteTestPlanList, operator, requestUrl, requestMethod, OperationLogType.DELETE.name(), "delete");
             }
         }
     }
 
 
+    /**
+     * 级联删除计划关联的资源
+     * @param testPlanIds 计划ID集合
+     */
     private void cascadeDeleteTestPlanIds(List<String> testPlanIds) {
         //删除当前计划对应的资源
         Map<String, TestPlanResourceService> subTypes = CommonBeanFactory.getBeansOfType(TestPlanResourceService.class);
@@ -329,6 +354,24 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             testPlanMapper.updateByPrimaryKeySelective(testPlan);
         }
 
+    }
+
+    /**
+     * 批量归档
+     * @param request 批量请求参数
+     * @param currentUser 当前用户
+     */
+    public void batchArchived(TestPlanBatchRequest request, String currentUser) {
+        List<String> batchArchivedIds = request.getSelectIds();
+        if (CollectionUtils.isNotEmpty(batchArchivedIds)) {
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andIdIn(batchArchivedIds);
+            List<TestPlan> archivedPlanList = testPlanMapper.selectByExample(example);
+            Map<String, List<TestPlan>> plans = archivedPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
+            testPlanBatchArchivedService.batchArchived(plans, request, currentUser);
+            //日志
+            testPlanLogService.saveBatchLog(archivedPlanList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.UPDATE.name(), "archive");
+        }
     }
 
     /**
@@ -454,14 +497,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 批量复制 （计划/计划组）
      *
-     * @param request
-     * @param userId
-     * @param url
-     * @param method
-     * @return
+     * @param request 批量请求参数
+     * @param userId 当前登录用户
+     * @param url 请求URL
+     * @param method 请求方法
      */
     public void batchCopy(TestPlanBatchRequest request, String userId, String url, String method) {
-        List<String> copyIds = getSelectIds(request);
+        // 目前计划的批量操作不支持全选所有页
+        List<String> copyIds = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(copyIds)) {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria().andIdIn(copyIds);
@@ -470,13 +513,21 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 Map<String, List<TestPlan>> plans = copyTestPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
                 testPlanBatchCopyService.batchCopy(plans, request, userId);
                 //日志
-                testPlanLogService.saveBatchCopyLog(copyTestPlanList, userId, url, method);
+                testPlanLogService.saveBatchLog(copyTestPlanList, userId, url, method, OperationLogType.COPY.name(), "copy");
             }
         }
     }
 
+    /**
+     * 批量移动 (计划/计划组)
+     * @param request 批量请求参数
+     * @param userId 当前登录用户
+     * @param url 请求URL
+     * @param method 请求方法
+     */
     public void batchMove(TestPlanBatchRequest request, String userId, String url, String method) {
-        List<String> moveIds = getSelectIds(request);
+        // 目前计划的批量操作不支持全选所有页
+        List<String> moveIds = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(moveIds)) {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria().andIdIn(moveIds);
@@ -485,7 +536,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 Map<String, List<TestPlan>> plans = moveTestPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
                 testPlanBatchMoveService.batchMove(plans, request, userId);
                 //日志
-                testPlanLogService.saveBatchMoveLog(moveTestPlanList, userId, url, method);
+                testPlanLogService.saveBatchLog(moveTestPlanList, userId, url, method, OperationLogType.UPDATE.name(), "update");
             }
         }
     }

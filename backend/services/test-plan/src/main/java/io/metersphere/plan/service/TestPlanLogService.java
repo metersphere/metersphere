@@ -35,6 +35,13 @@ public class TestPlanLogService {
     @Resource
     private TestPlanMapper testPlanMapper;
 
+    /**
+     * 新增计划日志
+     * @param module 模块
+     * @param operator 操作人
+     * @param requestUrl 请求路径
+     * @param requestMethod 请求方法
+     */
     public void saveAddLog(TestPlan module, String operator, String requestUrl, String requestMethod) {
         Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
@@ -45,13 +52,22 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(module.getId())
-                .content(generateTestPlanSimpleContent(module,"test_plan.test_plan_group","test_plan.test_plan"))
+                .content(module.getName())
                 .originalValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
 
+    /**
+     * 修改计划日志
+     * @param oldTestPlan 旧计划
+     * @param newTestPlan 新计划
+     * @param projectId 项目ID
+     * @param operator 操作人
+     * @param requestUrl 请求URL
+     * @param requestMethod 请求方法
+     */
     public void saveUpdateLog(TestPlan oldTestPlan, TestPlan newTestPlan, String projectId, String operator, String requestUrl, String requestMethod) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         LogDTO dto = LogDTOBuilder.builder()
@@ -62,7 +78,7 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(newTestPlan.getId())
-                .content(generateTestPlanSimpleContent(newTestPlan,"log.update.test_plan_group","log.update.test_plan"))
+                .content(generateTestPlanSimpleContent(newTestPlan, Translator.get("update")))
                 .originalValue(JSON.toJSONBytes(oldTestPlan))
                 .modifiedValue(JSON.toJSONBytes(newTestPlan))
                 .createUser(operator)
@@ -70,6 +86,13 @@ public class TestPlanLogService {
         operationLogService.add(dto);
     }
 
+    /**
+     * 删除计划日志
+     * @param deleteTestPlan 删除计划
+     * @param operator 操作人
+     * @param requestUrl 请求URL
+     * @param requestMethod 请求方法
+     */
     public void saveDeleteLog(TestPlan deleteTestPlan, String operator, String requestUrl, String requestMethod) {
         Project project = projectMapper.selectByPrimaryKey(deleteTestPlan.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
@@ -80,49 +103,18 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(deleteTestPlan.getId())
-                .content(generateTestPlanSimpleContent(deleteTestPlan,"log.delete.test_plan_group","log.delete.test_plan"))
+                .content(generateTestPlanSimpleContent(deleteTestPlan, Translator.get("delete")))
                 .originalValue(JSON.toJSONBytes(deleteTestPlan))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
 
-    public void saveBatchDeleteLog(List<TestPlan> testPlanList, String operator, String requestUrl, String requestMethod) {
-        Project project = projectMapper.selectByPrimaryKey(testPlanList.get(0).getProjectId());
-        List<LogDTO> list = new ArrayList<>();
-        for (TestPlan testPlan : testPlanList) {
-            LogDTO dto = LogDTOBuilder.builder()
-                    .projectId(testPlan.getProjectId())
-                    .organizationId(project.getOrganizationId())
-                    .type(OperationLogType.DELETE.name())
-                    .module(logModule)
-                    .method(requestMethod)
-                    .path(requestUrl)
-                    .sourceId(testPlan.getId())
-                    .content(generateTestPlanSimpleContent(testPlan, "log.delete.test_plan_group", "log.delete.test_plan"))
-                    .originalValue(JSON.toJSONBytes(testPlan))
-                    .createUser(operator)
-                    .build().getLogDTO();
-            list.add(dto);
-        }
-        operationLogService.batchAdd(list);
-    }
-
-    private String generateTestPlanSimpleContent(TestPlan testPlan,String groupKey,String planKey) {
-        StringBuilder content = new StringBuilder();
-        if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            content.append(Translator.get(groupKey)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
-        } else {
-            content.append(Translator.get(planKey)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
-        }
-        return content.toString();
-    }
-
     /**
      * 归档日志
      *
-     * @param id
-     * @return
+     * @param id ID
+     * @return 日志对象
      */
     public LogDTO archivedLog(String id) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
@@ -143,8 +135,8 @@ public class TestPlanLogService {
     /**
      * 复制日志
      *
-     * @param request
-     * @return
+     * @param request 请求参数
+     * @return 日志对象
      */
     public LogDTO copyLog(TestPlanCopyRequest request) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
@@ -156,27 +148,36 @@ public class TestPlanLogService {
                 null,
                 OperationLogType.COPY.name(),
                 logModule,
-                generateTestPlanSimpleContent(testPlan, "log.copy.test_plan_group", "log.copy.test_plan"));
+                generateTestPlanSimpleContent(testPlan, Translator.get("copy")));
         dto.setPath("/test-plan/copy");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
 
-    public void saveBatchCopyLog(List<TestPlan> testPlanList, String operator, String requestUrl, String requestMethod) {
-        Project project = projectMapper.selectByPrimaryKey(testPlanList.get(0).getProjectId());
+    /**
+     * 保存批量日志
+     * @param plans 计划
+     * @param operator 操作人
+     * @param requestUrl 请求URL
+     * @param requestMethod 请求方法
+     * @param requestType 请求类型
+     * @param typeKey 类型Key
+     */
+    public void saveBatchLog(List<TestPlan> plans, String operator, String requestUrl, String requestMethod, String requestType, String typeKey) {
+        Project project = projectMapper.selectByPrimaryKey(plans.get(0).getProjectId());
         List<LogDTO> list = new ArrayList<>();
-        for (TestPlan testPlan : testPlanList) {
+        for (TestPlan plan : plans) {
             LogDTO dto = LogDTOBuilder.builder()
-                    .projectId(testPlan.getProjectId())
+                    .projectId(plan.getProjectId())
                     .organizationId(project.getOrganizationId())
-                    .type(OperationLogType.COPY.name())
+                    .type(requestType)
                     .module(logModule)
                     .method(requestMethod)
                     .path(requestUrl)
-                    .sourceId(testPlan.getId())
-                    .content(generateTestPlanSimpleContent(testPlan, "log.copy.test_plan_group", "log.copy.test_plan"))
-                    .originalValue(JSON.toJSONBytes(testPlan))
+                    .sourceId(plan.getId())
+                    .content(generateTestPlanSimpleContent(plan, Translator.get(typeKey)))
+                    .originalValue(JSON.toJSONBytes(plan))
                     .createUser(operator)
                     .build().getLogDTO();
             list.add(dto);
@@ -184,24 +185,19 @@ public class TestPlanLogService {
         operationLogService.batchAdd(list);
     }
 
-    public void saveBatchMoveLog(List<TestPlan> testPlanList, String operator, String requestUrl, String requestMethod) {
-        Project project = projectMapper.selectByPrimaryKey(testPlanList.get(0).getProjectId());
-        List<LogDTO> list = new ArrayList<>();
-        for (TestPlan testPlan : testPlanList) {
-            LogDTO dto = LogDTOBuilder.builder()
-                    .projectId(testPlan.getProjectId())
-                    .organizationId(project.getOrganizationId())
-                    .type(OperationLogType.UPDATE.name())
-                    .module(logModule)
-                    .method(requestMethod)
-                    .path(requestUrl)
-                    .sourceId(testPlan.getId())
-                    .content(generateTestPlanSimpleContent(testPlan, "log.move.test_plan_group", "log.move.test_plan"))
-                    .originalValue(JSON.toJSONBytes(testPlan))
-                    .createUser(operator)
-                    .build().getLogDTO();
-            list.add(dto);
+    /**
+     * 生成计划操作日志内容
+     * @param testPlan 测试计划
+     * @param type 类型
+     * @return 日志内容
+     */
+    private String generateTestPlanSimpleContent(TestPlan testPlan, String type) {
+        StringBuilder content = new StringBuilder();
+        if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            content.append(Translator.getWithArgs("test_plan_group.batch.log", type)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
+        } else {
+            content.append(Translator.getWithArgs("test_plan.batch.log", type)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
         }
-        operationLogService.batchAdd(list);
+        return content.toString();
     }
 }
