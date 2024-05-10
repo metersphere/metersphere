@@ -160,10 +160,10 @@ public class TestResourcePoolService {
         }
     }
 
-    public TestResourceDTO getTestResourceDTO(String resourcePoolId) {
+    public void getTestResourceDTO(String resourcePoolId) {
         TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(resourcePoolId);
         String testResourceDTOStr = new String(testResourcePoolBlob.getConfiguration());
-        return JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
+        JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
     }
 
     public TestResourcePoolReturnDTO getTestResourcePoolDetail(String testResourcePoolId) {
@@ -233,9 +233,9 @@ public class TestResourcePoolService {
     /**
      * 校验该组织是否有权限使用该资源池
      *
-     * @param resourcePool
-     * @param orgId
-     * @return
+     * @param resourcePool 资源池对象
+     * @param orgId 组织id
+     * @return boolean
      */
     public boolean validateOrgResourcePool(TestResourcePool resourcePool, String orgId) {
         if (BooleanUtils.isTrue(resourcePool.getAllOrg())) {
@@ -245,10 +245,7 @@ public class TestResourcePoolService {
         example.createCriteria()
                 .andTestResourcePoolIdEqualTo(resourcePool.getId())
                 .andOrgIdEqualTo(orgId);
-        if (testResourcePoolOrganizationMapper.countByExample(example) < 1) {
-            return false;
-        }
-        return true;
+        return testResourcePoolOrganizationMapper.countByExample(example) >= 1;
     }
 
 }

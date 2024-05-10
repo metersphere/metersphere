@@ -13,17 +13,6 @@ import java.util.List;
 @Getter
 @Setter
 public class TestResourceReturnDTO {
-    /**
-     * type为 node时, 性能测试的镜像
-     */
-    @Schema(description =  "type为node时, 性能测试的镜像")
-    private String loadTestImage;
-
-    /**
-     * type为 node时, 性能测试jvm配置
-     */
-    @Schema(description =  "type为node时, 性能测试jvm配置")
-    private String loadTestHeap;
 
     /**
      * type为 node时, 接口测试 性能测试 node 节点配置
@@ -59,22 +48,10 @@ public class TestResourceReturnDTO {
     private Integer podThreads;
 
     /**
-     *  type为 k8s 时，性能测试自定义JOB模版 string
-     */
-    @Schema(description =  " type为k8s时，性能测试自定义JOB模版string")
-    private String jobDefinition;
-
-    /**
      *  type为 k8s 时，接口测试deployName
      */
     @Schema(description =  "type为k8s时，接口测试deployName")
     private String deployName;
-
-    /**
-     * UI测试的grid配置
-     */
-    @Schema(description =  "UI测试的grid配置")
-    private String uiGrid;
 
     @Schema(description =  "grid最大线程数")
     private Integer girdConcurrentNumber;

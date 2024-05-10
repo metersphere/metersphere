@@ -88,7 +88,7 @@ export default {
   'system.resourcePool.concurrentNumberPlaceholder': 'Please enter the maximum number of concurrency',
   'system.resourcePool.nodeResourceRequired': 'Please fill in the Node resources added in batches correctly',
   'system.resourcePool.nodeConfigEditorTip':
-    'Writing format: IP, Port, Monitor, maximum concurrent number; such as 192.168.1.52,8082,500,1',
+    'Writing format: IP, Port, maximum concurrent number; such as 192.168.1.52,8082,1',
   'system.resourcePool.testResourceDTO.ip': 'IP Address/Domain Name',
   'system.resourcePool.testResourceDTO.ipRequired': 'Please fill in IP address / domain name',
   'system.resourcePool.testResourceDTO.ipPlaceholder': 'example.com',
