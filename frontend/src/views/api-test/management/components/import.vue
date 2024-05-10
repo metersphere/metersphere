@@ -573,6 +573,16 @@
       showTooltip: true,
     },
     {
+      title: 'project.taskCenter.swaggerUrl',
+      slotName: 'swaggerUrl',
+      dataIndex: 'swaggerUrl',
+      width: 300,
+      showDrag: false,
+      showTooltip: true,
+      columnSelectorDisabled: true,
+      showInTable: true,
+    },
+    {
       title: 'apiTestManagement.taskRunRule',
       dataIndex: 'value',
       width: 140,
