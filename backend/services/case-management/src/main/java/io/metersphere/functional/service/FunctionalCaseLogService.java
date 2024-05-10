@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -65,8 +66,12 @@ public class FunctionalCaseLogService {
 
     @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
+
     @Resource
     private BugMapper bugMapper;
+
+    @Resource
+    private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
 
 
     /**
@@ -166,10 +171,10 @@ public class FunctionalCaseLogService {
 
     public List<LogDTO> batchDeleteFunctionalCaseLog(FunctionalCaseBatchRequest request) {
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
-        return batchDeleteFunctionalCaseLogByIds(ids);
+        return batchDeleteFunctionalCaseLogByIds(ids, "/functional/case/batch/deleteToGc");
     }
 
-    public List<LogDTO> batchDeleteFunctionalCaseLogByIds(List<String> ids) {
+    public List<LogDTO> batchDeleteFunctionalCaseLogByIds(List<String> ids, String path) {
         List<LogDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
@@ -183,7 +188,30 @@ public class FunctionalCaseLogService {
                         OperationLogModule.FUNCTIONAL_CASE,
                         functionalCase.getName());
 
-                dto.setPath("/functional/case/batch/deleteToGc");
+                dto.setPath(path);
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
+    }
+
+    public List<LogDTO> batchUpdateFunctionalCaseLogByIds(List<String> ids, String path) {
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
+            functionalCases.forEach(functionalCase -> {
+                LogDTO dto = new LogDTO(
+                        functionalCase.getProjectId(),
+                        null,
+                        functionalCase.getId(),
+                        null,
+                        OperationLogType.UPDATE.name(),
+                        OperationLogModule.FUNCTIONAL_CASE,
+                        functionalCase.getName());
+
+                dto.setPath(path);
                 dto.setMethod(HttpMethodConstants.POST.name());
                 dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
                 dtoList.add(dto);
@@ -196,13 +224,56 @@ public class FunctionalCaseLogService {
         if (CollectionUtils.isEmpty(resourceList)) {
             return new ArrayList<>();
         }
+        String path = "/functional/mind/case/batch/delete/";
+        List<String> caseAllIds = new ArrayList<>();
         Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
         List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
-        if (CollectionUtils.isEmpty(caseOptionDTOS)) {
-            return new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
+            List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            caseAllIds.addAll(caseIds);
         }
-        List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-        return batchDeleteFunctionalCaseLogByIds(caseIds);
+        List<MinderOptionDTO> moduleOptionDTOS = resourceMap.get(MinderLabel.MODULE.toString());
+        if (CollectionUtils.isNotEmpty(moduleOptionDTOS)) {
+            List<String> moduleIds = moduleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+            List<FunctionalCase> functionalCaseByModuleIds = getFunctionalCaseByModuleIds(moduleIds, new ArrayList<>());
+            List<String> list = functionalCaseByModuleIds.stream().map(FunctionalCase::getId).toList();
+            caseAllIds.addAll(list);
+        }
+
+        Set<String> strings = resourceMap.keySet();
+        List<LogDTO>logDTOS = new ArrayList<>();
+        List<String>ids = new ArrayList<>();
+        for (String key : strings) {
+            if (StringUtils.equalsIgnoreCase(key, MinderLabel.CASE.toString()) ||  StringUtils.equalsIgnoreCase(key, MinderLabel.MODULE.toString())) {
+                List<LogDTO> logDTOS1 = batchDeleteFunctionalCaseLogByIds(caseAllIds, path);
+                logDTOS.addAll(logDTOS1);
+            } else {
+                //更新
+                List<MinderOptionDTO> keyOptionDTOS = resourceMap.get(key);
+                if (CollectionUtils.isNotEmpty(keyOptionDTOS)) {
+                    List<String> list = keyOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+                    ids.addAll(list);
+                }
+            }
+        }
+        List<LogDTO> logDTOS1 = batchUpdateFunctionalCaseLogByIds(ids, path);
+        logDTOS.addAll(logDTOS1);
+        return logDTOS;
+    }
+
+    public List<FunctionalCase> getFunctionalCaseByModuleIds(List<String> deleteIds, List<FunctionalCase> functionalCases) {
+        if (CollectionUtils.isEmpty(deleteIds)) {
+            return functionalCases;
+        }
+        List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.checkCaseByModuleIds(deleteIds);
+        if (CollectionUtils.isNotEmpty(functionalCaseList)) {
+            functionalCases.addAll(functionalCaseList);
+        }
+        List<String> childrenIds = extFunctionalCaseModuleMapper.selectChildrenIdsByParentIds(deleteIds);
+        if (CollectionUtils.isNotEmpty(childrenIds)) {
+            getFunctionalCaseByModuleIds(childrenIds, functionalCases);
+        }
+        return functionalCases;
     }
 
     /**
