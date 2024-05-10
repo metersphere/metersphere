@@ -374,19 +374,19 @@
   const currentKeyOptions = computed(() => {
     switch (activeTab.value) {
       case RequestComposition.HEADER:
-        return filterKeyValParams(props.definitionDetail.headers, defaultMatchRuleItem).validParams.filter((e) => ({
+        return filterKeyValParams(props.definitionDetail.headers, defaultMatchRuleItem).validParams.map((e) => ({
           label: e.key,
-          value: e.value,
+          value: e.key,
         }));
       case RequestComposition.QUERY:
-        return filterKeyValParams(props.definitionDetail.query, defaultMatchRuleItem).validParams.filter((e) => ({
+        return filterKeyValParams(props.definitionDetail.query, defaultMatchRuleItem).validParams.map((e) => ({
           label: e.key,
-          value: e.value,
+          value: e.key,
         }));
       case RequestComposition.REST:
-        return filterKeyValParams(props.definitionDetail.rest, defaultMatchRuleItem).validParams.filter((e) => ({
+        return filterKeyValParams(props.definitionDetail.rest, defaultMatchRuleItem).validParams.map((e) => ({
           label: e.key,
-          value: e.value,
+          value: e.key,
         }));
       default:
         return [];
@@ -408,9 +408,10 @@
         return filterKeyValParams(
           props.definitionDetail.body.wwwFormBody.formValues,
           defaultMatchRuleItem
-        ).validParams.filter((e) => ({
+        ).validParams.map((e) => ({
           label: e.key,
-          value: e.value,
+          value: e.key,
+          paramType: e.paramType,
         }));
       default:
         return [];
