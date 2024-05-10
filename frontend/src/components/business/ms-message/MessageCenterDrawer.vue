@@ -198,6 +198,7 @@
     BugManagementRouteEnum,
     CaseManagementRouteEnum,
     ProjectManagementRouteEnum,
+    TestPlanRouteEnum,
   } from '@/enums/routeEnum';
 
   const props = defineProps<{
@@ -211,7 +212,7 @@
   const userStore = useUserStore();
   const router = useRouter();
   const { t } = useI18n();
-  const { openNewPage } = useOpenNewPage();
+  const { openNewPage, openNewPageWidthSingleParam } = useOpenNewPage();
 
   const innerVisible = useVModel(props, 'visible', emit);
   const projectId = ref<string>(appStore.currentProjectId);
@@ -365,6 +366,12 @@
         count = module.name;
       }
     }
+    if (type === 'TEST_PLAN_MANAGEMENT') {
+      const module = options.value.find((item) => item.id === 'TEST_PLAN');
+      if (module) {
+        count = module.name;
+      }
+    }
     const number = parseInt(count, 10);
     if (number > 99) {
       return '+99';
@@ -380,6 +387,7 @@
     [MessageResourceType.CASE_REVIEW_TASK]: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
     [MessageResourceType.API_DEFINITION_TASK]: ApiTestRouteEnum.API_TEST_MANAGEMENT,
     [MessageResourceType.API_SCENARIO_TASK]: ApiTestRouteEnum.API_TEST_SCENARIO,
+    [MessageResourceType.TEST_PLAN_TASK]: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
   };
 
   // 点击名称跳转
@@ -399,8 +407,13 @@
         routeQuery.dId = item.resourceId;
       }
     }
+
     const route = resourceTypeRouteMap[item.resourceType];
-    openNewPage(route, routeQuery);
+    if (item.resourceType === MessageResourceType.FUNCTIONAL_CASE_TASK) {
+      openNewPageWidthSingleParam(route, 'edit', routeQuery);
+    } else {
+      openNewPage(route, routeQuery);
+    }
   }
 
   // 全部标记为已读
