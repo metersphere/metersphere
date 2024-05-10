@@ -24,7 +24,7 @@
       </a-radio-group> -->
       <a-popover title="" position="bottom">
         <div class="flex">
-          <div class="one-line-text mr-1 max-h-[32px] max-w-[116px] text-[var(--color-text-1)]">
+          <div class="one-line-text mr-1 max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
             {{ props.activeFolder === 'all' ? t('testPlan.testPlanIndex.allTestPlan') : props.nodeName }}
           </div>
           <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
@@ -279,11 +279,21 @@
   import StatusProgress from './statusProgress.vue';
   import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 
-  import { archivedPlan, batchDeletePlan, getTestPlanList, getTestPlanModule } from '@/api/modules/test-plan/testPlan';
+  import {
+    archivedPlan,
+    batchCopyPlan,
+    batchDeletePlan,
+    batchMovePlan,
+    getTestPlanDetail,
+    getTestPlanList,
+    getTestPlanModule,
+    updateTestPlan,
+  } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -316,7 +326,7 @@
       title: 'testPlan.testPlanIndex.ID',
       slotName: 'num',
       dataIndex: 'num',
-      width: 200,
+      width: 150,
       showInTable: true,
       showDrag: false,
       showTooltip: true,
@@ -329,7 +339,7 @@
       showInTable: true,
       showTooltip: true,
       width: 180,
-      editType: ColumnEditTypeEnum.INPUT,
+      editType: hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -446,10 +456,18 @@
   /**
    * 更新测试计划名称
    */
-  async function updatePlanName() {
+  async function updatePlanName(record: TestPlanItem) {
     try {
-      Message.success(t('common.updateSuccess'));
-      return Promise.resolve(true);
+      if (record.id) {
+        const detail = await getTestPlanDetail(record.id);
+        const params = {
+          ...detail,
+          name: record.name,
+        };
+        await updateTestPlan(params);
+        Message.success(t('common.updateSuccess'));
+        return Promise.resolve(true);
+      }
     } catch (error) {
       console.log(error);
       return Promise.resolve(false);
@@ -553,13 +571,15 @@
       showSetting: true,
       heightUsed: 128,
       paginationSize: 'mini',
+      showSelectorAll: false,
     },
     (item) => {
       return {
         ...item,
         tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
       };
-    }
+    },
+    updatePlanName
   );
 
   const batchParams = ref<BatchActionQueryParams>({
@@ -605,15 +625,20 @@
     loadList();
   }
 
-  async function fetchData() {
-    resetSelector();
-    await loadPlanList();
+  // 获取父组件模块数量
+  async function emitTableParams() {
     const tableParams = await initTableParams();
     emit('init', {
       ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
+  }
+
+  async function fetchData() {
+    resetSelector();
+    await loadPlanList();
+    emitTableParams();
   }
 
   // 测试计划详情
@@ -666,23 +691,25 @@
     try {
       const params = {
         selectIds: batchParams.value.selectedIds || [],
-        selectAll: !!batchParams.value?.selectAll,
-        excludeIds: batchParams.value?.excludeIds || [],
         condition: {
           keyword: keyword.value,
-          filter: {
-            reviewStatus: statusFilters.value,
-          },
+          filter: {},
           combine: batchParams.value.condition,
         },
         projectId: appStore.currentProjectId,
         moduleIds: [...selectNodeKeys.value],
+        type: showType.value,
+        moduleId: selectNodeKeys.value[0],
       };
       if (modeType.value === 'copy') {
+        await batchCopyPlan(params);
         Message.success(t('common.batchCopySuccess'));
       } else {
+        await batchMovePlan(params);
         Message.success(t('common.batchMoveSuccess'));
       }
+      showBatchModal.value = false;
+      fetchData();
     } catch (error) {
       console.log(error);
     } finally {
@@ -812,9 +839,9 @@
     }
   }
 
-  function deletePlan(record: any) {}
+  function deletePlan(record: TestPlanItem) {}
 
-  function copyHandler() {}
+  function copyHandler(record: TestPlanItem) {}
 
   const showScheduledTaskModal = ref<boolean>(false);
   function handleScheduledTask() {
@@ -854,7 +881,7 @@
   function handleMoreActionSelect(item: ActionsItem, record: TestPlanItem) {
     switch (item.eventTag) {
       case 'copy':
-        copyHandler();
+        copyHandler(record);
         break;
       case 'createScheduledTask':
         handleScheduledTask();
@@ -928,7 +955,8 @@
   });
 
   defineExpose({
-    loadPlanList,
+    fetchData,
+    emitTableParams,
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_ALL_TABLE, columns, 'drawer');

@@ -76,6 +76,7 @@
               :modules-count="modulesCount"
               @plan-tree-node-select="planNodeSelect"
               @init="setRootModules"
+              @drag-update="dragUpdate"
             ></TestPlanTree>
           </div>
         </div>
@@ -244,7 +245,10 @@
     planId.value = '';
   }
   function loadPlanList() {
-    planTableRef.value?.loadPlanList();
+    planTableRef.value?.fetchData();
+  }
+  function dragUpdate() {
+    planTableRef.value?.emitTableParams();
   }
 </script>
 

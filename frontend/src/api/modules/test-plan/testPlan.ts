@@ -3,7 +3,9 @@ import {
   addTestPlanModuleUrl,
   AddTestPlanUrl,
   archivedPlanUrl,
+  batchCopyPlanUrl,
   batchDeletePlanUrl,
+  batchMovePlanUrl,
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
   getStatisticalCountUrl,
@@ -12,6 +14,7 @@ import {
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
   MoveTestPlanModuleUrl,
+  planDetailBugPageUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
@@ -19,7 +22,13 @@ import {
 import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import { ModuleTreeNode } from '@/models/common';
-import type { AddTestPlanParams, TestPlanDetail, TestPlanItem, UseCountType } from '@/models/testPlan/testPlan';
+import type {
+  AddTestPlanParams,
+  PlanDetailBugItem,
+  TestPlanDetail,
+  TestPlanItem,
+  UseCountType,
+} from '@/models/testPlan/testPlan';
 
 // 获取模块树
 export function getTestPlanModule(params: TableQueryParams) {
@@ -85,4 +94,16 @@ export function getStatisticalCount(id: string) {
 // 归档
 export function archivedPlan(id: string | undefined) {
   return MSR.get({ url: `${archivedPlanUrl}/${id}` });
+}
+// 批量复制测试计划
+export function batchCopyPlan(data: TableQueryParams) {
+  return MSR.post({ url: batchCopyPlanUrl, data });
+}
+// 批量移动测试计划
+export function batchMovePlan(data: TableQueryParams) {
+  return MSR.post({ url: batchMovePlanUrl, data });
+}
+// 计划详情缺陷管理列表
+export function planDetailBugPage(data: TableQueryParams) {
+  return MSR.post<CommonList<PlanDetailBugItem>>({ url: planDetailBugPageUrl, data });
 }

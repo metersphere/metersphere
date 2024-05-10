@@ -98,4 +98,20 @@ export interface UseCountType {
   testProgress: string; // 测试进度
 }
 
+// 计划详情缺陷列表
+export interface PlanDetailBugItem {
+  id: string;
+  num: string;
+  title: string;
+  relateCase: {
+    id: string;
+    bugId: string;
+    name: string;
+  }[];
+  handleUser: string;
+  status: string;
+  createUser: string;
+  createTime: number;
+}
+
 export default {};

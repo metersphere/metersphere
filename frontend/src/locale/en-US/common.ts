@@ -139,6 +139,7 @@ export default {
   'common.yes': 'Yes',
   'common.no': 'No',
   'common.creator': 'Creator',
+  'common.createTime': 'Created time',
   'common.followSuccess': 'Followed',
   'common.unFollowSuccess': 'Unfollow successfully',
   'common.share': 'Share',

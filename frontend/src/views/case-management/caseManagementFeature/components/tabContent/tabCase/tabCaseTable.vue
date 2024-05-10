@@ -174,7 +174,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getAssociatedCasePage, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getAssociatedCasePage, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEPENDENCY_PRE_CASE,
     scroll: { x: '100%' },
@@ -184,7 +184,6 @@
   });
 
   const innerVisible = ref(false);
-  const innerProject = ref(currentProjectId.value);
 
   const associateForm = ref({
     reviewers: [],

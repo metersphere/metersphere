@@ -72,7 +72,9 @@
     </a-tabs>
   </MsCard>
   <!-- special-height的174: 上面卡片高度158 + mt的16 -->
-  <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding></MsCard>
+  <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding>
+    <BugManagement v-if="activeTab === 'defectList'" :plan-id="detail.id" />
+  </MsCard>
 </template>
 
 <script setup lang="ts">
@@ -84,6 +86,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import BugManagement from './bugManagement/index.vue';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
   import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 

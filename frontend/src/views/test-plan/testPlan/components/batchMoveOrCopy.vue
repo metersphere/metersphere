@@ -4,10 +4,6 @@
     title-align="start"
     class="ms-modal-no-padding ms-modal-small"
     :mask-closable="false"
-    :ok-text="props.mode === 'move' ? t('common.move') : t('common.copy')"
-    :ok-button-props="{ disabled: innerSelectedModuleKeys.length === 0 }"
-    :cancel-button-props="{ disabled: props.okLoading }"
-    :on-before-ok="handleCaseMoveOrCopy"
     @close="handleMoveCaseModalCancel"
   >
     <template #title>
@@ -55,6 +51,18 @@
         </template>
       </MsTree>
     </a-spin>
+    <template #footer>
+      <a-button type="secondary" @click="handleMoveCaseModalCancel">{{ t('common.cancel') }}</a-button>
+      <a-button
+        class="ml-[12px]"
+        type="primary"
+        :loading="props.okLoading"
+        :disabled="innerSelectedModuleKeys.length === 0"
+        @click="handleCaseMoveOrCopy"
+      >
+        {{ props.mode === 'move' ? t('common.move') : t('common.copy') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 

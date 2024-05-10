@@ -35,7 +35,7 @@ export default {
   'apiTestManagement.closeOther': 'Close other tabs',
   'apiTestManagement.showSubdirectory': 'Show subdirectory use case',
   'apiTestManagement.searchPlaceholder': 'Enter ID/name/api path search',
-  'apiTestManagement.searchTaskPlaceholder': 'Enter resource Id/name search',
+  'apiTestManagement.searchTaskPlaceholder': 'Enter resource Id/name/URL search',
   'apiTestManagement.apiName': 'Api name',
   'apiTestManagement.apiType': 'Api type',
   'apiTestManagement.apiStatus': 'Status',

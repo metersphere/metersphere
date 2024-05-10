@@ -9,7 +9,11 @@
       <div class="items-right flex gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
-          :placeholder="t('system.organization.searchIndexPlaceholder')"
+          :placeholder="
+            props.moduleType === 'API_IMPORT'
+              ? t('apiTestManagement.searchTaskPlaceholder')
+              : t('system.organization.searchIndexPlaceholder')
+          "
           allow-clear
           class="mx-[8px] w-[240px]"
           @search="searchList"
