@@ -585,8 +585,75 @@
                 "useDefaultSubject":true
               }
             ]
+          },
+          {
+            "event":"MOCK_CREATE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"MOCK_UPDATE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"MOCK_DELETE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
           }
         ]
+
       },
       {
         "taskType":"API_SCENARIO_TASK",

@@ -1,6 +1,7 @@
 package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.constants.ApiResourceType;
@@ -20,6 +21,8 @@ import io.metersphere.api.service.definition.ApiDefinitionMockNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionMockService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -179,6 +182,16 @@ public class ApiDefinitionMockController {
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition_mock")
     public void batchUpdate(@Validated @RequestBody ApiMockBatchEditRequest request) {
         apiDefinitionMockService.batchEdit(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/operation-history/page")
+    @Operation(summary = "接口测试-接口管理-mock-变更历史")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_MOCK_READ, PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE})
+    @CheckOwner(resourceId = "#request.getSourceId()", resourceType = "api_definition_mock")
+    public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, apiDefinitionMockService.operationHistoryList(request));
     }
 
 

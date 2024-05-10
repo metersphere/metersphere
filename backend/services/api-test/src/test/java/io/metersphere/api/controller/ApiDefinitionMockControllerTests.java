@@ -40,6 +40,7 @@ import io.metersphere.sdk.util.TempFileUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -434,6 +435,14 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         checkLog(apiDefinitionMock.getId(), OperationLogType.UPDATE, ENABLE + apiDefinitionMock.getId());
 
         assertErrorCode(this.requestGet(ENABLE + "111"), MsHttpResultCode.FAILED);
+
+        OperationHistoryRequest request = new OperationHistoryRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSourceId(apiDefinitionMock.getId());
+        request.setPageSize(10);
+        request.setCurrent(1);
+
+        requestPostWithOkAndReturn(BASE_PATH + "operation-history/page", request);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE, ENABLE + apiDefinitionMock.getId());
     }

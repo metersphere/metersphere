@@ -14,6 +14,7 @@ ALTER TABLE test_plan_config DROP COLUMN run_mode_config;
 ALTER TABLE test_plan_config ADD COLUMN test_planning BIT NOT NULL  DEFAULT 0 COMMENT '是否开启测试规划';
 
 ALTER TABLE api_definition_mock ADD COLUMN update_user VARCHAR(50) COMMENT '更新人';
+ALTER TABLE api_definition_mock ADD COLUMN version_id VARCHAR(50) COMMENT '版本id';
 
 ALTER TABLE operation_history MODIFY COLUMN module VARCHAR(100);
 
