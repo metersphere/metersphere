@@ -33,7 +33,7 @@ import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanModuleService extends ModuleTreeService implements CleanupProjectResourceService {
+public class TestPlanModuleService extends ModuleTreeService {
     @Resource
     private TestPlanModuleMapper testPlanModuleMapper;
     @Resource
@@ -208,14 +208,6 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-    }
-
-    @Override
-    public void deleteResources(String projectId) {
-        List<String> fileModuleIdList = extTestPlanModuleMapper.selectIdsByProjectId(projectId);
-        if (CollectionUtils.isNotEmpty(fileModuleIdList)) {
-            this.deleteModule(fileModuleIdList, projectId, "SCHEDULE", "none", "none");
-        }
     }
 
     public String getNameById(String id) {

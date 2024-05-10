@@ -225,4 +225,23 @@
             </if>
         </if>
     </sql>
+
+    <select id="getBugCountByIds" resultType="io.metersphere.bug.dto.CaseRelateBugDTO">
+        SELECT
+            bug.id as bugId,
+            bug.title as title,
+            bug_relation_case.case_type as caseType,
+            bug_relation_case.case_id as caseId,
+            bug_relation_case.id
+        FROM
+            bug_relation_case
+                INNER JOIN bug ON bug.id = bug_relation_case.bug_id
+        WHERE
+            bug_relation_case.case_id IN
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        ORDER BY
+            bug.pos DESC
+    </select>
 </mapper>

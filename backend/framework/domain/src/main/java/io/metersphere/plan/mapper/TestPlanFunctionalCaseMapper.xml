@@ -3,7 +3,6 @@
 <mapper namespace="io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanFunctionalCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="functional_case_id" jdbcType="VARCHAR" property="functionalCaseId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -72,8 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, test_plan_id, functional_case_id, create_time, create_user, execute_user, 
-    last_exec_time, last_exec_result, pos
+    id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, 
+    last_exec_result, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCaseExample" resultMap="BaseResultMap">
     select
@@ -106,23 +105,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-    insert into test_plan_functional_case (id, num, test_plan_id, 
-      functional_case_id, create_time, create_user, 
-      execute_user, last_exec_time, last_exec_result, 
-      pos)
-    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{testPlanId,jdbcType=VARCHAR}, 
-      #{functionalCaseId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{executeUser,jdbcType=VARCHAR}, #{lastExecTime,jdbcType=BIGINT}, #{lastExecResult,jdbcType=VARCHAR}, 
-      #{pos,jdbcType=BIGINT})
+    insert into test_plan_functional_case (id, test_plan_id, functional_case_id, 
+      create_time, create_user, execute_user, 
+      last_exec_time, last_exec_result, pos
+      )
+    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{functionalCaseId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{executeUser,jdbcType=VARCHAR}, 
+      #{lastExecTime,jdbcType=BIGINT}, #{lastExecResult,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
     insert into test_plan_functional_case
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
-      </if>
-      <if test="num != null">
-        num,
       </if>
       <if test="testPlanId != null">
         test_plan_id,
@@ -152,9 +148,6 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="num != null">
-        #{num,jdbcType=BIGINT},
       </if>
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
@@ -194,9 +187,6 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.num != null">
-        num = #{record.num,jdbcType=BIGINT},
-      </if>
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
@@ -229,7 +219,6 @@
   <update id="updateByExample" parameterType="map">
     update test_plan_functional_case
     set id = #{record.id,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=BIGINT},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -245,9 +234,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
     update test_plan_functional_case
     <set>
-      <if test="num != null">
-        num = #{num,jdbcType=BIGINT},
-      </if>
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
@@ -277,8 +263,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
     update test_plan_functional_case
-    set num = #{num,jdbcType=BIGINT},
-      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       functional_case_id = #{functionalCaseId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -290,14 +275,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_functional_case
-    (id, num, test_plan_id, functional_case_id, create_time, create_user, execute_user, 
-      last_exec_time, last_exec_result, pos)
+    (id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, 
+      last_exec_result, pos)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.testPlanId,jdbcType=VARCHAR}, 
-        #{item.functionalCaseId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, #{item.lastExecTime,jdbcType=BIGINT}, 
-        #{item.lastExecResult,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT})
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.functionalCaseId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, 
+        #{item.lastExecTime,jdbcType=BIGINT}, #{item.lastExecResult,jdbcType=VARCHAR}, 
+        #{item.pos,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -312,9 +297,6 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
-        </if>
-        <if test="'num'.toString() == column.value">
-          #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'test_plan_id'.toString() == column.value">
           #{item.testPlanId,jdbcType=VARCHAR}

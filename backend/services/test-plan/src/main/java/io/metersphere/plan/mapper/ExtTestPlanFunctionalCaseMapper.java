@@ -2,6 +2,8 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
+import io.metersphere.plan.dto.request.TestPlanCaseRequest;
+import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,4 +22,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     AssociationNode selectDragInfoById(String id);
 
     AssociationNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<TestPlanCasePageResponse> getCasePage(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 }

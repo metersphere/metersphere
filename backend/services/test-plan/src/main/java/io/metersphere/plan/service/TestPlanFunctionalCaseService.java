@@ -1,5 +1,9 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.bug.dto.CaseRelateBugDTO;
+import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
+import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
@@ -8,18 +12,19 @@ import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -34,8 +39,10 @@ import org.springframework.validation.annotation.Validated;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -50,6 +57,12 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private FunctionalCaseService functionalCaseService;
+    @Resource
+    private UserLoginService userLoginService;
+    @Resource
+    private ExtBugRelateCaseMapper bugRelateCaseMapper;
 
     @Override
     public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -102,7 +115,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         for (int i = 0; i < associationIdList.size(); i++) {
             TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
             testPlanFunctionalCase.setId(IDGenerator.nextStr());
-            testPlanFunctionalCase.setNum(NumGenerator.nextNum(associationParam.getTestPlanNum() + "_" + associationParam.getProjectId(), ApplicationNumScope.TEST_PLAN_FUNCTION_CASE));
             testPlanFunctionalCase.setTestPlanId(associationParam.getTestPlanId());
             testPlanFunctionalCase.setFunctionalCaseId(associationIdList.get(i));
             testPlanFunctionalCase.setPos(pox);
@@ -161,7 +173,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             TestPlanFunctionalCase functionalCase = new TestPlanFunctionalCase();
             functionalCase.setTestPlanId(testPlan.getId());
             functionalCase.setId(IDGenerator.nextStr());
-            functionalCase.setNum(NumGenerator.nextNum(testPlan.getNum() + "_" + testPlan.getProjectId(), ApplicationNumScope.TEST_PLAN_FUNCTION_CASE));
             functionalCase.setCreateTime(System.currentTimeMillis());
             functionalCase.setCreateUser(testPlan.getCreateUser());
             functionalCase.setFunctionalCaseId(item.getFunctionalCaseId());
@@ -169,5 +180,47 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             associateList.add(functionalCase);
             pos.updateAndGet(v -> v + ServiceUtils.POS_STEP);
         });
+    }
+
+
+    public List<TestPlanCasePageResponse> getFunctionalCasePage(TestPlanCaseRequest request, boolean deleted) {
+        List<TestPlanCasePageResponse> functionalCaseLists = extTestPlanFunctionalCaseMapper.getCasePage(request, deleted, request.getSortString());
+        if (CollectionUtils.isEmpty(functionalCaseLists)) {
+            return new ArrayList<>();
+        }
+        //处理自定义字段值
+        return handleCustomFields(functionalCaseLists, request.getProjectId());
+    }
+
+    private List<TestPlanCasePageResponse> handleCustomFields(List<TestPlanCasePageResponse> functionalCaseLists, String projectId) {
+        List<String> ids = functionalCaseLists.stream().map(TestPlanCasePageResponse::getCaseId).collect(Collectors.toList());
+        Map<String, List<FunctionalCaseCustomFieldDTO>> collect = functionalCaseService.getCaseCustomFiledMap(ids, projectId);
+        Set<String> userIds = extractUserIds(functionalCaseLists);
+        Map<String, List<CaseRelateBugDTO>> bugListMap = getBugData(ids);
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
+        functionalCaseLists.forEach(testPlanCasePageResponse -> {
+            testPlanCasePageResponse.setCustomFields(collect.get(testPlanCasePageResponse.getCaseId()));
+            testPlanCasePageResponse.setCreateUserName(userMap.get(testPlanCasePageResponse.getCreateUser()));
+            testPlanCasePageResponse.setExecuteUserName(userMap.get(testPlanCasePageResponse.getExecuteUser()));
+            if (bugListMap.containsKey(testPlanCasePageResponse.getCaseId())) {
+                List<CaseRelateBugDTO> bugDTOList = bugListMap.get(testPlanCasePageResponse.getCaseId());
+                testPlanCasePageResponse.setBugList(bugDTOList);
+                testPlanCasePageResponse.setBugCount(bugDTOList.size());
+            }
+        });
+        return functionalCaseLists;
+
+    }
+
+    private Map<String, List<CaseRelateBugDTO>> getBugData(List<String> ids) {
+        List<CaseRelateBugDTO> bugList = bugRelateCaseMapper.getBugCountByIds(ids);
+        return bugList.stream().collect(Collectors.groupingBy(CaseRelateBugDTO::getCaseId));
+    }
+
+
+    public Set<String> extractUserIds(List<TestPlanCasePageResponse> list) {
+        return list.stream()
+                .flatMap(testPlanCasePageResponse -> Stream.of(testPlanCasePageResponse.getUpdateUser(), testPlanCasePageResponse.getCreateUser(), testPlanCasePageResponse.getExecuteUser()))
+                .collect(Collectors.toSet());
     }
 }

@@ -1,5 +1,6 @@
 package io.metersphere.bug.mapper;
 
+import io.metersphere.bug.dto.CaseRelateBugDTO;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseCountDTO;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
@@ -19,8 +20,9 @@ public interface ExtBugRelateCaseMapper {
 
     /**
      * 获取缺陷关联的用例模块树
-     * @param request 请求参数
-     * @param caseTable 关联用例表
+     *
+     * @param request     请求参数
+     * @param caseTable   关联用例表
      * @param moduleTable 关联用例模块表
      * @return 模块树集合
      */
@@ -28,8 +30,9 @@ public interface ExtBugRelateCaseMapper {
 
     /**
      * 获取缺陷关联的用例模块树数量
-     * @param request 请求参数
-     * @param deleted 是否删除状态
+     *
+     * @param request   请求参数
+     * @param deleted   是否删除状态
      * @param caseTable 关联用例表
      * @return 模块树数量
      */
@@ -53,7 +56,8 @@ public interface ExtBugRelateCaseMapper {
 
     /**
      * 根据CaseId获取关联的Case
-     * @param id 用例ID
+     *
+     * @param id         用例ID
      * @param sourceType 用例类型
      * @return 用例关联DTO
      */
@@ -61,16 +65,20 @@ public interface ExtBugRelateCaseMapper {
 
     /**
      * 获取关联的缺陷
+     *
      * @param request 关联请求参数
-     * @param sort 排序
+     * @param sort    排序
      * @return 缺陷集合
      */
     List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
 
     /**
      * 获取关联的Case数量
+     *
      * @param caseId 用例ID
      * @return 关联数量
      */
     long countByCaseId(String caseId);
+
+    List<CaseRelateBugDTO> getBugCountByIds(@Param("ids") List<String> ids);
 }
