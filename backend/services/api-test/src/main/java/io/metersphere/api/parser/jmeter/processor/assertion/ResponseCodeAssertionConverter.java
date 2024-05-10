@@ -37,7 +37,7 @@ public class ResponseCodeAssertionConverter extends AssertionConverter<MsRespons
         assertion.setToContainsType();
         assertion.setTestFieldResponseCode();
 
-        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.RESPONSE_CODE.name(), assertion.getName(), condition, expectedValue);
+        setMsAssertionInfoProperty(assertion, ResponseAssertionResult.AssertionResultType.RESPONSE_CODE.name(), expectedValue, condition, expectedValue);
         return assertion;
     }
 }

@@ -18,6 +18,12 @@ import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.X_PATH_EXTR
  */
 public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
 
+    /**
+     * 这里标记下 XPathExtractor 的 name，表达式错误时会添加一条断言
+     * 处理结果是根据这个 name 来过滤这条断言
+     */
+    public static final String X_PATH2_EXTRACTOR_NAME = "X_PATH2_EXTRACTOR_NAME";
+
     @Override
     public void parse(HashTree hashTree, XPathExtract msExtract, ParameterConfig config) {
         if (StringUtils.equals(msExtract.getResponseFormat(), XPathExtract.ResponseFormat.HTML.name())) {
@@ -30,7 +36,7 @@ public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
     private XPathExtractor parseXPathExtract(XPathExtract msExtract) {
         XPathExtractor extractor = new XPathExtractor();
         extractor.setTolerant(true);
-        extractor.setName(msExtract.getVariableName());
+        extractor.setName(X_PATH2_EXTRACTOR_NAME);
         extractor.setProperty(TestElement.TEST_CLASS, XPathExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(X_PATH_EXTRACTOR_GUI));
         extractor.setRefName(msExtract.getVariableName());
@@ -44,7 +50,7 @@ public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
 
     private XPath2Extractor parseXPath2Extract(XPathExtract msExtract) {
         XPath2Extractor extractor = new XPath2Extractor();
-        extractor.setName(msExtract.getVariableName());
+        extractor.setName(X_PATH2_EXTRACTOR_NAME);
         extractor.setProperty(TestElement.TEST_CLASS, XPathExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(X_PATH2_EXTRACTOR_GUI));
         extractor.setRefName(msExtract.getVariableName());
