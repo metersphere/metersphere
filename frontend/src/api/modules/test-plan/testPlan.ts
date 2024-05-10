@@ -19,7 +19,7 @@ import {
 import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import { ModuleTreeNode } from '@/models/common';
-import type { AddTestPlanParams, TestPlanItem, UseCountType } from '@/models/testPlan/testPlan';
+import type { AddTestPlanParams, TestPlanDetail, TestPlanItem, UseCountType } from '@/models/testPlan/testPlan';
 
 // 获取模块树
 export function getTestPlanModule(params: TableQueryParams) {
@@ -63,7 +63,7 @@ export function addTestPlan(data: AddTestPlanParams) {
 
 // 获取测试计划详情
 export function getTestPlanDetail(id: string) {
-  return MSR.get<AddTestPlanParams>({ url: `${GetTestPlanDetailUrl}/${id}` });
+  return MSR.get<TestPlanDetail>({ url: `${GetTestPlanDetailUrl}/${id}` });
 }
 
 //  更新测试计划

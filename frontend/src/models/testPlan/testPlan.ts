@@ -47,10 +47,8 @@ export interface AssociateCaseRequest extends BatchApiParams {
 export interface AddTestPlanParams {
   id?: string;
   name: string;
-  projectId: string;
   groupId?: string;
   moduleId: string;
-  cycle?: number[];
   plannedStartTime?: number;
   plannedEndTime?: number;
   tags: string[];
@@ -59,9 +57,27 @@ export interface AddTestPlanParams {
   automaticStatusUpdate: boolean; // 是否自定更新功能用例状态
   repeatCase: boolean; // 是否允许重复添加用例
   passThreshold: number;
-  type: string;
+  type?: string;
   baseAssociateCaseRequest?: AssociateCaseRequest;
   groupOption?: boolean;
+  cycle?: number[];
+  projectId?: string;
+}
+
+// TODO: 对照后端字段
+export interface TestPlanDetail extends AddTestPlanParams {
+  num: number;
+  groupName?: string;
+  moduleName?: string;
+  status: planStatusType;
+  followFlag: boolean;
+  passRate: number;
+  executedCount: number;
+  caseCount: number;
+  passCount: number;
+  unPassCount: number;
+  reReviewedCount: number;
+  underReviewedCount: number;
 }
 
 export interface SwitchListModel {
@@ -80,23 +96,6 @@ export interface UseCountType {
   apiScenarioCount: number; // 接口场景数
   bugCount: number; // Bug数量
   testProgress: string; // 测试进度
-}
-
-// TODO: 对后端
-// 测试计划详情
-export interface TestPlanDetail {
-  id: string;
-  name: string;
-  num: number;
-  status: planStatusType;
-  followFlag: boolean;
-  passRate: number;
-  executedCount: number;
-  caseCount: number;
-  passCount: number;
-  unPassCount: number;
-  reReviewedCount: number;
-  underReviewedCount: number;
 }
 
 export default {};
