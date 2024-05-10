@@ -338,6 +338,7 @@ public class ApiDefinitionMockService {
             SubListUtils.dealForSubList(ids, 500, subList -> deleteResourceByIds(subList, request.getProjectId(), userId));
         }
     }
+
     public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
         List<ApiDefinitionMock> mockList = extApiDefinitionMockMapper.getMockInfoByIds(ids);
 
@@ -391,6 +392,7 @@ public class ApiDefinitionMockService {
         }
         apiTestCaseService.checkTagLength(request.getTags());
         if (request.isAppend()) {
+            List<ApiDefinitionMock> tagsByIds = extApiDefinitionMockMapper.getTagsByIds(ids);
             Map<String, ApiDefinitionMock> mockMap = extApiDefinitionMockMapper.getTagsByIds(ids)
                     .stream()
                     .collect(Collectors.toMap(ApiDefinitionMock::getId, Function.identity()));

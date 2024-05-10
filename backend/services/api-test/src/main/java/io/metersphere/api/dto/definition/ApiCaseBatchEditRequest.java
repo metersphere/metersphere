@@ -25,7 +25,7 @@ public class ApiCaseBatchEditRequest extends ApiTestCaseBatchRequest implements 
     @Schema(description = "批量编辑的类型  用例等级: Priority,状态 :Status,标签: Tags,用例环境: Environment")
     @NotBlank
     private String type;
-    @Schema(description = "默认覆盖原标签")
+    @Schema(description = "是否追加标签")
     private boolean append = false;
     @Schema(description = "环境id")
     @Size(max = 50, message = "{api_test_case.env_id.length_range}")

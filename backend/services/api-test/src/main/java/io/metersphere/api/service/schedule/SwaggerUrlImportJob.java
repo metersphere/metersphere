@@ -4,8 +4,8 @@ package io.metersphere.api.service.schedule;
 import io.metersphere.api.constants.ApiImportPlatform;
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.service.definition.ApiDefinitionImportUtilService;
 import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
-import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.schedule.BaseScheduleJob;
@@ -16,12 +16,12 @@ import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 
 public class SwaggerUrlImportJob extends BaseScheduleJob {
-    private ApiDefinitionService apiDefinitionService;
+    private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
     private ApiDefinitionScheduleService apiDefinitionScheduleService;
     private UserService userService;
 
     public SwaggerUrlImportJob() {
-        apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+        apiDefinitionImportUtilService = CommonBeanFactory.getBean(ApiDefinitionImportUtilService.class);
         apiDefinitionScheduleService = CommonBeanFactory.getBean(ApiDefinitionScheduleService.class);
         userService = CommonBeanFactory.getBean(UserService.class);
     }
@@ -37,7 +37,7 @@ public class SwaggerUrlImportJob extends BaseScheduleJob {
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("SCHEDULE");
         request.setResourceId(resourceId);
-        apiDefinitionService.apiTestImport(null, request, request.getProjectId());
+        apiDefinitionImportUtilService.apiTestImport(null, request, request.getProjectId());
     }
 
     public static JobKey getJobKey(String resourceId) {
