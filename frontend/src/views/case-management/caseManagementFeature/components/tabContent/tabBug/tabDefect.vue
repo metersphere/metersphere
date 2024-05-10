@@ -415,7 +415,8 @@
     filterParams[severityColumnId.value] = severityFilterValue.value;
     return {
       keyword: keyword.value,
-      caseId: props.caseId,
+      caseId: showType.value === 'link' ? props.caseId : null,
+      testPlanCaseId: showType.value === 'link' ? null : props.caseId,
       projectId: appStore.currentProjectId,
       filter: { ...filterParams },
       condition: {
@@ -469,7 +470,7 @@
       const { msPagination } = linkPropsRes.value;
       featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
     } else {
-      setTestPlanListParams({ keyword: '', projectId: appStore.currentProjectId, caseId: props.caseId });
+      setTestPlanListParams({ keyword: '', projectId: appStore.currentProjectId, testPlanCaseId: props.caseId });
       await testPlanLinkList();
       featureCaseStore.getCaseCounts(props.caseId);
     }
