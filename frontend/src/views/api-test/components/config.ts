@@ -114,12 +114,12 @@ export const defaultBodyParams: ExecuteBody = {
     jsonValue: '',
   },
   xmlBody: { value: '' },
+  rawBody: { value: '' },
   binaryBody: {
     description: '',
     file: undefined,
     sendAsBody: false,
   },
-  rawBody: { value: '' },
 };
 
 // 默认的响应内容结构
@@ -299,17 +299,25 @@ export const mockDefaultParams: MockParams = {
       matchAll: true,
     },
     body: {
-      paramType: RequestBodyFormat.FORM_DATA,
-      formDataMatch: {
+      bodyType: RequestBodyFormat.FORM_DATA,
+      formDataBody: {
         matchRules: [],
         matchAll: true,
       },
+      wwwFormBody: {
+        matchRules: [],
+        matchAll: true,
+      },
+      jsonBody: {
+        jsonValue: '',
+      },
+      xmlBody: { value: '' },
+      rawBody: { value: '' },
       binaryBody: {
         description: '',
         file: undefined,
         sendAsBody: false,
       },
-      raw: '',
     },
   },
   response: {
@@ -344,15 +352,19 @@ export const mockDefaultParams: MockParams = {
 export const makeDefaultParams = () => {
   const defaultParams = cloneDeep(mockDefaultParams);
   defaultParams.id = Date.now().toString();
-  defaultParams.mockMatchRule.body.formDataMatch.matchRules.push({
-    ...cloneDeep(defaultMatchRuleItem),
+  defaultParams.mockMatchRule.body.formDataBody.matchRules.push({
+    ...defaultMatchRuleItem,
     id: Date.now().toString(),
   });
-  defaultParams.mockMatchRule.header.matchRules.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
-  defaultParams.mockMatchRule.query.matchRules.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
-  defaultParams.mockMatchRule.rest.matchRules.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
-  defaultParams.response.headers.push({ ...cloneDeep(defaultMatchRuleItem), id: Date.now().toString() });
-  return defaultParams;
+  defaultParams.mockMatchRule.body.wwwFormBody.matchRules.push({
+    ...defaultMatchRuleItem,
+    id: Date.now().toString(),
+  });
+  defaultParams.mockMatchRule.header.matchRules.push({ ...defaultMatchRuleItem, id: Date.now().toString() });
+  defaultParams.mockMatchRule.query.matchRules.push({ ...defaultMatchRuleItem, id: Date.now().toString() });
+  defaultParams.mockMatchRule.rest.matchRules.push({ ...defaultMatchRuleItem, id: Date.now().toString() });
+  defaultParams.response.headers.push({ ...defaultMatchRuleItem, id: Date.now().toString() });
+  return cloneDeep(defaultParams);
 };
 // mock 匹配规则选项
 export const matchRuleOptions = [

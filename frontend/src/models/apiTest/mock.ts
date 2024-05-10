@@ -3,16 +3,22 @@ import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
 
 import type { BatchApiParams } from '../common';
-import type { ExecuteBinaryBody, KeyValueParam, ResponseDefinitionBody } from './common';
+import type {
+  ExecuteBinaryBody,
+  ExecuteJsonBody,
+  ExecuteValueBody,
+  KeyValueParam,
+  ResponseDefinitionBody,
+} from './common';
 
 // mock 信息-匹配项
 export interface MatchRuleItem {
   id?: string; // 用于前端标识
+  paramType: RequestParamsType; // 用于前端标识
   key: string;
   value: string;
   condition: string;
   description: string;
-  paramType: RequestParamsType;
   files: ({
     fileId: string;
     fileName: string;
@@ -37,10 +43,13 @@ export interface MockMatchRuleCommon {
 }
 // mock 信息-请求体匹配规则
 export interface MockBody {
-  paramType: RequestBodyFormat;
-  formDataMatch: MockMatchRuleCommon;
+  bodyType: RequestBodyFormat;
+  formDataBody: MockMatchRuleCommon;
+  wwwFormBody: MockMatchRuleCommon;
+  jsonBody: ExecuteJsonBody;
+  xmlBody: ExecuteValueBody;
+  rawBody: ExecuteValueBody;
   binaryBody: ExecuteBinaryBody;
-  raw: string;
 }
 // mock 信息-匹配规则集合
 export interface MockMatchRule {
@@ -74,7 +83,6 @@ export interface UpdateMockParams extends MockParams {
 // mock 信息-详情
 export interface MockDetail extends MockParams {
   id: string;
-  matching: MockMatchRule;
 }
 // 批量编辑 mock
 export interface BatchEditMockParams extends BatchApiParams {

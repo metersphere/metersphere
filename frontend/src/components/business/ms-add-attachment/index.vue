@@ -92,7 +92,7 @@
                 :size="props.tagSize"
                 class="m-0 border-none p-0"
                 :self-style="{ backgroundColor: 'transparent !important' }"
-                :closable="data.value !== '__arco__more' || props.disabled"
+                :closable="data.value !== '__arco__more' && !props.disabled"
                 @close="handleClose(data)"
               >
                 {{ data.value === '__arco__more' ? data.label.replace('...', '') : data.label }}
@@ -106,7 +106,9 @@
               <div class="flex items-center gap-[4px]">
                 <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
                 <div class="text-[var(--color-text-4)]">{{ t('ms.add.attachment.alreadyDelete') }}</div>
-                <MsButton type="text" @click="clearDeletedFiles">{{ t('ms.add.attachment.quickClear') }}</MsButton>
+                <MsButton type="text" :disabled="props.disabled" @click="clearDeletedFiles">
+                  {{ t('ms.add.attachment.quickClear') }}
+                </MsButton>
               </div>
               <div class="file-list">
                 <div v-for="file of alreadyDeleteFiles" :key="file.value" class="file-list-item">
@@ -116,8 +118,12 @@
                     </MsTag>
                   </a-tooltip>
                   <a-tooltip :content="t('ms.add.attachment.remove')">
-                    <MsButton type="text" status="secondary" @click="handleClose(file)">
-                      <MsIcon type="icon-icon_unlink" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                    <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
+                      <MsIcon
+                        type="icon-icon_unlink"
+                        :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
+                        size="16"
+                      />
                     </MsButton>
                   </a-tooltip>
                 </div>
@@ -137,25 +143,39 @@
                   <div v-if="file.local === true" class="flex items-center">
                     <template v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+ADD'])">
                       <a-tooltip :content="t('ms.add.attachment.saveAs')">
-                        <MsButton type="text" status="secondary" class="!mr-0" @click="handleOpenSaveAs(file)">
-                          <MsIcon type="icon-icon_unloading" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                        <MsButton
+                          type="text"
+                          status="secondary"
+                          class="!mr-0"
+                          :disabled="props.disabled"
+                          @click="handleOpenSaveAs(file)"
+                        >
+                          <MsIcon
+                            type="icon-icon_unloading"
+                            :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
+                            size="16"
+                          />
                         </MsButton>
                       </a-tooltip>
                       <a-divider direction="vertical" :margin="4"></a-divider>
                     </template>
                     <a-tooltip :content="t('ms.add.attachment.remove')">
-                      <MsButton type="text" status="secondary" @click="handleClose(file)">
+                      <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
                         <MsIcon
                           type="icon-icon_delete-trash_outlined"
-                          class="hover:text-[rgb(var(--primary-5))]"
+                          :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
                           size="16"
                         />
                       </MsButton>
                     </a-tooltip>
                   </div>
                   <a-tooltip v-else :content="t('ms.add.attachment.cancelAssociate')">
-                    <MsButton type="text" status="secondary" @click="handleClose(file)">
-                      <MsIcon type="icon-icon_unlink" class="hover:text-[rgb(var(--primary-5))]" size="16" />
+                    <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
+                      <MsIcon
+                        type="icon-icon_unlink"
+                        :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
+                        size="16"
+                      />
                     </MsButton>
                   </a-tooltip>
                 </div>

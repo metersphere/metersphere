@@ -151,6 +151,7 @@
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
+  import { MockDetail } from '@/models/apiTest/mock';
   import { ModuleTreeNode } from '@/models/common';
   import {
     RequestAuthType,
@@ -380,6 +381,10 @@
     }
   }
 
+  async function openApiTabAndDebugMock(mock: MockDetail) {
+    await openApiTab(mock.apiDefinitionId as string);
+  }
+
   // 新建接口后没有创建人，创建时间，更新时间的信息。所以需要刷新数据
   watch(
     () => activeApiTab.value.isNew,
@@ -452,6 +457,7 @@
   defineExpose({
     openApiTab,
     addApiTab,
+    openApiTabAndDebugMock,
     refreshTable,
   });
 </script>

@@ -13,7 +13,11 @@
         </div>
       </template>
       <template #condition="{ record }">
-        {{ t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '') }}
+        {{
+          record.assertionType === FullResponseAssertionType.RESPONSE_TIME
+            ? t('advanceFilter.operator.le')
+            : t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '')
+        }}
       </template>
       <template #status="{ record }">
         <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
@@ -33,6 +37,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { RequestResult, ResponseAssertionTableItem } from '@/models/apiTest/common';
+  import { FullResponseAssertionType } from '@/enums/apiEnum';
 
   import { responseAssertionTypeMap } from '@/views/api-test/components/config';
 

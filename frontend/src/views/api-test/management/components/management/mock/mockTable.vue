@@ -46,10 +46,14 @@
           v-model="record.enable"
           size="small"
           type="line"
-          @change="(value) => changeDefault(value, record)"
+          :before-change="() => handleBeforeEnableChange(record)"
         ></a-switch>
       </template>
       <template #action="{ record }">
+        <MsButton type="text" class="!mr-0" @click="editMock(record)">
+          {{ t('common.edit') }}
+        </MsButton>
+        <a-divider direction="vertical" :margin="8"></a-divider>
         <MsButton type="text" class="!mr-0" @click="debugMock(record)">
           {{ t('apiTestManagement.debug') }}
         </MsButton>
@@ -70,12 +74,104 @@
       </template>
     </ms-base-table>
   </div>
+  <a-modal v-model:visible="showBatchModal" title-align="start" class="ms-modal-upload ms-modal-medium" :width="480">
+    <template #title>
+      {{ t('common.edit') }}
+      <div class="text-[var(--color-text-4)]">
+        {{
+          t('apiTestManagement.batchModalSubTitle', {
+            count: batchParams.currentSelectCount || tableSelected.length,
+          })
+        }}
+      </div>
+    </template>
+    <a-form ref="batchFormRef" class="rounded-[4px]" :model="batchForm" layout="vertical">
+      <a-form-item
+        field="attr"
+        :label="t('apiTestManagement.chooseAttr')"
+        :rules="[{ required: true, message: t('apiTestManagement.attrRequired') }]"
+        asterisk-position="end"
+      >
+        <a-select v-model="batchForm.attr" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of attrOptions" :key="item.value" :value="item.value">
+            {{ t(item.name) }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item
+        v-if="batchForm.attr === 'Tags'"
+        field="values"
+        :label="t('apiTestManagement.batchUpdate')"
+        :validate-trigger="['blur', 'input']"
+        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        asterisk-position="end"
+        class="mb-0"
+        required
+      >
+        <MsTagsInput
+          v-model:model-value="batchForm.values"
+          placeholder="common.tagsInputPlaceholder"
+          allow-clear
+          unique-value
+          retain-input-value
+        />
+      </a-form-item>
+      <a-form-item
+        v-else
+        field="value"
+        :label="t('apiTestManagement.batchUpdate')"
+        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        asterisk-position="end"
+        class="mb-0"
+      >
+        <a-radio-group v-model:model-value="batchForm.value">
+          <a-radio :value="true">
+            {{ t('common.enable') }}
+          </a-radio>
+          <a-radio :value="false">
+            {{ t('common.disable') }}
+          </a-radio>
+        </a-radio-group>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <div class="flex" :class="[batchForm.attr === 'Tags' ? 'justify-between' : 'justify-end']">
+        <div
+          v-if="batchForm.attr === 'Tags'"
+          class="flex flex-row items-center justify-center"
+          style="padding-top: 10px"
+        >
+          <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
+          <span class="flex items-center">
+            <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
+            <span class="mt-[2px]">
+              <a-tooltip>
+                <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
+                <template #content>
+                  <div>{{ t('caseManagement.featureCase.enableTags') }}</div>
+                  <div>{{ t('caseManagement.featureCase.closeTags') }}</div>
+                </template>
+              </a-tooltip>
+            </span>
+          </span>
+        </div>
+        <div class="flex justify-end">
+          <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button class="ml-3" type="primary" :loading="batchUpdateLoading" @click="batchUpdate">
+            {{ t('common.update') }}
+          </a-button>
+        </div>
+      </div>
+    </template>
+  </a-modal>
   <mockDetailDrawer
-    v-if="mockDetailDrawerVisible"
     v-model:visible="mockDetailDrawerVisible"
     :definition-detail="mockBelongDefinitionDetail"
     :detail-id="activeMockRecord?.id"
     :is-copy="isCopy"
+    :is-edit-mode="isEdit"
     @add-done="loadMockList"
     @delete="() => removeMock(activeMockRecord)"
   />
@@ -83,7 +179,7 @@
 
 <script setup lang="ts">
   import { useClipboard } from '@vueuse/core';
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -92,13 +188,17 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import mockDetailDrawer from './mockDetailDrawer.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import {
     batchDeleteMock,
+    batchEditMock,
     deleteMock,
     getDefinitionDetail,
     getDefinitionMockPage,
+    getMockDetail,
     getMockUrl,
     updateMockStatusPage,
   } from '@/api/modules/api-test/management';
@@ -109,11 +209,9 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
-  import { OrdTemplateManagement } from '@/models/setting/template';
+  import { MockDetail } from '@/models/apiTest/mock';
   import { RequestComposition } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-
-  const mockDetailDrawer = defineAsyncComponent(() => import('./mockDetailDrawer.vue'));
 
   const props = defineProps<{
     isApi?: boolean; // 接口定义详情的case tab下
@@ -127,6 +225,7 @@
   const emit = defineEmits<{
     (e: 'init', params: any): void;
     (e: 'change'): void;
+    (e: 'debug', mock: MockDetail): void;
   }>();
 
   const appStore = useAppStore();
@@ -147,7 +246,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 120,
     },
     {
       title: 'mockManagement.name',
@@ -200,7 +299,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 150,
+      width: 200,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
@@ -223,17 +322,11 @@
   const batchActions = {
     baseAction: [
       {
-        label: 'mockManagement.batchEnable',
-        eventTag: 'batchEnable',
+        label: 'mockManagement.batchEdit',
+        eventTag: 'edit',
       },
       {
-        label: 'mockManagement.batchDisEnable',
-        eventTag: 'batchDisEnable',
-      },
-    ],
-    moreAction: [
-      {
-        label: 'common.delete',
+        label: 'mockManagement.batchDelete',
         eventTag: 'delete',
         danger: true,
       },
@@ -294,16 +387,17 @@
     }
   });
 
-  const changeDefault = async (value: any, record: OrdTemplateManagement) => {
+  async function handleBeforeEnableChange(record: ApiDefinitionMockDetail) {
     try {
       await updateMockStatusPage(record.id);
-      Message.success(t('system.orgTemplate.setSuccessfully'));
-      loadMockList();
+      Message.success(record.enable ? t('common.disableSuccess') : t('common.enableSuccess'));
+      return true;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+      return false;
     }
-  };
+  }
 
   const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
@@ -317,10 +411,10 @@
    * 删除接口
    */
   function removeMock(record?: ApiDefinitionMockDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('apiTestManagement.deleteApiTipTitle', { name: record?.name });
+    let title = t('apiTestManagement.deleteMockTip', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
-      title = t('apiTestManagement.batchDeleteMockTip', {
+      title = t('mockManagement.batchDeleteMockTip', {
         count: params?.currentSelectCount || tableSelected.value.length,
       });
       selectIds = tableSelected.value as string[];
@@ -392,7 +486,7 @@
   function handleTableMoreActionSelect(item: ActionsItem, record: ApiDefinitionMockDetail) {
     switch (item.eventTag) {
       case 'delete':
-        deleteMock(record);
+        removeMock(record);
         break;
       case 'copyMock':
         copyMockUrl(record);
@@ -409,6 +503,76 @@
     tableSelected.value = arr;
   }
 
+  const showBatchModal = ref(false);
+  const batchUpdateLoading = ref(false);
+  const batchFormRef = ref<FormInstance>();
+  const batchForm = ref({
+    attr: 'Status' as 'Status' | 'Tags',
+    value: true,
+    values: [],
+    append: false,
+  });
+  const fullAttrs = [
+    {
+      name: 'common.status',
+      value: 'Status',
+    },
+    {
+      name: 'common.tag',
+      value: 'Tags',
+    },
+  ];
+  const attrOptions = computed(() => {
+    if (props.protocol === 'HTTP') {
+      return fullAttrs;
+    }
+    return fullAttrs.filter((e) => e.value !== 'method');
+  });
+
+  function cancelBatch() {
+    showBatchModal.value = false;
+    batchFormRef.value?.resetFields();
+    batchForm.value = {
+      attr: 'Status',
+      value: true,
+      values: [],
+      append: false,
+    };
+  }
+
+  function batchUpdate() {
+    batchFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          batchUpdateLoading.value = true;
+          await batchEditMock({
+            selectIds: batchParams.value?.selectedIds || [],
+            selectAll: !!batchParams.value?.selectAll,
+            excludeIds: batchParams.value?.excludeIds || [],
+            condition: {
+              keyword: keyword.value,
+            },
+            projectId: appStore.currentProjectId,
+            moduleIds: await getModuleIds(),
+            type: batchForm.value.attr,
+            append: batchForm.value.append,
+            tags: batchForm.value.attr === 'Tags' ? batchForm.value.values : [],
+            enable: batchForm.value.attr === 'Status' ? batchForm.value.value : false,
+          });
+          Message.success(t('common.updateSuccess'));
+          cancelBatch();
+          resetSelector();
+          loadMockList();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          batchUpdateLoading.value = false;
+        }
+      }
+    });
+  }
+
   /**
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
@@ -420,6 +584,9 @@
       case 'delete':
         removeMock(undefined, true, params);
         break;
+      case 'edit':
+        showBatchModal.value = true;
+        break;
       default:
         break;
     }
@@ -427,9 +594,13 @@
 
   const mockDetailDrawerVisible = ref(false);
   const activeMockRecord = ref<ApiDefinitionMockDetail>();
+  const isCopy = ref(false);
+  const isEdit = ref(false);
 
   function createMock() {
     activeMockRecord.value = undefined;
+    isCopy.value = false;
+    isEdit.value = false;
     mockDetailDrawerVisible.value = true;
   }
 
@@ -463,20 +634,37 @@
     }
   }
 
-  const isCopy = ref(false);
-
   function handleOpenDetail(record: ApiDefinitionMockDetail) {
+    isEdit.value = false;
     isCopy.value = false;
     openMockDetailDrawer(record);
   }
 
   function handleCopyMock(record: ApiDefinitionMockDetail) {
     isCopy.value = true;
+    isEdit.value = false;
     openMockDetailDrawer(record);
   }
 
-  function debugMock(record: ApiDefinitionMockDetail) {
-    activeMockRecord.value = record;
+  function editMock(record: ApiDefinitionMockDetail) {
+    isEdit.value = true;
+    openMockDetailDrawer(record);
+  }
+
+  async function debugMock(record: ApiDefinitionMockDetail) {
+    try {
+      appStore.showLoading();
+      const res = await getMockDetail({
+        id: record.id,
+        projectId: appStore.currentProjectId,
+      });
+      emit('debug', res);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
   }
 
   defineExpose({

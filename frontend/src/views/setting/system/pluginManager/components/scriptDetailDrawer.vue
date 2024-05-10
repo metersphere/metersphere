@@ -9,18 +9,15 @@
     @close="handleClose"
   >
     <div class="w-full">
-      <div class="w-full">
-        <MsCodeEditor
-          v-model:model-value="pluginScript"
-          title="JSON"
-          width="100%"
-          height="calc(100vh - 155px)"
-          theme="MS-text"
-          :read-only="props.readOnly"
-          :show-theme-change="false"
-          :show-title-line="true"
-        />
-      </div>
+      <MsCodeEditor
+        v-model:model-value="pluginScript"
+        title="JSON"
+        height="calc(100vh - 155px)"
+        theme="MS-text"
+        :read-only="props.readOnly"
+        :show-theme-change="false"
+        :show-title-line="true"
+      />
     </div>
   </MsDrawer>
 </template>
