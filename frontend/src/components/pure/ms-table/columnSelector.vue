@@ -11,7 +11,7 @@
     <div class="ms-table-column-selector">
       <template v-if="showJumpMethod">
         <div class="mb-2 flex items-center">
-          <span class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
+          <span class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
           <a-tooltip position="right">
             <template #content>
               <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
@@ -41,22 +41,21 @@
         </a-radio-group>
       </template>
       <template v-if="props.showPagination">
-        <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.pageSize') }} </div>
+        <div class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.pageSize') }} </div>
         <PageSizeSelector
           v-model:model-value="pageSize"
-          class="mt-2"
+          class="mt-[8px]"
           @page-size-change="(v: number) => emit('pageSizeChange',v)"
         />
       </template>
       <template v-if="props.showSubdirectory">
-        <div class="mt-4">
-          <a-switch v-model="subdirectoryVal" class="mb-1" size="small" type="line" @change="handleSubSwitch" />
-          <span class="ml-2 text-[var(--color-text-1)]">{{ t('msTable.columnSetting.showSubdirectoryTips') }}</span>
+        <div class="mt-[24px] flex items-center">
+          <a-switch v-model="subdirectoryVal" size="small" @change="handleSubSwitch" />
+          <span class="mx-[4px] font-medium text-[var(--color-text-4)]">{{
+            t('msTable.columnSetting.showSubdirectoryTips')
+          }}</span>
           <a-tooltip position="rt">
-            <icon-question-circle
-              class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
+            <icon-question-circle class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" size="16" />
             <template #content>
               <div class="w-[250px]"> {{ t('msTable.columnSetting.showSubdirectoryTips1') }} </div>
               <br />
@@ -65,12 +64,12 @@
           </a-tooltip>
         </div>
       </template>
-      <a-divider />
-      <div class="mb-2 flex items-center justify-between">
-        <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
+      <a-divider class="!mt-[24px]" />
+      <div class="mb-[4px] flex items-center justify-between">
+        <div class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
         <MsButton v-if="hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
       </div>
-      <div class="flex-col">
+      <div class="flex flex-col gap-[4px]">
         <div
           v-for="item in nonSortColumn"
           v-show="item.dataIndex !== 'operation'"
@@ -82,16 +81,15 @@
             v-model="item.showInTable"
             size="small"
             :disabled="item.columnSelectorDisabled"
-            type="line"
             @change="handleSwitchChange"
           />
         </div>
       </div>
-      <a-divider orientation="center" class="non-sort"
-        ><span class="one-line-text text-[12px] text-[var(--color-text-4)]">
+      <a-divider orientation="center">
+        <span class="one-line-text text-[12px] font-normal text-[var(--color-text-4)]">
           {{ t('msTable.columnSetting.nonSort') }}
-        </span></a-divider
-      >
+        </span>
+      </a-divider>
       <VueDraggable v-model="couldSortColumn" handle=".sort-handle" ghost-class="ghost" @change="handleSwitchChange">
         <div v-for="element in couldSortColumn" :key="element.dataIndex" class="column-drag-item">
           <div class="flex w-[60%] items-center">
@@ -100,7 +98,7 @@
               {{ t((element.title || element.columnTitle) as string) }}
             </span>
           </div>
-          <a-switch v-model="element.showInTable" size="small" type="line" @change="handleSwitchChange" />
+          <a-switch v-model="element.showInTable" size="small" @change="handleSwitchChange" />
         </div>
       </VueDraggable>
     </div>
@@ -261,14 +259,15 @@
     border: 1px dashed rgba(var(--primary-5));
     background-color: rgba(var(--primary-1));
   }
-  .non-sort {
-    font-size: 12px;
-    line-height: 16px;
-  }
 </style>
 
 <style>
-  .column-drawer .ms-drawer-body {
-    min-width: auto !important;
+  .column-drawer {
+    .ms-drawer-body {
+      min-width: auto !important;
+    }
+    .arco-drawer-body {
+      padding: 24px 16px;
+    }
   }
 </style>
