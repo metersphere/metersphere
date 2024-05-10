@@ -14,9 +14,12 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ExtCheckOwnerMapper;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +79,12 @@ public class FunctionalCaseMinderService {
 
     @Resource
     private FunctionalCaseModuleService functionalCaseModuleService;
+
+    @Resource
+    private FunctionalCaseNoticeService functionalCaseNoticeService;
+
+    @Resource
+    private UserMapper userMapper;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -423,6 +432,7 @@ public class FunctionalCaseMinderService {
             throw new MSException(Translator.get("node.not_blank"));
         }
         Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
+        User user = userMapper.selectByPrimaryKey(userId);
 
         List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
         if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
@@ -442,28 +452,29 @@ public class FunctionalCaseMinderService {
             functionalCaseModuleService.batchDelLog(functionalCases, projectId);
         }
         List<MinderOptionDTO> prerequisiteOptionDTOS = resourceMap.get(MinderLabel.PREREQUISITE.toString());
-        updateBlob(userId, "prerequisite", prerequisiteOptionDTOS);
+        updateBlob(userId, "prerequisite", prerequisiteOptionDTOS, projectId, user);
         List<MinderOptionDTO> descriptionOptionDTOS = resourceMap.get(MinderLabel.DESCRIPTION.toString());
-        updateBlob(userId, "description", descriptionOptionDTOS);
+        updateBlob(userId, "description", descriptionOptionDTOS, projectId, user);
         List<MinderOptionDTO> stepOptionDTOS = resourceMap.get(MinderLabel.STEPS.toString());
         if (CollectionUtils.isNotEmpty(stepOptionDTOS)) {
             List<MinderOptionDTO> stepResultOptionDTOS = resourceMap.get(MinderLabel.STEPS_EXPECTED_RESULT.toString());
             stepOptionDTOS.addAll(stepResultOptionDTOS);
-            updateBlob(userId, "steps", stepOptionDTOS);
+            updateBlob(userId, "steps", stepOptionDTOS, projectId, user);
         }
         List<MinderOptionDTO> textOptionDTOS = resourceMap.get(MinderLabel.TEXT_DESCRIPTION.toString());
-        updateBlob(userId, "text_description", textOptionDTOS);
+        updateBlob(userId, "text_description", textOptionDTOS, projectId, user);
         List<MinderOptionDTO> resultOptionDTOS = resourceMap.get(MinderLabel.TEXT_EXPECTED_RESULT.toString());
-        updateBlob(userId, "expected_result", resultOptionDTOS);
+        updateBlob(userId, "expected_result", resultOptionDTOS, projectId, user);
     }
 
-    private void updateBlob(String userId, String column, List<MinderOptionDTO> preRequisiteOptionDTOS) {
+    private void updateBlob(String userId, String column, List<MinderOptionDTO> preRequisiteOptionDTOS, String projectId, User user) {
         if (CollectionUtils.isNotEmpty(preRequisiteOptionDTOS)) {
             List<String> caseIds = preRequisiteOptionDTOS.stream().map(MinderOptionDTO::getId).distinct().toList();
             if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, caseIds)) {
                 throw new MSException(Translator.get(CHECK_OWNER_CASE));
             }
             extFunctionalCaseBlobMapper.batchUpdateColumn(column, caseIds, null);
+            functionalCaseNoticeService.batchSendNotice(projectId, caseIds, user, NoticeConstants.Event.UPDATE);
         }
     }
 
