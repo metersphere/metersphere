@@ -22,11 +22,10 @@
         </a-tooltip>
       </div>
     </template>
-    <div class="flex h-full">
+    <div class="h-full">
       <MsCodeEditor
         v-if="visible"
         v-model:model-value="batchParamsCode"
-        class="flex-1"
         theme="vs"
         height="100%"
         :show-full-screen="false"

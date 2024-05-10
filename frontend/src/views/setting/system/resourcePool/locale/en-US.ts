@@ -71,7 +71,7 @@ export default {
   'system.resourcePool.batchAddTipConfirm': 'Got it',
   'system.resourcePool.batchAddResource': 'Batch add resources',
   'system.resourcePool.changeAddTypeTip':
-    'After switching, the content of the added resources will continue to appear in yaml; the added resources can be modified in batches',
+    'After switching, the content of the added resources will continue to appear in csv; the added resources can be modified in batches',
   'system.resourcePool.changeAddTypePopTitle': 'Toggle add resource type?',
   'system.resourcePool.ip': 'IP',
   'system.resourcePool.ipRequired': 'Please enter an IP address',

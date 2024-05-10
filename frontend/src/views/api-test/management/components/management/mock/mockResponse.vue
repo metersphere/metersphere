@@ -154,6 +154,7 @@
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
 
+  import { uploadMockTempFile } from '@/api/modules/api-test/management';
   import { responseHeaderOption } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
@@ -164,7 +165,6 @@
 
   const props = defineProps<{
     definitionResponses: ResponseItem[];
-    uploadTempFileApi?: (...args: any) => Promise<any>; // 上传临时文件接口
     disabled: boolean;
   }>();
   const emit = defineEmits<{
@@ -267,16 +267,17 @@
 
   const fileList = ref<MsFileItem[]>([]);
   const loading = ref<boolean>(false);
-  async function handleFileChange() {
+
+  async function handleFileChange(files: MsFileItem[], file?: MsFileItem) {
     try {
-      if (fileList.value[0] && fileList.value[0].local && fileList.value[0].file && props.uploadTempFileApi) {
+      if (file?.local && file.file) {
         loading.value = true;
-        const res = await props.uploadTempFileApi(fileList.value[0].file);
+        const res = await uploadMockTempFile(file.file);
         mockResponse.value.body.binaryBody.file = {
-          ...fileList.value[0],
+          ...file,
           fileId: res.data,
-          fileName: fileList.value[0]?.name || '',
-          fileAlias: fileList.value[0]?.name || '',
+          fileName: file?.name || '',
+          fileAlias: file?.name || '',
           local: true,
         };
         loading.value = false;
@@ -298,6 +299,19 @@
       loading.value = false;
     }
   }
+
+  watch(
+    () => mockResponse.value.body.binaryBody.file?.fileId,
+    () => {
+      fileList.value = mockResponse.value.body.binaryBody.file
+        ? [mockResponse.value.body.binaryBody.file as unknown as MsFileItem]
+        : [];
+    },
+    {
+      deep: true,
+      immediate: true,
+    }
+  );
 </script>
 
 <style lang="less" scoped>

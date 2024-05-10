@@ -253,7 +253,7 @@
                 class="overflow-hidden"
                 is-preview
               >
-                <div class="absolute w-full bg-white" style="height: calc(100% - 28px)"></div>
+                <div class="w-full bg-white" style="height: calc(100% - 28px)"></div>
               </defaultLayout>
             </div>
           </div>

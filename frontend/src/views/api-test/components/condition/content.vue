@@ -123,10 +123,9 @@
                     {{ t('common.copy') }}
                   </a-button>
                 </div>
-                <div class="flex h-[412px]">
+                <div class="h-[412px]">
                   <MsCodeEditor
                     v-model:model-value="scriptEx"
-                    class="flex-1"
                     theme="vs"
                     :language="LanguageEnum.BEANSHELL_JSR233"
                     width="500px"

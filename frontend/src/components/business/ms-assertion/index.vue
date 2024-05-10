@@ -84,13 +84,7 @@
             getCurrentItemState.assertionType !== ResponseAssertionType.SCRIPT,
         }"
       >
-        <a-scrollbar
-          :style="{
-            overflow: 'auto',
-            height: '100%',
-            width: '100%',
-          }"
-        >
+        <div class="w-full">
           <!-- 响应头 -->
           <ResponseHeaderTab
             v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_HEADER"
@@ -130,7 +124,7 @@
             @change="handleChange"
           />
           <!-- 脚本 -->
-        </a-scrollbar>
+        </div>
         <ScriptTab
           v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
           v-model:data="getCurrentItemState"

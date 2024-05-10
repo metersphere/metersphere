@@ -461,7 +461,7 @@
                     key={element?.name}
                     v-slots={{
                       icon,
-                      title: () => h(t(element?.meta?.locale || '')),
+                      title: () => h('div', t(element?.meta?.locale || '')),
                     }}
                     class={BOTTOM_MENU_LIST.includes(element?.name as string) ? 'arco-menu-inline--bottom' : ''}
                   >

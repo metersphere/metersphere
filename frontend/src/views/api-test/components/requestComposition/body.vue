@@ -84,11 +84,10 @@
       </a-tooltip>
     </div> -->
   </div>
-  <div v-else class="flex h-[calc(100%-34px)]">
+  <div v-else class="h-[calc(100%-34px)]">
     <MsCodeEditor
       v-model:model-value="currentBodyCode"
       :read-only="props.disabledExceptParam"
-      class="flex-1"
       theme="vs"
       height="100%"
       :show-full-screen="false"

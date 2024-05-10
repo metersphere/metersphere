@@ -282,7 +282,6 @@
         if (height > 1000) {
           codeheight.value = `1000px`;
         }
-        editor.layout();
       }
 
       const init = () => {

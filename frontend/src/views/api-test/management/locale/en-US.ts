@@ -123,7 +123,8 @@ export default {
   'apiTestManagement.collapseApi': 'Hide all requests',
   'apiTestManagement.paramName': 'Parameter name',
   'apiTestManagement.paramVal': 'Parameter value',
-  'apiTestManagement.deleteMockTip': 'After deletion, it cannot be restored. Are you sure you want to delete it?',
+  'apiTestManagement.deleteMockTip':
+    'Deleting a mock expectation will cause the test task using the expectation to fail, so please operate with caution!',
   'apiTestManagement.preview': 'Preview',
   'apiTestManagement.shareUrlCopied': 'Sharing link copied to clipboard',
   'apiTestManagement.detail': 'Detail',

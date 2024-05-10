@@ -45,8 +45,9 @@ export function parseRequestBodyFiles(
   const tempSaveLinkFileIds = new Set<string>(); // 临时存储 body 内已保存的关联文件 id 集合，用于对比 saveLinkFileIds 以判断有哪些文件被取消关联
   // 获取上传文件和关联文件
   const formValues =
-    ((body as ExecuteBody).formDataBody?.formValues || (body as MockBody).formDataMatch.matchRules).filter((e) => e) ||
-    [];
+    ((body as ExecuteBody).formDataBody?.formValues || (body as MockBody).formDataBody?.matchRules || []).filter(
+      (e) => e
+    ) || [];
   for (let i = 0; i < formValues.length; i++) {
     const item = formValues[i];
     if (item.paramType === RequestParamsType.FILE) {

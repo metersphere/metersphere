@@ -67,6 +67,7 @@
     :offspring-ids="props.offspringIds"
     :protocol="props.protocol"
     :definition-detail="activeApiTab"
+    @debug="handleMockDebug"
   />
 </template>
 
@@ -88,6 +89,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
+  import { MockDetail } from '@/models/apiTest/mock';
   import { ModuleTreeNode } from '@/models/common';
   import {
     RequestAuthType,
@@ -321,6 +323,10 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function handleMockDebug(mock: MockDetail) {
+    apiRef.value?.openApiTabAndDebugMock(mock);
   }
 
   onBeforeMount(() => {

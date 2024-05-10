@@ -31,7 +31,6 @@
             <MsCodeEditor
               v-show="headerShowType === 'raw'"
               :model-value="headerRawCode"
-              class="flex-1"
               theme="MS-text"
               height="200px"
               :show-full-screen="false"
@@ -70,7 +69,6 @@
             <MsCodeEditor
               v-show="queryShowType === 'raw'"
               :model-value="queryRawCode"
-              class="flex-1"
               theme="MS-text"
               height="200px"
               :show-full-screen="false"
@@ -109,7 +107,6 @@
             <MsCodeEditor
               v-show="restShowType === 'raw'"
               :model-value="restRawCode"
-              class="flex-1"
               theme="MS-text"
               height="200px"
               :show-full-screen="false"
@@ -169,7 +166,6 @@
                 )
               "
               :model-value="bodyCode"
-              class="flex-1"
               theme="vs"
               height="200px"
               :language="bodyCodeLanguage"
@@ -210,7 +206,6 @@
           <MsCodeEditor
             v-show="pluginShowType === 'raw'"
             :model-value="pluginRawCode"
-            class="flex-1"
             theme="MS-text"
             height="400px"
             :show-full-screen="false"
@@ -287,7 +282,6 @@
           <MsCodeEditor
             v-else
             :model-value="responseCode"
-            class="flex-1"
             theme="vs"
             height="200px"
             :language="responseCodeLanguage"
