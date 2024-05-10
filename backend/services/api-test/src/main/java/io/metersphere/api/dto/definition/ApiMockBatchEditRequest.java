@@ -25,7 +25,7 @@ public class ApiMockBatchEditRequest extends ApiTestCaseBatchRequest implements 
     @Schema(description = "批量编辑的类型 状态 :Status,标签: Tags")
     @NotBlank
     private String type;
-    @Schema(description = "默认覆盖原标签")
+    @Schema(description = "是否追加标签")
     private boolean append = false;
     @Schema(description = "状态  开启/关闭")
     private boolean enable;

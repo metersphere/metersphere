@@ -6,16 +6,12 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
-import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
-import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
-import io.metersphere.api.parser.ImportParser;
-import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -61,7 +57,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -524,7 +519,7 @@ public class ApiDefinitionService extends MoveNodeService {
 
     private void checkAddExist(ApiDefinition apiDefinition) {
         if (!StringUtils.equals(apiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
-           return;
+            return;
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria()
@@ -824,9 +819,6 @@ public class ApiDefinitionService extends MoveNodeService {
         if (CollectionUtils.isNotEmpty(ids)) {
             handleTrashDelApiDefinition(ids, userId, request.getProjectId(), true);
         }
-
-        String apiDefinitionDirPrefix = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), StringUtils.EMPTY);
-        apiFileResourceService.deleteByResourceIds(apiDefinitionDirPrefix, ids, request.getProjectId(), userId, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
     }
 
     private void handleTrashDelApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch) {
@@ -964,38 +956,6 @@ public class ApiDefinitionService extends MoveNodeService {
         }
 
         return apiDefinitionDocDTO;
-    }
-
-    public void apiTestImport(MultipartFile file, ImportRequest request, String projectId) {
-        if (file != null) {
-            String originalFilename = file.getOriginalFilename();
-            if (StringUtils.isNotBlank(originalFilename)) {
-                String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
-                apiDefinitionImportUtilService.checkFileSuffixName(request, suffixName);
-            }
-        }
-        if (StringUtils.isBlank(request.getProjectId())) {
-            request.setProjectId(projectId);
-        }
-        ImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
-        ApiDefinitionImport apiImport = null;
-        if (StringUtils.equals(request.getType(), "SCHEDULE")) {
-            request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
-        }
-        try {
-            apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
-            //TODO  处理mock数据
-        } catch (Exception e) {
-            LogUtils.error(e.getMessage(), e);
-            throw new MSException(Translator.get("parse_data_error"));
-        }
-
-        try {
-            apiDefinitionImportUtilService.importApi(request, apiImport);
-        } catch (Exception e) {
-            LogUtils.error(e);
-            throw new MSException(Translator.get("user_import_format_wrong"));
-        }
     }
 
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {

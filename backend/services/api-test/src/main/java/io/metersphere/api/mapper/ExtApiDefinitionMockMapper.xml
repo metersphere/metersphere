@@ -6,6 +6,10 @@
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
 
+    <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionMock">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
     <select id="list" resultMap="ApiDefinitionMockDTO">
         select
         m.id, m.create_time, m.update_time, m.create_user, m.`name`, m.tags, m.`enable`, m.expect_num, m.project_id, m.status_code,
@@ -36,7 +40,7 @@
 
         <include refid="queryWhereConditionByBatch"/>
     </select>
-    <select id="getTagsByIds" resultType="io.metersphere.api.domain.ApiDefinitionMock">
+    <select id="getTagsByIds" resultMap="BaseResultMap">
         SELECT
         m.id, m.tags
         FROM

@@ -21,6 +21,8 @@ import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.parser.ImportParser;
+import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.Project;
@@ -31,10 +33,7 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -56,8 +55,10 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -97,6 +98,42 @@ public class ApiDefinitionImportUtilService {
     private static final String FILE_JMX = "jmx";
     private static final String FILE_HAR = "har";
     private static final String FILE_JSON = "json";
+
+    public void apiTestImport(MultipartFile file, ImportRequest request, String projectId) {
+        if (file != null) {
+            String originalFilename = file.getOriginalFilename();
+            if (StringUtils.isNotBlank(originalFilename)) {
+                String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
+                this.checkFileSuffixName(request, suffixName);
+            }
+        }
+        if (StringUtils.isBlank(request.getProjectId())) {
+            request.setProjectId(projectId);
+        }
+        ImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
+        ApiDefinitionImport apiImport = null;
+        if (StringUtils.equals(request.getType(), "SCHEDULE")) {
+            request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
+        }
+        try {
+            LogUtils.info("=======================数据开始解析====================");
+            apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
+            LogUtils.info("===================数据解析完成==================");
+            //TODO  处理mock数据
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage(), e);
+            throw new MSException(Translator.get("parse_data_error"));
+        }
+
+        try {
+            importApi(request, apiImport);
+            LogUtils.info("===================数据导入完成==================");
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(Translator.get("user_import_format_wrong"));
+        }
+    }
+
 
     public void checkFileSuffixName(ImportRequest request, String suffixName) {
         if (FILE_JMX.equalsIgnoreCase(suffixName)) {
@@ -177,19 +214,33 @@ public class ApiDefinitionImportUtilService {
         apiLists = apiLists.stream().filter(t -> modulePathMap.containsKey(t.getModulePath())).toList();
         ApiDetailWithData apiDealWithData = new ApiDetailWithData();
         //判断数据是否是唯一的
+        LogUtils.info("开始判断数据是否唯一");
         checkApiDataOnly(request, importData, apiLists, apiDealWithData);
+        LogUtils.info("判断数据是否唯一结束");
 
         ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
+        LogUtils.info("开始判断数据是否需要更新");
         getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
+        LogUtils.info("判断数据是否需要更新结束");
 
         //不用的数据清空，保证内存回收
         apiLists = new ArrayList<>();
         apiModules = new ArrayList<>();
         importData = new ArrayList<>();
 
+        List<LogDTO> operationLogs = new ArrayList<>();
         //数据入库
-        insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request);
+        insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request, operationLogs);
 
+        batchSaveLog(operationLogs);
+    }
+
+    @Async
+    @Transactional(rollbackFor = Exception.class)
+    public void batchSaveLog(List<LogDTO> operationLogs) {
+        LogUtils.info("插入日志开始");
+        SubListUtils.dealForSubList(operationLogs, 100, operationLogService::batchAdd);
+        LogUtils.info("插入日志结束");
     }
 
     public Long getNextOrder(String projectId) {
@@ -231,7 +282,9 @@ public class ApiDefinitionImportUtilService {
     public void insertData(Map<String, BaseTreeNode> modulePathMap,
                            Map<String, BaseTreeNode> idModuleMap,
                            ApiDetailWithDataUpdate apiDetailWithDataUpdate,
-                           ImportRequest request) {
+                           ImportRequest request,
+                           List<LogDTO> operationLogs) {
+        LogUtils.info("开始插入数据");
         //先判断是否需要新增模块
         List<ApiDefinitionImportDetail> addModuleData = apiDetailWithDataUpdate.getAddModuleData();
         List<ApiDefinitionImportDetail> updateModuleData = apiDetailWithDataUpdate.getUpdateModuleData();
@@ -259,19 +312,15 @@ public class ApiDefinitionImportUtilService {
         ApiDefinitionBlobMapper apiBlobMapper = sqlSession.getMapper(ApiDefinitionBlobMapper.class);
 
         //创建模块
-        insertModule(request, addModuleList, moduleMapper);
-
-        //取出需要更新的数据的id
-        List<String> updateModuleLists = updateModuleData.stream().map(ApiDefinitionImportDetail::getId).toList();
+        insertModule(request, addModuleList, moduleMapper, sqlSession);
 
         //更新模块数据
-        updateApiModule(modulePathMap, request, updateModuleData, apiMapper);
+        updateApiModule(modulePathMap, request, updateModuleData, apiMapper, sqlSession);
 
-        List<LogDTO> operationLogs = new ArrayList<>();
         List<ApiDefinitionImportDetail> updateRequestData = apiDetailWithDataUpdate.getUpdateRequestData();
 
         //更新接口请求数据
-        updateApiRequest(request, updateRequestData, updateModuleLists, apiMapper, apiBlobMapper);
+        updateApiRequest(request, updateRequestData, apiMapper, apiBlobMapper, sqlSession);
 
         Map<String, ApiDefinitionImportDetail> logData = apiDetailWithDataUpdate.getLogData();
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
@@ -285,13 +334,15 @@ public class ApiDefinitionImportUtilService {
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        SubListUtils.dealForSubList(operationLogs, 500, operationLogService::batchAdd);
+        LogUtils.info("插入数据结束");
         //发送通知
+        LogUtils.info("发送通知开始");
         List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
         User user = userMapper.selectByPrimaryKey(request.getUserId());
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
         List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(updateLists), Map.class));
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+        LogUtils.info("发送通知结束");
     }
 
     private static void getNeedAddModule(Map<String, BaseTreeNode> modulePathMap, Map<String, BaseTreeNode> idModuleMap, Set<String> differenceSet, List<BaseTreeNode> addModuleList) {
@@ -393,46 +444,55 @@ public class ApiDefinitionImportUtilService {
         }
     }
 
-    private static void updateApiRequest(ImportRequest request, List<ApiDefinitionImportDetail> updateRequestData, List<String> updateModuleLists, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper) {
-        updateRequestData.forEach(t -> {
-            ApiDefinition apiDefinition = new ApiDefinition();
-            apiDefinition.setId(t.getId());
-            apiDefinition.setUpdateUser(request.getUserId());
-            apiDefinition.setUpdateTime(System.currentTimeMillis());
-            apiMapper.updateByPrimaryKeySelective(apiDefinition);
-            //更新blob数据
-            ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
-            apiDefinitionBlob.setId(t.getId());
-            apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
-            apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
-            apiBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+    private static void updateApiRequest(ImportRequest request, List<ApiDefinitionImportDetail> updateRequestData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, SqlSession sqlSession) {
+        SubListUtils.dealForSubList(updateRequestData, 100, list -> {
+            list.forEach(t -> {
+                ApiDefinition apiDefinition = new ApiDefinition();
+                apiDefinition.setId(t.getId());
+                apiDefinition.setUpdateUser(request.getUserId());
+                apiDefinition.setUpdateTime(System.currentTimeMillis());
+                apiMapper.updateByPrimaryKeySelective(apiDefinition);
+                //更新blob数据
+                ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
+                apiDefinitionBlob.setId(t.getId());
+                apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
+                apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
+                apiBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+            });
+            sqlSession.flushStatements();
         });
     }
 
-    private static void updateApiModule(Map<String, BaseTreeNode> modulePathMap, ImportRequest request, List<ApiDefinitionImportDetail> updateModuleData, ApiDefinitionMapper apiMapper) {
-        updateModuleData.forEach(t -> {
-            ApiDefinition apiDefinition = new ApiDefinition();
-            apiDefinition.setId(t.getId());
-            apiDefinition.setModuleId(modulePathMap.get(t.getModulePath()).getId());
-            apiDefinition.setUpdateUser(request.getUserId());
-            apiDefinition.setUpdateTime(System.currentTimeMillis());
-            apiMapper.updateByPrimaryKeySelective(apiDefinition);
+    private static void updateApiModule(Map<String, BaseTreeNode> modulePathMap, ImportRequest request, List<ApiDefinitionImportDetail> updateModuleData, ApiDefinitionMapper apiMapper, SqlSession sqlSession) {
+        SubListUtils.dealForSubList(updateModuleData, 100, list -> {
+            list.forEach(t -> {
+                ApiDefinition apiDefinition = new ApiDefinition();
+                apiDefinition.setId(t.getId());
+                apiDefinition.setModuleId(modulePathMap.get(t.getModulePath()).getId());
+                apiDefinition.setUpdateUser(request.getUserId());
+                apiDefinition.setUpdateTime(System.currentTimeMillis());
+                apiMapper.updateByPrimaryKeySelective(apiDefinition);
+            });
+            sqlSession.flushStatements();
         });
     }
 
-    private void insertModule(ImportRequest request, List<BaseTreeNode> addModuleList, ApiDefinitionModuleMapper moduleMapper) {
-        addModuleList.forEach(t -> {
-            ApiDefinitionModule module = new ApiDefinitionModule();
-            module.setId(t.getId());
-            module.setName(t.getName());
-            module.setParentId(t.getParentId());
-            module.setProjectId(request.getProjectId());
-            module.setCreateUser(request.getUserId());
-            module.setPos(getImportNextModuleOrder(request.getProjectId()));
-            module.setCreateTime(System.currentTimeMillis());
-            module.setUpdateUser(request.getUserId());
-            module.setUpdateTime(System.currentTimeMillis());
-            moduleMapper.insertSelective(module);
+    private void insertModule(ImportRequest request, List<BaseTreeNode> addModuleList, ApiDefinitionModuleMapper moduleMapper, SqlSession sqlSession) {
+        SubListUtils.dealForSubList(addModuleList, 100, list -> {
+            list.forEach(t -> {
+                ApiDefinitionModule module = new ApiDefinitionModule();
+                module.setId(t.getId());
+                module.setName(t.getName());
+                module.setParentId(t.getParentId());
+                module.setProjectId(request.getProjectId());
+                module.setCreateUser(request.getUserId());
+                module.setPos(getImportNextModuleOrder(request.getProjectId()));
+                module.setCreateTime(System.currentTimeMillis());
+                module.setUpdateUser(request.getUserId());
+                module.setUpdateTime(System.currentTimeMillis());
+                moduleMapper.insertSelective(module);
+            });
+            sqlSession.flushStatements();
         });
     }
 
