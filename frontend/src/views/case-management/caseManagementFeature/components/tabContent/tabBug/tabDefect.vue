@@ -562,7 +562,7 @@
   // 去测试计划页面
   function goToPlan(record: BugListItem) {
     router.push({
-      name: TestPlanRouteEnum.TEST_PLAN_INDEX,
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
       query: {
         ...route.query,
         id: record.testPlanId,
