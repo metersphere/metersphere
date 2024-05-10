@@ -255,9 +255,9 @@ public interface NoticeConstants {
         @Schema(description = "message.functional_case_task_review_at")
         String FUNCTIONAL_CASE_TASK_REVIEW_AT = "FUNCTIONAL_CASE_TASK_REVIEW_AT";//${OPERATOR}在${reviewName}${name} @了你
         @Schema(description = "message.functional_case_task_plan")
-        String FUNCTIONAL_CASE_TASK_EXECUTE_PASSED = "FUNCTIONAL_CASE_TASK_EXECUTE_PASSED";//${OPERATOR}评审了${testPlanName}${name}
+        String FUNCTIONAL_CASE_TASK_EXECUTE_PASSED = "FUNCTIONAL_CASE_TASK_EXECUTE_PASSED";//${OPERATOR}执行了${testPlanName}${name}
         @Schema(description = "message.functional_case_task_plan")
-        String FUNCTIONAL_CASE_TASK_EXECUTE_FAIL = "FUNCTIONAL_CASE_TASK_EXECUTE_FAIL";//${OPERATOR}评审了${testPlanName}${name}
+        String FUNCTIONAL_CASE_TASK_EXECUTE_FAIL = "FUNCTIONAL_CASE_TASK_EXECUTE_FAIL";//${OPERATOR}执行了${testPlanName}${name}
         @Schema(description = "message.functional_case_task_plan_at")
         String FUNCTIONAL_CASE_TASK_EXECUTE_AT = "FUNCTIONAL_CASE_TASK_EXECUTE_AT";//${OPERATOR}在${testPlanName}${name}@了你
         @Schema(description = "message.functional_case_task_at_comment")

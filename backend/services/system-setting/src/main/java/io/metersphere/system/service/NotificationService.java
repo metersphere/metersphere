@@ -95,6 +95,9 @@ public class NotificationService {
             if (k.contains("SCHEDULE")) {
                 countMap.merge("SCHEDULE", v.size(), Integer::sum);
             }
+            if (k.contains("TEST_PLAN")) {
+                countMap.merge("TEST_PLAN", v.size(), Integer::sum);
+            }
         });
         countMap.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();

@@ -1,6 +1,89 @@
 [
   {
     "projectId":"",
+    "type":"TEST_PLAN_MANAGEMENT",
+    "name":"",
+    "messageTaskTypeDTOList":[
+      {
+        "taskType":"TEST_PLAN_TASK",
+        "taskTypeName":"",
+        "messageTaskDetailDTOList":[
+          {
+            "event":"CREATE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"UPDATE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              },
+              {
+                "id": "FOLLOW_PEOPLE",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"DELETE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "projectId":"",
     "type":"BUG_MANAGEMENT",
     "name":"",
     "messageTaskTypeDTOList":[
@@ -235,6 +318,50 @@
           },
           {
             "event":"REVIEW_FAIL",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"EXECUTE_PASSED",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          },
+          {
+            "event":"EXECUTE_FAIL",
             "eventName":"",
             "receivers":[
               {
