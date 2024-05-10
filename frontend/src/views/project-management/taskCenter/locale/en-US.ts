@@ -55,7 +55,7 @@ export default {
   'project.taskCenter.batchDisableTask': 'Are you sure to disable {num} tasks?',
   'project.taskCenter.batchEnableTaskContent': 'Enabling will execute the task',
   'project.taskCenter.batchDisableTaskContent': 'Closing will affect the execution of the task',
-  'project.taskCenter.swaggerUrl': 'Swagger Url',
+  'project.taskCenter.swaggerUrl': 'Swagger URL',
   'project.taskCenter.confirmEnable': 'Confirm enable',
   'project.taskCenter.confirmDisable': 'Confirm disable',
   'project.taskCenter.enableSuccess': 'Enable successfully',

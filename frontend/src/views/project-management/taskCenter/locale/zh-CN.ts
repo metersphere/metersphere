@@ -53,7 +53,7 @@ export default {
   'project.taskCenter.batchDisableTask': '确定关闭 {num} 个任务吗？',
   'project.taskCenter.batchEnableTaskContent': '开启会执行任务',
   'project.taskCenter.batchDisableTaskContent': '关闭后会影响任务的执行',
-  'project.taskCenter.swaggerUrl': 'Swagger Url',
+  'project.taskCenter.swaggerUrl': 'Swagger URL',
   'project.taskCenter.confirmEnable': '确认开启',
   'project.taskCenter.confirmDisable': '确认关闭',
   'project.taskCenter.enableSuccess': '开启成功',
