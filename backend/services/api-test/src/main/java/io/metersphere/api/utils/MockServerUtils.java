@@ -10,6 +10,7 @@ import jakarta.servlet.http.Part;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import org.springframework.http.MediaType;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,33 +45,48 @@ public class MockServerUtils {
         try {
             if (request instanceof ShiroHttpServletRequest shiroHttpServletRequest) {
                 InputStream inputStream = shiroHttpServletRequest.getRequest().getInputStream();
-                if (inputStream != null) {
+                if (inputStream != null && inputStream.available() > 0) {
                     queryParamsMap.put("binaryFile", new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).readLine());
                 }
             }
-            Collection<Part> parts = request.getParts();
-            for (Part part : parts) {
-                String name = part.getName();
-                String fileName = part.getSubmittedFileName();
-                String value = new BufferedReader(new InputStreamReader(part.getInputStream(), StandardCharsets.UTF_8)).readLine();
-
-                if (StringUtils.isBlank(fileName)) {
-                    queryParamsMap.put(name, value);
-                }
-                if (StringUtils.isNotEmpty(fileName)) {
-                    queryParamsMap.computeIfPresent(name, (key, currentValue) -> {
-                        List<String> current = JSON.parseArray(currentValue, String.class);
-                        current.add(fileName);
-                        return JSON.toJSONString(current);
-                    });
-                    if (!queryParamsMap.containsKey(name)) {
-                        List<String> current = new ArrayList<>();
-                        current.add(fileName);
-                        queryParamsMap.put(name, JSON.toJSONString(current));
+            String queryString = request.getQueryString();
+            if (StringUtils.isNotEmpty(queryString)) {
+                String[] queryParamArr = queryString.split("&");
+                for (String queryParam : queryParamArr) {
+                    String[] queryParamKV = queryParam.split("=");
+                    if (queryParamKV.length == 2) {
+                        queryParamsMap.put(queryParamKV[0], queryParamKV[1]);
                     }
                 }
             }
-        }catch (Exception e){
+            requestParam.setQueryParamsObj(queryParamsMap);
+            if (request instanceof StandardMultipartHttpServletRequest standardMultipartHttpServletRequest) {
+                LinkedHashMap<String, String> bodyParams = new LinkedHashMap<>();
+                Collection<Part> parts = standardMultipartHttpServletRequest.getParts();
+                for (Part part : parts) {
+                    String name = part.getName();
+                    String fileName = part.getSubmittedFileName();
+                    String value = new BufferedReader(new InputStreamReader(part.getInputStream(), StandardCharsets.UTF_8)).readLine();
+
+                    if (StringUtils.isBlank(fileName)) {
+                        bodyParams.put(name, value);
+                    }
+                    if (StringUtils.isNotEmpty(fileName)) {
+                        bodyParams.computeIfPresent(name, (key, currentValue) -> {
+                            List<String> current = JSON.parseArray(currentValue, String.class);
+                            current.add(fileName);
+                            return JSON.toJSONString(current);
+                        });
+                        if (!bodyParams.containsKey(name)) {
+                            List<String> current = new ArrayList<>();
+                            current.add(fileName);
+                            bodyParams.put(name, JSON.toJSONString(current));
+                        }
+                    }
+                    requestParam.setBodyParamsObj(bodyParams);
+                }
+            }
+        } catch (Exception e) {
             LogUtils.error(e.getMessage());
         }
 

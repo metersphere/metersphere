@@ -42,6 +42,9 @@ public class MockMatchRule implements Serializable {
         if (!this.keyValueMatch("rest", httpRequestParam.getRestParams())) {
             return false;
         }
+        if (!this.keyValueMatch("query", httpRequestParam.getQueryParamsObj())) {
+            return false;
+        }
         if (httpRequestParam.isPost()) {
             switch (Body.BodyType.valueOf(body.getBodyType())) {
                 case XML:
@@ -67,16 +70,15 @@ public class MockMatchRule implements Serializable {
                                     formDataBodyRule.getMatchRules().add(keyValueInfo);
                                 });
                     }
-                    return formDataBodyRule.match(httpRequestParam.getQueryParamsObj());
+                    return formDataBodyRule.match(httpRequestParam.getBodyParamsObj());
                 case RAW:
                     return StringUtils.contains(body.getRawBody().getValue(), httpRequestParam.getRaw());
                 case WWW_FORM:
-                    return body.getWwwFormBody().match(httpRequestParam.getQueryParamsObj());
+                    return body.getWwwFormBody().match(httpRequestParam.getBodyParamsObj());
                 default:
                     return true;
             }
-        } else {
-            return this.keyValueMatch("query", httpRequestParam.getQueryParamsObj());
         }
+        return true;
     }
 }
