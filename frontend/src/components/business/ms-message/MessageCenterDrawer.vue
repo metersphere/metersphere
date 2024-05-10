@@ -299,6 +299,8 @@
       key = 'API';
     } else if (key === 'SCHEDULE_TASK_MANAGEMENT') {
       key = 'SCHEDULE';
+    } else if (key === 'TEST_PLAN_MANAGEMENT') {
+      key = 'TEST_PLAN';
     } else {
       key = '';
     }

@@ -12,6 +12,12 @@ import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
+import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.CustomField;
@@ -52,6 +58,10 @@ public class FunctionalCaseNoticeService {
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
     private CaseReviewMapper caseReviewMapper;
 
     @Resource
@@ -66,7 +76,7 @@ public class FunctionalCaseNoticeService {
         setNotifier(functionalCaseCommentRequest, functionalCaseDTO);
         List<OptionDTO> customFields = getCustomFields(functionalCaseCommentRequest.getCaseId());
         functionalCaseDTO.setFields(customFields);
-        //TODO:设置测试计划名称
+        setPlanName(functionalCaseCommentRequest.getCaseId(), functionalCaseDTO);
         setReviewName(functionalCaseCommentRequest.getCaseId(), functionalCaseDTO);
         return functionalCaseDTO;
     }
@@ -168,7 +178,7 @@ public class FunctionalCaseNoticeService {
             }
         }
         functionalCaseDTO.setFields(fields);
-        //TODO:设置测试计划名称
+        setPlanName(request.getId(), functionalCaseDTO);
         return functionalCaseDTO;
     }
 
@@ -187,6 +197,21 @@ public class FunctionalCaseNoticeService {
         }
     }
 
+    private void setPlanName(String caseId, FunctionalCaseDTO functionalCaseDTO) {
+        TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+        testPlanFunctionalCaseExample.createCriteria().andFunctionalCaseIdEqualTo(caseId);
+        List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
+        List<String> planIds = testPlanFunctionalCases.stream().map(TestPlanFunctionalCase::getTestPlanId).distinct().toList();
+        if (CollectionUtils.isNotEmpty(planIds)) {
+            TestPlanExample testPlanExample = new TestPlanExample();
+            testPlanExample.createCriteria().andIdIn(planIds);
+            List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+            List<String> planName = testPlans.stream().map(TestPlan::getName).toList();
+            String string = planName.toString();
+            functionalCaseDTO.setTestPlanName(string);
+        }
+    }
+
 
     public FunctionalCaseDTO getDeleteFunctionalCaseDTO(String id) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
@@ -197,7 +222,7 @@ public class FunctionalCaseNoticeService {
             functionalCaseDTO.setFields(customFields);
 
         });
-        //TODO:设置测试计划名称
+        setPlanName(id, functionalCaseDTO);
         setReviewName(id, functionalCaseDTO);
         return functionalCaseDTO;
     }
@@ -218,6 +243,10 @@ public class FunctionalCaseNoticeService {
             caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(ids);
             List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
             List<String> reviewIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getReviewId).distinct().toList();
+            TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+            testPlanFunctionalCaseExample.createCriteria().andFunctionalCaseIdIn(ids);
+            List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
+            List<String> planIds = testPlanFunctionalCases.stream().map(TestPlanFunctionalCase::getTestPlanId).distinct().toList();
             Map<String, String> reviewMap = new HashMap<>();
             if (CollectionUtils.isNotEmpty(reviewIds)) {
                 CaseReviewExample caseReviewExample = new CaseReviewExample();
@@ -225,8 +254,17 @@ public class FunctionalCaseNoticeService {
                 List<CaseReview> caseReviews = caseReviewMapper.selectByExample(caseReviewExample);
                 reviewMap = caseReviews.stream().collect(Collectors.toMap(CaseReview::getId, CaseReview::getName));
             }
+            Map<String, String> planMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(planIds)) {
+                TestPlanExample testPlanExample = new TestPlanExample();
+                testPlanExample.createCriteria().andIdIn(planIds);
+                List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+                planMap = testPlans.stream().collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
+            }
             Map<String, List<CaseReviewFunctionalCase>> caseReviewMap = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getCaseId));
+            Map<String, List<TestPlanFunctionalCase>> casePlanMap = testPlanFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getFunctionalCaseId));
             Map<String, String> finalReviewMap = reviewMap;
+            Map<String, String> finalPlanMap = planMap;
             ids.forEach(id -> {
                 FunctionalCase functionalCase = functionalCaseMap.get(id);
                 if (functionalCase != null) {
@@ -249,12 +287,23 @@ public class FunctionalCaseNoticeService {
                             reviewName.add(s);
                         }
                     }
+                    List<TestPlanFunctionalCase> planFunctionalCases = casePlanMap.get(id);
+                    List<String>planName = new ArrayList<>();
+                    if (CollectionUtils.isNotEmpty(planFunctionalCases)) {
+                        for (TestPlanFunctionalCase planFunctionalCase : planFunctionalCases) {
+                            String s = finalPlanMap.get(planFunctionalCase.getTestPlanId());
+                            planName.add(s);
+                        }
+                    }
+
                     List<String> list = reviewName.stream().distinct().toList();
                     functionalCaseDTO.setReviewName(list.toString());
+                    List<String> planNameList = planName.stream().distinct().toList();
+                    functionalCaseDTO.setTestPlanName(planNameList.toString());
                     dtoList.add(functionalCaseDTO);
                 }
             });
-            //TODO:设置测试计划名称
+
         }
         return dtoList;
     }
@@ -267,6 +316,7 @@ public class FunctionalCaseNoticeService {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getId());
         BeanUtils.copyBean(functionalCaseDTO, functionalCase);
         setReviewName(request.getId(), functionalCaseDTO);
+        setPlanName(request.getId(), functionalCaseDTO);
         functionalCaseDTO.setTriggerMode(NoticeConstants.TriggerMode.MANUAL_EXECUTION);
         List<OptionDTO> fields = new ArrayList<>();
         FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
@@ -294,7 +344,6 @@ public class FunctionalCaseNoticeService {
             }
         }
         functionalCaseDTO.setFields(fields);
-        //TODO:设置测试计划名称
         return functionalCaseDTO;
 
     }
