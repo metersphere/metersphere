@@ -17,6 +17,8 @@ public class HttpRequestParam {
     //form-data的kv类型参数也存储在queryParamObj中
     private LinkedHashMap<String, String> queryParamsObj;
 
+    private LinkedHashMap<String, String> bodyParamsObj;
+
     private String paramType;
 
     //JSONArray 或 JSONObject
