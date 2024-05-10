@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
   import { computed, onMounted, ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -86,6 +87,7 @@
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
   import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 
+  import { getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
@@ -93,15 +95,17 @@
   import type { TestPlanDetail } from '@/models/testPlan/testPlan';
 
   const { t } = useI18n();
+  const route = useRoute();
 
   const loading = ref(false);
+  const planId = ref(route.query.id as string);
   const detail = ref<TestPlanDetail>({
     ...testPlanDefaultDetail,
   });
   async function initDetail() {
     try {
       loading.value = true;
-      // TODO: 调后端
+      detail.value = await getTestPlanDetail(planId.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

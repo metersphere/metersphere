@@ -1,11 +1,17 @@
 import { ReviewStatus } from '@/models/caseManagement/caseReview';
 import type { TestPlanDetail } from '@/models/testPlan/testPlan';
 
-// TODO: 对照后端
+// TODO: 对照后端字段
 // 测试计划详情
 export const testPlanDefaultDetail: TestPlanDetail = {
   id: '',
   name: '',
+  moduleId: '',
+  tags: [],
+  testPlanning: false,
+  automaticStatusUpdate: true,
+  repeatCase: false,
+  passThreshold: 100,
   num: 0,
   status: 'PREPARED' as ReviewStatus,
   followFlag: false,
