@@ -29,8 +29,11 @@ import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -87,8 +90,11 @@ public class ApiDefinitionMockService {
     private ApiDefinitionMockLogService apiDefinitionMockLogService;
     @Resource
     private ApiDefinitionMockNoticeService apiDefinitionMockNoticeService;
+    @Resource
+    private OperationHistoryService operationHistoryService;
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
+    private static final String MOCK_TABLE = "api_definition_mock";
 
     public List<ApiDefinitionMockDTO> getPage(ApiDefinitionMockPageRequest request) {
         return extApiDefinitionMockMapper.list(request);
@@ -153,7 +159,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMock.setEnable(true);
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
         apiDefinitionMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_MOCK)));
-
+        apiDefinition.setVersionId(apiDefinition.getVersionId());
         apiDefinitionMockMapper.insertSelective(apiDefinitionMock);
         ApiDefinitionMockConfig apiDefinitionMockConfig = new ApiDefinitionMockConfig();
         apiDefinitionMockConfig.setId(apiDefinitionMock.getId());
@@ -425,5 +431,9 @@ public class ApiDefinitionMockService {
             request.getSelectIds().removeAll(request.getExcludeIds());
             return request.getSelectIds();
         }
+    }
+
+    public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
+        return operationHistoryService.listWidthTable(request, MOCK_TABLE);
     }
 }

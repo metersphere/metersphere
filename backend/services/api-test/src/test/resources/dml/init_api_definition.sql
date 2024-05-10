@@ -51,11 +51,11 @@ INSERT INTO template (id, name, remark, internal, update_time, create_time, crea
 
 DELETE FROM `api_definition_mock` WHERE `id` in ('mock_1', 'mock_2', 'mock_3', 'mock_4','mock_5');
 INSERT INTO `api_definition_mock` VALUES
-                                      ('mock_1', 1641120000000, 1641120000000, 'user1', 'Mock 1', '[\"tag1\",\"tag2\"]', 1, 'EXPECT001', '100001100001', '1001', 200, null),
-                                      ('mock_2', 1641121000000, 1641121000000, 'user2', 'Mock 2', '[\"tag2\",\"tag3\"]', 1, 'EXPECT002', '100001100001', '1002', 200, null),
-                                      ('mock_3', 1641122000000, 1641122000000, 'user3', 'Mock 3', '[\"tag3\",\"tag4\"]', 1, 'EXPECT003', '100001100001', '1003', 200, null),
-                                      ('mock_4', 1641123000000, 1641123000000, 'user1', 'Mock 4', '[\"tag4\",\"tag5\"]', 1, 'EXPECT004', '100001100001', '1005', 400, null),
-                                      ('mock_5', 1641124000000, 1641124000000, 'user2', 'Mock 5', '[\"tag5\",\"tag1\"]', 1, 'EXPECT005', '100001100001', '1005', 400, null);
+                                      ('mock_1', 1641120000000, 1641120000000, 'user1', 'Mock 1', '[\"tag1\",\"tag2\"]', 1, 'EXPECT001', '100001100001', '1001', 200, null,'1'),
+                                      ('mock_2', 1641121000000, 1641121000000, 'user2', 'Mock 2', '[\"tag2\",\"tag3\"]', 1, 'EXPECT002', '100001100001', '1002', 200, null,'1'),
+                                      ('mock_3', 1641122000000, 1641122000000, 'user3', 'Mock 3', '[\"tag3\",\"tag4\"]', 1, 'EXPECT003', '100001100001', '1003', 200, null,'1'),
+                                      ('mock_4', 1641123000000, 1641123000000, 'user1', 'Mock 4', '[\"tag4\",\"tag5\"]', 1, 'EXPECT004', '100001100001', '1005', 400, null,'1'),
+                                      ('mock_5', 1641124000000, 1641124000000, 'user2', 'Mock 5', '[\"tag5\",\"tag1\"]', 1, 'EXPECT005', '100001100001', '1005', 400, null,'1');
 
 DELETE FROM `api_definition_mock_config` WHERE `id` in ('mock_1', 'mock_2', 'mock_3', 'mock_4','mock_5');
 INSERT INTO `api_definition_mock_config` VALUES

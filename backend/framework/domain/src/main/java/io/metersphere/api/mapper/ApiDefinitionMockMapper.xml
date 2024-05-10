@@ -14,6 +14,7 @@
     <result column="api_definition_id" jdbcType="VARCHAR" property="apiDefinitionId" />
     <result column="status_code" jdbcType="INTEGER" property="statusCode" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -113,7 +114,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, create_time, update_time, create_user, `name`, tags, `enable`, expect_num, project_id, 
-    api_definition_id, status_code, update_user
+    api_definition_id, status_code, update_user, version_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionMockExample" resultMap="BaseResultMap">
     select
@@ -149,13 +150,13 @@
     insert into api_definition_mock (id, create_time, update_time, 
       create_user, `name`, tags, 
       `enable`, expect_num, project_id, 
-      api_definition_id, status_code, update_user
-      )
+      api_definition_id, status_code, update_user, 
+      version_id)
     values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{enable,jdbcType=BIT}, #{expectNum,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{apiDefinitionId,jdbcType=VARCHAR}, #{statusCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR}
-      )
+      #{apiDefinitionId,jdbcType=VARCHAR}, #{statusCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionMock">
     insert into api_definition_mock
@@ -196,6 +197,9 @@
       <if test="updateUser != null">
         update_user,
       </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -233,6 +237,9 @@
       </if>
       <if test="updateUser != null">
         #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -281,6 +288,9 @@
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -299,7 +309,8 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
       status_code = #{record.statusCode,jdbcType=INTEGER},
-      update_user = #{record.updateUser,jdbcType=VARCHAR}
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -340,6 +351,9 @@
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -355,20 +369,21 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR},
       status_code = #{statusCode,jdbcType=INTEGER},
-      update_user = #{updateUser,jdbcType=VARCHAR}
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition_mock
     (id, create_time, update_time, create_user, `name`, tags, `enable`, expect_num, project_id, 
-      api_definition_id, status_code, update_user)
+      api_definition_id, status_code, update_user, version_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
         #{item.enable,jdbcType=BIT}, #{item.expectNum,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
         #{item.apiDefinitionId,jdbcType=VARCHAR}, #{item.statusCode,jdbcType=INTEGER}, 
-        #{item.updateUser,jdbcType=VARCHAR})
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -416,6 +431,9 @@
         </if>
         <if test="'update_user'.toString() == column.value">
           #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
