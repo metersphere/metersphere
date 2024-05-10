@@ -579,13 +579,6 @@
       placeholder: 'system.resourcePool.portPlaceholder',
     },
     {
-      filed: 'monitor',
-      type: 'input',
-      label: 'system.resourcePool.monitor',
-      rules: [{ required: true, message: t('system.resourcePool.monitorRequired') }],
-      placeholder: 'system.resourcePool.monitorPlaceholder',
-    },
-    {
       filed: 'concurrentNumber',
       type: 'inputNumber',
       label: 'system.resourcePool.concurrentNumber',
@@ -650,12 +643,11 @@
       if (e.trim() !== '') {
         // 排除空串
         const line = e.split(',');
-        if (line.every((s) => s.trim() !== '') && !Number.isNaN(Number(line[3]))) {
+        if (line.every((s) => s.trim() !== '') && !Number.isNaN(Number(line[2]))) {
           const item = {
             ip: line[0],
             port: line[1],
-            monitor: line[2],
-            concurrentNumber: Number(line[3]),
+            concurrentNumber: Number(line[2]),
           };
           if (i === 0) {
             // 第四个是concurrentNumber，需要是数字

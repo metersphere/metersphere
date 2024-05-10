@@ -85,7 +85,7 @@ export default {
   'system.resourcePool.concurrentNumberMin': '最大并发数须大于等于 1',
   'system.resourcePool.concurrentNumberPlaceholder': '请输入最大并发数',
   'system.resourcePool.nodeResourceRequired': '请正确填写批量添加的 Node 资源',
-  'system.resourcePool.nodeConfigEditorTip': '书写格式：IP,Port,Monitor,最大并发数；如 192.168.1.52,8082,500,1',
+  'system.resourcePool.nodeConfigEditorTip': '书写格式：IP,Port,最大并发数；如 192.168.1.52,8082,1',
   'system.resourcePool.testResourceDTO.ip': 'IP 地址/域名',
   'system.resourcePool.testResourceDTO.ipRequired': 'IP 地址/域名不能为空',
   'system.resourcePool.testResourceDTO.ipPlaceholder': 'example.com',
