@@ -235,7 +235,7 @@
   .response-head {
     @apply flex flex-wrap items-center justify-between border-b;
 
-    padding: 8px 16px;
+    padding: 13px 16px;
     border-color: var(--color-text-n8);
     gap: 8px;
   }

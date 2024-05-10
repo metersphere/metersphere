@@ -78,6 +78,7 @@
             v-model:model-value="inputFiles"
             :input-class="props.inputClass"
             placeholder=" "
+            :disabled="props.disabled"
             :max-tag-count="1"
             :size="props.inputSize"
             readonly
