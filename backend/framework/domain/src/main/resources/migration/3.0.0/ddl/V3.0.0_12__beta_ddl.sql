@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS test_plan_allocation
 
 CREATE INDEX idx_test_plan_id ON test_plan_allocation(test_plan_id);
 
+ALTER TABLE test_plan_functional_case DROP COLUMN num;
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

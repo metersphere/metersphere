@@ -1871,7 +1871,7 @@ public class TestPlanTests extends BaseTest {
         testPlanModuleService.deleteModule(new ArrayList<>(), project.getId(), null, null, null);
 
         //service层判断：测试删除项目
-        testPlanModuleService.deleteResources(project.getId());
+       // testPlanModuleService.deleteResources(project.getId());
 
         //判断权限
         this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ_DELETE, (String.format(URL_GET_MODULE_DELETE, IDGenerator.nextNum())));

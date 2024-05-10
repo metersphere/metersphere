@@ -19,7 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
         MinioProperties.class
 })
 @ServletComponentScan
-@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.plan", "io.metersphere.system", "io.metersphere.project", "io.metersphere.bug"})
+@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.plan", "io.metersphere.system", "io.metersphere.project", "io.metersphere.bug","io.metersphere.functional"})
 public class TestPlanApplication {
 
     public static void main(String[] args) {
