@@ -51,7 +51,7 @@ export default {
   'system.organization.updateOrganizationSuccess': '更新组织成功',
   'system.organization.createProject': '创建项目',
   'system.organization.subordinateOrg': '所属组织',
-  'system.organization.searchIndexPlaceholder': '通过ID或名称搜索',
+  'system.organization.searchIndexPlaceholder': '通过ID/名称搜索',
   'system.organization.searchUserPlaceholder': '通过名称/邮箱/手机搜索',
   'system.organization.organizationAdminRequired': '组织管理员不能为空',
   'system.project.enableTitle': '启用项目',

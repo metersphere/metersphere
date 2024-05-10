@@ -139,6 +139,7 @@ export default {
   'common.yes': '是',
   'common.no': '否',
   'common.creator': '创建人',
+  'common.createTime': '创建时间',
   'common.followSuccess': '关注成功',
   'common.unFollowSuccess': '取消关注成功',
   'common.share': '分享',

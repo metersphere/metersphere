@@ -175,7 +175,6 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
 
-  import MsChart from '@/components/pure/chart/index.vue';
   import SetReportChart from './case/setReportChart.vue';
   import ReportDetailHeader from './reportDetailHeader.vue';
   import reportInfoHeader from './step/reportInfoHeaders.vue';

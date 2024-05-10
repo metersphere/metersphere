@@ -3,7 +3,7 @@
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
-      :data="caseTree"
+      :data="testPlanTree"
       :keyword="groupKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
@@ -18,8 +18,8 @@
         count: 'count',
       }"
       title-tooltip-position="left"
-      @select="caseNodeSelect"
-      @more-action-select="handleCaseMoreSelect"
+      @select="planNodeSelect"
+      @more-action-select="handlePlanMoreSelect"
       @more-actions-close="moreActionsClose"
       @drop="handleDrag"
     >
@@ -111,7 +111,7 @@
 
   const groupKeyword = ref<string>('');
 
-  const caseTree = ref<ModuleTreeNode[]>([]);
+  const testPlanTree = ref<ModuleTreeNode[]>([]);
 
   const setFocusKey = (node: MsTreeNodeData) => {
     focusNodeKey.value = node.id || '';
@@ -152,19 +152,18 @@
     try {
       loading.value = true;
       const res = await getTestPlanModule({ projectId: currentProjectId.value });
-      caseTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+      testPlanTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
           hideMoreAction: e.id === 'root',
           draggable: e.id !== 'root',
-          disabled: e.id === props.activeFolder,
           count: props.modulesCount?.[e.id] || 0,
         };
       });
       if (isSetDefaultKey) {
-        selectedNodeKeys.value = [caseTree.value[0].id];
+        selectedNodeKeys.value = [testPlanTree.value[0].id];
       }
-      emits('init', caseTree.value);
+      emits('init', testPlanTree.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -188,7 +187,7 @@
         try {
           await deletePlanModuleTree(node.id);
           Message.success(t('common.deleteSuccess'));
-          initModules(true);
+          initModules(selectedNodeKeys.value[0] === node.id);
         } catch (error) {
           console.log(error);
         }
@@ -207,7 +206,7 @@
   }
 
   // 用例树节点选中事件
-  const caseNodeSelect = (selectedKeys: (string | number)[], node: MsTreeNodeData) => {
+  const planNodeSelect = (selectedKeys: (string | number)[], node: MsTreeNodeData) => {
     const offspringIds: string[] = [];
     mapTree(node.children || [], (e) => {
       offspringIds.push(e.id);
@@ -217,7 +216,7 @@
   };
 
   // 用例树节点更多事件
-  const handleCaseMoreSelect = (item: ActionsItem, node: MsTreeNodeData) => {
+  const handlePlanMoreSelect = (item: ActionsItem, node: MsTreeNodeData) => {
     switch (item.eventTag) {
       case 'delete':
         deleteHandler(node);
@@ -266,7 +265,7 @@
       if (dropPosition === 0) {
         treeNode.value.children.push(dragNode);
       }
-      caseNodeSelect(dropNode.id, treeNode.value);
+      planNodeSelect(dropNode.id, treeNode.value);
       emits('dragUpdate');
     }
   }
@@ -347,7 +346,7 @@
   watch(
     () => props.modulesCount,
     (obj) => {
-      caseTree.value = mapTree<ModuleTreeNode>(caseTree.value, (node) => {
+      testPlanTree.value = mapTree<ModuleTreeNode>(testPlanTree.value, (node) => {
         return {
           ...node,
           count: obj?.[node.id] || 0,

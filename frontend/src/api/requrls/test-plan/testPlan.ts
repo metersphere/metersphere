@@ -26,3 +26,9 @@ export const deletePlanUrl = '/test-plan/delete';
 export const getStatisticalCountUrl = '/test-plan/getCount';
 // 归档
 export const archivedPlanUrl = '/test-plan/archived';
+// 批量复制
+export const batchCopyPlanUrl = '/test-plan/batch/copy';
+// 批量移动
+export const batchMovePlanUrl = '/test-plan/batch/move';
+// 计划详情缺陷管理列表
+export const planDetailBugPageUrl = '/test-plan/bug/page';

@@ -63,6 +63,8 @@ export enum TableKeyEnum {
   PROJECT_MANAGEMENT_ENV_ALL_PARAM_HEADER = 'projectManagementEnvAllParamHeader',
   PROJECT_MANAGEMENT_ENV_ALL_PARAM_VARIABLE = 'projectManagementEnvAllParamVariable',
   TEST_PLAN_ALL_TABLE = 'testPlanAllTable',
+  TEST_PLAN_DETAIL_BUG_TABLE = 'testPlanDetailBug',
+  TEST_PLAN_DETAIL_BUG_TABLE_CASE_COUNT = 'testPlanDetailBugCaseCount',
   TASK_API_CASE_SYSTEM = 'taskCenterApiCaseSystem',
   TASK_API_CASE_ORGANIZATION = 'taskCenterApiCaseOrganization',
   TASK_API_CASE_PROJECT = 'taskCenterApiCaseProject',
