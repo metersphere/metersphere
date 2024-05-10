@@ -8,8 +8,8 @@
       <MsIcon type="icon-icon_plugin_outlined" size="48" />
     </template>
   </a-empty>
-  <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
-    <div v-if="!props.isCase" class="px-[18px] pt-[8px]">
+  <div v-show="!pluginError || isHttpProtocol" class="request-composition flex h-full flex-col">
+    <div v-if="!props.isCase" class="mb-[8px] px-[18px] pt-[8px]">
       <div class="flex flex-wrap items-baseline justify-between gap-[12px]">
         <div class="flex flex-1 flex-wrap items-center gap-[16px]">
           <a-select
@@ -187,7 +187,7 @@
         </div>
       </div>
     </div>
-    <div :class="`${!props.isCase ? 'request-tab-and-response' : ''} mt-[8px] flex-1`">
+    <div :class="`${!props.isCase ? 'request-tab-and-response' : ''} flex-1`">
       <MsTab
         v-model:active-key="requestVModel.activeTab"
         :content-tab-list="contentTabList"
@@ -1647,8 +1647,8 @@
       .response :deep(.response-head) {
         @apply sticky bg-white;
 
-        top: 48px; // 请求参数tab高度(不算border-bottom)
-        z-index: 11;
+        top: 0;
+        z-index: 102; // 覆盖请求参数tab
       }
       .request-tab-pane {
         min-height: 400px;
@@ -1660,6 +1660,7 @@
       .request {
         flex: 1;
         overflow-x: auto;
+        border-right: 1px solid var(--color-text-n8);
         .ms-scroll-bar();
         .request-tab-pane {
           min-width: 800px;
@@ -1667,7 +1668,6 @@
       }
       .response {
         width: 500px;
-        border-left: 1px solid var(--color-text-n8);
       }
     }
   }

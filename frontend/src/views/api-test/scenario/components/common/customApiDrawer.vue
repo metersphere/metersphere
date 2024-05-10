@@ -1190,6 +1190,7 @@
             );
             if (index > -1) {
               (requestVModel.value.body[type] as ExecuteRequestFormBody).formValues[index].value = item.value;
+              (requestVModel.value.body[type] as ExecuteRequestFormBody).formValues[index].files = item.files;
             }
           });
         });
@@ -1326,8 +1327,8 @@
       .response :deep(.response-head) {
         @apply sticky bg-white;
 
-        top: 48px; // 请求参数tab高度(不算border-bottom)
-        z-index: 11;
+        top: 0;
+        z-index: 102; // 覆盖请求参数tab
       }
       .request-tab-pane {
         min-height: 400px;

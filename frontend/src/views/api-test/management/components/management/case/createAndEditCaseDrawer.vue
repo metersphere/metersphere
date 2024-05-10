@@ -398,5 +398,8 @@
     overflow-x: hidden;
     overflow-y: auto;
     .ms-scroll-bar();
+    :deep(.request-composition) {
+      height: calc(100% - 74px); // 74: formItem第二行52+请求参数文案22
+    }
   }
 </style>
