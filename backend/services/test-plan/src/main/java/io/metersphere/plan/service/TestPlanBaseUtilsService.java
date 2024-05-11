@@ -39,20 +39,6 @@ public class TestPlanBaseUtilsService {
             TestPlan group = testPlanMapper.selectByPrimaryKey(testPlan.getGroupId());
             testPlan.setModuleId(group.getModuleId());
         }
-        TestPlanExample example = new TestPlanExample();
-        if (StringUtils.isBlank(testPlan.getId())) {
-            //新建 校验
-            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andModuleIdEqualTo(testPlan.getModuleId());
-            if (testPlanMapper.countByExample(example) > 0) {
-                throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
-            }
-        } else {
-            //更新 校验
-            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId()).andModuleIdEqualTo(testPlan.getModuleId());
-            if (testPlanMapper.countByExample(example) > 0) {
-                throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
-            }
-        }
     }
 
 
