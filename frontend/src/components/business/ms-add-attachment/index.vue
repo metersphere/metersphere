@@ -403,7 +403,7 @@
   function handleOpenSaveAs(item: TagData) {
     inputFilesPopoverVisible.value = false;
     // 这里先判定 uid 是否存在，存在则是刚上传的文件；否则是已保存过后的详情文件
-    savingFile.value = fileList.value.find((file) => (file.uid || file[props.fields.id]) === item.value);
+    savingFile.value = fileList.value.find((file) => file.uid === item.value || file[props.fields.id] === item.value);
     saveFilePopoverVisible.value = true;
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <a-form ref="formRef" :model="propsRes">
+  <a-form ref="formRef" :model="propsRes" layout="vertical">
     <MsBaseTable
       v-bind="propsRes"
       :hoverable="false"

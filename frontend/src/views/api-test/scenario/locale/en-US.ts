@@ -24,6 +24,14 @@ export default {
   'apiScenario.dependency': 'Dependency',
   'apiScenario.quote': 'Quote',
   'apiScenario.params.convention': 'Conventional Parameters',
+  'apiScenario.params.csv': 'CSV Parameters',
+  'apiScenario.params.csvName': 'CSV name',
+  'apiScenario.params.csvScoped': 'Scope',
+  'apiScenario.params.file': 'File',
+  'apiScenario.params.csvScopedTip1':
+    'Scenario level: Load CSV before executing the scenario. Data can be read from CSV in any step of the current scenario.',
+  'apiScenario.params.csvScopedTip2':
+    'Step level: The CSV needs to be added to the scenario step. The CSV is loaded when executing this step, and the scope is the request within the step.',
   'apiScenario.params.searchPlaceholder': 'Search by name or tag',
   'apiScenario.params.priority':
     'Variable Priority: Temporary Parameters > Scenario Parameters > Environment Parameters > Global Parameters; Note: Avoid using variables with the same name. In case of same name variables, scenario-level CSV has the highest priority.',

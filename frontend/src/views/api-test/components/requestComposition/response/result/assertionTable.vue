@@ -8,7 +8,12 @@
     >
       <template #assertionItem="{ record }">
         <div class="flex items-center gap-[4px]">
-          【{{ t(responseAssertionTypeMap[(record as ResponseAssertionTableItem).assertionType]) }}】
+          【{{
+            t(
+              responseAssertionTypeMap[(record as ResponseAssertionTableItem).assertionType] ||
+                'apiTestDebug.responseBody'
+            )
+          }}】
           {{ record.name }}
         </div>
       </template>
@@ -16,7 +21,7 @@
         {{
           record.assertionType === FullResponseAssertionType.RESPONSE_TIME
             ? t('advanceFilter.operator.le')
-            : t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '')
+            : t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '-')
         }}
       </template>
       <template #status="{ record }">

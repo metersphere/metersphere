@@ -122,7 +122,7 @@
     (visible) => {
       if (visible) {
         initModuleOptions();
-        saveFileForm.value.name = props.savingFile?.name?.split('.').shift() || '';
+        saveFileForm.value.name = (props.savingFile?.name || props.savingFile?.fileName)?.split('.').shift() || '';
       }
     },
     {

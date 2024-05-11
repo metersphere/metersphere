@@ -62,7 +62,8 @@
         >
           <params
             v-if="activeKey === ScenarioDetailComposition.PARAMS"
-            v-model:params="scenario.scenarioConfig.variable.commonVariables"
+            v-model:commonVariables="scenario.scenarioConfig.variable.commonVariables"
+            v-model:csvVariables="scenario.scenarioConfig.variable.csvVariables"
             @change="scenario.unSaved = true"
           />
         </a-tab-pane>
