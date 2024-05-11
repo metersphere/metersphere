@@ -1,4 +1,8 @@
+import { useI18n } from '@/hooks/useI18n';
+
 import type { planStatusType } from '@/models/testPlan/testPlan';
+
+const { t } = useI18n();
 
 export type PlanStatusMap = Record<
   planStatusType,
@@ -8,6 +12,7 @@ export type PlanStatusMap = Record<
     class: string;
   }
 >;
+
 export const planStatusMap: PlanStatusMap = {
   PREPARED: {
     label: 'caseManagement.caseReview.unStart',
@@ -30,3 +35,22 @@ export const planStatusMap: PlanStatusMap = {
     class: '!text-[var(--color-text-4)]',
   },
 };
+
+export const planStatusOptions: { value: planStatusType; label: string }[] = [
+  {
+    value: 'PREPARED',
+    label: t('caseManagement.caseReview.unStart'),
+  },
+  {
+    value: 'UNDERWAY',
+    label: t('caseManagement.caseReview.going'),
+  },
+  {
+    value: 'COMPLETED',
+    label: t('caseManagement.caseReview.unStart'),
+  },
+  {
+    value: 'ARCHIVED',
+    label: t('caseManagement.caseReview.going'),
+  },
+];
