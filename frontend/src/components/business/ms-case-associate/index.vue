@@ -112,7 +112,11 @@
           <template #left>
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
+                <a-tooltip :content="activeFolderName">
+                  <div class="one-line-text mr-[4px] max-w-[300px] text-[var(--color-text-1)]">{{
+                    activeFolderName
+                  }}</div>
+                </a-tooltip>
                 <div class="text-[var(--color-text-4)]">({{ propsRes.msPagination?.total }})</div>
               </div>
             </div>
