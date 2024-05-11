@@ -1,5 +1,7 @@
 package io.metersphere.plan.mapper;
 
+import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
+import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
@@ -24,4 +26,8 @@ public interface ExtTestPlanFunctionalCaseMapper {
     AssociationNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
     List<TestPlanCasePageResponse> getCasePage(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
+
+    List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
+
+    List<FunctionalCaseModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);
 }

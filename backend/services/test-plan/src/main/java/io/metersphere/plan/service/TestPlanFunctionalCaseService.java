@@ -2,14 +2,16 @@ package io.metersphere.plan.service;
 
 import io.metersphere.bug.dto.CaseRelateBugDTO;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
+import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
-import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
@@ -19,28 +21,28 @@ import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,6 +65,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private UserLoginService userLoginService;
     @Resource
     private ExtBugRelateCaseMapper bugRelateCaseMapper;
+    @Resource
+    private TestPlanModuleService testPlanModuleService;
+    @Resource
+    private TestPlanCaseService testPlanCaseService;
 
     @Override
     public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -70,6 +76,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         example.createCriteria().andTestPlanIdIn(testPlanIdList);
         return testPlanFunctionalCaseMapper.deleteByExample(example);
     }
+
 
     @Override
     public long getNextOrder(String testPlanId) {
@@ -104,27 +111,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 request,
                 logInsertModule,
                 extTestPlanFunctionalCaseMapper::getIdByParam,
-                this::saveTestPlanResource);
+                testPlanCaseService::saveTestPlanResource);
     }
 
-    public void saveTestPlanResource(@Validated TestPlanResourceAssociationParam associationParam) {
-        long pox = this.getNextOrder(associationParam.getTestPlanId());
-        long now = System.currentTimeMillis();
-        List<TestPlanFunctionalCase> testPlanFunctionalCaseList = new ArrayList<>();
-        List<String> associationIdList = associationParam.getResourceIdList();
-        for (int i = 0; i < associationIdList.size(); i++) {
-            TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
-            testPlanFunctionalCase.setId(IDGenerator.nextStr());
-            testPlanFunctionalCase.setTestPlanId(associationParam.getTestPlanId());
-            testPlanFunctionalCase.setFunctionalCaseId(associationIdList.get(i));
-            testPlanFunctionalCase.setPos(pox);
-            testPlanFunctionalCase.setCreateTime(now);
-            testPlanFunctionalCase.setCreateUser(associationParam.getOperator());
-            testPlanFunctionalCaseList.add(testPlanFunctionalCase);
-            pox += ServiceUtils.POS_STEP;
-        }
-        testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
-    }
 
     public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getDragNodeId());
@@ -142,44 +131,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         response.setSortNodeNum(1);
         testPlanResourceLogService.saveSortLog(testPlan, request.getDragNodeId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
         return response;
-    }
-
-
-    /**
-     * 复制计划时，复制功能用例
-     *
-     * @param ids
-     * @param testPlan
-     */
-    public void saveTestPlanByPlanId(List<String> ids, TestPlan testPlan) {
-        TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
-        example.createCriteria().andTestPlanIdIn(ids);
-        List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(testPlanFunctionalCases)) {
-            Map<String, List<TestPlanFunctionalCase>> collect = testPlanFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
-            List<TestPlanFunctionalCase> associateList = new ArrayList<>();
-            ids.forEach(id -> {
-                if (collect.containsKey(id)) {
-                    saveCase(collect.get(id), associateList, testPlan, id);
-                }
-            });
-            testPlanFunctionalCaseMapper.batchInsert(associateList);
-        }
-    }
-
-    private void saveCase(List<TestPlanFunctionalCase> testPlanFunctionalCases, List<TestPlanFunctionalCase> associateList, TestPlan testPlan, String id) {
-        AtomicLong pos = new AtomicLong(this.getNextOrder(id));
-        testPlanFunctionalCases.forEach(item -> {
-            TestPlanFunctionalCase functionalCase = new TestPlanFunctionalCase();
-            functionalCase.setTestPlanId(testPlan.getId());
-            functionalCase.setId(IDGenerator.nextStr());
-            functionalCase.setCreateTime(System.currentTimeMillis());
-            functionalCase.setCreateUser(testPlan.getCreateUser());
-            functionalCase.setFunctionalCaseId(item.getFunctionalCaseId());
-            functionalCase.setPos(pos.get());
-            associateList.add(functionalCase);
-            pos.updateAndGet(v -> v + ServiceUtils.POS_STEP);
-        });
     }
 
 
@@ -222,5 +173,34 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         return list.stream()
                 .flatMap(testPlanCasePageResponse -> Stream.of(testPlanCasePageResponse.getUpdateUser(), testPlanCasePageResponse.getCreateUser(), testPlanCasePageResponse.getExecuteUser()))
                 .collect(Collectors.toSet());
+    }
+
+    public List<BaseTreeNode> getTree(String testPlanId) {
+        List<BaseTreeNode> returnList = new ArrayList<>();
+        List<ProjectOptionDTO> rootIds = extTestPlanFunctionalCaseMapper.selectRootIdByTestPlanId(testPlanId);
+        Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
+        List<FunctionalCaseModuleDTO> functionalModuleIds = extTestPlanFunctionalCaseMapper.selectBaseByProjectIdAndTestPlanId(testPlanId);
+        Map<String, List<FunctionalCaseModuleDTO>> projectModuleMap = functionalModuleIds.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getProjectId));
+        if (MapUtils.isEmpty(projectModuleMap)) {
+            projectRootMap.forEach((projectId, projectOptionDTOList) -> {
+                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
+                returnList.add(projectNode);
+                BaseTreeNode defaultNode = testPlanModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
+                projectNode.addChild(defaultNode);
+            });
+            return returnList;
+        }
+        projectModuleMap.forEach((projectId, moduleList) -> {
+            BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
+            returnList.add(projectNode);
+            List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
+            List<BaseTreeNode> nodeByNodeIds = testPlanModuleService.getNodeByNodeIds(projectModuleIds);
+            boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
+            List<BaseTreeNode> baseTreeNodes = testPlanModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
+            for (BaseTreeNode baseTreeNode : baseTreeNodes) {
+                projectNode.addChild(baseTreeNode);
+            }
+        });
+        return returnList;
     }
 }

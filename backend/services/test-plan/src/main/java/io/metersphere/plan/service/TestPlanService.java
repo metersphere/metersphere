@@ -45,8 +45,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanFollowerMapper testPlanFollowerMapper;
     @Resource
-    private TestPlanFunctionalCaseService testPlanFunctionCaseService;
-    @Resource
     private TestPlanAllocationMapper testPlanAllocationMapper;
     @Resource
     private TestPlanBatchCopyService testPlanBatchCopyService;
@@ -54,6 +52,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanBatchMoveService testPlanBatchMoveService;
     @Resource
     private TestPlanBatchArchivedService testPlanBatchArchivedService;
+    @Resource
+    private TestPlanCaseService testPlanCaseService;
 
 
     /**
@@ -136,7 +136,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private void handleFunctionalCase(List<String> functionalSelectIds, TestPlan testPlan) {
         if (CollectionUtils.isNotEmpty(functionalSelectIds)) {
             TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(functionalSelectIds, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), testPlan.getCreateUser());
-            testPlanFunctionCaseService.saveTestPlanResource(associationParam);
+            testPlanCaseService.saveTestPlanResource(associationParam);
         }
     }
 
@@ -177,6 +177,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 计划组删除的相关逻辑(待定)
+     *
      * @param testPlanGroupIds 计划组ID集合
      */
     private void deleteGroupByList(List<String> testPlanGroupIds) {
@@ -206,9 +207,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 批量删除测试计划
      *
-     * @param request 批量请求参数
-     * @param operator 当前登录操作人
-     * @param requestUrl 请求URL
+     * @param request       批量请求参数
+     * @param operator      当前登录操作人
+     * @param requestUrl    请求URL
      * @param requestMethod 请求方法
      */
     public void batchDelete(TestPlanBatchProcessRequest request, String operator, String requestUrl, String requestMethod) {
@@ -238,6 +239,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 级联删除计划关联的资源
+     *
      * @param testPlanIds 计划ID集合
      */
     private void cascadeDeleteTestPlanIds(List<String> testPlanIds) {
@@ -358,7 +360,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 批量归档
-     * @param request 批量请求参数
+     *
+     * @param request     批量请求参数
      * @param currentUser 当前用户
      */
     public void batchArchived(TestPlanBatchRequest request, String currentUser) {
@@ -437,7 +440,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param ids
      */
     private void doHandleAssociateCase(List<String> ids, TestPlan testPlan) {
-        testPlanFunctionCaseService.saveTestPlanByPlanId(ids, testPlan);
+        testPlanCaseService.saveTestPlanByPlanId(ids, testPlan);
         //TODO 复制关联接口用例/接口场景用例
 
     }
@@ -499,9 +502,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * 批量复制 （计划/计划组）
      *
      * @param request 批量请求参数
-     * @param userId 当前登录用户
-     * @param url 请求URL
-     * @param method 请求方法
+     * @param userId  当前登录用户
+     * @param url     请求URL
+     * @param method  请求方法
      */
     public void batchCopy(TestPlanBatchRequest request, String userId, String url, String method) {
         // 目前计划的批量操作不支持全选所有页
@@ -521,10 +524,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 批量移动 (计划/计划组)
+     *
      * @param request 批量请求参数
-     * @param userId 当前登录用户
-     * @param url 请求URL
-     * @param method 请求方法
+     * @param userId  当前登录用户
+     * @param url     请求URL
+     * @param method  请求方法
      */
     public void batchMove(TestPlanBatchRequest request, String userId, String url, String method) {
         // 目前计划的批量操作不支持全选所有页

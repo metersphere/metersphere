@@ -14,6 +14,7 @@ import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -23,10 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +65,15 @@ public class TestPlanFunctionalCaseController {
     public Pager<List<TestPlanCasePageResponse>> page(@Validated @RequestBody TestPlanCaseRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false));
+    }
+
+
+    @GetMapping("/tree/{testPlanId}")
+    @Operation(summary = "测试计划-已关联功能用例列表模块树")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
+    public List<BaseTreeNode> getTree(@PathVariable String testPlanId) {
+        return testPlanFunctionalCaseService.getTree(testPlanId);
     }
 
 }
