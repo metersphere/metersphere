@@ -103,7 +103,7 @@ public class ApiCommonService {
         setLinkFileInfo(resourceId, getApiBodyFiles(responseBody));
     }
 
-    private void setLinkFileInfo(String resourceId, List<ApiFile> apiFiles) {
+    public void setLinkFileInfo(String resourceId, List<ApiFile> apiFiles) {
         List<ApiFile> linkFiles = apiFiles.stream()
                 .filter(file -> {
                     if (file.getLocal()) {
