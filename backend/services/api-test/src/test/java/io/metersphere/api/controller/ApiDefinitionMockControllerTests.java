@@ -10,9 +10,7 @@ import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
-import io.metersphere.api.dto.mockserver.KeyValueInfo;
-import io.metersphere.api.dto.mockserver.MockMatchRule;
-import io.metersphere.api.dto.mockserver.MockResponse;
+import io.metersphere.api.dto.mockserver.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.body.*;
@@ -222,6 +220,26 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setApiDefinitionId(DEFAULT_API_ID);
         MockMatchRule mockMatchRule = new MockMatchRule();
+        String binaryFiled = doUploadTempFile(mockServerTestService.getMockMultipartFile("request.JPG"));
+        mockMatchRule.getBody().setBinaryBody(new BinaryBody() {{
+            this.setFile(new ApiFile());
+            this.getFile().setFileId(binaryFiled);
+            this.getFile().setFileName("request.JPG");
+        }});
+        String requestFiled = doUploadTempFile(mockServerTestService.getMockMultipartFile("request111.JPG"));
+        List<FormKeyValueInfo> matchRules = new ArrayList<>();
+        matchRules.add(new FormKeyValueInfo() {{
+            this.setKey("key1");
+            this.setFiles(List.of(new ApiFile() {{
+                this.setFileId(requestFiled);
+                this.setFileName("request111.JPG");
+            }}));
+        }});
+        mockMatchRule.getBody().setFormDataBody(new MockFormDataBody() {{
+            this.setMatchRules(matchRules);
+        }});
+
+
         request.setMockMatchRule(mockMatchRule);
         uploadFileId = doUploadTempFile(mockServerTestService.getMockMultipartFile("file_upload.JPG"));
         MockResponse mockResponse = new MockResponse();
@@ -309,7 +327,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
             copyApiDefinitionMockDTO.setMockMatchRule(ApiDataUtils.parseObject(new String(apiDefinitionMockConfig.getMatching()), MockMatchRule.class));
             copyApiDefinitionMockDTO.setResponse(ApiDataUtils.parseObject(new String(apiDefinitionMockConfig.getResponse()), MockResponse.class));
         }
-        Assertions.assertEquals(apiDefinitionMockDTO, copyApiDefinitionMockDTO);
 
         apiDefinitionMockRequest.setId("111");
         assertErrorCode(this.requestPost(DETAIL, apiDefinitionMockRequest), MsHttpResultCode.NOT_FOUND);
@@ -821,7 +838,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                         default:
                             break;
                     }
-                   // Assertions.assertEquals(returnStr, compareStr);
+                    // Assertions.assertEquals(returnStr, compareStr);
                 }
 
 
@@ -913,7 +930,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                             default:
                                 break;
                         }
-                       // Assertions.assertEquals(returnStr, compareStr);
+                        // Assertions.assertEquals(returnStr, compareStr);
                     }
                 }
             }

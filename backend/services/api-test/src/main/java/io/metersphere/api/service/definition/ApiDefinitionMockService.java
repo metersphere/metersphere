@@ -3,6 +3,7 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.ApiMockBatchEditRequest;
@@ -11,12 +12,13 @@ import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
-import io.metersphere.api.dto.mockserver.MockMatchRule;
-import io.metersphere.api.dto.mockserver.MockResponse;
+import io.metersphere.api.dto.mockserver.*;
+import io.metersphere.api.dto.request.http.body.BinaryBody;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiDefinitionMockConfigMapper;
 import io.metersphere.api.mapper.ApiDefinitionMockMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMockMapper;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
@@ -92,6 +94,8 @@ public class ApiDefinitionMockService {
     private ApiDefinitionMockNoticeService apiDefinitionMockNoticeService;
     @Resource
     private OperationHistoryService operationHistoryService;
+    @Resource
+    private ApiCommonService apiCommonService;
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
     private static final String MOCK_TABLE = "api_definition_mock";
@@ -112,10 +116,42 @@ public class ApiDefinitionMockService {
     public void handleMockConfig(String id, ApiDefinitionMockDTO apiDefinitionMockDTO) {
         Optional<ApiDefinitionMockConfig> apiDefinitionMockConfigOptional = Optional.ofNullable(apiDefinitionMockConfigMapper.selectByPrimaryKey(id));
         apiDefinitionMockConfigOptional.ifPresent(config -> {
-            apiDefinitionMockDTO.setMockMatchRule(ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class));
-            apiDefinitionMockDTO.setResponse(ApiDataUtils.parseObject(new String(config.getResponse()), MockResponse.class));
+            MockMatchRule matchRule = ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class);
+            if (matchRule != null) {
+                setLinkFileInfo(id, matchRule.getBody());
+                apiDefinitionMockDTO.setMockMatchRule(matchRule);
+            }
+            if (config.getResponse() != null) {
+                MockResponse httpResponses = ApiDataUtils.parseObject(new String(config.getResponse()), MockResponse.class);
+                apiCommonService.setLinkFileInfo(id, httpResponses.getBody());
+                apiDefinitionMockDTO.setResponse(httpResponses);
+            }
         });
     }
+
+    public void setLinkFileInfo(String id, BodyParamMatchRule body) {
+        List<ApiFile> updateFiles = new ArrayList<>(0);
+        if (body != null) {
+            MockFormDataBody formDataBody = body.getFormDataBody();
+            if (formDataBody != null) {
+                List<FormKeyValueInfo> formValues = formDataBody.getMatchRules();
+                if (CollectionUtils.isNotEmpty(formValues)) {
+                    formValues.forEach(keyValueInfo -> {
+                        List<ApiFile> files = keyValueInfo.getFiles();
+                        if (CollectionUtils.isNotEmpty(files)) {
+                            updateFiles.addAll(files);
+                        }
+                    });
+                }
+            }
+            BinaryBody binaryBody = body.getBinaryBody();
+            if (binaryBody != null && binaryBody.getFile() != null) {
+                updateFiles.add(binaryBody.getFile());
+            }
+        }
+        apiCommonService.setLinkFileInfo(id, updateFiles);
+    }
+
 
     public void handleApiDefinition(String id, ApiDefinitionMockDTO apiDefinitionMockDTO) {
         Optional.ofNullable(apiDefinitionMapper.selectByPrimaryKey(id)).ifPresent(apiDefinition -> {
