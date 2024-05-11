@@ -237,4 +237,5 @@ export default {
   'mockManagement.regular': '正则匹配',
   'mockManagement.batchEdit': '批量编辑',
   'mockManagement.batchDelete': '批量删除',
+  'mockManagement.noMatchRules': '无该类匹配规则',
 };

@@ -128,7 +128,7 @@ export default {
   'system.config.auth.nameRequired': 'Authentication source name cannot be empty',
   'system.config.auth.namePlaceholder': 'Please enter the authentication source name',
   'system.config.auth.descPlaceholder': 'Please describe the certification source',
-  'system.config.auth.addResource': 'Add resource',
+  'system.config.auth.addResource': 'Add auth',
   'system.config.auth.serviceUrl': 'Server address',
   'system.config.auth.serviceUrlRequired': 'Server address cannot be empty',
   'system.config.auth.commonUrlPlaceholder': 'eg: {url}',

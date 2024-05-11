@@ -7,8 +7,8 @@
         :protocol="props.protocol"
         :refresh-time-stamp="refreshTableTimeStamp"
         :member-options="memberOptions"
-        @open-api-tab="(record, isExecute) => openApiTab(record, false, isExecute)"
-        @open-copy-api-tab="openApiTab($event, true)"
+        @open-api-tab="(record, isExecute) => openApiTab({ apiInfo: record, isCopy: false, isExecute })"
+        @open-copy-api-tab="openApiTab({ apiInfo: $event, isCopy: true })"
         @add-api-tab="addApiTab"
         @import="emit('import')"
         @open-edit-api-tab="openApiTab"
@@ -117,6 +117,7 @@
             :definition-detail="activeApiTab"
             :protocol="activeApiTab.protocol"
             is-api
+            @debug="openApiTabAndDebugMock"
           />
         </a-tab-pane>
       </a-tabs>
@@ -158,10 +159,18 @@
     RequestComposition,
     RequestDefinitionStatus,
     RequestMethods,
+    RequestParamsType,
     ResponseComposition,
   } from '@/enums/apiEnum';
 
-  import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
+  import {
+    defaultBodyParams,
+    defaultBodyParamsItem,
+    defaultHeaderParamsItem,
+    defaultRequestParamsItem,
+    defaultResponse,
+    defaultResponseItem,
+  } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   // 懒加载requestComposition组件
@@ -315,20 +324,29 @@
 
   const loading = ref(false);
   const requestCompositionRef = ref<InstanceType<typeof requestComposition>>();
-  async function openApiTab(
-    apiInfo: ModuleTreeNode | ApiDefinitionDetail | string,
-    isCopy = false,
-    isExecute = false,
-    isEdit = false
-  ) {
+  async function openApiTab(options: {
+    apiInfo: ModuleTreeNode | ApiDefinitionDetail | string;
+    isCopy?: boolean;
+    isExecute?: boolean;
+    isEdit?: boolean;
+    isDebugMock?: boolean;
+  }) {
+    const { apiInfo, isCopy = false, isExecute = false, isEdit = false, isDebugMock = false } = options;
     const isLoadedTabIndex = apiTabs.value.findIndex(
       (e) => e.id === (typeof apiInfo === 'string' ? apiInfo : apiInfo.id)
     );
     if (isLoadedTabIndex > -1 && !isCopy) {
       const preActiveApiTabId = activeApiTab.value.id;
+      let loadedApiTab = apiTabs.value[isLoadedTabIndex] as RequestParam;
+      if (isDebugMock) {
+        loadedApiTab = {
+          ...loadedApiTab,
+          ...(apiInfo as ApiDefinitionDetail).request,
+        };
+      }
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
       activeApiTab.value = {
-        ...(apiTabs.value[isLoadedTabIndex] as RequestParam),
+        ...loadedApiTab,
         definitionActiveKey: isCopy || isExecute || isEdit ? 'definition' : 'preview',
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
@@ -352,10 +370,17 @@
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body, res.response); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
       }
+      let { request } = res;
+      if (isDebugMock) {
+        request = {
+          ...res.request,
+          ...(apiInfo as ApiDefinitionDetail).request,
+        };
+      }
       addApiTab({
         label: name,
-        ...res.request,
         ...res,
+        ...request,
         response: cloneDeep(defaultResponse),
         responseDefinition: res.response.map((e) => ({ ...e, responseActiveTab: ResponseComposition.BODY })),
         url: res.path,
@@ -382,7 +407,58 @@
   }
 
   async function openApiTabAndDebugMock(mock: MockDetail) {
-    await openApiTab(mock.apiDefinitionId as string);
+    openApiTab({
+      apiInfo: {
+        id: mock.apiDefinitionId as string,
+        request: {
+          body: {
+            bodyType: mock.mockMatchRule.body.bodyType,
+            binaryBody: mock.mockMatchRule.body.binaryBody,
+            rawBody: mock.mockMatchRule.body.rawBody,
+            xmlBody: mock.mockMatchRule.body.xmlBody,
+            wwwFormBody: {
+              formValues:
+                mock.mockMatchRule.body.wwwFormBody.matchRules.map((e) => ({
+                  ...defaultBodyParamsItem,
+                  key: e.key,
+                  value: e.value,
+                })) || [],
+            },
+            jsonBody: mock.mockMatchRule.body.jsonBody,
+            formDataBody: {
+              formValues:
+                mock.mockMatchRule.body.formDataBody.matchRules.map((e) => ({
+                  ...defaultBodyParamsItem,
+                  key: e.key,
+                  value: e.value,
+                  files: e.files || [],
+                  paramType: e.files && e.files.length > 0 ? RequestParamsType.FILE : defaultBodyParamsItem.paramType,
+                })) || [],
+            },
+          },
+          headers:
+            mock.mockMatchRule.header.matchRules.map((e) => ({
+              ...defaultHeaderParamsItem,
+              key: e.key,
+              value: e.value,
+            })) || [],
+          query:
+            mock.mockMatchRule.query.matchRules.map((e) => ({
+              ...defaultRequestParamsItem,
+              key: e.key,
+              value: e.value,
+            })) || [],
+          rest:
+            mock.mockMatchRule.rest.matchRules.map((e) => ({
+              ...defaultRequestParamsItem,
+              key: e.key,
+              value: e.value,
+            })) || [],
+        },
+      } as unknown as ApiDefinitionDetail,
+      isExecute: true,
+      isDebugMock: true,
+    });
   }
 
   // 新建接口后没有创建人，创建时间，更新时间的信息。所以需要刷新数据

@@ -376,7 +376,10 @@
     (e: 'openCopyApiTab', record: ApiDefinitionDetail): void;
     (e: 'addApiTab'): void;
     (e: 'import'): void;
-    (e: 'openEditApiTab', record: ApiDefinitionDetail, isCopy: boolean, isExecute: boolean, isEdit: boolean): void;
+    (
+      e: 'openEditApiTab',
+      options: { apiInfo: ApiDefinitionDetail; isCopy: boolean; isExecute: boolean; isEdit: boolean }
+    ): void;
   }>();
 
   const appStore = useAppStore();
@@ -977,7 +980,7 @@
   }
 
   function editDefinition(record: ApiDefinitionDetail) {
-    emit('openEditApiTab', record, false, false, true);
+    emit('openEditApiTab', { apiInfo: record, isCopy: false, isExecute: false, isEdit: true });
   }
 
   // 拖拽排序
