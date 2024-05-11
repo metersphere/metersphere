@@ -1,6 +1,5 @@
 package io.metersphere.plan.dto.request;
 
-import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,13 +11,10 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class BaseAssociateCaseRequest extends TableBatchProcessDTO implements Serializable {
+public class BaseAssociateCaseRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
-    @Schema(description = "模块id")
-    private List<String> moduleIds;
 
     @Schema(description = "功能用例选中的ids")
     private List<String> functionalSelectIds;

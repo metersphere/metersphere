@@ -68,10 +68,7 @@ public class TestPlanBugService extends TestPlanResourceService {
         return bugRelationCases.size();
     }
 
-    @Override
-    public long getNextOrder(String testPlanId) {
-        return 0;
-    }
+
 
     @Override
     public void updatePos(String id, long pos) {

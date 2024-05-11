@@ -1,7 +1,6 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.mapper.*;
@@ -104,7 +103,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanConfig.setTestPlanning(createOrCopyRequest.isTestPlanning());
 
         if (StringUtils.isBlank(id)) {
-            handleAssociateCase(createOrCopyRequest, createTestPlan);
+            handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), createTestPlan);
         } else {
             //复制
             handleCopy(createTestPlan, id);
@@ -113,31 +112,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insert(testPlanConfig);
         return createTestPlan;
-    }
-
-    /**
-     * 处理关联的用例
-     *
-     * @param request
-     * @return
-     */
-    private void handleAssociateCase(TestPlanCreateRequest request, TestPlan testPlan) {
-        //关联的功能用例
-        handleFunctionalCase(request.getBaseAssociateCaseRequest().getFunctionalSelectIds(), testPlan);
-        //TODO 关联接口用例/接口场景用例
-
-    }
-
-    /**
-     * 关联的功能用例
-     *
-     * @param functionalSelectIds
-     */
-    private void handleFunctionalCase(List<String> functionalSelectIds, TestPlan testPlan) {
-        if (CollectionUtils.isNotEmpty(functionalSelectIds)) {
-            TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(functionalSelectIds, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), testPlan.getCreateUser());
-            testPlanCaseService.saveTestPlanResource(associationParam);
-        }
     }
 
 
