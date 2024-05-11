@@ -42,11 +42,24 @@ public class MockServerUtils {
         //解析k-v参数
         LinkedHashMap<String, String> queryParamsMap = new LinkedHashMap<>();
 
+        String requestPostString = null;
+
         try {
             if (request instanceof ShiroHttpServletRequest shiroHttpServletRequest) {
                 InputStream inputStream = shiroHttpServletRequest.getRequest().getInputStream();
-                if (inputStream != null && inputStream.available() > 0) {
-                    queryParamsMap.put("binaryFile", new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).readLine());
+                if (inputStream != null && inputStream.available() > 0 && StringUtils.equals(request.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
+                    byte[] binaryParams = inputStream.readAllBytes();
+                    requestParam.setBinaryParamsObj(binaryParams);
+                } else if (StringUtils.equals(request.getContentType(), MediaType.APPLICATION_JSON_VALUE)) {
+                    String inputLine;
+                    StringBuilder receiveData = new StringBuilder();
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(
+                            request.getInputStream(), StandardCharsets.UTF_8))) {
+                        while ((inputLine = in.readLine()) != null) {
+                            receiveData.append(inputLine);
+                        }
+                    }
+                    requestPostString = receiveData.toString();
                 }
             }
             String queryString = request.getQueryString();
@@ -75,12 +88,12 @@ public class MockServerUtils {
                         bodyParams.computeIfPresent(name, (key, currentValue) -> {
                             List<String> current = JSON.parseArray(currentValue, String.class);
                             current.add(fileName);
-                            return JSON.toJSONString(current);
+                            return current.toString();
                         });
                         if (!bodyParams.containsKey(name)) {
                             List<String> current = new ArrayList<>();
                             current.add(fileName);
-                            bodyParams.put(name, JSON.toJSONString(current));
+                            bodyParams.put(name, current.toString());
                         }
                     }
                     requestParam.setBodyParamsObj(bodyParams);
@@ -91,7 +104,6 @@ public class MockServerUtils {
         }
 
         //解析body参数
-        String requestPostString = getRequestStr(request);
         requestParam.setRaw(requestPostString);
 
         //解析paramType

@@ -4,10 +4,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
-import io.metersphere.api.dto.mockserver.ApiMockConfigDTO;
-import io.metersphere.api.dto.mockserver.BodyParamMatchRule;
-import io.metersphere.api.dto.mockserver.HttpRequestParam;
-import io.metersphere.api.dto.mockserver.MockResponse;
+import io.metersphere.api.dto.mockserver.*;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.BinaryBody;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -65,7 +62,7 @@ public class MockServerService {
     }
 
 
-    public ResponseEntity<?> execute(String method, String projectNum, String apiNum, HttpServletRequest request){
+    public ResponseEntity<?> execute(String method, String projectNum, String apiNum, HttpServletRequest request) {
         var requestHeaderMap = MockServerUtils.getHttpRequestHeader(request);
         String url = request.getRequestURL().toString();
         String requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum, apiNum), request);
@@ -127,18 +124,16 @@ public class MockServerService {
         ApiDefinitionMockConfigExample mockConfigExample = new ApiDefinitionMockConfigExample();
         mockConfigExample.createCriteria().andIdIn(apiDefinitionMockList.stream().map(ApiDefinitionMock::getId).collect(Collectors.toList()));
         List<ApiDefinitionMockConfig> mockConfigs = apiDefinitionMockConfigMapper.selectByExampleWithBLOBs(mockConfigExample);
-
         // 寻找匹配的 ApiDefinitionMockConfig
         ApiDefinitionMockConfig apiDefinitionMockConfig = mockConfigs.stream()
                 .filter(mockConfig -> MockServerUtils.matchMockConfig(mockConfig.getMatching(), requestHeaderMap, param))
                 .findFirst()
                 .orElse(null);
         // 如果是binary类型的body，需要特殊处理
-        if (param.getQueryParamsObj() != null && param.getQueryParamsObj().containsKey("binaryFile")) {
-            apiDefinitionMockConfig = mockConfigs.stream()
-                    .filter(mockConfig -> matchBinaryBody(mockConfig, param.getQueryParamsObj().get("binaryFile"), apiDefinitionMockList.getFirst().getProjectId()))
-                    .findFirst()
-                    .orElse(null);
+        if (param.getBinaryParamsObj() != null) {
+            if (apiDefinitionMockConfig != null && !matchBinaryBody(apiDefinitionMockConfig, param.getBinaryParamsObj(), apiDefinitionMockList.getFirst().getProjectId())) {
+                apiDefinitionMockConfig = null;
+            }
         }
         if (apiDefinitionMockConfig != null) {
             ApiMockConfigDTO apiMockConfigDTO = new ApiMockConfigDTO();
@@ -152,8 +147,9 @@ public class MockServerService {
         return null;
     }
 
-    private boolean matchBinaryBody(ApiDefinitionMockConfig mockConfig, String binaryFile, String projectId) {
-        BodyParamMatchRule bodyParamMatchRule = JSON.parseObject(new String(mockConfig.getMatching()), BodyParamMatchRule.class);
+    private boolean matchBinaryBody(ApiDefinitionMockConfig mockConfig, byte[] binaryFile, String projectId) {
+        MockMatchRule matchRule = JSON.parseObject(new String(mockConfig.getMatching()), MockMatchRule.class);
+        BodyParamMatchRule bodyParamMatchRule = matchRule.getBody();
         if (bodyParamMatchRule != null && StringUtils.equals(bodyParamMatchRule.getBodyType(), Body.BodyType.BINARY.name())) {
             BinaryBody binaryBody = bodyParamMatchRule.getBinaryBody();
             if (binaryBody != null && binaryBody.getFile() != null) {
@@ -172,14 +168,14 @@ public class MockServerService {
                         FileRepository defaultRepository = FileCenter.getDefaultRepository();
                         FileRequest fileRequest = new FileRequest();
                         fileRequest.setFileName(apiFileResource.getFileName());
-                        fileRequest.setFolder(DefaultRepositoryDir.getApiDefinitionDir(projectId, mockConfig.getId()) + "/" + file.getFileId());
+                        fileRequest.setFolder(DefaultRepositoryDir.getApiMockDir(projectId, mockConfig.getId()) + "/" + file.getFileId());
                         try {
                             bytes = defaultRepository.getFile(fileRequest);
                         } catch (Exception ignore) {
                         }
                     }
                 }
-                return StringUtils.equals(binaryFile, new String(bytes));
+                return StringUtils.equals(new String(binaryFile), new String(bytes));
             }
         }
         return false;
@@ -236,19 +232,20 @@ public class MockServerService {
         }
 
         if (responseBody != null) {
+            boolean isMock = config != null;
             String resourceId = config != null ? config.getId() : apiId;
             return switch (responseBody.getBodyType()) {
                 case "JSON" -> responseEntity(responseCode, responseBody.getJsonBody().getJsonWithSchema(), headers);
                 case "XML" -> responseEntity(responseCode, responseBody.getXmlBody().getValue(), headers);
                 case "RAW" -> responseEntity(responseCode, responseBody.getRawBody().getValue(), headers);
-                default -> handleBinaryBody(responseBody, projectId, resourceId);
+                default -> handleBinaryBody(responseBody, projectId, resourceId, isMock);
             };
         }
 
         return requestNotFound();
     }
 
-    private ResponseEntity<?> handleBinaryBody(ResponseBody responseBody, String projectId, String resourceId) {
+    private ResponseEntity<?> handleBinaryBody(ResponseBody responseBody, String projectId, String resourceId, boolean isMock) {
         String fileId = responseBody.getBinaryBody().getFile().getFileId();
         String fileName = responseBody.getBinaryBody().getFile().getFileName();
         String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
@@ -280,7 +277,8 @@ public class MockServerService {
                 FileRepository defaultRepository = FileCenter.getDefaultRepository();
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(apiFileResource.getFileName());
-                fileRequest.setFolder(DefaultRepositoryDir.getApiDefinitionDir(projectId, resourceId) + "/" + fileId);
+                String folder = isMock ? DefaultRepositoryDir.getApiMockDir(projectId, resourceId) : DefaultRepositoryDir.getApiDefinitionDir(projectId, resourceId);
+                fileRequest.setFolder(folder + "/" + fileId);
                 try {
                     bytes = defaultRepository.getFile(fileRequest);
                 } catch (Exception ignore) {
