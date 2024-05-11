@@ -15,7 +15,6 @@ import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
-import io.metersphere.system.service.CleanupProjectResourceService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,6 +26,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -212,5 +212,20 @@ public class TestPlanModuleService extends ModuleTreeService {
 
     public String getNameById(String id) {
         return extTestPlanModuleMapper.selectNameById(id);
+    }
+
+
+    public List<BaseTreeNode> getNodeByNodeIds(List<String> moduleIds) {
+        List<String> finalModuleIds = new ArrayList<>(moduleIds);
+        List<BaseTreeNode> totalList = new ArrayList<>();
+        while (CollectionUtils.isNotEmpty(finalModuleIds)) {
+            List<BaseTreeNode> modules = extTestPlanModuleMapper.selectBaseByIds(finalModuleIds);
+            totalList.addAll(modules);
+            List<String> finalModuleIdList = finalModuleIds;
+            List<String> parentModuleIds = modules.stream().map(BaseTreeNode::getParentId).filter(parentId -> !StringUtils.equalsIgnoreCase(parentId, ModuleConstants.ROOT_NODE_PARENT_ID) && !finalModuleIdList.contains(parentId)).toList();
+            finalModuleIds.clear();
+            finalModuleIds = new ArrayList<>(parentModuleIds);
+        }
+        return totalList.stream().distinct().toList();
     }
 }

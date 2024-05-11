@@ -20,6 +20,7 @@ import java.util.HashMap;
 public class TestPlanCaseControllerTests extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_LIST_URL = "/test-plan/functional/case/page";
+    public static final String FUNCTIONAL_CASE_TREE_URL = "/test-plan/functional/case/tree/";
 
     @Test
     @Order(1)
@@ -37,5 +38,17 @@ public class TestPlanCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(2)
+    public void testGetFunctionalCaseTree() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL + "plan_1");
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL + "plan_2");
     }
 }
