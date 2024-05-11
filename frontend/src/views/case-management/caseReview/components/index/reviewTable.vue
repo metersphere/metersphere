@@ -108,7 +108,7 @@
         </a-tooltip>
       </template>
       <template #status="{ record }">
-        <statusTag :status="record.status" size="small" />
+        <MsStatusTag :status="record.status" size="small" />
       </template>
       <template #reviewPassRule="{ record }">
         <a-tag
@@ -221,8 +221,8 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import passRateLine from '../passRateLine.vue';
-  import statusTag from '../statusTag.vue';
   import deleteReviewModal from './deleteReviewModal.vue';
   import ModuleTree from './moduleTree.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';

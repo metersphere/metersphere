@@ -17,7 +17,7 @@
         <a-button type="text" class="px-0" @click="review(record)">{{ record.reviewName }}</a-button>
       </template>
       <template #reviewStatus="{ record }">
-        <statusTag :status="record.reviewStatus || 'PREPARED'" />
+        <MsStatusTag :status="record.reviewStatus || 'PREPARED'" />
       </template>
       <template #status="{ record }">
         <MsIcon
@@ -39,7 +39,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
+  import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
 
   import { getDetailCaseReviewPage } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';

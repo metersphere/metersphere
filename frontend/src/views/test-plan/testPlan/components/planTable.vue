@@ -131,7 +131,7 @@
     </template>
 
     <template #status="{ record }">
-      <statusTag :status="record.status" />
+      <MsStatusTag :status="record.status" />
     </template>
 
     <!-- <template #passRate="{ record }">
@@ -272,12 +272,12 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import ActionModal from './actionModal.vue';
   import BatchEditModal from './batchEditModal.vue';
   import BatchMoveOrCopy from './batchMoveOrCopy.vue';
   import ScheduledModal from './scheduledModal.vue';
   import StatusProgress from './statusProgress.vue';
-  import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 
   import {
     archivedPlan,
