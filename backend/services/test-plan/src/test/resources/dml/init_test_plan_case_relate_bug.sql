@@ -26,6 +26,10 @@ VALUES
 INSERT INTO project_version(id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user)
 values ('v3.0.0','123','v3', null, 'open', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin');
 
+INSERT INTO project(id, num, organization_id, name, description, create_time, update_time, update_user, create_user, delete_time, deleted, delete_user, enable, module_setting)
+    VALUE ('123', null, 'organization_plan_associate_case_project', 'test_plan_associate_case_name', null,
+           UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, false, null, true, '["bugManagement","caseManagement","apiTest","testPlan"]');
+
 
 INSERT INTO `test_plan_module`(`id`, `project_id`, `name`, `parent_id`, `pos`, `create_time`, `update_time`, `create_user`, `update_user`)
 VALUES
