@@ -5,7 +5,7 @@
         width="16px"
         height="16px"
         :name="visible ? 'filter-icon-color' : 'filter-icon'"
-        class="text-[12px] font-medium text-[rgb(var(--danger-6))]"
+        class="text-[12px] font-medium"
       />
     </span>
     <template #content>

@@ -124,16 +124,16 @@
             @change="handleChange"
           />
           <!-- 脚本 -->
+          <ScriptTab
+            v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
+            v-model:data="getCurrentItemState"
+            :disabled="props.disabled"
+            :script-code-editor-height="props.scriptCodeEditorHeight"
+            @change="handleChange"
+            @delete-script-item="deleteScriptItem"
+            @copy="copyItem"
+          />
         </div>
-        <ScriptTab
-          v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
-          v-model:data="getCurrentItemState"
-          :disabled="props.disabled"
-          :script-code-editor-height="props.scriptCodeEditorHeight"
-          @change="handleChange"
-          @delete-script-item="deleteScriptItem"
-          @copy="copyItem"
-        />
       </div>
     </div>
   </div>
