@@ -1,7 +1,9 @@
 package io.metersphere.plan.controller;
 
+import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Tag(name = "测试计划功能用例")
@@ -61,7 +64,7 @@ public class TestPlanFunctionalCaseController {
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联功能用例分页查询")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Pager<List<TestPlanCasePageResponse>> page(@Validated @RequestBody TestPlanCaseRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false));
@@ -76,4 +79,11 @@ public class TestPlanFunctionalCaseController {
         return testPlanFunctionalCaseService.getTree(testPlanId);
     }
 
+    @PostMapping("/module/count")
+    @Operation(summary = "测试计划-已关联功能用例模块数量")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseRequest request) {
+        return testPlanFunctionalCaseService.moduleCount(request);
+    }
 }

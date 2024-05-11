@@ -31,4 +31,6 @@ public interface ExtTestPlanModuleMapper {
     String selectProjectIdByModuleId(String id);
 
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
+
+    List<String> selectIdByProjectIdAndTestPlanId(@Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
 }
