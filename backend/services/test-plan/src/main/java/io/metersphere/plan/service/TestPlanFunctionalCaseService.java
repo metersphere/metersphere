@@ -4,6 +4,7 @@ import io.metersphere.bug.dto.CaseRelateBugDTO;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.functional.service.FunctionalCaseService;
@@ -19,11 +20,14 @@ import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
+import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -39,10 +43,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,6 +70,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanModuleService testPlanModuleService;
     @Resource
     private TestPlanCaseService testPlanCaseService;
+    @Resource
+    private ExtTestPlanModuleMapper extTestPlanModuleMapper;
+
+    private static final String CASE_MODULE_COUNT_ALL = "all";
 
     @Override
     public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -202,5 +207,52 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             }
         });
         return returnList;
+    }
+
+
+    public Map<String, Long> moduleCount(TestPlanCaseRequest request) {
+        //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
+        request.setModuleIds(null);
+        List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanFunctionalCaseMapper.countModuleIdByRequest(request, false);
+        Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
+        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        projectCountMap.forEach((projectId, moduleCountDTOList) -> {
+            List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
+            for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {
+                ModuleCountDTO moduleCountDTO = new ModuleCountDTO();
+                BeanUtils.copyBean(moduleCountDTO, functionalCaseModuleCountDTO);
+                moduleCountDTOS.add(moduleCountDTO);
+            }
+            int sum = moduleCountDTOList.stream().mapToInt(FunctionalCaseModuleCountDTO::getDataCount).sum();
+            Map<String, Long> moduleCountMap = getModuleCountMap(projectId, request.getTestPlanId(), moduleCountDTOS);
+            moduleCountMap.forEach((k, v) -> {
+                if (projectModuleCountMap.get(k) == null || projectModuleCountMap.get(k) == 0L) {
+                    projectModuleCountMap.put(k, v);
+                }
+            });
+            projectModuleCountMap.put(projectId, (long) sum);
+        });
+        //查出全部用例数量
+        long allCount = extTestPlanFunctionalCaseMapper.caseCount(request, false);
+        projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return projectModuleCountMap;
+    }
+
+
+    public Map<String, Long> getModuleCountMap(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
+        //构建模块树，并计算每个节点下的所有数量（包含子节点）
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, testPlanId, moduleCountDTOList);
+
+        //通过广度遍历的方式构建返回值
+        return testPlanModuleService.getIdCountMapByBreadth(treeNodeList);
+    }
+
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
+        //节点内容只有Id和parentId
+        List<String> moduleIds = extTestPlanModuleMapper.selectIdByProjectIdAndTestPlanId(projectId, testPlanId);
+        List<BaseTreeNode> nodeByNodeIds = testPlanModuleService.getNodeByNodeIds(moduleIds);
+        return testPlanModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
+
+
     }
 }

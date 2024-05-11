@@ -1,5 +1,6 @@
 package io.metersphere.plan.mapper;
 
+import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.dto.AssociationNode;
@@ -30,4 +31,8 @@ public interface ExtTestPlanFunctionalCaseMapper {
     List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
 
     List<FunctionalCaseModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);
+
+    List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted);
+
+    long caseCount(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted);
 }

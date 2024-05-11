@@ -21,6 +21,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_LIST_URL = "/test-plan/functional/case/page";
     public static final String FUNCTIONAL_CASE_TREE_URL = "/test-plan/functional/case/tree/";
+    public static final String FUNCTIONAL_CASE_TREE_COUNT_URL = "/test-plan/functional/case/module/count";
 
     @Test
     @Order(1)
@@ -30,6 +31,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setProjectId("123");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setTestPlanId("plan_1");
         this.requestPost(FUNCTIONAL_CASE_LIST_URL, request);
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
@@ -51,4 +53,20 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
         this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL + "plan_2");
     }
+
+    @Test
+    @Order(3)
+    public void testGetFunctionalCaseTreeCount() throws Exception {
+        TestPlanCaseRequest request = new TestPlanCaseRequest();
+        request.setProjectId("123");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setTestPlanId("plan_1");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_TREE_COUNT_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
 }

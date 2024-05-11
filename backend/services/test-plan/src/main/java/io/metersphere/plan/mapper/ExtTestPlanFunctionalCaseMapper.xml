@@ -94,6 +94,7 @@
         LEFT JOIN project_version ON  functional_case.version_id = project_version.id
         left join test_plan_functional_case on functional_case.id = test_plan_functional_case.functional_case_id
         where functional_case.deleted = #{deleted}
+        and test_plan_functional_case.test_plan_id = #{request.testPlanId}
           and functional_case.project_id = #{request.projectId}
         <include refid="queryWhereCondition"/>
         order by
@@ -391,5 +392,25 @@
         WHERE tpm.id IN
               (SELECT fc.module_id FROM functional_case fc LEFT JOIN test_plan_functional_case tpfc ON tpfc.functional_case_id = fc.id WHERE tpfc.test_plan_id = #{testPlanId} AND fc.deleted = false)
         ORDER BY pos
+    </select>
+
+    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT functional_case.module_id AS moduleId, count(functional_case.id) AS dataCount, functional_case.project_id AS projectId, project.name AS projectName
+        FROM test_plan_functional_case tpfc
+        LEFT JOIN functional_case ON tpfc.functional_case_id = functional_case.id
+        LEFT JOIN project ON functional_case.project_id = project.id
+        WHERE tpfc.test_plan_id = #{request.testPlanId}
+        AND functional_case.deleted = #{deleted}
+        <include refid="queryWhereCondition"/>
+        GROUP BY module_id
+    </select>
+
+    <select id="caseCount"
+            resultType="java.lang.Long">
+        SELECT count(functional_case.id)
+        FROM test_plan_functional_case tpfc LEFT JOIN functional_case ON tpfc.functional_case_id = functional_case.id
+        WHERE tpfc.test_plan_id = #{request.testPlanId}
+        AND functional_case.deleted = #{deleted}
+        <include refid="queryWhereCondition"/>
     </select>
 </mapper>
