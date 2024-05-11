@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
-import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
@@ -41,14 +40,6 @@ public class TestPlanFunctionalCaseController {
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
 
-    @PostMapping(value = "/association")
-    @Operation(summary = "测试计划功能用例-关联功能用例")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
-    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public TestPlanAssociationResponse association(@Validated @RequestBody TestPlanAssociationRequest request) {
-        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
-        return testPlanFunctionalCaseService.association(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
-    }
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-关联功能用例")

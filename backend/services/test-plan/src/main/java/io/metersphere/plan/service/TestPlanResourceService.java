@@ -1,13 +1,13 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanConfig;
-import io.metersphere.plan.dto.*;
+import io.metersphere.plan.dto.AssociationNode;
+import io.metersphere.plan.dto.AssociationNodeSortDTO;
+import io.metersphere.plan.dto.ResourceLogInsertModule;
+import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
-import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.dto.ModuleSortCountResultDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -35,13 +34,9 @@ public abstract class TestPlanResourceService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
-    private TestPlanConfigMapper testPlanConfigMapper;
-    @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
 
     protected static final long DEFAULT_NODE_INTERVAL_POS = NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
-
-    public abstract long getNextOrder(String testPlanId);
 
     public abstract void updatePos(String id, long pos);
 
@@ -53,39 +48,6 @@ public abstract class TestPlanResourceService {
     private static final String MOVE_POS_OPERATOR_MORE = "moreThan";
     private static final String DRAG_NODE_NOT_EXIST = "drag_node.not.exist";
 
-    /**
-     * 关联资源od
-     *
-     * @return
-     */
-    public TestPlanAssociationResponse association(
-            String resourceType,
-            TestPlanAssociationRequest request,
-            @Validated LogInsertModule logInsertModule,
-            Function<ResourceSelectParam, List<String>> getIdByParam,
-            Consumer<TestPlanResourceAssociationParam> saveResourceFunc) {
-        TestPlanAssociationResponse response = new TestPlanAssociationResponse();
-        if (request.isEmpty()) {
-            return response;
-        }
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
-        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
-        boolean repeatCase = testPlanConfig.getRepeatCase();
-        //获取有效ID
-        List<String> associationIdList =
-                getIdByParam.apply(
-                        new ResourceSelectParam(request.getTestPlanId(), request.getSelectIds(), request.getSelectModuleIds(), repeatCase, request.getOrderString()));
-
-        associationIdList = new ArrayList<>(associationIdList.stream().distinct().toList());
-        associationIdList.removeAll(request.getExcludeIds());
-        if (CollectionUtils.isNotEmpty(associationIdList)) {
-            TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(associationIdList, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), logInsertModule.getOperator());
-            saveResourceFunc.accept(associationParam);
-            response.setAssociationCount(associationIdList.size());
-            testPlanResourceLogService.saveAddLog(testPlan, new ResourceLogInsertModule(resourceType, logInsertModule));
-        }
-        return response;
-    }
 
     /**
      * 取消关联资源od
@@ -96,7 +58,7 @@ public abstract class TestPlanResourceService {
             String resourceType,
             BasePlanCaseBatchRequest request,
             @Validated LogInsertModule logInsertModule,
-            List<String>associationIdList,
+            List<String> associationIdList,
             Consumer<TestPlanResourceAssociationParam> disassociate) {
         TestPlanAssociationResponse response = new TestPlanAssociationResponse();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());

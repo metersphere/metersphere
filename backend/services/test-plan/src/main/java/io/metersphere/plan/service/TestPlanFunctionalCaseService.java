@@ -2,10 +2,10 @@ package io.metersphere.plan.service;
 
 import io.metersphere.bug.dto.CaseRelateBugDTO;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
-import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.TestPlan;
@@ -16,7 +16,6 @@ import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
-import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
@@ -34,7 +33,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
-import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -72,8 +70,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Resource
     private TestPlanModuleService testPlanModuleService;
     @Resource
-    private TestPlanCaseService testPlanCaseService;
-    @Resource
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -85,16 +81,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         return testPlanFunctionalCaseMapper.deleteByExample(example);
     }
 
-
-    @Override
-    public long getNextOrder(String testPlanId) {
-        Long maxPos = extTestPlanFunctionalCaseMapper.getMaxPosByTestPlanId(testPlanId);
-        if (maxPos == null) {
-            return 0;
-        } else {
-            return maxPos + ServiceUtils.POS_STEP;
-        }
-    }
 
     @Override
     public void updatePos(String id, long pos) {
@@ -111,15 +97,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-    }
-
-    public TestPlanAssociationResponse association(TestPlanAssociationRequest request, LogInsertModule logInsertModule) {
-        return super.association(
-                TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE,
-                request,
-                logInsertModule,
-                extTestPlanFunctionalCaseMapper::getIdByParam,
-                testPlanCaseService::saveTestPlanResource);
     }
 
 

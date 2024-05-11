@@ -158,4 +158,13 @@ public class TestPlanController {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.batchArchived(request, SessionUtils.getUserId());
     }
+
+    @PostMapping(value = "/association")
+    @Operation(summary = "测试计划功能用例-关联功能用例")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public void association(@Validated @RequestBody TestPlanAssociationRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
+        testPlanService.association(request);
+    }
 }

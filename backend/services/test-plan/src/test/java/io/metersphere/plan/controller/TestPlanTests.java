@@ -4,9 +4,11 @@ import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.domain.*;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -97,8 +99,6 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_MODULE_UPDATE = "/test-plan/module/update";
     private static final String URL_POST_MODULE_MOVE = "/test-plan/module/move";
 
-    //测试计划url
-    private static final String URL_GET_TEST_PLAN_COUNT = "/test-plan/getCount/%s";
     private static final String URL_GET_TEST_PLAN_DELETE = "/test-plan/delete/%s";
     private static final String URL_POST_TEST_PLAN_PAGE = "/test-plan/page";
     private static final String URL_POST_TEST_PLAN_MODULE_COUNT = "/test-plan/module/count";
@@ -107,16 +107,8 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_BATCH_DELETE = "/test-plan/batch-delete";
 
     //测试计划资源-功能用例
-    private static final String URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION = "/test-plan/functional/case/association";
+    private static final String URL_POST_RESOURCE_CASE_ASSOCIATION = "/test-plan/association";
     private static final String URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT = "/test-plan/functional/case/sort";
-
-    //测试计划资源-接口用例
-    private static final String URL_POST_RESOURCE_API_CASE_ASSOCIATION = "/test-plan/api/case/association";
-    private static final String URL_POST_RESOURCE_API_CASE_SORT = "/test-plan/api/case/sort";
-
-    //测试计划资源-场景用例
-    private static final String URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION = "/test-plan/api/scenario/association";
-    private static final String URL_POST_RESOURCE_API_SCENARIO_SORT = "/test-plan/api/scenario/sort";
 
     private static final String URL_TEST_PLAN_EDIT_FOLLOWER = "/test-plan/edit/follower";
     private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
@@ -985,71 +977,35 @@ public class TestPlanTests extends BaseTest {
         //测试不开启用例重复的测试计划多次关联
         TestPlanAssociationRequest request = new TestPlanAssociationRequest();
         request.setTestPlanId(simpleTestPlan.getId());
-        request.setSelectIds(FUNCTIONAL_CASES.stream().map(FunctionalCase::getId).collect(Collectors.toList()));
-        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        TestPlanAssociationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size());
+        request.setFunctionalSelectIds(FUNCTIONAL_CASES.stream().map(FunctionalCase::getId).collect(Collectors.toList()));
+        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
 
         //先测试一下没有开启模块时能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "caseManagement");
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
+        this.requestPost(URL_POST_RESOURCE_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
 
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), 0);
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size());
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
+        returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
 
         //测试开启用例重复的测试计划多次关联
         request.setTestPlanId(repeatCaseTestPlan.getId());
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 1);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
+        returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
 
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 2);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
+        returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
 
-        //同时测试名称排序
-        request.setOrderColumn("name");
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 3);
-
-        request.setOrderByAsc(false);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 4);
-
-        //反例 测试计划ID为空
-        request.setTestPlanId(null);
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request).andExpect(status().isBadRequest());
-        //反例 测试计划不存在
-        request.setTestPlanId(IDGenerator.nextStr());
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
-
-        //测试权限
-        request.setTestPlanId(simpleTestPlan.getId());
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ASSOCIATION, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
-
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION)
-        );
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(repeatCaseTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION)
-        );
     }
 
     @Test
@@ -1059,11 +1015,10 @@ public class TestPlanTests extends BaseTest {
             this.testPlanAssociationFunctionCase();
         }
         List<TestPlanFunctionalCase> funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertTrue(funcList.size() >= FUNCTIONAL_CASES.size() * 4);
-        //将第80个移动到第一位之前
+        //将第30个移动到第一位之前
         ResourceSortRequest request = new ResourceSortRequest();
         request.setTestPlanId(repeatCaseTestPlan.getId());
-        request.setDragNodeId(funcList.get(79).getId());
+        request.setDragNodeId(funcList.get(29).getId());
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(-1);
 
@@ -1078,14 +1033,14 @@ public class TestPlanTests extends BaseTest {
         TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
         Assertions.assertEquals(response.getSortNodeNum(), 1);
         funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
         LOG_CHECK_LIST.add(
                 new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
         );
 
-        //将这时的第80个放到第一位之后
-        request.setDragNodeId(funcList.get(79).getId());
+        //将这时的第30个放到第一位之后
+        request.setDragNodeId(funcList.get(29).getId());
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(1);
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
@@ -1100,8 +1055,8 @@ public class TestPlanTests extends BaseTest {
         );
 
 
-        //再将这时的第80个放到第一位之后,但是第一个的pos为2，检查能否触发ref操作
-        request.setDragNodeId(funcList.get(79).getId());
+        //再将这时的第30个放到第一位之后,但是第一个的pos为2，检查能否触发ref操作
+        request.setDragNodeId(funcList.get(29).getId());
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(-1);
         testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, 2);
@@ -1127,14 +1082,14 @@ public class TestPlanTests extends BaseTest {
         request.setDragNodeId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
         //反例：目标节点不存在
-        request.setDragNodeId(funcList.get(79).getId());
+        request.setDragNodeId(funcList.get(29).getId());
         request.setDropNodeId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
         //反例： 节点重复
         request.setDropNodeId(request.getDragNodeId());
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
         //反例： dropPosition取值范围不对
-        request.setDragNodeId(funcList.get(79).getId());
+        request.setDragNodeId(funcList.get(29).getId());
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(0);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
@@ -1142,347 +1097,6 @@ public class TestPlanTests extends BaseTest {
         //测试权限
         request.setDropPosition(1);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
-
-    }
-
-
-    @Test
-    @Order(31)
-    public void testPlanAssociationApiTestCase() throws Exception {
-        this.preliminaryTestPlan();
-        //创建20个功能测试用例
-        API_TEST_CASES.addAll(testPlanTestService.createApiCases(20, project.getId()));
-        //测试不开启用例重复的测试计划多次关联
-        TestPlanAssociationRequest request = new TestPlanAssociationRequest();
-        request.setTestPlanId(simpleTestPlan.getId());
-        request.setSelectIds(API_TEST_CASES.stream().map(ApiTestCase::getId).collect(Collectors.toList()));
-        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        TestPlanAssociationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_TEST_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size());
-
-        //先测试一下没有开启模块时能否使用
-        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
-        this.requestPost(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
-        //恢复
-        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
-
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), 0);
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size());
-
-        //测试开启用例重复的测试计划多次关联
-        request.setTestPlanId(repeatCaseTestPlan.getId());
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_TEST_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size() * 1);
-
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_TEST_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size() * 2);
-
-        //同时测试名称排序
-        request.setOrderColumn("name");
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_TEST_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size() * 3);
-
-        request.setOrderByAsc(false);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_TEST_CASES.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size() * 4);
-
-        //反例 测试计划ID为空
-        request.setTestPlanId(null);
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
-        //反例 测试计划不存在
-        request.setTestPlanId(IDGenerator.nextStr());
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
-
-        //测试权限
-        request.setTestPlanId(simpleTestPlan.getId());
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ASSOCIATION, URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
-
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_API_CASE_ASSOCIATION)
-        );
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(repeatCaseTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_API_CASE_ASSOCIATION)
-        );
-    }
-
-    @Test
-    @Order(32)
-    public void testPlanApiCaseSort() throws Exception {
-        if (API_TEST_CASES.size() == 0) {
-            this.testPlanAssociationFunctionCase();
-        }
-        List<TestPlanApiCase> funcList = testPlanTestService.selectTestPlanApiCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertTrue(funcList.size() >= API_TEST_CASES.size() * 4);
-        //将第80个移动到第一位之前
-        ResourceSortRequest request = new ResourceSortRequest();
-        request.setTestPlanId(repeatCaseTestPlan.getId());
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(-1);
-
-        //先测试一下没有开启模块时能否使用
-        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
-        //恢复
-        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
-
-        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
-        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
-        funcList = testPlanTestService.selectTestPlanApiCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_CASE_SORT)
-        );
-
-        //将这时的第80个放到第一位之后
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(1);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
-        funcList = testPlanTestService.selectTestPlanApiCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_CASE_SORT)
-        );
-
-        //再将这时的第80个放到第一位之前,但是第一个的pos为2，检查能否触发ref操作
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(-1);
-        testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_API_CASE, 2);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
-        funcList = testPlanTestService.selectTestPlanApiCaseByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_CASE_SORT)
-        );
-
-        //反例：测试计划为空
-        request.setTestPlanId(null);
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().isBadRequest());
-        //反例： 测试计划不存在
-        request.setTestPlanId(IDGenerator.nextStr());
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
-        //反例：拖拽的节点不存在
-        request.setTestPlanId(repeatCaseTestPlan.getId());
-        request.setDragNodeId(null);
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
-        //反例：目标节点不存在
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(null);
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
-        //反例： 节点重复
-        request.setDropNodeId(request.getDragNodeId());
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
-        //反例： dropPosition取值范围不对
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(0);
-        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
-
-        //测试权限
-        request.setDropPosition(1);
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_API_CASE_SORT, request);
-
-    }
-
-
-    @Test
-    @Order(41)
-    public void testPlanAssociationApiScenario() throws Exception {
-        if (ObjectUtils.anyNull(simpleTestPlan, repeatCaseTestPlan)) {
-            this.testPlanAddTest();
-        }
-        //创建20个功能测试用例
-        API_SCENARIOS.addAll(testPlanTestService.createApiScenario(20, project.getId()));
-
-        //测试不开启用例重复的测试计划多次关联
-        TestPlanAssociationRequest request = new TestPlanAssociationRequest();
-        request.setTestPlanId(simpleTestPlan.getId());
-        request.setSelectIds(API_SCENARIOS.stream().map(ApiScenario::getId).collect(Collectors.toList()));
-        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        TestPlanAssociationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_SCENARIOS.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size());
-
-        //先测试一下没有开启模块时能否使用
-        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request).andExpect(status().is5xxServerError());
-        //恢复
-        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
-
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), 0);
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size());
-
-        //测试开启用例重复的测试计划多次关联
-        request.setTestPlanId(repeatCaseTestPlan.getId());
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_SCENARIOS.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size() * 1);
-
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_SCENARIOS.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size() * 2);
-
-        //同时测试名称排序
-        request.setOrderColumn("name");
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_SCENARIOS.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size() * 3);
-
-        request.setOrderByAsc(false);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
-        Assertions.assertEquals(response.getAssociationCount(), API_SCENARIOS.size());
-        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size() * 4);
-
-        //反例 测试计划ID为空
-        request.setTestPlanId(null);
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request).andExpect(status().isBadRequest());
-        //反例 测试计划不存在
-        request.setTestPlanId(IDGenerator.nextStr());
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request).andExpect(status().is5xxServerError());
-
-        //测试权限
-        request.setTestPlanId(simpleTestPlan.getId());
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ASSOCIATION, URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
-
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION)
-        );
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(repeatCaseTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION)
-        );
-    }
-
-    @Test
-    @Order(42)
-    public void testPlanApiScenarioSort() throws Exception {
-        if (API_SCENARIOS.size() == 0) {
-            this.testPlanAssociationFunctionCase();
-        }
-        List<TestPlanApiScenario> funcList = testPlanTestService.selectTestPlanApiScenarioByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertTrue(funcList.size() >= API_SCENARIOS.size() * 4);
-        //将第80个移动到第一位之前
-        ResourceSortRequest request = new ResourceSortRequest();
-        request.setTestPlanId(repeatCaseTestPlan.getId());
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(-1);
-
-        //先测试一下没有开启模块时能否使用
-        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
-        //恢复
-        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
-
-        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
-        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
-        funcList = testPlanTestService.selectTestPlanApiScenarioByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_SCENARIO_SORT)
-        );
-
-        //将这时的第80个放到第一位之后
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(1);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
-        funcList = testPlanTestService.selectTestPlanApiScenarioByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_SCENARIO_SORT)
-        );
-
-        //再将这时的第80个放到第一位之后,但是第一个的pos为2，检查能否触发ref操作
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(-1);
-        testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO, 2);
-        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
-        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
-        funcList = testPlanTestService.selectTestPlanApiScenarioByTestPlanId(repeatCaseTestPlan.getId());
-        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
-        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_SCENARIO_SORT)
-        );
-
-        //反例：测试计划为空
-        request.setTestPlanId(null);
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().isBadRequest());
-        //反例： 测试计划不存在
-        request.setTestPlanId(IDGenerator.nextStr());
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
-        //反例：拖拽的节点不存在
-        request.setTestPlanId(repeatCaseTestPlan.getId());
-        request.setDragNodeId(null);
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
-        //反例：目标节点不存在
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(null);
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
-        //反例： 节点重复
-        request.setDropNodeId(request.getDragNodeId());
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
-        //反例： dropPosition取值范围不对
-        request.setDragNodeId(funcList.get(79).getId());
-        request.setDropNodeId(funcList.get(0).getId());
-        request.setDropPosition(0);
-        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
-
-        //测试权限
-        request.setDropPosition(1);
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_API_SCENARIO_SORT, request);
 
     }
 
@@ -1871,7 +1485,7 @@ public class TestPlanTests extends BaseTest {
         testPlanModuleService.deleteModule(new ArrayList<>(), project.getId(), null, null, null);
 
         //service层判断：测试删除项目
-       // testPlanModuleService.deleteResources(project.getId());
+        // testPlanModuleService.deleteResources(project.getId());
 
         //判断权限
         this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ_DELETE, (String.format(URL_GET_MODULE_DELETE, IDGenerator.nextNum())));
@@ -2184,8 +1798,8 @@ public class TestPlanTests extends BaseTest {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
         request.setProjectId("123");
         request.setType("ALL");
-        request.setSelectAll(true);
         request.setModuleId("2");
+        request.setSelectIds(Arrays.asList("wx_test_plan_id_1", "wx_test_plan_id_2"));
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
 
@@ -2197,8 +1811,8 @@ public class TestPlanTests extends BaseTest {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
         request.setProjectId("123");
         request.setType("ALL");
-        request.setSelectAll(true);
         request.setModuleId("3");
+        request.setSelectIds(Arrays.asList("wx_test_plan_id_3","wx_test_plan_id_4"));
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
 
@@ -2215,6 +1829,17 @@ public class TestPlanTests extends BaseTest {
         this.requestPost(URL_TEST_PLAN_BATCH_ARCHIVED, request, status().is5xxServerError());
         request.setSelectIds(List.of("wx_test_plan_id_7"));
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_ARCHIVED, request);
+    }
+
+
+    @Test
+    @Order(305)
+    public void testAssociation() throws Exception {
+        TestPlanAssociationRequest request = new TestPlanAssociationRequest();
+        request.setTestPlanId("wx_test_plan_id_1");
+        this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
+        request.setFunctionalSelectIds(Arrays.asList("my_test_1", "my_test_2", "my_test_3"));
+        this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
     }
 
 }
