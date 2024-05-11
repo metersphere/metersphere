@@ -1,5 +1,6 @@
 import type { TableQueryParams } from '@/models/common';
 import { ColumnEditTypeEnum, SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
+import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
 import type { TableChangeExtra, TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
 
@@ -15,13 +16,10 @@ export interface MsPaginationI {
 }
 
 export interface MsTableColumnFilterConfig {
-  filterSlotName?: string; // 筛选组件的slotName
-  multiple?: boolean; // 是否多选
-  // 筛选数据
-  options?: {
-    label: string;
-    value: string;
-  }[];
+  filterSlotName?: FilterSlotNameEnum; // 筛选组件的slotName @desc 定义枚举是为了table组件内的插槽的filterSlotName 可以精确的让外部组件使用的时候可以拿到插槽作用域的值
+  options?: Record<string, any>[]; // 筛选数据
+  valueKey?: string;
+  labelKey?: string;
 }
 
 export interface MsTableColumnData extends TableColumnData {
@@ -51,6 +49,8 @@ export interface MsTableColumnData extends TableColumnData {
   columnTitle?: string;
   // 是否是自定义字段
   isCustomParam?: boolean;
+  // 插槽表格过滤筛选数据item
+  filterItem?: any;
   // 自定义属性
   [key: string]: any;
 }

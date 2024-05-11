@@ -96,40 +96,9 @@
         </a-tooltip></div
       >
     </template>
-    <template #statusFilter="{ columnConfig }">
-      <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-        <a-button type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
-          {{ t(columnConfig.title as string) }}
-          <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-        </a-button>
-        <template #content>
-          <div class="arco-table-filters-content">
-            <div class="flex items-center justify-center px-[6px] py-[2px]">
-              <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                <a-checkbox v-for="key of Object.keys(planStatusMap)" :key="key" :value="key">
-                  <a-tag
-                    :color="planStatusMap[key as planStatusType].color"
-                    :class="[planStatusMap[key as planStatusType].class, 'px-[4px]']"
-                    size="small"
-                  >
-                    {{ t(planStatusMap[key as planStatusType].label) }}
-                  </a-tag>
-                </a-checkbox>
-              </a-checkbox-group>
-            </div>
-            <div class="filter-button">
-              <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                {{ t('common.reset') }}
-              </a-button>
-              <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                {{ t('system.orgTemplate.confirm') }}
-              </a-button>
-            </div>
-          </div>
-        </template>
-      </a-trigger>
+    <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
+      <statusTag :status="filterContent.value" />
     </template>
-
     <template #status="{ record }">
       <statusTag :status="record.status" />
     </template>
@@ -298,9 +267,10 @@
   import type { planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
-  import { planStatusMap } from '../config';
+  import { planStatusOptions } from '../config';
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -358,7 +328,10 @@
       title: 'testPlan.testPlanIndex.executionResult',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'statusFilter',
+      filterConfig: {
+        options: planStatusOptions,
+        filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
+      },
       showInTable: true,
       showDrag: true,
       width: 150,
@@ -610,7 +583,6 @@
       selectAll: !!batchParams.value?.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      filter: {},
       condition: {
         keyword: keyword.value,
       },

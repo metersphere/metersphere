@@ -66,7 +66,9 @@
           :sortable="item.sortable"
           :filterable="item.filterable"
           :cell-class="item.cellClass"
-          :header-cell-class="item.headerCellClass"
+          :header-cell-class="`${
+            item.headerCellClass || (item.filterConfig && isHeighten) ? 'header-cell-filter' : ''
+          }`"
           :body-cell-class="item.bodyCellClass"
           :summary-cell-class="item.summaryCellClass"
           :cell-style="item.cellStyle"
@@ -80,7 +82,13 @@
           <template #title>
             <div :class="{ 'flex w-full flex-row flex-nowrap items-center gap-[4px]': !item.align }">
               <slot :name="item.titleSlotName" :column-config="item">
-                <div v-if="item.title" class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
+                <div
+                  v-if="item.title"
+                  :class="`${
+                    item.filterConfig && isHeighten ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-3)]'
+                  } pl-1`"
+                  >{{ t(item.title as string) }}</div
+                >
               </slot>
               <columnSelectorIcon
                 v-if="
@@ -92,22 +100,18 @@
                 @show-setting="handleShowSetting"
                 @init-data="handleInitColumn"
               />
-              <slot v-else-if="item.filterConfig" :name="item.filterConfig.filterSlotName">
-                <!-- <DefaultFilter
-                  class="ml-[4px]"
-                  :options="item.filterConfig.options"
-                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
-                /> -->
-                <!-- TODO 待办 过滤选项不生效 -->
-                <!-- <TableFilter
-                  v-bind="item.filterConfig"
-                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string,item.isCustomParam || false)"
-                >
-                  <template #item="{ item: itemValue, index }">
-                    <slot name="filter-content" :item="itemValue" :index="index"> </slot>
-                  </template>
-                </TableFilter> -->
-              </slot>
+              <DefaultFilter
+                v-else-if="item.filterConfig"
+                class="ml-[4px]"
+                :options="item.filterConfig.options"
+                @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
+                @show="showFilter(true)"
+                @hide="showFilter(false)"
+              >
+                <template #item="{ filterItem }">
+                  <slot :name="item.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
+                </template>
+              </DefaultFilter>
             </div>
           </template>
           <template #cell="{ column, record, rowIndex }">
@@ -280,9 +284,7 @@
   import BatchAction from './batchAction.vue';
   import ColumnSelector from './columnSelector.vue';
   import columnSelectorIcon from './columnSelectorIcon.vue';
-  // TODO待办
-  // import DefaultFilter from './comp/defaultFilter.vue';
-  // import TableFilter from './comp/tableFilter.vue';
+  import DefaultFilter from './comp/defaultFilter.vue';
   import SelectALL from './select-all.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -628,14 +630,19 @@
     columnSelectorVisible.value = true;
   };
 
-  // const handleFilterConfirm = (value: (string | number)[], dataIndex: string, isCustomParam: boolean) => {
-  //   emit('filterChange', dataIndex, value, isCustomParam);
-  // };
+  const handleFilterConfirm = (value: (string | number)[], dataIndex: string, isCustomParam: boolean) => {
+    emit('filterChange', dataIndex, value, isCustomParam);
+  };
 
   onMounted(async () => {
     await initColumn();
     batchLeft.value = getBatchLeft();
   });
+
+  const isHeighten = ref<boolean>(false);
+  function showFilter(visible: boolean) {
+    isHeighten.value = visible;
+  }
 
   watch(
     () => props.columns,
@@ -806,6 +813,20 @@
     .arco-table-sorter-icon:not(.arco-table-sorter-icon-active) {
       .arco-icon-caret-up {
         color: var(--color-neutral-5);
+      }
+    }
+  }
+  :deep(.header-cell-filter) {
+    .arco-table-cell-with-filter {
+      float: left;
+      border-radius: 4px;
+      .arco-table-th-title {
+        border-radius: 4px;
+        color: rgb(var(--primary-5));
+        background: rgb(var(--primary-1)) content-box;
+        .filter-icon {
+          color: rgb(var(--primary-5)) !important;
+        }
       }
     }
   }

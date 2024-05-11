@@ -1,24 +1,36 @@
 <template>
   <a-trigger v-model:popup-visible="visible" trigger="click">
-    <a-button type="text" @click="visible = true">
-      <template #icon>
-        <icon-filter class="text-[var(--color-text-4)]" />
-      </template>
-    </a-button>
+    <span class="cursor-pointer pr-[2px]" @click="visible = true">
+      <svg-icon
+        width="16px"
+        height="16px"
+        :name="visible ? 'filter-icon-color' : 'filter-icon'"
+        class="text-[12px] font-medium text-[rgb(var(--danger-6))]"
+      />
+    </span>
     <template #content>
       <div class="arco-table-filters-content">
         <div class="arco-table-filters-content-list">
           <div class="max-h-[300px] overflow-y-auto px-[12px] py-[4px]">
-            <a-checkbox-group v-if="props.multiple" v-model="checkedList" size="mini" direction="vertical">
-              <a-checkbox v-for="item in props.options" :key="item.value" :value="item.value">
-                {{ item.label }}
+            <a-checkbox-group v-model="checkedList" size="mini" direction="vertical">
+              <a-checkbox
+                v-for="(item, index) of props.options"
+                :key="item[props.valueKey || 'value']"
+                :value="item[props.valueKey || 'value']"
+              >
+                <a-tooltip
+                  :content="item[props.labelKey || 'label']"
+                  :mouse-enter-delay="300"
+                  :disabled="!item[props.labelKey || 'label']"
+                >
+                  <div class="one-line-text max-w-[120px]">
+                    <slot name="item" :filter-item="item" :index="index">
+                      <div class="one-line-text max-w-[120px]">{{ item[props.labelKey || 'label'] }}</div>
+                    </slot>
+                  </div>
+                </a-tooltip>
               </a-checkbox>
             </a-checkbox-group>
-            <a-radio-group v-else v-model="checkedValue" size="mini" direction="vertical">
-              <a-radio v-for="item in props.options" :key="item.value" :value="item.value">
-                {{ item.label }}
-              </a-radio>
-            </a-radio-group>
           </div>
           <div class="arco-table-filters-bottom">
             <a-button size="mini" type="secondary" @click="handleFilterReset">
@@ -38,9 +50,14 @@
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
+
+  export interface FilterListItem {
+    [key: string]: any;
+  }
   const props = defineProps<{
-    multiple: boolean;
-    options?: { label: string; value: string | number }[];
+    options?: FilterListItem[];
+    valueKey?: string;
+    labelKey?: string;
   }>();
   const emit = defineEmits<{
     (e: 'handleConfirm', value: (string | number)[]): void;
@@ -49,24 +66,15 @@
   const visible = ref(false);
 
   const checkedList = ref<(string | number)[]>([]);
-  const checkedValue = ref<string | number>('');
 
   const handleFilterReset = () => {
-    if (props.multiple) {
-      checkedList.value = [];
-    } else {
-      checkedValue.value = '';
-    }
+    checkedList.value = [];
     emit('handleConfirm', []);
     visible.value = false;
   };
 
   const handleFilterSubmit = () => {
-    if (props.multiple) {
-      emit('handleConfirm', checkedList.value);
-    } else {
-      emit('handleConfirm', checkedValue.value ? [checkedValue.value] : []);
-    }
+    emit('handleConfirm', checkedList.value);
     visible.value = false;
   };
 </script>
