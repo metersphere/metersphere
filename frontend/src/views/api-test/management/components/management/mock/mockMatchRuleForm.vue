@@ -2,6 +2,7 @@
   <a-form ref="formRef" :model="formModel" layout="vertical">
     <a-spin :loading="loading" class="block">
       <div
+        v-if="matchRules.length > 0"
         :class="`flex ${
           matchRules.length > 1 ? 'items-stretch' : 'items-center'
         } gap-[16px] bg-[var(--color-text-n9)] p-[12px]`"
@@ -96,6 +97,9 @@
             </div>
           </div>
         </div>
+      </div>
+      <div v-else>
+        <a-empty :description="t('mockManagement.noMatchRules')"></a-empty>
       </div>
     </a-spin>
   </a-form>
@@ -265,6 +269,7 @@
               ...file,
               fileId: res.data,
               fileName: file.name || '',
+              fileAlias: file.name || '',
             };
             break;
           }
@@ -274,7 +279,8 @@
         record.files = files.map((e) => ({
           ...e,
           fileId: e.uid || e.fileId || '',
-          fileName: e.name || e.fileName || '',
+          fileName: e.originalName || '',
+          fileAlias: e.name || '',
         }));
       }
       addMatchRule(rowIndex);

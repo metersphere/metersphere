@@ -124,7 +124,7 @@ export default {
   'system.config.auth.nameRequired': '认证源名称不能为空',
   'system.config.auth.namePlaceholder': '请输入认证源名称',
   'system.config.auth.descPlaceholder': '请对该认证源进行描述',
-  'system.config.auth.addResource': '添加资源',
+  'system.config.auth.addResource': '添加认证',
   'system.config.auth.serviceUrl': '服务端地址',
   'system.config.auth.serviceUrlRequired': '服务端地址不能为空',
   'system.config.auth.commonUrlPlaceholder': '例如：{url}',

@@ -893,6 +893,7 @@
               ...file,
               fileId: res.data,
               fileName: file.name || '',
+              fileAlias: file.name || '',
             };
             break;
           }
@@ -902,7 +903,8 @@
         record.files = files.map((e) => ({
           ...e,
           fileId: e.uid || e.fileId || '',
-          fileName: e.name || e.fileName || '',
+          fileName: e.originalName || '',
+          fileAlias: e.name || '',
         }));
       }
       addTableLine(rowIndex);

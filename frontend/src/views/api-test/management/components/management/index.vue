@@ -135,7 +135,11 @@
 
   function newTab(apiInfo?: ModuleTreeNode | string, isCopy?: boolean, isExecute?: boolean) {
     if (apiInfo) {
-      apiRef.value?.openApiTab(apiInfo, isCopy, isExecute);
+      apiRef.value?.openApiTab({
+        apiInfo,
+        isCopy,
+        isExecute,
+      });
     } else {
       apiRef.value?.addApiTab();
     }

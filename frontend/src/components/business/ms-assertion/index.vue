@@ -28,7 +28,7 @@
         </a-tooltip>
       </div>
     </div>
-    <div v-if="showBody" class="ms-assertion-body w-full">
+    <div v-if="showBody" class="ms-assertion-body w-full overflow-hidden">
       <div class="ms-assertion-body-left h-full w-[25%] min-w-[220px]">
         <VueDraggable v-model="assertions" ghost-class="ghost" handle=".sort-handle">
           <div
@@ -77,63 +77,61 @@
         </VueDraggable>
       </div>
       <div
-        class="ms-assertion-body-right h-full"
+        class="ms-assertion-body-right h-full flex-1 overflow-hidden"
         :class="{
           'p-4 pr-0': getCurrentItemState.assertionType !== ResponseAssertionType.SCRIPT,
           'border border-solid border-[var(--color-text-n8)]':
             getCurrentItemState.assertionType !== ResponseAssertionType.SCRIPT,
         }"
       >
-        <div class="w-full">
-          <!-- 响应头 -->
-          <ResponseHeaderTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_HEADER"
-            v-model:data="getCurrentItemState"
-            class="pr-4"
-            :disabled="props.disabled"
-            @change="handleChange"
-          />
-          <!-- 状态码 -->
-          <StatusCodeTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_CODE"
-            v-model:data="getCurrentItemState"
-            :disabled="props.disabled"
-            @change="handleChange"
-          />
-          <!-- 响应体 -->
-          <ResponseBodyTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_BODY"
-            v-model:data="getCurrentItemState"
-            :disabled="props.disabled"
-            :response="props.response"
-            :show-extraction="props.showExtraction"
-            @change="handleChange"
-          />
-          <!-- 响应时间 -->
-          <ResponseTimeTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_TIME"
-            v-model:data="getCurrentItemState"
-            :disabled="props.disabled"
-            @change="handleChange"
-          />
-          <!-- 变量 -->
-          <VariableTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.VARIABLE"
-            v-model:data="getCurrentItemState"
-            :disabled="props.disabled"
-            @change="handleChange"
-          />
-          <!-- 脚本 -->
-          <ScriptTab
-            v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
-            v-model:data="getCurrentItemState"
-            :disabled="props.disabled"
-            :script-code-editor-height="props.scriptCodeEditorHeight"
-            @change="handleChange"
-            @delete-script-item="deleteScriptItem"
-            @copy="copyItem"
-          />
-        </div>
+        <!-- 响应头 -->
+        <ResponseHeaderTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_HEADER"
+          v-model:data="getCurrentItemState"
+          class="pr-4"
+          :disabled="props.disabled"
+          @change="handleChange"
+        />
+        <!-- 状态码 -->
+        <StatusCodeTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_CODE"
+          v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
+          @change="handleChange"
+        />
+        <!-- 响应体 -->
+        <ResponseBodyTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_BODY"
+          v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
+          :response="props.response"
+          :show-extraction="props.showExtraction"
+          @change="handleChange"
+        />
+        <!-- 响应时间 -->
+        <ResponseTimeTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.RESPONSE_TIME"
+          v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
+          @change="handleChange"
+        />
+        <!-- 变量 -->
+        <VariableTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.VARIABLE"
+          v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
+          @change="handleChange"
+        />
+        <!-- 脚本 -->
+        <ScriptTab
+          v-if="getCurrentItemState.assertionType === ResponseAssertionType.SCRIPT"
+          v-model:data="getCurrentItemState"
+          :disabled="props.disabled"
+          :script-code-editor-height="props.scriptCodeEditorHeight"
+          @change="handleChange"
+          @delete-script-item="deleteScriptItem"
+          @copy="copyItem"
+        />
       </div>
     </div>
   </div>

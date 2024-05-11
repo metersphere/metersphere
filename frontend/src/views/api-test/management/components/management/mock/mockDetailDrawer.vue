@@ -60,20 +60,23 @@
       </MsDetailCard>
       <a-form ref="mockForm" :model="mockDetail" :disabled="isReadOnly">
         <a-form-item
-          class="hidden-item"
+          class="hidden-item mb-[16px]"
           field="name"
           :rules="[{ required: true, message: t('mockManagement.nameNotNull') }]"
         >
           <a-input
             v-model:model-value="mockDetail.name"
             :placeholder="t('mockManagement.namePlaceholder')"
-            class="mb-[16px] w-[732px]"
+            class="w-[732px]"
           ></a-input>
         </a-form-item>
-        <a-form-item class="hidden-item" :rules="[{ required: true, message: t('mockManagement.nameNotNull') }]">
+        <a-form-item
+          class="hidden-item mb-[16px]"
+          :rules="[{ required: true, message: t('mockManagement.nameNotNull') }]"
+        >
           <MsTagsInput
             v-model:model-value="mockDetail.tags"
-            class="mb-[16px] w-[732px]"
+            class="w-[732px]"
             allow-clear
             unique-value
             retain-input-value
@@ -374,20 +377,26 @@
   const currentKeyOptions = computed(() => {
     switch (activeTab.value) {
       case RequestComposition.HEADER:
-        return filterKeyValParams(props.definitionDetail.headers, defaultMatchRuleItem).validParams.map((e) => ({
-          label: e.key,
-          value: e.key,
-        }));
+        return filterKeyValParams(props.definitionDetail.headers, defaultMatchRuleItem)
+          .validParams.filter((e, index, self) => self.findIndex((item) => item.key === e.key) === index)
+          .map((e) => ({
+            label: e.key,
+            value: e.key,
+          }));
       case RequestComposition.QUERY:
-        return filterKeyValParams(props.definitionDetail.query, defaultMatchRuleItem).validParams.map((e) => ({
-          label: e.key,
-          value: e.key,
-        }));
+        return filterKeyValParams(props.definitionDetail.query, defaultMatchRuleItem)
+          .validParams.filter((e, index, self) => self.findIndex((item) => item.key === e.key) === index)
+          .map((e) => ({
+            label: e.key,
+            value: e.key,
+          }));
       case RequestComposition.REST:
-        return filterKeyValParams(props.definitionDetail.rest, defaultMatchRuleItem).validParams.map((e) => ({
-          label: e.key,
-          value: e.key,
-        }));
+        return filterKeyValParams(props.definitionDetail.rest, defaultMatchRuleItem)
+          .validParams.filter((e, index, self) => self.findIndex((item) => item.key === e.key) === index)
+          .map((e) => ({
+            label: e.key,
+            value: e.key,
+          }));
       default:
         return [];
     }
@@ -396,23 +405,21 @@
   const currentBodyKeyOptions = computed(() => {
     switch (mockDetail.value.mockMatchRule.body.bodyType) {
       case RequestBodyFormat.FORM_DATA:
-        return filterKeyValParams(
-          props.definitionDetail.body.formDataBody.formValues,
-          defaultMatchRuleItem
-        ).validParams.map((e) => ({
-          label: e.key,
-          value: e.key,
-          paramType: e.paramType,
-        }));
+        return filterKeyValParams(props.definitionDetail.body.formDataBody.formValues, defaultMatchRuleItem)
+          .validParams.filter((e, index, self) => self.findIndex((item) => item.key === e.key) === index)
+          .map((e) => ({
+            label: e.key,
+            value: e.key,
+            paramType: e.paramType,
+          }));
       case RequestBodyFormat.WWW_FORM:
-        return filterKeyValParams(
-          props.definitionDetail.body.wwwFormBody.formValues,
-          defaultMatchRuleItem
-        ).validParams.map((e) => ({
-          label: e.key,
-          value: e.key,
-          paramType: e.paramType,
-        }));
+        return filterKeyValParams(props.definitionDetail.body.wwwFormBody.formValues, defaultMatchRuleItem)
+          .validParams.filter((e, index, self) => self.findIndex((item) => item.key === e.key) === index)
+          .map((e) => ({
+            label: e.key,
+            value: e.key,
+            paramType: e.paramType,
+          }));
       default:
         return [];
     }
@@ -569,10 +576,10 @@
       } else {
         // 关联文件
         mockDetail.value.mockMatchRule.body.binaryBody.file = {
-          ...fileList.value[0],
-          fileId: fileList.value[0]?.uid,
-          fileName: fileList.value[0]?.originalName || '',
-          fileAlias: fileList.value[0]?.name || '',
+          ...file,
+          fileId: file?.uid || '',
+          fileName: file?.originalName || '',
+          fileAlias: file?.name || '',
           local: false,
         };
       }
