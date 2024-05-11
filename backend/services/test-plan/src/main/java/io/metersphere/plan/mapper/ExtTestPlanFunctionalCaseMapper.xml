@@ -413,4 +413,18 @@
         AND functional_case.deleted = #{deleted}
         <include refid="queryWhereCondition"/>
     </select>
+
+    <select id="getPlanFunctionalCaseByIds" resultType="io.metersphere.plan.domain.TestPlanFunctionalCase">
+        select tpfc.test_plan_id testPlanId, tpfc.functional_case_id functionalCaseId, tpfc.last_exec_result lastExecResult
+        from test_plan_functional_case tpfc join functional_case fc on fc.id = tpfc.functional_case_id
+        <where>
+            fc.deleted = false
+            <if test="planIds != null and planIds.size() > 0">
+                and tpfc.test_plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

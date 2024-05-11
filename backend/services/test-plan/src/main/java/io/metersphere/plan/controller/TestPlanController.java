@@ -5,9 +5,11 @@ import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.service.TestPlanLogService;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.plan.service.TestPlanStatisticsService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
@@ -35,6 +37,8 @@ public class TestPlanController {
     private TestPlanService testPlanService;
     @Resource
     private TestPlanManagementService testPlanManagementService;
+    @Resource
+    private TestPlanStatisticsService testPlanStatisticsService;
 
 
     @PostMapping("/page")
@@ -46,6 +50,12 @@ public class TestPlanController {
         return testPlanManagementService.page(request);
     }
 
+    @PostMapping("/statistics")
+    @Operation(summary = "测试计划-获取计划详情统计{通过率, 执行进度}")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public List<TestPlanStatisticsResponse> selectTestPlanMetricById(@RequestBody List<String> ids) {
+        return testPlanStatisticsService.calculateRate(ids);
+    }
 
     @PostMapping("/module/count")
     @Operation(summary = "测试计划-模块统计")

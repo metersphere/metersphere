@@ -101,6 +101,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_GET_TEST_PLAN_COUNT = "/test-plan/getCount/%s";
     private static final String URL_GET_TEST_PLAN_DELETE = "/test-plan/delete/%s";
     private static final String URL_POST_TEST_PLAN_PAGE = "/test-plan/page";
+    private static final String URL_POST_TEST_PLAN_STATISTICS = "/test-plan/statistics";
     private static final String URL_POST_TEST_PLAN_MODULE_COUNT = "/test-plan/module/count";
     private static final String URL_POST_TEST_PLAN_ADD = "/test-plan/add";
     private static final String URL_POST_TEST_PLAN_UPDATE = "/test-plan/update";
@@ -2215,6 +2216,12 @@ public class TestPlanTests extends BaseTest {
         this.requestPost(URL_TEST_PLAN_BATCH_ARCHIVED, request, status().is5xxServerError());
         request.setSelectIds(List.of("wx_test_plan_id_7"));
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_ARCHIVED, request);
+    }
+
+    @Test
+    @Order(306)
+    public void testStatistics() throws Exception {
+        this.requestPostWithOk(URL_POST_TEST_PLAN_STATISTICS, List.of("wx_test_plan_id_7"));
     }
 
 }

@@ -1,9 +1,25 @@
 package io.metersphere.sdk.constants;
 
 public enum FunctionalCaseExecuteResult {
-    UN_EXECUTED,
-    PASSED,
-    FAILED,
+
+    /**
+     * 未执行
+     */
+    PENDING,
+    /**
+     * 通过
+     */
+    SUCCESS,
+    /**
+     * 失败
+     */
+    ERROR,
+    /**
+     * 阻塞
+     */
     BLOCKED,
-    SKIPPED
+    /**
+     * 误报
+     */
+    FAKE_ERROR
 }

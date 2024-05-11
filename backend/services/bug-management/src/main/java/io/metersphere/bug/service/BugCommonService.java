@@ -178,19 +178,6 @@ public class BugCommonService {
 	}
 
 	/**
-	 * 获取状态集合
-	 * @param projectId 项目ID
-	 * @return 处理人集合
-	 */
-	public Map<String, String> getAllHandlerMap(String projectId) {
-		// 缺陷表头处理人选项
-		List<SelectOption> headerOptions = getHeaderHandlerOption(projectId);
-		List<SelectOption> localOptions = getLocalHandlerOption(projectId);
-		List<SelectOption> allHandleOption = ListUtils.union(headerOptions, localOptions).stream().distinct().toList();
-		return allHandleOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-	}
-
-	/**
 	 * 获取状态选项
 	 * @param projectId 项目ID
 	 * @return 状态集合

@@ -282,7 +282,7 @@ public class FunctionalCaseService {
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setPos(getNextOrder(request.getProjectId()));
         functionalCase.setRefId(caseId);
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);
         functionalCase.setUpdateUser(userId);
@@ -808,7 +808,7 @@ public class FunctionalCaseService {
                     functional.setName(getCopyName(functionalCase.getName(), num, functional.getNum()));
                     functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
                     functional.setPos(nextOrder.get());
-                    functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+                    functional.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
                     functional.setCreateUser(userId);
                     functional.setUpdateUser(userId);
                     functional.setCreateTime(System.currentTimeMillis());
@@ -1125,7 +1125,7 @@ public class FunctionalCaseService {
         functionalCase.setPos(nextOrder);
         functionalCase.setVersionId(request.getVersionId());
         functionalCase.setRefId(caseId);
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);
         functionalCase.setUpdateUser(userId);

@@ -436,7 +436,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCase.setPos(500L);
         functionalCase.setVersionId("12335");
         functionalCase.setRefId(functionalCase.getId());
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
         functionalCase.setPublicCase(false);
         functionalCase.setLatest(true);
         functionalCase.setCreateUser("gyq");

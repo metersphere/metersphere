@@ -8,6 +8,7 @@ import io.metersphere.plan.dto.TestPlanBugCaseDTO;
 import io.metersphere.plan.dto.request.TestPlanBugPageRequest;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import io.metersphere.plan.mapper.ExtTestPlanBugMapper;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
 import jakarta.annotation.Resource;
@@ -89,11 +90,17 @@ public class TestPlanBugService extends TestPlanResourceService {
      * @param bugList 缺陷集合
      */
     private void parseCustomField(List<TestPlanBugPageResponse> bugList, String projectId) {
-        Map<String, String> allHandlerMap = bugCommonService.getAllHandlerMap(projectId);
+        // MS处理人会与第三方的值冲突, 分开查询
+        List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(projectId);
+        Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(projectId);
+        Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+
         Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(projectId);
         bugList.forEach(bug -> {
             // 解析处理人, 状态
-            bug.setHandleUser(allHandlerMap.get(bug.getHandleUser()));
+            bug.setHandleUser(headerHandleUserMap.containsKey(bug.getHandleUser()) ?
+                    headerHandleUserMap.get(bug.getHandleUser()) : localHandleUserMap.get(bug.getHandleUser()));
             bug.setStatus(allStatusMap.get(bug.getStatus()));
         });
     }

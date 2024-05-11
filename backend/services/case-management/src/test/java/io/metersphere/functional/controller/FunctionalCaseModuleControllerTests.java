@@ -23,13 +23,13 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -763,7 +763,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         functionalCase.setPos(500L);
         functionalCase.setVersionId("12335");
         functionalCase.setRefId(functionalCase.getId());
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
         functionalCase.setPublicCase(false);
         functionalCase.setLatest(true);
         functionalCase.setCreateUser("gyq");

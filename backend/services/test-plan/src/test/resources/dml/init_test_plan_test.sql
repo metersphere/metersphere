@@ -9,8 +9,20 @@ VALUES
     ('wx_test_plan_id_7', 30000, '123', 'NONE', '1', '测试组4下计划', 'COMPLETED', 'TEST_PLAN', NULL, 1714980158000, 'WX', 1714980158000, 'WX', 1714980158000, 1714980158000, 1714980158000, 1714980158000, '11');
 
 
-INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`)
-VALUES ('wx_tpfc_1', 'wx_test_plan_id_4', 'wx_fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1);
+INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`) VALUES
+    ('wx_tpfc_1', 'wx_test_plan_id_4', 'wx_fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1),
+    ('oasis_1', 'wx_test_plan_id_7', 'oasis_fc_1', 1714980158000, 'admin', NULL, NULL, 'UN_EXECUTED', 1),
+    ('oasis_2', 'wx_test_plan_id_7', 'oasis_fc_2', 1714980158000, 'admin', NULL, NULL, 'PASSED', 1),
+    ('oasis_3', 'wx_test_plan_id_7', 'oasis_fc_3', 1714980158000, 'admin', NULL, NULL, 'FAILED', 1),
+    ('oasis_4', 'wx_test_plan_id_7', 'oasis_fc_4', 1714980158000, 'admin', NULL, NULL, 'BLOCKED', 1),
+    ('oasis_5', 'wx_test_plan_id_7', 'oasis_fc_5', 1714980158000, 'admin', NULL, NULL, 'FAKE_ERROR', 1);
+
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time) VALUES
+  ('oasis_fc_1', 10001, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'PENDING', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+  ('oasis_fc_2', 10002, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'SUCCESS', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+  ('oasis_fc_3', 10003, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'ERROR', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+  ('oasis_fc_4', 10004, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'BLOCKED', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
+  ('oasis_fc_5', 10005, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'FAKE_ERROR', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL);
 
 
 INSERT INTO `test_plan_module`(`id`, `project_id`, `name`, `parent_id`, `pos`, `create_time`, `update_time`, `create_user`, `update_user`)

@@ -37,7 +37,7 @@ public class TestPlanBatchArchivedService extends TestPlanBaseUtilsService {
      * @param plans
      */
     private int batchArchivedGroup(Map<String, List<TestPlan>> plans, TestPlanBatchProcessRequest request, String userId) {
-        //TODO 批量移动计划组
+        //TODO 批量归档计划组
         return 0;
     }
 
