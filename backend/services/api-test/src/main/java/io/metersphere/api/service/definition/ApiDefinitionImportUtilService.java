@@ -55,7 +55,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -116,9 +115,7 @@ public class ApiDefinitionImportUtilService {
             request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
         }
         try {
-            LogUtils.info("=======================数据开始解析====================");
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
-            LogUtils.info("===================数据解析完成==================");
             //TODO  处理mock数据
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
@@ -127,7 +124,6 @@ public class ApiDefinitionImportUtilService {
 
         try {
             importApi(request, apiImport);
-            LogUtils.info("===================数据导入完成==================");
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException(Translator.get("user_import_format_wrong"));
@@ -214,14 +210,10 @@ public class ApiDefinitionImportUtilService {
         apiLists = apiLists.stream().filter(t -> modulePathMap.containsKey(t.getModulePath())).toList();
         ApiDetailWithData apiDealWithData = new ApiDetailWithData();
         //判断数据是否是唯一的
-        LogUtils.info("开始判断数据是否唯一");
         checkApiDataOnly(request, importData, apiLists, apiDealWithData);
-        LogUtils.info("判断数据是否唯一结束");
 
         ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
-        LogUtils.info("开始判断数据是否需要更新");
         getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
-        LogUtils.info("判断数据是否需要更新结束");
 
         //不用的数据清空，保证内存回收
         apiLists = new ArrayList<>();
@@ -235,12 +227,9 @@ public class ApiDefinitionImportUtilService {
         batchSaveLog(operationLogs);
     }
 
-    @Async
     @Transactional(rollbackFor = Exception.class)
     public void batchSaveLog(List<LogDTO> operationLogs) {
-        LogUtils.info("插入日志开始");
         SubListUtils.dealForSubList(operationLogs, 100, operationLogService::batchAdd);
-        LogUtils.info("插入日志结束");
     }
 
     public Long getNextOrder(String projectId) {
@@ -284,7 +273,6 @@ public class ApiDefinitionImportUtilService {
                            ApiDetailWithDataUpdate apiDetailWithDataUpdate,
                            ImportRequest request,
                            List<LogDTO> operationLogs) {
-        LogUtils.info("开始插入数据");
         //先判断是否需要新增模块
         List<ApiDefinitionImportDetail> addModuleData = apiDetailWithDataUpdate.getAddModuleData();
         List<ApiDefinitionImportDetail> updateModuleData = apiDetailWithDataUpdate.getUpdateModuleData();
@@ -334,15 +322,12 @@ public class ApiDefinitionImportUtilService {
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        LogUtils.info("插入数据结束");
         //发送通知
-        LogUtils.info("发送通知开始");
         List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
         User user = userMapper.selectByPrimaryKey(request.getUserId());
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
         List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(updateLists), Map.class));
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
-        LogUtils.info("发送通知结束");
     }
 
     private static void getNeedAddModule(Map<String, BaseTreeNode> modulePathMap, Map<String, BaseTreeNode> idModuleMap, Set<String> differenceSet, List<BaseTreeNode> addModuleList) {
