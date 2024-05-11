@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.dto.*;
+import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -82,6 +83,29 @@ public abstract class TestPlanResourceService {
             saveResourceFunc.accept(associationParam);
             response.setAssociationCount(associationIdList.size());
             testPlanResourceLogService.saveAddLog(testPlan, new ResourceLogInsertModule(resourceType, logInsertModule));
+        }
+        return response;
+    }
+
+    /**
+     * 取消关联资源od
+     *
+     * @return TestPlanAssociationResponse
+     */
+    public TestPlanAssociationResponse disassociate(
+            String resourceType,
+            BasePlanCaseBatchRequest request,
+            @Validated LogInsertModule logInsertModule,
+            List<String>associationIdList,
+            Consumer<TestPlanResourceAssociationParam> disassociate) {
+        TestPlanAssociationResponse response = new TestPlanAssociationResponse();
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        //获取有效ID
+        if (CollectionUtils.isNotEmpty(associationIdList)) {
+            TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(associationIdList, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), logInsertModule.getOperator());
+            disassociate.accept(associationParam);
+            response.setAssociationCount(associationIdList.size());
+            testPlanResourceLogService.saveDeleteLog(testPlan, new ResourceLogInsertModule(resourceType, logInsertModule));
         }
         return response;
     }

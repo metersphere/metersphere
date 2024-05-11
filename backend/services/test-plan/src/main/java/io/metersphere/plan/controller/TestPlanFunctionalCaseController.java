@@ -1,10 +1,9 @@
 package io.metersphere.plan.controller;
 
-import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
+import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
@@ -86,4 +85,13 @@ public class TestPlanFunctionalCaseController {
     public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseRequest request) {
         return testPlanFunctionalCaseService.moduleCount(request);
     }
+    @PostMapping("/batch/disassociate")
+    @Operation(summary = "测试计划-计划详情-列表-批量取消关联用例")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody BasePlanCaseBatchRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
+        return testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+    }
+
 }
