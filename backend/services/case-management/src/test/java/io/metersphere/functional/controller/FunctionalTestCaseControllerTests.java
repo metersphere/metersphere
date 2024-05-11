@@ -13,34 +13,44 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
+import io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
+import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.provider.BaseAssociateScenarioProvider;
 import io.metersphere.request.*;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -67,6 +77,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     private static final String URL_ASSOCIATE_TEST_PLAN_PAGE = "/functional/case/test/has/associate/plan/page";
 
+    private static final String URL_TEST_PLAN_EXECUTE_HISTORY = "/functional/case/test/plan/comment/";
 
 
     @Resource
@@ -89,6 +100,9 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     @Resource
     BaseAssociateBugProvider baseAssociateBugProvider;
+
+    @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
 
 
     @Test
@@ -547,5 +561,48 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(tableData);
         List<FunctionalCaseTestPlanDTO> list = tableData.getList();
         Assertions.assertEquals(2, list.size());
+    }
+
+    @Test
+    @Order(13)
+    public void testPlanExecuteHistoryList() throws Exception {
+        TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
+        testPlanCaseExecuteHistory.setTestPlanId("test_plan_associate_case_gyq_two");
+        testPlanCaseExecuteHistory.setCaseId("gyq_associate_function_case");
+        testPlanCaseExecuteHistory.setCreateUser("admin");
+        testPlanCaseExecuteHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        testPlanCaseExecuteHistory.setId("test");
+        String content = "你好评论";
+        testPlanCaseExecuteHistory.setContent(content.getBytes());
+        testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());
+        testPlanCaseExecuteHistoryMapper.insertSelective(testPlanCaseExecuteHistory);
+        List<TestPlanCaseExecuteHistoryDTO> gyqReviewCaseTest = getPlanExecuteHistoryList("gyq_associate_function_case");
+        Assertions.assertTrue(StringUtils.isNotBlank(gyqReviewCaseTest.get(0).getContentText()));
+        testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
+        testPlanCaseExecuteHistory.setTestPlanId("test_plan_associate_case_gyq_two");
+        testPlanCaseExecuteHistory.setCaseId("gyq_associate_function_case");
+        testPlanCaseExecuteHistory.setCreateUser("admin");
+        testPlanCaseExecuteHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        testPlanCaseExecuteHistory.setId("testNoContent");
+        testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());
+        String steps = "你好评论";
+        testPlanCaseExecuteHistory.setSteps(steps.getBytes());
+        testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());
+        testPlanCaseExecuteHistoryMapper.insertSelective(testPlanCaseExecuteHistory);
+        gyqReviewCaseTest = getPlanExecuteHistoryList("gyq_associate_function_case");
+        Assertions.assertTrue(gyqReviewCaseTest.size()>1);
+    }
+
+    public List<TestPlanCaseExecuteHistoryDTO> getPlanExecuteHistoryList(String caseId) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(URL_TEST_PLAN_EXECUTE_HISTORY + caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), TestPlanCaseExecuteHistoryDTO.class);
+
     }
 }

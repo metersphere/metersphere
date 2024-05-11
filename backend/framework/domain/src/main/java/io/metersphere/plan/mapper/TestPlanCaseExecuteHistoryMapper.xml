@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
+    <result column="case_id" jdbcType="VARCHAR" property="caseId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="notifier" jdbcType="VARCHAR" property="notifier" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    <result column="content" jdbcType="LONGVARBINARY" property="content" />
+    <result column="steps" jdbcType="LONGVARBINARY" property="steps" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, test_plan_id, case_id, `status`, deleted, notifier, create_user, create_time
+  </sql>
+  <sql id="Blob_Column_List">
+    content, steps
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from test_plan_case_execute_history
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from test_plan_case_execute_history
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from test_plan_case_execute_history
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from test_plan_case_execute_history
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample">
+    delete from test_plan_case_execute_history
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    insert into test_plan_case_execute_history (id, test_plan_id, case_id, 
+      `status`, deleted, notifier, 
+      create_user, create_time, content, 
+      steps)
+    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{notifier,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}, 
+      #{steps,jdbcType=LONGVARBINARY})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    insert into test_plan_case_execute_history
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="testPlanId != null">
+        test_plan_id,
+      </if>
+      <if test="caseId != null">
+        case_id,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="notifier != null">
+        notifier,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="steps != null">
+        steps,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanId != null">
+        #{testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="caseId != null">
+        #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
+      </if>
+      <if test="notifier != null">
+        #{notifier,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="steps != null">
+        #{steps,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample" resultType="java.lang.Long">
+    select count(*) from test_plan_case_execute_history
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update test_plan_case_execute_history
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testPlanId != null">
+        test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.caseId != null">
+        case_id = #{record.caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
+      <if test="record.notifier != null">
+        notifier = #{record.notifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.steps != null">
+        steps = #{record.steps,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update test_plan_case_execute_history
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
+      notifier = #{record.notifier,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      content = #{record.content,jdbcType=LONGVARBINARY},
+      steps = #{record.steps,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update test_plan_case_execute_history
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
+      notifier = #{record.notifier,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    update test_plan_case_execute_history
+    <set>
+      <if test="testPlanId != null">
+        test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="caseId != null">
+        case_id = #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
+      <if test="notifier != null">
+        notifier = #{notifier,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="steps != null">
+        steps = #{steps,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    update test_plan_case_execute_history
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      case_id = #{caseId,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
+      notifier = #{notifier,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      content = #{content,jdbcType=LONGVARBINARY},
+      steps = #{steps,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+    update test_plan_case_execute_history
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      case_id = #{caseId,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
+      notifier = #{notifier,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into test_plan_case_execute_history
+    (id, test_plan_id, case_id, `status`, deleted, notifier, create_user, create_time, 
+      content, steps)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.notifier,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}, 
+        #{item.steps,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into test_plan_case_execute_history (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_plan_id'.toString() == column.value">
+          #{item.testPlanId,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_id'.toString() == column.value">
+          #{item.caseId,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'notifier'.toString() == column.value">
+          #{item.notifier,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'steps'.toString() == column.value">
+          #{item.steps,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>

@@ -2,6 +2,7 @@ package io.metersphere.functional.mapper;
 
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
+import io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO;
 import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
@@ -16,5 +17,7 @@ public interface ExtFunctionalCaseTestMapper {
     List<FunctionalCaseTestDTO> getList(@Param("request") FunctionalCaseTestRequest request);
 
     List<FunctionalCaseTestPlanDTO> getPlanList(@Param("request") AssociatePlanPageRequest request);
+
+    List<TestPlanCaseExecuteHistoryDTO>getPlanExecuteHistoryList(@Param("caseId") String caseId, @Param("planId") String planId);
 
 }

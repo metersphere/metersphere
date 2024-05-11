@@ -76,6 +76,34 @@
         </include>
     </select>
 
+    <select id="getPlanExecuteHistoryList" resultType="io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO">
+        SELECT
+        tpceh.id,
+        tpceh.test_plan_id,
+        tpceh.case_id,
+        tpceh.status,
+        tpceh.notifier,
+        tpceh.create_user,
+        tpceh.create_time,
+        tpceh.content,
+        tpceh.deleted,
+        tpceh.steps,
+        u.name as userName,
+        ux.avatar as userLogo,
+        tp.name as testPlanName,
+        u.email as email
+        FROM
+        test_plan_case_execute_history tpceh
+        left join user u on  tpceh.create_user = u.id
+        left join user_extend ux on  tpceh.create_user = ux.id
+        left join test_plan tp on  tpceh.test_plan_id = tp.id
+        where tpceh.case_id = #{caseId}
+        <if test="planId != null and planId != ''">
+            and tpceh.test_plan_id = #{planId}
+        </if>
+        order by tpceh.create_time desc
+    </select>
+
     <sql id="queryWhereConditionByBaseQueryRequest">
         <if test="request.condition.keyword != null and request.sourceType == 'API'">
             functional_case_test.source_id not in

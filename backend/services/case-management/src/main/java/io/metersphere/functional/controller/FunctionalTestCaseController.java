@@ -6,6 +6,7 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
+import io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO;
 import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
@@ -135,5 +136,13 @@ public class FunctionalTestCaseController {
     public Pager<List<FunctionalCaseTestPlanDTO>> getAssociateOtherPlanList(@Validated @RequestBody AssociatePlanPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, functionalTestCaseService.hasAssociatePlanPage(request));
+    }
+
+    @GetMapping("/plan/comment/{caseId}")
+    @Operation(summary = "用例管理-功能用例-测试计划-获取执行评论历史")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#caseId", resourceType = "functional_case")
+    public List<TestPlanCaseExecuteHistoryDTO> getTestPlanCaseExecuteHistory(@PathVariable String caseId) {
+        return functionalTestCaseService.getTestPlanCaseExecuteHistory(caseId);
     }
 }

@@ -9,6 +9,7 @@ import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
+import io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
@@ -32,6 +33,7 @@ import org.redisson.api.IdGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -253,5 +255,18 @@ public class FunctionalTestCaseService {
      */
     public List<FunctionalCaseTestPlanDTO> hasAssociatePlanPage(AssociatePlanPageRequest request) {
         return extFunctionalCaseTestMapper.getPlanList(request);
+    }
+
+    public List<TestPlanCaseExecuteHistoryDTO> getTestPlanCaseExecuteHistory(String caseId) {
+        List<TestPlanCaseExecuteHistoryDTO> planExecuteHistoryList = extFunctionalCaseTestMapper.getPlanExecuteHistoryList(caseId, null);
+        for (TestPlanCaseExecuteHistoryDTO planCaseExecuteHistoryDTO : planExecuteHistoryList) {
+            if (planCaseExecuteHistoryDTO.getContent() != null) {
+                planCaseExecuteHistoryDTO.setContentText(new String(planCaseExecuteHistoryDTO.getContent(), StandardCharsets.UTF_8));
+            }
+            if (planCaseExecuteHistoryDTO.getSteps() != null) {
+                planCaseExecuteHistoryDTO.setStepsText(new String(planCaseExecuteHistoryDTO.getSteps(), StandardCharsets.UTF_8));
+            }
+        }
+        return planExecuteHistoryList;
     }
 }
