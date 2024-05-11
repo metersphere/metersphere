@@ -67,7 +67,7 @@
           :filterable="item.filterable"
           :cell-class="item.cellClass"
           :header-cell-class="`${
-            item.headerCellClass || (item.filterConfig && isHeighten) ? 'header-cell-filter' : ''
+            item.headerCellClass || (item.filterConfig && isHighlightFilterBackground) ? 'header-cell-filter' : ''
           }`"
           :body-cell-class="item.bodyCellClass"
           :summary-cell-class="item.summaryCellClass"
@@ -85,7 +85,9 @@
                 <div
                   v-if="item.title"
                   :class="`${
-                    item.filterConfig && isHeighten ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-3)]'
+                    item.filterConfig && isHighlightFilterBackground
+                      ? 'text-[rgb(var(--primary-5))]'
+                      : 'text-[var(--color-text-3)]'
                   } pl-1`"
                   >{{ t(item.title as string) }}</div
                 >
@@ -639,9 +641,9 @@
     batchLeft.value = getBatchLeft();
   });
 
-  const isHeighten = ref<boolean>(false);
+  const isHighlightFilterBackground = ref<boolean>(false);
   function showFilter(visible: boolean) {
-    isHeighten.value = visible;
+    isHighlightFilterBackground.value = visible;
   }
 
   watch(
