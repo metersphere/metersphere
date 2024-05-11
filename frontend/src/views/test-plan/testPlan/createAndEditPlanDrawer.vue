@@ -251,6 +251,7 @@
       if (props.planId?.length) {
         const result = await getTestPlanDetail(props.planId);
         form.value = cloneDeep(result);
+        form.value.cycle = [result.plannedStartTime as number, result.plannedEndTime as number];
       }
     } catch (error) {
       // eslint-disable-next-line no-console
