@@ -19,6 +19,8 @@ public class HttpRequestParam {
 
     private LinkedHashMap<String, String> bodyParamsObj;
 
+    private byte[] binaryParamsObj;
+
     private String paramType;
 
     //JSONArray 或 JSONObject

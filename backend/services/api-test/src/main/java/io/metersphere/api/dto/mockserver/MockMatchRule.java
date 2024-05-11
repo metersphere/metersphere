@@ -8,6 +8,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 //mock匹配规则
@@ -56,6 +58,8 @@ public class MockMatchRule implements Serializable {
                     keyValueMatchRule formDataBodyRule = new keyValueMatchRule();
                     if (formDataBody != null) {
                         formDataBodyRule.setMatchAll(formDataBody.isMatchAll());
+                        List<KeyValueInfo> matchRules = new ArrayList<>();
+                        formDataBodyRule.setMatchRules(matchRules);
                         formDataBody.getMatchRules().stream()
                                 .filter(keyValueInfo -> StringUtils.isNotBlank(keyValueInfo.getKey()))
                                 .forEach(keyValueInfo -> {

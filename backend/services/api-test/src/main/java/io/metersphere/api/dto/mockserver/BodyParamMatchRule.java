@@ -5,7 +5,6 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.XMLUtils;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -119,9 +118,6 @@ public class BodyParamMatchRule {
     }
 
     private boolean matchObject(Object mockRule, Object requestParam) {
-        if (ObjectUtils.anyNull(mockRule, requestParam)) {
-            return false;
-        }
 
         if (mockRule instanceof List<?> && requestParam instanceof List<?>) {
             List<Object> mockList = (List<Object>) mockRule;
