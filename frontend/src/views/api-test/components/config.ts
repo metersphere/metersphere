@@ -13,6 +13,7 @@ import {
   ResponseDefinition,
 } from '@/models/apiTest/common';
 import type { MockParams } from '@/models/apiTest/mock';
+import type { CsvVariable } from '@/models/apiTest/scenario';
 import {
   FullResponseAssertionType,
   RequestAssertionCondition,
@@ -242,16 +243,13 @@ export const regexDefaultParamItem = {
   moreSettingPopoverVisible: false,
 };
 // 响应断言类型映射
-export const responseAssertionTypeMap: Record<FullResponseAssertionType, string> = {
+export const responseAssertionTypeMap: Record<string, string> = {
   [FullResponseAssertionType.DOCUMENT]: 'apiTestManagement.document',
   [FullResponseAssertionType.RESPONSE_CODE]: 'apiTestManagement.responseCode',
   [FullResponseAssertionType.RESPONSE_HEADER]: 'apiTestManagement.responseHeader',
   [FullResponseAssertionType.RESPONSE_TIME]: 'apiTestManagement.responseTime',
   [FullResponseAssertionType.SCRIPT]: 'apiTestManagement.script',
   [FullResponseAssertionType.VARIABLE]: 'apiTestManagement.variable',
-  [FullResponseAssertionType.JSON_PATH]: 'jsonPath',
-  [FullResponseAssertionType.XPATH]: 'xPath',
-  [FullResponseAssertionType.REGEX]: 'apiTestManagement.regex',
 };
 // 提取类型选项
 export const extractTypeOptions = [
@@ -415,3 +413,32 @@ export const matchRuleOptions = [
 ];
 // mock 参数为文件类型的匹配规则选项
 export const mockFileMatchRules = ['EQUALS', 'NOT_EQUALS', 'IS_EMPTY', 'IS_NOT_EMPTY'];
+
+// 场景-常规参数默认值
+export const defaultNormalParamItem = {
+  key: '',
+  paramType: 'CONSTANT',
+  value: '',
+  description: '',
+  tags: [],
+  enable: true,
+};
+// 场景-csv参数默认值
+export const defaultCsvParamItem: CsvVariable = {
+  id: '',
+  fileId: '',
+  scenarioId: '',
+  name: '',
+  fileName: '',
+  scope: 'SCENARIO',
+  enable: true,
+  association: false,
+  encoding: 'UTF-8',
+  random: false,
+  variableNames: '',
+  ignoreFirstLine: false,
+  delimiter: ',',
+  allowQuotedData: false,
+  recycleOnEof: false,
+  stopThreadOnEof: false,
+};

@@ -515,6 +515,7 @@
           environmentId: appStore.getCurrentEnvId || '',
         });
         const scenarioDetail = await getScenarioDetail(res.id);
+        // 添加后获取后台组装的场景信息
         scenarioDetail.stepDetails = {};
         scenarioDetail.isNew = false;
         scenarioDetail.id = res.id;

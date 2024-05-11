@@ -26,7 +26,13 @@
     <template #typeTitle="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t('apiTestDebug.paramType') }}
-        <a-tooltip :content="columnConfig.typeTitleTooltip" :disabled="!columnConfig.typeTitleTooltip" position="right">
+        <a-tooltip :disabled="!columnConfig.typeTitleTooltip" position="right">
+          <template #content>
+            <template v-if="Array.isArray(columnConfig.typeTitleTooltip)">
+              <div v-for="tip of columnConfig.typeTitleTooltip" :key="tip">{{ tip }}</div>
+            </template>
+            <div v-else>{{ columnConfig.typeTitleTooltip }}</div>
+          </template>
           <icon-question-circle
             class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
             size="16"
@@ -184,6 +190,17 @@
     <template #expression="{ record, rowIndex, columnConfig }">
       <slot name="expression" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
     </template>
+    <!-- 作用域 -->
+    <template #scope="{ record, columnConfig, rowIndex }">
+      <a-select
+        v-model:model-value="record.scope"
+        :disabled="props.disabledExceptParam"
+        :options="columnConfig.typeOptions || []"
+        class="ms-form-table-input w-[180px]"
+        size="mini"
+        @change="() => addTableLine(rowIndex)"
+      />
+    </template>
     <!-- 参数值 -->
     <template #value="{ record, columnConfig, rowIndex }">
       <a-popover
@@ -236,6 +253,27 @@
         @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         @dblclick="quickInputParams(record)"
         @apply="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
+      />
+    </template>
+    <!-- 文件 -->
+    <template #file="{ record, rowIndex }">
+      <MsAddAttachment
+        v-model:file-list="record.files"
+        :disabled="props.disabledParamValue"
+        :multiple="false"
+        mode="input"
+        :fields="{
+          id: 'fileId',
+          name: 'fileAlias',
+        }"
+        :file-save-as-source-id="props.fileSaveAsSourceId"
+        :file-save-as-api="props.fileSaveAsApi"
+        :file-module-options-api="props.fileModuleOptionsApi"
+        input-class="ms-form-table-input h-[24px]"
+        input-size="small"
+        tag-size="small"
+        @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
+        @delete-file="() => emitChange('deleteFile')"
       />
     </template>
     <!-- 长度范围 -->
@@ -430,9 +468,20 @@
       />
       <div v-else class="text-[var(--color-text-1)]">{{ '-' }}</div>
     </template>
+    <!-- 单独启用/禁用列 -->
+    <template #enable="{ record, rowIndex }">
+      <a-switch
+        v-model="record.enable"
+        :disabled="props.disabledExceptParam"
+        size="small"
+        type="line"
+        class="ml-[8px]"
+        @change="() => addTableLine(rowIndex)"
+      />
+    </template>
     <!-- 操作 -->
     <template v-if="!props.disabledExceptParam" #operation="{ record, rowIndex, columnConfig }">
-      <div class="flex flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
+      <div class="flex w-full flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
           v-if="columnConfig.hasDisable"
           v-model="record.enable"
@@ -573,7 +622,7 @@
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
     hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
     typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
-    typeTitleTooltip?: string; // 用于 type 表头列展示的 tooltip
+    typeTitleTooltip?: string | string[]; // 用于 type 表头列展示的 tooltip
     hasDisable?: boolean; // 用于 operation 列区分是否有 enable 开关
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
     format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器

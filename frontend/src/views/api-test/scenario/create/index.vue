@@ -20,7 +20,8 @@
         >
           <params
             v-if="activeKey === ScenarioCreateComposition.PARAMS"
-            v-model:params="scenario.scenarioConfig.variable.commonVariables"
+            v-model:commonVariables="scenario.scenarioConfig.variable.commonVariables"
+            v-model:csvVariables="scenario.scenarioConfig.variable.csvVariables"
           />
         </a-tab-pane>
         <a-tab-pane
