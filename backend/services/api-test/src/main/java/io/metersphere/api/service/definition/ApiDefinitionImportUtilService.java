@@ -608,56 +608,69 @@ public class ApiDefinitionImportUtilService {
             Body dbbody = dbRequest.getBody();
             Body importBody = importRequest.getBody();
             if (dbbody != null && importBody != null) {
+                if (!StringUtils.equals(dbbody.getBodyType(), importBody.getBodyType())) {
+                    return false;
+                }
                 //判断null类型
                 StringUtils.equals(String.valueOf(dbbody.getNoneBody()), String.valueOf(importBody.getNoneBody()));
                 //判断form类型
-                FormDataBody formDataBody = dbbody.getFormDataBody();
-                FormDataBody importFormDataBody = importBody.getFormDataBody();
-                if (ObjectUtils.isNotEmpty(formDataBody) || ObjectUtils.isNotEmpty(importFormDataBody)) {
-                    List<FormDataKV> formValues = formDataBody.getFormValues();
-                    List<FormDataKV> importFormValues = importFormDataBody.getFormValues();
-                    if (CollectionUtils.isNotEmpty(formValues) || CollectionUtils.isNotEmpty(importFormValues)) {
-                        List<String> dbFormKeys = formValues.stream().map(FormDataKV::getKey).toList();
-                        List<String> importFormKeys = importFormValues.stream().map(FormDataKV::getKey).toList();
-                        if (paramsIsSame(dbFormKeys, importFormKeys)) {
-                            return false;
+                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.FORM_DATA.name())) {
+                    FormDataBody formDataBody = dbbody.getFormDataBody();
+                    FormDataBody importFormDataBody = importBody.getFormDataBody();
+                    if (ObjectUtils.isNotEmpty(formDataBody) || ObjectUtils.isNotEmpty(importFormDataBody)) {
+                        List<FormDataKV> formValues = formDataBody.getFormValues();
+                        List<FormDataKV> importFormValues = importFormDataBody.getFormValues();
+                        if (CollectionUtils.isNotEmpty(formValues) || CollectionUtils.isNotEmpty(importFormValues)) {
+                            List<String> dbFormKeys = formValues.stream().map(FormDataKV::getKey).toList();
+                            List<String> importFormKeys = importFormValues.stream().map(FormDataKV::getKey).toList();
+                            if (paramsIsSame(dbFormKeys, importFormKeys)) {
+                                return false;
+                            }
                         }
                     }
                 }
-                //判读www类型
-                WWWFormBody wwwBody = dbbody.getWwwFormBody();
-                WWWFormBody importWwwBody = importBody.getWwwFormBody();
-                if (ObjectUtils.isNotEmpty(wwwBody) || ObjectUtils.isNotEmpty(importWwwBody)) {
-                    List<WWWFormKV> wwwValues = wwwBody.getFormValues();
-                    List<WWWFormKV> importWwwValues = importWwwBody.getFormValues();
-                    if (CollectionUtils.isNotEmpty(wwwValues) || CollectionUtils.isNotEmpty(importWwwValues)) {
-                        List<String> dbWwwKeys = wwwValues.stream().map(WWWFormKV::getKey).toList();
-                        List<String> importWwwKeys = importWwwValues.stream().map(WWWFormKV::getKey).toList();
-                        if (paramsIsSame(dbWwwKeys, importWwwKeys)) {
-                            return false;
+                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.WWW_FORM.name())) {
+                    //判读www类型
+                    WWWFormBody wwwBody = dbbody.getWwwFormBody();
+                    WWWFormBody importWwwBody = importBody.getWwwFormBody();
+                    if (ObjectUtils.isNotEmpty(wwwBody) || ObjectUtils.isNotEmpty(importWwwBody)) {
+                        List<WWWFormKV> wwwValues = wwwBody.getFormValues();
+                        List<WWWFormKV> importWwwValues = importWwwBody.getFormValues();
+                        if (CollectionUtils.isNotEmpty(wwwValues) || CollectionUtils.isNotEmpty(importWwwValues)) {
+                            List<String> dbWwwKeys = wwwValues.stream().map(WWWFormKV::getKey).toList();
+                            List<String> importWwwKeys = importWwwValues.stream().map(WWWFormKV::getKey).toList();
+                            if (paramsIsSame(dbWwwKeys, importWwwKeys)) {
+                                return false;
+                            }
                         }
                     }
                 }
+
                 //TODO 判断binary类型
 
                 //判断raw类型
-                RawBody rawBody = dbbody.getRawBody();
-                RawBody importRawBody = importBody.getRawBody();
-                if (ObjectUtils.isNotEmpty(rawBody) || ObjectUtils.isNotEmpty(importRawBody)) {
-                    return false;
-                }
-                //判断json类型
-                JsonBody jsonBody = dbbody.getJsonBody();
-                JsonBody importJsonBody = importBody.getJsonBody();
-                if (ObjectUtils.isNotEmpty(jsonBody) || ObjectUtils.isNotEmpty(importJsonBody)) {
-                    if (StringUtils.isNotBlank(jsonBody.getJsonValue()) || StringUtils.isNotBlank(importJsonBody.getJsonValue())) {
+                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.RAW.name())) {
+                    RawBody rawBody = dbbody.getRawBody();
+                    RawBody importRawBody = importBody.getRawBody();
+                    if (ObjectUtils.isNotEmpty(rawBody) || ObjectUtils.isNotEmpty(importRawBody)) {
                         return false;
                     }
-                    //判断jsonschema
-                    JsonSchemaItem jsonSchema = jsonBody.getJsonSchema();
-                    JsonSchemaItem importJsonSchema = importJsonBody.getJsonSchema();
-                    if (jsonSchema != null && importJsonSchema != null) {
-                        return jsonSchemaIsSame(jsonSchema, importJsonSchema);
+                }
+                //判断json类型
+                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.JSON.name())) {
+                    //判断json类型
+                    JsonBody jsonBody = dbbody.getJsonBody();
+                    JsonBody importJsonBody = importBody.getJsonBody();
+                    if (ObjectUtils.isNotEmpty(jsonBody) || ObjectUtils.isNotEmpty(importJsonBody)) {
+                        if (!StringUtils.equals(jsonBody.getJsonValue(), importJsonBody.getJsonValue())) {
+                            return false;
+                        }
+                        //判断jsonschema
+                        JsonSchemaItem jsonSchema = jsonBody.getJsonSchema();
+                        JsonSchemaItem importJsonSchema = importJsonBody.getJsonSchema();
+                        if (jsonSchema != null && importJsonSchema != null) {
+                            return jsonSchemaIsSame(jsonSchema, importJsonSchema);
+                        }
                     }
                 }
             }
