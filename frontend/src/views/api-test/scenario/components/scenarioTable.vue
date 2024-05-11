@@ -1,6 +1,6 @@
 <template>
-  <div :class="['p-[8px_16px]', props.class]">
-    <div class="mb-[8px] flex items-center justify-between">
+  <div :class="['p-[16px]', props.class]">
+    <div class="mb-[16px] flex items-center justify-between">
       <div class="flex items-center"> </div>
       <div class="items-right flex gap-[8px]">
         <a-input-search
@@ -44,7 +44,7 @@
           <template #content>
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical">
                   <a-checkbox v-for="val of Object.values(ApiScenarioStatus)" :key="val" :value="val">
                     <apiStatus :status="val" />
                   </a-checkbox>
@@ -95,9 +95,9 @@
       </template>
       <template #num="{ record }">
         <div>
-          <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openScenarioTab(record)">{{
-            record.num
-          }}</MsButton>
+          <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openScenarioTab(record)">
+            {{ record.num }}
+          </MsButton>
           <div v-if="record.scheduleConfig && record.scheduleConfig.enable" class="float-right">
             <a-tooltip position="top">
               <template #content>
@@ -114,7 +114,6 @@
                 </span>
               </template>
               <a-tag
-                size="small"
                 style="border-color: #00c261; color: #00c261; background-color: transparent"
                 bordered
                 @click="openScheduleModal(record)"
@@ -125,7 +124,6 @@
           <div v-if="record.scheduleConfig && !record.scheduleConfig.enable" class="float-right">
             <a-tooltip :content="t('apiScenario.schedule.table.tooltip.disable')" position="top">
               <a-tag
-                size="small"
                 style="border-color: #d4d4d8; color: #323233; background-color: transparent"
                 bordered
                 @click="openScheduleModal(record)"
@@ -144,13 +142,13 @@
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <apiStatus :status="record.status" size="small" />
+            <apiStatus :status="record.status" />
           </template>
           <a-option v-for="item of Object.values(ApiScenarioStatus)" :key="item" :value="item">
-            <apiStatus :status="item" size="small" />
+            <apiStatus :status="item" />
           </a-option>
         </a-select>
-        <apiStatus v-else :status="record.status" size="small" />
+        <apiStatus v-else :status="record.status" />
       </template>
       <template #priority="{ record }">
         <a-select
@@ -158,7 +156,6 @@
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
-          size="mini"
           @change="() => handlePriorityStatusChange(record)"
         >
           <template #label>
@@ -647,7 +644,7 @@
     ApiScenarioTableItem,
     ApiScenarioUpdateDTO,
   } from '@/models/apiTest/scenario';
-  import { DragSortParams, type TableQueryParams } from '@/models/common';
+  import { DragSortParams } from '@/models/common';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
@@ -900,7 +897,7 @@
       ]),
       showSelectAll: !props.readOnly,
       draggable: hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
-      heightUsed: 256,
+      heightUsed: 282,
       showSubdirectory: true,
       paginationSize: 'mini',
     },
@@ -1551,6 +1548,7 @@
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadScenarioList();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -1588,5 +1586,4 @@
       }
     }
   }
-  .ms-table--special-small();
 </style>

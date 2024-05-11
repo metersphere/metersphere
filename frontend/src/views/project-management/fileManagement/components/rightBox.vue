@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-[calc(100vh-88px)] flex-col p-[16px]">
+  <div class="flex h-full flex-col p-[16px]">
     <div class="header">
       <a-button v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="primary" @click="handleAddClick">
         {{ t('project.fileManagement.addFile') }}
@@ -554,7 +554,7 @@
       title: 'project.fileManagement.type',
       slotName: 'fileType',
       dataIndex: 'fileType',
-      width: 90,
+      width: 100,
     },
     {
       title: 'project.fileManagement.size',
@@ -609,6 +609,7 @@
         'PROJECT_FILE_MANAGEMENT:READ+UPDATE',
         'PROJECT_FILE_MANAGEMENT:READ+DELETE',
       ]),
+      heightUsed: 242,
       showSelectAll: true,
       showSubdirectory: true,
     },
