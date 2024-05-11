@@ -1,5 +1,4 @@
-import { ReviewStatus } from '@/models/caseManagement/caseReview';
-import type { TestPlanDetail } from '@/models/testPlan/testPlan';
+import type { planStatusType, TestPlanDetail } from '@/models/testPlan/testPlan';
 
 // TODO: 对照后端字段
 // 测试计划详情
@@ -13,7 +12,7 @@ export const testPlanDefaultDetail: TestPlanDetail = {
   repeatCase: false,
   passThreshold: 100,
   num: 0,
-  status: 'PREPARED' as ReviewStatus,
+  status: 'PREPARED' as planStatusType,
   followFlag: false,
   passRate: 0,
   executedCount: 0,

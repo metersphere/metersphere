@@ -9,7 +9,7 @@
     hide-divider
   >
     <template #headerLeft>
-      <statusTag :status="(detail.status as ReviewStatus)" />
+      <MsStatusTag :status="detail.status" />
       <a-tooltip :content="`[${detail.num}]${detail.name}`">
         <div class="one-line-text ml-[4px] max-w-[360px] gap-[4px] font-medium text-[var(--color-text-1)]">
           <span>[{{ detail.num }}]</span>
@@ -86,15 +86,14 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugManagement from './bugManagement/index.vue';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
-  import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 
   import { getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { ReviewStatus } from '@/models/caseManagement/caseReview';
   import type { TestPlanDetail } from '@/models/testPlan/testPlan';
 
   const { t } = useI18n();

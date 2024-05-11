@@ -17,7 +17,7 @@
         <a-button type="text" class="px-0" @click="goToPlan(record)">{{ record.testPlanNum }}</a-button>
       </template>
       <template #planStatus="{ record }">
-        <statusTag :status="record.planStatus" />
+        <MsStatusTag :status="record.planStatus" />
       </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -118,7 +118,7 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
-  import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
+  import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
 
   import { getLinkedCaseTestPlanList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';

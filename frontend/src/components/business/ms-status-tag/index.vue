@@ -8,9 +8,10 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { ReviewStatus } from '@/models/caseManagement/caseReview';
+  import type { planStatusType } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
-    status: ReviewStatus;
+    status: ReviewStatus | planStatusType;
     size?: 'small' | 'medium' | 'large';
   }>();
   const { t } = useI18n();

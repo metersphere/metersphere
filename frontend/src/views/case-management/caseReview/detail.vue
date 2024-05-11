@@ -26,7 +26,7 @@
             : t('caseManagement.caseReview.multi')
         }}
       </div>
-      <statusTag :status="(reviewDetail.status as ReviewStatus)" class="mx-[16px]" />
+      <MsStatusTag :status="(reviewDetail.status as ReviewStatus)" class="mx-[16px]" />
     </template>
     <template #headerRight>
       <div class="mr-[16px] flex items-center">
@@ -150,12 +150,12 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import AssociateDrawer from './components/create/associateDrawer.vue';
   import CaseTable from './components/detail/caseTable.vue';
   import CaseTree from './components/detail/caseTree.vue';
   import deleteReviewModal from './components/index/deleteReviewModal.vue';
   import passRateLine from './components/passRateLine.vue';
-  import statusTag from './components/statusTag.vue';
 
   import {
     associateReviewCase,
