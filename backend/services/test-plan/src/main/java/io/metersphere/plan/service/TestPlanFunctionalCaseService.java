@@ -2,10 +2,10 @@ package io.metersphere.plan.service;
 
 import io.metersphere.bug.dto.CaseRelateBugDTO;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
-import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
+import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.TestPlan;
@@ -13,6 +13,8 @@ import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
+import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
@@ -42,6 +44,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -119,6 +122,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 testPlanCaseService::saveTestPlanResource);
     }
 
+
+    public void deleteTestPlanResource(@Validated TestPlanResourceAssociationParam associationParam) {
+        TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+        testPlanFunctionalCaseExample.createCriteria().andIdIn(associationParam.getResourceIdList());
+        testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
+        //TODO:更新执行历史的删除状态为true
+    }
 
     public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getDragNodeId());
@@ -254,5 +264,27 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         return testPlanModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
 
 
+    }
+
+    public TestPlanAssociationResponse disassociate(BasePlanCaseBatchRequest request, LogInsertModule logInsertModule) {
+        List<String> selectIds = doSelectIds(request);
+        return super.disassociate(
+                TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE,
+                request,
+                logInsertModule,
+                selectIds,
+                this::deleteTestPlanResource);
+    }
+
+    private List<String> doSelectIds(BasePlanCaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extTestPlanFunctionalCaseMapper.getIds(request, false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }

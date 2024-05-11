@@ -5,6 +5,7 @@ import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
+import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.project.dto.NodeSortQueryParam;
@@ -35,4 +36,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted);
 
     long caseCount(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted);
+
+    List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
 }
