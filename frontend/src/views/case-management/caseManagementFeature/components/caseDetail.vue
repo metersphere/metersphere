@@ -5,6 +5,7 @@
     :is-edit="isEdit"
     has-breadcrumb
     :hide-continue="!isEdit"
+    :handle-back="backToTable"
     @save="saveHandler"
     @save-and-continue="saveHandler(true)"
   >
@@ -134,6 +135,12 @@
     } finally {
       loading.value = false;
     }
+  }
+
+  function backToTable() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+    });
   }
 
   // 保存
