@@ -394,7 +394,7 @@
       columns,
       selectable: !!hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']),
       showSetting: true,
-      heightUsed: 288,
+      heightUsed: 238,
     },
     (record) => ({
       ...record,

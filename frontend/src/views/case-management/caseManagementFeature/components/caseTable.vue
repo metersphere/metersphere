@@ -40,7 +40,7 @@
     v-bind="propsRes"
     ref="tableRef"
     filter-icon-align-left
-    class="mt-[8px]"
+    class="mt-[16px]"
     :action-config="tableBatchActions"
     @selected-change="handleTableSelect"
     v-on="propsEvent"
@@ -60,7 +60,6 @@
         v-model:model-value="record.caseLevel"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
-        size="mini"
         @click.stop
         @change="() => handleStatusChange(record)"
       >
@@ -222,7 +221,6 @@
           key: 'id',
           children: 'children',
         }"
-        size="mini"
         :tree-props="{
           virtualListProps: {
             height: 200,
@@ -238,9 +236,9 @@
         </template>
       </a-tree-select>
       <a-tooltip v-else :content="getModules(record.moduleId)" position="top">
-        <span class="one-line-text inline-block" @click.stop="record.showModuleTree = true">{{
-          getModules(record.moduleId)
-        }}</span>
+        <span class="one-line-text inline-block" @click.stop="record.showModuleTree = true">
+          {{ getModules(record.moduleId) }}
+        </span>
       </a-tooltip>
     </template>
     <!-- 渲染自定义字段开始TODO -->
@@ -258,18 +256,18 @@
     </template>
     <!-- 渲染自定义字段结束 -->
     <template #operation="{ record }">
-      <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, 'edit')">{{
-        t('common.edit')
-      }}</MsButton>
+      <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, 'edit')">
+        {{ t('common.edit') }}
+      </MsButton>
       <a-divider
         v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
         class="!mx-2 h-[12px]"
         direction="vertical"
         :margin="8"
       ></a-divider>
-      <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, 'copy')">{{
-        t('caseManagement.featureCase.copy')
-      }}</MsButton>
+      <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, 'copy')">
+        {{ t('caseManagement.featureCase.copy') }}
+      </MsButton>
       <a-divider
         v-permission="['FUNCTIONAL_CASE:READ+ADD']"
         class="!mx-2 h-[12px]"
@@ -451,7 +449,6 @@
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
-  import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
@@ -699,7 +696,7 @@
       fixed: 'right',
       showInTable: true,
       showDrag: false,
-      width: hasOperationPermission.value ? 130 : 50,
+      width: hasOperationPermission.value ? 140 : 50,
     },
   ];
   const platformInfo = ref<Record<string, any>>({});
@@ -907,7 +904,7 @@
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
       selectable: true,
       showSetting: true,
-      heightUsed: 256,
+      heightUsed: 236,
       enableDrag: true,
       showSubdirectory: true,
       paginationSize: 'mini',
@@ -1732,7 +1729,6 @@
     flex-direction: row;
     justify-content: space-between;
   }
-  .ms-table--special-small();
   .tree-dropdown {
     .arco-tree-select-tree-wrapper {
       width: 200px !important;

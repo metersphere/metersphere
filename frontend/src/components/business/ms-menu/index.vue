@@ -608,6 +608,7 @@
 
       top: 24px;
       right: -12px;
+      z-index: 101;
       border: 1px solid #ffffff;
       background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
       box-shadow: 0 0 7px rgb(15 0 78 / 9%);

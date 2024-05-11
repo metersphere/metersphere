@@ -27,7 +27,7 @@
         </template>
       </MsAdvanceFilter>
       <MsBaseTable
-        class="mt-[8px]"
+        class="mt-[16px]"
         v-bind="propsRes"
         :action-config="tableBatchActions"
         v-on="propsEvent"
@@ -36,12 +36,7 @@
       >
         <!-- ID -->
         <template #num="{ record, rowIndex }">
-          <a-button
-            type="text"
-            class="px-0 text-[14px] leading-[22px]"
-            size="mini"
-            @click="handleShowDetail(record.id, rowIndex)"
-          >
+          <a-button type="text" class="px-0 text-[14px] leading-[22px]" @click="handleShowDetail(record.id, rowIndex)">
             {{ record.num }}
           </a-button>
         </template>
@@ -67,9 +62,8 @@
             />
           </div>
         </template>
-
         <template #relationCaseCount="{ record, rowIndex }">
-          <a-button type="text" class="px-0" size="mini" @click="showDetail(record.id, rowIndex, 'case')">
+          <a-button type="text" class="px-0" @click="showDetail(record.id, rowIndex, 'case')">
             {{ record.relationCaseCount }}
           </a-button>
         </template>
@@ -501,7 +495,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 130,
+      width: 140,
     },
   ];
 
@@ -513,7 +507,7 @@
         selectable: true,
         noDisable: false,
         showSetting: true,
-        heightUsed: 128,
+        heightUsed: 106,
         paginationSize: 'mini',
       },
       (record: TableData) => ({
@@ -644,6 +638,7 @@
       const { complete } = await getSyncStatus(appStore.currentProjectId);
       isComplete.value = complete;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -890,6 +885,7 @@
         }
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -923,5 +919,4 @@
   :deep(.arco-divider-vertical) {
     margin: 0 8px;
   }
-  .ms-table--special-small();
 </style>

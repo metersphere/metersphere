@@ -80,11 +80,15 @@
           :title="item.slotName"
         >
           <template #title>
-            <div :class="{ 'flex w-full flex-row flex-nowrap items-center gap-[4px]': !item.align }">
+            <div
+              :class="{
+                'flex w-full flex-row flex-nowrap items-center gap-[4px]': !item.align,
+              }"
+            >
               <slot :name="item.titleSlotName" :column-config="item">
-                <div v-if="item.title" class="title-name pl-1 text-[var(--color-text-3)]">{{
-                  t(item.title as string)
-                }}</div>
+                <div v-if="item.title" class="title-name pl-1 text-[var(--color-text-3)]">
+                  {{ t(item.title as string) }}
+                </div>
               </slot>
               <columnSelectorIcon
                 v-if="
@@ -662,6 +666,13 @@
       color: rgb(var(--primary-7));
       opacity: 0;
     }
+    :deep(.arco-table-cell) {
+      padding: 8px 16px;
+    }
+    :deep(.arco-table-td) {
+      line-height: normal;
+      height: 48px;
+    }
     :deep(.arco-table-cell-align-left) {
       .arco-table-td-content {
         @apply flex items-center;
@@ -803,11 +814,13 @@
     @apply bg-white;
   }
   :deep(.arco-table-cell-with-sorter) {
+    @apply !p-0;
+
+    margin: 8px 16px;
     &:hover {
       @apply bg-white;
     }
     .arco-table-sorter {
-      padding: 3px 4px 3px 0;
       .arco-table-sorter-icon {
         &::before {
           content: '';
@@ -840,16 +853,18 @@
   }
   :deep(.arco-table-col-sorted) .arco-table-cell-with-sorter {
     width: fit-content;
+    border-radius: var(--border-radius-small);
     background: rgb(var(--primary-1)) content-box;
-    .arco-table-th-title .title-name {
-      color: rgb(var(--primary-5));
+    .arco-table-th-title {
+      .title-name {
+        color: rgb(var(--primary-5));
+      }
     }
   }
   :deep(.header-cell-filter) {
     .arco-table-cell-with-filter {
       float: left;
       .arco-table-th-title {
-        border-radius: 4px;
         background: rgb(var(--primary-1)) content-box;
         .filter-icon {
           color: rgb(var(--primary-5)) !important;

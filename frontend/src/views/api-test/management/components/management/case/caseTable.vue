@@ -1,6 +1,6 @@
 <template>
-  <div class="overflow-hidden p-[8px_22px]">
-    <div :class="['mb-[8px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
+  <div class="overflow-hidden p-[16px_22px]">
+    <div :class="['mb-[16px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
       <a-button
         v-show="props.isApi"
         v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
@@ -57,7 +57,6 @@
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
-          size="mini"
           @change="() => handleCaseLevelChange(record)"
         >
           <template #label>
@@ -102,17 +101,16 @@
           v-model:model-value="record.status"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
-          size="mini"
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <apiStatus :status="record.status" size="small" />
+            <apiStatus :status="record.status" />
           </template>
           <a-option v-for="item of Object.values(RequestCaseStatus)" :key="item" :value="item">
-            <apiStatus :status="item" size="small" />
+            <apiStatus :status="item" />
           </a-option>
         </a-select>
-        <apiStatus v-else :status="record.status" size="small" />
+        <apiStatus v-else :status="record.status" />
       </template>
       <template #statusFilter="{ columnConfig }">
         <a-trigger
@@ -605,7 +603,7 @@
     draggable: hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
       ? { type: 'handle', width: 32 }
       : undefined,
-    heightUsed: 256,
+    heightUsed: 282,
     showSubdirectory: true,
     paginationSize: 'mini',
   });
@@ -1045,5 +1043,4 @@
       }
     }
   }
-  .ms-table--special-small();
 </style>

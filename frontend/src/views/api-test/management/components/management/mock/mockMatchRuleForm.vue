@@ -89,7 +89,7 @@
             </a-form-item>
           </div> -->
             <div
-              v-if="matchRules.length > 1 && !props.disabled"
+              v-if="matchRules.length > 1 && !props.disabled && idx !== matchRules.length - 1"
               class="mt-[8px] flex h-full cursor-pointer items-start justify-center text-[var(--color-text-4)]"
               @click="handleDeleteItem(idx)"
             >

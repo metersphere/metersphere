@@ -102,19 +102,18 @@
       </template>
       <template #num="{ record }">
         <a-tooltip :content="`${record.num}`">
-          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" size="mini" @click="openDetail(record.id)">
+          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="openDetail(record.id)">
             <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
       </template>
       <template #status="{ record }">
-        <MsStatusTag :status="record.status" size="small" />
+        <MsStatusTag :status="record.status" />
       </template>
       <template #reviewPassRule="{ record }">
         <a-tag
           :color="record.reviewPassRule === 'SINGLE' ? 'rgb(var(--success-2))' : 'rgb(var(--link-2))'"
           :class="record.reviewPassRule === 'SINGLE' ? '!text-[rgb(var(--success-6))]' : '!text-[rgb(var(--link-6))]'"
-          size="small"
         >
           {{
             record.reviewPassRule === 'SINGLE'
@@ -442,7 +441,7 @@
       title: 'caseManagement.caseReview.caseCount',
       dataIndex: 'caseCount',
       showDrag: true,
-      width: 90,
+      width: 100,
     },
     {
       title: 'caseManagement.caseReview.status',
@@ -464,7 +463,7 @@
       slotName: 'reviewPassRule',
       dataIndex: 'reviewPassRule',
       showDrag: true,
-      width: 90,
+      width: 100,
     },
     {
       title: 'caseManagement.caseReview.reviewer',
@@ -526,7 +525,7 @@
       showSetting: true,
       selectable: true,
       showSelectAll: true,
-      heightUsed: 256,
+      heightUsed: 232,
       showSubdirectory: true,
       paginationSize: 'mini',
     },
@@ -801,6 +800,4 @@
   }
 </script>
 
-<style lang="less" scoped>
-  .ms-table--special-small();
-</style>
+<style lang="less" scoped></style>

@@ -1,6 +1,6 @@
 <template>
   <div :class="['p-[0_16px_8px_16px]', props.class]">
-    <div class="mb-[8px] flex items-center justify-end">
+    <div class="mb-[16px] flex items-center justify-end">
       <div class="flex items-center gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
@@ -43,7 +43,7 @@
           <template #content>
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="methodFilters" direction="vertical" size="small">
+                <a-checkbox-group v-model:model-value="methodFilters" direction="vertical">
                   <a-checkbox v-for="key of RequestMethods" :key="key" :value="key">
                     <apiMethodName :method="key" />
                   </a-checkbox>
@@ -74,7 +74,7 @@
           <template #content>
             <div class="arco-table-filters-content">
               <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical">
                   <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
                     <apiStatus :status="val" />
                   </a-checkbox>
@@ -104,13 +104,13 @@
           @change="() => handleMethodChange(record)"
         >
           <template #label>
-            <apiMethodName :method="record.method" tag-size="small" is-tag />
+            <apiMethodName :method="record.method" is-tag />
           </template>
           <a-option v-for="item of Object.values(RequestMethods)" :key="item" :value="item">
-            <apiMethodName :method="item" tag-size="small" is-tag />
+            <apiMethodName :method="item" is-tag />
           </a-option>
         </a-select>
-        <apiMethodName v-else :method="record.method" tag-size="small" is-tag />
+        <apiMethodName v-else :method="record.method" is-tag />
       </template>
       <template #status="{ record }">
         <a-select
@@ -121,13 +121,13 @@
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <apiStatus :status="record.status" size="small" />
+            <apiStatus :status="record.status" />
           </template>
           <a-option v-for="item of Object.values(RequestDefinitionStatus)" :key="item" :value="item">
-            <apiStatus :status="item" size="small" />
+            <apiStatus :status="item" />
           </a-option>
         </a-select>
-        <apiStatus v-else :status="record.status" size="small" />
+        <apiStatus v-else :status="record.status" />
       </template>
       <template #createUserFilter="{ columnConfig }">
         <TableFilter
@@ -517,7 +517,7 @@
       ]),
       showSelectAll: !props.readOnly,
       draggable: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
-      heightUsed: 256,
+      heightUsed: 272,
       paginationSize: 'mini',
       showSubdirectory: true,
     },
@@ -1012,5 +1012,4 @@
       }
     }
   }
-  .ms-table--special-small();
 </style>

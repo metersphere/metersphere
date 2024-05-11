@@ -1,6 +1,6 @@
 <template>
-  <div class="px-[24px] py-[8px]">
-    <div class="mb-[8px] flex flex-wrap items-center justify-end">
+  <div class="px-[24px] py-[16px]">
+    <div class="mb-[16px] flex flex-wrap items-center justify-end">
       <MsAdvanceFilter
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
@@ -69,7 +69,7 @@
       </template>
       <template #num="{ record }">
         <a-tooltip :content="record.num">
-          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" size="mini" @click="review(record)">
+          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="review(record)">
             <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
@@ -97,7 +97,6 @@
           :tag-list="record.reviewNames"
           is-string-tag
           :show-num="1"
-          size="small"
           theme="outline"
           @click="record.showModuleTree = false"
         />
@@ -110,7 +109,6 @@
           :options="reviewersOptions"
           :search-keys="['label']"
           allow-search
-          size="mini"
           :multiple="true"
           :placeholder="t('project.messageManagement.receiverPlaceholder')"
           @click.stop="record.showModuleTree = true"
@@ -455,7 +453,7 @@
     {
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
-      heightUsed: 375,
+      heightUsed: 399,
       showSetting: true,
       selectable: true,
       showSelectAll: true,
@@ -943,5 +941,4 @@
       }
     }
   }
-  .ms-table--special-small();
 </style>
