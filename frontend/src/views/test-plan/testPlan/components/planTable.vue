@@ -97,7 +97,7 @@
       >
     </template>
     <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
-      <statusTag :status="filterContent.value" />
+      <MsStatusTag :status="filterContent.value" />
     </template>
     <template #status="{ record }">
       <MsStatusTag :status="record.status" />

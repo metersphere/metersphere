@@ -82,15 +82,9 @@
           <template #title>
             <div :class="{ 'flex w-full flex-row flex-nowrap items-center gap-[4px]': !item.align }">
               <slot :name="item.titleSlotName" :column-config="item">
-                <div
-                  v-if="item.title"
-                  :class="`${
-                    item.filterConfig && isHighlightFilterBackground
-                      ? 'text-[rgb(var(--primary-5))]'
-                      : 'text-[var(--color-text-3)]'
-                  } pl-1`"
-                  >{{ t(item.title as string) }}</div
-                >
+                <div v-if="item.title" class="title-name pl-1 text-[var(--color-text-3)]">{{
+                  t(item.title as string)
+                }}</div>
               </slot>
               <columnSelectorIcon
                 v-if="
@@ -812,22 +806,56 @@
     &:hover {
       @apply bg-white;
     }
-    .arco-table-sorter-icon:not(.arco-table-sorter-icon-active) {
-      .arco-icon-caret-up {
-        color: var(--color-neutral-5);
+    .arco-table-sorter {
+      padding: 3px 4px 3px 0;
+      .arco-table-sorter-icon {
+        &::before {
+          content: '';
+          position: absolute;
+          z-index: 10;
+          width: 14px;
+          height: 8px;
+        }
+        &:nth-of-type(1) {
+          &::before {
+            background: url('@/assets/svg/icons/chevronUp.svg') center/cover;
+          }
+          &.arco-table-sorter-icon-active::before {
+            background: url('@/assets/svg/icons/chevronUpActive.svg') center/cover;
+          }
+        }
+        &:nth-of-type(2) {
+          &::before {
+            background: url('@/assets/svg/icons/chevronDown.svg') center/cover;
+          }
+          &.arco-table-sorter-icon-active::before {
+            background: url('@/assets/svg/icons/chevronDownActive.svg') center/cover;
+          }
+        }
+        svg {
+          display: none;
+        }
       }
+    }
+  }
+  :deep(.arco-table-col-sorted) .arco-table-cell-with-sorter {
+    width: fit-content;
+    background: rgb(var(--primary-1)) content-box;
+    .arco-table-th-title .title-name {
+      color: rgb(var(--primary-5));
     }
   }
   :deep(.header-cell-filter) {
     .arco-table-cell-with-filter {
       float: left;
-      border-radius: 4px;
       .arco-table-th-title {
         border-radius: 4px;
-        color: rgb(var(--primary-5));
         background: rgb(var(--primary-1)) content-box;
         .filter-icon {
           color: rgb(var(--primary-5)) !important;
+        }
+        .title-name {
+          color: rgb(var(--primary-5));
         }
       }
     }
