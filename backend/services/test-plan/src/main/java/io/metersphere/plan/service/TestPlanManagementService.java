@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +37,8 @@ public class TestPlanManagementService {
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
     @Resource
     private TestPlanModuleService testPlanModuleService;
+    @Resource
+    private TestPlanStatisticsService testPlanStatisticsService;
 
     public Map<String, Long> moduleCount(TestPlanTableRequest request) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
@@ -80,21 +81,12 @@ public class TestPlanManagementService {
             if (collect.containsKey(item.getId())) {
                 //存在子节点
                 List<TestPlanResponse> list = collect.get(item.getId());
-                calculateData(list);
+                testPlanStatisticsService.calculateCaseCount(list);
                 item.setChildren(list);
                 item.setChildrenCount(list.size());
             }
-            calculateData(Arrays.asList(item));
+            testPlanStatisticsService.calculateCaseCount(List.of(item));
         });
-    }
-
-    /**
-     * 计算各种指标
-     *
-     * @param list
-     */
-    private void calculateData(List<TestPlanResponse> list) {
-        //TODO 查询计划下面关联的用例数量，用于各种计算  什么通过率 进度 用例数
     }
 
     public void checkModuleIsOpen(String resourceId, String resourceType, List<String> moduleMenus) {

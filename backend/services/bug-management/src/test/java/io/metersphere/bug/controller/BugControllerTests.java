@@ -589,6 +589,12 @@ public class BugControllerTests extends BaseTest {
         MultiValueMap<String, Object> addParam = getMultiPartParam(addRequest, file);
         this.requestMultipartWithOkAndReturn(BUG_ADD, addParam);
 
+        BugPageRequest bugPageRequest = new BugPageRequest();
+        bugPageRequest.setCurrent(1);
+        bugPageRequest.setPageSize(10);
+        bugPageRequest.setProjectId("default-project-for-bug");
+        this.requestPostWithOk(BUG_PAGE, bugPageRequest);
+
         // 更新Jira缺陷
         BugEditRequest updateRequest = buildJiraBugRequest(true);
         updateRequest.setUnLinkRefIds(List.of(getAddJiraAssociateFile().getId()));

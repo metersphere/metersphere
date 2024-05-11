@@ -1245,12 +1245,18 @@ public class BugService {
         List<String> ids = bugs.stream().map(BugDTO::getId).toList();
         List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(ids, projectId);
         Map<String, List<BugCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(BugCustomFieldDTO::getBugId));
-        Map<String, String> allHandlerMap = bugCommonService.getAllHandlerMap(projectId);
+        // MS处理人会与第三方的值冲突, 分开查询
+        List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(projectId);
+        Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(projectId);
+        Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+
         Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(projectId);
         bugs.forEach(bug -> {
             bug.setCustomFields(customFieldMap.get(bug.getId()));
             // 解析处理人, 状态
-            bug.setHandleUserName(allHandlerMap.get(bug.getHandleUser()));
+            bug.setHandleUserName(headerHandleUserMap.containsKey(bug.getHandleUser()) ?
+                    headerHandleUserMap.get(bug.getHandleUser()) : localHandleUserMap.get(bug.getHandleUser()));
             bug.setStatusName(allStatusMap.get(bug.getStatus()));
         });
         return bugs;

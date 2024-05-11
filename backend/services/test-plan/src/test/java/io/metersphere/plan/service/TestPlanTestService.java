@@ -19,9 +19,9 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Service;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,7 +138,7 @@ public class TestPlanTestService {
             functionalCase.setReviewStatus("UN_REVIEWED");
             functionalCase.setPos((long) (i * 64));
             functionalCase.setRefId(functionalCase.getId());
-            functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+            functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
             functionalCase.setLatest(true);
             functionalCase.setCreateUser("admin");
             functionalCase.setCreateTime(System.currentTimeMillis());
