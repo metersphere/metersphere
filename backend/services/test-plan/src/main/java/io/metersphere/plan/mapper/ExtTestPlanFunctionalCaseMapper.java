@@ -3,6 +3,7 @@ package io.metersphere.plan.mapper;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
@@ -38,4 +39,11 @@ public interface ExtTestPlanFunctionalCaseMapper {
     long caseCount(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted);
 
     List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
+
+    /**
+     * 获取计划下的功能用例集合
+     * @param planIds 测试计划ID集合
+     * @return 计划功能用例集合
+     */
+    List<TestPlanFunctionalCase> getPlanFunctionalCaseByIds(@Param("planIds") List<String> planIds);
 }

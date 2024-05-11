@@ -6,9 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class TestPlanResponse {
-    @Schema(description = "测试计划ID")
-    private String id;
+public class TestPlanResponse extends TestPlanStatisticsResponse {
     @Schema(description = "项目ID")
     private String projectId;
     @Schema(description = "测试计划编号")

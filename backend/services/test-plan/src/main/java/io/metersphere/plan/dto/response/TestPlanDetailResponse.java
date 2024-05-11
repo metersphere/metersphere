@@ -11,12 +11,10 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class TestPlanDetailResponse implements Serializable {
+public class TestPlanDetailResponse extends TestPlanStatisticsResponse implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
-
-    @Schema(description = "测试计划ID")
-    private String id;
 
     @Schema(description = "测试计划组Id")
     private String groupId;
@@ -37,9 +35,6 @@ public class TestPlanDetailResponse implements Serializable {
 
     @Schema(description = "是否允许重复添加用例")
     private Boolean repeatCase;
-
-    @Schema(description = "测试计划通过阈值;0-100")
-    private Double passThreshold;
 
     @Schema(description = "是否开启测试规划")
     private Boolean testPlanning;

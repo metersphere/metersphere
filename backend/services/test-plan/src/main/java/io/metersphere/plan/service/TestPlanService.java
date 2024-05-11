@@ -52,6 +52,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanBatchArchivedService testPlanBatchArchivedService;
     @Resource
+    private TestPlanStatisticsService testPlanStatisticsService;
+    @Resource
     private TestPlanCaseService testPlanCaseService;
 
 
@@ -151,7 +153,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 计划组删除的相关逻辑(待定)
-     *
      * @param testPlanGroupIds 计划组ID集合
      */
     private void deleteGroupByList(List<String> testPlanGroupIds) {
@@ -423,8 +424,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 获取单个测试计划或测试计划组详情（用于编辑）
      *
-     * @param id
-     * @return
+     * @param id 计划ID
+     * @return 计划的详情数据
      */
     public TestPlanDetailResponse detail(String id) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
@@ -443,6 +444,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             response.setPlannedStartTime(testPlan.getPlannedStartTime());
             response.setPlannedEndTime(testPlan.getPlannedEndTime());
             getOtherConfig(response, testPlan);
+            testPlanStatisticsService.calculateCaseCount(List.of(response));
         }
         return response;
     }
