@@ -63,7 +63,7 @@ public class TestPlanFunctionalCaseController {
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联功能用例分页查询")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Pager<List<TestPlanCasePageResponse>> page(@Validated @RequestBody TestPlanCaseRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
@@ -73,7 +73,7 @@ public class TestPlanFunctionalCaseController {
 
     @GetMapping("/tree/{testPlanId}")
     @Operation(summary = "测试计划-已关联功能用例列表模块树")
-    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
     public List<BaseTreeNode> getTree(@PathVariable String testPlanId) {
         return testPlanFunctionalCaseService.getTree(testPlanId);
@@ -81,7 +81,7 @@ public class TestPlanFunctionalCaseController {
 
     @PostMapping("/module/count")
     @Operation(summary = "测试计划-已关联功能用例模块数量")
-    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseRequest request) {
         return testPlanFunctionalCaseService.moduleCount(request);
