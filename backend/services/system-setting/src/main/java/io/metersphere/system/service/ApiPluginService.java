@@ -94,8 +94,10 @@ public class ApiPluginService {
         Map<Class<? extends AbstractMsTestElement>, String> testElementPluginMap = new HashMap<>();
         List<PluginWrapper> plugins = pluginLoadService.getMsPluginManager().getPlugins();
         for (PluginWrapper plugin : plugins) {
-            List<Class<? extends MsTestElement>> extensionClasses = plugin.getPluginManager().getExtensionClasses(MsTestElement.class);
-            extensionClasses.forEach(clazz -> testElementPluginMap.put((Class<? extends AbstractMsTestElement>) clazz, plugin.getPluginId()));
+            if (plugin.getPlugin() instanceof AbstractApiPlugin) {
+                List<Class<? extends MsTestElement>> extensionClasses = plugin.getPluginManager().getExtensionClasses(MsTestElement.class, plugin.getPluginId());
+                extensionClasses.forEach(clazz -> testElementPluginMap.put((Class<? extends AbstractMsTestElement>) clazz, plugin.getPluginId()));
+            }
         }
         return testElementPluginMap;
     }
