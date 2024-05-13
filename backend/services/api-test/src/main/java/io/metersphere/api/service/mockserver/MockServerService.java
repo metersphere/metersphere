@@ -187,6 +187,7 @@ public class MockServerService {
         int responseCode = -1;
         String useApiResponseId = null;
 
+        Long delay = null;
         if (config != null) {
             MockResponse mockResponse = JSON.parseObject(new String(config.getResponse()), MockResponse.class);
             // mock 响应引用的是接口自身响应内容
@@ -196,6 +197,7 @@ public class MockServerService {
                 responseCode = mockResponse.getStatusCode();
                 responseHeader = mockResponse.getHeaders();
                 responseBody = mockResponse.getBody();
+                delay = mockResponse.getDelay();
             }
         }
 
@@ -232,6 +234,12 @@ public class MockServerService {
         }
 
         if (responseBody != null) {
+            if (delay != null && delay > 0) {
+                try {
+                    Thread.sleep(delay);
+                } catch (Exception ignored) {
+                }
+            }
             boolean isMock = config != null;
             String resourceId = config != null ? config.getId() : apiId;
             return switch (responseBody.getBodyType()) {
