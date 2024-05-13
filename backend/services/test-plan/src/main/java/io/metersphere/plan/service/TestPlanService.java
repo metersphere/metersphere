@@ -380,7 +380,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @return
      */
     public TestPlan copy(TestPlanCopyRequest request, String userId) {
-        TestPlan testPlan = savePlanDTO(request, userId, request.getTestPlanId());
+        TestPlan testPlan = savePlanDTO(request, userId, request.getId());
         return testPlan;
     }
 

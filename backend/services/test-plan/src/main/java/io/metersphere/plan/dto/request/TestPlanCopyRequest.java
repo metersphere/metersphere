@@ -12,5 +12,5 @@ public class TestPlanCopyRequest extends TestPlanCreateRequest {
 
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan.id.not_blank}")
-    private String testPlanId;
+    private String id;
 }
