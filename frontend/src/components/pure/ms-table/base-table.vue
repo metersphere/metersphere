@@ -67,10 +67,7 @@
           :filterable="item.filterable"
           :cell-class="item.cellClass"
           :header-cell-class="`${
-            item.headerCellClass ||
-            (item.filterConfig && isHighlightFilterBackground && activeDataIndex === item.dataIndex)
-              ? 'header-cell-filter'
-              : ''
+            item.headerCellClass || (item.filterConfig && hasSelectedFilter(item)) ? 'header-cell-filter' : ''
           }`"
           :body-cell-class="item.bodyCellClass"
           :summary-cell-class="item.summaryCellClass"
@@ -109,9 +106,8 @@
                 :options="item.filterConfig.options"
                 :data-index="item.dataIndex"
                 v-bind="item.filterConfig"
+                :filter="filter"
                 @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
-                @show="showFilter(true, item.dataIndex)"
-                @hide="showFilter(false, item.dataIndex)"
               >
                 <template #item="{ filterItem }">
                   <slot :name="item.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
@@ -304,6 +300,7 @@
     BatchActionQueryParams,
     MsPaginationI,
     MsTableColumn,
+    MsTableColumnData,
     MsTableDataItem,
     MsTableProps,
   } from './type';
@@ -640,11 +637,13 @@
     columnSelectorVisible.value = true;
   };
 
+  const filter = ref<Record<string, any>>({});
   const handleFilterConfirm = (
     value: string[] | (string | number)[] | undefined,
     dataIndex: string,
     isCustomParam: boolean
   ) => {
+    filter.value[dataIndex] = value;
     emit('filterChange', dataIndex, value, isCustomParam);
   };
 
@@ -653,11 +652,11 @@
     batchLeft.value = getBatchLeft();
   });
 
-  const isHighlightFilterBackground = ref<boolean>(false);
-  const activeDataIndex = ref<string | undefined>('');
-  function showFilter(visible: boolean, dataIndex: string | undefined) {
-    activeDataIndex.value = dataIndex;
-    isHighlightFilterBackground.value = visible;
+  function hasSelectedFilter(item: MsTableColumnData) {
+    if (item.filterConfig && item.dataIndex) {
+      return (filter.value[item.dataIndex] || []).length > 0;
+    }
+    return false;
   }
 
   watch(

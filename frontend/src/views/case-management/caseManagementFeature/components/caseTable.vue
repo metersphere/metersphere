@@ -77,7 +77,7 @@
     </template>
     <!-- 执行结果 -->
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-      <ExecuteStatusTag :status="filterContent.value" />
+      <ExecuteStatusTag :execute-result="filterContent.value" />
     </template>
     <!-- 评审结果 -->
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
@@ -97,7 +97,7 @@
       <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
     </template>
     <template #lastExecuteResult="{ record }">
-      <executeResult :execute-result="record.lastExecuteResult" />
+      <ExecuteStatusTag :execute-result="record.lastExecuteResult" />
     </template>
     <template #moduleId="{ record }">
       <a-tree-select
@@ -299,11 +299,10 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import executeResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import ExecuteStatusTag from '@/components/business/ms-case-associate/executeResult.vue';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
-  import ExecuteStatusTag from './excuteStatusTag.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';

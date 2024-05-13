@@ -2,25 +2,6 @@ import { BatchApiParams } from '../common';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
 
-// 计划分页
-export interface TestPlanItem {
-  id?: string;
-  projectId: string;
-  num: number;
-  name: string;
-  status: planStatusType;
-  type: string;
-  tags: string[];
-  schedule: string; // 是否定时
-  createUser: string;
-  createTime: string;
-  moduleName: string;
-  moduleId: string;
-  children: TestPlanItem[];
-  childrenCount: number;
-  groupId: string;
-}
-
 export interface AssociateFunctionalCaseItem {
   testPlanId: string;
   testPlanNum: number;
@@ -62,6 +43,7 @@ export interface AddTestPlanParams {
   groupOption?: boolean;
   cycle?: number[];
   projectId?: string;
+  testPlanId?: string;
 }
 
 // TODO: 对照后端字段
@@ -79,6 +61,26 @@ export interface TestPlanDetail extends AddTestPlanParams {
   reReviewedCount: number;
   underReviewedCount: number;
 }
+
+// 计划分页
+export interface TestPlanItem {
+  id?: string;
+  projectId: string;
+  num: number;
+  name: string;
+  status: planStatusType;
+  type: string;
+  tags: string[];
+  schedule: string; // 是否定时
+  createUser: string;
+  createTime: string;
+  moduleName: string;
+  moduleId: string;
+  children: TestPlanItem[];
+  childrenCount: number;
+  groupId: string;
+}
+export type TestPlanItemType = TestPlanItem & TestPlanDetail;
 
 export interface SwitchListModel {
   key: 'repeatCase' | 'automaticStatusUpdate' | 'testPlanning';
@@ -112,6 +114,12 @@ export interface PlanDetailBugItem {
   status: string;
   createUser: string;
   createTime: number;
+}
+
+// 关注
+export interface FollowPlanParams {
+  userId: string; // 用户id
+  testPlanId: string;
 }
 
 export default {};

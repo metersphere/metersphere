@@ -4,7 +4,7 @@
       <svg-icon
         width="16px"
         height="16px"
-        :name="visible ? 'filter-icon-color' : 'filter-icon'"
+        :name="isHighlight ? 'filter-icon-color' : 'filter-icon'"
         class="text-[12px] font-medium"
       />
     </span>
@@ -95,6 +95,8 @@
       remoteMethod?: FilterRemoteMethodsEnum; // 加载选项方法
       loadOptionParams?: Record<string, any>; // 请求下拉的参数
       placeholderText?: string;
+      dataIndex?: string | undefined;
+      filter: Record<string, any>;
     }>(),
     {
       mode: 'static',
@@ -150,6 +152,13 @@
       loading.value = false;
     }
   };
+
+  const isHighlight = computed(() => {
+    if (props.filter && props.dataIndex) {
+      return (props.filter[props.dataIndex] || []).length > 0;
+    }
+    return false;
+  });
 </script>
 
 <style scoped lang="less">
