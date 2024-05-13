@@ -4,7 +4,6 @@ import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
-import io.metersphere.functional.constants.MinderLabel;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
@@ -17,6 +16,7 @@ import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -227,12 +227,12 @@ public class FunctionalCaseLogService {
         String path = "/functional/mind/case/batch/delete/";
         List<String> caseAllIds = new ArrayList<>();
         Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
-        List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(MinderLabel.CASE.toString());
+        List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.case"));
         if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
             List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
             caseAllIds.addAll(caseIds);
         }
-        List<MinderOptionDTO> moduleOptionDTOS = resourceMap.get(MinderLabel.MODULE.toString());
+        List<MinderOptionDTO> moduleOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.module"));
         if (CollectionUtils.isNotEmpty(moduleOptionDTOS)) {
             List<String> moduleIds = moduleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
             List<FunctionalCase> functionalCaseByModuleIds = getFunctionalCaseByModuleIds(moduleIds, new ArrayList<>());
@@ -244,7 +244,7 @@ public class FunctionalCaseLogService {
         List<LogDTO>logDTOS = new ArrayList<>();
         List<String>ids = new ArrayList<>();
         for (String key : strings) {
-            if (StringUtils.equalsIgnoreCase(key, MinderLabel.CASE.toString()) ||  StringUtils.equalsIgnoreCase(key, MinderLabel.MODULE.toString())) {
+            if (StringUtils.equalsIgnoreCase(key, Translator.get("minder_extra_node.case")) ||  StringUtils.equalsIgnoreCase(key, Translator.get("minder_extra_node.module"))) {
                 List<LogDTO> logDTOS1 = batchDeleteFunctionalCaseLogByIds(caseAllIds, path);
                 logDTOS.addAll(logDTOS1);
             } else {
@@ -508,7 +508,7 @@ public class FunctionalCaseLogService {
     }
 
     public LogDTO updateMinderFunctionalCaseLog(FunctionalCaseMinderEditRequest request) {
-        if (request.getType() == MinderLabel.MODULE) {
+        if (StringUtils.equalsIgnoreCase(request.getType(), Translator.get("minder_extra_node.module"))) {
             return null;
         }
         FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getId());

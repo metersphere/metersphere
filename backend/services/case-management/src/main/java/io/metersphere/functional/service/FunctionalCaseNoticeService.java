@@ -1,6 +1,5 @@
 package io.metersphere.functional.service;
 
-import io.metersphere.functional.constants.MinderLabel;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
@@ -20,6 +19,7 @@ import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.User;
@@ -147,10 +147,10 @@ public class FunctionalCaseNoticeService {
         return optionDTOList;
     }
 
-    public FunctionalCaseDTO getAddMainFunctionalCaseDTO(FunctionalCaseAddRequest request, List<CaseCustomFieldDTO> customFields){
+    public FunctionalCaseDTO getAddMainFunctionalCaseDTO(FunctionalCaseAddRequest request, List<CaseCustomFieldDTO> customFields) {
         FunctionalCaseEditRequest editRequest = new FunctionalCaseEditRequest();
         BeanUtils.copyBean(editRequest, request);
-        return getMainFunctionalCaseDTO(editRequest,customFields);
+        return getMainFunctionalCaseDTO(editRequest, customFields);
     }
 
     public FunctionalCaseDTO getMainFunctionalCaseDTO(FunctionalCaseEditRequest request, List<CaseCustomFieldDTO> customFields) {
@@ -226,6 +226,7 @@ public class FunctionalCaseNoticeService {
         setReviewName(id, functionalCaseDTO);
         return functionalCaseDTO;
     }
+
     public Map<String, FunctionalCase> copyBaseCaseInfo(String projectId, List<String> ids) {
         FunctionalCaseExample example = new FunctionalCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andIdIn(ids);
@@ -280,7 +281,7 @@ public class FunctionalCaseNoticeService {
                     functionalCaseDTO.setCreateUser(null);
                     functionalCaseDTO.setFields(optionDTOS.get());
                     List<CaseReviewFunctionalCase> caseReviewFunctionalCases1 = caseReviewMap.get(id);
-                    List<String>reviewName = new ArrayList<>();
+                    List<String> reviewName = new ArrayList<>();
                     if (CollectionUtils.isNotEmpty(caseReviewFunctionalCases1)) {
                         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCases1) {
                             String s = finalReviewMap.get(caseReviewFunctionalCase.getReviewId());
@@ -288,7 +289,7 @@ public class FunctionalCaseNoticeService {
                         }
                     }
                     List<TestPlanFunctionalCase> planFunctionalCases = casePlanMap.get(id);
-                    List<String>planName = new ArrayList<>();
+                    List<String> planName = new ArrayList<>();
                     if (CollectionUtils.isNotEmpty(planFunctionalCases)) {
                         for (TestPlanFunctionalCase planFunctionalCase : planFunctionalCases) {
                             String s = finalPlanMap.get(planFunctionalCase.getTestPlanId());
@@ -308,9 +309,9 @@ public class FunctionalCaseNoticeService {
         return dtoList;
     }
 
-    public FunctionalCaseDTO  getMainFunctionalCaseMinderDTO(FunctionalCaseMinderEditRequest request) {
+    public FunctionalCaseDTO getMainFunctionalCaseMinderDTO(FunctionalCaseMinderEditRequest request) {
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
-        if (request.getType() == MinderLabel.MODULE) {
+        if (StringUtils.equalsIgnoreCase(request.getType(), Translator.get("minder_extra_node.module"))) {
             return functionalCaseDTO;
         }
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getId());
@@ -335,7 +336,7 @@ public class FunctionalCaseNoticeService {
                     continue;
                 }
                 optionDTO.setId(customField.getName());
-                if (StringUtils.equalsIgnoreCase(customField.getId(),field) && StringUtils.isNotBlank(request.getPriority())) {
+                if (StringUtils.equalsIgnoreCase(customField.getId(), field) && StringUtils.isNotBlank(request.getPriority())) {
                     optionDTO.setName(request.getPriority());
                 } else {
                     optionDTO.setName(customFieldDTO.getValue());

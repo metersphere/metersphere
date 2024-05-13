@@ -28,7 +28,7 @@ public class FunctionalMinderTreeNodeDTO {
     @Schema(description = "节点标签")
     private List<String> resource;
 
-    @Schema(description = "节点标签")
+    @Schema(description = "节点状态")
     private String expandState = "expand";
 
 }

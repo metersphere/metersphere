@@ -1,6 +1,5 @@
 package io.metersphere.functional.request;
 
-import io.metersphere.functional.constants.MinderLabel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -26,7 +25,7 @@ public class FunctionalCaseMinderEditRequest{
     private Long pos;
 
     @Schema(description = "资源类型")
-    private MinderLabel type;
+    private String type;
 
     @Schema(description = "用例等级（只更新用例的等级时传）")
     private String priority;
