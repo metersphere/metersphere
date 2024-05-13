@@ -19,6 +19,16 @@
       <template #reviewStatus="{ record }">
         <MsStatusTag :status="record.reviewStatus || 'PREPARED'" />
       </template>
+      <!-- TODO 后台需要加 -->
+      <!-- <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS]="{ filterContent }">
+        <a-tag
+          :color="reviewStatusMap[filterContent.value as ReviewStatus].color"
+          :class="[reviewStatusMap[filterContent.value as ReviewStatus].class, 'px-[4px]']"
+          size="small"
+        >
+          {{ t(reviewStatusMap[filterContent.value as ReviewStatus].label) }}
+        </a-tag>
+      </template> -->
       <template #status="{ record }">
         <MsIcon
           :type="statusIconMap[record.status]?.icon || ''"
@@ -42,19 +52,21 @@
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
 
   import { getDetailCaseReviewPage } from '@/api/modules/case-management/featureCase';
+  import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
-  import { ReviewCaseItem } from '@/models/caseManagement/caseReview';
+  import { ReviewCaseItem, ReviewStatus } from '@/models/caseManagement/caseReview';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { statusIconMap } from '../utils';
 
   const featureCaseStore = useFeatureCaseStore();
   const router = useRouter();
   const route = useRoute();
-  // const activeTab = computed(() => featureCaseStore.activeTab);
+
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -62,6 +74,15 @@
   }>();
 
   const keyword = ref<string>('');
+  // TODO 后台需要加
+  const reviewStatusOptions = computed(() => {
+    return Object.keys(reviewStatusMap).map((key) => {
+      return {
+        value: key,
+        label: reviewStatusMap[key as ReviewStatus].label,
+      };
+    });
+  });
 
   const columns: MsTableColumn = [
     {
@@ -84,8 +105,13 @@
     },
     {
       title: 'caseManagement.caseReview.status',
-      dataIndex: 'reviewStatus',
+      dataIndex: 'status',
       slotName: 'reviewStatus',
+      // TODO 后台需要加
+      // filterConfig: {
+      //   options: reviewStatusOptions.value,
+      //   filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS,
+      // },
       width: 150,
     },
     {

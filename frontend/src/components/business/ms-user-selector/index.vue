@@ -65,7 +65,7 @@
     }
   );
 
-  const currentValue = defineModel<string[] | string>({ default: [] });
+  const currentValue = defineModel<(string | number)[] | string>({ default: [] });
   const loading = ref(true);
 
   const loadList = async (params: Record<string, any>) => {

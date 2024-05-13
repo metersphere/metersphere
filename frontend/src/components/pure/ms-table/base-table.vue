@@ -67,7 +67,10 @@
           :filterable="item.filterable"
           :cell-class="item.cellClass"
           :header-cell-class="`${
-            item.headerCellClass || (item.filterConfig && isHighlightFilterBackground) ? 'header-cell-filter' : ''
+            item.headerCellClass ||
+            (item.filterConfig && isHighlightFilterBackground && activeDataIndex === item.dataIndex)
+              ? 'header-cell-filter'
+              : ''
           }`"
           :body-cell-class="item.bodyCellClass"
           :summary-cell-class="item.summaryCellClass"
@@ -104,9 +107,11 @@
                 v-else-if="item.filterConfig"
                 class="ml-[4px]"
                 :options="item.filterConfig.options"
+                :data-index="item.dataIndex"
+                v-bind="item.filterConfig"
                 @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
-                @show="showFilter(true)"
-                @hide="showFilter(false)"
+                @show="showFilter(true, item.dataIndex)"
+                @hide="showFilter(false, item.dataIndex)"
               >
                 <template #item="{ filterItem }">
                   <slot :name="item.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
@@ -348,7 +353,12 @@
     (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
     (e: 'clearSelector'): void;
-    (e: 'filterChange', dataIndex: string, value: (string | number)[], isCustomParam: boolean): void;
+    (
+      e: 'filterChange',
+      dataIndex: string,
+      value: string[] | (string | number)[] | undefined,
+      isCustomParam: boolean
+    ): void;
     (e: 'moduleChange'): void;
     (e: 'initEnd'): void;
   }>();
@@ -630,7 +640,11 @@
     columnSelectorVisible.value = true;
   };
 
-  const handleFilterConfirm = (value: (string | number)[], dataIndex: string, isCustomParam: boolean) => {
+  const handleFilterConfirm = (
+    value: string[] | (string | number)[] | undefined,
+    dataIndex: string,
+    isCustomParam: boolean
+  ) => {
     emit('filterChange', dataIndex, value, isCustomParam);
   };
 
@@ -640,7 +654,9 @@
   });
 
   const isHighlightFilterBackground = ref<boolean>(false);
-  function showFilter(visible: boolean) {
+  const activeDataIndex = ref<string | undefined>('');
+  function showFilter(visible: boolean, dataIndex: string | undefined) {
+    activeDataIndex.value = dataIndex;
     isHighlightFilterBackground.value = visible;
   }
 
