@@ -20,6 +20,7 @@ import io.metersphere.api.service.definition.ApiDefinitionMockLogService;
 import io.metersphere.api.service.definition.ApiDefinitionMockNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionMockService;
 import io.metersphere.project.service.FileModuleService;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
@@ -156,7 +157,8 @@ public class ApiDefinitionMockController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_MOCK.name());
+        String apiMockDir = DefaultRepositoryDir.getApiMockDir(request.getProjectId(), request.getSourceId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), apiMockDir);
     }
 
     @GetMapping("/get-url/{id}")

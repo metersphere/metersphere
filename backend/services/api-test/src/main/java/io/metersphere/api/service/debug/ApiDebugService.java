@@ -1,5 +1,6 @@
 package io.metersphere.api.service.debug;
 
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
@@ -128,7 +129,7 @@ public class ApiDebugService extends MoveNodeService {
         resourceUpdateRequest.setProjectId(projectId);
         resourceUpdateRequest.setFolder(apiDebugDir);
         resourceUpdateRequest.setResourceId(sourceId);
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_DEBUG);
+        resourceUpdateRequest.setApiResourceType(ApiFileResourceType.API_DEBUG);
         resourceUpdateRequest.setOperator(operator);
         resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG);

@@ -50,10 +50,14 @@ public class ApiScenarioParseTmpParam {
      */
     private List<MsScriptElement> scriptElements = new ArrayList<>();
     /**
-     * 执行的资源ID列表
-     * 场景执行时，为关联的所有用例和场景列表
+     * 执行时包含文件的资源 ID 列表
+     * 场景执行时，包含 用例、场景、步骤ID
      */
-    private Set<String> refResourceIds = HashSet.newHashSet(0);
+    private Set<String> fileResourceIds = HashSet.newHashSet(0);
+    /**
+     * 包含文件文件的步骤ID和场景ID的映射
+     */
+    private Map<String, String> fileStepScenarioMap = new HashMap<>(0);
     /**
      * 执行的资源所属项目的ID列表
      * 场景执行时，为引用的资源的项目ID列表

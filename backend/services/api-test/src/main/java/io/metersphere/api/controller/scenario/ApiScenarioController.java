@@ -3,7 +3,6 @@ package io.metersphere.api.controller.scenario;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.constants.ApiResource;
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -275,7 +274,15 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_SCENARIO.name());
+        return apiScenarioService.scenarioTransfer(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/step/transfer")
+    @Operation(summary = "接口测试-接口场景管理-场景步骤-附件-文件转存")
+    @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public String stepTransfer(@Validated @RequestBody ApiTransferRequest request) {
+        return apiScenarioService.stepTransfer(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/transfer/options/{projectId}")

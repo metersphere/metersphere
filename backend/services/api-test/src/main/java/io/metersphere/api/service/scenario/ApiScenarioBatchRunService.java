@@ -333,6 +333,7 @@ public class ApiScenarioBatchRunService {
         // 记录请求数量
         taskRequest.setRequestCount(getRequestCount(apiScenarioDetail.getSteps()));
 
+        msScenario.setResourceId(apiScenarioDetail.getId());
         ApiScenarioParseTmpParam tmpParam = apiScenarioService.parse(msScenario, apiScenarioDetail.getSteps(), parseParam);
 
         ApiResourceRunRequest runRequest = apiScenarioService.getApiResourceRunRequest(msScenario, tmpParam);

@@ -1,5 +1,6 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
@@ -147,7 +148,7 @@ public class ApiTestCaseService extends MoveNodeService {
         resourceUpdateRequest.setProjectId(projectId);
         resourceUpdateRequest.setFolder(apiDebugDir);
         resourceUpdateRequest.setResourceId(sourceId);
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_CASE);
+        resourceUpdateRequest.setApiResourceType(ApiFileResourceType.API_CASE);
         resourceUpdateRequest.setOperator(operator);
         resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_MANAGEMENT_CASE);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE);

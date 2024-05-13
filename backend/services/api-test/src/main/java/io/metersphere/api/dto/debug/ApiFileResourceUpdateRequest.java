@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.debug;
 
-import io.metersphere.api.constants.ApiResourceType;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import lombok.Data;
 
 import java.io.Serial;
@@ -24,7 +24,7 @@ public class ApiFileResourceUpdateRequest implements Serializable {
     /**
      * 资源类型
      */
-    private ApiResourceType apiResourceType;
+    private ApiFileResourceType apiResourceType;
     /**
      * 关联的资源ID
      */

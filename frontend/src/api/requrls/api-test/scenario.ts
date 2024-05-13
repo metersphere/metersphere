@@ -12,6 +12,7 @@ export const UpdateScenarioUrl = '/api/scenario/update'; // 更新接口场景
 export const RecycleScenarioUrl = '/api/scenario/delete-to-gc'; // 删除接口场景
 export const ScenarioUploadTempFileUrl = '/api/scenario/upload/temp/file'; // 接口场景上传临时文件
 export const ScenarioTransferFileUrl = '/api/scenario/transfer'; // 接口场景临时文件转存
+export const ScenarioStepTransferFileUrl = '/api/scenario/step/transfer'; // 接口场景步骤临时文件转存
 export const ScenarioTransferModuleOptionsUrl = '/api/scenario/transfer/options'; // 接口场景临时文件转存目录
 export const DebugScenarioUrl = '/api/scenario/debug'; // 接口场景调试（不保存报告）
 export const ExecuteScenarioUrl = '/api/scenario/run'; // 接口场景执行（保存报告）

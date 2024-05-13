@@ -33,6 +33,7 @@ import {
   ScenarioPageUrl,
   ScenarioScheduleConfigDeleteUrl,
   ScenarioScheduleConfigUrl,
+  ScenarioStepTransferFileUrl,
   ScenarioTransferFileUrl,
   ScenarioTransferModuleOptionsUrl,
   ScenarioTrashPageUrl,
@@ -249,6 +250,10 @@ export function getScenarioStep(stepId: string | number) {
 // 文件转存
 export function transferFile(data: TransferFileParams) {
   return MSR.post({ url: ScenarioTransferFileUrl, data });
+}
+
+export function stepTransferFile(data: TransferFileParams) {
+  return MSR.post({ url: ScenarioStepTransferFileUrl, data });
 }
 
 // 文件转存目录

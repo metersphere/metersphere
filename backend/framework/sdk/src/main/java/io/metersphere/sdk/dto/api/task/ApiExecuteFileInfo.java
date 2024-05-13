@@ -30,8 +30,17 @@ public class ApiExecuteFileInfo  implements Serializable {
      * 资源ID
      */
     private String resourceId;
+
+    /**
+     * 场景ID
+     * 当 resourceType 为 API_SCENARIO_STEP 时
+     * 该字段保存场景ID
+     */
+    private String scenarioId;
+
     /**
      * 资源类型
+     * {@link io.metersphere.sdk.constants.ApiFileResourceType}
      */
     private String resourceType;
 

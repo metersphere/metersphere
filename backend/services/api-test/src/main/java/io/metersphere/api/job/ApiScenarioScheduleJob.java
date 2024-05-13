@@ -50,6 +50,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
             apiRunModeConfigDTO.setPoolId(apiExecuteService.getProjectApiResourcePoolId(apiScenarioDetail.getProjectId()));
         }
 
+        msScenario.setResourceId(apiScenarioDetail.getId());
         // 解析生成场景树，并保存临时变量
         ApiScenarioParseTmpParam tmpParam = apiScenarioService.parse(msScenario, apiScenarioDetail.getSteps(), parseParam);
 

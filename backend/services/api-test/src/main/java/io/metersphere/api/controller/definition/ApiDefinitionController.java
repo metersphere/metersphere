@@ -18,6 +18,7 @@ import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.project.service.FileModuleService;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.OperationHistoryDTO;
@@ -275,7 +276,8 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API.name());
+        String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getSourceId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), apiDefinitionDir);
     }
 
     @PostMapping("/preview")

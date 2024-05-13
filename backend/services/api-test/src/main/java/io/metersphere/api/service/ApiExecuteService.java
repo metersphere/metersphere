@@ -19,10 +19,7 @@ import io.metersphere.project.dto.customfunction.request.CustomFunctionRunReques
 import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.GlobalParamsDTO;
 import io.metersphere.project.service.*;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
-import io.metersphere.sdk.constants.ApiExecuteRunMode;
-import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -370,38 +367,42 @@ public class ApiExecuteService {
      * @param taskRequest
      */
     private void setTaskRefFileParam(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest) {
-        // 查询包括引用的资源所需的文件
-        Set<String> resourceIdsSet = runRequest.getRefResourceIds();
+        // 查询包括资源所需的文件
+        Set<String> resourceIdsSet = runRequest.getFileResourceIds();
         resourceIdsSet.add(taskRequest.getResourceId());
         List<String> resourceIds = resourceIdsSet.stream().collect(Collectors.toList());
+        SubListUtils.dealForSubList(resourceIds, 50, subResourceIds -> {
+            // 查询通过本地上传的文件
+            List<ApiExecuteFileInfo> localFiles = apiFileResourceService.getByResourceIds(subResourceIds).
+                    stream()
+                    .map(file -> {
+                        ApiExecuteFileInfo apiExecuteFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getFileName(), file.getProjectId());
+                        // 本地上传的文件需要 resourceId 查询对应的目录
+                        apiExecuteFileInfo.setResourceId(file.getResourceId());
+                        apiExecuteFileInfo.setResourceType(file.getResourceType());
+                        if (StringUtils.equals(file.getResourceType(), ApiFileResourceType.API_SCENARIO_STEP.name())) {
+                            apiExecuteFileInfo.setScenarioId(runRequest.getFileStepScenarioMap().get(file.getResourceId()));
+                        }
+                        return apiExecuteFileInfo;
+                    })
+                    .collect(Collectors.toList());
+            taskRequest.setLocalFiles(localFiles);
 
-        // 查询通过本地上传的文件
-        List<ApiExecuteFileInfo> localFiles = apiFileResourceService.getByResourceIds(resourceIds).
-                stream()
-                .map(file -> {
-                    ApiExecuteFileInfo apiExecuteFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getFileName(), file.getProjectId());
-                    // 本地上传的文件需要 resourceId 查询对应的目录
-                    apiExecuteFileInfo.setResourceId(file.getResourceId());
-                    apiExecuteFileInfo.setResourceType(file.getResourceType());
-                    return apiExecuteFileInfo;
-                })
-                .collect(Collectors.toList());
-        taskRequest.setLocalFiles(localFiles);
-
-        // 查询关联的文件管理的文件
-        List<ApiExecuteFileInfo> refFiles = fileAssociationService.getFiles(resourceIds).
-                stream()
-                .map(file -> {
-                    ApiExecuteFileInfo refFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getOriginalName(),
-                            file.getProjectId(), file.getStorage());
-                    if (StorageType.isGit(file.getStorage())) {
-                        // 设置Git信息
-                        refFileInfo.setFileMetadataRepositoryDTO(fileManagementService.getFileMetadataRepositoryDTO(file.getMetadataId()));
-                        refFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
-                    }
-                    return refFileInfo;
-                }).collect(Collectors.toList());
-        taskRequest.setRefFiles(refFiles);
+            // 查询关联的文件管理的文件
+            List<ApiExecuteFileInfo> refFiles = fileAssociationService.getFiles(subResourceIds).
+                    stream()
+                    .map(file -> {
+                        ApiExecuteFileInfo refFileInfo = getApiExecuteFileInfo(file.getFileId(), file.getOriginalName(),
+                                file.getProjectId(), file.getStorage());
+                        if (StorageType.isGit(file.getStorage())) {
+                            // 设置Git信息
+                            refFileInfo.setFileMetadataRepositoryDTO(fileManagementService.getFileMetadataRepositoryDTO(file.getMetadataId()));
+                            refFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
+                        }
+                        return refFileInfo;
+                    }).collect(Collectors.toList());
+            taskRequest.setRefFiles(refFiles);
+        });
     }
 
     private List<ApiExecuteFileInfo> getApiExecuteFileInfo(List<FileMetadata> fileMetadataList) {
