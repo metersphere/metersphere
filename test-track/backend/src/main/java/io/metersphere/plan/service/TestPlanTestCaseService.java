@@ -474,13 +474,29 @@ public class TestPlanTestCaseService {
         return cases;
     }
 
-    public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+    public void editTestCaseForMinder(String planId, List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        checkOwner(planId, testPlanTestCases);
         testPlanTestCases.forEach(item -> {
             item.setUpdateTime(System.currentTimeMillis());
             setUpdateCaseExecutor(item);
             testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
             testCaseService.updateLastExecuteStatus(item.getCaseId(), item.getStatus());
         });
+    }
+
+    private void checkOwner(String planId, List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        if (CollectionUtils.isEmpty(testPlanTestCases)) {
+            return;
+        }
+
+        List<String> ids = testPlanTestCases.stream()
+                .map(TestPlanTestCaseWithBLOBs::getId)
+                .collect(Collectors.toList());
+
+        boolean hasPermission = extTestPlanTestCaseMapper.checkOwner(planId, ids);
+        if (!hasPermission) {
+            MSException.throwException(Translator.get("check_owner_case"));
+        }
     }
 
     public List<String> idList(TestPlanFuncCaseBatchRequest request) {
