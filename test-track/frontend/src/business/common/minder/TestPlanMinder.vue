@@ -197,7 +197,7 @@ export default {
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases);
       this.result.loading = true;
-      testPlanCaseMinderEdit(saveCases)
+      testPlanCaseMinderEdit(this.planId, saveCases)
         .then(() => {
           this.result.loading = false;
           this.$success(this.$t('commons.save_success'));
