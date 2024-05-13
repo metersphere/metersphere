@@ -55,7 +55,7 @@
     </select>
 
     <select id="countRelationCases" resultType="io.metersphere.bug.dto.response.BugRelateCaseCountDTO">
-        select count(id) as relationCaseCount, bug_id as bugId from bug_relation_case brc
+        select count(distinct case_id) as relationCaseCount, bug_id as bugId from bug_relation_case brc
         where brc.bug_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -64,24 +64,53 @@
     </select>
 
     <select id="list" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
-        select brc.id relateId, fc.id relateCaseId, fc.num relateCaseNum, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
-               brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
-        from bug_relation_case brc
-        left join functional_case fc on ((brc.case_id = fc.id or brc.test_plan_case_id = fc.id) and fc.deleted = false)
-        left join api_test_case atc on ((brc.case_id = atc.id or brc.test_plan_case_id = atc.id) and atc.deleted = false)
-        left join api_scenario ao on ((brc.case_id = ao.id or brc.test_plan_case_id = ao.id) and ao.deleted = false)
-        where brc.bug_id = #{request.bugId}
-        <if test="request.keyword != null and request.keyword != ''">
-            and (
-                fc.name like concat('%', #{request.keyword}, '%')
-                or fc.num like concat('%', #{request.keyword}, '%')
-                or atc.name like concat('%', #{request.keyword}, '%')
-                or atc.num like concat('%', #{request.keyword}, '%')
-                or ao.name like concat('%', #{request.keyword}, '%')
-                or ao.num like concat('%', #{request.keyword}, '%')
-            )
-        </if>
-        order by brc.create_time desc
+        select * from (
+            <!-- 功能用例 -->
+            select brc.id relateId, brc.create_time, brc.case_id relateCaseId,
+            fc.num relateCaseNum, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId,
+            brc.case_type relateCaseType, max(brc.test_plan_id) is not null relatePlanCase
+            from bug_relation_case brc
+            join functional_case fc on (brc.case_id = fc.id and fc.deleted = false)
+            where brc.bug_id = #{request.bugId}
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                    fc.name like concat('%', #{request.keyword}, '%')
+                    or fc.num like concat('%', #{request.keyword}, '%')
+                )
+            </if>
+            group by brc.case_id
+            union all
+            <!-- 接口用例 -->
+            select brc.id relateId, brc.create_time, brc.case_id relateCaseId,
+            atc.num relateCaseNum, atc.name relateCaseName, atc.project_id projectId, atc.version_id versionId,
+            brc.case_type relateCaseType, max(brc.test_plan_id) is not null relatePlanCase
+            from bug_relation_case brc
+            join api_test_case atc on (brc.case_id = atc.id and atc.deleted = false)
+            where brc.bug_id = #{request.bugId}
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                    atc.name like concat('%', #{request.keyword}, '%')
+                    or atc.num like concat('%', #{request.keyword}, '%')
+                )
+            </if>
+            group by brc.case_id
+            union all
+            <!-- 接口场景用例 -->
+            select brc.id relateId, brc.create_time, brc.case_id relateCaseId,
+            ao.num relateCaseNum, ao.name relateCaseName, ao.project_id projectId, ao.version_id versionId,
+            brc.case_type relateCaseType, max(brc.test_plan_id) is not null relatePlanCase
+            from bug_relation_case brc
+            join api_scenario ao on (brc.case_id = ao.id and ao.deleted = false)
+            where brc.bug_id = #{request.bugId}
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                    ao.name like concat('%', #{request.keyword}, '%')
+                    or ao.num like concat('%', #{request.keyword}, '%')
+                )
+            </if>
+            group by brc.case_id
+        ) tmp
+        order by tmp.create_time desc
     </select>
 
     <select id="getRelateCase" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
@@ -135,9 +164,11 @@
     <sql id="queryWhereConditionByProvider">
         <if test="request.caseId != null and request.caseId != ''">
             and brc.case_id = #{request.caseId}
+            and brc.test_plan_id is null
         </if>
         <if test="request.testPlanCaseId != null and request.testPlanCaseId != ''">
-            and brc.test_plan_case_id = #{request.testPlanCaseId}
+            and brc.case_id = #{request.testPlanCaseId}
+            and brc.test_plan_id is not null
         </if>
         <if test="request.keyword != null and request.keyword != ''">
             and b.title like concat('%', #{request.keyword},'%')

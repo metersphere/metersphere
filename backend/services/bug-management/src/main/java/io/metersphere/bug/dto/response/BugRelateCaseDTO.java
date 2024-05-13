@@ -21,11 +21,8 @@ public class BugRelateCaseDTO{
     @Schema(description = "关联类型")
     private String relateCaseType;
 
-    @Schema(description = "是否关联计划用例")
+    @Schema(description = "是否通过计划关联")
     private Boolean relatePlanCase;
-
-    @Schema(description = "是否关联用例")
-    private Boolean relateCase;
 
     @Schema(description = "关联用例类型名称")
     private String relateCaseTypeName;
