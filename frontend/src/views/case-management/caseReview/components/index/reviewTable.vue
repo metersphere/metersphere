@@ -32,49 +32,14 @@
       @batch-action="handleTableBatch"
       @module-change="searchReview"
     >
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS]="{ filterContent }">
+        <a-tag
+          :color="reviewStatusMap[filterContent.value as ReviewStatus].color"
+          :class="[reviewStatusMap[filterContent.value as ReviewStatus].class, 'px-[4px]']"
+          size="small"
         >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
-            size="mini"
-            @click="statusFilterVisible = true"
-          >
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of Object.keys(reviewStatusMap)" :key="key" :value="key">
-                    <a-tag
-                      :color="reviewStatusMap[key as ReviewStatus].color"
-                      :class="[reviewStatusMap[key as ReviewStatus].class, 'px-[4px]']"
-                      size="small"
-                    >
-                      {{ t(reviewStatusMap[key as ReviewStatus].label) }}
-                    </a-tag>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+          {{ t(reviewStatusMap[filterContent.value as ReviewStatus].label) }}
+        </a-tag>
       </template>
       <template #reviewersFilter="{ columnConfig }">
         <TableFilter
@@ -221,6 +186,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import passRateLine from '../passRateLine.vue';
   import deleteReviewModal from './deleteReviewModal.vue';
   import ModuleTree from './moduleTree.vue';
@@ -245,6 +211,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const props = defineProps<{
     activeFolder: string;
@@ -279,6 +246,15 @@
   const reviewersFilterVisible = ref(false);
 
   const innerShowType = useVModel(props, 'showType', emit);
+
+  const reviewStatusOptions = computed(() => {
+    return Object.keys(reviewStatusMap).map((key) => {
+      return {
+        value: key,
+        label: reviewStatusMap[key as ReviewStatus].label,
+      };
+    });
+  });
 
   onBeforeMount(async () => {
     try {
@@ -447,7 +423,10 @@
       title: 'caseManagement.caseReview.status',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'statusFilter',
+      filterConfig: {
+        options: reviewStatusOptions.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS,
+      },
       showDrag: true,
       width: 150,
     },
@@ -469,7 +448,15 @@
       title: 'caseManagement.caseReview.reviewer',
       slotName: 'reviewers',
       dataIndex: 'reviewers',
-      titleSlotName: 'reviewersFilter',
+      filterConfig: {
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS,
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        type: UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.caseReview.reviewerPlaceholder'),
+      },
       showDrag: true,
       width: 150,
     },
@@ -573,7 +560,6 @@
       moduleIds,
       createByMe: innerShowType.value === 'createByMe' ? userStore.id : undefined,
       reviewByMe: innerShowType.value === 'reviewByMe' ? userStore.id : undefined,
-      filter: { status: statusFilters.value, reviewers: reviewersFilters.value },
       combine: filter
         ? {
             ...filter.combine,
@@ -712,7 +698,7 @@
         currentSelectCount: batchParams.value?.currentSelectCount || 0,
         condition: {
           keyword: keyword.value,
-          filter: { status: statusFilters.value, reviewers: reviewersFilters.value },
+          filter: propsRes.value.filter,
           combine: batchParams.value.condition,
         },
       };

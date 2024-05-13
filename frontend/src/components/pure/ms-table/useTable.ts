@@ -2,6 +2,7 @@
 // hook/table-props.ts
 
 import { ref, watchEffect } from 'vue';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import { useAppStore, useTableStore } from '@/store';
@@ -356,15 +357,12 @@ export default function useTableProps<T>(
       multiple: boolean,
       isCustomParma: boolean
     ) => {
-      if (filteredValues.length > 0) {
-        if (isCustomParma) {
-          filterItem.value = { [`custom_${multiple ? 'multiple' : 'single'}_${dataIndex}`]: filteredValues };
-        } else {
-          filterItem.value = { [dataIndex]: filteredValues };
-        }
+      if (isCustomParma) {
+        filterItem.value = { [`custom_${multiple ? 'multiple' : 'single'}_${dataIndex}`]: filteredValues };
       } else {
-        filterItem.value = {};
+        filterItem.value = { ...getTableQueryParams().filter, [dataIndex]: filteredValues };
       }
+      propsRes.value.filter = cloneDeep(filterItem.value);
       loadList();
     },
     // 分页触发

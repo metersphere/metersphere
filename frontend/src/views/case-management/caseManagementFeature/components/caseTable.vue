@@ -71,92 +71,22 @@
         </a-option>
       </a-select>
     </template>
-    <template #caseLevelFilter="{ columnConfig }">
-      <TableFilter
-        v-model:visible="caseFilterVisible"
-        v-model:status-filters="caseFilters"
-        :title="(columnConfig.title as string)"
-        :list="caseLevelList"
-        value-key="value"
-        @search="initData()"
-      >
-        <template #item="{ item }">
-          <div class="flex"> <caseLevel :case-level="item.text" /></div>
-        </template>
-      </TableFilter>
+    <!-- 用例等级 -->
+    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+      <caseLevel :case-level="filterContent.text" />
     </template>
-    <template #executeResultFilter="{ columnConfig }">
-      <a-trigger
-        v-model:popup-visible="executeResultFilterVisible"
-        trigger="click"
-        @popup-visible-change="handleFilterHidden"
-      >
-        <a-button
-          type="text"
-          class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
-          size="mini"
-          @click="executeResultFilterVisible = true"
-        >
-          <div class="font-medium">
-            {{ t(columnConfig.title as string) }}
-          </div>
-          <icon-down :class="executeResultFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-        </a-button>
-        <template #content>
-          <div class="arco-table-filters-content">
-            <div class="arco-table-filters-content-list">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="executeResultFilters" direction="vertical" size="mini">
-                  <a-checkbox v-for="key of Object.keys(executionResultMap)" :key="key" :value="key">
-                    <MsIcon
-                      :type="executionResultMap[key]?.icon || ''"
-                      class="mr-1"
-                      :class="[executionResultMap[key].color]"
-                    ></MsIcon>
-                    <span>{{ executionResultMap[key]?.statusText || '' }} </span>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetExecuteResultFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </div>
-        </template>
-      </a-trigger>
+    <!-- 执行结果 -->
+    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+      <ExecuteStatusTag :status="filterContent.value" />
     </template>
-    <template #updateUserFilter="{ columnConfig }">
-      <TableFilter
-        v-model:visible="updateUserFilterVisible"
-        v-model:status-filters="updateUserFilters"
-        :title="(columnConfig.title as string)"
-        :list="memberOptions"
-        label-key="label"
-        @search="initData()"
-      >
-        <template #item="{ item }">
-          {{ item.label }}
-        </template>
-      </TableFilter>
-    </template>
-    <template #createUserFilter="{ columnConfig }">
-      <TableFilter
-        v-model:visible="createUserFilterVisible"
-        v-model:status-filters="createUserFilters"
-        :title="(columnConfig.title as string)"
-        :list="memberOptions"
-        label-key="label"
-        @search="initData()"
-      >
-        <template #item="{ item }">
-          {{ item.label }}
-        </template>
-      </TableFilter>
+    <!-- 评审结果 -->
+    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
+      <MsIcon
+        :type="statusIconMap[filterContent.value]?.icon"
+        class="mr-1"
+        :class="[statusIconMap[filterContent.value].color]"
+      ></MsIcon>
+      <span>{{ statusIconMap[filterContent.value]?.statusText }} </span>
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
@@ -165,45 +95,6 @@
         :class="[statusIconMap[record.reviewStatus].color]"
       ></MsIcon>
       <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
-    </template>
-    <template #reviewStatusFilter="{ columnConfig }">
-      <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-        <a-button
-          type="text"
-          class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
-          size="mini"
-          @click="statusFilterVisible = true"
-        >
-          <div class="font-medium">
-            {{ t(columnConfig.title as string) }}
-          </div>
-          <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-        </a-button>
-        <template #content>
-          <div class="arco-table-filters-content">
-            <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-              <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                <a-checkbox v-for="key of Object.keys(statusIconMap)" :key="key" :value="key">
-                  <MsIcon
-                    :type="statusIconMap[key]?.icon || ''"
-                    class="mr-1"
-                    :class="[statusIconMap[key].color]"
-                  ></MsIcon>
-                  <span>{{ statusIconMap[key]?.statusText || '' }} </span>
-                </a-checkbox>
-              </a-checkbox-group>
-            </div>
-            <div class="filter-button">
-              <a-button size="mini" class="mr-[8px]" @click="resetReviewStatusFilter">
-                {{ t('common.reset') }}
-              </a-button>
-              <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                {{ t('system.orgTemplate.confirm') }}
-              </a-button>
-            </div>
-          </div>
-        </template>
-      </a-trigger>
     </template>
     <template #lastExecuteResult="{ record }">
       <executeResult :execute-result="record.lastExecuteResult" />
@@ -394,6 +285,7 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message, TableChangeExtra, TableData, TreeNodeData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -406,16 +298,16 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import executeResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
+  import ExecuteStatusTag from './excuteStatusTag.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';
-  import TableFilter from './tableFilter.vue';
 
   import {
     batchAssociationDemand,
@@ -451,6 +343,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
@@ -559,7 +452,24 @@
     hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
   );
 
-  const columns: MsTableColumn = [
+  const executeResultOptions = computed(() => {
+    return Object.keys(executionResultMap).map((key) => {
+      return {
+        value: key,
+        label: executionResultMap[key].statusText,
+      };
+    });
+  });
+  const reviewResultOptions = computed(() => {
+    return Object.keys(statusIconMap).map((key) => {
+      return {
+        value: key,
+        label: statusIconMap[key].statusText,
+      };
+    });
+  });
+
+  const firstStaticColumn: MsTableColumn = [
     {
       'title': 'caseManagement.featureCase.tableColumnID',
       'slotName': 'num',
@@ -592,20 +502,43 @@
       showDrag: false,
       columnSelectorDisabled: true,
     },
+  ];
+
+  const caseLevelColumn: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
       dataIndex: 'caseLevel',
-      titleSlotName: 'caseLevelFilter',
+      filterConfig: {
+        options: [],
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
       showInTable: true,
       width: 150,
       showDrag: true,
     },
+  ];
+  const operationColumn: MsTableColumn = [
+    {
+      title: hasOperationPermission.value ? 'caseManagement.featureCase.tableColumnActions' : '',
+      slotName: 'operation',
+      dataIndex: 'operation',
+      fixed: 'right',
+      showInTable: true,
+      showDrag: false,
+      width: hasOperationPermission.value ? 140 : 50,
+    },
+  ];
+
+  const lastStaticColumn: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
-      titleSlotName: 'reviewStatusFilter',
+      filterConfig: {
+        options: reviewResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT,
+      },
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -615,6 +548,10 @@
       dataIndex: 'lastExecuteResult',
       slotName: 'lastExecuteResult',
       titleSlotName: 'executeResultFilter',
+      filterConfig: {
+        options: executeResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+      },
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -650,7 +587,14 @@
       slotName: 'updateUserName',
       showTooltip: true,
       dataIndex: 'updateUserName',
-      titleSlotName: 'updateUserFilter',
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        type: UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -671,7 +615,14 @@
       title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUserName',
       dataIndex: 'createUserName',
-      titleSlotName: 'createUserFilter',
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        type: UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
       showInTable: true,
       showTooltip: true,
       width: 200,
@@ -689,16 +640,8 @@
       width: 200,
       showDrag: true,
     },
-    {
-      title: hasOperationPermission.value ? 'caseManagement.featureCase.tableColumnActions' : '',
-      slotName: 'operation',
-      dataIndex: 'operation',
-      fixed: 'right',
-      showInTable: true,
-      showDrag: false,
-      width: hasOperationPermission.value ? 140 : 50,
-    },
   ];
+
   const platformInfo = ref<Record<string, any>>({});
   const tableBatchActions = {
     baseAction: [
@@ -766,8 +709,7 @@
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
-  const updateUserFilters = ref<string[]>([]);
-  const createUserFilters = ref<string[]>([]);
+
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
     memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
@@ -932,9 +874,6 @@
     excludeIds: [],
     currentSelectCount: 0,
   });
-  const statusFilters = ref<string[]>([]);
-  const caseFilters = ref<string[]>([]);
-  const executeResultFilters = ref<string[]>([]);
 
   const conditionParams = ref({
     keyword: '',
@@ -964,13 +903,6 @@
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds as string[],
       keyword: keyword.value,
-      filter: {
-        reviewStatus: statusFilters.value,
-        caseLevel: caseFilters.value,
-        lastExecuteResult: executeResultFilters.value,
-        updateUserName: updateUserFilters.value,
-        createUserName: createUserFilters.value,
-      },
       combine: batchParams.value.condition,
     };
   }
@@ -994,38 +926,15 @@
     return (nodeValue as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
-  const searchParams = ref<TableQueryParams>({
-    projectId: currentProjectId.value,
-    moduleIds: [],
-  });
-
   const caseLevelFields = ref<Record<string, any>>({});
-  // 用例等级表头检索
-  const caseFilterVisible = ref(false);
 
   const caseLevelList = computed(() => {
     return caseLevelFields.value?.options || [];
   });
 
-  function getExecuteResultList() {
-    const list: any = [];
-    Object.keys(executionResultMap).forEach((key) => {
-      list.push({
-        ...executionResultMap[key],
-      });
-    });
-    return list;
-  }
-  const executeResultFilterList = ref(getExecuteResultList());
-
   async function getLoadListParams() {
     setLoadListParams(await initTableParams());
   }
-
-  // 执行结果表头检索
-  const executeResultFilterVisible = ref(false);
-  const updateUserFilterVisible = ref(false);
-  const createUserFilterVisible = ref(false);
 
   // 初始化列表
   async function initData() {
@@ -1123,13 +1032,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         condition: {
           keyword: keyword.value,
-          filter: {
-            reviewStatus: statusFilters.value,
-            caseLevel: caseFilters.value,
-            lastExecuteResult: executeResultFilters.value,
-            updateUserName: updateUserFilters.value,
-            createUserName: createUserFilters.value,
-          },
+          filter: propsRes.value.filter,
           combine: batchParams.value.condition,
         },
         projectId: currentProjectId.value,
@@ -1210,13 +1113,7 @@
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             condition: {
               keyword: keyword.value,
-              filter: {
-                reviewStatus: statusFilters.value,
-                caseLevel: caseFilters.value,
-                lastExecuteResult: executeResultFilters.value,
-                updateUserName: updateUserFilters.value,
-                createUserName: createUserFilters.value,
-              },
+              filter: propsRes.value.filter,
               combine: batchParams.value.condition,
             },
             selectAll,
@@ -1349,23 +1246,20 @@
     caseLevelFields.value = result.customFields.find(
       (item: any) => item.internal && (item.fieldName === 'Case Priority' || item.fieldName === '用例等级')
     );
+    if (caseLevelColumn[0].filterConfig?.options) {
+      caseLevelColumn[0].filterConfig.options = cloneDeep(unref(caseLevelFields.value?.options)) || [];
+    }
+
     fullColumns = [
-      ...columns.slice(0, columns.length - 1),
+      ...firstStaticColumn,
+      ...caseLevelColumn,
+      ...lastStaticColumn,
       ...customFieldsColumns,
-      ...columns.slice(columns.length - 1, columns.length),
+      ...operationColumn,
     ];
     await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer', true);
   }
 
-  // 如果是用例等级
-  function isCaseLevel(slotFieldId: string) {
-    const currentItem = initDefaultFields.value.find((item: any) => item.fieldId === slotFieldId);
-    return {
-      name: currentItem?.fieldName,
-      type: currentItem?.type,
-      options: currentItem?.options,
-    };
-  }
   // 获取更新自定义字段参数
   function getCustomsParams(detailResult: CaseManagementTable, record: CaseManagementTable) {
     const customFieldsList = Object.keys(record).filter((item) => item.includes('rule-'));
@@ -1399,28 +1293,6 @@
       initData();
     } catch (error) {
       console.log(error);
-    }
-  }
-
-  // 如果是用例状态
-  function getCaseState(caseState: string | undefined): { type: TagType; theme: Theme } {
-    switch (caseState) {
-      case '已完成':
-        return {
-          type: 'success',
-          theme: 'default',
-        };
-      case '进行中':
-        return {
-          type: 'link',
-          theme: 'default',
-        };
-
-      default:
-        return {
-          type: 'default',
-          theme: 'default',
-        };
     }
   }
 
@@ -1460,13 +1332,7 @@
       condition: {
         keyword: keyword.value,
         searchMode: accordBelow,
-        filter: {
-          reviewStatus: statusFilters.value,
-          caseLevel: caseFilters.value,
-          lastExecuteResult: executeResultFilters.value,
-          updateUserName: updateUserFilters.value,
-          createUserName: createUserFilters.value,
-        },
+        filter: propsRes.value.filter,
         combine,
       },
     };
@@ -1588,22 +1454,10 @@
         moduleId: selectedModuleKeys.value[0],
         demandPlatform,
         demandList,
-        filter: {
-          reviewStatus: statusFilters.value,
-          caseLevel: caseFilters.value,
-          lastExecuteResult: executeResultFilters.value,
-          updateUserName: updateUserFilters.value,
-          createUserName: createUserFilters.value,
-        },
+        filter: propsRes.value.filter,
         condition: {
           keyword: keyword.value,
-          filter: {
-            reviewStatus: statusFilters.value,
-            caseLevel: caseFilters.value,
-            lastExecuteResult: executeResultFilters.value,
-            updateUserName: updateUserFilters.value,
-            createUserName: createUserFilters.value,
-          },
+          filter: propsRes.value.filter,
           combine: batchParams.value.condition,
         },
         functionalDemandBatchRequest,
@@ -1621,26 +1475,6 @@
   }
 
   const statusFilterVisible = ref(false);
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      initData();
-      statusFilterVisible.value = false;
-      executeResultFilterVisible.value = false;
-    }
-  }
-
-  function resetReviewStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    initData();
-  }
-
-  function resetExecuteResultFilter() {
-    executeResultFilters.value = [];
-    executeResultFilterVisible.value = false;
-    initData();
-  }
 
   // 获取三方需求
   onBeforeMount(async () => {

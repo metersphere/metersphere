@@ -56,9 +56,9 @@
         ></a-input-search>
       </div>
     </div>
-    <ms-base-table v-if="showType === 'link'" ref="tableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
+    <ms-base-table v-if="showType === 'link'" ref="bugTableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
       <template #name="{ record }">
-        <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
+        <span class="one-line-text max-w-[150px]"> {{ characterLimit(record.name) }}</span>
         <a-popover title="" position="right" style="width: 480px">
           <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
           <template #content>
@@ -66,36 +66,6 @@
           </template>
         </a-popover>
       </template>
-      <template #handleUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="handleUserFilterVisible"
-          v-model:status-filters="handleUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="handleUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
-
-      <template #statusFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="statusFilterVisible"
-          v-model:status-filters="statusFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="statusFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
-
       <template #severityFilter="{ columnConfig }">
         <TableFilter
           v-model:visible="severityFilterVisible"
@@ -109,6 +79,14 @@
             {{ item.text }}
           </template>
         </TableFilter>
+      </template>
+      <template #statusName="{ record }">
+        <div class="one-line-text">{{ record.statusName }}</div>
+      </template>
+      <template #handleUserName="{ record }">
+        <a-tooltip :content="record.handleUserName">
+          <div class="one-line-text max-w-[200px]">{{ characterLimit(record.handleUserName) }}</div>
+        </a-tooltip>
       </template>
 
       <template #operation="{ record }">
@@ -137,9 +115,9 @@
         </div>
       </template>
     </ms-base-table>
-    <ms-base-table v-else v-bind="testPlanPropsRes" v-on="testPlanTableEvent">
+    <ms-base-table v-else v-bind="testPlanPropsRes" ref="planTableRef" v-on="testPlanTableEvent">
       <template #name="{ record }">
-        <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
+        <div class="one-line-text max-w-[300px]"> {{ record.name }}</div>
         <a-popover title="" position="right">
           <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
           <template #content>
@@ -149,36 +127,13 @@
           </template>
         </a-popover>
       </template>
+      <template #handleUserName="{ record }">
+        <a-tooltip :content="record.handleUserName">
+          <div class="one-line-text max-w-[200px]">{{ characterLimit(record.handleUserName) }}</div>
+        </a-tooltip>
+      </template>
       <template #testPlanName="{ record }">
         <a-button type="text" class="px-0" @click="goToPlan(record)">{{ record.testPlanName }}</a-button>
-      </template>
-      <template #handleUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="handleUserFilterVisible"
-          v-model:status-filters="handleUserFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="handleUserFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
-      <template #statusFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="statusFilterVisible"
-          v-model:status-filters="statusFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="statusFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
       </template>
 
       <template #severityFilter="{ columnConfig }">
@@ -239,11 +194,13 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BugListItem, BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -257,10 +214,8 @@
   const showType = ref('link');
 
   const keyword = ref<string>('');
-  const handleUserFilterVisible = ref(false);
   const handleUserFilterValue = ref<string[]>([]);
   const handleUserFilterOptions = ref<BugOptionItem[]>([]);
-  const statusFilterVisible = ref(false);
   const statusFilterValue = ref<string[]>([]);
   const statusFilterOptions = ref<BugOptionItem[]>([]);
   const severityFilterOptions = ref<BugOptionItem[]>([]);
@@ -275,10 +230,11 @@
     {
       title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'num',
-      width: 200,
+      width: 100,
       showInTable: true,
       showTooltip: true,
       showDrag: false,
+      fixed: 'left',
     },
     {
       title: 'caseManagement.featureCase.defectName',
@@ -286,29 +242,33 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: false,
-      width: 300,
+      width: 200,
       ellipsis: true,
       showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.defectState',
       slotName: 'statusName',
-      dataIndex: 'statusName',
-      titleSlotName: 'statusFilter',
+      dataIndex: 'status',
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
+      },
       showInTable: true,
-      showTooltip: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
       showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.updateUser',
       slotName: 'handleUserName',
-      dataIndex: 'handleUserName',
-      titleSlotName: 'handleUserFilter',
+      dataIndex: 'handleUser',
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
+      },
       showInTable: true,
-      showTooltip: true,
-      width: 300,
+      width: 200,
       ellipsis: true,
     },
     {
@@ -317,7 +277,7 @@
       dataIndex: 'source',
       showInTable: true,
       showTooltip: true,
-      width: 200,
+      width: 100,
       ellipsis: true,
       showDrag: false,
     },
@@ -326,7 +286,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: 100,
       showInTable: true,
       showDrag: false,
     },
@@ -386,8 +346,11 @@
     {
       title: 'caseManagement.featureCase.updateUser',
       slotName: 'handleUserName',
-      dataIndex: 'handleUserName',
-      titleSlotName: 'handleUserFilter',
+      dataIndex: 'handleUser',
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
+      },
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -402,7 +365,6 @@
     setLoadListParams: setTestPlanListParams,
   } = useTable(getLinkedCaseBugList, {
     columns: testPlanColumns,
-    scroll: { x: '100%' },
     heightUsed: 354,
     enableDrag: true,
   });
@@ -412,13 +374,13 @@
       status: statusFilterValue.value,
       handleUser: handleUserFilterValue.value,
     };
+    // TODO 不知道干啥的 要和后台同学确认一下
     filterParams[severityColumnId.value] = severityFilterValue.value;
     return {
       keyword: keyword.value,
       caseId: showType.value === 'link' ? props.caseId : null,
       testPlanCaseId: showType.value === 'link' ? null : props.caseId,
       projectId: appStore.currentProjectId,
-      filter: { ...filterParams },
       condition: {
         keyword: keyword.value,
         filter: showType.value === 'link' ? linkPropsRes : 'testPlanPropsRes',
@@ -436,11 +398,40 @@
     }
   }
 
+  const bugTableRef = ref();
+  const planTableRef = ref();
+
+  function makeColumns(columnData: MsTableColumn) {
+    const optionsMap: Record<string, any> = {
+      status: statusFilterOptions.value,
+      handleUser: handleUserFilterOptions.value,
+    };
+    return columnData.map((e) => {
+      if (Object.prototype.hasOwnProperty.call(optionsMap, e.dataIndex as string)) {
+        return {
+          ...e,
+          filterConfig: {
+            ...e.filterConfig,
+            options: optionsMap[e.dataIndex as string],
+          },
+        };
+      }
+      return { ...e };
+    });
+  }
   async function initFilterOptions() {
     if (hasAnyPermission(['PROJECT_BUG:READ'])) {
       const res = await getCustomOptionHeader(appStore.currentProjectId);
       handleUserFilterOptions.value = res.handleUserOption;
       statusFilterOptions.value = res.statusOption;
+
+      if (showType.value === 'link') {
+        const columnList = makeColumns(columns);
+        bugTableRef.value.initColumn(columnList);
+      } else {
+        const planColumnList = makeColumns(testPlanColumns);
+        planTableRef.value.initColumn(planColumnList);
+      }
     }
   }
 
@@ -522,19 +513,12 @@
     () => showType.value,
     (val) => {
       if (val) {
+        initFilterOptions();
         getFetch();
       }
     }
   );
 
-  // watch(
-  //   () => activeTab.value,
-  //   (val) => {
-  //     if (val === 'bug') {
-  //       getFetch();
-  //     }
-  //   }
-  // );
   const total = ref<number>(0);
   async function initBugList() {
     if (!hasAnyPermission(['PROJECT_BUG:READ'])) {
@@ -584,8 +568,11 @@
 
   onMounted(() => {
     getFetch();
-    initFilterOptions();
     initBugList();
+  });
+
+  onBeforeMount(() => {
+    initFilterOptions();
   });
 </script>
 

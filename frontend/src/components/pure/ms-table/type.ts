@@ -1,3 +1,5 @@
+import type { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
 import type { TableQueryParams } from '@/models/common';
 import { ColumnEditTypeEnum, SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -20,6 +22,10 @@ export interface MsTableColumnFilterConfig {
   options?: Record<string, any>[]; // 筛选数据
   valueKey?: string;
   labelKey?: string;
+  mode?: 'static' | 'remote';
+  type?: UserRequestTypeEnum; // 加载选项的类型
+  loadOptionParams?: Record<string, any>; // 请求下拉的参数
+  placeholderText?: string;
 }
 
 export interface MsTableColumnData extends TableColumnData {

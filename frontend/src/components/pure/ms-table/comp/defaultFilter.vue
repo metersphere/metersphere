@@ -11,8 +11,8 @@
     <template #content>
       <div class="arco-table-filters-content">
         <div class="arco-table-filters-content-list">
-          <div class="max-h-[300px] overflow-y-auto px-[12px] py-[4px]">
-            <a-checkbox-group v-model="checkedList" size="mini" direction="vertical">
+          <div class="arco-table-filters-content-wrap max-h-[300px] px-[12px] py-[4px]">
+            <a-checkbox-group v-if="props.mode === 'static'" v-model="checkedList" size="mini" direction="vertical">
               <a-checkbox
                 v-for="(item, index) of props.options"
                 :key="item[props.valueKey || 'value']"
@@ -32,7 +32,19 @@
               </a-checkbox>
             </a-checkbox-group>
           </div>
-          <div class="arco-table-filters-bottom">
+          <div v-if="props.mode === 'remote'" class="w-[200px] p-[12px] pb-[8px]">
+            <MsUserSelector
+              v-model="checkedList"
+              :load-option-params="props.loadOptionParams"
+              :type="props.type"
+              :placeholder="props.placeholderText"
+            />
+          </div>
+          <div
+            :class="`${
+              props.mode === 'static' ? 'justify-between' : 'justify-end'
+            } arco-table-filters-bottom flex h-[38px] items-center`"
+          >
             <a-button size="mini" type="secondary" @click="handleFilterReset">
               {{ t('common.reset') }}
             </a-button>
@@ -47,6 +59,9 @@
 </template>
 
 <script lang="ts" setup>
+  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
+  import type { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
@@ -54,13 +69,22 @@
   export interface FilterListItem {
     [key: string]: any;
   }
-  const props = defineProps<{
-    options?: FilterListItem[];
-    valueKey?: string;
-    labelKey?: string;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      options?: FilterListItem[];
+      valueKey?: string;
+      labelKey?: string;
+      mode?: 'static' | 'remote';
+      type?: UserRequestTypeEnum; // 加载选项的类型
+      loadOptionParams?: Record<string, any>; // 请求下拉的参数
+      placeholderText?: string;
+    }>(),
+    {
+      mode: 'static',
+    }
+  );
   const emit = defineEmits<{
-    (e: 'handleConfirm', value: (string | number)[]): void;
+    (e: 'handleConfirm', value: (string | number)[] | string[] | undefined): void;
   }>();
 
   const visible = ref(false);
@@ -78,3 +102,10 @@
     visible.value = false;
   };
 </script>
+
+<style scoped lang="less">
+  .arco-table-filters-content-wrap {
+    @apply overflow-y-auto;
+    .ms-scroll-bar();
+  }
+</style>
