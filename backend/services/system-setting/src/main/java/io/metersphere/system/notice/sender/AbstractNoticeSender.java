@@ -92,6 +92,22 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return MessageTemplateUtils.getContent(context, noticeModel.getParamMap());
     }
 
+    protected String getSubjectText(MessageDetail messageDetail, NoticeModel noticeModel) {
+        //处理自定义字段的值
+        handleCustomFields(noticeModel);
+        // 处理 userIds 中包含的特殊值
+        noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
+        // 如果配置了模版就直接使用模版
+        if (StringUtils.isNotBlank(messageDetail.getSubject())) {
+            return MessageTemplateUtils.getContent(messageDetail.getSubject(), noticeModel.getParamMap());
+        }
+        String context = StringUtils.EMPTY;
+        if (StringUtils.isBlank(context)) {
+            context = noticeModel.getSubject();
+        }
+        return MessageTemplateUtils.getContent(context, noticeModel.getParamMap());
+    }
+
     private void handleCustomFields(NoticeModel noticeModel) {
         if (!noticeModel.getParamMap().containsKey("fields")) {
             return;

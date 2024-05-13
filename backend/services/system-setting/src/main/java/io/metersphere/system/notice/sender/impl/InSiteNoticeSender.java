@@ -26,7 +26,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
     @Resource
     private ProjectMapper projectMapper;
 
-    public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
+    public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context, String subjectText) {
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
@@ -36,7 +36,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
         receivers.forEach(receiver -> {
             Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
-            notification.setSubject(noticeModel.getSubject());
+            notification.setSubject(subjectText);
             notification.setProjectId(messageDetail.getProjectId());
             notification.setOrganizationId(project.getOrganizationId());
             notification.setOperator(noticeModel.getOperator());
@@ -61,7 +61,8 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendAnnouncement(messageDetail, noticeModel, context);
+        String subjectText = super.getSubjectText(messageDetail, noticeModel);
+        sendAnnouncement(messageDetail, noticeModel, context, subjectText);
     }
 
 }

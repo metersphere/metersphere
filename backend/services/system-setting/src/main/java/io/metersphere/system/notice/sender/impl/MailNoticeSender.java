@@ -33,7 +33,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
     @Resource
     private SystemParameterMapper systemParameterMapper;
 
-    public void sendMail(String context, NoticeModel noticeModel, String projectId) throws Exception {
+    public void sendMail(String context, NoticeModel noticeModel, String projectId, String subjectText) throws Exception {
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
@@ -47,7 +47,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
                 .distinct()
                 .toArray(String[]::new);
 
-        send(noticeModel.getSubject(), context, users, new String[0]);
+        send(subjectText, context, users, new String[0]);
     }
 
     private void send(String subject, String context, String[] users, String[] cc) throws Exception {
@@ -157,8 +157,9 @@ public class MailNoticeSender extends AbstractNoticeSender {
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
+        String subjectText = super.getSubjectText(messageDetail, noticeModel);
         try {
-            sendMail(context, noticeModel, messageDetail.getProjectId());
+            sendMail(context, noticeModel, messageDetail.getProjectId(), subjectText);
             LogUtils.debug("发送邮件结束");
         } catch (Exception e) {
             LogUtils.error(e);

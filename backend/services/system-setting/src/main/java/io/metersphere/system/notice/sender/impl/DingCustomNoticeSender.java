@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class DingCustomNoticeSender extends AbstractNoticeSender {
 
-    public void sendDingCustom(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
+    public void sendDingCustom(MessageDetail messageDetail, NoticeModel noticeModel, String context, String subjectText) {
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
@@ -29,13 +29,14 @@ public class DingCustomNoticeSender extends AbstractNoticeSender {
         List<String> mobileList = users.stream().map(User::getPhone).toList();
 
         LogUtils.info("钉钉自定义机器人收件人: {}", userIds);
-        DingClient.send(messageDetail.getWebhook(), messageDetail.getSubject() + ": \n" + context, mobileList);
+        DingClient.send(messageDetail.getWebhook(), subjectText + ": \n" + context, mobileList);
     }
 
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendDingCustom(messageDetail, noticeModel, context);
+        String subjectText = super.getSubjectText(messageDetail, noticeModel);
+        sendDingCustom(messageDetail, noticeModel, context, subjectText);
     }
 
 }
