@@ -84,4 +84,6 @@ public interface ExtTestPlanTestCaseMapper {
 
     @Select("SELECT id FROM test_plan_test_case WHERE plan_id = #{planId} AND case_id = #{caseId}")
     List<String> selectIdByTestCaseIdAndTestPlanId(@Param("caseId") String caseId, @Param("planId") String planId);
+
+    boolean checkOwner(@Param("planId") String planId, @Param("ids") List<String> ids);
 }

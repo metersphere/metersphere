@@ -711,6 +711,15 @@
         UPDATE test_case SET last_execute_result = #{execResult}
         WHERE id = #{testCaseId} AND (last_execute_result != #{execResult} or last_execute_result is null)
     </update>
+    <select id="checkOwner" resultType="boolean">
+        SELECT count(id) = ${ids.size()}
+        FROM test_plan_test_case
+        WHERE plan_id = #{planId}
+        and id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
     <select id="findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
             resultType="io.metersphere.dto.ExecutedCaseInfoResult">
         SELECT *
