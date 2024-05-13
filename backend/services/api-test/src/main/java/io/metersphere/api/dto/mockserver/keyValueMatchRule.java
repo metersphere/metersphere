@@ -2,6 +2,7 @@ package io.metersphere.api.dto.mockserver;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
@@ -15,8 +16,9 @@ public class keyValueMatchRule {
     private List<KeyValueInfo> matchRules;
 
     public boolean match(Map<String, String> matchParam) {
-        if (MapUtils.isEmpty(matchParam)) {
-            return true;
+        if ((MapUtils.isEmpty(matchParam) && CollectionUtils.isNotEmpty(matchRules)) ||
+                (CollectionUtils.isEmpty(matchRules) && MapUtils.isNotEmpty(matchParam))) {
+            return false;
         }
         if (isMatchAll) {
             for (KeyValueInfo matchRule : matchRules) {

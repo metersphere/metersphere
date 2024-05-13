@@ -105,7 +105,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
         HTTPAuthConfig authConfig = msHTTPElement.getAuthConfig();
 
-        if ((authConfig == null  || !authConfig.isHTTPAuthValid()) && httpConfig != null) {
+        if ((authConfig == null || !authConfig.isHTTPAuthValid()) && httpConfig != null) {
             authConfig = httpConfig.getAuthConfig();
         }
         // 处理认证信息
@@ -119,6 +119,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
      * 判断是否启用环境
      * 非自定义请求启用
      * 自定义请求需要判断是否启用
+     *
      * @param httpElement
      * @return
      */
@@ -379,7 +380,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
             if (match) {
                 // 如果是mock 返回的url格式是 /mock-server/projectNum/apiNum
                 if (BooleanUtils.isTrue(envConfig.getMock())) {
-                    httpConfig.setHostname(StringUtils.join(httpConfig.getHostname(),"/", msHTTPElement.getNum()));
+                    httpConfig.setHostname(StringUtils.join(httpConfig.getHostname(), "/", msHTTPElement.getNum(), StringUtils.isNotBlank(msHTTPElement.getMockNum()) ? "/" + msHTTPElement.getMockNum() : StringUtils.EMPTY));
                 }
                 return httpConfig;
             }
@@ -421,7 +422,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
                     .filter(KeyValueParam::isValid)
                     .filter(header ->
                             StringUtils.equalsIgnoreCase(header.getKey().trim(), ApiConstants.CONTENT_TYPE)
-                            && StringUtils.contains(header.getValue(), contentType)
+                                    && StringUtils.contains(header.getValue(), contentType)
                     )
                     .toList();
             // 不包含则添加一个
@@ -475,7 +476,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         return stringBuffer.substring(0, stringBuffer.length() - 1);
     }
 
-    private DNSCacheManager getEnvDns(String name , EnvironmentInfoDTO envConfig, HttpConfig httpConfig) {
+    private DNSCacheManager getEnvDns(String name, EnvironmentInfoDTO envConfig, HttpConfig httpConfig) {
         if (envConfig == null ||
                 envConfig.getConfig() == null ||
                 envConfig.getConfig().getHostConfig() == null ||

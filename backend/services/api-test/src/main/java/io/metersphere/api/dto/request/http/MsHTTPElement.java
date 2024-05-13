@@ -1,8 +1,8 @@
 package io.metersphere.api.dto.request.http;
 
-import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
+import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
@@ -72,4 +72,8 @@ public class MsHTTPElement extends AbstractMsProtocolTestElement {
      * mock执行需要的接口编号
      */
     private Long num;
+    /**
+     * mock调试过来的mock编号
+     */
+    private String mockNum;
 }
