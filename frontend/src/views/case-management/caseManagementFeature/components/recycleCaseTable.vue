@@ -112,7 +112,7 @@
             </template>
             <!-- 执行结果 -->
             <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-              <ExecuteStatusTag :status="filterContent.value" />
+              <ExecuteStatusTag :execute-result="filterContent.value" />
             </template>
             <!-- 评审结果 -->
             <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
@@ -200,10 +200,10 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import ExecuteStatusTag from '@/components/business/ms-case-associate/executeResult.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import ExecuteStatusTag from './excuteStatusTag.vue';
 
   import {
     batchDeleteRecycleCase,
