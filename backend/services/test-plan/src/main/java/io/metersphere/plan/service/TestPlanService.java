@@ -12,7 +12,9 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -55,6 +57,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanStatisticsService testPlanStatisticsService;
     @Resource
     private TestPlanCaseService testPlanCaseService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
 
 
     /**
@@ -446,6 +450,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             getOtherConfig(response, testPlan);
             testPlanStatisticsService.calculateCaseCount(List.of(response));
         }
+        // 是否定时任务
+        ScheduleExample example = new ScheduleExample();
+        example.createCriteria().andResourceIdEqualTo(id).andResourceTypeEqualTo("TEST_PLAN");
+        response.setUseSchedule(scheduleMapper.countByExample(example) > 0);
         return response;
     }
 

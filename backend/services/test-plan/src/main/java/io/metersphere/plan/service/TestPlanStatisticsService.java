@@ -9,10 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -74,11 +71,14 @@ public class TestPlanStatisticsService {
 		// TODO: 计划-接口用例的关联数据
 		planIds.forEach(planId -> {
 			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
+			statisticsResponse.setId(planId);
 			int success = 0, error = 0, fakeError = 0, block = 0, pending = 0;
 			// 功能用例统计开始
 			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);
 			statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
-			Map<String, List<TestPlanFunctionalCase>> functionalCaseResultMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getLastExecResult));
+			// 根据执行结果分组(为空, 默认为未执行)
+			Map<String, List<TestPlanFunctionalCase>> functionalCaseResultMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
+					Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(FunctionalCaseExecuteResult.PENDING.name())));
 			success += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.SUCCESS.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.SUCCESS.name()).size() : 0;
 			error += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.ERROR.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.ERROR.name()).size() : 0;
 			fakeError += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.FAKE_ERROR.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.FAKE_ERROR.name()).size() : 0;

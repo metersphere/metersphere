@@ -18,6 +18,8 @@ import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
@@ -53,6 +55,7 @@ public class TestPlanController {
     @PostMapping("/statistics")
     @Operation(summary = "测试计划-获取计划详情统计{通过率, 执行进度}")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @Parameter(name = "ids", description = "计划ID集合", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<TestPlanStatisticsResponse> selectTestPlanMetricById(@RequestBody List<String> ids) {
         return testPlanStatisticsService.calculateRate(ids);
     }

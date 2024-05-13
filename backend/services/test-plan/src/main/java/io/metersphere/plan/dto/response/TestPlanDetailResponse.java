@@ -18,6 +18,7 @@ public class TestPlanDetailResponse extends TestPlanStatisticsResponse implement
 
     @Schema(description = "测试计划组Id")
     private String groupId;
+
     @Schema(description = "测试计划组名称")
     private String groupName;
 
@@ -42,10 +43,19 @@ public class TestPlanDetailResponse extends TestPlanStatisticsResponse implement
 
     @Schema(description = "测试计划名称/测试计划组名称")
     private String name;
+
     @Schema(description = "标签")
     private List<String> tags;
+
     @Schema(description = "模块")
     private String moduleName;
+
     @Schema(description = "模块Id")
     private String moduleId;
+
+    @Schema(description = "状态")
+    private String status;
+
+    @Schema(description = "是否定时任务")
+    private Boolean useSchedule;
 }
