@@ -9,6 +9,7 @@ import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseRunRequest;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.BugPageProviderRequest;
@@ -39,7 +40,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_TREE_COUNT_URL = "/test-plan/functional/case/module/count";
 
     public static final String FUNCTIONAL_CASE_DISASSOCIATE_URL = "/test-plan/functional/case/batch/disassociate";
-
+    public static final String FUNCTIONAL_CASE_RUN_URL = "/test-plan/functional/case/run";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -53,7 +54,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_test_plan_case_relate_bug.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetFunctionalCaseList() throws Exception {
         TestPlanCaseRequest request = new TestPlanCaseRequest();
-        request.setProjectId("123");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setCurrent(1);
         request.setPageSize(10);
         request.setTestPlanId("plan_1");
@@ -154,4 +155,23 @@ public class TestPlanCaseControllerTests extends BaseTest {
         this.requestGetWithOk("/test-plan/functional/case/disassociate/bug/" + bugRelationCases.get(0).getId());
     }
 
+
+
+    @Test
+    @Order(11)
+    public void testFunctionalCaseRun() throws Exception {
+        TestPlanCaseRunRequest request = new TestPlanCaseRunRequest();
+        request.setProjectId("1234");
+        request.setId("relate_case_3");
+        request.setTestPlanId("plan_2");
+        request.setCaseId("fc_1");
+        request.setLastExecResult("SUCCESS");
+        request.setStepsExecResult("123");
+        request.setContent("12334");
+        request.setNotifier("123");
+        this.requestPostWithOk(FUNCTIONAL_CASE_RUN_URL, request);
+        request.setLastExecResult("ERROR");
+        this.requestPostWithOk(FUNCTIONAL_CASE_RUN_URL, request);
+
+    }
 }

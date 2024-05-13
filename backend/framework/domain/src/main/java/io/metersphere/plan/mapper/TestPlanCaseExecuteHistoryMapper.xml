@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
+    <result column="test_plan_case_id" jdbcType="VARCHAR" property="testPlanCaseId" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
@@ -74,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, case_id, `status`, deleted, notifier, create_user, create_time
+    id, test_plan_case_id, case_id, `status`, deleted, notifier, create_user, create_time
   </sql>
   <sql id="Blob_Column_List">
     content, steps
@@ -128,11 +128,11 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
-    insert into test_plan_case_execute_history (id, test_plan_id, case_id, 
+    insert into test_plan_case_execute_history (id, test_plan_case_id, case_id, 
       `status`, deleted, notifier, 
       create_user, create_time, content, 
       steps)
-    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{testPlanCaseId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{notifier,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}, 
       #{steps,jdbcType=LONGVARBINARY})
@@ -143,8 +143,8 @@
       <if test="id != null">
         id,
       </if>
-      <if test="testPlanId != null">
-        test_plan_id,
+      <if test="testPlanCaseId != null">
+        test_plan_case_id,
       </if>
       <if test="caseId != null">
         case_id,
@@ -175,8 +175,8 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="testPlanId != null">
-        #{testPlanId,jdbcType=VARCHAR},
+      <if test="testPlanCaseId != null">
+        #{testPlanCaseId,jdbcType=VARCHAR},
       </if>
       <if test="caseId != null">
         #{caseId,jdbcType=VARCHAR},
@@ -216,8 +216,8 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.testPlanId != null">
-        test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      <if test="record.testPlanCaseId != null">
+        test_plan_case_id = #{record.testPlanCaseId,jdbcType=VARCHAR},
       </if>
       <if test="record.caseId != null">
         case_id = #{record.caseId,jdbcType=VARCHAR},
@@ -251,7 +251,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_plan_case_execute_history
     set id = #{record.id,jdbcType=VARCHAR},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      test_plan_case_id = #{record.testPlanCaseId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
@@ -267,7 +267,7 @@
   <update id="updateByExample" parameterType="map">
     update test_plan_case_execute_history
     set id = #{record.id,jdbcType=VARCHAR},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      test_plan_case_id = #{record.testPlanCaseId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
@@ -281,8 +281,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
     update test_plan_case_execute_history
     <set>
-      <if test="testPlanId != null">
-        test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      <if test="testPlanCaseId != null">
+        test_plan_case_id = #{testPlanCaseId,jdbcType=VARCHAR},
       </if>
       <if test="caseId != null">
         case_id = #{caseId,jdbcType=VARCHAR},
@@ -313,7 +313,7 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
     update test_plan_case_execute_history
-    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+    set test_plan_case_id = #{testPlanCaseId,jdbcType=VARCHAR},
       case_id = #{caseId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
@@ -326,7 +326,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
     update test_plan_case_execute_history
-    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+    set test_plan_case_id = #{testPlanCaseId,jdbcType=VARCHAR},
       case_id = #{caseId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
@@ -337,11 +337,11 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_case_execute_history
-    (id, test_plan_id, case_id, `status`, deleted, notifier, create_user, create_time, 
+    (id, test_plan_case_id, case_id, `status`, deleted, notifier, create_user, create_time, 
       content, steps)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanCaseId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.notifier,jdbcType=VARCHAR}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}, 
         #{item.steps,jdbcType=LONGVARBINARY})
@@ -360,8 +360,8 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'test_plan_id'.toString() == column.value">
-          #{item.testPlanId,jdbcType=VARCHAR}
+        <if test="'test_plan_case_id'.toString() == column.value">
+          #{item.testPlanCaseId,jdbcType=VARCHAR}
         </if>
         <if test="'case_id'.toString() == column.value">
           #{item.caseId,jdbcType=VARCHAR}

@@ -7,35 +7,33 @@ import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
-import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.ResourceSortRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
-import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
-import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
-import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
@@ -49,11 +47,13 @@ import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -97,6 +97,12 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     private BugMapper bugMapper;
+    @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
+    @Resource
+    private TestPlanSendNoticeService testPlanSendNoticeService;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
     @Override
@@ -340,5 +346,61 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             return dto;
         }
         return null;
+    }
+
+    /**
+     * 执行功能用例
+     *
+     * @param request
+     * @param logInsertModule
+     */
+    public void run(TestPlanCaseRunRequest request, LogInsertModule logInsertModule) {
+        TestPlanFunctionalCase functionalCase = new TestPlanFunctionalCase();
+        functionalCase.setLastExecResult(request.getLastExecResult());
+        functionalCase.setLastExecTime(System.currentTimeMillis());
+        functionalCase.setExecuteUser(logInsertModule.getOperator());
+        functionalCase.setId(request.getId());
+        testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+
+        //执行记录
+        TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
+        testPlanCaseExecuteHistoryMapper.insert(executeHistory);
+
+        //富文本评论的处理
+        functionalCaseAttachmentService.uploadMinioFile(request.getCaseId(), request.getProjectId(), request.getPlanCommentFileIds(), logInsertModule.getOperator(), CaseFileSourceType.PLAN_COMMENT.toString());
+
+        //发通知
+        if (StringUtils.isNotBlank(request.getNotifier())) {
+            List<String> relatedUsers = Arrays.asList(request.getNotifier().split(";"));
+            testPlanSendNoticeService.sendNoticeCase(relatedUsers, logInsertModule.getOperator(), request.getCaseId(), NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.REVIEW_AT, request.getTestPlanId());
+        }
+
+        if (StringUtils.equalsIgnoreCase(request.getLastExecResult(), FunctionalCaseExecuteResult.SUCCESS.name())) {
+            //成功 发送通知
+            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), logInsertModule.getOperator(), request.getCaseId(), NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_PASSED, request.getTestPlanId());
+        }
+
+        if (StringUtils.equalsIgnoreCase(request.getLastExecResult(), FunctionalCaseExecuteResult.ERROR.name())) {
+            //失败 发送通知
+            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), logInsertModule.getOperator(), request.getCaseId(), NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_FAIL, request.getTestPlanId());
+        }
+
+        //TODO 日志
+    }
+
+
+    private TestPlanCaseExecuteHistory buildHistory(TestPlanCaseRunRequest request, String operator) {
+        TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
+        executeHistory.setId(IDGenerator.nextStr());
+        executeHistory.setTestPlanCaseId(request.getId());
+        executeHistory.setCaseId(request.getCaseId());
+        executeHistory.setStatus(request.getLastExecResult());
+        executeHistory.setContent(request.getContent().getBytes());
+        executeHistory.setSteps(request.getStepsExecResult().getBytes());
+        executeHistory.setDeleted(false);
+        executeHistory.setNotifier(request.getNotifier());
+        executeHistory.setCreateUser(operator);
+        executeHistory.setCreateTime(System.currentTimeMillis());
+        return executeHistory;
     }
 }

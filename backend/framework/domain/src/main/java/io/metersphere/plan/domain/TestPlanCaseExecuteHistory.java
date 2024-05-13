@@ -15,10 +15,10 @@ public class TestPlanCaseExecuteHistory implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_case_execute_history.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_case_execute_history.test_plan_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_case_execute_history.test_plan_id.length_range}", groups = {Created.class, Updated.class})
-    private String testPlanId;
+    @Schema(description = "计划关联用例表ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_case_execute_history.test_plan_case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_case_execute_history.test_plan_case_id.length_range}", groups = {Created.class, Updated.class})
+    private String testPlanCaseId;
 
     @Schema(description = "用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_case_execute_history.case_id.not_blank}", groups = {Created.class})
@@ -53,7 +53,7 @@ public class TestPlanCaseExecuteHistory implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
+        testPlanCaseId("test_plan_case_id", "testPlanCaseId", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         deleted("deleted", "deleted", "BIT", false),
