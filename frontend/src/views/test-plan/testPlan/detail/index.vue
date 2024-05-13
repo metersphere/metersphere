@@ -73,6 +73,7 @@
   </MsCard>
   <!-- special-height的174: 上面卡片高度158 + mt的16 -->
   <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding>
+    <FeatureCase v-if="activeTab === 'featureCase'" />
     <BugManagement v-if="activeTab === 'defectList'" :plan-id="detail.id" />
   </MsCard>
 </template>
@@ -88,6 +89,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugManagement from './bugManagement/index.vue';
+  import FeatureCase from './featureCase/index.vue';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
 
   import { getTestPlanDetail } from '@/api/modules/test-plan/testPlan';

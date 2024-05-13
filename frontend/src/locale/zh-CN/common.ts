@@ -40,6 +40,7 @@ export default {
   'common.saveSuccess': '保存成功',
   'common.saveFailed': '保存失败',
   'common.linkSuccess': '关联成功',
+  'common.cancelLink': '取消关联',
   'common.unLinkSuccess': '取消关联成功',
   'common.confirmEnable': '确认启用',
   'common.confirmDisable': '确认禁用',
@@ -169,4 +170,5 @@ export default {
   'common.unPass': '不通过',
   'common.belongModule': '所属模块',
   'common.moreSetting': '更多设置',
+  'common.executionResult': '执行结果',
 };

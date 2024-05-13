@@ -8,6 +8,9 @@ import {
   batchMovePlanUrl,
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
+  GetFeatureCaseModuleCountUrl,
+  GetFeatureCaseModuleUrl,
+  GetPlanDetailFeatureCaseListUrl,
   getStatisticalCountUrl,
   GetTestPlanDetailUrl,
   GetTestPlanListUrl,
@@ -25,6 +28,8 @@ import { ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
   PlanDetailBugItem,
+  PlanDetailFeatureCaseItem,
+  PlanDetailFeatureCaseListQueryParams,
   TestPlanDetail,
   TestPlanItem,
   UseCountType,
@@ -106,4 +111,16 @@ export function batchMovePlan(data: TableQueryParams) {
 // 计划详情缺陷管理列表
 export function planDetailBugPage(data: TableQueryParams) {
   return MSR.post<CommonList<PlanDetailBugItem>>({ url: planDetailBugPageUrl, data });
+}
+// 计划详情-功能用例列表
+export function getPlanDetailFeatureCaseList(data: PlanDetailFeatureCaseListQueryParams) {
+  return MSR.post<CommonList<PlanDetailFeatureCaseItem>>({ url: GetPlanDetailFeatureCaseListUrl, data });
+}
+// 计划详情-功能用例-获取模块数量
+export function getFeatureCaseModuleCount(data: PlanDetailFeatureCaseListQueryParams) {
+  return MSR.post({ url: GetFeatureCaseModuleCountUrl, data });
+}
+// 计划详情-功能用例模块树
+export function getFeatureCaseModule(planId: string) {
+  return MSR.get<ModuleTreeNode[]>({ url: `${GetFeatureCaseModuleUrl}/${planId}` });
 }

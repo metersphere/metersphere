@@ -1,3 +1,6 @@
+import type { customFieldsItem } from '@/models/caseManagement/featureCase';
+import type { TableQueryParams } from '@/models/common';
+
 import { BatchApiParams } from '../common';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
@@ -120,6 +123,29 @@ export interface PlanDetailBugItem {
 export interface FollowPlanParams {
   userId: string; // 用户id
   testPlanId: string;
+}
+
+export interface PlanDetailFeatureCaseItem {
+  id: string;
+  num: string;
+  name: string;
+  moduleId: string;
+  versionName: string;
+  createUser: string;
+  createUserName: string;
+  lastExecResult: string;
+  lastExecTime: number;
+  executeUser: string;
+  executeUserName: string;
+  bugCount: number;
+  customFields: customFieldsItem[]; // 自定义字段集合
+  caseId: string;
+  testPlanId: string;
+}
+
+export interface PlanDetailFeatureCaseListQueryParams extends TableQueryParams {
+  testPlanId: string;
+  projectId: string;
 }
 
 export default {};
