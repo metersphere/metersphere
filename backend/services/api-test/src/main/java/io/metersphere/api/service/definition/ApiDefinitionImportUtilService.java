@@ -215,11 +215,6 @@ public class ApiDefinitionImportUtilService {
         ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
         getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
 
-        //不用的数据清空，保证内存回收
-        apiLists = new ArrayList<>();
-        apiModules = new ArrayList<>();
-        importData = new ArrayList<>();
-
         List<LogDTO> operationLogs = new ArrayList<>();
         //数据入库
         insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request, operationLogs);
@@ -229,7 +224,7 @@ public class ApiDefinitionImportUtilService {
 
     @Transactional(rollbackFor = Exception.class)
     public void batchSaveLog(List<LogDTO> operationLogs) {
-        SubListUtils.dealForSubList(operationLogs, 100, operationLogService::batchAdd);
+        operationLogService.batchAdd(operationLogs);
     }
 
     public Long getNextOrder(String projectId) {

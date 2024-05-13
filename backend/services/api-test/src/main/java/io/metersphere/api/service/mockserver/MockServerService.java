@@ -62,9 +62,10 @@ public class MockServerService {
     }
 
 
-    public ResponseEntity<?> execute(String method, String projectNum, String apiNum, HttpServletRequest request) {
+    public ResponseEntity<?> execute(String method, String projectNum, String apiNum, String mockNum, HttpServletRequest request) {
         var requestHeaderMap = MockServerUtils.getHttpRequestHeader(request);
         String url = request.getRequestURL().toString();
+        //判断根据mockNum是否可以找到对应的mock配置 如果找不到，需要拿接口下所有的mock配置进行匹配
         String requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum, apiNum), request);
 
         // Try to find API definition based on projectNum and apiNum
@@ -80,6 +81,13 @@ public class MockServerService {
             return requestNotFound();
         }
 
+        if (StringUtils.isNotBlank(mockNum) && mockNum.startsWith(apiNum)) {
+            requestUrlSuffix = MockServerUtils.getUrlSuffix(StringUtils.joinWith("/", "/mock-server", projectNum, apiNum, mockNum), request);
+        } else {
+            mockNum = null;
+        }
+
+
         // Check if method and path match the API definition
         if (!StringUtils.equalsIgnoreCase(method, apiDefinition.getMethod()) || !MockServerUtils.checkUrlMatch(apiDefinition.getPath(), requestUrlSuffix)) {
             return requestNotFound();
@@ -89,7 +97,7 @@ public class MockServerService {
         HttpRequestParam requestMockParams = MockServerUtils.getHttpRequestParam(request, requestUrlSuffix, apiDefinition.getPath(), !isUrlParamMethod(method));
         LogUtils.info("Mock [" + url + "] Header:{}", requestHeaderMap);
         LogUtils.info("Mock [" + url + "] request:{}", JSON.toJSONString(requestMockParams));
-        ApiMockConfigDTO compareMockConfig = findMatchingMockConfig(apiDefinition.getId(), requestHeaderMap, requestMockParams);
+        ApiMockConfigDTO compareMockConfig = findMatchingMockConfig(apiDefinition.getId(), requestHeaderMap, requestMockParams, mockNum);
 
         if (compareMockConfig != null && !compareMockConfig.isEnable()) {
             return requestNotFound();
@@ -111,10 +119,13 @@ public class MockServerService {
                 .orElse(null);
     }
 
-    private ApiMockConfigDTO findMatchingMockConfig(String apiId, Map<String, String> requestHeaderMap, HttpRequestParam param) {
+    private ApiMockConfigDTO findMatchingMockConfig(String apiId, Map<String, String> requestHeaderMap, HttpRequestParam param, String mockNum) {
         // 查询符合条件的 ApiDefinitionMockConfig 列表
         ApiDefinitionMockExample mockExample = new ApiDefinitionMockExample();
         mockExample.createCriteria().andApiDefinitionIdEqualTo(apiId);
+        if (StringUtils.isNotBlank(mockNum)) {
+            mockExample.getOredCriteria().forEach(criteria -> criteria.andExpectNumEqualTo(mockNum));
+        }
         List<ApiDefinitionMock> apiDefinitionMockList = apiDefinitionMockMapper.selectByExample(mockExample);
 
         if (CollectionUtils.isEmpty(apiDefinitionMockList)) {
