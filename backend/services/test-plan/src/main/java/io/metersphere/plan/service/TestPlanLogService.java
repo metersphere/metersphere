@@ -139,7 +139,7 @@ public class TestPlanLogService {
      * @return 日志对象
      */
     public LogDTO copyLog(TestPlanCopyRequest request) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
         testPlan.setName(request.getName());
         LogDTO dto = new LogDTO(
                 request.getProjectId(),

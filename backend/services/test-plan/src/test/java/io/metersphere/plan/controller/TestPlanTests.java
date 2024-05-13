@@ -1713,7 +1713,7 @@ public class TestPlanTests extends BaseTest {
     public void testCopy() throws Exception {
         //1.计划  无用例
         TestPlanCopyRequest copyRequest = new TestPlanCopyRequest();
-        copyRequest.setTestPlanId("wx_test_plan_id_1");
+        copyRequest.setId("wx_test_plan_id_1");
         copyRequest.setProjectId("123");
         copyRequest.setName("测试计划复制");
         copyRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
@@ -1726,7 +1726,7 @@ public class TestPlanTests extends BaseTest {
 
         //2.计划 有用例
         TestPlanCopyRequest copyRequest1 = new TestPlanCopyRequest();
-        copyRequest1.setTestPlanId("wx_test_plan_id_4");
+        copyRequest1.setId("wx_test_plan_id_4");
         copyRequest1.setProjectId("123");
         copyRequest1.setName("测试计划复制有用例");
         copyRequest1.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
@@ -1739,7 +1739,7 @@ public class TestPlanTests extends BaseTest {
 
         //3.计划组 无计划
         TestPlanCopyRequest copyRequest2 = new TestPlanCopyRequest();
-        copyRequest2.setTestPlanId("wx_test_plan_id_2");
+        copyRequest2.setId("wx_test_plan_id_2");
         copyRequest2.setProjectId("123");
         copyRequest2.setName("测试计划组复制无计划");
         copyRequest2.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
@@ -1752,7 +1752,7 @@ public class TestPlanTests extends BaseTest {
 
         //4.计划组 有计划
         TestPlanCopyRequest copyRequest3 = new TestPlanCopyRequest();
-        copyRequest3.setTestPlanId("wx_test_plan_id_5");
+        copyRequest3.setId("wx_test_plan_id_5");
         copyRequest3.setProjectId("123");
         copyRequest3.setName("测试计划组复制有计划");
         copyRequest3.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);

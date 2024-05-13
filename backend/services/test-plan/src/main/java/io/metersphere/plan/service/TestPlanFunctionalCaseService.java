@@ -7,6 +7,7 @@ import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
@@ -71,7 +72,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanModuleService testPlanModuleService;
     @Resource
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
-
+    @Resource
+    private FunctionalCaseModuleService functionalCaseModuleService;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
     @Override
@@ -177,7 +179,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             projectRootMap.forEach((projectId, projectOptionDTOList) -> {
                 BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
                 returnList.add(projectNode);
-                BaseTreeNode defaultNode = testPlanModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
+                BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
                 projectNode.addChild(defaultNode);
             });
             return returnList;
@@ -186,9 +188,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
             returnList.add(projectNode);
             List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
-            List<BaseTreeNode> nodeByNodeIds = testPlanModuleService.getNodeByNodeIds(projectModuleIds);
+            List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
             boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
-            List<BaseTreeNode> baseTreeNodes = testPlanModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
+            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
                 projectNode.addChild(baseTreeNode);
             }
