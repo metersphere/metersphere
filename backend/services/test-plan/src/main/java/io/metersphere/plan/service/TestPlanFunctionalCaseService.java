@@ -1,6 +1,8 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.dto.CaseRelateBugDTO;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
@@ -68,6 +70,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Resource
     private ExtBugRelateCaseMapper bugRelateCaseMapper;
     @Resource
+    private BugRelationCaseMapper bugRelationCaseMapper;
+    @Resource
     private TestPlanModuleService testPlanModuleService;
     @Resource
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
@@ -104,6 +108,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andIdIn(associationParam.getResourceIdList());
         testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
+        // 取消关联用例需同步删除计划-用例缺陷关系表
+        BugRelationCaseExample example = new BugRelationCaseExample();
+        example.createCriteria().andTestPlanCaseIdIn(associationParam.getResourceIdList());
+        bugRelationCaseMapper.deleteByExample(example);
         //TODO:更新执行历史的删除状态为true
     }
 

@@ -74,6 +74,7 @@ public class TestPlanStatisticsService {
 		// TODO: 计划-接口用例的关联数据
 		planIds.forEach(planId -> {
 			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
+			statisticsResponse.setId(planId);
 			int success = 0, error = 0, fakeError = 0, block = 0, pending = 0;
 			// 功能用例统计开始
 			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);

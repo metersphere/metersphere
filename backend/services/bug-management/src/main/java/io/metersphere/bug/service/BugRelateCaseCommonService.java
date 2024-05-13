@@ -27,7 +27,6 @@ import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -111,13 +110,8 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         BugRelationCaseMapper relationCaseMapper = sqlSession.getMapper(BugRelationCaseMapper.class);
-        // 根据用例ID筛选出已通过测试计划关联的用例
-        BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
-        bugRelationCaseExample.createCriteria().andBugIdEqualTo(request.getSourceId()).andTestPlanCaseIdIn(relatedIds);
-        List<BugRelationCase> planRelatedCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
-        Map<String, String> planRelatedMap = planRelatedCases.stream().collect(Collectors.toMap(BugRelationCase::getTestPlanCaseId, BugRelationCase::getId));
-        bugRelationCaseExample.clear();
         // 根据用例ID筛选出已直接关联缺陷的用例(防止重复关联)
+        BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
         bugRelationCaseExample.createCriteria().andBugIdEqualTo(request.getSourceId()).andCaseIdIn(relatedIds);
         List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
         Map<String, String> bugRelatedMap = bugRelationCases.stream().collect(Collectors.toMap(BugRelationCase::getCaseId, BugRelationCase::getId));
@@ -127,23 +121,15 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
                 // 重复关联
                 continue;
             }
-            if (planRelatedMap.containsKey(relatedId)) {
-                // 计划已关联, 补充用例ID
-                record.setId(planRelatedMap.get(relatedId));
-                record.setCaseId(relatedId);
-                record.setUpdateTime(System.currentTimeMillis());
-                relationCaseMapper.updateByPrimaryKeySelective(record);
-            } else {
-                // 暂未关联, 新生成关联数据
-                record.setId(IDGenerator.nextStr());
-                record.setCaseId(relatedId);
-                record.setBugId(request.getSourceId());
-                record.setCaseType(request.getSourceType());
-                record.setCreateUser(currentUser);
-                record.setCreateTime(System.currentTimeMillis());
-                record.setUpdateTime(System.currentTimeMillis());
-                relationCaseMapper.insert(record);
-            }
+            // 暂未关联, 新生成关联数据
+            record.setId(IDGenerator.nextStr());
+            record.setCaseId(relatedId);
+            record.setBugId(request.getSourceId());
+            record.setCaseType(request.getSourceType());
+            record.setCreateUser(currentUser);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            relationCaseMapper.insert(record);
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -173,16 +159,8 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param id 关联ID
      */
     public void unRelate(String id) {
-        // 只用取消关联直接关联的用例, 保留测试计划关联的用例
-        BugRelationCase bugRelationCase = checkRelate(id);
-        if (StringUtils.isEmpty(bugRelationCase.getTestPlanId())) {
-            // 不包含测试计划关联的用例, 直接删除
-            bugRelationCaseMapper.deleteByPrimaryKey(id);
-        } else {
-            // 包含测试计划关联的用例, 只需将直接关联CaseId置空即可
-            bugRelationCase.setCaseId(null);
-            bugRelationCaseMapper.updateByPrimaryKey(bugRelationCase);
-        }
+        checkRelate(id);
+        bugRelationCaseMapper.deleteByPrimaryKey(id);
     }
 
     /**
@@ -205,14 +183,12 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
     /**
      * 校验关联用例
      * @param relateId 关联ID
-     * @return 关联用例
      */
-    private BugRelationCase checkRelate(String relateId) {
+    private void checkRelate(String relateId) {
         BugRelationCase bugRelationCase = bugRelationCaseMapper.selectByPrimaryKey(relateId);
         if (bugRelationCase == null) {
             throw new MSException(Translator.get("bug_relate_case_not_found"));
         }
-        return bugRelationCase;
     }
 
     /**
