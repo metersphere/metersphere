@@ -19,89 +19,14 @@
       <template #planStatus="{ record }">
         <MsStatusTag :status="record.planStatus" />
       </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
-            @click="statusFilterVisible = true"
-          >
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of Object.keys(planStatusMap)" :key="key" :value="key">
-                    <a-tag
-                      :color="planStatusMap[key as planStatusType].color"
-                      :class="[planStatusMap[key as planStatusType].class, 'px-[4px]']"
-                      size="small"
-                    >
-                      {{ t(planStatusMap[key as planStatusType].label) }}
-                    </a-tag>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
       <template #lastExecResult="{ record }">
         <execute-result :execute-result="record.lastExecResult" />
       </template>
-      <template #lastExecResultFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="lastExecResultVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
-            @click="lastExecResultVisible = true"
-          >
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="lastExecResultVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="lastExecResultFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of Object.keys(executionResultMap)" :key="key" :value="key">
-                    <MsIcon
-                      :type="executionResultMap[key]?.icon || ''"
-                      class="mr-1"
-                      :class="[executionResultMap[key].color]"
-                    ></MsIcon>
-                    <span>{{ executionResultMap[key]?.statusText || '' }} </span>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetLastExecuteResultFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+        <execute-result :execute-result="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
+        <MsStatusTag :status="filterContent.value" />
       </template>
     </ms-base-table>
   </div>
@@ -126,6 +51,7 @@
   import { AssociateFunctionalCaseItem, planStatusType } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
   import { planStatusMap } from '@/views/test-plan/testPlan/config';
@@ -138,6 +64,23 @@
   const props = defineProps<{
     caseId: string; // 用例id
   }>();
+
+  const executeResultOptions = computed(() => {
+    return Object.keys(executionResultMap).map((key) => {
+      return {
+        value: key,
+        label: executionResultMap[key].statusText,
+      };
+    });
+  });
+  const planStatusOptions = computed(() => {
+    return Object.keys(planStatusMap).map((key) => {
+      return {
+        value: key,
+        label: planStatusMap[key as planStatusType].label,
+      };
+    });
+  });
 
   const columns: MsTableColumn = [
     {
@@ -163,14 +106,20 @@
       title: 'caseManagement.featureCase.planStatus',
       slotName: 'planStatus',
       dataIndex: 'planStatus',
-      titleSlotName: 'statusFilter',
+      filterConfig: {
+        options: planStatusOptions.value,
+        filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
+      },
       width: 200,
     },
     {
       title: 'caseManagement.featureCase.tableColumnExecutionResult',
       slotName: 'lastExecResult',
       dataIndex: 'lastExecResult',
-      titleSlotName: 'lastExecResultFilter',
+      filterConfig: {
+        options: executeResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+      },
       width: 200,
     },
     {
@@ -186,12 +135,6 @@
       showDrag: true,
     },
   ];
-
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>([]);
-
-  const lastExecResultVisible = ref(false);
-  const lastExecResultFilters = ref<string[]>([]);
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     getLinkedCaseTestPlanList,
@@ -214,10 +157,6 @@
     setLoadListParams({
       keyword: keyword.value,
       caseId: props.caseId,
-      filter: {
-        planStatus: statusFilters.value,
-        lastExecResult: lastExecResultFilters.value,
-      },
     });
     await loadList();
   }
@@ -225,26 +164,6 @@
   const searchList = debounce(() => {
     initData();
   }, 100);
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      statusFilterVisible.value = false;
-      lastExecResultVisible.value = false;
-      searchList();
-    }
-  }
-
-  function resetStatusFilter() {
-    statusFilterVisible.value = false;
-    statusFilters.value = [];
-    searchList();
-  }
-
-  function resetLastExecuteResultFilter() {
-    lastExecResultVisible.value = false;
-    lastExecResultFilters.value = [];
-    searchList();
-  }
 
   // 去测试计划页面
   function goToPlan(record: AssociateFunctionalCaseItem) {

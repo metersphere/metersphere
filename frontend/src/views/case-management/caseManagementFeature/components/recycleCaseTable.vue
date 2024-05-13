@@ -106,73 +106,22 @@
             <template #caseLevel="{ record }">
               <caseLevel :case-level="(getCaseLevels(record.customFields) as CaseLevel)" />
             </template>
-            <template #caseLevelFilter="{ columnConfig }">
-              <TableFilter
-                v-model:visible="caseFilterVisible"
-                v-model:status-filters="caseFilters"
-                :title="(columnConfig.title as string)"
-                :list="caseLevelList"
-                value-key="value"
-                @search="initRecycleList()"
-              >
-                <template #item="{ item }">
-                  <div class="flex"> <caseLevel :case-level="item.text" /></div>
-                </template>
-              </TableFilter>
+            <!-- 用例等级 -->
+            <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+              <caseLevel :case-level="filterContent.text" />
             </template>
-            <template #executeResultFilter="{ columnConfig }">
-              <TableFilter
-                v-model:visible="executeResultFilterVisible"
-                v-model:status-filters="executeResultFilters"
-                :title="(columnConfig.title as string)"
-                :list="executeResultFilterList"
-                value-key="key"
-                @search="initRecycleList()"
-              >
-                <template #item="{ item }">
-                  <MsIcon :type="item.icon || ''" class="mr-1" :class="[item.color]"></MsIcon>
-                  <span>{{ item.statusText || '' }}</span>
-                </template>
-              </TableFilter>
+            <!-- 执行结果 -->
+            <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+              <ExecuteStatusTag :status="filterContent.value" />
             </template>
-            <template #updateUserFilter="{ columnConfig }">
-              <TableFilter
-                v-model:visible="updateUserFilterVisible"
-                v-model:status-filters="updateUserFilters"
-                :title="(columnConfig.title as string)"
-                :list="memberOptions"
-                @search="initRecycleList()"
-              >
-                <template #item="{ item }">
-                  {{ item.label }}
-                </template>
-              </TableFilter>
-            </template>
-            <template #createUserFilter="{ columnConfig }">
-              <TableFilter
-                v-model:visible="createUserFilterVisible"
-                v-model:status-filters="createUserFilters"
-                :title="(columnConfig.title as string)"
-                :list="memberOptions"
-                @search="initRecycleList()"
-              >
-                <template #item="{ item }">
-                  {{ item.label }}
-                </template>
-              </TableFilter>
-            </template>
-            <template #deleteUserFilter="{ columnConfig }">
-              <TableFilter
-                v-model:visible="deleteUserFilterVisible"
-                v-model:status-filters="deleteUserFilters"
-                :title="(columnConfig.title as string)"
-                :list="memberOptions"
-                @search="initRecycleList()"
-              >
-                <template #item="{ item }">
-                  {{ item.label }}
-                </template>
-              </TableFilter>
+            <!-- 评审结果 -->
+            <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
+              <MsIcon
+                :type="statusIconMap[filterContent.value]?.icon"
+                class="mr-1"
+                :class="[statusIconMap[filterContent.value].color]"
+              ></MsIcon>
+              <span>{{ statusIconMap[filterContent.value]?.statusText }} </span>
             </template>
             <template #reviewStatus="{ record }">
               <MsIcon
@@ -181,44 +130,6 @@
                 :class="[statusIconMap[record.reviewStatus].color]"
               ></MsIcon>
               <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
-            </template>
-            <template #reviewStatusFilter="{ columnConfig }">
-              <a-trigger
-                v-model:popup-visible="statusFilterVisible"
-                trigger="click"
-                @popup-visible-change="handleFilterHidden"
-              >
-                <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
-                  <div class="font-medium">
-                    {{ t(columnConfig.title as string) }}
-                  </div>
-                  <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-                </a-button>
-                <template #content>
-                  <div class="arco-table-filters-content">
-                    <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                      <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                        <a-checkbox v-for="key of Object.keys(statusIconMap)" :key="key" :value="key">
-                          <MsIcon
-                            :type="statusIconMap[key]?.icon || ''"
-                            class="mr-1"
-                            :class="[statusIconMap[key].color]"
-                          ></MsIcon>
-                          <span>{{ statusIconMap[key]?.statusText || '' }} </span>
-                        </a-checkbox>
-                      </a-checkbox-group>
-                    </div>
-                    <div class="filter-button">
-                      <a-button size="mini" class="mr-[8px]" @click="resetReviewStatusFilter">
-                        {{ t('common.reset') }}
-                      </a-button>
-                      <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                        {{ t('system.orgTemplate.confirm') }}
-                      </a-button>
-                    </div>
-                  </div>
-                </template>
-              </a-trigger>
             </template>
             <template #lastExecuteResult="{ record }">
               <MsIcon
@@ -277,6 +188,7 @@
    */
   import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
@@ -287,12 +199,11 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import TableFilter from './tableFilter.vue';
+  import ExecuteStatusTag from './excuteStatusTag.vue';
 
   import {
     batchDeleteRecycleCase,
@@ -315,6 +226,7 @@
   import type { CaseManagementTable, CustomAttributes } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
 
@@ -354,8 +266,15 @@
   );
 
   const hasOperationPermission = computed(() => hasAnyPermission(['FUNCTIONAL_CASE:READ+DELETE']));
-
-  const columns: MsTableColumn = [
+  const reviewResultOptions = computed(() => {
+    return Object.keys(statusIconMap).map((key) => {
+      return {
+        value: key,
+        label: statusIconMap[key].statusText,
+      };
+    });
+  });
+  const firstStaticColumn: MsTableColumn = [
     {
       'title': 'caseManagement.featureCase.tableColumnID',
       'slotName': 'num',
@@ -387,19 +306,30 @@
       showDrag: false,
       columnSelectorDisabled: true,
     },
+  ];
+  const caseLevelColumn: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
-      titleSlotName: 'caseLevelFilter',
+      dataIndex: 'caseLevel',
+      filterConfig: {
+        options: [],
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
       showInTable: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
+  ];
+  const lastStaticColumn: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
-      titleSlotName: 'reviewStatusFilter',
+      filterConfig: {
+        options: reviewResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT,
+      },
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -442,7 +372,14 @@
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
       slotName: 'updateUserName',
       dataIndex: 'updateUser',
-      titleSlotName: 'updateUserFilter',
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
       showInTable: true,
       showTooltip: true,
       width: 200,
@@ -465,7 +402,14 @@
       slotName: 'createUserName',
       dataIndex: 'createUser',
       showTooltip: true,
-      titleSlotName: 'createUserFilter',
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -485,7 +429,14 @@
     {
       title: 'caseManagement.featureCase.tableColumnDeleteUser',
       dataIndex: 'deleteUserName',
-      titleSlotName: 'deleteUserFilter',
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
       showInTable: true,
       showTooltip: true,
       width: 200,
@@ -503,6 +454,8 @@
       width: 200,
       showDrag: true,
     },
+  ];
+  const operationColumn: MsTableColumn = [
     {
       title: hasOperationPermission.value ? 'caseManagement.featureCase.tableColumnActions' : '',
       slotName: 'operation',
@@ -643,29 +596,7 @@
     currentSelectCount: 0,
   });
 
-  // 用例等级表头检索
-  const statusFilters = ref<string[]>([]);
   const caseLevelFields = ref<Record<string, any>>({});
-  const caseFilterVisible = ref(false);
-  const caseLevelList = computed(() => {
-    return caseLevelFields.value?.options || [];
-  });
-  const caseFilters = ref<string[]>([]);
-  const executeResultFilters = ref<string[]>([]);
-  const updateUserFilters = ref<string[]>([]);
-  const createUserFilters = ref<string[]>([]);
-  const deleteUserFilters = ref<string[]>([]);
-
-  function getExecuteResultList() {
-    const list: any = [];
-    Object.keys(executionResultMap).forEach((key) => {
-      list.push({
-        ...executionResultMap[key],
-      });
-    });
-    return list;
-  }
-  const executeResultFilterList = ref(getExecuteResultList());
 
   // 获取批量操作参数
   function getBatchParams(): TableQueryParams {
@@ -678,12 +609,7 @@
       condition: {
         keyword: keyword.value,
         filter: {
-          reviewStatus: statusFilters.value,
-          caseLevel: caseFilters.value,
-          lastExecuteResult: executeResultFilters.value,
-          updateUserName: updateUserFilters.value,
-          createUserName: createUserFilters.value,
-          deleteUserName: deleteUserFilters.value,
+          ...propsRes.value.filter,
         },
         combine: batchParams.value.condition,
       },
@@ -703,14 +629,6 @@
       keyword: keyword.value,
       moduleIds,
       projectId: currentProjectId.value,
-      filter: {
-        reviewStatus: statusFilters.value,
-        caseLevel: caseFilters.value,
-        lastExecuteResult: executeResultFilters.value,
-        updateUserName: updateUserFilters.value,
-        createUserName: createUserFilters.value,
-        deleteUserName: deleteUserFilters.value,
-      },
     };
   }
 
@@ -738,12 +656,6 @@
     }
     setLoadListParams(await initTableParams());
   }
-
-  // 执行结果表头检索
-  const executeResultFilterVisible = ref(false);
-  const updateUserFilterVisible = ref(false);
-  const createUserFilterVisible = ref(false);
-  const deleteUserFilterVisible = ref(false);
 
   // 初始化回收站列表
   async function initRecycleList() {
@@ -901,10 +813,15 @@
       };
     });
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
+    if (caseLevelColumn[0].filterConfig?.options) {
+      caseLevelColumn[0].filterConfig.options = cloneDeep(unref(caseLevelFields.value?.options)) || [];
+    }
     fullColumns = [
-      ...columns.slice(0, columns.length - 1),
+      ...firstStaticColumn,
+      ...caseLevelColumn,
+      ...lastStaticColumn,
       ...customFieldsColumns,
-      ...columns.slice(columns.length - 1, columns.length),
+      ...operationColumn,
     ];
     await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE, fullColumns, 'drawer');
   }
@@ -1011,49 +928,12 @@
       condition: {
         keyword: keyword.value,
         searchMode: accordBelow,
-        filter: propsRes.value.filter,
+        filter: { ...propsRes.value.filter },
         combine,
       },
     };
     initRecycleList();
   };
-
-  // 如果是用例状态
-  function getCaseState(caseState: string | undefined): { type: TagType; theme: Theme } {
-    switch (caseState) {
-      case '已完成':
-        return {
-          type: 'success',
-          theme: 'default',
-        };
-      case '进行中':
-        return {
-          type: 'link',
-          theme: 'default',
-        };
-
-      default:
-        return {
-          type: 'default',
-          theme: 'default',
-        };
-    }
-  }
-
-  const statusFilterVisible = ref(false);
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      initRecycleList();
-      statusFilterVisible.value = false;
-    }
-  }
-
-  function resetReviewStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    initRecycleList();
-  }
 
   onMounted(async () => {
     await getRecycleModules();

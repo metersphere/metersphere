@@ -1,15 +1,24 @@
 <template>
+  <!-- TODO 目前有一部分表格筛选在用 后边这个也要替换 暂时先修改了icon统一 -->
   <a-trigger v-model:popup-visible="innerVisible" trigger="click" @popup-visible-change="handleFilterHidden">
     <a-button
       type="text"
-      class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
+      :class="`${
+        innerVisible ? '!bg-[rgb(var(--primary-1))]' : ''
+      } arco-btn-text--secondary no-hover p-[8px_4px] text-[14px]
+    `"
       size="mini"
       @click.stop="innerVisible = true"
     >
-      <div class="font-medium">
+      <div :class="`${innerVisible ? 'filter-title' : ''} flex items-center pr-[2px] font-medium`">
         {{ t(props.title) }}
       </div>
-      <icon-down :class="innerVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+      <svg-icon
+        width="16px"
+        height="16px"
+        :name="innerVisible ? 'filter-icon-color' : 'filter-icon'"
+        class="text-[12px] font-medium"
+      />
     </a-button>
     <template #content>
       <div class="arco-table-filters-content">
@@ -116,4 +125,13 @@
   }
 </script>
 
-<style scoped></style>
+<style scoped>
+  .filter-title {
+    border-radius: 4px;
+    color: rgb(var(--primary-5));
+    background: rgb(var(--primary-1)) content-box;
+    .filter-icon {
+      color: rgb(var(--primary-5)) !important;
+    }
+  }
+</style>

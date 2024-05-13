@@ -1,6 +1,6 @@
 import type { TableQueryParams } from '@/models/common';
 import { ColumnEditTypeEnum, SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
-import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
 import type { TableChangeExtra, TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
 
@@ -20,6 +20,12 @@ export interface MsTableColumnFilterConfig {
   options?: Record<string, any>[]; // 筛选数据
   valueKey?: string;
   labelKey?: string;
+  mode?: 'static' | 'remote';
+  remoteMethod?: FilterRemoteMethodsEnum; // 加载选项的类型
+  loadOptionParams?: Record<string, any>; // 请求下拉的参数
+  placeholderText?: string;
+  firstLabelKey?: string;
+  secondLabelKey?: string;
 }
 
 export interface MsTableColumnData extends TableColumnData {
