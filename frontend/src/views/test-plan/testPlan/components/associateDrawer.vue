@@ -46,7 +46,7 @@
   function saveHandler(params: AssociateCaseRequest) {
     try {
       confirmLoading.value = true;
-      emit('success', { ...params });
+      emit('success', { ...params, functionalSelectIds: params.selectIds });
       innerVisible.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console

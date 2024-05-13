@@ -33,7 +33,7 @@
     PASSED: {
       label: 'PASSED',
       icon: StatusType.PASSED,
-      statusText: 'caseManagement.featureCase.passed',
+      statusText: 'common.success',
       color: '',
     },
     SKIPPED: {

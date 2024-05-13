@@ -5,9 +5,11 @@ import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import { useI18n } from '@/hooks/useI18n';
+import { findNodePathByKey } from '@/utils';
 import { hasAnyPermission } from '@/utils/permission';
 
 import type { AssociatedList, CustomAttributes } from '@/models/caseManagement/featureCase';
+import { ModuleTreeNode } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
 
 const { t } = useI18n();
@@ -62,7 +64,7 @@ export const executionResultMap: Record<string, any> = {
   PASSED: {
     key: 'PASSED',
     icon: StatusType.PASSED,
-    statusText: t('caseManagement.featureCase.passed'),
+    statusText: t('common.success'),
     color: '',
   },
   /* SKIPPED: {
@@ -128,6 +130,18 @@ export function getCaseLevels(customFields: CustomAttributes[]): CaseLevel {
     (caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue)?.text as CaseLevel) ||
     ('P0' as CaseLevel)
   );
+}
+
+// 获取对应模块name
+export function getModules(moduleIds: string, treeData: ModuleTreeNode[]) {
+  const modules = findNodePathByKey(treeData, moduleIds, undefined, 'id');
+  if (modules) {
+    const moduleName = (modules || [])?.treePath.map((item: any) => item.name);
+    if (moduleName.length === 1) {
+      return moduleName[0];
+    }
+    return `/${moduleName.join('/')}`;
+  }
 }
 
 // 处理自定义字段

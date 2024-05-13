@@ -32,3 +32,9 @@ export const batchCopyPlanUrl = '/test-plan/batch/copy';
 export const batchMovePlanUrl = '/test-plan/batch/move';
 // 计划详情缺陷管理列表
 export const planDetailBugPageUrl = '/test-plan/bug/page';
+// 计划详情-功能用例列表
+export const GetPlanDetailFeatureCaseListUrl = '/test-plan/functional/case/page';
+// 计划详情-功能用例-获取模块数量
+export const GetFeatureCaseModuleCountUrl = '/test-plan/functional/case/module/count';
+// 计划详情-功能用例模块树
+export const GetFeatureCaseModuleUrl = '/test-plan/functional/case/tree';
