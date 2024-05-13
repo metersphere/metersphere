@@ -12,7 +12,9 @@ import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -165,6 +167,8 @@ public class FunctionalCaseService {
 
     @Resource
     private CaseReviewHistoryMapper caseReviewHistoryMapper;
+    @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
     @Resource
     private FunctionalCaseCommentMapper functionalCaseCommentMapper;
     @Resource
@@ -420,9 +424,12 @@ public class FunctionalCaseService {
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
         long caseComment = functionalCaseCommentMapper.countByExample(functionalCaseCommentExample);
-        long commentCount = caseComment + reviewComment;
+        //获取关联测试计划的执行评论数量
+        TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
+        testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        long testPlanExecuteComment = testPlanCaseExecuteHistoryMapper.countByExample(testPlanCaseExecuteHistoryExample);
+        long commentCount = caseComment + reviewComment + testPlanExecuteComment;
         functionalCaseDetailDTO.setCommentCount((int) commentCount);
-
         //获取变更历史数量数量
         OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
         List<String> types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());

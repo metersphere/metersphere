@@ -277,4 +277,7 @@ export default {
   'caseManagement.featureCase.deleteFileTip':
     'After deletion, the file cannot be restored. Please operate with caution!',
   'caseManagement.featureCase.nameNotNull': 'The name can not be null!',
+  'caseManagement.featureCase.execute.success': 'SUCCESS',
+  'caseManagement.featureCase.execute.failed': 'ERROR',
+  'caseManagement.featureCase.execute.blocked': 'BLOCKED',
 };

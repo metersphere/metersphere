@@ -4,7 +4,7 @@
     <a-radio-group v-model="activeComment" type="button">
       <a-radio value="caseComment">{{ t('caseManagement.featureCase.caseComment') }}</a-radio>
       <a-radio value="reviewComment">{{ t('caseManagement.featureCase.reviewComment') }}</a-radio>
-      <!-- <a-radio value="executiveComment">{{ t('caseManagement.featureCase.executiveReview') }}</a-radio> -->
+      <a-radio value="executiveComment">{{ t('caseManagement.featureCase.executiveReview') }}</a-radio>
     </a-radio-group>
   </div>
   <div>
@@ -21,13 +21,20 @@
     </div>
 
     <!-- 评审评论 -->
-    <div v-show="activeComment === 'reviewComment'" class="flex flex-1 flex-col overflow-hidden">
+    <div
+      v-show="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
+      class="flex flex-1 flex-col overflow-hidden"
+    >
       <div class="review-history-list">
         <div v-for="item of reviewCommentList" :key="item.id" class="review-history-list-item">
           <div class="flex items-center">
             <MSAvatar :avatar="item.userLogo" />
             <div class="ml-[8px] flex items-center">
-              <div class="font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
+              <a-tooltip :content="item.userName" :mouse-enter-delay="300">
+                <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
+                  item.userName
+                }}</div>
+              </a-tooltip>
               <a-divider direction="vertical" margin="8px"></a-divider>
               <div v-if="item.status === 'PASS'" class="flex items-center">
                 <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
@@ -45,24 +52,53 @@
                 <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
                 {{ t('caseManagement.caseReview.reReview') }}
               </div>
+              <div v-if="item.status === 'PASSED'" class="flex items-center">
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                {{ t('caseManagement.featureCase.execute.success') }}
+              </div>
+              <div v-if="item.status === 'BLOCKED'" class="flex items-center">
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                {{ t('caseManagement.featureCase.execute.blocked') }}
+              </div>
+              <div v-if="item.status === 'FAILED'" class="flex items-center">
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                {{ t('caseManagement.featureCase.execute.failed') }}
+              </div>
             </div>
           </div>
           <div class="markdown-body" style="margin-left: 48px" v-html="item.contentText"></div>
-          <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
+          <div class="ml-[48px] mt-[8px] flex text-[var(--color-text-4)]">
             {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
-            <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
-              <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
-                {{ characterLimit(item.reviewName) }}
-              </span>
+            <div v-if="activeComment === 'reviewComment'">
+              <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
+                <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
+                  {{ characterLimit(item.reviewName) }}
+                </span>
 
-              <span
-                v-else
-                class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
-                @click="review(item)"
-              >
-                {{ characterLimit(item.reviewName) }}
-              </span>
-            </a-tooltip>
+                <span
+                  v-else
+                  class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
+                  @click="review(item)"
+                >
+                  {{ characterLimit(item.reviewName) }}
+                </span>
+              </a-tooltip>
+            </div>
+            <div v-if="activeComment === 'executiveComment'">
+              <a-tooltip :content="item.testPlanName" :mouse-enter-delay="300">
+                <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
+                  {{ characterLimit(item.testPlanName) }}
+                </span>
+
+                <span
+                  v-else
+                  class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
+                  @click="toPlan(item)"
+                >
+                  {{ characterLimit(item.testPlanName) }}
+                </span>
+              </a-tooltip>
+            </div>
           </div>
         </div>
         <MsEmpty v-if="reviewCommentList.length === 0" />
@@ -88,15 +124,15 @@
     editorUploadFile,
     getCommentList,
     getReviewCommentList,
+    getTestPlanExecuteCommentList,
   } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
 
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
 
   const featureCaseStore = useFeatureCaseStore();
   const router = useRouter();
@@ -133,6 +169,16 @@
     }
   }
 
+  // 初始化执行评论
+  async function initTestPlanExecuteCommentList() {
+    try {
+      const result = await getTestPlanExecuteCommentList(props.caseId);
+      reviewCommentList.value = result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async function getAllCommentList() {
     switch (activeComment.value) {
       case 'caseComment':
@@ -144,7 +190,7 @@
         featureCaseStore.getCaseCounts(props.caseId);
         break;
       case 'executiveComment':
-        await initCommentList();
+        await initTestPlanExecuteCommentList();
         featureCaseStore.getCaseCounts(props.caseId);
         break;
       default:
@@ -197,6 +243,20 @@
         ...route.query,
         caseId: record.caseId,
         id: record.reviewId,
+      },
+      state: {
+        params: JSON.stringify(record.moduleName),
+      },
+    });
+  }
+
+  // 去测试计划页面
+  function toPlan(record: CommentItem) {
+    router.push({
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+      query: {
+        ...route.query,
+        id: record.testPlanId,
       },
       state: {
         params: JSON.stringify(record.moduleName),
