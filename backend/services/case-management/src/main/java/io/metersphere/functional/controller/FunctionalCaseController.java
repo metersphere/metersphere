@@ -144,7 +144,7 @@ public class FunctionalCaseController {
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
-        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false));
+        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false, false));
     }
 
     @PostMapping("/module/count")

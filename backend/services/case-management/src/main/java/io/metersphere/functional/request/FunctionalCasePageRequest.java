@@ -47,4 +47,6 @@ public class FunctionalCasePageRequest extends BasePageRequest implements Serial
     @Schema(description = "排除ids")
     private List<String> excludeIds;
 
+    @Schema(description = "测试计划id")
+    private String testPlanId;
 }

@@ -676,8 +676,8 @@ public class FunctionalCaseService {
      * @param request request
      * @return List<FunctionalCasePageDTO>
      */
-    public List<FunctionalCasePageDTO> getFunctionalCasePage(FunctionalCasePageRequest request, Boolean deleted) {
-        List<FunctionalCasePageDTO> functionalCaseLists = extFunctionalCaseMapper.list(request, deleted);
+    public List<FunctionalCasePageDTO> getFunctionalCasePage(FunctionalCasePageRequest request, Boolean deleted, Boolean isRepeat) {
+        List<FunctionalCasePageDTO> functionalCaseLists = extFunctionalCaseMapper.list(request, deleted, isRepeat);
         if (CollectionUtils.isEmpty(functionalCaseLists)) {
             return new ArrayList<>();
         }
