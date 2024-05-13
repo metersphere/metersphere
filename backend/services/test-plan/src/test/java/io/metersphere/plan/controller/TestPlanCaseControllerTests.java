@@ -9,6 +9,7 @@ import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.BugPageProviderRequest;
@@ -37,8 +38,9 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_LIST_URL = "/test-plan/functional/case/page";
     public static final String FUNCTIONAL_CASE_TREE_URL = "/test-plan/functional/case/tree/";
     public static final String FUNCTIONAL_CASE_TREE_COUNT_URL = "/test-plan/functional/case/module/count";
+    public static final String FUNCTIONAL_CASE_DISASSOCIATE_URL = "/test-plan/functional/case/disassociate";
+    public static final String FUNCTIONAL_CASE_BATCH_DISASSOCIATE_URL = "/test-plan/functional/case/batch/disassociate";
 
-    public static final String FUNCTIONAL_CASE_DISASSOCIATE_URL = "/test-plan/functional/case/batch/disassociate";
 
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
@@ -96,12 +98,21 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
     @Test
     @Order(4)
+    void disassociate() throws Exception {
+        TestPlanDisassociationRequest request = new TestPlanDisassociationRequest();
+        request.setTestPlanId("gyq_disassociate_plan_1");
+        request.setRefId("gyq_disassociate_case_3");
+        this.requestPostWithOk(FUNCTIONAL_CASE_DISASSOCIATE_URL, request);
+    }
+
+    @Test
+    @Order(5)
     public void disassociateBatch() throws Exception {
         BasePlanCaseBatchRequest request = new BasePlanCaseBatchRequest();
         request.setTestPlanId("gyq_disassociate_plan_1");
         request.setSelectAll(true);
         request.setExcludeIds(List.of("gyq_disassociate_case_2"));
-        this.requestPostWithOk(FUNCTIONAL_CASE_DISASSOCIATE_URL, request);
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_DISASSOCIATE_URL, request);
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andTestPlanIdEqualTo("gyq_disassociate_plan_1");
         List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
@@ -110,7 +121,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setTestPlanId("gyq_disassociate_plan_1");
         request.setSelectAll(false);
         request.setSelectIds(List.of("gyq_disassociate_case_2"));
-        this.requestPostWithOk(FUNCTIONAL_CASE_DISASSOCIATE_URL, request);
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_DISASSOCIATE_URL, request);
         testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
         Assertions.assertEquals(0, testPlanFunctionalCases.size());
     }

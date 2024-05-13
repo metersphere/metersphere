@@ -4,10 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.ResourceSortRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
@@ -80,6 +77,18 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseRequest request) {
         return testPlanFunctionalCaseService.moduleCount(request);
+    }
+
+    @PostMapping("/disassociate")
+    @Operation(summary = "测试计划-计划详情-列表-取消关联用例")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public TestPlanAssociationResponse disassociate(@Validated @RequestBody TestPlanDisassociationRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
+        BasePlanCaseBatchRequest batchRequest = new BasePlanCaseBatchRequest();
+        batchRequest.setTestPlanId(request.getTestPlanId());
+        batchRequest.setSelectIds(List.of(request.getRefId()));
+        return testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
     }
 
     @PostMapping("/batch/disassociate")

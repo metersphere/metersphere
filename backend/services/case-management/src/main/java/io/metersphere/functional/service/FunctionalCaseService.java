@@ -394,11 +394,6 @@ public class FunctionalCaseService {
         BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
         bugRelationCaseExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
         functionalCaseDetailDTO.setBugCount((int) bugRelationCaseMapper.countByExample(bugRelationCaseExample));
-        //获取在测试计划中关联缺陷的数量
-        bugRelationCaseExample = new BugRelationCaseExample();
-        bugRelationCaseExample.createCriteria().andTestPlanCaseIdEqualTo(functionalCaseDetailDTO.getId());
-        long planBugCount = bugRelationCaseMapper.countByExample(bugRelationCaseExample);
-        functionalCaseDetailDTO.setBugCount(functionalCaseDetailDTO.getBugCount() + (int) planBugCount);
         //获取已关联依赖关系数量
         FunctionalCaseRelationshipEdgeExample relationshipEdgeExample = new FunctionalCaseRelationshipEdgeExample();
         relationshipEdgeExample.createCriteria()
