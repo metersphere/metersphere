@@ -2,19 +2,24 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
+import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -76,6 +81,7 @@ public class TestPlanFunctionalCaseController {
     public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseRequest request) {
         return testPlanFunctionalCaseService.moduleCount(request);
     }
+
     @PostMapping("/batch/disassociate")
     @Operation(summary = "测试计划-计划详情-列表-批量取消关联用例")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
@@ -85,4 +91,26 @@ public class TestPlanFunctionalCaseController {
         return testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
     }
 
+    @PostMapping("/associate/bug/page")
+    @Operation(summary = "测试计划-计划详情-功能用例-获取缺陷列表")
+    @CheckOwner(resourceId = "#request.getProjectId", resourceType = "project")
+    public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.bugPage(request));
+    }
+
+    @PostMapping("/associate/bug")
+    @Operation(summary = "测试计划-计划详情-功能用例-关联其他用例-关联缺陷")
+    @CheckOwner(resourceId = "#request.getTestPlanCaseId()", resourceType = "test_plan_functional_case")
+    public void associateBug(@Validated @RequestBody TestPlanCaseAssociateBugRequest request) {
+        testPlanFunctionalCaseService.associateBug(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/disassociate/bug/{id}")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联缺陷")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = TestPlanFunctionalCaseService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "bug_relation_case")
+    public void disassociateBug(@PathVariable String id) {
+        testPlanFunctionalCaseService.disassociateBug(id);
+    }
 }

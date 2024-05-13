@@ -58,6 +58,12 @@ public class BugEditRequest implements Serializable {
     @Schema(description = "用例ID")
     private String caseId;
 
+    @Schema(description = "测试计划ID")
+    private String testPlanId;
+
+    @Schema(description = "测试计划管理的用例ID")
+    private String testPlanCaseId;
+
     @Schema(description = "复制的附件")
     private List<BugFileDTO> copyFiles;
 
