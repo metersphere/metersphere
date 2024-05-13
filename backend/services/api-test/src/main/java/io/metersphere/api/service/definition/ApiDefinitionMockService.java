@@ -1,6 +1,5 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -24,6 +23,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectService;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.domain.Environment;
@@ -362,7 +362,7 @@ public class ApiDefinitionMockService {
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         if (CollectionUtils.isNotEmpty(environments)) {
             EnvironmentInfoDTO environmentInfoDTO = environmentService.get(environments.getFirst().getId());
-            return StringUtils.join(environmentInfoDTO.getConfig().getHttpConfig().getFirst().getUrl(), "/", apiDefinition.getNum(), apiDefinition.getPath());
+            return StringUtils.join(environmentInfoDTO.getConfig().getHttpConfig().getFirst().getUrl(), "/", apiDefinition.getNum(), "/", apiDefinitionMock.getExpectNum(), apiDefinition.getPath());
         }
 
         return null;

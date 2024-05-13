@@ -67,7 +67,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BugControllerTests extends BaseTest {
@@ -241,6 +241,13 @@ public class BugControllerTests extends BaseTest {
         this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
 
         request.setCaseId("test");
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
+
+        request.setCaseId("test-case-1");
+        request.setTestPlanId("test-plan-1");
+        request.setTestPlanCaseId("test-plan-case-1");
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
@@ -529,7 +536,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(95)
-    void coverPlatformTemplateTests() throws Exception{
+    void coverPlatformTemplateTests() throws Exception {
         // 覆盖同步缺陷(Local)
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-not-integration");
 
@@ -667,7 +674,8 @@ public class BugControllerTests extends BaseTest {
         syncAllBugRequest.setPre(true);
         syncAllBugRequest.setCreateTime(1702021500000L);
         // 同步后置方法处理为空, 覆盖主工程代码即可
-        syncAllBugRequest.setSyncPostProcessFunc((param) -> {});
+        syncAllBugRequest.setSyncPostProcessFunc((param) -> {
+        });
         bugService.execSyncAll(project, syncAllBugRequest);
     }
 
@@ -734,6 +742,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 生成请求过滤参数
+     *
      * @return filter param
      */
     private Map<String, List<String>> buildRequestFilter() {
@@ -744,6 +753,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 生成高级搜索参数
+     *
      * @return combine param
      */
     private Map<String, Object> buildRequestCombine() {
@@ -761,6 +771,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 生成请求参数
+     *
      * @param isUpdate 是否更新操作
      * @return 请求参数
      */
@@ -797,6 +808,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 生成添加Jira缺陷的请求参数
+     *
      * @param isUpdate 是否更新
      * @return 缺陷编辑请求参数
      */
@@ -860,6 +872,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 添加Jira插件，供测试使用
+     *
      * @throws Exception 异常
      */
     public void addJiraPlugin() throws Exception {
@@ -876,6 +889,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 获取添加的Jira缺陷
+     *
      * @return 缺陷
      */
     private Bug getAddJiraBug() {
@@ -886,6 +900,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 获取创建Jira缺陷时的本地文件
+     *
      * @return 本地附件
      */
     private BugLocalAttachment getAddJiraLocalFile() {
@@ -896,6 +911,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 获取创建Jira缺陷时的关联文件
+     *
      * @return 关联文件
      */
     private FileAssociation getAddJiraAssociateFile() {
@@ -906,6 +922,7 @@ public class BugControllerTests extends BaseTest {
 
     /**
      * 获取File上传
+     *
      * @return multipartFile
      */
     private MockMultipartFile getMockFile() {
@@ -969,7 +986,7 @@ public class BugControllerTests extends BaseTest {
      * 获取默认的 MultiValue 参数
      *
      * @param param 参数
-     * @param file 文件
+     * @param file  文件
      * @return 文件参数
      */
     protected MultiValueMap<String, Object> getMultiPartParam(Object param, File file) {

@@ -1,15 +1,23 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.bug.domain.BugRelationCase;
+import io.metersphere.bug.domain.BugRelationCaseExample;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
+import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
@@ -17,6 +25,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,6 +42,11 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
+    BaseAssociateBugProvider baseAssociateBugProvider;
+    @Resource
+    BugRelationCaseMapper bugRelationCaseMapper;
+
 
     @Test
     @Order(1)
@@ -80,7 +94,6 @@ public class TestPlanCaseControllerTests extends BaseTest {
     }
 
 
-
     @Test
     @Order(4)
     public void disassociateBatch() throws Exception {
@@ -92,13 +105,53 @@ public class TestPlanCaseControllerTests extends BaseTest {
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andTestPlanIdEqualTo("gyq_disassociate_plan_1");
         List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
-        Assertions.assertEquals(1,testPlanFunctionalCases.size());
+        Assertions.assertEquals(1, testPlanFunctionalCases.size());
         request = new BasePlanCaseBatchRequest();
         request.setTestPlanId("gyq_disassociate_plan_1");
         request.setSelectAll(false);
         request.setSelectIds(List.of("gyq_disassociate_case_2"));
         this.requestPostWithOk(FUNCTIONAL_CASE_DISASSOCIATE_URL, request);
         testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
-        Assertions.assertEquals(0,testPlanFunctionalCases.size());
+        Assertions.assertEquals(0, testPlanFunctionalCases.size());
     }
+
+    @Test
+    @Order(5)
+    public void getAssociateBugList() throws Exception {
+        BugPageProviderRequest request = new BugPageProviderRequest();
+        request.setSourceId("test_plan_case_id");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        BugProviderDTO bugProviderDTO = new BugProviderDTO();
+        bugProviderDTO.setName("第二个");
+        List<BugProviderDTO> operations = new ArrayList<>();
+        operations.add(bugProviderDTO);
+        Mockito.when(baseAssociateBugProvider.getBugList("bug_relation_case", "test_plan_case_id", "bug_id", request)).thenReturn(operations);
+        this.requestPostWithOkAndReturn("/test-plan/functional/case/associate/bug/page", request);
+    }
+
+    @Test
+    @Order(9)
+    public void testAssociateBugs() throws Exception {
+        TestPlanCaseAssociateBugRequest request = new TestPlanCaseAssociateBugRequest();
+        request.setCaseId("fc_1");
+        request.setTestPlanCaseId("relate_case_1");
+        request.setTestPlanId("plan_1");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        List<String> ids = new ArrayList<>();
+        ids.add("bug_1");
+        Mockito.when(baseAssociateBugProvider.getSelectBugs(request, false)).thenReturn(ids);
+        this.requestPostWithOkAndReturn("/test-plan/functional/case/associate/bug", request);
+    }
+
+    @Test
+    @Order(10)
+    public void testDisassociateBug() throws Exception {
+        BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
+        bugRelationCaseExample.createCriteria().andTestPlanCaseIdEqualTo("relate_case_1").andTestPlanIdEqualTo("plan_1");
+        List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
+        this.requestGetWithOk("/test-plan/functional/case/disassociate/bug/" + bugRelationCases.get(0).getId());
+    }
+
 }
