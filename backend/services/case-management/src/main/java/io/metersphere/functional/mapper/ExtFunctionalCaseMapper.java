@@ -34,7 +34,7 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCase> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
-    List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
+    List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("isRepeat") boolean isRepeat);
 
     void recoverCase(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
 
@@ -84,12 +84,12 @@ public interface ExtFunctionalCaseMapper {
     List<String> getSelectIdsByAssociateParam(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
     /**
-     *  根据模块ID获取脑图展示数据
+     * 根据模块ID获取脑图展示数据
      */
     List<FunctionalCaseMindDTO> getMinderCaseList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted);
 
     /**
-     *  根据模块ID获取用例评审脑图展示数据
+     * 根据模块ID获取用例评审脑图展示数据
      */
     List<FunctionalCaseMindDTO> getMinderCaseReviewList(@Param("request") FunctionalCaseReviewMindRequest request, @Param("deleted") boolean delete, @Param("userId") String userId, @Param("viewStatusUserId") boolean viewStatusUserId);
 

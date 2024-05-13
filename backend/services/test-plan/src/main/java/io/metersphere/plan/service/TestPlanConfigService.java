@@ -1,5 +1,6 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.domain.TestPlanConfigExample;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import jakarta.annotation.Resource;
@@ -24,5 +25,10 @@ public class TestPlanConfigService {
         TestPlanConfigExample example = new TestPlanConfigExample();
         example.createCriteria().andTestPlanIdIn(testPlanIdList);
         testPlanConfigMapper.deleteByExample(example);
+    }
+
+    public boolean getConfigById(String testPlanId) {
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlanId);
+        return testPlanConfig.getRepeatCase();
     }
 }

@@ -127,6 +127,11 @@
                 select case_review_functional_case.case_id from case_review_functional_case where case_review_functional_case.review_id = #{request.reviewId}
             )
         </if>
+        <if test="!isRepeat">
+            AND functional_case.id not in (
+            select test_plan_functional_case.functional_case_id from test_plan_functional_case where test_plan_functional_case.test_plan_id = #{request.testPlanId}
+            )
+        </if>
         <if test="request.excludeIds != null and request.excludeIds.size() > 0">
             AND functional_case.id not in
             <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">

@@ -43,7 +43,7 @@ public class FunctionalCaseTrashController {
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "delete_time desc, id asc");
-        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, true));
+        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, true, false));
     }
 
     @PostMapping("/module/count")
