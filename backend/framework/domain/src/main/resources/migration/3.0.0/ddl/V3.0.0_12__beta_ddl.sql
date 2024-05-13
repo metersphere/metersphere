@@ -44,7 +44,7 @@ ALTER TABLE test_plan_functional_case DROP COLUMN num;
 
 CREATE TABLE IF NOT EXISTS test_plan_case_execute_history(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
-    `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
+    `test_plan_case_id` VARCHAR(50) NOT NULL   COMMENT '计划关联用例表ID' ,
     `case_id` VARCHAR(50) NOT NULL   COMMENT '用例ID' ,
     `status` VARCHAR(64) NOT NULL   COMMENT '执行结果：成功/失败/阻塞' ,
     `content` LONGBLOB    COMMENT '执行评论意见' ,
@@ -59,9 +59,7 @@ CREATE TABLE IF NOT EXISTS test_plan_case_execute_history(
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例执行历史表';
 
 
-CREATE INDEX idx_case_id ON test_plan_case_execute_history(case_id);
-CREATE INDEX idx_test_plan_id ON test_plan_case_execute_history(test_plan_id);
-CREATE INDEX idx_test_plan_id_case_id ON test_plan_case_execute_history(test_plan_id,case_id);
+CREATE INDEX idx_test_plan_case_id ON test_plan_case_execute_history(test_plan_case_id);
 CREATE INDEX idx_status ON test_plan_case_execute_history(status);
 CREATE INDEX idx_deleted ON test_plan_case_execute_history(deleted);
 

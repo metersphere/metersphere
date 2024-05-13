@@ -4,10 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.ResourceSortRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
@@ -113,4 +110,13 @@ public class TestPlanFunctionalCaseController {
     public void disassociateBug(@PathVariable String id) {
         testPlanFunctionalCaseService.disassociateBug(id);
     }
+
+    @PostMapping("/run")
+    @Operation(summary = "测试计划-计划详情-功能用例-执行")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
+        testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+    }
+
 }

@@ -79,7 +79,7 @@
     <select id="getPlanExecuteHistoryList" resultType="io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO">
         SELECT
         tpceh.id,
-        tpceh.test_plan_id,
+        tpceh.test_plan_case_id,
         tpceh.case_id,
         tpceh.status,
         tpceh.notifier,
@@ -96,10 +96,10 @@
         test_plan_case_execute_history tpceh
         left join user u on  tpceh.create_user = u.id
         left join user_extend ux on  tpceh.create_user = ux.id
-        left join test_plan tp on  tpceh.test_plan_id = tp.id
+        left join test_plan tp on  tpceh.test_plan_case_id = tp.id
         where tpceh.case_id = #{caseId}
         <if test="planId != null and planId != ''">
-            and tpceh.test_plan_id = #{planId}
+            and tpceh.test_plan_case_id = #{planId}
         </if>
         order by tpceh.create_time desc
     </select>
