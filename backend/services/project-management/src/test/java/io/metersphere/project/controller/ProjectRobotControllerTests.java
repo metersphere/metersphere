@@ -519,7 +519,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     public void setMessageTask(String projectId, String defaultRobotId) throws Exception {
         StringBuilder jsonStr = new StringBuilder();
         try {
-            InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+            InputStream inputStream = getClass().getResourceAsStream("/init_message_task.json");
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {

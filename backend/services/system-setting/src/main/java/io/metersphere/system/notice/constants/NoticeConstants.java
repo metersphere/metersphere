@@ -336,7 +336,7 @@ public interface NoticeConstants {
         String TEST_PLAN_TASK_UPDATE = "TEST_PLAN_TASK_UPDATE";// 测试计划更新通知
         @Schema(description = "message.title.test_plan_task_delete")
         String TEST_PLAN_TASK_DELETE = "TEST_PLAN_TASK_DELETE";//测试计划删除通知
-        @Schema(description = "message.title.test_plan_task_execute_success")//测试计划执行成功通知
+        @Schema(description = "message.title.test_plan_task_execute_successful")//测试计划执行成功通知
         String TEST_PLAN_TASK_EXECUTE_SUCCESSFUL = "TEST_PLAN_TASK_EXECUTE_SUCCESSFUL";
         @Schema(description = "message.title.test_plan_task_execute_failed")//测试计划执行失败通知
         String TEST_PLAN_TASK_EXECUTE_FAILED = "TEST_PLAN_TASK_EXECUTE_FAILED";
