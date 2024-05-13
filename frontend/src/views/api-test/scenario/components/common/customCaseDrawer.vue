@@ -156,10 +156,10 @@
                 v-model:params="requestVModel.body"
                 :disabled-param-value="!isEditableApi"
                 :disabled-except-param="!isEditableApi"
-                :upload-temp-file-api="uploadTempFileCase"
-                :file-save-as-source-id="scenarioId"
-                :file-save-as-api="transferFileCase"
-                :file-module-options-api="getTransferOptionsCase"
+                :upload-temp-file-api="uploadTempFile"
+                :file-save-as-source-id="activeStep?.id"
+                :file-save-as-api="stepTransferFile"
+                :file-module-options-api="getTransferOptions"
                 @change="handleActiveDebugChange"
               />
               <httpQuery
@@ -266,12 +266,8 @@
   import { RequestParam } from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
-  import {
-    getCaseDetail,
-    getTransferOptionsCase,
-    transferFileCase,
-    uploadTempFileCase,
-  } from '@/api/modules/api-test/management';
+  import { getCaseDetail } from '@/api/modules/api-test/management';
+  import { getTransferOptions, stepTransferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
   import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
@@ -989,7 +985,7 @@
         stepName: activeStep.value?.name || res.name,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
-        stepId: activeStep.value?.uniqueId || '',
+        stepId: props.request?.stepId || '',
         ...parseRequestBodyResult,
       };
       nextTick(() => {
@@ -1034,7 +1030,7 @@
           ...defaultApiParams,
           ...props.request,
           isNew: false,
-          stepId: activeStep.value?.uniqueId || '',
+          stepId: props.request?.stepId || '',
           stepName: activeStep.value?.name || props.request?.name || '',
         });
         if (isQuote.value || isCopyNeedInit.value) {

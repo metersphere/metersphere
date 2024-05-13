@@ -1,6 +1,6 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.api.constants.ApiResourceType;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -218,7 +218,7 @@ public class ApiDefinitionMockService {
         resourceUpdateRequest.setProjectId(projectId);
         resourceUpdateRequest.setFolder(apiDefinitionMockDir);
         resourceUpdateRequest.setResourceId(sourceId);
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API_MOCK);
+        resourceUpdateRequest.setApiResourceType(ApiFileResourceType.API_MOCK);
         resourceUpdateRequest.setOperator(operator);
         resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_MANAGEMENT_MOCK);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION_MOCK);

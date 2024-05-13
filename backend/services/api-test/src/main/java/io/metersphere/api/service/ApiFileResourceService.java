@@ -1,6 +1,6 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.constants.ApiResourceType;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.domain.ApiFileResourceExample;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
@@ -115,7 +115,7 @@ public class ApiFileResourceService {
         List<String> uploadFileIds = resourceUpdateRequest.getUploadFileIds();
         String resourceId = resourceUpdateRequest.getResourceId();
         String projectId = resourceUpdateRequest.getProjectId();
-        ApiResourceType apiResourceType = resourceUpdateRequest.getApiResourceType();
+        ApiFileResourceType apiResourceType = resourceUpdateRequest.getApiResourceType();
 
         // 处理本地上传文件
         if (CollectionUtils.isNotEmpty(uploadFileIds)) {
@@ -374,58 +374,44 @@ public class ApiFileResourceService {
      * *  api正式文件存储路径：DefaultRepositoryDir.getApiDir(projectId, resourceId) + "/" + fileId+fileName
      * *  apiTestCase文件存储路径：DefaultRepositoryDir.getApiCaseDir()+fileId+fileName
      * *  apiScenario文件存储路径：DefaultRepositoryDir.getApiScenarioDir()+fileId+fileName
+     * *  apiScenario文件存储路径：DefaultRepositoryDir.getApiScenarioDir()+fileId+fileName
      */
-    public String transfer(ApiTransferRequest request, String currentUser, String type) {
+    public String transfer(ApiTransferRequest request, String currentUser, String folder) {
         ApiFileResourceExample example = new ApiFileResourceExample();
-        example.createCriteria().andFileIdEqualTo(request.getFileId()).andResourceIdEqualTo(request.getSourceId()).andResourceTypeEqualTo(type);
+        example.createCriteria()
+                .andFileIdEqualTo(request.getFileId())
+                .andResourceIdEqualTo(request.getSourceId());
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(example);
+
         String fileName;
         String fileId;
-        boolean isTemp = false;
-        ApiResourceType apiResourceType = ApiResourceType.valueOf(type);
-        String apiFolder = switch (apiResourceType) {
-            case API_DEBUG ->
-                    DefaultRepositoryDir.getApiDebugDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case API ->
-                    DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case API_CASE ->
-                    DefaultRepositoryDir.getApiCaseDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case API_SCENARIO ->
-                    DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            case API_MOCK ->
-                    DefaultRepositoryDir.getApiMockDir(request.getProjectId(), request.getSourceId()) + "/" + request.getFileId();
-            default -> throw new MSException("file type error!");
-        };
         if (CollectionUtils.isEmpty(apiFileResources)) {
-            //需要判断文件是否是在临时文件夹中
+            // 需要判断文件是否是在临时文件夹中
             fileName = getTempFileNameByFileId(request.getFileId());
-            apiFolder = StringUtils.join(DefaultRepositoryDir.getSystemTempDir(), "/", request.getFileId());
+            folder = DefaultRepositoryDir.getSystemTempDir();
             if (StringUtils.isEmpty(fileName)) {
                 throw new MSException("file not found!");
             }
-            isTemp = true;
         } else {
             fileName = apiFileResources.get(0).getFileName();
         }
+
+        folder += "/" + request.getFileId();
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder(apiFolder);
+        fileRequest.setFolder(folder);
         fileRequest.setFileName(fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
-        byte[] bytes;
+
         try {
-            bytes = fileService.download(fileRequest);
-            if (isTemp) {
-                //删除临时文件
+            fileId = fileMetadataService.transferFile(request.getFileName(), request.getOriginalName(), request.getProjectId(), request.getModuleId(), currentUser, fileService.download(fileRequest));
+            if (CollectionUtils.isEmpty(apiFileResources)) {
+                // 删除临时文件
                 FileRequest deleteRequest = new FileRequest();
-                deleteRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + request.getFileId());
+                deleteRequest.setFolder(folder);
                 FileCenter.getDefaultRepository().deleteFolder(deleteRequest);
             }
         } catch (Exception e) {
-            throw new MSException("download file error!");
-        }
-        try {
-            fileId = fileMetadataService.transferFile(request.getFileName(), request.getOriginalName(), request.getProjectId(), request.getModuleId(), currentUser, bytes);
-        } catch (Exception e) {
+            LogUtils.error(e);
             throw new MSException(Translator.get("file.transfer.failed"));
         }
         return fileId;

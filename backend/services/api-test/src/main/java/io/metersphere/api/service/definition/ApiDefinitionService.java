@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionDocType;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
@@ -241,7 +242,7 @@ public class ApiDefinitionService extends MoveNodeService {
         resourceUpdateRequest.setProjectId(projectId);
         resourceUpdateRequest.setFolder(apiDefinitionDir);
         resourceUpdateRequest.setResourceId(sourceId);
-        resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
+        resourceUpdateRequest.setApiResourceType(ApiFileResourceType.API);
         resourceUpdateRequest.setOperator(operator);
         resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION);

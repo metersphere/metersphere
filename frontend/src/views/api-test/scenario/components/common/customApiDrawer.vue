@@ -237,8 +237,8 @@
                 :disabled-param-value="!isEditableApi && !isEditableParamValue"
                 :disabled-except-param="!isEditableApi"
                 :upload-temp-file-api="uploadTempFile"
-                :file-save-as-source-id="scenarioId"
-                :file-save-as-api="transferFile"
+                :file-save-as-source-id="props.step?.id"
+                :file-save-as-api="stepTransferFile"
                 :file-module-options-api="getTransferOptions"
                 @change="handleActiveDebugChange"
               />
@@ -351,7 +351,7 @@
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { getDefinitionDetail } from '@/api/modules/api-test/management';
-  import { getTransferOptions, transferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
+  import { getTransferOptions, stepTransferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { getGenerateId, parseQueryParams } from '@/utils';

@@ -2,7 +2,6 @@ package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -11,6 +10,7 @@ import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
 import io.metersphere.project.service.FileModuleService;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.OperationHistoryDTO;
@@ -245,7 +245,8 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_CASE.name());
+        String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(request.getProjectId(), request.getSourceId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), apiCaseDir);
     }
 
     @GetMapping("/transfer/options/{projectId}")

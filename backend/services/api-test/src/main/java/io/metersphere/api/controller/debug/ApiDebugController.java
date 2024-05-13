@@ -9,6 +9,7 @@ import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.project.service.FileModuleService;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -109,7 +110,8 @@ public class ApiDebugController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String transfer(@Validated @RequestBody ApiTransferRequest request) {
-        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), ApiResourceType.API_DEBUG.name());
+        String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(request.getProjectId(), request.getSourceId());
+        return apiFileResourceService.transfer(request, SessionUtils.getUserId(), apiDebugDir);
     }
 
     @GetMapping("/transfer/options/{projectId}")
