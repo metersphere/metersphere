@@ -27,4 +27,7 @@ public class MockResponse implements Serializable {
 
     @Schema(description = "响应请求体")
     private ResponseBody body;
+
+    @Schema(description = "响应延迟时间（毫秒）")
+    private Long delay;
 }
