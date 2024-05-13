@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class WeComNoticeSender extends AbstractNoticeSender {
 
-    public void sendWeCom(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
+    public void sendWeCom(MessageDetail messageDetail, NoticeModel noticeModel, String context, String subjectText) {
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
@@ -28,13 +28,14 @@ public class WeComNoticeSender extends AbstractNoticeSender {
         List<User> users = super.getUsers(userIds, messageDetail.getProjectId());
         List<String> mobileList = users.stream().map(User::getPhone).toList();
         LogUtils.info("企业微信收件人: {}", userIds);
-        WeComClient.send(messageDetail.getWebhook(), messageDetail.getSubject() + ": \n" + context, mobileList);
+        WeComClient.send(messageDetail.getWebhook(), subjectText + ": \n" + context, mobileList);
     }
 
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendWeCom(messageDetail, noticeModel, context);
+        String subjectText = super.getSubjectText(messageDetail, noticeModel);
+        sendWeCom(messageDetail, noticeModel, context, subjectText);
     }
 
 }

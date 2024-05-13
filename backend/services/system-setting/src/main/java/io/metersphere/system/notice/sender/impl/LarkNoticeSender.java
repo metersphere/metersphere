@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Component
 public class LarkNoticeSender extends AbstractNoticeSender {
 
-    public void sendLark(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
+    public void sendLark(MessageDetail messageDetail, NoticeModel noticeModel, String context, String subjectText) {
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
@@ -34,12 +34,13 @@ public class LarkNoticeSender extends AbstractNoticeSender {
 
         LogUtils.info("飞书收件人: {}", userIds);
         context += StringUtils.join(collect, StringUtils.SPACE);
-        LarkClient.send(messageDetail.getWebhook(), messageDetail.getSubject() + ": \n" + context);
+        LarkClient.send(messageDetail.getWebhook(), subjectText + ": \n" + context);
     }
 
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendLark(messageDetail, noticeModel, context);
+        String subjectText = super.getSubjectText(messageDetail, noticeModel);
+        sendLark(messageDetail, noticeModel, context, subjectText);
     }
 }
