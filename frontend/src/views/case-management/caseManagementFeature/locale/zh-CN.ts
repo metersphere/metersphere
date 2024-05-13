@@ -272,4 +272,7 @@ export default {
   'caseManagement.featureCase.deleteFile': '确认删除文件 {name} 吗',
   'caseManagement.featureCase.deleteFileTip': '删除后，文件无法恢复，请谨慎操作!',
   'caseManagement.featureCase.nameNotNull': '用例名称不能为空!',
+  'caseManagement.featureCase.execute.success': '成功',
+  'caseManagement.featureCase.execute.failed': '失败',
+  'caseManagement.featureCase.execute.blocked': '阻塞',
 };

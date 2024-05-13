@@ -52,6 +52,7 @@ import {
   GetDependOnRelationUrl,
   GetDetailCaseReviewUrl,
   GetFileIsUpdateUrl,
+  GetPlanExecuteCommentListUrl,
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
   GetReviewCommentListUrl,
@@ -433,6 +434,11 @@ export function getAssociatedProjectOptions(orgId: string, module: string) {
 // 获取已关联测试计划列表
 export function getLinkedCaseTestPlanList(data: TableQueryParams) {
   return MSR.post<CommonList<AssociateFunctionalCaseItem>>({ url: GetAssociatedTestPlanUrl, data });
+}
+
+// 获取执行评论
+export function getTestPlanExecuteCommentList(caseId: string) {
+  return MSR.get<CommentItem[]>({ url: `${GetPlanExecuteCommentListUrl}/${caseId}` });
 }
 
 export default {};

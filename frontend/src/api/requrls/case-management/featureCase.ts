@@ -154,3 +154,6 @@ export const associatedProjectOptionsUrl = '/project/list/options';
 
 // 获取详情已关联测试计划列表
 export const GetAssociatedTestPlanUrl = '/functional/case/test/has/associate/plan/page';
+
+// 评审评论
+export const GetPlanExecuteCommentListUrl = '/functional/case/test/plan/comment';
