@@ -96,13 +96,20 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
         return buildAssociateBugs(associateBugs, request.getProjectId());
     }
 
+    @Override
+    public List<BugProviderDTO> hasTestPlanAssociateBugPage(AssociateBugPageRequest request) {
+        List<BugProviderDTO> associateBugs = extBugRelateCaseMapper.getTestPlanAssociateBugs(request, request.getSortString());
+        return buildAssociateBugs(associateBugs, request.getProjectId());
+    }
+
     /**
      * 关联缺陷列表数据处理
+     *
      * @param associateBugs 关联缺陷
-     * @param projectId 项目ID
+     * @param projectId     项目ID
      * @return 关联缺陷列表
      */
-    private List<BugProviderDTO> buildAssociateBugs(List<BugProviderDTO> associateBugs, String projectId) {
+    public List<BugProviderDTO> buildAssociateBugs(List<BugProviderDTO> associateBugs, String projectId) {
         List<SelectOption> headerHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
         associateBugs.forEach(item -> {

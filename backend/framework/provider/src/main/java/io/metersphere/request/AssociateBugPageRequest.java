@@ -23,7 +23,7 @@ public class AssociateBugPageRequest extends BaseProviderCondition {
     @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String caseId;
 
-    @Schema(description = "关联测试计划用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "关联测试计划用例ID 如果是测试计划关联用例的缺陷，这个参数必填", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanCaseId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -32,15 +32,15 @@ public class AssociateBugPageRequest extends BaseProviderCondition {
 
 
     @Min(value = 1, message = "当前页码必须大于0")
-    @Schema(description =  "当前页码")
+    @Schema(description = "当前页码")
     private int current;
 
     @Min(value = 5, message = "每页显示条数必须不小于5")
     @Max(value = 500, message = "每页显示条数不能大于500")
-    @Schema(description =  "每页显示条数")
+    @Schema(description = "每页显示条数")
     private int pageSize;
 
-    @Schema(description =  "排序字段（model中的字段 : asc/desc）")
+    @Schema(description = "排序字段（model中的字段 : asc/desc）")
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
 
 

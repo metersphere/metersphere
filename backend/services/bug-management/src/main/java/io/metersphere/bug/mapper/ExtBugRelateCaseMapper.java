@@ -81,4 +81,6 @@ public interface ExtBugRelateCaseMapper {
     long countByCaseId(String caseId);
 
     List<CaseRelateBugDTO> getBugCountByIds(@Param("ids") List<String> ids);
+
+    List<BugProviderDTO> getTestPlanAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
 }
