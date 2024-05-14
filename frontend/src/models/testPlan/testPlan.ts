@@ -1,5 +1,6 @@
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
+import { LastExecuteResults } from '@/enums/caseEnum';
 
 import { BatchApiParams } from '../common';
 
@@ -133,7 +134,7 @@ export interface PlanDetailFeatureCaseItem {
   versionName: string;
   createUser: string;
   createUserName: string;
-  lastExecResult: string;
+  lastExecResult: LastExecuteResults;
   lastExecTime: number;
   executeUser: string;
   executeUserName: string;

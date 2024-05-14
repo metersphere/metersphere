@@ -18,7 +18,7 @@
     </div>
     <MsBaseTable v-bind="propsRes" :action-config="batchActions" v-on="propsEvent" @batch-action="handleTableBatch">
       <template #num="{ record }">
-        <MsButton type="text">{{ record.num }}</MsButton>
+        <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
       </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
         <CaseLevel :case-level="filterContent.value" />
@@ -70,6 +70,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -85,7 +86,8 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type { PlanDetailFeatureCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -107,8 +109,10 @@
     (e: 'init', params: PlanDetailFeatureCaseListQueryParams): void;
   }>();
 
-  const appStore = useAppStore();
   const { t } = useI18n();
+  const route = useRoute();
+  const router = useRouter();
+  const appStore = useAppStore();
   const tableStore = useTableStore();
 
   const keyword = ref('');
@@ -203,7 +207,7 @@
       width: hasOperationPermission.value ? 200 : 50,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
     getPlanDetailFeatureCaseList,
     {
       scroll: { x: '100%' },
@@ -306,6 +310,20 @@
   onBeforeMount(() => {
     loadCaseList();
   });
+
+  // 去用例详情页面
+  function toCaseDetail(record: PlanDetailFeatureCaseItem) {
+    router.push({
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL_FEATURE_CASE_DETAIL,
+      query: {
+        ...route.query,
+        caseId: record.id,
+      },
+      state: {
+        params: JSON.stringify(getTableQueryParams()),
+      },
+    });
+  }
 
   defineExpose({
     resetSelector,
