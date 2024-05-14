@@ -171,4 +171,6 @@ export default {
   'common.belongModule': '所属模块',
   'common.moreSetting': '更多设置',
   'common.executionResult': '执行结果',
+  'common.detail': '详情',
+  'common.baseInfo': '基本信息',
 };
