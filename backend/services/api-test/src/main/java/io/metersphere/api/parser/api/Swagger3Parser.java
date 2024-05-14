@@ -144,7 +144,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             Content content = requestBody.getContent();
             if (content != null) {
                 content.forEach((key, value) -> {
-                    setBodyData(key, value, body);
+                    setResponseBodyData(key, value, body);
                 });
             } else {
                 body.setBodyType(Body.BodyType.NONE.name());
@@ -186,7 +186,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             responseBody.forEach((key, value) -> {
                 HttpResponse httpResponse = new HttpResponse();
                 //TODO headers
-                httpResponse.setStatusCode(StringUtils.equals("default", key) ? "200" :key);
+                httpResponse.setStatusCode(StringUtils.equals("default", key) ? "200" : key);
                 ResponseBody body = new ResponseBody();
                 Map<String, io.swagger.v3.oas.models.headers.Header> headers = value.getHeaders();
                 if (MapUtils.isNotEmpty(headers)) {
@@ -202,7 +202,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 }
                 if (value.getContent() != null) {
                     value.getContent().forEach((k, v) -> {
-                        setBodyData(k, v, body);
+                        setResponseBodyData(k, v, body);
                     });
                 } else {
                     body.setBodyType(Body.BodyType.NONE.name());
@@ -214,7 +214,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
 
     }
 
-    private void setBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
+    private void setResponseBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
         //TODO body  默认如果json格式
         JsonSchemaItem jsonSchemaItem = parseSchema(value.getSchema());
         switch (k) {
@@ -261,7 +261,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         }
     }
 
-    private void setBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, Body body) {
+    private void setResponseBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, Body body) {
         //TODO body  默认如果json格式
         JsonSchemaItem jsonSchemaItem = parseSchema(value.getSchema());
         switch (k) {
@@ -607,9 +607,17 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 return true;
             }
         }
-
-        if (schema instanceof Schema<?> items) {
-            return isRef(items, level + 1);
+        if (schema instanceof IntegerSchema) {
+            return false;
+        }
+        if (schema instanceof StringSchema) {
+            return false;
+        }
+        if (schema instanceof NumberSchema) {
+            return false;
+        }
+        if (schema instanceof BooleanSchema) {
+            return false;
         }
 
         return false;
@@ -619,13 +627,13 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         Map<String, Schema> properties = objectSchema.getProperties();
         if (MapUtils.isNotEmpty(properties)) {
             for (Schema value : properties.values()) {
-                if (value instanceof ArraySchema && isRef(((ArraySchema) value).getItems(), level + 1)) {
+                if (value instanceof ArraySchema && isRef(((ArraySchema) value).getItems(), level + 1) && level > 20) {
                     return true;
                 }
-                if (value instanceof ObjectSchema && isRef(value, level + 1)) {
+                if (value instanceof ObjectSchema && isRef(value, level + 1) && level > 20) {
                     return true;
                 }
-                if (value instanceof Schema<?> items && isRef(items, level + 1)) {
+                if (value instanceof Schema<?> items && isRef(items, level + 1) && level > 20) {
                     return true;
                 }
             }
