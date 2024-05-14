@@ -23,7 +23,7 @@ export const testPlanDefaultDetail: TestPlanDetail = {
   underReviewedCount: 0,
 };
 
-export const initDetailCount: PassRateCountDetail = {
+export const defaultDetailCount: PassRateCountDetail = {
   id: '',
   passThreshold: 0,
   passRate: 0,

@@ -65,8 +65,7 @@
         <div class="mb-[8px] flex items-center gap-[24px] text-[12px]">
           <div class="text-[var(--color-text-4)]">
             <span class="mr-[8px]">{{ t('testPlan.testPlanDetail.executed') }}</span>
-            <span v-if="detail.status === 'PREPARED'" class="text-[var(--color-text-1)]">-</span>
-            <span v-else>
+            <span>
               <span class="mr-1 font-medium text-[var(--color-text-1)]"> {{ hasExecutedCount }} </span>/<span
                 class="ml-1"
                 >{{ countDetail.caseTotal }}</span
@@ -75,8 +74,7 @@
           </div>
           <div class="text-[var(--color-text-4)]">
             <span class="mr-[8px]">{{ t('caseManagement.caseReview.passRate') }}</span>
-            <span v-if="detail.status === 'PREPARED'" class="text-[var(--color-text-1)]"></span>
-            <span v-else>
+            <span>
               <span class="font-medium text-[var(--color-text-1)]"> {{ countDetail.passRate }}% </span>
             </span>
           </div>
@@ -132,7 +130,7 @@
     getTestPlanDetail,
     getTestPlanModule,
   } from '@/api/modules/test-plan/testPlan';
-  import { initDetailCount, testPlanDefaultDetail } from '@/config/testPlan';
+  import { defaultDetailCount, testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -159,7 +157,7 @@
     ...testPlanDefaultDetail,
   });
 
-  const countDetail = ref<PassRateCountDetail>({ ...initDetailCount });
+  const countDetail = ref<PassRateCountDetail>({ ...defaultDetailCount });
 
   const hasExecutedCount = computed(() => {
     const { successCount, fakeErrorCount, errorCount, blockCount } = countDetail.value;

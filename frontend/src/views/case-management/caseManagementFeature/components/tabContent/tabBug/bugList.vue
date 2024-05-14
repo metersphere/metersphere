@@ -116,7 +116,7 @@
       // status: statusFilterValue.value,
       // handleUser: handleUserFilterValue.value,
     };
-    // TODO 不知道干啥的 要和后台同学确认一下
+    // TODO 要和后台同学确认一下
     filterParams[severityColumnId.value] = severityFilterValue.value;
     return {
       keyword: props.keyword,
@@ -149,9 +149,17 @@
     searchData();
   });
 
+  watch(
+    () => props.bugColumns,
+    (val) => {
+      if (val) {
+        bugTableRef.value.initColumn(val);
+      }
+    }
+  );
+
   defineExpose({
     searchData,
-    bugTableRef,
   });
 </script>
 

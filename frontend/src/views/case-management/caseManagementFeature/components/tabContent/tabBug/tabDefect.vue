@@ -180,7 +180,7 @@
   const router = useRouter();
   const route = useRoute();
 
-  const columns: MsTableColumn = [
+  const columns = ref<MsTableColumn>([
     {
       title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'num',
@@ -244,7 +244,7 @@
       showInTable: true,
       showDrag: false,
     },
-  ];
+  ]);
 
   const testPlanColumns: MsTableColumn = [
     {
@@ -342,8 +342,7 @@
         handleUser: handleUserFilterOptions.value,
       };
       if (showType.value === 'link') {
-        const columnList = makeColumns(optionsMap, columns);
-        bugTableListRef.value.bugTableRef.initColumn(columnList);
+        columns.value = makeColumns(optionsMap, columns.value);
       } else {
         const planColumnList = makeColumns(optionsMap, testPlanColumns);
         planTableRef.value.initColumn(planColumnList);
