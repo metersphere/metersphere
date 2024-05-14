@@ -4,7 +4,6 @@ import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 import { EnvConfig, EnvironmentItem } from '@/models/projectManagement/environmental';
 import type { LoginConfig, PageConfig, PlatformConfig, ThemeConfig } from '@/models/setting/config';
 import { ProjectListItem } from '@/models/setting/project';
-import type { TaskCenterEnum } from '@/enums/taskCenter';
 
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 

@@ -9,6 +9,7 @@ const Setting: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.settings',
+    collapsedLocale: 'menu.settingsShort',
     icon: 'icon-a-icon_system_settings',
     order: 8,
     roles: [
@@ -39,6 +40,7 @@ const Setting: AppRouteRecordRaw = {
       component: null,
       meta: {
         locale: 'menu.settings.system',
+        collapsedLocale: 'menu.settings.systemManagement',
         roles: [
           'SYSTEM_USER:READ',
           'SYSTEM_USER_ROLE:READ',
@@ -182,6 +184,7 @@ const Setting: AppRouteRecordRaw = {
       component: null,
       meta: {
         locale: 'menu.settings.organization',
+        collapsedLocale: 'menu.settings.organizationManagement',
         roles: [
           'ORGANIZATION_MEMBER:READ',
           'ORGANIZATION_USER_ROLE:READ',

@@ -10,7 +10,8 @@ const ApiTest: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.apiTest',
-    icon: 'icon-icon_api-test-filled',
+    collapsedLocale: 'menu.apiTestShort',
+    icon: 'icon-icon_api-test-filled1',
     order: 4,
     hideChildrenInMenu: true,
     roles: [

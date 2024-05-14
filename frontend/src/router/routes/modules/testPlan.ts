@@ -10,8 +10,9 @@ const TestPlan: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.testPlan',
-    icon: 'icon-icon_test-tracking_filled',
-    order: 1,
+    collapsedLocale: 'menu.testPlanShort',
+    icon: 'icon-a-icon_test-tracking_filled1',
+    order: 2,
     hideChildrenInMenu: true,
     roles: ['*'],
   },

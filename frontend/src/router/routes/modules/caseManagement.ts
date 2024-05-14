@@ -10,7 +10,8 @@ const CaseManagement: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.caseManagement',
-    icon: 'icon-icon_functional_testing',
+    collapsedLocale: 'menu.caseManagementShort',
+    icon: 'icon-icon_functional_testing1',
     order: 3,
     hideChildrenInMenu: true,
     roles: ['FUNCTIONAL_CASE:READ', 'CASE_REVIEW:READ'],

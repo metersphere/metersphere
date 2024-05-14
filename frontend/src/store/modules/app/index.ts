@@ -383,7 +383,7 @@ const useAppStore = defineStore('app', {
     },
   },
   persist: {
-    paths: ['currentOrgId', 'currentProjectId', 'pageConfig'],
+    paths: ['currentOrgId', 'currentProjectId', 'pageConfig', 'menuCollapse'],
   },
 });
 

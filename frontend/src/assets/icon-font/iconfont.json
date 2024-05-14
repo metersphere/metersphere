@@ -6,6 +6,69 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "40334819",
+      "name": "icon_test-tracking_filled",
+      "font_class": "a-icon_test-tracking_filled1",
+      "unicode": "e7b3",
+      "unicode_decimal": 59315
+    },
+    {
+      "icon_id": "40334248",
+      "name": "icon_functional_testing",
+      "font_class": "icon_functional_testing1",
+      "unicode": "e7b2",
+      "unicode_decimal": 59314
+    },
+    {
+      "icon_id": "40282308",
+      "name": "icon_bug",
+      "font_class": "icon_bug",
+      "unicode": "e7b1",
+      "unicode_decimal": 59313
+    },
+    {
+      "icon_id": "40273551",
+      "name": "icon_threshold",
+      "font_class": "icon_threshold",
+      "unicode": "e7b0",
+      "unicode_decimal": 59312
+    },
+    {
+      "icon_id": "40270604",
+      "name": "icon_filter",
+      "font_class": "icon_filter",
+      "unicode": "e7af",
+      "unicode_decimal": 59311
+    },
+    {
+      "icon_id": "40270615",
+      "name": "icon_chevron-down",
+      "font_class": "icon_chevron-down",
+      "unicode": "e7ad",
+      "unicode_decimal": 59309
+    },
+    {
+      "icon_id": "40270614",
+      "name": "icon_chevron-up",
+      "font_class": "icon_chevron-up",
+      "unicode": "e7ae",
+      "unicode_decimal": 59310
+    },
+    {
+      "icon_id": "40177791",
+      "name": "icon_audit",
+      "font_class": "icon_audit",
+      "unicode": "e7ac",
+      "unicode_decimal": 59308
+    },
+    {
+      "icon_id": "40164987",
+      "name": "icon_api-test-filled",
+      "font_class": "icon_api-test-filled1",
+      "unicode": "e7ab",
+      "unicode_decimal": 59307
+    },
+    {
       "icon_id": "39725024",
       "name": "icon_menu_unfold",
       "font_class": "icon_menu_unfold",
