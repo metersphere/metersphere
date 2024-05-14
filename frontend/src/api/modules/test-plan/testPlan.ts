@@ -5,9 +5,11 @@ import {
   archivedPlanUrl,
   batchCopyPlanUrl,
   batchDeletePlanUrl,
+  BatchDisassociateCaseUrl,
   batchMovePlanUrl,
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
+  DisassociateCaseUrl,
   GetFeatureCaseModuleCountUrl,
   GetFeatureCaseModuleUrl,
   GetPlanDetailFeatureCaseListUrl,
@@ -27,6 +29,8 @@ import type { CommonList, MoveModules, TableQueryParams } from '@/models/common'
 import { ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
+  BatchFeatureCaseParams,
+  DisassociateCaseParams,
   PlanDetailBugItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
@@ -123,4 +127,12 @@ export function getFeatureCaseModuleCount(data: PlanDetailFeatureCaseListQueryPa
 // 计划详情-功能用例模块树
 export function getFeatureCaseModule(planId: string) {
   return MSR.get<ModuleTreeNode[]>({ url: `${GetFeatureCaseModuleUrl}/${planId}` });
+}
+// 计划详情-功能用例列表-取消关联用例
+export function disassociateCase(data: DisassociateCaseParams) {
+  return MSR.post({ url: DisassociateCaseUrl, data });
+}
+// 计划详情-功能用例列表-批量取消关联用例
+export function batchDisassociateCase(data: BatchFeatureCaseParams) {
+  return MSR.post({ url: BatchDisassociateCaseUrl, data });
 }

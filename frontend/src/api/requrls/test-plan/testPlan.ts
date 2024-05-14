@@ -38,3 +38,7 @@ export const GetPlanDetailFeatureCaseListUrl = '/test-plan/functional/case/page'
 export const GetFeatureCaseModuleCountUrl = '/test-plan/functional/case/module/count';
 // 计划详情-功能用例模块树
 export const GetFeatureCaseModuleUrl = '/test-plan/functional/case/tree';
+// 计划详情-功能用例-取消关联用例
+export const DisassociateCaseUrl = '/test-plan/functional/case/disassociate';
+// 计划详情-功能用例-批量取消关联用例
+export const BatchDisassociateCaseUrl = '/test-plan/functional/case/batch/disassociate';

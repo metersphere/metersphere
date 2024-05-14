@@ -17,7 +17,7 @@
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
-        @init="getModuleCount"
+        @get-module-count="getModuleCount"
       ></CaseTable>
     </template>
   </MsSplitBox>
