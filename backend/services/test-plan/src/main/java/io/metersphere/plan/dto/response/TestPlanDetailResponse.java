@@ -40,9 +40,11 @@ public class TestPlanDetailResponse extends TestPlanStatisticsResponse implement
     @Schema(description = "是否开启测试规划")
     private Boolean testPlanning;
 
-
     @Schema(description = "测试计划名称/测试计划组名称")
     private String name;
+
+    @Schema(description = "测试计划业务ID")
+    private Long num;
 
     @Schema(description = "标签")
     private List<String> tags;

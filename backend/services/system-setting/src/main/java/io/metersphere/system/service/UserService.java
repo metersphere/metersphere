@@ -16,6 +16,7 @@ import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.user.UserEditRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.ExcelParseDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.table.TableBatchProcessResponse;
@@ -592,5 +593,13 @@ public class UserService {
     public boolean updatePassword(PersonalUpdatePasswordRequest request) {
         this.checkOldPassword(request.getId(), request.getOldPassword());
         return extUserMapper.updatePasswordByUserId(request.getId(), request.getNewPassword()) > 0;
+    }
+
+    /**
+     * 根据ID获取用户ID, 名称集合
+     */
+    public Map<String, String> getUserMapByIds(List<String> userIds) {
+        List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
+        return userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
     }
 }

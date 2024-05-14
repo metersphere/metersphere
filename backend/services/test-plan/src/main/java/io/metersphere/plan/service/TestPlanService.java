@@ -437,6 +437,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         String moduleName = getModuleName(testPlan.getModuleId());
         //计划组只有几个参数
         response.setId(testPlan.getId());
+        response.setNum(testPlan.getNum());
+        response.setStatus(testPlan.getStatus());
         response.setName(testPlan.getName());
         response.setTags(testPlan.getTags());
         response.setModuleId(testPlan.getModuleId());
