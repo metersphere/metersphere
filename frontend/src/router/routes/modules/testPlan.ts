@@ -27,6 +27,16 @@ const TestPlan: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    {
+      path: 'testPlanReport',
+      name: TestPlanRouteEnum.TEST_PLAN_REPORT,
+      component: () => import('@/views/test-plan/report/index.vue'),
+      meta: {
+        locale: 'menu.apiTest.report',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
     // 测试计划详情
     {
       path: 'testPlanIndexDetail',
