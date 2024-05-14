@@ -95,7 +95,7 @@
           <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
         </template>
         <template #lastExecuteResult="{ record }">
-          <executeResult :execute-result="record.lastExecuteResult" />
+          <ExecuteStatusTag :execute-result="record.lastExecuteResult" />
         </template>
         <template #moduleId="{ record }">
           <a-tree-select
@@ -323,8 +323,10 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import executeResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import ExecuteStatusTag from '@/components/business/ms-case-associate/executeResult.vue';
+  import MsMinder from '@/components/business/ms-minders/index.vue';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';

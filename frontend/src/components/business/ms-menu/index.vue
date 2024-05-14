@@ -20,7 +20,7 @@
   import { getFirstRouterNameByCurrentRoute } from '@/utils/permission';
   import { listenerRouteChange } from '@/utils/route-listener';
 
-  import { ProjectManagementRouteEnum, RouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
+  import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
   import type { RouteMeta } from 'vue-router';
@@ -122,11 +122,6 @@
           openKeys.value = [...keySet];
 
           selectedKey.value = [activeMenu || menuOpenKeys[menuOpenKeys.length - 1]];
-        }
-        if (newRoute.fullPath.includes(RouteEnum.SETTING)) {
-          appStore.updateSettings({ menuCollapse: false });
-        } else {
-          appStore.updateSettings({ menuCollapse: true });
         }
       }, true);
       const setCollapse = (val: boolean) => {
@@ -395,12 +390,22 @@
               ),
             }}
           >
-            <a-menu-item class="flex items-center justify-between" key="personalInfo">
-              <div class="relative flex items-center gap-[8px] hover:!bg-transparent">
-                <MsAvatar avatar={userStore.avatar} size={20} />
-                {userStore.name}
-              </div>
-              <icon-caret-down class="!m-0" />
+            <a-menu-item
+              class={['flex items-center justify-between', collapsed.value ? 'h-[56px] w-[56px]' : '']}
+              key="personalInfo"
+            >
+              {collapsed.value ? (
+                <div class="relative flex h-full items-center justify-center hover:!bg-transparent">
+                  <MsAvatar avatar={userStore.avatar} size={30} class="hover:!bg-transparent" />
+                </div>
+              ) : (
+                <div class="relative flex items-center gap-[8px] hover:!bg-transparent">
+                  <MsAvatar avatar={userStore.avatar} size={20} />
+                  {userStore.name}
+                </div>
+              )}
+
+              {collapsed.value ? null : <icon-caret-down class="!m-0" />}
             </a-menu-item>
           </a-trigger>
         );
@@ -423,7 +428,11 @@
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
-              {t(element?.meta?.locale || '')}
+              {t(
+                collapsed.value
+                  ? element?.meta?.collapsedLocale || element?.meta?.locale || ''
+                  : element?.meta?.locale || ''
+              )}
               {xPack.value
                 ? orgTrigger(element, menuSwitchOrgVisible, () => (
                     <div
@@ -445,7 +454,11 @@
           </a-menu-item>
         ) : (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
-            {t(element?.meta?.locale || '')}
+            {t(
+              collapsed.value
+                ? element?.meta?.collapsedLocale || element?.meta?.locale || ''
+                : element?.meta?.locale || ''
+            )}
           </a-menu-item>
         );
 
@@ -461,7 +474,11 @@
                     key={element?.name}
                     v-slots={{
                       icon,
-                      title: () => h('div', t(element?.meta?.locale || '')),
+                      title: () =>
+                        h(
+                          'div',
+                          t(collapsed.value ? element?.meta?.collapsedLocale || '' : element?.meta?.locale || '')
+                        ),
                     }}
                     class={BOTTOM_MENU_LIST.includes(element?.name as string) ? 'arco-menu-inline--bottom' : ''}
                   >
@@ -496,11 +513,11 @@
               'popup-offset': -4,
             }}
             v-slots={{
-              'collapse-icon': () => (appStore.menuCollapse ? <icon-right /> : <icon-left />),
+              'collapse-icon': () => (collapsed.value ? <icon-right /> : <icon-left />),
             }}
           >
-            <div class="flex flex-1 flex-col">{renderSubMenu()}</div>
-            <div class="flex flex-col">{personalInfoMenu()}</div>
+            <div class="flex flex-1 flex-col gap-[4px]">{renderSubMenu()}</div>
+            <div class="flex flex-col items-center">{personalInfoMenu()}</div>
           </a-menu>
           {personalInfoDrawer()}
         </>
@@ -551,7 +568,7 @@
           margin-right: 8px;
           .arco-icon {
             &:not(.arco-icon-down) {
-              font-size: 18px;
+              font-size: 16px;
             }
 
             color: var(--color-text-4);
@@ -590,11 +607,26 @@
   .arco-menu-overflow-sub-menu {
     min-width: 60px;
   }
-  .arco-menu-collapsed {
-    width: 72px;
-    .arco-avatar,
-    .arco-icon {
-      margin-right: 2px !important;
+  .arco-menu-vertical.arco-menu-collapsed {
+    width: 56px;
+    .arco-menu-inner {
+      @apply !p-0;
+
+      padding-bottom: 32px !important;
+      .arco-menu-item,
+      .arco-menu-inline--bottom {
+        @apply flex-col p-0;
+
+        gap: 4px;
+        line-height: normal;
+        padding: 8px 14px;
+        .arco-menu-icon {
+          @apply mr-0;
+        }
+        .arco-menu-title {
+          @apply opacity-100;
+        }
+      }
     }
   }
   .arco-menu {

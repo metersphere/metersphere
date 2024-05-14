@@ -10,6 +10,7 @@ const BugManagement: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.bugManagement',
+    collapsedLocale: 'menu.bugManagementShort',
     icon: 'icon-icon_defect',
     order: 7,
     roles: ['PROJECT_BUG:READ'],
