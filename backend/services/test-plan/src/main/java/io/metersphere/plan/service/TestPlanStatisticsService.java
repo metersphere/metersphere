@@ -1,8 +1,11 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.domain.TestPlanConfigExample;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 public class TestPlanStatisticsService {
 
+	@Resource
+	private TestPlanConfigMapper testPlanConfigMapper;
 	@Resource
 	private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
 
@@ -65,6 +70,11 @@ public class TestPlanStatisticsService {
 		rateFormat.setMinimumFractionDigits(2);
 		rateFormat.setMaximumFractionDigits(2);
 
+		// 计划的更多配置
+		TestPlanConfigExample example = new TestPlanConfigExample();
+		example.createCriteria().andTestPlanIdIn(planIds);
+		List<TestPlanConfig> testPlanConfigList = testPlanConfigMapper.selectByExample(example);
+		Map<String, TestPlanConfig> planConfigMap = testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, p -> p));
 		// 计划-功能用例的关联数据
 		List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
 		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
@@ -72,6 +82,7 @@ public class TestPlanStatisticsService {
 		planIds.forEach(planId -> {
 			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
 			statisticsResponse.setId(planId);
+			statisticsResponse.setPassThreshold(planConfigMap.get(planId).getPassThreshold());
 			int success = 0, error = 0, fakeError = 0, block = 0, pending = 0;
 			// 功能用例统计开始
 			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);

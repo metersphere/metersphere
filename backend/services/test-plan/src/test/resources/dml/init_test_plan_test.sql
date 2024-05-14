@@ -33,7 +33,8 @@ VALUES
 INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `test_planning`)
 VALUES
     ('wx_test_plan_id_1', b'0', b'0', 100, b'0'),
-    ('wx_test_plan_id_4', b'0', b'0', 100, b'0');
+    ('wx_test_plan_id_4', b'0', b'0', 100, b'0'),
+    ('wx_test_plan_id_7', b'0', b'0', 100, b'0');
 
 
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
