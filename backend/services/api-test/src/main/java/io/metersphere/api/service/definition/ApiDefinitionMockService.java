@@ -362,7 +362,7 @@ public class ApiDefinitionMockService {
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         if (CollectionUtils.isNotEmpty(environments)) {
             EnvironmentInfoDTO environmentInfoDTO = environmentService.get(environments.getFirst().getId());
-            return StringUtils.join(environmentInfoDTO.getConfig().getHttpConfig().getFirst().getUrl(), "/", apiDefinition.getNum(), "/", apiDefinitionMock.getExpectNum(), apiDefinition.getPath());
+            return StringUtils.join(environmentInfoDTO.getConfig().getHttpConfig().getFirst().getUrl(), "/", apiDefinition.getNum(), apiDefinition.getPath());
         }
 
         return null;
