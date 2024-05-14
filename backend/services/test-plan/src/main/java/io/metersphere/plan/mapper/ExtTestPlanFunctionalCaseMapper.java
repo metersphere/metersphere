@@ -42,8 +42,13 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     /**
      * 获取计划下的功能用例集合
+     *
      * @param planIds 测试计划ID集合
      * @return 计划功能用例集合
      */
     List<TestPlanFunctionalCase> getPlanFunctionalCaseByIds(@Param("planIds") List<String> planIds);
+
+    List<String> selectIdByConditions(@Param("request") BasePlanCaseBatchRequest request, @Param("projectId") String projectId);
+
+    void batchUpdate(@Param("ids") List<String> ids, @Param("lastExecResult") String lastExecResult, @Param("lastExecTime") long lastExecTime, @Param("userId") String userId);
 }

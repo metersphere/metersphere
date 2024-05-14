@@ -10,5 +10,5 @@ public class TestPlanDisassociationRequest {
 	private String testPlanId;
 
 	@Schema(description = "测试计划用例关系ID", requiredMode = Schema.RequiredMode.REQUIRED)
-	private String refId;
+	private String id;
 }

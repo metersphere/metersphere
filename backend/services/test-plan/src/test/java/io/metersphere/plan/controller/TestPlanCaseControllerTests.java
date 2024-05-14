@@ -41,6 +41,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
 
     public static final String FUNCTIONAL_CASE_RUN_URL = "/test-plan/functional/case/run";
+    public static final String FUNCTIONAL_CASE_BATCH_RUN_URL = "/test-plan/functional/case/batch/run";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -100,7 +101,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     void disassociate() throws Exception {
         TestPlanDisassociationRequest request = new TestPlanDisassociationRequest();
         request.setTestPlanId("gyq_disassociate_plan_1");
-        request.setRefId("gyq_disassociate_case_3");
+        request.setId("gyq_disassociate_case_3");
         this.requestPostWithOk(FUNCTIONAL_CASE_DISASSOCIATE_URL, request);
     }
 
@@ -188,6 +189,26 @@ public class TestPlanCaseControllerTests extends BaseTest {
         this.requestPostWithOk(FUNCTIONAL_CASE_RUN_URL, request);
         request.setLastExecResult("ERROR");
         this.requestPostWithOk(FUNCTIONAL_CASE_RUN_URL, request);
+
+    }
+
+
+
+    @Test
+    @Order(12)
+    public void testFunctionalCaseBatchRun() throws Exception {
+        TestPlanCaseBatchRunRequest request = new TestPlanCaseBatchRunRequest();
+        request.setProjectId("1234");
+        request.setTestPlanId("plan_2");
+        request.setLastExecResult("SUCCESS");
+        request.setContent("12334");
+        request.setNotifier("123");
+        request.setSelectAll(true);
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_RUN_URL, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("relate_case_3"));
+        request.setLastExecResult("ERROR");
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_RUN_URL, request);
 
     }
 }
