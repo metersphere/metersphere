@@ -38,6 +38,7 @@ export default {
   'common.editFailed': 'Edit failed',
   'common.saveSuccess': 'Save success',
   'common.saveFailed': 'Save failed',
+  'common.associated': 'Associated',
   'common.linkSuccess': 'Link success',
   'common.unLinkSuccess': 'Unlink success',
   'common.confirmEnable': 'Confirm enable',
@@ -168,6 +169,8 @@ export default {
   'common.unExecute': 'Not executed',
   'common.pass': 'Pass',
   'common.unPass': 'Fail pass',
+  'common.block': 'block',
+  'common.fakeError': 'Fake error',
   'common.belongModule': 'Belong module',
   'common.moreSetting': 'More settings',
 };

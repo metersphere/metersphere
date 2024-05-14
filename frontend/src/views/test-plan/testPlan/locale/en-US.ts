@@ -1,5 +1,7 @@
 export default {
   'testPlan.testPlanIndex.createTestPlan': 'create test plan',
+  'testPlan.testPlanIndex.updateTestPlan': 'update test plan',
+  'testPlan.testPlanIndex.copyTestPlan': 'copy test plan',
   'testPlan.testPlanIndex.allTestPlan': 'All test Plans',
   'testPlan.testPlanIndex.collapseAll': 'Collapse all submodules',
   'testPlan.testPlanIndex.expandAll': 'Expand all submodules',
@@ -56,7 +58,7 @@ export default {
   'testPlan.testPlanIndex.defaultEnv': 'Default Environment',
   'testPlan.testPlanIndex.newEnv': 'New Environment',
   'testPlan.testPlanIndex.executionProgress': 'Execution progress',
-  'testPlan.testPlanIndex.tolerance': 'tolerance',
+  'testPlan.testPlanIndex.threshold': 'threshold',
   'testPlan.testPlanIndex.TotalCases': 'Total use cases',
   'testPlan.testPlanIndex.functionalUseCase': 'case',
   'testPlan.testPlanIndex.apiCase': 'Api use case',
@@ -89,6 +91,9 @@ export default {
   'testPlan.featureCase.executor': 'Executor',
   'testPlan.featureCase.changeExecutor': 'Change executor',
   'testPlan.featureCase.sort': 'sort',
+  'testPlan.featureCase.executionHistory': 'Execution History',
+  'testPlan.featureCase.noBugDataTooltip': 'No related defects, please',
+  'testPlan.featureCase.noBugDataNewBug': 'New defect',
   'testPlan.featureCase.disassociateTip': 'Are you sure to cancel the association {name}? ',
   'testPlan.featureCase.disassociateTipContent':
     'After cancellation, it will affect the statistics related to the test plan',

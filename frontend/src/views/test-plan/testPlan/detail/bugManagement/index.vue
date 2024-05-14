@@ -90,8 +90,8 @@
     },
     {
       title: 'testPlan.bugManagement.defectState',
-      slotName: 'statusName',
-      dataIndex: 'statusName',
+      slotName: 'status',
+      dataIndex: 'status',
       showInTable: true,
       showTooltip: true,
       width: 200,

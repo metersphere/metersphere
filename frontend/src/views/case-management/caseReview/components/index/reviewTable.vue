@@ -250,7 +250,7 @@
     return Object.keys(reviewStatusMap).map((key) => {
       return {
         value: key,
-        label: reviewStatusMap[key as ReviewStatus].label,
+        label: t(reviewStatusMap[key as ReviewStatus].label),
       };
     });
   });

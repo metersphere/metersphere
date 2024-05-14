@@ -29,7 +29,10 @@ export interface AssociateCaseRequest extends BatchApiParams {
   apiCaseSelectIds?: string[];
   apiScenarioSelectIds?: string[];
   totalCount?: number;
+  testPlanId?: string;
 }
+
+export type AssociateCaseRequestType = Pick<AssociateCaseRequest, 'functionalSelectIds' | 'testPlanId'>;
 
 export interface AddTestPlanParams {
   id?: string;
@@ -45,11 +48,12 @@ export interface AddTestPlanParams {
   repeatCase: boolean; // 是否允许重复添加用例
   passThreshold: number;
   type?: string;
-  baseAssociateCaseRequest?: AssociateCaseRequest;
+  baseAssociateCaseRequest?: AssociateCaseRequest | null;
   groupOption?: boolean;
   cycle?: number[];
   projectId?: string;
   testPlanId?: string;
+  functionalCaseCount?: number;
 }
 
 // TODO: 对照后端字段
@@ -66,6 +70,7 @@ export interface TestPlanDetail extends AddTestPlanParams {
   unPassCount: number;
   reReviewedCount: number;
   underReviewedCount: number;
+  functionalCaseCount?: number;
 }
 
 // 计划分页
@@ -158,6 +163,22 @@ export interface DisassociateCaseParams {
 export interface BatchFeatureCaseParams extends BatchActionQueryParams {
   testPlanId: string;
   moduleIds?: string[];
+}
+
+export interface PassRateCountDetail {
+  id: string;
+  passThreshold: number;
+  passRate: number;
+  executeRate: number;
+  successCount: number;
+  errorCount: number;
+  fakeErrorCount: number;
+  blockCount: number;
+  pendingCount: number;
+  caseTotal: number;
+  functionalCaseCount: number;
+  apiCaseCount: number;
+  apiScenarioCount: number;
 }
 
 export default {};

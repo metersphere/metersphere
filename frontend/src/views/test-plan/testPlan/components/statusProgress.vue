@@ -4,18 +4,50 @@
       <table class="min-w-[144px]">
         <tr>
           <td class="popover-label-td">
-            <div>{{ t('testPlan.testPlanIndex.tolerance') }}</div>
+            <div>{{ t('testPlan.testPlanIndex.threshold') }}</div>
           </td>
-          <td class="popover-value-td">
-            {{ props.statusDetail.tolerance }}
-          </td>
+          <td class="popover-value-td"> {{ detailCount.passThreshold }}% </td>
         </tr>
         <tr>
           <td class="popover-label-td">
             <div>{{ t('testPlan.testPlanIndex.executionProgress') }}</div>
           </td>
+          <td class="popover-value-td"> {{ detailCount.executeRate }}% </td>
+        </tr>
+        <tr>
+          <td class="popover-label-td">
+            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
+            <div>{{ t('common.success') }}</div>
+          </td>
           <td class="popover-value-td">
-            {{ props.statusDetail.executionProgress }}
+            {{ detailCount.successCount }}
+          </td>
+        </tr>
+        <tr>
+          <td class="popover-label-td">
+            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
+            <div>{{ t('common.fail') }}</div>
+          </td>
+          <td class="popover-value-td">
+            {{ detailCount.errorCount }}
+          </td>
+        </tr>
+        <tr>
+          <td class="popover-label-td">
+            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
+            <div>{{ t('common.fakeError') }}</div>
+          </td>
+          <td class="popover-value-td">
+            {{ detailCount.fakeErrorCount }}
+          </td>
+        </tr>
+        <tr>
+          <td class="popover-label-td">
+            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--link-6))]"></div>
+            <div>{{ t('common.block') }}</div>
+          </td>
+          <td class="popover-value-td">
+            {{ detailCount.blockCount }}
           </td>
         </tr>
         <tr>
@@ -24,34 +56,7 @@
             <div>{{ t('common.unExecute') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.statusDetail.UNPENDING }}
-          </td>
-        </tr>
-        <tr>
-          <td class="popover-label-td">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--link-6))]"></div>
-            <div>{{ t('common.running') }}</div>
-          </td>
-          <td class="popover-value-td">
-            {{ props.statusDetail.RUNNING }}
-          </td>
-        </tr>
-        <tr>
-          <td class="popover-label-td">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
-            <div>{{ t('common.pass') }}</div>
-          </td>
-          <td class="popover-value-td">
-            {{ props.statusDetail.SUCCESS }}
-          </td>
-        </tr>
-        <tr>
-          <td class="popover-label-td">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
-            <div>{{ t('common.unPass') }}</div>
-          </td>
-          <td class="popover-value-td">
-            {{ props.statusDetail.ERROR }}
+            {{ detailCount.pendingCount }}
           </td>
         </tr>
       </table>
@@ -64,35 +69,29 @@
 
   import MsColorLine from '@/components/pure/ms-color-line/index.vue';
 
+  import { initDetailCount } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { PassRateCountDetail } from '@/models/testPlan/testPlan';
+
   const props = defineProps<{
-    statusDetail: {
-      tolerance: number;
-      UNPENDING: number;
-      RUNNING: number;
-      SUCCESS: number;
-      ERROR: number;
-      executionProgress: string;
-      [key: string]: any;
-    };
+    statusDetail: PassRateCountDetail | undefined;
     height: string;
     radius?: string;
   }>();
   const { t } = useI18n();
 
-  const getCountTotal = computed(() => {
-    const { UNPENDING, RUNNING, ERROR, SUCCESS } = props.statusDetail;
-    return UNPENDING + RUNNING + ERROR + SUCCESS;
+  const detailCount = ref({ ...initDetailCount });
+  watchEffect(() => {
+    detailCount.value = {
+      ...initDetailCount,
+      ...props.statusDetail,
+    };
   });
 
   const colorData = computed(() => {
-    if (
-      props.statusDetail.UNPENDING === 0 &&
-      props.statusDetail.RUNNING === 0 &&
-      props.statusDetail.ERROR === 0 &&
-      props.statusDetail.SUCCESS === 0
-    ) {
+    const { caseTotal, successCount, errorCount, fakeErrorCount, blockCount, pendingCount } = detailCount.value;
+    if (fakeErrorCount === 0 && blockCount === 0 && errorCount === 0 && successCount === 0 && pendingCount === 0) {
       return [
         {
           percentage: 100,
@@ -100,21 +99,33 @@
         },
       ];
     }
+    if (detailCount.value.passRate > detailCount.value.passThreshold) {
+      return [
+        {
+          percentage: 100,
+          color: 'rgb(var(--success-6))',
+        },
+      ];
+    }
     return [
       {
-        percentage: (props.statusDetail.SUCCESS / getCountTotal.value) * 100,
+        percentage: (successCount / caseTotal) * 100,
         color: 'rgb(var(--success-6))',
       },
       {
-        percentage: (props.statusDetail.ERROR / getCountTotal.value) * 100,
+        percentage: (errorCount / caseTotal) * 100,
         color: 'rgb(var(--danger-6))',
       },
       {
-        percentage: (props.statusDetail.RUNNING / getCountTotal.value) * 100,
+        percentage: (blockCount / caseTotal) * 100,
         color: 'rgb(var(--link-6))',
       },
       {
-        percentage: (props.statusDetail.UNPENDING / getCountTotal.value) * 100,
+        percentage: (fakeErrorCount / caseTotal) * 100,
+        color: 'rgb(var(--warning-6))',
+      },
+      {
+        percentage: (pendingCount / caseTotal) * 100,
         color: 'var(--color-text-input-border)',
       },
     ];

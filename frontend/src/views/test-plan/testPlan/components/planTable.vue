@@ -102,15 +102,22 @@
     <template #status="{ record }">
       <MsStatusTag :status="record.status" />
     </template>
+    <template #moduleId="{ record }">
+      <a-tooltip :content="getModules(record.moduleId, props.moduleTree)" position="top">
+        <span class="one-line-text inline-block">
+          {{ getModules(record.moduleId, props.moduleTree) }}
+        </span>
+      </a-tooltip>
+    </template>
 
-    <!-- <template #passRate="{ record }">
+    <template #passRate="{ record }">
       <div class="mr-[8px] w-[100px]">
-        <StatusProgress :status-detail="record.statusDetail" height="5px" />
+        <StatusProgress :status-detail="initDefaultCountDetailMap[record.id]" height="5px" />
       </div>
       <div class="text-[var(--color-text-1)]">
         {{ `${record.passRate || 0}%` }}
       </div>
-    </template> -->
+    </template>
     <template #passRateTitleSlot="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t(columnConfig.title as string) }}
@@ -122,17 +129,17 @@
         </a-tooltip>
       </div>
     </template>
-    <!-- <template #useCount="{ record }">
-      <a-popover position="bottom" content-class="p-[16px]" trigger="click">
-        <div>{{ record.useCaseCount.caseCount }}</div>
+    <template #functionalCaseCount="{ record }">
+      <a-popover position="bottom" content-class="p-[16px]" :disabled="record.functionalCaseCount < 1">
+        <div>{{ record.functionalCaseCount }}</div>
         <template #content>
-          <table class="min-w-[144px]">
+          <table class="min-w-[140px] max-w-[176px]">
             <tr>
               <td class="popover-label-td">
                 <div>{{ t('testPlan.testPlanIndex.TotalCases') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.useCaseCount.caseCount }}
+                {{ record.caseTotal }}
               </td>
             </tr>
             <tr>
@@ -140,7 +147,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.functionalUseCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.useCaseCount.caseCount }}
+                {{ record.functionalCaseCount }}
               </td>
             </tr>
             <tr>
@@ -148,7 +155,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.useCaseCount.caseCount }}
+                {{ record.apiCaseCount }}
               </td>
             </tr>
             <tr>
@@ -156,25 +163,41 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiScenarioCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.useCaseCount.caseCount }}
+                {{ record.apiScenarioCount }}
               </td>
             </tr>
           </table>
         </template>
       </a-popover>
-    </template> -->
+    </template>
 
     <template #operation="{ record }">
       <div class="flex items-center">
-        <MsButton class="!mx-0">{{ t('testPlan.testPlanIndex.execution') }}</MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
-
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']" class="!mx-0" @click="emit('edit', record.id)">{{
-          t('common.edit')
+        <MsButton v-if="record.functionalCaseCount > 0" class="!mx-0">{{
+          t('testPlan.testPlanIndex.execution')
         }}</MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
+        <a-divider v-if="record.functionalCaseCount > 0" direction="vertical" :margin="8"></a-divider>
 
-        <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
+        <MsButton
+          v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
+          class="!mx-0"
+          @click="emit('editOrCopy', record.id, false)"
+          >{{ t('common.edit') }}</MsButton
+        >
+        <a-divider direction="vertical" :margin="8"></a-divider>
+        <MsButton
+          v-if="record.functionalCaseCount < 1"
+          v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
+          class="!mx-0"
+          @click="emit('editOrCopy', record.id, true)"
+          >{{ t('common.copy') }}</MsButton
+        >
+        <a-divider v-if="record.functionalCaseCount < 1" direction="vertical" :margin="8"></a-divider>
+
+        <MsTableMoreAction
+          :list="getMoreActions(record.status, record.functionalCaseCount)"
+          @select="handleMoreActionSelect($event, record)"
+        />
       </div>
     </template>
   </MsBaseTable>
@@ -250,9 +273,11 @@
 
   import {
     archivedPlan,
+    batchArchivedPlan,
     batchCopyPlan,
     batchDeletePlan,
     batchMovePlan,
+    getPlanPassRate,
     getTestPlanDetail,
     getTestPlanList,
     getTestPlanModule,
@@ -264,13 +289,15 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
+  import { ModuleTreeNode } from '@/models/common';
+  import type { PassRateCountDetail, planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import { planStatusOptions } from '../config';
+  import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -284,11 +311,12 @@
     offspringIds: string[]; // 当前选中文件夹的所有子孙节点id
     modulesCount: Record<string, number>; // 模块数量
     nodeName: string; // 选中模块名称
+    moduleTree: ModuleTreeNode[];
   }>();
 
   const emit = defineEmits<{
     (e: 'init', params: any): void;
-    (e: 'edit', id: string): void;
+    (e: 'editOrCopy', id: string, isCopy: boolean): void;
   }>();
 
   const columns: MsTableColumn = [
@@ -355,9 +383,8 @@
     },
     {
       title: 'testPlan.testPlanIndex.useCount',
-      slotName: 'useCount',
-      dataIndex: 'useCount',
-      showTooltip: true,
+      slotName: 'functionalCaseCount',
+      dataIndex: 'functionalCaseCount',
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -373,8 +400,8 @@
     },
     {
       title: 'testPlan.testPlanIndex.belongModule',
-      slotName: 'moduleName',
-      dataIndex: 'moduleName',
+      slotName: 'moduleId',
+      dataIndex: 'moduleId',
       showInTable: true,
       showDrag: true,
       width: 200,
@@ -508,33 +535,44 @@
     ],
   };
 
-  const moreActions: ActionsItem[] = [
-    {
-      label: 'common.copy',
-      eventTag: 'copy',
-    },
-    // TODO 这个版本不上
-    // {
-    //   label: 'testPlan.testPlanIndex.createScheduledTask',
-    //   eventTag: 'createScheduledTask',
-    // },
-    // {
-    //   label: 'testPlan.testPlanIndex.configuration',
-    //   eventTag: 'config',
-    // },
+  const archiveActions: ActionsItem[] = [
     {
       label: 'common.archive',
       eventTag: 'archive',
     },
+  ];
+  const copyActions: ActionsItem[] = [
     {
-      isDivider: true,
-    },
-    {
-      label: 'common.delete',
-      danger: true,
-      eventTag: 'delete',
+      label: 'common.copy',
+      eventTag: 'copy',
     },
   ];
+
+  function getMoreActions(status: planStatusType, useCount: number) {
+    const copyAction = useCount > 0 ? copyActions : [];
+    if (status === 'COMPLETED' || status === 'ARCHIVED') {
+      return [
+        ...copyAction,
+        {
+          isDivider: true,
+        },
+        {
+          label: 'common.delete',
+          danger: true,
+          eventTag: 'delete',
+        },
+      ];
+    }
+    return [
+      ...copyAction,
+      ...archiveActions,
+      {
+        label: 'common.delete',
+        danger: true,
+        eventTag: 'delete',
+      },
+    ];
+  }
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getTestPlanList,
@@ -605,6 +643,19 @@
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
+  }
+
+  const initDefaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
+
+  async function getStatistics(selectedPlanIds: (string | undefined)[]) {
+    try {
+      const result = await getPlanPassRate(selectedPlanIds);
+      result.forEach((item: PassRateCountDetail) => {
+        initDefaultCountDetailMap.value[item.id] = item;
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async function fetchData() {
@@ -711,7 +762,18 @@
       },
       onBeforeOk: async () => {
         try {
-          const { selectedIds, selectAll, excludeIds } = batchParams.value;
+          await batchArchivedPlan({
+            selectIds: batchParams.value.selectedIds || [],
+            condition: {
+              keyword: keyword.value,
+              filter: propsRes.value.filter,
+              combine: batchParams.value.condition,
+            },
+            projectId: appStore.currentProjectId,
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+            type: showType.value,
+            moduleId: props.activeFolder,
+          });
           Message.success(t('common.batchArchiveSuccess'));
           fetchData();
         } catch (error) {
@@ -811,9 +873,9 @@
     }
   }
 
-  function deletePlan(record: TestPlanItem) {}
-
-  function copyHandler(record: TestPlanItem) {}
+  function copyHandler(record: TestPlanItem) {
+    emit('editOrCopy', record.id as string, true);
+  }
 
   const showScheduledTaskModal = ref<boolean>(false);
   function handleScheduledTask() {
@@ -821,7 +883,7 @@
   }
 
   const showStatusDeleteModal = ref<boolean>(false);
-  const activeRecord = ref<TestPlanItem>();
+  const activeRecord = ref<TestPlanItem | undefined>();
   function deleteStatusHandler(record: TestPlanItem) {
     activeRecord.value = cloneDeep(record);
     showStatusDeleteModal.value = true;
@@ -884,19 +946,6 @@
   //   return expandedKeys.value.includes(record.id) ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]';
   // }
 
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      statusFilterVisible.value = false;
-      fetchData();
-    }
-  }
-
-  function resetStatusFilter() {
-    statusFilterVisible.value = false;
-    statusFilters.value = [];
-    fetchData();
-  }
-
   /** *
    * 高级检索
    */
@@ -925,6 +974,25 @@
   onBeforeMount(() => {
     fetchData();
   });
+
+  const planData = computed(() => {
+    return propsRes.value.data;
+  });
+
+  watch(
+    () => planData.value,
+    (val) => {
+      if (val) {
+        const selectedPlanIds: (string | undefined)[] = propsRes.value.data.map((e) => e.id) || [];
+        if (selectedPlanIds.length) {
+          getStatistics(selectedPlanIds);
+        }
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
 
   defineExpose({
     fetchData,

@@ -5,12 +5,11 @@
     :get-modules-func="getCaseModuleTree"
     :get-table-func="getCaseList"
     :confirm-loading="confirmLoading"
-    :associated-ids="[]"
+    :associated-ids="props.hasNotAssociatedIds || []"
     :project-id="currentProjectId"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
     hide-project-select
     is-hidden-case-level
-    :has-not-associated-ids="props.hasNotAssociatedIds"
     @save="saveHandler"
   >
   </MsCaseAssociate>

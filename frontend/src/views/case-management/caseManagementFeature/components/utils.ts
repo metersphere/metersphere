@@ -1,4 +1,5 @@
 import type { FormItem } from '@/components/pure/ms-form-create/types';
+import type { MsTableColumn } from '@/components/pure/ms-table/type';
 import { MsTableColumnData } from '@/components/pure/ms-table/type';
 import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -252,4 +253,23 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
       },
     };
   }) as FormItem[];
+}
+
+export function makeColumns(optionsMap: Record<string, any>, columnData: MsTableColumn) {
+  // const optionsMap: Record<string, any> = {
+  //   status: statusFilterOptions.value,
+  //   handleUser: handleUserFilterOptions.value,
+  // };
+  return columnData.map((e) => {
+    if (Object.prototype.hasOwnProperty.call(optionsMap, e.dataIndex as string)) {
+      return {
+        ...e,
+        filterConfig: {
+          ...e.filterConfig,
+          options: optionsMap[e.dataIndex as string],
+        },
+      };
+    }
+    return { ...e };
+  });
 }
