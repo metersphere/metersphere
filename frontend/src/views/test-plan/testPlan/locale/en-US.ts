@@ -89,4 +89,9 @@ export default {
   'testPlan.featureCase.executor': 'Executor',
   'testPlan.featureCase.changeExecutor': 'Change executor',
   'testPlan.featureCase.sort': 'sort',
+  'testPlan.featureCase.disassociateTip': 'Are you sure to cancel the association {name}? ',
+  'testPlan.featureCase.disassociateTipContent':
+    'After cancellation, it will affect the statistics related to the test plan',
+  'testPlan.featureCase.batchDisassociateTipContent':
+    ' After cancellation, associate again, and the execution result is unexecuted',
 };

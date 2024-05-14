@@ -46,14 +46,23 @@
         </a-select>
         <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
       </template>
-      <template #operation>
+      <template #operation="{ record }">
         <MsButton v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']" type="text" class="!mr-0">
           {{ t('common.execute') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="text" class="!mr-0">
-          {{ t('common.cancelLink') }}
-        </MsButton>
+        <MsPopconfirm
+          :title="t('testPlan.featureCase.disassociateTip', { name: record.name })"
+          :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
+          :ok-text="t('common.confirm')"
+          :loading="disassociateLoading"
+          type="error"
+          @confirm="(val, done) => handleDisassociateCase(record, done)"
+        >
+          <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="text" class="!mr-0">
+            {{ t('common.cancelLink') }}
+          </MsButton>
+        </MsPopconfirm>
         <!-- TODO: 修改permission -->
         <a-divider
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
@@ -71,16 +80,23 @@
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
-  import { getPlanDetailFeatureCaseList } from '@/api/modules/test-plan/testPlan';
+  import {
+    batchDisassociateCase,
+    disassociateCase,
+    getPlanDetailFeatureCaseList,
+  } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
@@ -106,7 +122,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'init', params: PlanDetailFeatureCaseListQueryParams): void;
+    (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
   }>();
 
   const { t } = useI18n();
@@ -114,8 +130,13 @@
   const router = useRouter();
   const appStore = useAppStore();
   const tableStore = useTableStore();
+  const { openModal } = useModal();
 
   const keyword = ref('');
+  const tableParams = ref<PlanDetailFeatureCaseListQueryParams>({
+    testPlanId: props.planId,
+    projectId: appStore.currentProjectId,
+  });
 
   // TODO: 复制的Permission
   const hasOperationPermission = computed(() =>
@@ -236,10 +257,6 @@
         permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
       },
       {
-        label: 'testPlan.featureCase.sort',
-        eventTag: 'sort',
-      },
-      {
         label: 'testPlan.featureCase.changeExecutor',
         eventTag: 'changeExecutor',
       },
@@ -261,25 +278,6 @@
     ],
   };
 
-  const tableSelected = ref<(string | number)[]>([]); // 表格选中的
-  const batchParams = ref<BatchActionQueryParams>({
-    selectedIds: [],
-    selectAll: false,
-    excludeIds: [],
-    currentSelectCount: 0,
-  });
-  // 处理表格选中后批量操作
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params?.selectedIds || [];
-    batchParams.value = params;
-    switch (event.eventTag) {
-      case 'execute':
-        break;
-      default:
-        break;
-    }
-  }
-
   async function getModuleIds() {
     let moduleIds: string[] = [];
     if (props.activeModule !== 'all') {
@@ -293,16 +291,16 @@
   }
   async function loadCaseList() {
     const selectModules = await getModuleIds();
-    const params: PlanDetailFeatureCaseListQueryParams = {
+    tableParams.value = {
       testPlanId: props.planId,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
       keyword: keyword.value,
     };
-    setLoadListParams(params);
+    setLoadListParams(tableParams.value);
     loadList();
-    emit('init', {
-      ...params,
+    emit('getModuleCount', {
+      ...tableParams.value,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
@@ -310,6 +308,90 @@
   onBeforeMount(() => {
     loadCaseList();
   });
+  watch(
+    () => props.activeModule,
+    () => {
+      loadCaseList();
+    }
+  );
+
+  const tableSelected = ref<(string | number)[]>([]); // 表格选中的
+  const batchParams = ref<BatchActionQueryParams>({
+    selectIds: [],
+    selectAll: false,
+    excludeIds: [],
+    condition: {},
+    currentSelectCount: 0,
+  });
+
+  function resetCaseList() {
+    resetSelector();
+    emit('getModuleCount', {
+      ...tableParams.value,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+    });
+    loadList();
+  }
+
+  // 批量取消关联用例
+  function handleBatchDisassociateCase() {
+    openModal({
+      type: 'warning',
+      title: t('caseManagement.caseReview.disassociateConfirmTitle', { count: batchParams.value.currentSelectCount }),
+      content: t('testPlan.featureCase.batchDisassociateTipContent'),
+      okText: t('common.cancelLink'),
+      cancelText: t('common.cancel'),
+      onBeforeOk: async () => {
+        try {
+          await batchDisassociateCase({
+            ...batchParams.value,
+            ...tableParams.value,
+          });
+          Message.success(t('common.updateSuccess'));
+          resetCaseList();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  // 处理表格选中后批量操作
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    tableSelected.value = params?.selectedIds || [];
+    batchParams.value = params;
+    switch (event.eventTag) {
+      case 'execute':
+        break;
+      case 'disassociate':
+        handleBatchDisassociateCase();
+        break;
+      default:
+        break;
+    }
+  }
+
+  // 取消关联
+  const disassociateLoading = ref(false);
+  async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
+    try {
+      disassociateLoading.value = true;
+      await disassociateCase({ testPlanId: props.planId, id: record.id });
+      if (done) {
+        done();
+      }
+      Message.success(t('common.unLinkSuccess'));
+      resetCaseList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      disassociateLoading.value = false;
+    }
+  }
 
   // 去用例详情页面
   function toCaseDetail(record: PlanDetailFeatureCaseItem) {

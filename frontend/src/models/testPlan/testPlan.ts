@@ -1,3 +1,5 @@
+import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { LastExecuteResults } from '@/enums/caseEnum';
@@ -147,6 +149,15 @@ export interface PlanDetailFeatureCaseItem {
 export interface PlanDetailFeatureCaseListQueryParams extends TableQueryParams {
   testPlanId: string;
   projectId: string;
+}
+export interface DisassociateCaseParams {
+  testPlanId: string;
+  id: string;
+}
+
+export interface BatchFeatureCaseParams extends BatchActionQueryParams {
+  testPlanId: string;
+  moduleIds?: string[];
 }
 
 export default {};
