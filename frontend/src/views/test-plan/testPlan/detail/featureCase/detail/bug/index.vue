@@ -53,7 +53,7 @@
     </div>
     <BugList
       ref="bugTableListRef"
-      :case-id="props.caseId || '653745575542786'"
+      :case-id="props.caseId"
       :keyword="keyword"
       :bug-total="total"
       :bug-columns="columns"
@@ -63,11 +63,11 @@
     />
     <LinkDefectDrawer
       v-model:visible="showLinkDrawer"
-      :case-id="props.caseId || '653745575542786'"
+      :case-id="props.caseId"
       :drawer-loading="drawerLoading"
       @save="saveHandler"
     />
-    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId || '653745575542786'" @success="initData()" />
+    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId" @success="initData()" />
   </div>
 </template>
 
