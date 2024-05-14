@@ -959,6 +959,13 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
+        key: 'TEST_PLAN_REPORT', // 测试计划报告
+        locale: 'menu.apiTest.report',
+        route: RouteEnum.TEST_PLAN_REPORT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
         key: 'TEST_PLAN_INDEX_DETAIL', // 测试计划-测试计划-测试计划详情
         locale: 'menu.testPlan.testPlanDetail',
         route: RouteEnum.TEST_PLAN_INDEX_DETAIL,
