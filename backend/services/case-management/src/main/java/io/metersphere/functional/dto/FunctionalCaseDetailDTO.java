@@ -68,6 +68,15 @@ public class FunctionalCaseDetailDTO implements Serializable {
     @Schema(description =  "创建时间")
     private Long createTime;
 
+    @Schema(description =  "更新人")
+    private String updateUser;
+
+    @Schema(description =  "更新人姓名")
+    private String updateUserName;
+
+    @Schema(description =  "更新时间")
+    private Long updateTime;
+
     @Schema(description =  "用例步骤（JSON)，step_model 为 Step 时启用")
     private String steps;
 
