@@ -268,7 +268,7 @@
             bug_relation_case
                 INNER JOIN bug ON bug.id = bug_relation_case.bug_id
         WHERE
-            bug_relation_case.case_id IN
+            bug_relation_case.test_plan_case_id IN
             <foreach collection="ids" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>

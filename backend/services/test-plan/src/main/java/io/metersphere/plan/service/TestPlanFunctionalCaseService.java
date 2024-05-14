@@ -175,7 +175,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<String> ids = functionalCaseLists.stream().map(TestPlanCasePageResponse::getCaseId).collect(Collectors.toList());
         Map<String, List<FunctionalCaseCustomFieldDTO>> collect = functionalCaseService.getCaseCustomFiledMap(ids, projectId);
         Set<String> userIds = extractUserIds(functionalCaseLists);
-        Map<String, List<CaseRelateBugDTO>> bugListMap = getBugData(ids);
+        List<String> relateIds = functionalCaseLists.stream().map(TestPlanCasePageResponse::getId).collect(Collectors.toList());
+        Map<String, List<CaseRelateBugDTO>> bugListMap = getBugData(relateIds);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         functionalCaseLists.forEach(testPlanCasePageResponse -> {
             testPlanCasePageResponse.setCustomFields(collect.get(testPlanCasePageResponse.getCaseId()));
