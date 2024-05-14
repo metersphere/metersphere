@@ -24,15 +24,17 @@
 
   const iconTypeStatus: Record<string, any> = {
     [ReportStatusEnum.REPORT_STATUS]: {
-      RUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'report.status.running',
-        color: '!text-[rgb(var(--link-6))]',
+      SUCCESS: {
+        icon: 'icon-icon_succeed_colorful',
+        label: 'report.successful',
       },
-      PENDING: {
-        icon: 'icon-icon_block_filled',
-        label: 'report.status.pending',
-        color: '!text-[var(--color-text-input-border)]',
+      ERROR: {
+        icon: 'icon-icon_close_colorful',
+        label: 'report.failure',
+      },
+      FAKE_ERROR: {
+        icon: 'icon-icon_warning_colorful',
+        label: 'report.fake.error',
       },
       DEFAULT: {
         icon: 'icon-icon_block_filled',
@@ -65,10 +67,8 @@
   };
 
   function getExecutionResult(): IconType {
-    if (props.status in iconTypeStatus[props.moduleType]) {
-      return iconTypeStatus[props.moduleType][props.status];
-    }
-    return iconTypeStatus[props.moduleType].DEFAULT;
+    const moduleConfig = iconTypeStatus[props.moduleType];
+    return moduleConfig?.[props.status] ?? moduleConfig?.DEFAULT;
   }
 </script>
 

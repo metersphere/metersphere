@@ -9,17 +9,17 @@ export function reportList(data: TableQueryParams) {
 }
 
 // 删除报告
-export function reportDelete(moduleType: string, id: string) {
+export function reportDelete(id: string) {
   return MSR.get({ url: `${reportUrl.PlanDeleteUrl}/${id}` });
 }
 
 // 重命名
-export function reportRename(moduleType: string, id: string, data: string) {
+export function reportRename(id: string, data: string) {
   return MSR.post({ url: `${reportUrl.PlanReportRenameUrl}/${id}`, data });
 }
 
 // 批量删除
-export function reportBathDelete(moduleType: string, data: TableQueryParams) {
+export function reportBathDelete(data: TableQueryParams) {
   return MSR.post({ url: reportUrl.PlanBatchDeleteUrl, data });
 }
 
