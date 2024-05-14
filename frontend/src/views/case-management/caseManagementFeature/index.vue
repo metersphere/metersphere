@@ -105,7 +105,7 @@
         </div>
       </template>
       <template #second>
-        <div class="p-[16px_16px]">
+        <div class="h-full p-[16px_16px]">
           <CaseTable
             ref="caseTableRef"
             :active-folder="activeFolder"

@@ -173,4 +173,6 @@ export default {
   'common.executionResult': '执行结果',
   'common.detail': '详情',
   'common.baseInfo': '基本信息',
+  'common.remark': '备注',
+  'common.case': '用例',
 };

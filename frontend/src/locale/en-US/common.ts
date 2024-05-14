@@ -170,4 +170,6 @@ export default {
   'common.unPass': 'Fail pass',
   'common.belongModule': 'Belong module',
   'common.moreSetting': 'More settings',
+  'common.remark': 'Remark',
+  'common.case': 'Case',
 };

@@ -1,5 +1,5 @@
 <template>
-  <div ref="mec" class="minder-container" :style="{ height: `${props.height}px` }">
+  <div ref="mec" class="minder-container">
     <a-button type="primary" :disabled="props.disabled" class="save-btn bottom-[30px] right-[30px]" @click="save">
       {{ t('minder.main.main.save') }}
     </a-button>
@@ -92,13 +92,13 @@
   import useMinderStore from '@/store/modules/components/minder-editor';
   import { findNodePathByKey } from '@/utils';
 
-  import { editMenuProps, mainEditorProps, priorityProps, tagProps } from '../props';
+  import { editMenuProps, insertProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
   import Editor from '../script/editor';
   import { markChangeNode, markDeleteNode } from '../script/tool/utils';
   import type { Ref } from 'vue';
 
   const { t } = useI18n();
-  const props = defineProps({ ...editMenuProps, ...mainEditorProps, ...tagProps, ...priorityProps });
+  const props = defineProps({ ...editMenuProps, ...insertProps, ...mainEditorProps, ...tagProps, ...priorityProps });
 
   const emit = defineEmits({
     afterMount: () => ({}),
@@ -246,6 +246,17 @@
     }
   );
 
+  function execInsertCommand(command: string) {
+    const node: MinderJsonNode = window.minder.getSelectedNode();
+    if (props.insertNode) {
+      props.insertNode(node, command);
+      return;
+    }
+    if (window.minder.queryCommandState(command) !== -1) {
+      window.minder.execCommand(command);
+    }
+  }
+
   function handleMinderMenuSelect(val: string | number | Record<string, any> | undefined) {
     const selectedNode = window.minder.getSelectedNode();
     switch (val) {
@@ -257,13 +268,13 @@
         }
         break;
       case 'insetParent':
-        window.minder.execCommand('AppendParentNode');
+        execInsertCommand('AppendParentNode');
         break;
       case 'insetSon':
-        window.minder.execCommand('AppendChildNode');
+        execInsertCommand('AppendChildNode');
         break;
       case 'insetBrother':
-        window.minder.execCommand('AppendSiblingNode');
+        execInsertCommand('AppendSiblingNode');
         break;
       case 'copy':
         window.minder.execCommand('Copy');
@@ -292,7 +303,9 @@
     @apply !absolute;
   }
   .minder-container {
-    @apply relative;
+    @apply relative !bg-white;
+
+    height: calc(100% - 60px);
   }
   .minder-dropdown {
     .arco-dropdown-list-wrapper {
