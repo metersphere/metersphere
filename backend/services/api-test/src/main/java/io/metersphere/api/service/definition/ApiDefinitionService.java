@@ -2,7 +2,6 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionDocType;
-import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
@@ -26,7 +25,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ApiReportStatus;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
@@ -441,13 +440,13 @@ public class ApiDefinitionService extends MoveNodeService {
     private void processApiDefinitions(List<ApiDefinitionDTO> list, String projectId) {
         Set<String> userIds = extractUserIds(list);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
-        List<String> apiDefinitionIds = list.stream().map(ApiDefinitionDTO::getId).toList();
+      /*  List<String> apiDefinitionIds = list.stream().map(ApiDefinitionDTO::getId).toList();
         List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(apiDefinitionIds, projectId);
         Map<String, ApiCaseComputeDTO> resultMap = apiCaseComputeList.stream().collect(Collectors.toMap(ApiCaseComputeDTO::getApiDefinitionId, Function.identity()));
 
         List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(apiDefinitionIds, projectId);
         Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
-
+*/
         list.forEach(item -> {
             // Convert User IDs to Names
             item.setCreateUserName(userMap.get(item.getCreateUser()));
@@ -455,7 +454,7 @@ public class ApiDefinitionService extends MoveNodeService {
             item.setUpdateUserName(userMap.get(item.getUpdateUser()));
 
             // Custom Fields
-            item.setCustomFields(customFieldMap.get(item.getId()));
+            /*item.setCustomFields(customFieldMap.get(item.getId()));
 
             // Calculate API Case Metrics
             ApiCaseComputeDTO apiCaseComputeDTO = resultMap.get(item.getId());
@@ -476,7 +475,7 @@ public class ApiDefinitionService extends MoveNodeService {
                 item.setCaseTotal(0);
                 item.setCasePassRate("-");
                 item.setCaseStatus("-");
-            }
+            }*/
         });
     }
 

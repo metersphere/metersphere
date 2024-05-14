@@ -58,10 +58,10 @@ public class BugEditRequest implements Serializable {
     @Schema(description = "用例ID")
     private String caseId;
 
-    @Schema(description = "测试计划ID")
+    @Schema(description = "测试计划ID,通过测试计划创建的必填")
     private String testPlanId;
 
-    @Schema(description = "测试计划管理的用例ID")
+    @Schema(description = "测试计划关联的用例ID, 通过测试计划创建的必填，值是关联的id而不是用例id")
     private String testPlanCaseId;
 
     @Schema(description = "复制的附件")
