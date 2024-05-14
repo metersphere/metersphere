@@ -101,6 +101,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
     @Resource
+    private ExtTestPlanCaseExecuteHistoryMapper extTestPlanCaseExecuteHistoryMapper;
+    @Resource
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
     @Resource
     private TestPlanSendNoticeService testPlanSendNoticeService;
@@ -140,7 +142,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         BugRelationCaseExample example = new BugRelationCaseExample();
         example.createCriteria().andTestPlanCaseIdIn(associationParam.getResourceIdList());
         bugRelationCaseMapper.deleteByExample(example);
-        //TODO:更新执行历史的删除状态为true
+        extTestPlanCaseExecuteHistoryMapper.updateDeleted(associationParam.getResourceIdList(), true);
     }
 
     public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {

@@ -25,4 +25,8 @@ public class TestPlanCaseExecuteHistoryDTO extends TestPlanCaseExecuteHistory {
     @Schema(description =  "测试计划名称")
     private String testPlanName;
 
+    @Schema(description =  "测试计划id")
+    private String testPlanId;
+
+
 }
