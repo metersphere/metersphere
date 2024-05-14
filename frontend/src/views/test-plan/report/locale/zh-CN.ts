@@ -17,7 +17,7 @@ export default {
   'report.status.running': '执行中',
   'report.status.rerunning': '重跑中',
   'report.status.pending': '未执行',
-  'report.stopped': '停止',
+  'report.stopped': '已停止',
   'report.trigger.scheduled': '定时执行',
   'report.trigger.manual': '手动执行',
   'report.trigger.interface': 'API 执行',

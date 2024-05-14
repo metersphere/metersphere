@@ -1,6 +1,6 @@
 <template>
   <div class="p-[16px]">
-    <div class="flex items-center justify-between">
+    <div class="mb-4 flex items-center justify-between">
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
         <a-radio value="All">{{ t('report.all') }}</a-radio>
         <a-radio value="INDEPENDENT">{{ t('report.independent') }}</a-radio>
@@ -137,7 +137,7 @@
                   size="small"
                 >
                   <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="moduleType" :status="key" />
+                    <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="key" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -179,7 +179,7 @@
                   size="small"
                 >
                   <a-checkbox v-for="key of execStatusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="moduleType" :status="key" />
+                    <ExecutionStatus :module-type="ReportStatusEnum.EXEC_STATUS" :status="key" />
                   </a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -196,7 +196,7 @@
         </a-trigger>
       </template>
       <template #status="{ record }">
-        <ExecutionStatus :module-type="moduleType" :status="record.status" />
+        <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="record.status" />
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
@@ -247,7 +247,6 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const { t } = useI18n();
-  const moduleType = ReportStatusEnum.REPORT_STATUS;
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
   const execStatusFilterVisible = ref(false);
@@ -375,7 +374,7 @@
 
   const rename = async (record: any) => {
     try {
-      await reportRename(moduleType, record.id, record.name);
+      await reportRename(record.id, record.name);
       Message.success(t('common.updateSuccess'));
       return true;
     } catch (error) {
@@ -391,7 +390,7 @@
       },
       showSetting: true,
       selectable: hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+DELETE']),
-      heightUsed: 230,
+      heightUsed: 242,
       paginationSize: 'mini',
       showSelectorAll: true,
     },
@@ -461,7 +460,7 @@
     setLoadListParams({
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleType,
+
       filter: {
         status: statusListFiltersMap.value[showType.value],
         integrated: integratedFilters.value,
@@ -517,7 +516,7 @@
       },
       onBeforeOk: async () => {
         try {
-          await reportBathDelete(moduleType, batchParams.value);
+          await reportBathDelete(batchParams.value);
           Message.success(t('apiTestDebug.deleteSuccess'));
           resetSelector();
           initData();
@@ -546,7 +545,7 @@
       },
       onBeforeOk: async () => {
         try {
-          await reportDelete(moduleType, id);
+          await reportDelete(id);
           Message.success(t('apiTestDebug.deleteSuccess'));
           initData();
         } catch (error) {
@@ -616,16 +615,6 @@
   function showReportDetail(id: string, rowIndex: number) {
     // 待处理
   }
-
-  watch(
-    () => moduleType,
-    (val) => {
-      if (val) {
-        resetSelector();
-        initData();
-      }
-    }
-  );
 </script>
 
 <style lang="less" scoped>
