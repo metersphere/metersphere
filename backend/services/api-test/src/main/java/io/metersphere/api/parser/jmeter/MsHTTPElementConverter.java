@@ -380,7 +380,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
             if (match) {
                 // 如果是mock 返回的url格式是 /mock-server/projectNum/apiNum
                 if (BooleanUtils.isTrue(envConfig.getMock())) {
-                    httpConfig.setHostname(StringUtils.join(httpConfig.getHostname(), "/", msHTTPElement.getNum(), StringUtils.isNotBlank(msHTTPElement.getMockNum()) ? "/" + msHTTPElement.getMockNum() : StringUtils.EMPTY));
+                    httpConfig.setHostname(StringUtils.join(httpConfig.getHostname(), "/", msHTTPElement.getNum()));
                 }
                 return httpConfig;
             }
