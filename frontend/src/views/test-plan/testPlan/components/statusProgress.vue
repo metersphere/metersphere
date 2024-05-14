@@ -69,7 +69,7 @@
 
   import MsColorLine from '@/components/pure/ms-color-line/index.vue';
 
-  import { initDetailCount } from '@/config/testPlan';
+  import { defaultDetailCount } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { PassRateCountDetail } from '@/models/testPlan/testPlan';
@@ -81,10 +81,10 @@
   }>();
   const { t } = useI18n();
 
-  const detailCount = ref({ ...initDetailCount });
+  const detailCount = ref({ ...defaultDetailCount });
   watchEffect(() => {
     detailCount.value = {
-      ...initDetailCount,
+      ...defaultDetailCount,
       ...props.statusDetail,
     };
   });

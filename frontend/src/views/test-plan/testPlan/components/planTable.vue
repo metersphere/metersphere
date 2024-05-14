@@ -112,7 +112,7 @@
 
     <template #passRate="{ record }">
       <div class="mr-[8px] w-[100px]">
-        <StatusProgress :status-detail="initDefaultCountDetailMap[record.id]" height="5px" />
+        <StatusProgress :status-detail="defaultCountDetailMap[record.id]" height="5px" />
       </div>
       <div class="text-[var(--color-text-1)]">
         {{ `${record.passRate || 0}%` }}
@@ -645,13 +645,13 @@
     });
   }
 
-  const initDefaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
+  const defaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
 
   async function getStatistics(selectedPlanIds: (string | undefined)[]) {
     try {
       const result = await getPlanPassRate(selectedPlanIds);
       result.forEach((item: PassRateCountDetail) => {
-        initDefaultCountDetailMap.value[item.id] = item;
+        defaultCountDetailMap.value[item.id] = item;
       });
     } catch (error) {
       console.log(error);
@@ -883,7 +883,7 @@
   }
 
   const showStatusDeleteModal = ref<boolean>(false);
-  const activeRecord = ref<TestPlanItem | undefined>();
+  const activeRecord = ref<TestPlanItem>();
   function deleteStatusHandler(record: TestPlanItem) {
     activeRecord.value = cloneDeep(record);
     showStatusDeleteModal.value = true;

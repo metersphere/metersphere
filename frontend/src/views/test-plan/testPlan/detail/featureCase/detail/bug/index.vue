@@ -53,7 +53,7 @@
     </div>
     <BugList
       ref="bugTableListRef"
-      :case-id="props.caseId"
+      :case-id="props.caseId || '653745575542786'"
       :keyword="keyword"
       :bug-total="total"
       :bug-columns="columns"
@@ -63,11 +63,11 @@
     />
     <LinkDefectDrawer
       v-model:visible="showLinkDrawer"
-      :case-id="props.caseId"
+      :case-id="props.caseId || '653745575542786'"
       :drawer-loading="drawerLoading"
       @save="saveHandler"
     />
-    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId" @success="initData()" />
+    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId || '653745575542786'" @success="initData()" />
   </div>
 </template>
 
@@ -100,7 +100,7 @@
 
   const keyword = ref<string>('');
 
-  const columns: MsTableColumn = [
+  const columns = ref<MsTableColumn>([
     {
       title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'num',
@@ -164,7 +164,7 @@
       showInTable: true,
       showDrag: false,
     },
-  ];
+  ]);
 
   const bugTableListRef = ref();
 
@@ -241,8 +241,7 @@
         status: statusFilterOptions.value,
         handleUser: handleUserFilterOptions.value,
       };
-      const columnList = makeColumns(optionsMap, columns);
-      bugTableListRef.value.bugTableRef.initColumn(columnList);
+      columns.value = makeColumns(optionsMap, columns.value);
     }
   }
 

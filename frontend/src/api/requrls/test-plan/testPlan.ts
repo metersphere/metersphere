@@ -30,7 +30,7 @@ export const archivedPlanUrl = '/test-plan/archived';
 export const batchCopyPlanUrl = '/test-plan/batch-copy';
 // 批量移动
 export const batchMovePlanUrl = '/test-plan/batch/move';
-// 批量移动
+// 批量归档
 export const batchArchivedPlanUrl = '/test-plan/batch-archived';
 // 计划详情缺陷管理列表
 export const planDetailBugPageUrl = '/test-plan/bug/page';

@@ -56,7 +56,6 @@ export interface AddTestPlanParams {
   functionalCaseCount?: number;
 }
 
-// TODO: 对照后端字段
 export interface TestPlanDetail extends AddTestPlanParams {
   num: number;
   groupName?: string;

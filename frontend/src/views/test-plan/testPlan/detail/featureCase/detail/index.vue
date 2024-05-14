@@ -81,7 +81,8 @@
         />
         <div class="tab-content">
           <BugList v-if="activeTab === 'defectList'" :case-id="caseDetail.id" />
-          <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" />
+          <!-- TODO 待写页面 还未提交 -->
+          <!-- <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" /> -->
         </div>
       </a-spin>
     </div>
@@ -98,8 +99,8 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugList from './bug/index.vue';
-  import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
+  // import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
   import { getPlanDetailFeatureCaseList } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
