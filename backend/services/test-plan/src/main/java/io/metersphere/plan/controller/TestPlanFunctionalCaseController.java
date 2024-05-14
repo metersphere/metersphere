@@ -8,6 +8,7 @@ import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
+import io.metersphere.plan.service.TestPlanCaseLogService;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.request.AssociateBugPageRequest;
@@ -148,5 +149,16 @@ public class TestPlanFunctionalCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.hasAssociateBugPage(request));
     }
+
+
+    @PostMapping("/batch/update/executor")
+    @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanCaseLogService.class)
+    public void batchUpdateExecutor(@Validated @RequestBody TestPlanCaseUpdateRequest request) {
+        testPlanFunctionalCaseService.batchUpdateExecutor(request);
+    }
+
 
 }

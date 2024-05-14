@@ -302,7 +302,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 this::deleteTestPlanResource);
     }
 
-    private List<String> doSelectIds(BasePlanCaseBatchRequest request) {
+    public List<String> doSelectIds(BasePlanCaseBatchRequest request) {
         if (request.isSelectAll()) {
             List<String> ids = extTestPlanFunctionalCaseMapper.getIds(request, false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
@@ -411,7 +411,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
 
-
     /**
      * 批量执行功能用例
      *
@@ -419,7 +418,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param logInsertModule
      */
     public void batchRun(TestPlanCaseBatchRunRequest request, String organizationId, LogInsertModule logInsertModule) {
-        List<String> ids = doSelectIds(request, request.getProjectId());
+        List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleBatchRun(ids, organizationId, request, logInsertModule);
         }
@@ -488,19 +487,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
 
-    public List<String> doSelectIds(BasePlanCaseBatchRequest request, String projectId) {
-        if (request.isSelectAll()) {
-            List<String> ids = extTestPlanFunctionalCaseMapper.selectIdByConditions(request, projectId);
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                ids.removeAll(request.getExcludeIds());
-            }
-            return ids;
-        } else {
-            return request.getSelectIds();
-        }
-    }
-
-
     public List<LogDTO> runLog(Map<String, String> idsMap, List<String> caseIds, String projectId, String organizationId, ResourceLogInsertModule logInsertModule) {
         FunctionalCaseExample example = new FunctionalCaseExample();
         example.createCriteria().andIdIn(caseIds);
@@ -522,5 +508,18 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             list.add(dto);
         });
         return list;
+    }
+
+
+    /**
+     * 批量更新执行人
+     *
+     * @param request
+     */
+    public void batchUpdateExecutor(TestPlanCaseUpdateRequest request) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            extTestPlanFunctionalCaseMapper.batchUpdateExecutor(ids, request.getUserId());
+        }
     }
 }

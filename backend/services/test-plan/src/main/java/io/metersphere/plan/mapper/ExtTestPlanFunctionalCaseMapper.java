@@ -48,7 +48,7 @@ public interface ExtTestPlanFunctionalCaseMapper {
      */
     List<TestPlanFunctionalCase> getPlanFunctionalCaseByIds(@Param("planIds") List<String> planIds);
 
-    List<String> selectIdByConditions(@Param("request") BasePlanCaseBatchRequest request, @Param("projectId") String projectId);
-
     void batchUpdate(@Param("ids") List<String> ids, @Param("lastExecResult") String lastExecResult, @Param("lastExecTime") long lastExecTime, @Param("userId") String userId);
+
+    void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 }
