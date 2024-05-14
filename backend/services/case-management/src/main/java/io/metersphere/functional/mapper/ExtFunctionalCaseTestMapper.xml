@@ -91,6 +91,7 @@
         u.name as userName,
         ux.avatar as userLogo,
         tp.name as testPlanName,
+        tp.id as testPlanId,
         u.email as email
         FROM
         test_plan_case_execute_history tpceh
