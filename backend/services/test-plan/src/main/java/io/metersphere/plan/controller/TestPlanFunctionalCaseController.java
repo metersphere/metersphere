@@ -88,7 +88,7 @@ public class TestPlanFunctionalCaseController {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         BasePlanCaseBatchRequest batchRequest = new BasePlanCaseBatchRequest();
         batchRequest.setTestPlanId(request.getTestPlanId());
-        batchRequest.setSelectIds(List.of(request.getRefId()));
+        batchRequest.setSelectIds(List.of(request.getId()));
         return testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
     }
 
@@ -129,7 +129,16 @@ public class TestPlanFunctionalCaseController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
-        testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+        testPlanFunctionalCaseService.run(request, SessionUtils.getCurrentOrganizationId(), new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+    }
+
+
+    @PostMapping("/batch/run")
+    @Operation(summary = "测试计划-计划详情-功能用例-批量执行")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public void batchRun(@Validated @RequestBody TestPlanCaseBatchRunRequest request) {
+        testPlanFunctionalCaseService.batchRun(request, SessionUtils.getCurrentOrganizationId(), new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/run", HttpMethodConstants.POST.name()));
     }
 
     @PostMapping("/has/associate/bug/page")

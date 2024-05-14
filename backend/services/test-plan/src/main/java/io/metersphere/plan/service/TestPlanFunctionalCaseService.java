@@ -9,11 +9,14 @@ import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
@@ -44,11 +47,13 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -107,6 +112,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
     @Resource
     private TestPlanSendNoticeService testPlanSendNoticeService;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private OperationLogService operationLogService;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
     @Override
@@ -363,7 +372,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param request
      * @param logInsertModule
      */
-    public void run(TestPlanCaseRunRequest request, LogInsertModule logInsertModule) {
+    public void run(TestPlanCaseRunRequest request, String organizationId, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase functionalCase = new TestPlanFunctionalCase();
         functionalCase.setLastExecResult(request.getLastExecResult());
         functionalCase.setLastExecTime(System.currentTimeMillis());
@@ -375,26 +384,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
         testPlanCaseExecuteHistoryMapper.insert(executeHistory);
 
-        //富文本评论的处理
-        functionalCaseAttachmentService.uploadMinioFile(request.getCaseId(), request.getProjectId(), request.getPlanCommentFileIds(), logInsertModule.getOperator(), CaseFileSourceType.PLAN_COMMENT.toString());
-
-        //发通知
-        if (StringUtils.isNotBlank(request.getNotifier())) {
-            List<String> relatedUsers = Arrays.asList(request.getNotifier().split(";"));
-            testPlanSendNoticeService.sendNoticeCase(relatedUsers, logInsertModule.getOperator(), request.getCaseId(), NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.REVIEW_AT, request.getTestPlanId());
-        }
-
-        if (StringUtils.equalsIgnoreCase(request.getLastExecResult(), FunctionalCaseExecuteResult.SUCCESS.name())) {
-            //成功 发送通知
-            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), logInsertModule.getOperator(), request.getCaseId(), NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_PASSED, request.getTestPlanId());
-        }
-
-        if (StringUtils.equalsIgnoreCase(request.getLastExecResult(), FunctionalCaseExecuteResult.ERROR.name())) {
-            //失败 发送通知
-            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), logInsertModule.getOperator(), request.getCaseId(), NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_FAIL, request.getTestPlanId());
-        }
-
-        //TODO 日志
+        Map<String, String> idsMap = new HashMap<>();
+        idsMap.put(request.getId(), request.getCaseId());
+        List<LogDTO> logDTOList = runLog(idsMap, Arrays.asList(request.getCaseId()), request.getProjectId(), organizationId, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
+        operationLogService.batchAdd(logDTOList);
     }
 
 
@@ -415,5 +408,119 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
         return baseAssociateBugProvider.hasTestPlanAssociateBugPage(request);
+    }
+
+
+
+    /**
+     * 批量执行功能用例
+     *
+     * @param request
+     * @param logInsertModule
+     */
+    public void batchRun(TestPlanCaseBatchRunRequest request, String organizationId, LogInsertModule logInsertModule) {
+        List<String> ids = doSelectIds(request, request.getProjectId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            handleBatchRun(ids, organizationId, request, logInsertModule);
+        }
+
+    }
+
+    private void handleBatchRun(List<String> ids, String organizationId, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule) {
+        //更新状态
+        extTestPlanFunctionalCaseMapper.batchUpdate(ids, request.getLastExecResult(), System.currentTimeMillis(), logInsertModule.getOperator());
+
+        //执行记录
+        TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
+        example.createCriteria().andIdIn(ids);
+        List<TestPlanFunctionalCase> functionalCases = testPlanFunctionalCaseMapper.selectByExample(example);
+        List<String> caseIds = functionalCases.stream().map(TestPlanFunctionalCase::getFunctionalCaseId).collect(Collectors.toList());
+        Map<String, String> idsMap = functionalCases.stream().collect(Collectors.toMap(TestPlanFunctionalCase::getId, TestPlanFunctionalCase::getFunctionalCaseId));
+        List<TestPlanCaseExecuteHistory> historyList = getExecHistory(ids, request, logInsertModule, idsMap);
+        testPlanCaseExecuteHistoryMapper.batchInsert(historyList);
+
+        List<LogDTO> logDTOList = runLog(idsMap, caseIds, request.getProjectId(), organizationId, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
+        operationLogService.batchAdd(logDTOList);
+    }
+
+    private List<TestPlanCaseExecuteHistory> getExecHistory(List<String> ids, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule, Map<String, String> idsMap) {
+
+        List<TestPlanCaseExecuteHistory> historyList = new ArrayList<>();
+        ids.forEach(id -> {
+            TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
+            executeHistory.setId(IDGenerator.nextStr());
+            executeHistory.setTestPlanCaseId(id);
+            executeHistory.setCaseId(idsMap.get(id));
+            executeHistory.setStatus(request.getLastExecResult());
+            executeHistory.setContent(request.getContent().getBytes());
+            executeHistory.setDeleted(false);
+            executeHistory.setNotifier(request.getNotifier());
+            executeHistory.setCreateUser(logInsertModule.getOperator());
+            executeHistory.setCreateTime(System.currentTimeMillis());
+            historyList.add(executeHistory);
+
+            handleFileAndNotice(idsMap.get(id), request.getProjectId(), request.getPlanCommentFileIds(), logInsertModule.getOperator(), CaseFileSourceType.PLAN_COMMENT.toString(), request.getNotifier(), request.getTestPlanId(), request.getLastExecResult());
+
+
+        });
+        return historyList;
+    }
+
+    private void handleFileAndNotice(String caseId, String projectId, List<String> uploadFileIds, String userId, String fileSource, String notifier, String testPlanId, String lastExecResult) {
+        //富文本评论的处理
+        functionalCaseAttachmentService.uploadMinioFile(caseId, projectId, uploadFileIds, userId, fileSource);
+
+        //发通知
+        if (StringUtils.isNotBlank(notifier)) {
+            List<String> relatedUsers = Arrays.asList(notifier.split(";"));
+            testPlanSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.REVIEW_AT, testPlanId);
+        }
+
+        if (StringUtils.equalsIgnoreCase(lastExecResult, FunctionalCaseExecuteResult.SUCCESS.name())) {
+            //成功 发送通知
+            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_PASSED, testPlanId);
+        }
+
+        if (StringUtils.equalsIgnoreCase(lastExecResult, FunctionalCaseExecuteResult.ERROR.name())) {
+            //失败 发送通知
+            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_FAIL, testPlanId);
+        }
+    }
+
+
+    public List<String> doSelectIds(BasePlanCaseBatchRequest request, String projectId) {
+        if (request.isSelectAll()) {
+            List<String> ids = extTestPlanFunctionalCaseMapper.selectIdByConditions(request, projectId);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
+    }
+
+
+    public List<LogDTO> runLog(Map<String, String> idsMap, List<String> caseIds, String projectId, String organizationId, ResourceLogInsertModule logInsertModule) {
+        FunctionalCaseExample example = new FunctionalCaseExample();
+        example.createCriteria().andIdIn(caseIds);
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(example);
+        Map<String, String> caseMap = functionalCases.stream().collect(Collectors.toMap(FunctionalCase::getId, FunctionalCase::getName));
+        List<LogDTO> list = new ArrayList<>();
+        idsMap.forEach((k, v) -> {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(projectId)
+                    .organizationId(organizationId)
+                    .type(OperationLogType.EXECUTE.name())
+                    .module(OperationLogModule.TEST_PLAN)
+                    .method(logInsertModule.getRequestMethod())
+                    .path(logInsertModule.getRequestUrl())
+                    .sourceId(k)
+                    .content(Translator.get("run_functional_case") + ":" + caseMap.get(v))
+                    .createUser(logInsertModule.getOperator())
+                    .build().getLogDTO();
+            list.add(dto);
+        });
+        return list;
     }
 }
