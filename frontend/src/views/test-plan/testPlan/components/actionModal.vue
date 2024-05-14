@@ -48,19 +48,19 @@
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
 
-  import type { TestPlanItem } from '@/models/testPlan/testPlan';
+  import type { TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
     // isScheduled: boolean; // TODO 这个版本不做有无定时任务区分
-    record: TestPlanItem | undefined; // 表record
+    record: TestPlanItem | TestPlanDetail | undefined; // 表record
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'success'): void;
+    (e: 'success', isDelete: boolean): void;
   }>();
 
   const showModalVisible = useVModel(props, 'visible', emit);
@@ -76,11 +76,13 @@
       confirmLoading.value = true;
       if (isDelete) {
         await deletePlan(props.record?.id);
+        emit('success', true);
       } else {
         await archivedPlan(props.record?.id);
+        emit('success', false);
       }
       Message.success(isDelete ? t('common.deleteSuccess') : t('common.batchArchiveSuccess'));
-      emit('success');
+      showModalVisible.value = false;
     } catch (error) {
       console.log(error);
     } finally {

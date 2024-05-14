@@ -89,9 +89,10 @@
             :offspring-ids="offspringIds"
             :active-folder-type="activeCaseType"
             :modules-count="modulesCount"
+            :module-tree="folderTree"
             :node-name="nodeName"
             @init="initModulesCount"
-            @edit="handleEdit"
+            @edit-or-copy="handleEditOrCopy"
           />
         </div>
       </template>
@@ -100,6 +101,7 @@
       v-model:visible="showPlanDrawer"
       :plan-id="planId"
       :module-tree="folderTree"
+      :is-copy="isCopy"
       @close="resetPlanId"
       @load-plan-list="loadPlanList"
     />
@@ -237,8 +239,10 @@
 
   const planTableRef = ref<InstanceType<typeof PlanTable>>();
   const planId = ref('');
-  function handleEdit(id: string) {
+  const isCopy = ref<boolean>(false);
+  function handleEditOrCopy(id: string, isCopyFlag: boolean) {
     planId.value = id;
+    isCopy.value = isCopyFlag;
     showPlanDrawer.value = true;
   }
   function resetPlanId() {

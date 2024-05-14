@@ -59,7 +59,6 @@
   import { ReviewCaseItem, ReviewStatus } from '@/models/caseManagement/caseReview';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { statusIconMap } from '../utils';
 

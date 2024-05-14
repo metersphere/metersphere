@@ -3,13 +3,17 @@ import {
   addTestPlanModuleUrl,
   AddTestPlanUrl,
   archivedPlanUrl,
+  associationCaseToPlanUrl,
+  batchArchivedPlanUrl,
   batchCopyPlanUrl,
   batchDeletePlanUrl,
   BatchDisassociateCaseUrl,
   batchMovePlanUrl,
+  copyTestPlanUrl,
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
+  followPlanUrl,
   GetFeatureCaseModuleCountUrl,
   GetFeatureCaseModuleUrl,
   GetPlanDetailFeatureCaseListUrl,
@@ -20,6 +24,7 @@ import {
   GetTestPlanModuleUrl,
   MoveTestPlanModuleUrl,
   planDetailBugPageUrl,
+  planPassRateUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
@@ -29,8 +34,11 @@ import type { CommonList, MoveModules, TableQueryParams } from '@/models/common'
 import { ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
+  AssociateCaseRequestType,
   BatchFeatureCaseParams,
   DisassociateCaseParams,
+  FollowPlanParams,
+  PassRateCountDetail,
   PlanDetailBugItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
@@ -78,6 +86,10 @@ export function getTestPlanList(data: TableQueryParams) {
 export function addTestPlan(data: AddTestPlanParams) {
   return MSR.post({ url: AddTestPlanUrl, data });
 }
+// 创建测试计划
+export function copyTestPlan(data: AddTestPlanParams) {
+  return MSR.post({ url: copyTestPlanUrl, data });
+}
 
 // 获取测试计划详情
 export function getTestPlanDetail(id: string) {
@@ -112,9 +124,25 @@ export function batchCopyPlan(data: TableQueryParams) {
 export function batchMovePlan(data: TableQueryParams) {
   return MSR.post({ url: batchMovePlanUrl, data });
 }
+// 批量移动测试计划
+export function batchArchivedPlan(data: TableQueryParams) {
+  return MSR.post({ url: batchArchivedPlanUrl, data });
+}
 // 计划详情缺陷管理列表
 export function planDetailBugPage(data: TableQueryParams) {
   return MSR.post<CommonList<PlanDetailBugItem>>({ url: planDetailBugPageUrl, data });
+}
+// 关注
+export function followPlanRequest(data: FollowPlanParams) {
+  return MSR.post({ url: followPlanUrl, data });
+}
+// 关联用例到测试计划
+export function associationCaseToPlan(data: AssociateCaseRequestType) {
+  return MSR.post({ url: associationCaseToPlanUrl, data });
+}
+// 测试计划通过率执行进度
+export function getPlanPassRate(data: (string | undefined)[]) {
+  return MSR.post<PassRateCountDetail[]>({ url: planPassRateUrl, data });
 }
 // 计划详情-功能用例列表
 export function getPlanDetailFeatureCaseList(data: PlanDetailFeatureCaseListQueryParams) {

@@ -273,7 +273,6 @@
     getCaseDetail,
     getCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
-  import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -282,7 +281,6 @@
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
   import { translateTextToPX } from '@/utils/css';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';

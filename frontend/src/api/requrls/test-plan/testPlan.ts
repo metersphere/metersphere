@@ -27,11 +27,21 @@ export const getStatisticalCountUrl = '/test-plan/getCount';
 // 归档
 export const archivedPlanUrl = '/test-plan/archived';
 // 批量复制
-export const batchCopyPlanUrl = '/test-plan/batch/copy';
+export const batchCopyPlanUrl = '/test-plan/batch-copy';
 // 批量移动
 export const batchMovePlanUrl = '/test-plan/batch/move';
+// 批量移动
+export const batchArchivedPlanUrl = '/test-plan/batch-archived';
 // 计划详情缺陷管理列表
 export const planDetailBugPageUrl = '/test-plan/bug/page';
+// 关注测试计划
+export const followPlanUrl = '/test-plan/edit/follower';
+// 复制测试计划
+export const copyTestPlanUrl = '/test-plan/copy';
+// 关联测试计划
+export const associationCaseToPlanUrl = '/test-plan/association';
+// 测试计划通过率执行进度
+export const planPassRateUrl = '/test-plan/statistics';
 // 计划详情-功能用例列表
 export const GetPlanDetailFeatureCaseListUrl = '/test-plan/functional/case/page';
 // 计划详情-功能用例-获取模块数量

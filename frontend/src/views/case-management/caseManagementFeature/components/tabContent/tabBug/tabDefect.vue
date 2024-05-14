@@ -56,65 +56,17 @@
         ></a-input-search>
       </div>
     </div>
-    <ms-base-table v-if="showType === 'link'" ref="bugTableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
-      <template #name="{ record }">
-        <span class="one-line-text max-w-[150px]"> {{ characterLimit(record.name) }}</span>
-        <a-popover title="" position="right" style="width: 480px">
-          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-          <template #content>
-            <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
-          </template>
-        </a-popover>
-      </template>
-      <template #severityFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="severityFilterVisible"
-          v-model:status-filters="severityFilterValue"
-          :title="(columnConfig.title as string)"
-          :list="severityFilterOptions"
-          value-key="value"
-          @search="searchData()"
-        >
-          <template #item="{ item }">
-            {{ item.text }}
-          </template>
-        </TableFilter>
-      </template>
-      <template #statusName="{ record }">
-        <div class="one-line-text">{{ record.statusName }}</div>
-      </template>
-      <template #handleUserName="{ record }">
-        <a-tooltip :content="record.handleUserName">
-          <div class="one-line-text max-w-[200px]">{{ characterLimit(record.handleUserName) }}</div>
-        </a-tooltip>
-      </template>
-
-      <template #operation="{ record }">
-        <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="cancelLink(record.id)">{{
-          t('caseManagement.featureCase.cancelLink')
-        }}</MsButton>
-      </template>
-      <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-          {{ t('caseManagement.featureCase.tableNoDataWidthComma') }}
-          <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])">{{
-            t('caseManagement.featureCase.please')
-          }}</span>
-          <MsButton
-            v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
-            :disabled="!total"
-            class="ml-[8px]"
-            @click="linkDefect"
-          >
-            {{ t('caseManagement.featureCase.linkDefect') }}
-          </MsButton>
-          <span v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD'])">{{ t('caseManagement.featureCase.or') }}</span>
-          <MsButton v-permission="['PROJECT_BUG:READ+ADD']" class="ml-[8px]" @click="createDefect">
-            {{ t('caseManagement.featureCase.createDefect') }}
-          </MsButton>
-        </div>
-      </template>
-    </ms-base-table>
+    <BugList
+      v-if="showType === 'link'"
+      ref="bugTableListRef"
+      :case-id="props.caseId"
+      :keyword="keyword"
+      :bug-total="total"
+      :bug-columns="columns"
+      @link="linkDefect"
+      @new="createDefect"
+      @cancel-link="cancelLink"
+    />
     <ms-base-table v-else v-bind="testPlanPropsRes" ref="planTableRef" v-on="testPlanTableEvent">
       <template #name="{ record }">
         <div class="one-line-text max-w-[300px]"> {{ record.name }}</div>
@@ -143,7 +95,7 @@
           :title="(columnConfig.title as string)"
           :list="severityFilterOptions"
           value-key="value"
-          @search="searchData()"
+          @search="getFetch()"
         >
           <template #item="{ item }">
             {{ item.text }}
@@ -182,6 +134,7 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import AddDefectDrawer from './addDefectDrawer.vue';
+  import BugList from './bugList.vue';
   import LinkDefectDrawer from './linkDefectDrawer.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
@@ -200,7 +153,8 @@
   import { BugListItem, BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+
+  import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -210,7 +164,7 @@
   const props = defineProps<{
     caseId: string;
   }>();
-  // const activeTab = computed(() => featureCaseStore.activeTab);
+
   const showType = ref('link');
 
   const keyword = ref<string>('');
@@ -291,17 +245,6 @@
       showDrag: false,
     },
   ];
-  const {
-    propsRes: linkPropsRes,
-    propsEvent: linkTableEvent,
-    loadList: loadLinkList,
-    setLoadListParams: setLinkListParams,
-  } = useTable(getLinkedCaseBugList, {
-    columns,
-    scroll: { x: 'auto' },
-    heightUsed: 340,
-    enableDrag: false,
-  });
 
   const testPlanColumns: MsTableColumn = [
     {
@@ -378,58 +321,31 @@
     filterParams[severityColumnId.value] = severityFilterValue.value;
     return {
       keyword: keyword.value,
-      caseId: showType.value === 'link' ? props.caseId : null,
-      testPlanCaseId: showType.value === 'link' ? null : props.caseId,
+      testPlanCaseId: props.caseId,
       projectId: appStore.currentProjectId,
       condition: {
         keyword: keyword.value,
-        filter: showType.value === 'link' ? linkPropsRes : 'testPlanPropsRes',
+        filter: testPlanPropsRes.value.filter,
       },
     };
   }
-
-  function searchData() {
-    if (showType.value === 'link') {
-      setLinkListParams(initTableParams());
-      loadLinkList();
-    } else {
-      setTestPlanListParams(initTableParams());
-      testPlanLinkList();
-    }
-  }
-
-  const bugTableRef = ref();
+  const bugTableListRef = ref();
   const planTableRef = ref();
 
-  function makeColumns(columnData: MsTableColumn) {
-    const optionsMap: Record<string, any> = {
-      status: statusFilterOptions.value,
-      handleUser: handleUserFilterOptions.value,
-    };
-    return columnData.map((e) => {
-      if (Object.prototype.hasOwnProperty.call(optionsMap, e.dataIndex as string)) {
-        return {
-          ...e,
-          filterConfig: {
-            ...e.filterConfig,
-            options: optionsMap[e.dataIndex as string],
-          },
-        };
-      }
-      return { ...e };
-    });
-  }
   async function initFilterOptions() {
     if (hasAnyPermission(['PROJECT_BUG:READ'])) {
       const res = await getCustomOptionHeader(appStore.currentProjectId);
       handleUserFilterOptions.value = res.handleUserOption;
       statusFilterOptions.value = res.statusOption;
-
+      const optionsMap: Record<string, any> = {
+        status: statusFilterOptions.value,
+        handleUser: handleUserFilterOptions.value,
+      };
       if (showType.value === 'link') {
-        const columnList = makeColumns(columns);
-        bugTableRef.value.initColumn(columnList);
+        const columnList = makeColumns(optionsMap, columns);
+        bugTableListRef.value.bugTableRef.initColumn(columnList);
       } else {
-        const planColumnList = makeColumns(testPlanColumns);
+        const planColumnList = makeColumns(optionsMap, testPlanColumns);
         planTableRef.value.initColumn(planColumnList);
       }
     }
@@ -440,31 +356,21 @@
       return;
     }
     if (showType.value === 'link') {
-      setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
-      await loadLinkList();
-      const { msPagination } = linkPropsRes.value;
-      featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+      bugTableListRef.value?.searchData();
     } else {
-      setTestPlanListParams({
-        keyword: keyword.value,
-        projectId: appStore.currentProjectId,
-        testPlanCaseId: props.caseId,
-      });
+      setTestPlanListParams(initTableParams());
       await testPlanLinkList();
-      featureCaseStore.getCaseCounts(props.caseId);
     }
+    featureCaseStore.getCaseCounts(props.caseId);
   }
   async function resetFetch() {
     if (showType.value === 'link') {
-      setLinkListParams({ keyword: '', projectId: appStore.currentProjectId, caseId: props.caseId });
-      await loadLinkList();
-      const { msPagination } = linkPropsRes.value;
-      featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+      bugTableListRef.value?.searchData();
     } else {
       setTestPlanListParams({ keyword: '', projectId: appStore.currentProjectId, testPlanCaseId: props.caseId });
       await testPlanLinkList();
-      featureCaseStore.getCaseCounts(props.caseId);
     }
+    featureCaseStore.getCaseCounts(props.caseId);
   }
   const cancelLoading = ref<boolean>(false);
   // 取消关联
@@ -473,8 +379,8 @@
     try {
       if (showType.value === 'link') {
         await cancelAssociatedDebug(id);
-        getFetch();
         Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
+        getFetch();
       }
     } catch (error) {
       console.log(error);
@@ -566,13 +472,10 @@
     }
   );
 
-  onMounted(() => {
-    getFetch();
-    initBugList();
-  });
-
   onBeforeMount(() => {
     initFilterOptions();
+    getFetch();
+    initBugList();
   });
 </script>
 

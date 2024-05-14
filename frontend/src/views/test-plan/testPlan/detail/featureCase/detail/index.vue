@@ -60,7 +60,7 @@
       <a-spin :loading="caseDetailLoading" class="relative flex flex-1 flex-col p-[16px]">
         <div class="flex">
           <div class="mr-[24px] flex flex-1 items-center">
-            <MsStatusTag :status="caseDetail.status" />
+            <MsStatusTag :status="caseDetail.status || 'PREPARED'" />
             <div class="ml-[8px] mr-[2px] font-medium text-[rgb(var(--primary-5))]">[{{ caseDetail.num }}]</div>
             <div class="flex-1 overflow-hidden">
               <a-tooltip :content="caseDetail.name">
@@ -79,6 +79,10 @@
           no-content
           class="relative border-b"
         />
+        <div class="tab-content">
+          <BugList v-if="activeTab === 'defectList'" :case-id="caseDetail.id" />
+          <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" />
+        </div>
       </a-spin>
     </div>
   </MsCard>
@@ -93,6 +97,8 @@
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
+  import BugList from './bug/index.vue';
+  import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
   import { getPlanDetailFeatureCaseList } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -169,6 +175,14 @@
       value: 'detail',
       label: t('common.detail'),
     },
+    {
+      value: 'defectList',
+      label: t('caseManagement.featureCase.defectList'),
+    },
+    {
+      value: 'executionHistory',
+      label: t('testPlan.featureCase.executionHistory'),
+    },
   ]);
 
   onBeforeMount(async () => {
@@ -214,5 +228,9 @@
       border: 1px solid rgb(var(--primary-5));
       background-color: var(--color-text-n9);
     }
+  }
+  .tab-content {
+    .ms-scroll-bar();
+    @apply py-4;
   }
 </style>
