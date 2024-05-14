@@ -823,17 +823,15 @@
         LEFT JOIN custom_field cf ON cf.id = fccf.field_id
         LEFT JOIN ( SELECT crh.case_id, crh.`status`, crh.`create_user` from case_review_history crh where crh.review_id = #{request.reviewId}
         <if test="viewStatusUserId != null and viewStatusUserId != ''">
-            AND crh.user_id = #{viewStatusUserId}
+            AND crh.create_user = #{viewStatusUserId}
         </if>
-                                                                                                     order by crh.create_time desc limit 1 ) as history  ON history.case_id = crfc.case_id
+        order by crh.create_time desc limit 1 ) as history  ON history.case_id = crfc.case_id
         WHERE
         review_id = #{request.reviewId}
-        AND functional_case.deleted = #{deleted}
-
+        AND fc.deleted = #{deleted}
         <if test="userId != null and userId != ''">
             AND crfc.case_id in (select crfcu.case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
-
         AND
         fc.project_Id = #{request.projectId}
         AND
