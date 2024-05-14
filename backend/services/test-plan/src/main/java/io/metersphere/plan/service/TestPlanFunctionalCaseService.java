@@ -32,6 +32,7 @@ import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
@@ -410,5 +411,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         executeHistory.setCreateUser(operator);
         executeHistory.setCreateTime(System.currentTimeMillis());
         return executeHistory;
+    }
+
+    public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
+        return baseAssociateBugProvider.hasTestPlanAssociateBugPage(request);
     }
 }

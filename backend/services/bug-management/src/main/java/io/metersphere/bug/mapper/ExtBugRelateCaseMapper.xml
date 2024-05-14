@@ -275,4 +275,38 @@
         ORDER BY
             bug.pos DESC
     </select>
+    <select id="getTestPlanAssociateBugs" resultType="io.metersphere.dto.BugProviderDTO">
+        SELECT
+        brc.id as id,
+        brc.bug_id bugId,
+        b.num as num,
+        b.title as name,
+        b.handle_user handleUser,
+        b.`status`,
+        bc.description as content,
+        brc.test_plan_id testPlanId,
+        tp.name testPlanName
+        FROM
+        bug_relation_case brc
+        INNER JOIN bug b ON brc.bug_id = b.id
+        INNER JOIN bug_content bc ON brc.bug_id = bc.bug_id
+        left join test_plan tp on brc.test_plan_id = tp.id
+        <where>
+            <if test="request.testPlanCaseId != null and request.testPlanCaseId != ''">
+                and brc.test_plan_case_id = #{request.testPlanCaseId}
+
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and b.title like concat('%', #{request.keyword},'%')
+            </if>
+            <include refid="filter"/>
+            order by
+            <if test="sort != null and sort != ''">
+                brc.${sort}
+            </if>
+            <if test="sort == null or sort == ''">
+                brc.create_time desc
+            </if>
+        </where>
+    </select>
 </mapper>

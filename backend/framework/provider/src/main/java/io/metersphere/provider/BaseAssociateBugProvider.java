@@ -57,4 +57,6 @@ public interface BaseAssociateBugProvider {
      * @return
      */
     List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request);
+
+    List<BugProviderDTO> hasTestPlanAssociateBugPage(AssociateBugPageRequest request);
 }

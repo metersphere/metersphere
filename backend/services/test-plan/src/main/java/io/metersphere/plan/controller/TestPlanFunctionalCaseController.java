@@ -10,6 +10,7 @@ import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
+import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -129,6 +130,14 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
         testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+    }
+
+    @PostMapping("/has/associate/bug/page")
+    @Operation(summary = "测试计划-计划详情-功能用例-获取已关联的缺陷列表")
+    @CheckOwner(resourceId = "#request.getTestPlanCaseId()", resourceType = "test_plan_functional_case")
+    public Pager<List<BugProviderDTO>> getAssociateBugList(@Validated @RequestBody AssociateBugPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.hasAssociateBugPage(request));
     }
 
 }

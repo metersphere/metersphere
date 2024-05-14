@@ -6,13 +6,10 @@ import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
-import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseRunRequest;
-import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -156,6 +153,14 @@ public class TestPlanCaseControllerTests extends BaseTest {
         ids.add("bug_1");
         Mockito.when(baseAssociateBugProvider.getSelectBugs(request, false)).thenReturn(ids);
         this.requestPostWithOkAndReturn("/test-plan/functional/case/associate/bug", request);
+        AssociateBugPageRequest associateBugPageRequest = new AssociateBugPageRequest();
+        associateBugPageRequest.setProjectId(DEFAULT_PROJECT_ID);
+        associateBugPageRequest.setCurrent(1);
+        associateBugPageRequest.setPageSize(10);
+        associateBugPageRequest.setTestPlanCaseId("relate_case_1");
+        this.requestPostWithOkAndReturn("/test-plan/functional/case/has/associate/bug/page", associateBugPageRequest);
+
+
     }
 
     @Test
@@ -166,7 +171,6 @@ public class TestPlanCaseControllerTests extends BaseTest {
         List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
         this.requestGetWithOk("/test-plan/functional/case/disassociate/bug/" + bugRelationCases.get(0).getId());
     }
-
 
 
     @Test
