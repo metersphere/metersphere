@@ -36,7 +36,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.*;
@@ -378,12 +377,8 @@ public class FunctionalCaseService {
         String name = functionalCaseModuleService.getModuleName(functionalCaseDetailDTO.getModuleId());
         functionalCaseDetailDTO.setModuleName(name);
 
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(List.of(functionalCaseDetailDTO.getCreateUser(), functionalCaseDetailDTO.getUpdateUser()));
-        List<User> users = userMapper.selectByExample(userExample);
-        Map<String, String> userMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
-        functionalCaseDetailDTO.setCreateUserName(userMap.get(functionalCaseDetailDTO.getCreateUser()));
-        functionalCaseDetailDTO.setUpdateUserName(userMap.get(functionalCaseDetailDTO.getUpdateUser()));
+        User user = userMapper.selectByPrimaryKey(functionalCaseDetailDTO.getCreateUser());
+        functionalCaseDetailDTO.setCreateUserName(user.getName());
     }
 
     private void handleCount(FunctionalCaseDetailDTO functionalCaseDetailDTO) {
