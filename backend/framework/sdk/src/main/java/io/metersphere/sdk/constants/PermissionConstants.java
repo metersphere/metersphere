@@ -310,6 +310,11 @@ public class PermissionConstants {
     public static final String TEST_PLAN_READ_DELETE = "PROJECT_TEST_PLAN:READ+DELETE";
     public static final String TEST_PLAN_READ_EXECUTE = "PROJECT_TEST_PLAN:READ+EXECUTE";
     public static final String TEST_PLAN_READ_ASSOCIATION = "PROJECT_TEST_PLAN:READ+ASSOCIATION";
+
+    public static final String TEST_PLAN_REPORT_READ = "PROJECT_TEST_PLAN_REPORT:READ";
+    public static final String TEST_PLAN_REPORT_READ_ADD = "PROJECT_TEST_PLAN_REPORT:READ+ADD";
+    public static final String TEST_PLAN_REPORT_READ_UPDATE = "PROJECT_TEST_PLAN_REPORT:READ+UPDATE";
+    public static final String TEST_PLAN_REPORT_READ_DELETE = "PROJECT_TEST_PLAN_REPORT:READ+DELETE";
     /*------ end: TEST_PLAN ------*/
 
     /*------ start: SYSTEM_TASK_CENTER ------*/
