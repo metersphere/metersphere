@@ -18,18 +18,19 @@
         {{ t('minder.menu.expand.folding') }}
       </div>
       <move-box :move-enable="props.moveEnable" :move-confirm="props.moveConfirm" />
-      <insert-box />
+      <insert-box :insert-node="props.insertNode" />
       <edit-del :del-confirm="props.delConfirm" />
     </div>
-    <div class="menu-group">
-      <tag-box
-        v-if="props.tagEnable"
-        :tags="props.tags"
-        :tag-disable-check="props.tagDisableCheck"
-        :tag-edit-check="props.tagEditCheck"
-        :distinct-tags="props.distinctTags"
-      />
-    </div>
+    <tag-box
+      v-if="props.tagEnable"
+      :tags="props.tags"
+      :tag-disable-check="props.tagDisableCheck"
+      :tag-edit-check="props.tagEditCheck"
+      :distinct-tags="props.distinctTags"
+      :replaceable-tags="props.replaceableTags"
+      :single-tag="props.singleTag"
+      :after-tag-edit="props.afterTagEdit"
+    />
     <div class="menu-group">
       <sequence-box
         v-if="props.sequenceEnable"
@@ -55,10 +56,11 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { delProps, editMenuProps, moleProps, priorityProps, tagProps, viewMenuProps } from '../../props';
+  import { delProps, editMenuProps, insertProps, moleProps, priorityProps, tagProps, viewMenuProps } from '../../props';
 
   const props = defineProps({
     ...editMenuProps,
+    ...insertProps,
     ...priorityProps,
     ...tagProps,
     ...delProps,

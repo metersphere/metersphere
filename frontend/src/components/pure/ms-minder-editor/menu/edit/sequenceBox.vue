@@ -53,7 +53,7 @@
       return true;
     }
     if (props.priorityDisableCheck) {
-      return props.priorityDisableCheck();
+      return props.priorityDisableCheck(node);
     }
     return !!minder.queryCommandState && minder.queryCommandState('priority') === -1;
   };

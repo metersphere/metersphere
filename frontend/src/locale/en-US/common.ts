@@ -173,4 +173,6 @@ export default {
   'common.fakeError': 'Fake error',
   'common.belongModule': 'Belong module',
   'common.moreSetting': 'More settings',
+  'common.remark': 'Remark',
+  'common.case': 'Case',
 };

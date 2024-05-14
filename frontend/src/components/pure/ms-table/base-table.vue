@@ -754,6 +754,9 @@
     .arco-table-td-content {
       @apply justify-center;
     }
+    .arco-table-cell {
+      padding: 0;
+    }
   }
   :deep(.ms-table-select-all) {
     .dropdown-icon {

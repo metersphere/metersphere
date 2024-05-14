@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row items-center justify-between">
     <slot name="left"></slot>
-    <div class="flex flex-row gap-[8px]">
+    <div class="flex flex-row gap-[12px]">
       <a-input-search
         v-model:modelValue="innerKeyword"
         size="small"

@@ -1,6 +1,6 @@
 <template>
-  <div class="main-container">
-    <header-menu
+  <div class="ms-minder-editor-container">
+    <minderHeader
       :sequence-enable="props.sequenceEnable"
       :tag-enable="props.tagEnable"
       :progress-enable="props.progressEnable"
@@ -20,9 +20,13 @@
       :mold-enable="props.moldEnable"
       :font-enable="props.fontEnable"
       :style-enable="props.styleEnable"
+      :replaceable-tags="props.replaceableTags"
+      :single-tag="props.singleTag"
+      :insert-node="props.insertNode"
+      :after-tag-edit="props.afterTagEdit"
       @mold-change="handleMoldChange"
     />
-    <main-editor
+    <mainEditor
       :disabled="props.disabled"
       :sequence-enable="props.sequenceEnable"
       :tag-enable="props.tagEnable"
@@ -38,6 +42,7 @@
       :priority-count="props.priorityCount"
       :priority-prefix="props.priorityPrefix"
       :priority-start-with-zero="props.priorityStartWithZero"
+      :insert-node="props.insertNode"
       @after-mount="emit('afterMount')"
       @save="save"
       @enter-node="handleEnterNode"
@@ -48,10 +53,20 @@
 <script lang="ts" name="minderEditor" setup>
   import { onMounted } from 'vue';
 
-  import headerMenu from './main/header.vue';
+  import minderHeader from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
 
-  import { delProps, editMenuProps, mainEditorProps, moleProps, priorityProps, tagProps, viewMenuProps } from './props';
+  import {
+    delProps,
+    editMenuProps,
+    headerProps,
+    insertProps,
+    mainEditorProps,
+    moleProps,
+    priorityProps,
+    tagProps,
+    viewMenuProps,
+  } from './props';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;
@@ -62,6 +77,8 @@
   }>();
 
   const props = defineProps({
+    ...headerProps,
+    ...insertProps,
     ...editMenuProps,
     ...mainEditorProps,
     ...moleProps,
@@ -103,3 +120,9 @@
     });
   });
 </script>
+
+<style lang="less" scoped>
+  .ms-minder-editor-container {
+    @apply relative h-full;
+  }
+</style>

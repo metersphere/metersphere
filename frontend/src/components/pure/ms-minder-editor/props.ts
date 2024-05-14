@@ -2,9 +2,35 @@
  * Api 列表
  */
 
+import type { PropType } from 'vue';
+
+export interface MinderIconButtonItem {
+  icon: string;
+  tooltip: string;
+  eventTag: string;
+}
+export interface MinderJsonNodeData {
+  id: string;
+  text: string;
+  resource?: string[];
+  expandState?: string;
+  priority?: number;
+}
+export interface MinderJsonNode {
+  parent?: MinderJsonNode;
+  data?: MinderJsonNodeData;
+  children?: MinderJsonNode[];
+}
+
+export interface MinderJson {
+  root: MinderJsonNode;
+  template: string;
+  treePath: Record<string, MinderJsonNode>[];
+}
+
 export const mainEditorProps = {
   importJson: {
-    type: Object,
+    type: Object as PropType<MinderJson>,
     default() {
       return {
         root: {},
@@ -18,6 +44,12 @@ export const mainEditorProps = {
     default: 500,
   },
   disabled: Boolean,
+};
+
+export const headerProps = {
+  iconButtons: {
+    type: [] as PropType<MinderIconButtonItem[]>,
+  },
 };
 
 export const priorityProps = {
@@ -39,27 +71,45 @@ export const priorityProps = {
     type: String,
     default: 'P',
   },
-  priorityDisableCheck: Function,
+  priorityDisableCheck: Function as PropType<(node: MinderJsonNode) => boolean>,
   operators: [],
 };
 
+export interface MinderReplaceTag {
+  tags: string[];
+  condition: (node: MinderJsonNode, tags: string[]) => boolean;
+}
 export const tagProps = {
   tags: {
     // 自定义标签
     type: Array<string>,
     default() {
-      return [] as string[];
+      return [];
     },
   },
   distinctTags: {
     // 个别标签二选一
     type: Array<string>,
     default() {
-      return [] as string[];
+      return [];
     },
   },
+  singleTag: {
+    // 单标签
+    type: Boolean,
+    default: false,
+  },
+  replaceableTags: Function as PropType<(node: MinderJsonNode) => string[]>,
   tagDisableCheck: Function,
-  tagEditCheck: Function,
+  tagEditCheck: Function as PropType<(node: MinderJsonNode, tag: string) => boolean>,
+  afterTagEdit: Function as PropType<(node: MinderJsonNode, tag: string) => void>,
+};
+
+export const insertProps = {
+  insertNode: {
+    type: Function as PropType<(node: MinderJsonNode, type: string) => void>,
+    default: undefined,
+  },
 };
 
 export const editMenuProps = {

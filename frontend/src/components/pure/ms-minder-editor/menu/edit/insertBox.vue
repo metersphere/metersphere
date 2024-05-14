@@ -26,7 +26,12 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { insertProps, MinderJsonNode } from '../../props';
   import { isDisableNode } from '../../script/tool/utils';
+
+  const props = defineProps({
+    ...insertProps,
+  });
 
   const { t } = useI18n();
 
@@ -58,6 +63,11 @@
   });
 
   function execCommand(command: string) {
+    const node: MinderJsonNode = minder.value.getSelectedNode();
+    if (props.insertNode) {
+      props.insertNode(node, command);
+      return;
+    }
     if (minder.value.queryCommandState(command) !== -1) {
       minder.value.execCommand(command);
     }
