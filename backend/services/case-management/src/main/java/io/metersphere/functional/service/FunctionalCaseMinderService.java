@@ -4,10 +4,7 @@ import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
-import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
-import io.metersphere.functional.request.FunctionalCaseMindRequest;
-import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
-import io.metersphere.functional.request.FunctionalCaseMinderRemoveRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -102,20 +99,7 @@ public class FunctionalCaseMinderService {
         //查出当前模块下的所有用例
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseList(request, deleted);
         //构造父子级数据
-        for (FunctionalCaseMindDTO functionalCaseMindDTO : functionalCaseMindDTOList) {
-            FunctionalMinderTreeDTO root = new FunctionalMinderTreeDTO();
-            FunctionalMinderTreeNodeDTO rootData = new FunctionalMinderTreeNodeDTO();
-            rootData.setId(functionalCaseMindDTO.getId());
-            rootData.setPos(functionalCaseMindDTO.getPos());
-            rootData.setText(functionalCaseMindDTO.getName());
-            rootData.setPriority(functionalCaseMindDTO.getPriority());
-            rootData.setStatus(functionalCaseMindDTO.getReviewStatus());
-            rootData.setResource(List.of(Translator.get("minder_extra_node.case")));
-            List<FunctionalMinderTreeDTO> children = buildChildren(functionalCaseMindDTO);
-            root.setChildren(children);
-            root.setData(rootData);
-            list.add(root);
-        }
+        buildList(functionalCaseMindDTOList, list);
         return list;
     }
 
@@ -476,6 +460,36 @@ public class FunctionalCaseMinderService {
             }
             extFunctionalCaseBlobMapper.batchUpdateColumn(column, caseIds, null);
             functionalCaseNoticeService.batchSendNotice(projectId, caseIds, user, NoticeConstants.Event.UPDATE);
+        }
+    }
+
+
+    public List<FunctionalMinderTreeDTO> getReviewMindFunctionalCase(FunctionalCaseReviewMindRequest request, boolean deleted, String userId, String viewStatusUserId) {
+        List<FunctionalMinderTreeDTO> list = new ArrayList<>();
+        //查出当前模块下的所有用例
+        List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseReviewList(request, deleted, userId, viewStatusUserId);
+        //构造父子级数据
+        buildList(functionalCaseMindDTOList, list);
+        return list;
+    }
+
+
+
+    private void buildList(List<FunctionalCaseMindDTO> functionalCaseMindDTOList, List<FunctionalMinderTreeDTO> list) {
+        //构造父子级数据
+        for (FunctionalCaseMindDTO functionalCaseMindDTO : functionalCaseMindDTOList) {
+            FunctionalMinderTreeDTO root = new FunctionalMinderTreeDTO();
+            FunctionalMinderTreeNodeDTO rootData = new FunctionalMinderTreeNodeDTO();
+            rootData.setId(functionalCaseMindDTO.getId());
+            rootData.setPos(functionalCaseMindDTO.getPos());
+            rootData.setText(functionalCaseMindDTO.getName());
+            rootData.setPriority(functionalCaseMindDTO.getPriority());
+            rootData.setStatus(functionalCaseMindDTO.getReviewStatus());
+            rootData.setResource(List.of(Translator.get("minder_extra_node.case")));
+            List<FunctionalMinderTreeDTO> children = buildChildren(functionalCaseMindDTO);
+            root.setChildren(children);
+            root.setData(rootData);
+            list.add(root);
         }
     }
 

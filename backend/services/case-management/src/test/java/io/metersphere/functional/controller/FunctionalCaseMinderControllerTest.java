@@ -12,6 +12,7 @@ import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderRemoveRequest;
+import io.metersphere.functional.request.FunctionalCaseReviewMindRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
@@ -45,6 +46,10 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     public static final String FUNCTIONAL_CASE_BATCH_DELETE = "/functional/mind/case/batch/delete/";
 
     public static final String FUNCTIONAL_CASE_BATCH_MOVE = "/functional/mind/case/batch/remove";
+
+    //评审
+    public static final String FUNCTIONAL_CASE_REVIEW_LIST_URL = "/functional/mind/case/review/list";
+
 
 
 
@@ -302,7 +307,37 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         resourceList.add(optionDTOModule);
         functionalCaseMinderRemoveRequest.setResourceList(resourceList);
         this.requestPost(FUNCTIONAL_CASE_BATCH_MOVE, functionalCaseMinderRemoveRequest).andExpect(status().is5xxServerError());
+    }
 
+    @Test
+    @Order(5)
+    public void testGetCaseReviewList() throws Exception {
+        FunctionalCaseReviewMindRequest request = new FunctionalCaseReviewMindRequest();
+        request.setProjectId("project-case-minder-test");
+        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
+        request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ");
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
+        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
+        Assertions.assertNotNull(baseTreeNodes);
+        String jsonString = JSON.toJSONString(baseTreeNodes);
+        System.out.println(jsonString);
+        Assertions.assertEquals(1, baseTreeNodes.size());
+        request = new FunctionalCaseReviewMindRequest();
+        request.setProjectId("project-case-minder-test");
+        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
+        request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ2");
+        request.setViewFlag(true);
+        request.setViewStatusFlag(true);
+        mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
+        Assertions.assertNotNull(baseTreeNodes);
+        jsonString = JSON.toJSONString(baseTreeNodes);
+        System.out.println(jsonString);
+        Assertions.assertEquals(1, baseTreeNodes.size());
 
     }
 

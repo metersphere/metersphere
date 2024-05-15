@@ -27,6 +27,7 @@ INSERT INTO functional_case_blob(id, steps, text_description, expected_result, p
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'custom_field_minder_gyq_id_3', 'P0');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_2', 'custom_field_minder_gyq_id_3', 'P3');
+INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_5', 'custom_field_minder_gyq_id_3', 'P3');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'custom_field_minder_gyq_id_3', 'P2');
 
 
