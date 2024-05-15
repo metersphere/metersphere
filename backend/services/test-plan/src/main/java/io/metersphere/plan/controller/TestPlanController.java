@@ -180,4 +180,15 @@ public class TestPlanController {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         testPlanService.association(request);
     }
+
+
+    @PostMapping("/batch-edit")
+    @Operation(summary = "测试计划-批量编辑")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchEditLog(#request)", msClass = TestPlanLogService.class)
+    public void batchEdit(@Validated @RequestBody TestPlanBatchEditRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.batchEdit(request, SessionUtils.getUserId());
+    }
 }

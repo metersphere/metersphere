@@ -13,9 +13,12 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ScheduleExample;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.BatchProcessUtils;
@@ -24,6 +27,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +66,13 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanCaseService testPlanCaseService;
     @Resource
     private ScheduleMapper scheduleMapper;
-
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private TestPlanSendNoticeService testPlanSendNoticeService;
+    private static final int MAX_TAG_SIZE = 10;
 
     /**
      * 创建测试计划
@@ -157,6 +170,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 计划组删除的相关逻辑(待定)
+     *
      * @param testPlanGroupIds 计划组ID集合
      */
     private void deleteGroupByList(List<String> testPlanGroupIds) {
@@ -529,6 +543,81 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 //日志
                 testPlanLogService.saveBatchLog(moveTestPlanList, userId, url, method, OperationLogType.UPDATE.name(), "update");
             }
+        }
+    }
+
+
+    /**
+     * 批量编辑
+     *
+     * @param request
+     * @param userId
+     */
+    public void batchEdit(TestPlanBatchEditRequest request, String userId) {
+        // 目前计划的批量操作不支持全选所有页
+        List<String> ids = request.getSelectIds();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            User user = userMapper.selectByPrimaryKey(userId);
+            handleTags(request, userId, ids);
+            testPlanSendNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
+        }
+    }
+
+    /**
+     * 处理标签
+     *
+     * @param request
+     * @param userId
+     * @param ids
+     */
+    private void handleTags(TestPlanBatchEditRequest request, String userId, List<String> ids) {
+        if (CollectionUtils.isNotEmpty(request.getTags())) {
+            if (request.isAppend()) {
+                //追加标签
+                List<TestPlan> planList = extTestPlanMapper.getTagsByIds(ids);
+                Map<String, TestPlan> collect = planList.stream().collect(Collectors.toMap(TestPlan::getId, v -> v));
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                TestPlanMapper testPlanMapper = sqlSession.getMapper(TestPlanMapper.class);
+                ids.forEach(id -> {
+                    TestPlan testPlan = new TestPlan();
+                    if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
+                        List<String> tags = collect.get(id).getTags();
+                        tags.addAll(request.getTags());
+                        checkTagsLength(tags);
+                        List<String> newTags = tags.stream().distinct().collect(Collectors.toList());
+                        testPlan.setTags(newTags);
+                    } else {
+                        testPlan.setTags(request.getTags());
+                    }
+                    testPlan.setId(id);
+                    testPlan.setUpdateTime(System.currentTimeMillis());
+                    testPlan.setUpdateUser(userId);
+                    testPlanMapper.updateByPrimaryKeySelective(testPlan);
+                });
+                sqlSession.flushStatements();
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            } else {
+                //替换标签
+                TestPlan testPlan = new TestPlan();
+                testPlan.setTags(request.getTags());
+                testPlan.setProjectId(request.getProjectId());
+                testPlan.setUpdateTime(System.currentTimeMillis());
+                testPlan.setUpdateUser(userId);
+                extTestPlanMapper.batchUpdate(testPlan, ids);
+            }
+        }
+
+    }
+
+
+    /**
+     * 校验追加标签长度
+     *
+     * @param tags
+     */
+    private void checkTagsLength(List<String> tags) {
+        if (tags.size() > MAX_TAG_SIZE) {
+            throw new MSException(Translator.getWithArgs("tags_length_large_than", String.valueOf(MAX_TAG_SIZE)));
         }
     }
 }

@@ -378,4 +378,32 @@
         </foreach>
     </update>
 
+    <select id="getTagsByIds" resultType="io.metersphere.plan.domain.TestPlan">
+        select id, tags from test_plan
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <update id="batchUpdate">
+        update test_plan
+        <set>
+            <if test="testPlan.tags != null and testPlan.tags != ''">
+                tags = #{testPlan.tags,typeHandler=io.metersphere.handler.ListTypeHandler},
+            </if>
+            <if test="testPlan.updateUser != null and testPlan.updateUser != ''">
+                update_user = #{testPlan.updateUser},
+            </if>
+            <if test="testPlan.updateTime != null">
+                update_time = #{testPlan.updateTime},
+            </if>
+        </set>
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and project_id = #{testPlan.projectId}
+    </update>
 </mapper>
