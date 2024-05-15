@@ -161,8 +161,8 @@ export default function useTableProps<T>(
   };
 
   // 设置请求参数，如果出了分页参数还有搜索参数，在模板页面调用此方法，可以加入参数
-  const loadListParams = ref<object>({});
-  const setLoadListParams = (params?: object) => {
+  const loadListParams = ref<TableQueryParams>({});
+  const setLoadListParams = (params?: TableQueryParams) => {
     loadListParams.value = params || {};
   };
   // 设置keyword
@@ -201,11 +201,15 @@ export default function useTableProps<T>(
             current,
             pageSize: currentPageSize,
             sort: sortItem.value,
-            filter: filterItem.value,
+
             keyword: keyword.value,
             combine: advanceFilter.combine,
             searchMode: advanceFilter.accordBelow,
             ...loadListParams.value,
+            filter: {
+              ...filterItem.value,
+              ...loadListParams.value.filter,
+            },
           };
           const data = await loadListFunc(tableQueryParams.value);
           const tmpArr = data.list || data.data.list;

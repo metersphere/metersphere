@@ -4,9 +4,9 @@
       <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ record.num }}</span>
     </template>
     <template #name="{ record }">
-      <span class="one-line-text max-w-[150px]"> {{ characterLimit(record.name) }}</span>
+      <div class="one-line-text flex max-w-[150px] flex-nowrap items-center"> {{ characterLimit(record.name) }}</div>
       <a-popover title="" position="right" style="width: 480px">
-        <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+        <div class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</div>
         <template #content>
           <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
         </template>
@@ -112,19 +112,13 @@
   const severityColumnId = ref('');
   const severityFilterValue = ref<string[]>([]);
   function initTableParams() {
-    const filterParams: Record<string, any> = {
-      // status: statusFilterValue.value,
-      // handleUser: handleUserFilterValue.value,
-    };
-    // TODO 要和后台同学确认一下
-    filterParams[severityColumnId.value] = severityFilterValue.value;
     return {
       keyword: props.keyword,
       caseId: props.caseId,
       projectId: appStore.currentProjectId,
       condition: {
         keyword: props.keyword,
-        filter: linkPropsRes.value.filter,
+        filter: { ...linkPropsRes.value.filter, [severityColumnId.value]: severityFilterValue.value },
       },
     };
   }

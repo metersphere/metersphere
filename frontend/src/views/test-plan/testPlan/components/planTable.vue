@@ -475,8 +475,6 @@
   }
 
   const keyword = ref<string>('');
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>([]);
   const showType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
 
   const testPlanBatchActions = {

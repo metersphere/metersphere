@@ -877,7 +877,7 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
     // 后端返回来的数据这个字段没值
     field.type = customField.type;
     if (selectExcludes.includes(field.type) && Array.isArray(field.options)) {
-      tableData[field.id] = field.options.find((option) => option.value === field.value)?.text;
+      tableData[`custom_single_${field.id}`] = field.options.find((option) => option.value === field.value)?.text;
     } else if (field.type === 'MULTIPLE_INPUT' && field.value) {
       // 处理标签形式
       tableData[field.id] = JSON.parse(field.value).join('，') || '-';
@@ -885,7 +885,7 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
       // 多值的类型后端返回的是json字符串
       try {
         field.value = JSON.parse(field.value);
-        tableData[field.id] = field.value
+        tableData[`custom_multiple_${field.id}`] = field.value
           .map((val: string) => field.options.find((option: { value: string }) => option.value === val)?.text)
           .join(',');
       } catch (e) {

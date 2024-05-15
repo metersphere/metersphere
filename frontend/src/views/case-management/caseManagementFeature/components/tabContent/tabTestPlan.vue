@@ -20,10 +20,11 @@
         <MsStatusTag :status="record.planStatus" />
       </template>
       <template #lastExecResult="{ record }">
-        <execute-result :execute-result="record.lastExecResult" />
+        <ExecuteResult v-if="record.lastExecResult" :execute-result="record.lastExecResult" />
+        <span v-else>-</span>
       </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-        <execute-result :execute-result="filterContent.value" />
+        <ExecuteResult :execute-result="filterContent.value" />
       </template>
       <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
         <MsStatusTag :status="filterContent.value" />
