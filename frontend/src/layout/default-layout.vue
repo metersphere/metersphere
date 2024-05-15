@@ -187,7 +187,7 @@
         background-color: var(--color-bg-6);
       }
     }
-    :deep(.arco-menu-light) {
+    :deep(.arco-menu-light:not(.arco-menu-collapsed)) {
       background-color: transparent !important;
       .arco-menu-item {
         :hover {

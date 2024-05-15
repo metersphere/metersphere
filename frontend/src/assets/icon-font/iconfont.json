@@ -6,6 +6,13 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "40342056",
+      "name": "icon_api-test-filled",
+      "font_class": "icon_api-test-filled2",
+      "unicode": "e7b4",
+      "unicode_decimal": 59316
+    },
+    {
       "icon_id": "40334819",
       "name": "icon_test-tracking_filled",
       "font_class": "a-icon_test-tracking_filled1",
