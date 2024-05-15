@@ -1,6 +1,5 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.share.ApiReportShareDTO;
@@ -11,6 +10,7 @@ import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.ShareInfoMapper;

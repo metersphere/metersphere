@@ -1,4 +1,4 @@
-package io.metersphere.api.constants;
+package io.metersphere.sdk.constants;
 
 /**
  * @author: LAN

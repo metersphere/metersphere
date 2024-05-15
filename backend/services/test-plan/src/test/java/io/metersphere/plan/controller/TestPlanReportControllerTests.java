@@ -1,10 +1,9 @@
 package io.metersphere.plan.controller;
 
-import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanReportDeleteRequest;
-import io.metersphere.plan.dto.request.TestPlanReportEditRequest;
-import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
+import io.metersphere.plan.dto.TestPlanShareInfo;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
+import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -19,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,6 +32,9 @@ public class TestPlanReportControllerTests extends BaseTest {
 	private static final String RENAME_PLAN_REPORT = "/test-plan/report/rename";
 	private static final String DELETE_PLAN_REPORT = "/test-plan/report/delete";
 	private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
+	private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
+	private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
+	private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
 
 	@Test
 	@Order(1)
@@ -107,6 +110,39 @@ public class TestPlanReportControllerTests extends BaseTest {
 
 	@Test
 	@Order(5)
+	void testSharePlanReport() throws Exception {
+		TestPlanReportShareRequest shareRequest = new TestPlanReportShareRequest();
+		shareRequest.setReportId("test-plan-report-id-1");
+		shareRequest.setProjectId("100001100001");
+		shareRequest.setShareType(ShareInfoType.TEST_PLAN_SHARE_REPORT.name());
+		this.requestPost(GEN_AND_SHARE, shareRequest);
+		shareRequest.setLang(Locale.SIMPLIFIED_CHINESE.getLanguage());
+		MvcResult mvcResult = this.requestPost(GEN_AND_SHARE, shareRequest).andReturn();
+		String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+		ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
+		TestPlanShareInfo shareInfo = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), TestPlanShareInfo.class);
+		Assertions.assertNotNull(shareInfo);
+		this.requestGet(GET_SHARE_INFO + "/" + shareInfo.getId());
+	}
+
+	@Test
+	@Order(6)
+	void testGetShareInfo() throws Exception {
+		// 报告被删除
+		this.requestGet(GET_SHARE_INFO + "/share-1");
+		// 分享链接未找到
+		this.requestGet(GET_SHARE_INFO + "/share-2", status().is5xxServerError());
+	}
+
+	@Test
+	@Order(7)
+	void testGetShareTime() throws Exception {
+		this.requestGet(GET_SHARE_TIME + "/100001100001");
+		this.requestGet(GET_SHARE_TIME + "/100001100002");
+	}
+
+	@Test
+	@Order(8)
 	void testDeletePlanReport() throws Exception {
 		TestPlanReportDeleteRequest request = new TestPlanReportDeleteRequest();
 		request.setId("test-plan-report-id-1");
@@ -115,7 +151,7 @@ public class TestPlanReportControllerTests extends BaseTest {
 	}
 
 	@Test
-	@Order(6)
+	@Order(9)
 	void testBatchDeletePlanReport() throws Exception {
 		TestPlanReportBatchRequest request = new TestPlanReportBatchRequest();
 		request.setProjectId("100001100001");

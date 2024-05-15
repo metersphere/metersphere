@@ -1,7 +1,6 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ApiDefinitionDocType;
-import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
@@ -17,6 +16,7 @@ import io.metersphere.api.mapper.ExtShareInfoMapper;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.ShareInfoMapper;

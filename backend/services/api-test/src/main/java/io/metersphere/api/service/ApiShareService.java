@@ -1,13 +1,13 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.constants.ApiDefinitionDocType;
-import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.dto.definition.ApiDefinitionDocDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionDocRequest;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ExtShareInfoMapper;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.BeanUtils;

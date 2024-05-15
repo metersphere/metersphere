@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,6 +64,7 @@ public class TestPlanBugControllerTests extends BaseTest {
 				|| StringUtils.contains(bug.getNum(), request.getKeyword()));
 		// 数据为空
 		request.setKeyword("oasis-1");
+		request.setSort(Map.of("b.create_time", "asc"));
 		this.requestPost(TEST_PLAN_BUG_PAGE, request);
 	}
 

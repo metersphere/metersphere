@@ -1,7 +1,6 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ApiScenarioStepType;
-import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
@@ -21,6 +20,7 @@ import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
