@@ -1,4 +1,5 @@
 import type { PassRateCountDetail, planStatusType, TestPlanDetail } from '@/models/testPlan/testPlan';
+import { LastExecuteResults } from '@/enums/caseEnum';
 
 // TODO: 对照后端字段
 // 测试计划详情
@@ -37,6 +38,13 @@ export const defaultDetailCount: PassRateCountDetail = {
   functionalCaseCount: 0,
   apiCaseCount: 0,
   apiScenarioCount: 0,
+};
+
+export const defaultExecuteForm = {
+  lastExecResult: 'PASSED' as LastExecuteResults,
+  content: '',
+  planCommentFileIds: [],
+  notifier: [] as string[],
 };
 
 export default {};

@@ -25,6 +25,7 @@ import {
   MoveTestPlanModuleUrl,
   planDetailBugPageUrl,
   planPassRateUrl,
+  RunFeatureCaseUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
@@ -42,6 +43,7 @@ import type {
   PlanDetailBugItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
+  RunFeatureCaseParams,
   TestPlanDetail,
   TestPlanItem,
   UseCountType,
@@ -163,4 +165,8 @@ export function disassociateCase(data: DisassociateCaseParams) {
 // 计划详情-功能用例列表-批量取消关联用例
 export function batchDisassociateCase(data: BatchFeatureCaseParams) {
   return MSR.post({ url: BatchDisassociateCaseUrl, data });
+}
+// 计划详情-功能用例-执行
+export function runFeatureCase(data: RunFeatureCaseParams) {
+  return MSR.post({ url: RunFeatureCaseUrl, data });
 }

@@ -88,6 +88,8 @@ export default {
   'system.orgTemplate.exitPreview': '退出预览',
   'system.orgTemplate.useCaseStep': '用例步骤',
   'system.orgTemplate.expectedResult': '预期结果',
+  'system.orgTemplate.actualResult': '实际结果',
+  'system.orgTemplate.stepExecutionResult': '步骤执行结果',
   'system.orgTemplate.numberIndex': '序号',
   'system.orgTemplate.addStep': '添加步骤',
   'system.orgTemplate.caseName': '用例名称',

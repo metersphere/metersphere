@@ -178,4 +178,9 @@ export default {
   'common.baseInfo': '基本信息',
   'common.remark': '备注',
   'common.case': '用例',
+  'common.caseLevel': '用例等级',
+  'common.caseStatus': '用例状态',
+  'common.responsiblePerson': '责任人',
+  'common.updateUserName': '更新人',
+  'common.updateTime': '更新时间',
 };
