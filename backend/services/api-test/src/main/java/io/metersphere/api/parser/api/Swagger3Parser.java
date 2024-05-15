@@ -324,7 +324,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         } else {
             name = path;
         }
-        String modulePath = CollectionUtils.isNotEmpty(operation.getTags()) ? StringUtils.join("/", operation.getTags().get(0)) : StringUtils.EMPTY;
+        String modulePath = CollectionUtils.isNotEmpty(operation.getTags()) ? StringUtils.join("/", operation.getTags().getFirst()) : StringUtils.EMPTY;
         return buildApiDefinition(name, path, method, modulePath, importRequest);
     }
 
@@ -441,7 +441,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         return val == null ? StringUtils.EMPTY : val.toString();
     }
 
-    private Schema getModelByRef(String ref) {
+    private Schema<?> getModelByRef(String ref) {
         if (StringUtils.isBlank(ref)) {
             return null;
         }
@@ -453,10 +453,10 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
     }
 
 
-    private JsonSchemaItem parseSchema(Schema schema) {
+    private JsonSchemaItem parseSchema(Schema<?> schema) {
         if (schema != null) {
             String refName = schema.get$ref();
-            Schema modelByRef = null;
+            Schema<?> modelByRef;
             if (StringUtils.isNotBlank(refName)) {
                 modelByRef = getModelByRef(refName);
             } else {
@@ -470,10 +470,9 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                     return parseObject(objectSchema, false);
                 } else {
                     JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
-                    Map<String, Schema> properties = modelByRef.getProperties();
                     Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
-                    if (MapUtils.isNotEmpty(properties)) {
-                        properties.forEach((key, value) -> {
+                    if (MapUtils.isNotEmpty(modelByRef.getProperties())) {
+                        modelByRef.getProperties().forEach((key, value) -> {
                             JsonSchemaItem item = parseProperty(value, false);
                             jsonSchemaProperties.put(key, item);
                         });
@@ -498,18 +497,15 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             return jsonSchemaItem;
         }
         JsonSchemaItem item = new JsonSchemaItem();
-        if (value instanceof IntegerSchema integerSchema) {
-            item = parseInteger(integerSchema);
-        } else if (value instanceof StringSchema stringSchema) {
-            item = parseString(stringSchema);
-        } else if (value instanceof NumberSchema numberSchema) {
-            item = parseNumber(numberSchema);
-        } else if (value instanceof BooleanSchema booleanSchema) {
-            item = parseBoolean(booleanSchema);
-        } else if (value instanceof ArraySchema arraySchema) {
-            item = parseArraySchema(arraySchema.getItems(), false);
-        } else if (value instanceof ObjectSchema objectSchemaItem) {
-            item = parseObject(objectSchemaItem, false);
+        switch (value) {
+            case IntegerSchema integerSchema -> item = parseInteger(integerSchema);
+            case StringSchema stringSchema -> item = parseString(stringSchema);
+            case NumberSchema numberSchema -> item = parseNumber(numberSchema);
+            case BooleanSchema booleanSchema -> item = parseBoolean(booleanSchema);
+            case ArraySchema arraySchema -> item = parseArraySchema(arraySchema.getItems(), false);
+            case ObjectSchema objectSchemaItem -> item = parseObject(objectSchemaItem, false);
+            default -> {
+            }
         }
         jsonSchemaProperties.put(StringUtils.EMPTY, item);
         jsonSchemaItem.setProperties(jsonSchemaProperties);
@@ -522,10 +518,9 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         jsonSchemaItem.setRequired(objectSchema.getRequired());
         jsonSchemaItem.setId(IDGenerator.nextStr());
         jsonSchemaItem.setDescription(objectSchema.getDescription());
-        Map<String, Schema> properties = objectSchema.getProperties();
         Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
-        if (MapUtils.isNotEmpty(properties)) {
-            properties.forEach((key, value) -> {
+        if (MapUtils.isNotEmpty(objectSchema.getProperties())) {
+            objectSchema.getProperties().forEach((key, value) -> {
                 JsonSchemaItem item = parseProperty(value, onlyOnce);
                 jsonSchemaProperties.put(key, item);
             });
@@ -534,7 +529,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         return jsonSchemaItem;
     }
 
-    private JsonSchemaItem parseProperty(Schema value, boolean onlyOnce) {
+    private JsonSchemaItem parseProperty(Schema<?> value, boolean onlyOnce) {
         if (value instanceof IntegerSchema integerSchema) {
             return parseInteger(integerSchema);
         }
@@ -589,8 +584,8 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
 
 
     //判断对象是否存在一直引用
-    private boolean isRef(Schema schema, int level) {
-        if (level > 20) {
+    private boolean isRef(Schema<?> schema, int level) {
+        if (level > 20 || schema == null) {
             return true;
         }
 
@@ -598,42 +593,24 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             schema = getModelByRef(schema.get$ref());
         }
 
-        if (schema instanceof ArraySchema arraySchema) {
-            return isRef(arraySchema.getItems(), level + 1);
-        }
+        assert schema != null;
 
-        if (schema instanceof ObjectSchema objectSchema) {
-            if (hasRefInObjectSchema(objectSchema, level + 1)) {
-                return true;
-            }
-        }
-        if (schema instanceof IntegerSchema) {
-            return false;
-        }
-        if (schema instanceof StringSchema) {
-            return false;
-        }
-        if (schema instanceof NumberSchema) {
-            return false;
-        }
-        if (schema instanceof BooleanSchema) {
-            return false;
-        }
-
-        return false;
+        return switch (schema) {
+            case ArraySchema arraySchema -> isRef(arraySchema.getItems(), level + 1);
+            case ObjectSchema objectSchema -> hasRefInObjectSchema(objectSchema, level + 1);
+            default -> false;
+        };
     }
 
+
     private boolean hasRefInObjectSchema(ObjectSchema objectSchema, int level) {
-        Map<String, Schema> properties = objectSchema.getProperties();
-        if (MapUtils.isNotEmpty(properties)) {
-            for (Schema value : properties.values()) {
-                if (value instanceof ArraySchema && isRef(((ArraySchema) value).getItems(), level + 1) && level > 20) {
-                    return true;
-                }
-                if (value instanceof ObjectSchema && isRef(value, level + 1) && level > 20) {
-                    return true;
-                }
-                if (value instanceof Schema<?> items && isRef(items, level + 1) && level > 20) {
+        if (level > 20) {
+            return true;
+        }
+
+        if (MapUtils.isNotEmpty(objectSchema.getProperties())) {
+            for (Schema<?> value : objectSchema.getProperties().values()) {
+                if (isRef(value, level + 1)) {
                     return true;
                 }
             }
@@ -658,7 +635,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         jsonSchemaString.setPattern(stringSchema.getPattern());
         jsonSchemaString.setEnumString(stringSchema.getEnum());
         if (stringSchema.getExample() == null && CollectionUtils.isNotEmpty(stringSchema.getEnum())) {
-            jsonSchemaString.setExample(stringSchema.getEnum().get(0));
+            jsonSchemaString.setExample(stringSchema.getEnum().getFirst());
         }
         return jsonSchemaString;
     }
@@ -706,7 +683,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         JsonSchemaItem jsonSchemaArray = new JsonSchemaItem();
         jsonSchemaArray.setType(PropertyConstant.ARRAY);
         jsonSchemaArray.setId(IDGenerator.nextStr());
-        Schema itemsSchema = null;
+        Schema<?> itemsSchema;
         if (StringUtils.isNotBlank(items.get$ref())) {
             itemsSchema = getModelByRef(items.get$ref());
         } else {
