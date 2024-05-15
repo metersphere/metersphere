@@ -50,47 +50,19 @@
           @change="() => handleStatusChange(record)"
         >
           <template #label>
-            <commonScriptStatus :status="record.status" />
+            <CommonScriptStatus :status="record.status" />
           </template>
           <a-option :key="CommonScriptStatusEnum.PASSED" :value="CommonScriptStatusEnum.PASSED">
-            <commonScriptStatus :status="CommonScriptStatusEnum.PASSED" />
+            <CommonScriptStatus :status="CommonScriptStatusEnum.PASSED" />
           </a-option>
           <a-option :key="CommonScriptStatusEnum.DRAFT" :value="CommonScriptStatusEnum.DRAFT">
-            <commonScriptStatus :status="CommonScriptStatusEnum.DRAFT" />
+            <CommonScriptStatus :status="CommonScriptStatusEnum.DRAFT" />
           </a-option>
         </a-select>
-        <commonScriptStatus v-else :status="record.status" />
+        <CommonScriptStatus v-else :status="record.status" />
       </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of Object.values(CommonScriptStatusEnum)" :key="val" :value="val">
-                    <commonScriptStatus :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT]="{ filterContent }">
+        <CommonScriptStatus :status="filterContent.value" />
       </template>
       <template #operation="{ record }">
         <MsButton v-permission="['PROJECT_CUSTOM_FUNCTION:READ+UPDATE']" status="primary" @click="editHandler(record)">
@@ -141,7 +113,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
-  import commonScriptStatus from './components/commonScriptStatus.vue';
+  import CommonScriptStatus from './components/commonScriptStatus.vue';
   import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
 
   import {
@@ -163,6 +135,7 @@
   } from '@/models/projectManagement/commonScript';
   import { CommonScriptStatusEnum } from '@/enums/commonScriptStatusEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -172,13 +145,20 @@
   const { openModal } = useModal();
 
   const { t } = useI18n();
-  const statusFilterVisible = ref(false);
   const keyword = ref<string>('');
-  const statusFilters = ref<string[]>([]);
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ+UPDATE', 'PROJECT_CUSTOM_FUNCTION:READ+DELETE'])
   );
+
+  const statusFilterOptions = computed(() => {
+    return Object.values(CommonScriptStatusEnum).map((key) => {
+      return {
+        value: key,
+        label: key,
+      };
+    });
+  });
 
   const columns: MsTableColumn = [
     {
@@ -204,10 +184,13 @@
       showInTable: true,
       width: 150,
       showDrag: true,
-      titleSlotName: 'statusFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: statusFilterOptions.value,
+        filterSlotName: FilterSlotNameEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT,
       },
     },
     {
@@ -290,24 +273,8 @@
     setLoadListParams({
       projectId: currentProjectId.value,
       keyword: keyword.value,
-      filter: {
-        status: statusFilters.value,
-      },
     });
     loadList();
-  }
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      statusFilterVisible.value = false;
-      initData();
-    }
-  }
-
-  function resetStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    initData();
   }
 
   function deleteScript(record: CommonScriptItem) {
@@ -370,6 +337,7 @@
       };
       await addOrUpdateCommonScriptReq(paramsObj);
       showScriptDrawer.value = false;
+      resetSelector();
       initData();
       Message.success(form.id ? t('common.updateSuccess') : t('common.createSuccess'));
       if (showDetailDrawer.value) {

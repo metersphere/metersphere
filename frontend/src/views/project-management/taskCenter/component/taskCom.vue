@@ -28,9 +28,10 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { ResourceTypeMapKey } from '@/enums/taskCenter';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
-  import type { ResourceTypeMapKey } from './utils';
+  import type { ExtractedKeys } from './utils';
 
   const { t } = useI18n();
 
@@ -77,7 +78,7 @@
   ]);
 
   const activeTask = ref(route.query.tab || 'real');
-  const activeTab = ref<ResourceTypeMapKey>((route.query.type as ResourceTypeMapKey) || TaskCenterEnum.API_CASE);
+  const activeTab = ref<ExtractedKeys>((route.query.type as ExtractedKeys) || TaskCenterEnum.API_CASE);
 
   const rightTabList = computed(() => {
     return activeTask.value === 'real' ? realTabList.value : timingTabList.value;

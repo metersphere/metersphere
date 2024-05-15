@@ -124,9 +124,6 @@
   const loading = ref(true);
 
   const optionLabelRender = (option: SelectOptionData) => {
-    if (option.email !== '') {
-      return `<span class='text-[var(--color-text-1)]'>${option.name}</span><span class='text-[var(--color-text-4)] ml-[4px]'>(${option.email})</span>`;
-    }
     return `<span class='text-[var(--color-text-1)]'>${option.name}</span>`;
   };
 
@@ -159,6 +156,25 @@
     }
     return false;
   });
+
+  const isNoFilter = computed(() => {
+    if (props.filter && JSON.stringify(props.filter) !== '{}') {
+      return !Object.keys(props.filter).some((key: any) => {
+        return props.filter[key].length > 0;
+      });
+    }
+    return true;
+  });
+
+  // 用于切换的时候重置清空上一次的选择
+  watch(
+    () => isNoFilter.value,
+    (val) => {
+      if (val) {
+        checkedList.value = [];
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">

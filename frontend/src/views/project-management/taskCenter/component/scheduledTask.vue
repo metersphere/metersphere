@@ -54,6 +54,16 @@
           {{ t(resourceTypeMap[record.resourceType as ResourceTypeMapKey].label) }}
         </div>
       </template>
+      <template #projectName="{ record }">
+        <a-tooltip :content="`${record.projectName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.projectName) }}</div>
+        </a-tooltip>
+      </template>
+      <template #organizationName="{ record }">
+        <a-tooltip :content="`${record.organizationName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.organizationName) }}</div>
+        </a-tooltip>
+      </template>
       <template #value="{ record }">
         <a-select
           v-model:model-value="record.value"
@@ -69,48 +79,6 @@
             </span>
           </a-option>
         </a-select>
-      </template>
-      <template v-if="appStore.packageType === 'enterprise' && xPack" #orgFilterName="{ columnConfig }">
-        <TableFilter
-          v-model:visible="orgFilterVisible"
-          v-model:status-filters="orgFiltersMap[props.moduleType]"
-          :title="(columnConfig.title as string)"
-          mode="remote"
-          value-key="id"
-          label-key="name"
-          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_LIST"
-          :placeholder-text="t('project.taskCenter.filterOrgPlaceholderText')"
-          @search="initData()"
-        >
-        </TableFilter>
-      </template>
-      <template
-        v-if="
-          hasAnyPermission(
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM ||
-              groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM
-              ? ['SYSTEM_ORGANIZATION_PROJECT:READ']
-              : ['ORGANIZATION_PROJECT:READ']
-          )
-        "
-        #projectFilterName="{ columnConfig }"
-      >
-        <TableFilter
-          v-model:visible="projectFilterVisible"
-          v-model:status-filters="projectFiltersMap[props.moduleType]"
-          :title="(columnConfig.title as string)"
-          mode="remote"
-          :load-option-params="{ organizationId: appStore.currentOrgId }"
-          :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
-          :type="
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM ||
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM
-              ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
-              : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
-          "
-          @search="initData()"
-        >
-        </TableFilter>
       </template>
       <template #operation="{ record }">
         <a-switch
@@ -147,8 +115,6 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDisableScheduleOrgTask,
@@ -173,19 +139,18 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { useAppStore, useTableStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
+  import { useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
   import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import type { ResourceTypeMapKey } from '@/enums/taskCenter';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
-  import { Group, ordAndProjectColumn, resourceTypeMap, ResourceTypeMapKey } from './utils';
-
-  const appStore = useAppStore();
+  import { getOrgColumns, getProjectColumns, Group, resourceTypeMap } from './utils';
 
   const { openNewPage } = useOpenNewPage();
 
@@ -268,7 +233,7 @@
     hasAnyPermission([...(permissionsMap[props.group][props.moduleType]?.edit || '')])
   );
 
-  const columns: MsTableColumn = [
+  const resourceColumns: MsTableColumn = [
     {
       title: 'project.taskCenter.resourceID',
       dataIndex: 'resourceNum',
@@ -291,6 +256,9 @@
       columnSelectorDisabled: true,
       showInTable: true,
     },
+  ];
+
+  const staticColumns: MsTableColumn = [
     {
       title: 'project.taskCenter.operationRule',
       dataIndex: 'value',
@@ -352,50 +320,56 @@
     },
   ];
 
-  const groupColumnsMap: Record<string, any> = {
+  const tableKeyMap: Record<string, any> = {
     system: {
-      API_IMPORT: {
-        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM,
-        columns: [
-          ...ordAndProjectColumn,
-          ...columns.slice(0, 2),
-          ...swaggerUrlColumn,
-          ...columns.slice(2, columns.length),
-        ],
-      },
-      API_SCENARIO: {
-        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM,
-        columns: [...ordAndProjectColumn, ...columns],
-      },
+      API_IMPORT: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM,
+      API_SCENARIO: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM,
     },
     organization: {
-      API_IMPORT: {
-        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_ORGANIZATION,
-        columns: [
-          ...ordAndProjectColumn.slice(-1),
-          ...columns.slice(0, 2),
-          ...swaggerUrlColumn,
-          ...columns.slice(2, columns.length),
-        ],
-      },
-      API_SCENARIO: {
-        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_ORGANIZATION,
-        columns: [...ordAndProjectColumn.slice(-1), ...columns],
-      },
+      API_IMPORT: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_ORGANIZATION,
+      API_SCENARIO: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_ORGANIZATION,
     },
     project: {
-      API_IMPORT: {
-        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_PROJECT,
-        columns: [...columns.slice(0, 2), ...swaggerUrlColumn, ...columns.slice(2, columns.length)],
-      },
-      API_SCENARIO: {
-        key: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_PROJECT,
-        columns,
-      },
+      API_IMPORT: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_PROJECT,
+      API_SCENARIO: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_PROJECT,
     },
   };
-  const orgFilterVisible = ref<boolean>(false);
-  const projectFilterVisible = ref<boolean>(false);
+
+  const groupColumnsMap: Record<string, any> = {
+    system: {
+      API_IMPORT: [
+        getOrgColumns(),
+        getProjectColumns(tableKeyMap[props.group][props.moduleType]),
+        ...resourceColumns,
+        ...swaggerUrlColumn,
+        ...staticColumns,
+      ],
+
+      API_SCENARIO: [
+        getOrgColumns(),
+        getProjectColumns(tableKeyMap[props.group][props.moduleType]),
+        ...resourceColumns,
+        ...staticColumns,
+      ],
+    },
+    organization: {
+      API_IMPORT: [
+        getProjectColumns(tableKeyMap[props.group][props.moduleType]),
+        ...resourceColumns,
+        ...swaggerUrlColumn,
+        ...staticColumns,
+      ],
+      API_SCENARIO: [
+        getProjectColumns(tableKeyMap[props.group][props.moduleType]),
+        ...resourceColumns,
+        ...staticColumns,
+      ],
+    },
+    project: {
+      API_IMPORT: [...resourceColumns, ...swaggerUrlColumn, ...staticColumns],
+      API_SCENARIO: [...resourceColumns, ...staticColumns],
+    },
+  };
   const orgApiCaseFilter = ref([]);
   const orgApiScenarioFilter = ref([]);
 
@@ -413,13 +387,10 @@
 
   const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
 
-  const licenseStore = useLicenseStore();
-  const xPack = computed(() => licenseStore.hasLicense());
-
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     loadRealMap.value[props.group].list,
     {
-      tableKey: groupColumnsMap[props.group][props.moduleType].key,
+      tableKey: tableKeyMap[props.group][props.moduleType],
       scroll: {
         x: 1200,
       },
@@ -440,10 +411,6 @@
     setLoadListParams({
       keyword: keyword.value,
       scheduleTagType: props.moduleType,
-      filter: {
-        organizationIds: orgFiltersMap.value[props.moduleType],
-        projectIds: projectFiltersMap.value[props.moduleType],
-      },
     });
     loadList();
   }
@@ -570,10 +537,7 @@
             excludeIds,
             condition: {
               keyword: keyword.value,
-              filter: {
-                organizationIds: orgFiltersMap.value[props.moduleType],
-                projectIds: projectFiltersMap.value[props.moduleType],
-              },
+              filter: propsRes.value.filter,
             },
           });
           resetSelector();
@@ -649,8 +613,8 @@
   );
 
   await tableStore.initColumn(
-    groupColumnsMap[props.group][props.moduleType].key,
-    groupColumnsMap[props.group][props.moduleType].columns,
+    tableKeyMap[props.group][props.moduleType],
+    groupColumnsMap[props.group][props.moduleType],
     'drawer',
     true
   );
@@ -660,7 +624,8 @@
     () => props.moduleType,
     (val) => {
       if (val) {
-        tableRef.value.initColumn(groupColumnsMap[props.group][props.moduleType].columns);
+        resetFilterParams();
+        tableRef.value.initColumn(groupColumnsMap[props.group][props.moduleType]);
       }
     }
   );

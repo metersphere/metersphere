@@ -22,9 +22,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { ResourceTypeMapKey } from '@/enums/taskCenter';
   import { TaskCenterEnum } from '@/enums/taskCenter';
-
-  import type { ResourceTypeMapKey } from './utils';
 
   const { t } = useI18n();
   const props = defineProps<{
