@@ -118,6 +118,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_TEST_PLAN_BATCH_COPY = "/test-plan/batch-copy";
     private static final String URL_TEST_PLAN_BATCH_MOVE = "/test-plan/batch-move";
     private static final String URL_TEST_PLAN_BATCH_ARCHIVED = "/test-plan/batch-archived";
+    private static final String URL_TEST_PLAN_BATCH_EDIT = "/test-plan/batch-edit";
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
@@ -1847,6 +1848,23 @@ public class TestPlanTests extends BaseTest {
     @Order(306)
     public void testStatistics() throws Exception {
         this.requestPostWithOk(URL_POST_TEST_PLAN_STATISTICS, List.of("wx_test_plan_id_7"));
+    }
+
+
+    @Test
+    @Order(307)
+    public void testBatchEditTestPlan() throws Exception {
+        TestPlanBatchEditRequest request = new TestPlanBatchEditRequest();
+        request.setTags(Arrays.asList("tag1", "tag2"));
+        request.setAppend(true);
+        request.setType("ALL");
+        request.setProjectId("123");
+        request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
+        this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
+        request.setAppend(false);
+        request.setTags(Arrays.asList("tag3", "tag4"));
+        request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
+        this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
     }
 
 }

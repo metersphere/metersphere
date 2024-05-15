@@ -1,6 +1,8 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.dto.request.TestPlanBatchEditRequest;
 import io.metersphere.plan.dto.request.TestPlanCopyRequest;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
@@ -15,12 +17,15 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,9 +42,10 @@ public class TestPlanLogService {
 
     /**
      * 新增计划日志
-     * @param module 模块
-     * @param operator 操作人
-     * @param requestUrl 请求路径
+     *
+     * @param module        模块
+     * @param operator      操作人
+     * @param requestUrl    请求路径
      * @param requestMethod 请求方法
      */
     public void saveAddLog(TestPlan module, String operator, String requestUrl, String requestMethod) {
@@ -61,11 +67,12 @@ public class TestPlanLogService {
 
     /**
      * 修改计划日志
-     * @param oldTestPlan 旧计划
-     * @param newTestPlan 新计划
-     * @param projectId 项目ID
-     * @param operator 操作人
-     * @param requestUrl 请求URL
+     *
+     * @param oldTestPlan   旧计划
+     * @param newTestPlan   新计划
+     * @param projectId     项目ID
+     * @param operator      操作人
+     * @param requestUrl    请求URL
      * @param requestMethod 请求方法
      */
     public void saveUpdateLog(TestPlan oldTestPlan, TestPlan newTestPlan, String projectId, String operator, String requestUrl, String requestMethod) {
@@ -88,10 +95,11 @@ public class TestPlanLogService {
 
     /**
      * 删除计划日志
+     *
      * @param deleteTestPlan 删除计划
-     * @param operator 操作人
-     * @param requestUrl 请求URL
-     * @param requestMethod 请求方法
+     * @param operator       操作人
+     * @param requestUrl     请求URL
+     * @param requestMethod  请求方法
      */
     public void saveDeleteLog(TestPlan deleteTestPlan, String operator, String requestUrl, String requestMethod) {
         Project project = projectMapper.selectByPrimaryKey(deleteTestPlan.getProjectId());
@@ -157,12 +165,13 @@ public class TestPlanLogService {
 
     /**
      * 保存批量日志
-     * @param plans 计划
-     * @param operator 操作人
-     * @param requestUrl 请求URL
+     *
+     * @param plans         计划
+     * @param operator      操作人
+     * @param requestUrl    请求URL
      * @param requestMethod 请求方法
-     * @param requestType 请求类型
-     * @param typeKey 类型Key
+     * @param requestType   请求类型
+     * @param typeKey       类型Key
      */
     public void saveBatchLog(List<TestPlan> plans, String operator, String requestUrl, String requestMethod, String requestType, String typeKey) {
         Project project = projectMapper.selectByPrimaryKey(plans.get(0).getProjectId());
@@ -187,8 +196,9 @@ public class TestPlanLogService {
 
     /**
      * 生成计划操作日志内容
+     *
      * @param testPlan 测试计划
-     * @param type 类型
+     * @param type     类型
      * @return 日志内容
      */
     private String generateTestPlanSimpleContent(TestPlan testPlan, String type) {
@@ -199,5 +209,40 @@ public class TestPlanLogService {
             content.append(Translator.getWithArgs("test_plan.batch.log", type)).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
         }
         return content.toString();
+    }
+
+
+    /**
+     * 批量编辑
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> batchEditLog(TestPlanBatchEditRequest request) {
+        // 测试计划不支持全选所有页
+        List<String> ids = request.getSelectIds();
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andIdIn(ids);
+            List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
+            Map<String, TestPlan> collect = testPlans.stream().collect(Collectors.toMap(TestPlan::getId, testPlan -> testPlan));
+            ids.forEach(id -> {
+                TestPlan testPlan = collect.get(id);
+                LogDTO dto = new LogDTO(
+                        testPlan.getProjectId(),
+                        null,
+                        testPlan.getId(),
+                        null,
+                        OperationLogType.UPDATE.name(),
+                        OperationLogModule.TEST_PLAN,
+                        testPlan.getName());
+                dto.setPath("/test-plan/batch-edit");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(testPlan));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
     }
 }

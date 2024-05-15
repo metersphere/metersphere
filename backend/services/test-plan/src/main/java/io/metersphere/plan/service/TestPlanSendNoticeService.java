@@ -3,24 +3,28 @@ package io.metersphere.plan.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
+import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.service.NoticeSendService;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -34,6 +38,8 @@ public class TestPlanSendNoticeService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private NoticeSendService noticeSendService;
+    @Resource
+    private CommonNoticeSendService commonNoticeSendService;
 
     public void sendNoticeCase(List<String> relatedUsers, String userId, String caseId, String task, String event, String testPlanId) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
@@ -64,11 +70,52 @@ public class TestPlanSendNoticeService {
 
     private static void setLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
-        if (StringUtils.containsIgnoreCase("US",language)) {
+        if (StringUtils.containsIgnoreCase("US", language)) {
             locale = Locale.US;
-        } else if (StringUtils.containsIgnoreCase("TW",language)){
+        } else if (StringUtils.containsIgnoreCase("TW", language)) {
             locale = Locale.TAIWAN;
         }
         LocaleContextHolder.setLocale(locale);
+    }
+
+
+    public void batchSendNotice(String projectId, List<String> ids, User user, String event) {
+        int amount = 100;//每次读取的条数
+        long roundTimes = Double.valueOf(Math.ceil((double) ids.size() / amount)).longValue();//循环的次数
+        for (int i = 0; i < (int) roundTimes; i++) {
+            int fromIndex = (i * amount);
+            int toIndex = ((i + 1) * amount);
+            if (i == roundTimes - 1 || toIndex > ids.size()) {//最后一次遍历
+                toIndex = ids.size();
+            }
+            List<String> subList = ids.subList(fromIndex, toIndex);
+            List<TestPlanDTO> testPlanDTOS = handleBatchNotice(projectId, subList);
+            List<Map> resources = new ArrayList<>();
+            resources.addAll(JSON.parseArray(JSON.toJSONString(testPlanDTOS), Map.class));
+            commonNoticeSendService.sendNotice(NoticeConstants.TaskType.TEST_PLAN_TASK, event, resources, user, projectId);
+        }
+    }
+
+    private List<TestPlanDTO> handleBatchNotice(String projectId, List<String> ids) {
+        List<TestPlanDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            Map<String, TestPlan> testPlanMap = getTestPlanInfo(projectId, ids);
+            ids.forEach(id -> {
+                if (testPlanMap.containsKey(id)) {
+                    TestPlan testPlan = testPlanMap.get(id);
+                    TestPlanDTO testPlanDTO = new TestPlanDTO();
+                    BeanUtils.copyBean(testPlanDTO, testPlan);
+                    dtoList.add(testPlanDTO);
+                }
+            });
+        }
+        return dtoList;
+    }
+
+    private Map<String, TestPlan> getTestPlanInfo(String projectId, List<String> ids) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andIdIn(ids);
+        List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
+        return testPlans.stream().collect(Collectors.toMap(TestPlan::getId, testPlan -> testPlan));
     }
 }
