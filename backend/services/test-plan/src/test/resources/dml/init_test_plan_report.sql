@@ -12,3 +12,9 @@ INSERT INTO `test_plan_report`(`id`, `test_plan_id`, `name`, `create_user`, `cre
 ('test-plan-report-id-2', 'test-plan-id-for991', '测试一下计划报告1', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'MANUAL', 'PENDING', '-', '99.99', 100.00),
 ('test-plan-report-id-3', 'test-plan-id-for992', '测试一下计划报告3', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'MANUAL', 'PENDING', '-', '99.99', 100.00),
 ('test-plan-report-id-4', 'test-plan-id-for992', '测试一下计划报告4', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'MANUAL', 'PENDING', '-', '99.99', 100.00);
+
+-- 计划报告分享信息
+INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES
+ ('100001100001', 'TEST_PLAN_SHARE_REPORT', '1D');
+INSERT INTO `share_info`(`id`, `create_time`, `create_user`, `update_time`, `share_type`, `custom_data`, `lang`, `project_id`) VALUES
+('share-1', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'TEST_PLAN_SHARE_REPORT', 0x31303531363635363936353436383137, 'zh_CN', '100001100001');
