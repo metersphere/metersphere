@@ -1,8 +1,8 @@
 // 报告列表
-export const PlanReportListUrl = '/api/report/scenario/page';
+export const PlanReportListUrl = '/test-plan/report/page';
 // 报告重命名
-export const PlanReportRenameUrl = '/api/report/scenario/rename';
+export const PlanReportRenameUrl = '/test-plan/report/rename';
 // 删除报告
-export const PlanDeleteUrl = '/api/report/scenario/delete';
+export const PlanDeleteUrl = '/test-plan/report/delete';
 // 批量删除报告
-export const PlanBatchDeleteUrl = '/api/report/scenario/batch/delete';
+export const PlanBatchDeleteUrl = '/test-plan/report/batch-delete';

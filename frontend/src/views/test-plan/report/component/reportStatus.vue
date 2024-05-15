@@ -32,13 +32,8 @@
         icon: 'icon-icon_close_colorful',
         label: 'report.failure',
       },
-      FAKE_ERROR: {
-        icon: 'icon-icon_warning_colorful',
-        label: 'report.fake.error',
-      },
       DEFAULT: {
-        icon: 'icon-icon_block_filled',
-        label: 'report.status.pending',
+        label: '-',
         color: '!text-[var(--color-text-input-border)]',
       },
     },
@@ -58,9 +53,9 @@
         label: 'report.status.pending',
         color: '!text-[var(--color-text-input-border)]',
       },
-      DEFAULT: {
+      COMPLETED: {
         icon: 'icon-icon_wait',
-        label: 'report.status.pending',
+        label: 'report.completed',
         color: '!text-[var(--color-text-input-border)]',
       },
     },

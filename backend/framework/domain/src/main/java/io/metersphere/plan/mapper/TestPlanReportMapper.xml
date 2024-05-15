@@ -14,6 +14,9 @@
     <result column="result_status" jdbcType="VARCHAR" property="resultStatus" />
     <result column="pass_threshold" jdbcType="VARCHAR" property="passThreshold" />
     <result column="pass_rate" jdbcType="DECIMAL" property="passRate" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="integrated" jdbcType="BIT" property="integrated" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,7 +78,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, `name`, create_user, create_time, start_time, end_time, trigger_mode, 
-    exec_status, result_status, pass_threshold, pass_rate
+    exec_status, result_status, pass_threshold, pass_rate, project_id, integrated, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportExample" resultMap="BaseResultMap">
     select
@@ -111,12 +114,14 @@
     insert into test_plan_report (id, test_plan_id, `name`, 
       create_user, create_time, start_time, 
       end_time, trigger_mode, exec_status, 
-      result_status, pass_threshold, pass_rate
+      result_status, pass_threshold, pass_rate, 
+      project_id, integrated, deleted
       )
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{triggerMode,jdbcType=VARCHAR}, #{execStatus,jdbcType=VARCHAR}, 
-      #{resultStatus,jdbcType=VARCHAR}, #{passThreshold,jdbcType=VARCHAR}, #{passRate,jdbcType=DECIMAL}
+      #{resultStatus,jdbcType=VARCHAR}, #{passThreshold,jdbcType=VARCHAR}, #{passRate,jdbcType=DECIMAL}, 
+      #{projectId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, #{deleted,jdbcType=BIT}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReport">
@@ -158,6 +163,15 @@
       <if test="passRate != null">
         pass_rate,
       </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="integrated != null">
+        integrated,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -195,6 +209,15 @@
       </if>
       <if test="passRate != null">
         #{passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="integrated != null">
+        #{integrated,jdbcType=BIT},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -243,6 +266,15 @@
       <if test="record.passRate != null">
         pass_rate = #{record.passRate,jdbcType=DECIMAL},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.integrated != null">
+        integrated = #{record.integrated,jdbcType=BIT},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -261,7 +293,10 @@
       exec_status = #{record.execStatus,jdbcType=VARCHAR},
       result_status = #{record.resultStatus,jdbcType=VARCHAR},
       pass_threshold = #{record.passThreshold,jdbcType=VARCHAR},
-      pass_rate = #{record.passRate,jdbcType=DECIMAL}
+      pass_rate = #{record.passRate,jdbcType=DECIMAL},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      integrated = #{record.integrated,jdbcType=BIT},
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +337,15 @@
       <if test="passRate != null">
         pass_rate = #{passRate,jdbcType=DECIMAL},
       </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="integrated != null">
+        integrated = #{integrated,jdbcType=BIT},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,20 +361,25 @@
       exec_status = #{execStatus,jdbcType=VARCHAR},
       result_status = #{resultStatus,jdbcType=VARCHAR},
       pass_threshold = #{passThreshold,jdbcType=VARCHAR},
-      pass_rate = #{passRate,jdbcType=DECIMAL}
+      pass_rate = #{passRate,jdbcType=DECIMAL},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      integrated = #{integrated,jdbcType=BIT},
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report
     (id, test_plan_id, `name`, create_user, create_time, start_time, end_time, trigger_mode, 
-      exec_status, result_status, pass_threshold, pass_rate)
+      exec_status, result_status, pass_threshold, pass_rate, project_id, integrated, 
+      deleted)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.startTime,jdbcType=BIGINT}, 
         #{item.endTime,jdbcType=BIGINT}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.execStatus,jdbcType=VARCHAR}, 
         #{item.resultStatus,jdbcType=VARCHAR}, #{item.passThreshold,jdbcType=VARCHAR}, 
-        #{item.passRate,jdbcType=DECIMAL})
+        #{item.passRate,jdbcType=DECIMAL}, #{item.projectId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
+        #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -378,6 +427,15 @@
         </if>
         <if test="'pass_rate'.toString() == column.value">
           #{item.passRate,jdbcType=DECIMAL}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'integrated'.toString() == column.value">
+          #{item.integrated,jdbcType=BIT}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
         </if>
       </foreach>
       )

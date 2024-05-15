@@ -32,69 +32,7 @@
           >{{ characterLimit(record.name) }}</div
         >
       </template>
-      <!-- 报告类型 -->
-      <template #integrated="{ record }">
-        <MsTag theme="light" :type="record.integrated ? 'primary' : undefined">
-          {{ record.integrated ? t('report.collection') : t('report.independent') }}
-        </MsTag>
-      </template>
-      <template #integratedFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="reportTypeVisible"
-          v-model:status-filters="integratedFiltersMap[showType]"
-          :title="(columnConfig.title as string)"
-          :list="reportTypeList"
-          @search="initData()"
-        >
-          <template #item="{ item }">
-            <MsTag theme="light" :type="item.value === 'INTEGRATED' ? 'primary' : undefined">
-              {{ item.value === 'INTEGRATED' ? t('report.collection') : t('report.independent') }}
-            </MsTag>
-          </template>
-        </TableFilter>
-      </template>
-      <!-- 报告触发方式筛选 -->
-      <template #triggerModeFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="triggerModeFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px]"
-            @click.stop="triggerModeFilterVisible = true"
-          >
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="triggerModeFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group
-                  v-model:model-value="triggerModeListFiltersMaps[showType]"
-                  direction="vertical"
-                  size="small"
-                >
-                  <a-checkbox v-for="(key, value) of TriggerModeLabel" :key="key" :value="value">
-                    <div class="font-medium">{{ t(key) }}</div>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetTriggerModeFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
+
       <!-- 通过率 -->
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
@@ -108,95 +46,22 @@
         </div>
       </template>
       <template #passRate="{ record }">
-        <div class="mr-[8px] w-[100px]">
-          <passRateLine :detail="record" height="5px" />
-        </div>
         <div class="text-[var(--color-text-1)]">
           {{ `${record.passRate | 0}%` }}
         </div>
       </template>
-      <!-- 报告结果筛选 -->
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click.stop="statusFilterVisible = true">
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group
-                  v-model:model-value="statusListFiltersMap[showType]"
-                  direction="vertical"
-                  size="small"
-                >
-                  <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
       <!-- 执行状态筛选 -->
-      <template #execStatusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="execStatusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleExecStatusFilterHidden"
-        >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px]"
-            @click.stop="execStatusFilterVisible = true"
-          >
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="execStatusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group
-                  v-model:model-value="statusListFiltersMap[showType]"
-                  direction="vertical"
-                  size="small"
-                >
-                  <a-checkbox v-for="key of execStatusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="ReportStatusEnum.EXEC_STATUS" :status="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetExecStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleExecStatusFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #resultStatus="{ record }">
+        <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="record.resultStatus" />
       </template>
-      <template #status="{ record }">
-        <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="record.status" />
+      <template #execStatus="{ record }">
+        <ExecutionStatus :module-type="ReportStatusEnum.EXEC_STATUS" :status="record.execStatus" />
+      </template>
+      <template #[FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportStatusEnum.EXEC_STATUS" :status="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="filterContent.value" />
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
@@ -225,9 +90,6 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
-  import passRateLine from '@/views/test-plan/report/component/passRateLine.vue';
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
 
   import { reportBathDelete, reportDelete, reportList, reportRename } from '@/api/modules/test-plan/report';
@@ -241,6 +103,7 @@
   import { BatchApiParams } from '@/models/common';
   import { PlanReportStatus, ReportStatusEnum, TriggerModeLabel } from '@/enums/reportEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const { openModal } = useModal();
 
@@ -248,15 +111,46 @@
   const tableStore = useTableStore();
   const { t } = useI18n();
   const keyword = ref<string>('');
-  const statusFilterVisible = ref(false);
-  const execStatusFilterVisible = ref(false);
-
-  const triggerModeFilterVisible = ref(false);
-
-  const triggerModeListFilters = ref<string[]>([]);
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
+
+  const executeResultOptions = computed(() => {
+    return Object.keys(PlanReportStatus[ReportStatusEnum.EXEC_STATUS]).map((key) => {
+      return {
+        value: key,
+        label: PlanReportStatus[ReportStatusEnum.EXEC_STATUS][key].statusText,
+      };
+    });
+  });
+
+  const statusResultOptions = computed(() => {
+    return Object.keys(PlanReportStatus[ReportStatusEnum.REPORT_STATUS]).map((key) => {
+      return {
+        value: key,
+        label: PlanReportStatus[ReportStatusEnum.REPORT_STATUS][key].statusText,
+      };
+    });
+  });
+
+  const triggerModeOptions = computed(() => {
+    return Object.keys(TriggerModeLabel).map((key) => {
+      return {
+        value: key,
+        label: t(TriggerModeLabel[key as keyof typeof TriggerModeLabel]),
+      };
+    });
+  });
+
+  const integratedFilters = computed(() => {
+    if (showType.value === 'All') {
+      return undefined;
+    }
+    if (showType.value === 'INTEGRATED') {
+      return [true];
+    }
+    return [false];
+  });
 
   const columns: MsTableColumn = [
     {
@@ -287,21 +181,12 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'report.type',
-      slotName: 'integrated',
-      dataIndex: 'integrated',
-      titleSlotName: 'integratedFilter',
-      width: 150,
-      showDrag: true,
-    },
-    {
       title: 'report.execStatus',
       dataIndex: 'execStatus',
       slotName: 'execStatus',
-      titleSlotName: 'execStatusFilter',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+      filterConfig: {
+        options: executeResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS,
       },
       showInTable: true,
       width: 200,
@@ -310,12 +195,16 @@
 
     {
       title: 'report.result',
-      dataIndex: 'status',
-      slotName: 'status',
+      dataIndex: 'resultStatus',
+      slotName: 'resultStatus',
       titleSlotName: 'statusFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: statusResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
       },
       showInTable: true,
       width: 200,
@@ -333,13 +222,11 @@
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
       showInTable: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       width: 150,
       showDrag: true,
-      titleSlotName: 'triggerModeFilter',
+      filterConfig: {
+        options: triggerModeOptions.value,
+      },
     },
     {
       title: 'report.operator',
@@ -400,72 +287,12 @@
     }),
     rename
   );
-  // 全部过滤条件
-  const allListFilters = ref<string[]>([]);
-  const independentListFilters = ref<string[]>([]);
-  const integratedListFilters = ref<string[]>([]);
-
-  const statusListFiltersMap = ref<Record<string, string[]>>({
-    All: allListFilters.value,
-    INDEPENDENT: independentListFilters.value,
-    INTEGRATED: integratedListFilters.value,
-  });
-
-  const allTriggerModeFilters = ref<string[]>([]);
-  const independentTriggerModeFilters = ref<string[]>([]);
-  const integratedTriggerModeFilters = ref<string[]>([]);
-  const triggerModeListFiltersMaps = ref<Record<string, string[]>>({
-    All: allTriggerModeFilters.value,
-    INDEPENDENT: independentTriggerModeFilters.value,
-    INTEGRATED: integratedTriggerModeFilters.value,
-  });
-  // 全部过滤条件
-  const allIntegratedFilters = ref<string[]>([]);
-  const independentIntegratedFilters = ref<string[]>([]);
-  const integratedIntegratedFilters = ref<string[]>([]);
-
-  const reportTypeVisible = ref<boolean>(false);
-
-  const integratedFiltersMap = ref<Record<string, string[]>>({
-    All: allIntegratedFilters.value,
-    INDEPENDENT: independentIntegratedFilters.value,
-    INTEGRATED: integratedIntegratedFilters.value,
-  });
-
-  const reportTypeList = ref([
-    {
-      value: 'INDEPENDENT',
-      label: t('report.independent'),
-    },
-    {
-      value: 'INTEGRATED',
-      label: t('report.collection'),
-    },
-  ]);
-
-  const integratedFilters = computed(() => {
-    if (showType.value === 'All') {
-      if (integratedFiltersMap.value[showType.value].length === 1) {
-        return integratedFiltersMap.value[showType.value].includes('INDEPENDENT') ? [false] : [true];
-      }
-      return undefined;
-    }
-    if (showType.value === 'INTEGRATED') {
-      return [true];
-    }
-    return [false];
-  });
 
   function initData() {
     setLoadListParams({
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-
-      filter: {
-        status: statusListFiltersMap.value[showType.value],
-        integrated: integratedFilters.value,
-        triggerMode: triggerModeListFiltersMaps.value[showType.value],
-      },
+      filter: { ...propsRes.value.filter, integrated: integratedFilters.value },
     });
     loadList();
   }
@@ -493,11 +320,7 @@
       ...params,
       selectIds: params?.selectedIds || [],
       condition: {
-        filter: {
-          status: statusListFiltersMap.value[showType.value],
-          integrated: integratedFilters.value,
-          triggerMode: triggerModeListFilters.value,
-        },
+        filter: { ...propsRes.value.filter, integrated: integratedFilters.value },
         keyword: keyword.value,
       },
       projectId: appStore.currentProjectId,
@@ -561,51 +384,13 @@
     initData();
   });
 
-  const statusFilters = computed(() => {
-    return Object.keys(PlanReportStatus[ReportStatusEnum.REPORT_STATUS]) || [];
-  });
-
-  const execStatusFilters = computed(() => {
-    return Object.keys(PlanReportStatus[ReportStatusEnum.EXEC_STATUS]) || [];
-  });
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      triggerModeFilterVisible.value = false;
-      statusFilterVisible.value = false;
-      initData();
-    }
-  }
-
-  function handleExecStatusFilterHidden(val: boolean) {
-    if (!val) {
-      triggerModeFilterVisible.value = false;
-      execStatusFilterVisible.value = false;
-      initData();
-    }
-  }
-
-  function resetTriggerModeFilter() {
-    triggerModeFilterVisible.value = false;
-    triggerModeListFilters.value = [];
-    initData();
-  }
-
-  function resetStatusFilter() {
-    statusFilterVisible.value = false;
-    statusListFiltersMap.value[showType.value] = [];
-    initData();
-  }
-
-  function resetExecStatusFilter() {
-    execStatusFilterVisible.value = false;
-    statusListFiltersMap.value[showType.value] = [];
-    initData();
-  }
-
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
     resetSelector();
+    console.log(propsRes.value);
+    propsRes.value.filter = {
+      integrated: integratedFilters.value,
+    };
     initData();
   }
 

@@ -903,6 +903,196 @@ public class TestPlanReportExample {
             addCriterion("pass_rate not between", value1, value2, "passRate");
             return (Criteria) this;
         }
+
+        public Criteria andProjectIdIsNull() {
+            addCriterion("project_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdIsNotNull() {
+            addCriterion("project_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdEqualTo(String value) {
+            addCriterion("project_id =", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdNotEqualTo(String value) {
+            addCriterion("project_id <>", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdGreaterThan(String value) {
+            addCriterion("project_id >", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_id >=", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdLessThan(String value) {
+            addCriterion("project_id <", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("project_id <=", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdLike(String value) {
+            addCriterion("project_id like", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdNotLike(String value) {
+            addCriterion("project_id not like", value, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdIn(List<String> values) {
+            addCriterion("project_id in", values, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdNotIn(List<String> values) {
+            addCriterion("project_id not in", values, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdBetween(String value1, String value2) {
+            addCriterion("project_id between", value1, value2, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdNotBetween(String value1, String value2) {
+            addCriterion("project_id not between", value1, value2, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIsNull() {
+            addCriterion("integrated is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIsNotNull() {
+            addCriterion("integrated is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedEqualTo(Boolean value) {
+            addCriterion("integrated =", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotEqualTo(Boolean value) {
+            addCriterion("integrated <>", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedGreaterThan(Boolean value) {
+            addCriterion("integrated >", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("integrated >=", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedLessThan(Boolean value) {
+            addCriterion("integrated <", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedLessThanOrEqualTo(Boolean value) {
+            addCriterion("integrated <=", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIn(List<Boolean> values) {
+            addCriterion("integrated in", values, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotIn(List<Boolean> values) {
+            addCriterion("integrated not in", values, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedBetween(Boolean value1, Boolean value2) {
+            addCriterion("integrated between", value1, value2, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("integrated not between", value1, value2, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIsNull() {
+            addCriterion("deleted is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIsNotNull() {
+            addCriterion("deleted is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedEqualTo(Boolean value) {
+            addCriterion("deleted =", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotEqualTo(Boolean value) {
+            addCriterion("deleted <>", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedGreaterThan(Boolean value) {
+            addCriterion("deleted >", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("deleted >=", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedLessThan(Boolean value) {
+            addCriterion("deleted <", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedLessThanOrEqualTo(Boolean value) {
+            addCriterion("deleted <=", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIn(List<Boolean> values) {
+            addCriterion("deleted in", values, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotIn(List<Boolean> values) {
+            addCriterion("deleted not in", values, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedBetween(Boolean value1, Boolean value2) {
+            addCriterion("deleted between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("deleted not between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

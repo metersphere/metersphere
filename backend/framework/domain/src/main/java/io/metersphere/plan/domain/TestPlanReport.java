@@ -1,15 +1,12 @@
 package io.metersphere.plan.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class TestPlanReport implements Serializable {
@@ -43,12 +40,12 @@ public class TestPlanReport implements Serializable {
     @Schema(description = "触发类型")
     private String triggerMode;
 
-    @Schema(description = "执行状态;未执行, 执行中, 已停止, 已完成;", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "执行状态: 未执行, 执行中, 已停止, 已完成;", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report.exec_status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_report.exec_status.length_range}", groups = {Created.class, Updated.class})
     private String execStatus;
 
-    @Schema(description = "结果状态;成功, 失败, 阻塞, 误报")
+    @Schema(description = "结果状态: 成功, 失败, 阻塞, 误报")
     private String resultStatus;
 
     @Schema(description = "通过阈值", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -58,6 +55,19 @@ public class TestPlanReport implements Serializable {
 
     @Schema(description = "通过率")
     private Long passRate;
+
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_report.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_report.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
+
+    @Schema(description = "是否是集成报告", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report.integrated.not_blank}", groups = {Created.class})
+    private Boolean integrated;
+
+    @Schema(description = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 
@@ -73,7 +83,10 @@ public class TestPlanReport implements Serializable {
         execStatus("exec_status", "execStatus", "VARCHAR", false),
         resultStatus("result_status", "resultStatus", "VARCHAR", false),
         passThreshold("pass_threshold", "passThreshold", "VARCHAR", false),
-        passRate("pass_rate", "passRate", "DECIMAL", false);
+        passRate("pass_rate", "passRate", "DECIMAL", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
+        integrated("integrated", "integrated", "BIT", false),
+        deleted("deleted", "deleted", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

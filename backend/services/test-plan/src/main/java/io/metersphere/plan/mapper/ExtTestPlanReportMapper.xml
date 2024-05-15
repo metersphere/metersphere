@@ -3,14 +3,11 @@
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportMapper">
     <select id="list" resultType="io.metersphere.plan.dto.response.TestPlanReportPageResponse">
         select tpr.id as id, tpr.name as name, tp.name as planName, tpr.pass_threshold planPassThreshold,
-        tpr.trigger_mode as triggerMode, tpr.exec_status as executeStatus, tpr.result_status as resultStatus,
-        tpr.pass_rate passRate, tpr.create_user createUser, tpr.create_time createTime
+        tpr.trigger_mode as triggerMode, tpr.exec_status , tpr.result_status as resultStatus,
+        tpr.pass_rate passRate, tpr.create_user createUser, tpr.create_time createTime, tpr.integrated
         from test_plan_report tpr
         join test_plan tp on tpr.test_plan_id = tp.id
         <include refid="queryWhereCondition"/>
-        <if test="sort != null and sort != ''">
-            order by ${sort}
-        </if>
     </select>
 
     <select id="getReportBatchIdsByParam" resultType="java.lang.String">
@@ -18,14 +15,24 @@
         join test_plan tp on tpr.test_plan_id = tp.id
         <include refid="queryWhereCondition"/>
     </select>
+    <select id="selectReportByIds" resultType="io.metersphere.plan.domain.TestPlanReport">
+        select * from test_plan_report where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getNoticeList" resultType="io.metersphere.system.dto.sdk.ApiReportMessageDTO">
+        select id, name from test_plan_report where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 
     <sql id="queryWhereCondition">
         <where>
+            tpr.deleted = 0
             <if test="request.projectId != null and request.projectId != ''">
-                and tp.project_id = #{request.projectId}
-            </if>
-            <if test="request.type != null and request.type != '' and request.type != 'ALL'">
-                and tp.type = #{request.type}
+                and tpr.project_id = #{request.projectId}
             </if>
             <if test="request.keyword != null and request.keyword != ''">
                 and tpr.name like concat('%', #{request.keyword},'%')
@@ -44,13 +51,23 @@
             <foreach collection="request.filter.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
+                        <when test="key=='integrated'">
+                            and tpr.integrated in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                <choose>
+                                    <when test="value == 'true'">1</when>
+                                    <when test="value == 'false'">0</when>
+                                    <otherwise>0</otherwise>
+                                </choose>
+                            </foreach>
+                        </when>
                         <!-- 触发方式 -->
                         <when test="key == 'triggerMode'">
                             and tpr.trigger_mode in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <!-- 执行状态 -->
-                        <when test="key == 'executeStatus'">
+                        <when test="key == 'execStatus'">
                             and tpr.exec_status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
