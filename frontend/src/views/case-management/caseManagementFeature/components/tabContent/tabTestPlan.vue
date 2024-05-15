@@ -39,7 +39,6 @@
   import { debounce } from 'lodash-es';
   import dayjs from 'dayjs';
 
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -95,7 +94,9 @@
       title: 'caseManagement.featureCase.testPlanName',
       slotName: 'testPlanName',
       dataIndex: 'testPlanName',
-      width: 200,
+      showInTable: true,
+      showTooltip: true,
+      width: 300,
     },
     {
       title: 'caseManagement.featureCase.projectName',
