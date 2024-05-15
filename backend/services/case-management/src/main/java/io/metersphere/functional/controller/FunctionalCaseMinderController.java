@@ -1,10 +1,12 @@
 package io.metersphere.functional.controller;
 
+import com.alibaba.excel.util.StringUtils;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderRemoveRequest;
+import io.metersphere.functional.request.FunctionalCaseReviewMindRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.functional.service.FunctionalCaseNoticeService;
@@ -39,7 +41,7 @@ public class FunctionalCaseMinderController {
     @PostMapping("/list")
     @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
-    @CheckOwner(resourceId = "#projectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public List<FunctionalMinderTreeDTO> getFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
         return functionalCaseMinderService.getMindFunctionalCase(request, false);
     }
@@ -81,6 +83,23 @@ public class FunctionalCaseMinderController {
     public void deleteFunctionalCaseBatch(@PathVariable String projectId, @Validated @RequestBody @Schema(description = "节点和节点类型的集合", requiredMode = Schema.RequiredMode.REQUIRED) List<MinderOptionDTO> resourceList) {
         String userId = SessionUtils.getUserId();
         functionalCaseMinderService.deleteFunctionalCaseBatch(projectId, resourceList, userId);
+    }
+
+
+    @PostMapping("/review/list")
+    @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
+    public List<FunctionalMinderTreeDTO> getReviewMindFunctionalCase(@Validated @RequestBody FunctionalCaseReviewMindRequest request) {
+        String userId = StringUtils.EMPTY;
+        if (request.isViewFlag()) {
+            userId = SessionUtils.getUserId();
+        }
+        String viewStatusUserId = StringUtils.EMPTY;
+        if (request.isViewStatusFlag()) {
+            viewStatusUserId = SessionUtils.getUserId();
+        }
+        return functionalCaseMinderService.getReviewMindFunctionalCase(request, false, userId, viewStatusUserId);
     }
 
 }
