@@ -394,17 +394,18 @@
               class={['flex w-full items-center justify-between', collapsed.value ? 'h-[56px] w-[56px]' : '']}
               key="personalInfo"
             >
-              {collapsed.value ? (
-                <div class="relative flex h-full items-center justify-center hover:!bg-transparent">
-                  <MsAvatar avatar={userStore.avatar} size={30} class="hover:!bg-transparent" />
+              {
+                <div
+                  class={[
+                    collapsed.value
+                      ? 'relative flex h-full items-center justify-center hover:!bg-transparent'
+                      : 'relative flex items-center gap-[8px] hover:!bg-transparent',
+                  ]}
+                >
+                  <MsAvatar is-user size={20} class="!mr-0 hover:!bg-transparent" />
+                  {collapsed.value ? null : userStore.name}
                 </div>
-              ) : (
-                <div class="relative flex items-center gap-[8px] hover:!bg-transparent">
-                  <MsAvatar avatar={userStore.avatar} size={20} />
-                  {userStore.name}
-                </div>
-              )}
-
+              }
               {collapsed.value ? null : <icon-caret-down class="!m-0" />}
             </a-menu-item>
           </a-trigger>

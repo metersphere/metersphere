@@ -342,6 +342,7 @@ export const mockDefaultParams: MockParams = {
         sendAsBody: false,
       },
     },
+    delay: 0,
   },
   apiDefinitionId: '',
   uploadFileIds: [],

@@ -112,6 +112,9 @@
         </a-select>
         <apiMethodName v-else :method="record.method" is-tag />
       </template>
+      <template #caseTotal="{ record }">
+        {{ record.caseTotal }}
+      </template>
       <template #status="{ record }">
         <a-select
           v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE'])"
@@ -448,6 +451,21 @@
       showTooltip: true,
       width: 200,
       showDrag: true,
+    },
+    {
+      title: 'apiTestManagement.belongModule',
+      dataIndex: 'moduleName',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'apiTestManagement.caseTotal',
+      dataIndex: 'caseTotal',
+      showTooltip: true,
+      width: 100,
+      showDrag: true,
+      slotName: 'caseTotal',
     },
     {
       title: 'common.tag',

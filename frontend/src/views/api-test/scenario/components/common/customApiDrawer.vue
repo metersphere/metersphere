@@ -1161,7 +1161,7 @@
         url: res.path,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
-        stepId: props.step?.uniqueId || '',
+        stepId: props.step?.id || '',
         responseActiveTab: ResponseComposition.BODY,
         ...parseRequestBodyResult,
       };

@@ -10,6 +10,7 @@
     :ok-loading="loading"
     no-content-padding
     unmount-on-close
+    @continue="() => handleSave(true)"
     @confirm="handleSave"
     @cancel="handleCancel"
     @close="handleCancel"
@@ -227,7 +228,7 @@
 
   import { ResponseDefinition } from '@/models/apiTest/common';
   import { MockParams } from '@/models/apiTest/mock';
-  import { RequestBodyFormat, RequestComposition } from '@/enums/apiEnum';
+  import { RequestBodyFormat, RequestComposition, RequestParamsType } from '@/enums/apiEnum';
 
   import {
     defaultHeaderParamsItem,
@@ -499,7 +500,9 @@
       // form-data 的匹配规则含有文件类型，特殊处理
       const formDataMatch = res.mockMatchRule.body.formDataBody.matchRules.map((item) => {
         const newParamType =
-          currentBodyKeyOptions.value.find((e) => e.value === item.key)?.paramType || defaultMatchRuleItem.paramType;
+          currentBodyKeyOptions.value.find((e) => e.value === item.key)?.paramType || item.files
+            ? RequestParamsType.FILE
+            : defaultMatchRuleItem.paramType;
         item.paramType = newParamType;
         item.files = item.files || [];
         return item;
@@ -535,6 +538,15 @@
         appendDefaultMatchRuleItem();
       }
       isEdit.value = !!props.isEditMode;
+      if (mockDetail.value.mockMatchRule.body.bodyType !== RequestBodyFormat.NONE) {
+        activeTab.value = RequestComposition.BODY;
+      } else if (mockDetail.value.mockMatchRule.header.matchRules.length > 0) {
+        activeTab.value = RequestComposition.HEADER;
+      } else if (mockDetail.value.mockMatchRule.query) {
+        activeTab.value = RequestComposition.QUERY;
+      } else if (mockDetail.value.mockMatchRule.rest) {
+        activeTab.value = RequestComposition.REST;
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -612,7 +624,7 @@
     handleCancel();
   }
 
-  async function handleSave() {
+  async function handleSave(isContinue = false) {
     try {
       loading.value = true;
       const { body } = mockDetail.value.mockMatchRule;
@@ -696,7 +708,11 @@
         Message.success(t('common.createSuccess'));
       }
       emit('addDone');
-      handleCancel();
+      if (isContinue) {
+        mockDetail.value = makeDefaultParams();
+      } else {
+        handleCancel();
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

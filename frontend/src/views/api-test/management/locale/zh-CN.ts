@@ -156,6 +156,7 @@ export default {
   'apiTestManagement.script': '脚本',
   'apiTestManagement.variable': '变量',
   'apiTestManagement.regex': '正则表达式',
+  'apiTestManagement.caseTotal': '用例数',
   'case.execute.selectEnv': '环境选择',
   'case.execute.defaultEnv': '默认环境',
   'case.execute.newEnv': '新环境',
@@ -238,4 +239,5 @@ export default {
   'mockManagement.batchEdit': '批量编辑',
   'mockManagement.batchDelete': '批量删除',
   'mockManagement.noMatchRules': '无该类匹配规则',
+  'mockManagement.responseDelay': '响应延时',
 };
