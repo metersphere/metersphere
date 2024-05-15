@@ -3,7 +3,7 @@
     <template #index="{ rowIndex }">
       <div class="circle text-[12px] font-medium"> {{ rowIndex + 1 }}</div>
     </template>
-    <template #caseStep="{ record }">
+    <template v-if="!props.isTestPlan" #caseStep="{ record }">
       <!--         v-if="record.showStep" -->
       <a-textarea
         :ref="(el: refItem) => setStepRefMap(el, record)"
@@ -16,7 +16,7 @@
         @blur="blurHandler(record, 'step')"
       />
     </template>
-    <template #expectedResult="{ record }">
+    <template v-if="!props.isTestPlan" #expectedResult="{ record }">
       <a-textarea
         :ref="(el: refItem) => setExpectedRefMap(el, record)"
         v-model="record.expected"
@@ -27,6 +27,9 @@
         :placeholder="t('system.orgTemplate.expectationTip')"
         @blur="blurHandler(record, 'expected')"
       />
+    </template>
+    <template #lastExecResult="{ record }">
+      <ExecuteResult :execute-result="record.executeResult" />
     </template>
     <template #operation="{ record }">
       <MsTableMoreAction
@@ -53,6 +56,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { getGenerateId } from '@/utils';
@@ -68,6 +72,7 @@
       stepList: any;
       isDisabled?: boolean;
       isScrollY?: boolean;
+      isTestPlan?: boolean;
     }>(),
     {
       isDisabled: false,
@@ -100,17 +105,35 @@
     {
       title: 'system.orgTemplate.useCaseStep',
       slotName: 'caseStep',
-      dataIndex: 'caseStep',
+      dataIndex: 'step',
       showDrag: true,
       showInTable: true,
     },
     {
       title: 'system.orgTemplate.expectedResult',
-      dataIndex: 'expectedResult',
+      dataIndex: 'expected',
       slotName: 'expectedResult',
       showDrag: true,
       showInTable: true,
     },
+    ...(!props.isTestPlan
+      ? []
+      : [
+          {
+            title: 'system.orgTemplate.actualResult',
+            dataIndex: 'actualResult',
+            slotName: 'actualResult',
+            showDrag: true,
+            showInTable: true,
+          },
+          {
+            title: 'system.orgTemplate.stepExecutionResult',
+            dataIndex: 'executeResult',
+            slotName: 'lastExecResult',
+            showDrag: true,
+            showInTable: true,
+          },
+        ]),
     {
       title: 'system.orgTemplate.operation',
       slotName: 'operation',

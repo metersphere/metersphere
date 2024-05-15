@@ -32,7 +32,8 @@
             <div
               v-for="item of caseList"
               :key="item.id"
-              :class="['case-item', caseDetail.id === item.id ? 'case-item--active' : '']"
+              :class="['case-item', caseDetail.id === item.caseId ? 'case-item--active' : '']"
+              @click="changeActiveCase(item)"
             >
               <div class="mb-[8px] flex items-center justify-between">
                 <div class="text-[var(--color-text-4)]">{{ item.num }}</div>
@@ -57,11 +58,13 @@
         </a-spin>
       </div>
       <!-- 右侧 -->
-      <a-spin :loading="caseDetailLoading" class="relative flex flex-1 flex-col p-[16px]">
-        <div class="flex">
+      <a-spin :loading="caseDetailLoading" class="relative flex h-full flex-1 flex-col">
+        <div class="flex px-[16px] pt-[16px]">
           <div class="mr-[24px] flex flex-1 items-center">
             <MsStatusTag :status="caseDetail.status || 'PREPARED'" />
-            <div class="ml-[8px] mr-[2px] font-medium text-[rgb(var(--primary-5))]">[{{ caseDetail.num }}]</div>
+            <div class="ml-[8px] mr-[2px] cursor-pointer font-medium text-[rgb(var(--primary-5))]" @click="goCaseDetail"
+              >[{{ caseDetail.num }}]</div
+            >
             <div class="flex-1 overflow-hidden">
               <a-tooltip :content="caseDetail.name">
                 <div class="one-line-text max-w-[100%] font-medium">
@@ -70,16 +73,52 @@
               </a-tooltip>
             </div>
           </div>
-          <a-button type="outline">{{ t('common.edit') }}</a-button>
+          <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="outline" @click="editCaseVisible = true">{{
+            t('common.edit')
+          }}</a-button>
         </div>
         <MsTab
           v-model:active-key="activeTab"
           :show-badge="false"
           :content-tab-list="contentTabList"
           no-content
-          class="relative border-b"
+          class="relative mx-[16px] border-b"
         />
-        <div class="tab-content">
+        <div :class="[' flex-1', activeTab !== 'detail' ? 'tab-content' : 'overflow-hidden']">
+          <!-- TODO: 属性的样式 -->
+          <MsDescription v-if="activeTab === 'baseInfo'" :descriptions="descriptions" :column="2" />
+          <div v-else-if="activeTab === 'detail'" class="align-content-start flex h-full flex-col">
+            <CaseTabDetail is-test-plan :form="caseDetail" />
+            <!-- 开始执行 -->
+            <div class="px-[16px] py-[8px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]">
+              <div class="mb-[12px] flex items-center justify-between">
+                <div class="font-medium text-[var(--color-text-1)]">
+                  {{ t('testPlan.featureCase.startExecution') }}
+                </div>
+                <div class="flex items-center">
+                  <a-switch v-model:model-value="autoNext" size="small" />
+                  <div class="mx-[8px]">{{ t('caseManagement.caseReview.autoNext') }}</div>
+                  <a-tooltip position="right">
+                    <template #content>
+                      <div>{{ t('caseManagement.caseReview.autoNextTip1') }}</div>
+                      <div>{{ t('caseManagement.caseReview.autoNextTip2') }}</div>
+                    </template>
+                    <icon-question-circle
+                      class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-4))]"
+                      size="16"
+                    />
+                  </a-tooltip>
+                  <!-- TODO: 缺陷 -->
+                </div>
+              </div>
+              <ExecuteSubmit
+                :id="activeId"
+                :case-id="activeCaseId"
+                :test-plan-id="route.query.id as string"
+                @done="executeDone"
+              />
+            </div>
+          </div>
           <BugList v-if="activeTab === 'defectList'" :case-id="caseDetail.id" />
           <!-- TODO 待写页面 还未提交 -->
           <!-- <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" /> -->
@@ -87,35 +126,56 @@
       </a-spin>
     </div>
   </MsCard>
+  <EditCaseDetailDrawer v-model:visible="editCaseVisible" :case-id="activeCaseId" @load-case="loadCase" />
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
+  import dayjs from 'dayjs';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugList from './bug/index.vue';
+  import ExecuteSubmit from './executeSubmit.vue';
+  import CaseTabDetail from '@/views/case-management/caseManagementFeature/components/tabContent/tabDetail.vue';
+  import EditCaseDetailDrawer from '@/views/case-management/caseReview/components/editCaseDetailDrawer.vue';
 
+  import { getCaseDetail } from '@/api/modules/case-management/featureCase';
   // import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
-  import { getPlanDetailFeatureCaseList } from '@/api/modules/test-plan/testPlan';
+  import { getPlanDetailFeatureCaseList, getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
+  import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
+  import type { PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { executionResultMap, getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const { t } = useI18n();
   const route = useRoute();
+  const router = useRouter();
   const appStore = useAppStore();
 
-  // TODO
-  const planDetail = ref({ num: '111', name: '222lalallalallalalalal222lalallalallalalalal222lalallalallalalalal' });
+  const planDetail = ref<TestPlanDetail>({
+    ...testPlanDefaultDetail,
+  });
+  async function getPlanDetail() {
+    try {
+      planDetail.value = await getTestPlanDetail(route.query.id as string);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
+  const activeCaseId = ref(route.query.caseId as string);
+  const activeId = ref(route.query.testPlanCaseId as string);
   const keyword = ref('');
   const lastExecResult = ref('');
   const executeResultOptions = computed(() => {
@@ -164,9 +224,18 @@
     }
   }
 
+  function goCaseDetail() {
+    window.open(
+      `${window.location.origin}#${
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
+      }?id=${activeCaseId.value}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
+    );
+  }
+
   const caseDetail = ref<any>({});
   const caseDetailLoading = ref(false);
   const activeTab = ref('detail');
+  const editCaseVisible = ref(false);
   const contentTabList = ref([
     {
       value: 'baseInfo',
@@ -185,6 +254,102 @@
       label: t('testPlan.featureCase.executionHistory'),
     },
   ]);
+  const descriptions = ref<Description[]>([]);
+
+  // 获取用例详情
+  async function loadCaseDetail() {
+    try {
+      caseDetailLoading.value = true;
+      const res = await getCaseDetail(activeCaseId.value);
+      caseDetail.value = res;
+      descriptions.value = [
+        {
+          label: t('common.belongModule'),
+          value: res.moduleName || t('common.root'),
+        },
+        {
+          label: t('common.tag'),
+          value: res.tags,
+          isTag: true,
+        },
+        {
+          label: t('caseManagement.featureCase.reviewResult'),
+          value: res.reviewStatus,
+        },
+        // 解析用例模板的自定义字段
+        ...res.customFields.map((e: Record<string, any>) => {
+          try {
+            return {
+              label: e.fieldName,
+              value: getCustomField(e),
+            };
+          } catch (error) {
+            return {
+              label: e.fieldName,
+              value: e.defaultValue,
+            };
+          }
+        }),
+        {
+          label: t('common.creator'),
+          value: res.createUserName,
+        },
+        {
+          label: t('common.createTime'),
+          value: dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss'),
+        },
+      ];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      caseDetailLoading.value = false;
+    }
+  }
+
+  function changeActiveCase(item: PlanDetailFeatureCaseItem) {
+    if (activeCaseId.value !== item.caseId) {
+      activeCaseId.value = item.caseId;
+      activeId.value = item.id;
+    }
+  }
+  watch(
+    () => activeCaseId.value,
+    () => {
+      loadCaseDetail();
+    }
+  );
+
+  async function loadCase() {
+    await loadCaseList();
+    await loadCaseDetail();
+  }
+
+  const autoNext = ref(true);
+  async function executeDone() {
+    if (autoNext.value) {
+      // 自动下一个，更改激活的 id会刷新详情
+      const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
+      if (index < caseList.value.length - 1) {
+        await loadCaseList();
+        activeCaseId.value = caseList.value[index + 1].caseId;
+        activeId.value = caseList.value[index + 1].id;
+      } else if (pageNation.value.current * pageNation.value.pageSize < pageNation.value.total) {
+        // 当前页不是最后一页，则加载下一页并激活第一个用例
+        pageNation.value.current += 1;
+        await loadCaseList();
+        activeCaseId.value = caseList.value[0].caseId;
+        activeId.value = caseList.value[0].id;
+      } else {
+        // 当前是最后一个，刷新数据
+        loadCaseDetail();
+        loadCaseList();
+      }
+    } else {
+      // 不自动下一个才请求详情
+      loadCase();
+    }
+  }
 
   onBeforeMount(async () => {
     const lastPageParams = window.history.state.params ? JSON.parse(window.history.state.params) : null; // 获取上个页面带过来的表格查询参数
@@ -201,9 +366,8 @@
         moduleIds,
       };
     }
-    await loadCaseList();
-    // TODO 获取用例详情 暂时
-    caseDetail.value = caseList.value[0] ?? {};
+    getPlanDetail();
+    await loadCase();
   });
 </script>
 
@@ -231,7 +395,15 @@
     }
   }
   .tab-content {
+    @apply overflow-y-auto;
+
+    padding: 16px;
     .ms-scroll-bar();
-    @apply py-4;
+  }
+  :deep(.caseDetailWrapper) {
+    @apply flex-1 overflow-y-auto;
+
+    padding: 16px;
+    .ms-scroll-bar();
   }
 </style>

@@ -261,16 +261,7 @@
       </a-spin>
     </div>
   </MsCard>
-  <MsDrawer
-    v-model:visible="editCaseVisible"
-    :title="t('caseManagement.caseReview.updateCase')"
-    :width="1200"
-    :ok-text="t('common.update')"
-    :ok-loading="updateCaseLoading"
-    @confirm="updateCase"
-  >
-    <caseTemplateDetail v-if="editCaseVisible" v-model:form-mode-value="editCaseForm" :case-id="activeCaseId" />
-  </MsDrawer>
+  <EditCaseDetailDrawer v-model:visible="editCaseVisible" :case-id="activeCaseId" @load-case="loadCase" />
 </template>
 
 <script setup lang="ts">
@@ -278,21 +269,19 @@
    * @description 功能测试-用例评审-用例详情
    */
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
-  import caseTemplateDetail from '../caseManagementFeature/components/caseTemplateDetail.vue';
   import caseTabDemand from '../caseManagementFeature/components/tabContent/tabDemand/associatedDemandTable.vue';
   import caseTabDetail from '../caseManagementFeature/components/tabContent/tabDetail.vue';
+  import EditCaseDetailDrawer from './components/editCaseDetailDrawer.vue';
   import reviewForm from './components/reviewForm.vue';
 
   import {
@@ -300,7 +289,7 @@
     getReviewDetail,
     getReviewDetailCasePage,
   } from '@/api/modules/case-management/caseReview';
-  import { getCaseDetail, updateCaseRequest } from '@/api/modules/case-management/featureCase';
+  import { getCaseDetail } from '@/api/modules/case-management/featureCase';
   import { reviewDefaultDetail, reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -308,6 +297,8 @@
   import { ReviewCaseItem, ReviewHistoryItem, ReviewItem, ReviewResult } from '@/models/caseManagement/caseReview';
   import type { DetailCase } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
+  import { getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const route = useRoute();
   const router = useRouter();
@@ -430,34 +421,6 @@
   }
   const caseDetailLoading = ref(false);
 
-  function getCustomField(customFields: any) {
-    const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
-    const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
-    let selectValue: Record<string, any>;
-    // 处理多选项
-    if (multipleExcludes.includes(customFields.type) && customFields.defaultValue) {
-      selectValue = JSON.parse(customFields.defaultValue);
-      return (
-        (customFields.options || [])
-          .filter((item: any) => selectValue.includes(item.value))
-          .map((it: any) => it.text)
-          .join(',') || '-'
-      );
-    }
-    if (customFields.type === 'MULTIPLE_INPUT') {
-      // 处理标签形式
-      return JSON.parse(customFields.defaultValue).join('，') || '-';
-    }
-    if (selectExcludes.includes(customFields.type)) {
-      return (
-        (customFields.options || [])
-          .filter((item: any) => customFields.defaultValue === item.value)
-          .map((it: any) => it.text)
-          .join() || '-'
-      );
-    }
-    return customFields.defaultValue || '-';
-  }
   // 加载用例详情
   async function loadCaseDetail() {
     try {
@@ -588,23 +551,10 @@
   }
 
   const editCaseVisible = ref(false);
-  const editCaseForm = ref<Record<string, any>>({});
-  const updateCaseLoading = ref(false);
 
-  async function updateCase() {
-    try {
-      updateCaseLoading.value = true;
-      await updateCaseRequest(editCaseForm.value);
-      editCaseVisible.value = false;
-      Message.success(t('caseManagement.featureCase.editSuccess'));
-      loadCaseList();
-      loadCaseDetail();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      updateCaseLoading.value = false;
-    }
+  async function loadCase() {
+    await loadCaseList();
+    loadCaseDetail();
   }
 
   onBeforeMount(() => {
@@ -638,8 +588,7 @@
       keyword.value = route.query.reviewId as string;
     }
     initDetail();
-    loadCaseList();
-    loadCaseDetail();
+    loadCase();
     if (showTab.value === 'detail') {
       initReviewHistoryList();
     }

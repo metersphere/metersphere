@@ -180,4 +180,19 @@ export interface PassRateCountDetail {
   apiScenarioCount: number;
 }
 
+export interface ExecuteFeatureCaseFormParams {
+  lastExecResult: LastExecuteResults;
+  content?: string;
+  commentIds?: string[];
+  planCommentFileIds?: string[];
+}
+
+export interface RunFeatureCaseParams extends ExecuteFeatureCaseFormParams {
+  projectId: string;
+  id: string;
+  testPlanId: string;
+  caseId: string;
+  notifier?: string;
+}
+
 export default {};

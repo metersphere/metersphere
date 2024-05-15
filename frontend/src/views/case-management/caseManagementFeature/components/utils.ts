@@ -145,7 +145,37 @@ export function getModules(moduleIds: string, treeData: ModuleTreeNode[]) {
   }
 }
 
-// 处理自定义字段
+// 自定义字段
+export function getCustomField(customFields: any) {
+  const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
+  const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
+  let selectValue: Record<string, any>;
+  // 处理多选项
+  if (multipleExcludes.includes(customFields.type) && customFields.defaultValue) {
+    selectValue = JSON.parse(customFields.defaultValue);
+    return (
+      (customFields.options || [])
+        .filter((item: any) => selectValue.includes(item.value))
+        .map((it: any) => it.text)
+        .join(',') || '-'
+    );
+  }
+  if (customFields.type === 'MULTIPLE_INPUT') {
+    // 处理标签形式
+    return JSON.parse(customFields.defaultValue).join('，') || '-';
+  }
+  if (selectExcludes.includes(customFields.type)) {
+    return (
+      (customFields.options || [])
+        .filter((item: any) => customFields.defaultValue === item.value)
+        .map((it: any) => it.text)
+        .join() || '-'
+    );
+  }
+  return customFields.defaultValue || '-';
+}
+
+// 处理表格自定义字段
 export function getTableFields(customFields: CustomAttributes[], itemDataIndex: MsTableColumnData, userId: string) {
   const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
   const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];

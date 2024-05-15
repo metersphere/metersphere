@@ -9,7 +9,7 @@
           position="tr"
           trigger="click"
         >
-          <a-button :disabled="props.disabled" type="outline">
+          <a-button :disabled="props.disabled" type="outline" class="arco-btn-outline--secondary">
             <template #icon> <icon-plus class="text-[14px]" /> </template>
             {{ t('system.orgTemplate.addAttachment') }}
           </a-button>

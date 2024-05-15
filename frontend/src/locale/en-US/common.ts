@@ -175,4 +175,9 @@ export default {
   'common.moreSetting': 'More settings',
   'common.remark': 'Remark',
   'common.case': 'Case',
+  'common.caseLevel': 'Case level',
+  'common.caseStatus': 'Case status',
+  'common.responsiblePerson': 'Responsible person',
+  'common.updateUserName': 'Update user name',
+  'common.updateTime': 'Update time',
 };

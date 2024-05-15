@@ -399,7 +399,8 @@
       name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL_FEATURE_CASE_DETAIL,
       query: {
         ...route.query,
-        caseId: record.id,
+        caseId: record.caseId,
+        testPlanCaseId: record.id,
       },
       state: {
         params: JSON.stringify(getTableQueryParams()),

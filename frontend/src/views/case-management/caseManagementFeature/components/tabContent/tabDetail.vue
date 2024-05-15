@@ -10,7 +10,7 @@
       >
         <span class="absolute right-[6px] top-0">
           <a-button
-            v-if="props.allowEdit"
+            v-if="props.allowEdit && !props.isTestPlan"
             v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
             type="text"
             class="px-0"
@@ -45,7 +45,7 @@
         "
         class="relative"
       >
-        <div class="absolute left-16 top-0 font-normal">
+        <div v-if="!props.isTestPlan" class="absolute left-16 top-0 font-normal">
           <a-divider direction="vertical" />
           <a-dropdown :popup-max-height="false" @select="handleSelectType">
             <span class="changeType cursor-pointer text-[var(--color-text-3)]"
@@ -63,7 +63,12 @@
         </div>
         <!-- 步骤描述 -->
         <div v-if="detailForm.caseEditType === 'STEP'" class="w-full">
-          <AddStep v-model:step-list="stepData" :is-scroll-y="false" :is-disabled="!isEditPreposition" />
+          <AddStep
+            v-model:step-list="stepData"
+            :is-scroll-y="false"
+            :is-test-plan="props.isTestPlan"
+            :is-disabled="!isEditPreposition"
+          />
         </div>
         <!-- 文本描述 -->
         <MsRichText
@@ -113,13 +118,13 @@
           {{ t('common.save') }}
         </a-button></div
       >
-      <div v-permission="['FUNCTIONAL_CASE:READ+UPDATE']">
+      <div v-if="!props.isTestPlan" v-permission="['FUNCTIONAL_CASE:READ+UPDATE']">
         <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
       </div>
     </a-form>
     <!-- 文件列表开始 -->
     <div class="w-[90%]">
-      <div v-if="!props.allowEdit" class="mb-[16px] font-medium text-[var(--color-text-1)]">
+      <div v-if="!props.allowEdit || props.isTestPlan" class="mb-[16px] font-medium text-[var(--color-text-1)]">
         {{ t('caseManagement.featureCase.attachment') }}
       </div>
       <MsFileList
@@ -132,7 +137,7 @@
         }"
         :upload-func="uploadOrAssociationFile"
         :handle-delete="deleteFileHandler"
-        :show-delete="props.allowEdit"
+        :show-delete="props.allowEdit && !props.isTestPlan"
         @finish="uploadFileOver"
       >
         <template #actions="{ item }">
@@ -149,6 +154,7 @@
                 {{ t('ms.upload.preview') }}
               </MsButton>
               <SaveAsFilePopover
+                v-if="!props.isTestPlan"
                 v-model:visible="transferVisible"
                 :saving-file="activeTransferFileParams"
                 :file-save-as-source-id="(form.id as string)"
@@ -291,6 +297,7 @@
       allowEdit?: boolean; // 是否允许编辑
       formRules?: FormRuleItem[]; // 编辑表单
       formApi?: any;
+      isTestPlan?: boolean; // 测试计划页面的
     }>(),
     {
       allowEdit: true, // 是否允许编辑
@@ -582,6 +589,8 @@
         return {
           step: item.desc,
           expected: item.result,
+          actualResult: item.actualResult ?? '',
+          executeResult: item.executeResult ?? 'PASSED',
         };
       });
     }

@@ -95,4 +95,5 @@ export default {
   'testPlan.featureCase.disassociateTip': '确认取消关联 { name } 吗？',
   'testPlan.featureCase.disassociateTipContent': '取消后，影响测试计划相关统计',
   'testPlan.featureCase.batchDisassociateTipContent': '取消后，再次关联，执行结果为：未执行',
+  'testPlan.featureCase.startExecution': '开始执行',
 };
