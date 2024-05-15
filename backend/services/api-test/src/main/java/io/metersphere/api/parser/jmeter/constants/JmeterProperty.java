@@ -11,4 +11,16 @@ public class JmeterProperty {
     public final static String ASS_OPTION = "ASS_OPTION";
     public final static String BEAN_SHELL_ASSERTION_QUERY = "BeanShellAssertion.query";
     public final static String BEAN_SHELL_SAMPLER_QUERY = "BeanShellSampler.query";
+    public final static String FILE_ENCODING = "fileEncoding";
+
+    public class CSVDataSetProperty {
+        public static final String FILE_NAME = "filename";
+        public static final String SHARE_MODE = "shareMode";
+        public static final String RECYCLE = "recycle";
+        public static final String DELIMITER = "delimiter";
+        public static final String QUOTED_DATA = "quotedData";
+        public static final String SHARE_MODE_GROUP = "shareMode.group";
+        public static final String SHARE_MODE_THREAD = "shareMode.thread";
+
+    }
 }

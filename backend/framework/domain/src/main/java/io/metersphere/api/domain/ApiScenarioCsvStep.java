@@ -25,12 +25,18 @@ public class ApiScenarioCsvStep implements Serializable {
     @Size(min = 1, max = 50, message = "{api_scenario_csv_step.step_id.length_range}", groups = {Created.class, Updated.class})
     private String stepId;
 
+    @Schema(description = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_csv_step.scenario_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_csv_step.scenario_id.length_range}", groups = {Created.class, Updated.class})
+    private String scenarioId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         fileId("file_id", "fileId", "VARCHAR", false),
-        stepId("step_id", "stepId", "VARCHAR", false);
+        stepId("step_id", "stepId", "VARCHAR", false),
+        scenarioId("scenario_id", "scenarioId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

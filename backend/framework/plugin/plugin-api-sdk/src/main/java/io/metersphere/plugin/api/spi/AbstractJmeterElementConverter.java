@@ -9,6 +9,8 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -22,10 +24,25 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
 
     /**
      * 获取转换器的函数
-     * 主应用在实例化转换器的时候会设置
      */
     @Setter
-    private Function<Class<? extends MsTestElement>, AbstractJmeterElementConverter> getConverterFunc;
+    private static Function<Class<? extends MsTestElement>, AbstractJmeterElementConverter> getConverterFunc;
+    /**
+     * 解析子步骤前的前置处理函数
+     */
+    private static List<AbstractJmeterElementConverter> childPreConverters = new ArrayList<>();
+    /**
+     * 解析子步骤前的前置处理函数
+     */
+    private static List<AbstractJmeterElementConverter> childPostConverters = new ArrayList<>();
+
+    public static void registerChildPreConverters(AbstractJmeterElementConverter converter) {
+        childPreConverters.add(converter);
+    }
+
+    public static void registerChildPostConverters(AbstractJmeterElementConverter converter) {
+        childPostConverters.add(converter);
+    }
 
     public AbstractJmeterElementConverter() {
         Type genericSuperclass = getClass().getGenericSuperclass();
@@ -45,10 +62,14 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
      */
     public void parseChild(HashTree tree, AbstractMsTestElement element, ParameterConfig config) {
         if (element != null && element.getChildren() != null) {
+            // 解析子步骤前的前置处理函数
+            childPreConverters.forEach(processor -> processor.toHashTree(tree, element, config));
             element.getChildren().forEach(child -> {
                     child.setParent(element);
                     getConverterFunc.apply(child.getClass()).toHashTree(tree, child, config);
             });
+            // 解析子步骤后的后置处理函数
+            childPostConverters.forEach(processor -> processor.toHashTree(tree, element, config));
         }
     }
 

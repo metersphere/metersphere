@@ -56,8 +56,8 @@ public class ApiScenarioStepCommonDTO<T extends ApiScenarioStepCommonDTO> {
     @Schema(description = "循环等组件基础数据")
     private Object config;
 
-    @Schema(description = "csv文件id集合")
-    private List<String> csvFileIds;
+    @Schema(description = "csv id集合")
+    private List<String> csvIds;
 
     @Schema(description = "项目fk")
     @NotBlank

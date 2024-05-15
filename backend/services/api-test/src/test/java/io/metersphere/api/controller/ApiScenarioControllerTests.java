@@ -5,7 +5,6 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.ReferenceRequest;
-import io.metersphere.api.dto.ResourceAddFileParam;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.*;
@@ -106,6 +105,9 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
     private static final String BATCH_RUN = "batch-operation/run";
+    private static final String TRANSFER_OPTIONS = "transfer/options/{0}";
+    private static final String TRANSFER = "transfer";
+    private static final String STEP_TRANSFER = "step/transfer";
 
     private static final Map<String, String> BATCH_OPERATION_SCENARIO_MODULE_MAP = new HashMap<>();
     private static final List<String> BATCH_OPERATION_SCENARIO_ID = new ArrayList<>();
@@ -355,9 +357,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setSteps(steps);
         request.setStepDetails(steptDetailMap);
         request.setScenarioConfig(getScenarioConfig());
-        String fileId = doUploadTempFile(getMockMultipartFile());
-        request.setFileParam(new ResourceAddFileParam());
-        request.getFileParam().setUploadFileIds(List.of(fileId));
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         ApiScenario resultData = getResultData(mvcResult, ApiScenario.class);
         this.addApiScenario = apiScenarioMapper.selectByPrimaryKey(resultData.getId());
@@ -365,7 +364,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         assertUpdateSteps(steps, steptDetailMap);
 
         request.setName("anOther name");
-        request.getFileParam().setUploadFileIds(List.of());
         request.setGrouped(true);
         request.setEnvironmentId(envGroupId);
         ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
@@ -387,6 +385,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setProjectId(DEFAULT_PROJECT_ID);
         steps = List.of(stepRequest, stepRequest2);
         request.setSteps(steps);
+        request.getScenarioConfig().getVariable().getCsvVariables().forEach(csvVariable -> csvVariable.setId(UUID.randomUUID().toString()));
         mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anOtherAddApiScenario = apiScenarioMapper.selectByPrimaryKey(getResultData(mvcResult, ApiScenario.class).getId());
         assertUpdateApiScenario(request, request.getScenarioConfig(), anOtherAddApiScenario.getId());
@@ -444,7 +443,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         }
     }
 
-    private ScenarioConfig getScenarioConfig() throws Exception {
+    private ScenarioConfig getScenarioConfig() {
         ScenarioConfig scenarioConfig = new ScenarioConfig();
         MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
         MsScriptAssertion scriptAssertion = new MsScriptAssertion();
@@ -478,16 +477,20 @@ public class ApiScenarioControllerTests extends BaseTest {
         fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
     }
 
-    public List<CsvVariable> getCsvVariables() throws Exception {
+    public List<CsvVariable> getCsvVariables() {
         List<CsvVariable> csvVariables = new ArrayList<>();
         CsvVariable csvVariable = new CsvVariable();
+        csvVariable.setId(UUID.randomUUID().toString());
         csvVariable.setFileId(localFileId);
         csvVariable.setName("csv变量");
+        csvVariable.setFileName("test.jbc");
         csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
         csvVariables.add(csvVariable);
         csvVariable = new CsvVariable();
+        csvVariable.setId(UUID.randomUUID().toString());
         csvVariable.setFileId(fileMetadataId);
         csvVariable.setName("csv-关联的");
+        csvVariable.setFileName("test.jbc");
         csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
         csvVariable.setAssociation(true);
         csvVariables.add(csvVariable);
@@ -506,7 +509,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setStepType(ApiScenarioStepType.API_CASE.name());
         stepRequest.setProjectId(DEFAULT_PROJECT_ID);
         stepRequest.setConfig(new HashMap<>());
-        stepRequest.setCsvFileIds(List.of(fileMetadataId));
+        stepRequest.setCsvIds(List.of(fileMetadataId));
 
         ApiScenarioStepRequest stepRequest2 = new ApiScenarioStepRequest();
         stepRequest2.setId(IDGenerator.nextStr());
@@ -518,7 +521,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setStepType(ApiScenarioStepType.API_CASE.name());
         stepRequest2.setRefType(ApiScenarioStepRefType.COPY.name());
         stepRequest2.setProjectId(DEFAULT_PROJECT_ID);
-        stepRequest2.setCsvFileIds(List.of(fileMetadataId));
+        stepRequest2.setCsvIds(List.of(fileMetadataId));
 
         ApiScenarioStepRequest stepRequest3 = new ApiScenarioStepRequest();
         stepRequest3.setId(IDGenerator.nextStr());
@@ -809,7 +812,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testTransfer() throws Exception {
-        this.requestGetWithOk("transfer/options/" + "/" + DEFAULT_PROJECT_ID);
+        this.requestGetWithOk(TRANSFER_OPTIONS, DEFAULT_PROJECT_ID);
         ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
         apiTransferRequest.setSourceId(addApiScenario.getId());
         apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
@@ -819,10 +822,10 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiTransferRequest.setOriginalName("test-scenario-file.txt");
         String uploadFileId = doUploadTempFile(getMockMultipartFile());
         apiTransferRequest.setFileId(uploadFileId);
-        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost(TRANSFER, apiTransferRequest).andExpect(status().isOk());
         //文件不存在
         apiTransferRequest.setFileId("111");
-        this.requestPost("transfer", apiTransferRequest).andExpect(status().is5xxServerError());
+        this.requestPost(TRANSFER, apiTransferRequest).andExpect(status().is5xxServerError());
         //文件已经上传
         ApiFileResourceExample apiFileResourceExample = new ApiFileResourceExample();
         apiFileResourceExample.createCriteria().andResourceIdEqualTo(addApiScenario.getId());
@@ -831,8 +834,26 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
         apiTransferRequest.setFileName("test-scenario-file-1");
         apiTransferRequest.setOriginalName("test-scenario-file-1.txt");
-        this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
+        this.requestPost(TRANSFER, apiTransferRequest).andExpect(status().isOk());
+    }
 
+    @Test
+    @Order(7)
+    public void testStepTransfer() throws Exception {
+        this.requestGetWithOk(TRANSFER_OPTIONS, DEFAULT_PROJECT_ID);
+        ApiTransferRequest apiTransferRequest = new ApiTransferRequest();
+        apiTransferRequest.setSourceId(addApiScenarioSteps.get(0).getId());
+        apiTransferRequest.setProjectId(DEFAULT_PROJECT_ID);
+        apiTransferRequest.setModuleId("root");
+        apiTransferRequest.setLocal(true);
+        apiTransferRequest.setFileName("test-scenario-step-file");
+        apiTransferRequest.setOriginalName("test-scenario-step-file.txt");
+        String uploadFileId = doUploadTempFile(getMockMultipartFile());
+        apiTransferRequest.setFileId(uploadFileId);
+        this.requestPost(STEP_TRANSFER, apiTransferRequest).andExpect(status().isOk());
+        //文件不存在
+        apiTransferRequest.setFileId("111");
+        this.requestPost(STEP_TRANSFER, apiTransferRequest).andExpect(status().is5xxServerError());
     }
 
     @Test

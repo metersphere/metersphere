@@ -1,4 +1,4 @@
-package io.metersphere.api.parser.jmeter;
+package io.metersphere.api.parser.jmeter.controller;
 
 import io.metersphere.api.dto.request.controller.MsIfController;
 import io.metersphere.plugin.api.dto.ParameterConfig;
@@ -21,12 +21,9 @@ public class MsIfControllerConverter extends AbstractJmeterElementConverter<MsIf
             LogUtils.info("MsIfController is disabled");
             return;
         }
-        //TODO 这里需要处理csv文件
-
 
         HashTree groupTree = tree.add(ifController(element));
         parseChild(groupTree, element, config);
-
     }
 
     private IfController ifController(MsIfController element) {

@@ -237,8 +237,8 @@ public class ApiFileResourceService {
     /**
      * 删除资源下所有的文件或者关联关系
      *
-     * @param dirPrefix 本地上传文件目录前缀
-     * @param resourceIds  资源ID
+     * @param dirPrefix   本地上传文件目录前缀
+     * @param resourceIds 资源ID
      * @param projectId   项目ID
      * @param operator    操作人
      */
@@ -402,18 +402,27 @@ public class ApiFileResourceService {
         fileRequest.setFileName(fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
 
+        byte[] bytes;
         try {
-            fileId = fileMetadataService.transferFile(request.getFileName(), request.getOriginalName(), request.getProjectId(), request.getModuleId(), currentUser, fileService.download(fileRequest));
-            if (CollectionUtils.isEmpty(apiFileResources)) {
-                // 删除临时文件
-                FileRequest deleteRequest = new FileRequest();
-                deleteRequest.setFolder(folder);
-                FileCenter.getDefaultRepository().deleteFolder(deleteRequest);
-            }
+            bytes = fileService.download(fileRequest);
         } catch (Exception e) {
             LogUtils.error(e);
-            throw new MSException(Translator.get("file.transfer.failed"));
+            throw new MSException(Translator.get("file.transfer.failed"), e);
         }
+
+        fileId = fileMetadataService.transferFile(request.getFileName(), request.getOriginalName(), request.getProjectId(), request.getModuleId(), currentUser, bytes);
+        if (CollectionUtils.isEmpty(apiFileResources)) {
+            // 删除临时文件
+            FileRequest deleteRequest = new FileRequest();
+            deleteRequest.setFolder(folder);
+            try {
+                FileCenter.getDefaultRepository().deleteFolder(deleteRequest);
+            } catch (Exception e) {
+                LogUtils.error(e);
+                throw new MSException(Translator.get("file.transfer.failed"), e);
+            }
+        }
+
         return fileId;
     }
 

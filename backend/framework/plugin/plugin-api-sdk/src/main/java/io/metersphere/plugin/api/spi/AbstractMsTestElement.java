@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -50,4 +51,8 @@ public abstract class AbstractMsTestElement implements MsTestElement {
      * 父组件
      */
     private AbstractMsTestElement parent;
+    /**
+     * 关联的 csv ID
+     */
+    private List<String> csvIds;
 }

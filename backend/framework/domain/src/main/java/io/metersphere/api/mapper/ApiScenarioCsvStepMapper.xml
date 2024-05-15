@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="step_id" jdbcType="VARCHAR" property="stepId" />
+    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, file_id, step_id
+    id, file_id, step_id, scenario_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioCsvStepExample" resultMap="BaseResultMap">
     select
@@ -98,10 +99,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioCsvStep">
-    insert into api_scenario_csv_step (id, file_id, step_id
-      )
-    values (#{id,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{stepId,jdbcType=VARCHAR}
-      )
+    insert into api_scenario_csv_step (id, file_id, step_id, 
+      scenario_id)
+    values (#{id,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{stepId,jdbcType=VARCHAR}, 
+      #{scenarioId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioCsvStep">
     insert into api_scenario_csv_step
@@ -115,6 +116,9 @@
       <if test="stepId != null">
         step_id,
       </if>
+      <if test="scenarioId != null">
+        scenario_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -125,6 +129,9 @@
       </if>
       <if test="stepId != null">
         #{stepId,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioId != null">
+        #{scenarioId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -146,6 +153,9 @@
       <if test="record.stepId != null">
         step_id = #{record.stepId,jdbcType=VARCHAR},
       </if>
+      <if test="record.scenarioId != null">
+        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -155,7 +165,8 @@
     update api_scenario_csv_step
     set id = #{record.id,jdbcType=VARCHAR},
       file_id = #{record.fileId,jdbcType=VARCHAR},
-      step_id = #{record.stepId,jdbcType=VARCHAR}
+      step_id = #{record.stepId,jdbcType=VARCHAR},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -169,22 +180,26 @@
       <if test="stepId != null">
         step_id = #{stepId,jdbcType=VARCHAR},
       </if>
+      <if test="scenarioId != null">
+        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioCsvStep">
     update api_scenario_csv_step
     set file_id = #{fileId,jdbcType=VARCHAR},
-      step_id = #{stepId,jdbcType=VARCHAR}
+      step_id = #{stepId,jdbcType=VARCHAR},
+      scenario_id = #{scenarioId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_csv_step
-    (id, file_id, step_id)
+    (id, file_id, step_id, scenario_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, #{item.stepId,jdbcType=VARCHAR}
-        )
+      (#{item.id,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, #{item.stepId,jdbcType=VARCHAR}, 
+        #{item.scenarioId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -205,6 +220,9 @@
         </if>
         <if test="'step_id'.toString() == column.value">
           #{item.stepId,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario_id'.toString() == column.value">
+          #{item.scenarioId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

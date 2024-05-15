@@ -1,11 +1,13 @@
 package io.metersphere.api.dto;
 
+import io.metersphere.api.dto.scenario.CsvVariable;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import lombok.Data;
 import org.apache.commons.lang3.BooleanUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,6 +33,13 @@ public class ApiScenarioParamConfig extends ApiParamConfig {
      */
     private Boolean grouped;
 
+    /**
+     * csv Map
+     * key 为 csv 的 ID
+     * value 为 csv 的信息
+     */
+    private Map<String, CsvVariable> csvMap = new HashMap<>(0);
+
     @Override
     public Map<String, Object> getProtocolEnvConfig(AbstractMsTestElement msTestElement) {
         if (BooleanUtils.isTrue(grouped)) {
@@ -52,5 +61,15 @@ public class ApiScenarioParamConfig extends ApiParamConfig {
         } else {
             return getEnvConfig();
         }
+    }
+
+    /**
+     * 获取 csv 信息
+     * @param csvId
+     * @return
+     */
+    @Override
+    public CsvVariable getCsvVariable(String csvId) {
+        return csvMap.get(csvId);
     }
 }

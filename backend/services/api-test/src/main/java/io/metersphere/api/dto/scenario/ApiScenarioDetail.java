@@ -11,7 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class ApiScenarioDetail extends ApiScenario {
     @Schema(description = "场景的通用配置")
-    private ScenarioConfig scenarioConfig;
+    private ScenarioConfig scenarioConfig = new ScenarioConfig();
     @Schema(description = "步骤")
     private List<ApiScenarioStepDTO> steps;
 }

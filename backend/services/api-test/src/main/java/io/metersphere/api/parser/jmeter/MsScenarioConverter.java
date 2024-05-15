@@ -5,10 +5,13 @@ import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
+import io.metersphere.api.dto.scenario.CsvVariable;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.dto.scenario.ScenarioStepConfig;
 import io.metersphere.api.dto.scenario.ScenarioVariable;
+import io.metersphere.api.parser.jmeter.child.MsCsvChildPreConverter;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
+import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
@@ -65,6 +68,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
             tree.add(getCookieManager());
         }
 
+        // 添加 csv 数据集
+        addCsvDataSet(tree, msScenario.getScenarioConfig());
+
         // 添加场景和环境变量
         addUserParameters(tree, msScenario, envInfo, config);
 
@@ -85,8 +91,17 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         addScenarioAssertions(tree, msScenario, config);
     }
 
+    private void addCsvDataSet(HashTree tree, ScenarioConfig scenarioConfig) {
+        if (scenarioConfig == null || scenarioConfig.getVariable() == null || CollectionUtils.isEmpty(scenarioConfig.getVariable().getCsvVariables())) {
+            return;
+        }
+        List<CsvVariable> csvVariables = scenarioConfig.getVariable().getCsvVariables();
+        MsCsvChildPreConverter.addCsvDataSet(tree, JmeterProperty.CSVDataSetProperty.SHARE_MODE_GROUP, csvVariables);
+    }
+
     /**
      * 添加临界控制器，解决变量冲突
+     *
      * @param tree
      * @param msScenario
      * @return
@@ -270,9 +285,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         envScenarioProcessors.stream()
                 .filter(MsProcessor::getEnable)
                 .forEach(processor -> {
-            processor.setProjectId(msScenario.getProjectId());
-            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
-        });
+                    processor.setProjectId(msScenario.getProjectId());
+                    getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+                });
     }
 
     /**
@@ -319,9 +334,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         scenarioPreProcessors.stream()
                 .filter(MsProcessor::getEnable)
                 .forEach(processor -> {
-            processor.setProjectId(msScenario.getProjectId());
-            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
-        });
+                    processor.setProjectId(msScenario.getProjectId());
+                    getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+                });
     }
 
     private boolean isRef(String refType) {
@@ -347,6 +362,9 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
     private ApiScenarioParamConfig getEnableConfig(MsScenario msScenario, ApiScenarioParamConfig config) {
         ApiScenarioParamConfig enableConfig = config;
         if (!isRef(msScenario.getRefType())) {
+            if (isRootScenario(msScenario.getRefType())) {
+                setScenarioConfig(msScenario, enableConfig);
+            }
             // 非引用的场景，使用当前环境参数
             return enableConfig;
         }
@@ -369,13 +387,24 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
             }
         }
 
+        setScenarioConfig(msScenario, enableConfig);
+
+        return enableConfig;
+    }
+
+    private void setScenarioConfig(MsScenario msScenario, ApiScenarioParamConfig enableConfig) {
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         if (scenarioConfig != null) {
             // 设置是否使用全局cookie
             enableConfig.setEnableGlobalCookie(scenarioConfig.getOtherConfig().getEnableCookieShare());
-        }
 
-        return enableConfig;
+            ScenarioVariable variable = scenarioConfig.getVariable();
+            if (variable != null && variable.getCsvVariables() != null) {
+                for (CsvVariable csvVariable : variable.getCsvVariables()) {
+                    enableConfig.getCsvMap().put(csvVariable.getId(), csvVariable);
+                }
+            }
+        }
     }
 
     private CookieManager getCookieManager() {
