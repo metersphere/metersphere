@@ -985,7 +985,7 @@
         stepName: activeStep.value?.name || res.name,
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
-        stepId: props.request?.stepId || '',
+        stepId: activeStep.value?.id || '',
         ...parseRequestBodyResult,
       };
       nextTick(() => {

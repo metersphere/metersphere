@@ -35,6 +35,7 @@ export interface MockResponse {
   useApiResponse: boolean;
   apiResponseId?: string; // useApiResponse 为 true 时必填
   body: ResponseDefinitionBody;
+  delay: number;
 }
 // mock 信息-请求通用匹配规则
 export interface MockMatchRuleCommon {

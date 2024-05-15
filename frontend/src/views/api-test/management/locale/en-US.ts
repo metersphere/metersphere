@@ -163,6 +163,7 @@ export default {
   'apiTestManagement.script': 'Script',
   'apiTestManagement.variable': 'Variable',
   'apiTestManagement.regex': 'Regular Expression',
+  'apiTestManagement.caseTotal': 'Case total',
   'case.execute.selectEnv': 'Select Environment',
   'case.execute.defaultEnv': 'Default Environment',
   'case.execute.newEnv': 'New Environment',
@@ -248,4 +249,5 @@ export default {
   'mockManagement.batchEdit': 'Batch Edit',
   'mockManagement.batchDelete': 'Batch Delete',
   'mockManagement.noMatchRules': 'No matching rules found',
+  'mockManagement.responseDelay': 'Response delay',
 };

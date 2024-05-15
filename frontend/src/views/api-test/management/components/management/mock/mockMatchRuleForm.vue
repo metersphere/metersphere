@@ -2,7 +2,7 @@
   <a-form ref="formRef" :model="formModel" layout="vertical">
     <a-spin :loading="loading" class="block">
       <div
-        v-if="matchRules.length > 0"
+        v-if="matchRules.length > 0 || !disabled"
         :class="`flex ${
           matchRules.length > 1 ? 'items-stretch' : 'items-center'
         } gap-[16px] bg-[var(--color-text-n9)] p-[12px]`"
@@ -30,6 +30,7 @@
                   :placeholder="t('apiTestDebug.paramName')"
                   :options="props.keyOptions"
                   allow-search
+                  allow-create
                   @change="(val) => selectedKey(item, idx)"
                 >
                 </a-select>

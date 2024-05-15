@@ -339,6 +339,12 @@
       const preActiveApiTabId = activeApiTab.value.id;
       let loadedApiTab = apiTabs.value[isLoadedTabIndex] as RequestParam;
       if (isDebugMock) {
+        const mockEnvId = appStore.envList.find((e) => e.mock)?.id;
+        if (mockEnvId) {
+          appStore.showLoading();
+          await appStore.setEnvConfig(mockEnvId);
+          appStore.hideLoading();
+        }
         loadedApiTab = {
           ...loadedApiTab,
           ...(apiInfo as ApiDefinitionDetail).request,
@@ -372,6 +378,10 @@
       }
       let { request } = res;
       if (isDebugMock) {
+        const mockEnvId = appStore.envList.find((e) => e.mock)?.id;
+        if (mockEnvId) {
+          await appStore.setEnvConfig(mockEnvId);
+        }
         request = {
           ...res.request,
           ...(apiInfo as ApiDefinitionDetail).request,
