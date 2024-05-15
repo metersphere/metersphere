@@ -883,6 +883,7 @@
     .arco-table-cell-with-filter {
       float: left;
       .arco-table-th-title {
+        border-radius: 2px;
         background: rgb(var(--primary-1)) content-box;
         .filter-icon {
           color: rgb(var(--primary-5)) !important;

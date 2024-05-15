@@ -67,80 +67,8 @@
             {{ record.relationCaseCount }}
           </a-button>
         </template>
-
-        <template #createUserFilter="{ columnConfig }">
-          <TableFilter
-            v-model:visible="createUserFilterVisible"
-            v-model:status-filters="createUserFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="createUserFilterOptions"
-            value-key="value"
-            @search="searchData()"
-          >
-            <template #item="{ item }">
-              {{ item.text }}
-            </template>
-          </TableFilter>
-        </template>
-
-        <template #updateUserFilter="{ columnConfig }">
-          <TableFilter
-            v-model:visible="updateUserFilterVisible"
-            v-model:status-filters="updateUserFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="updateUserFilterOptions"
-            value-key="value"
-            @search="searchData()"
-          >
-            <template #item="{ item }">
-              {{ item.text }}
-            </template>
-          </TableFilter>
-        </template>
-
-        <template #handleUserFilter="{ columnConfig }">
-          <TableFilter
-            v-model:visible="handleUserFilterVisible"
-            v-model:status-filters="handleUserFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="handleUserFilterOptions"
-            value-key="value"
-            @search="searchData()"
-          >
-            <template #item="{ item }">
-              {{ item.text }}
-            </template>
-          </TableFilter>
-        </template>
-
-        <template #statusFilter="{ columnConfig }">
-          <TableFilter
-            v-model:visible="statusFilterVisible"
-            v-model:status-filters="statusFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="statusFilterOptions"
-            value-key="value"
-            @search="searchData()"
-          >
-            <template #item="{ item }">
-              {{ item.text }}
-            </template>
-          </TableFilter>
-        </template>
-
-        <template #severityFilter="{ columnConfig }">
-          <TableFilter
-            v-model:visible="severityFilterVisible"
-            v-model:status-filters="severityFilterValue"
-            :title="(columnConfig.title as string)"
-            :list="severityFilterOptions"
-            value-key="value"
-            @search="searchData()"
-          >
-            <template #item="{ item }">
-              {{ item.text }}
-            </template>
-          </TableFilter>
+        <template #statusName="{ record }">
+          {{ record.statusName || '-' }}
         </template>
       </MsBaseTable>
     </div>
@@ -228,6 +156,7 @@
   import { useRoute } from 'vue-router';
   import { useIntervalFn } from '@vueuse/core';
   import { Message, TableData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
   import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -239,7 +168,6 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     checkBugExist,
@@ -266,6 +194,8 @@
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const { t } = useI18n();
   const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
@@ -296,22 +226,7 @@
   const isXpack = computed(() => licenseStore.hasLicense());
   const { openDeleteModal } = useModal();
   const route = useRoute();
-  const createUserFilterOptions = ref<BugOptionItem[]>([]);
-  const createUserFilterVisible = ref(false);
-  const createUserFilterValue = ref<string[]>([]);
-  const updateUserFilterOptions = ref<BugOptionItem[]>([]);
-  const updateUserFilterVisible = ref(false);
-  const updateUserFilterValue = ref<string[]>([]);
-  const handleUserFilterOptions = ref<BugOptionItem[]>([]);
-  const handleUserFilterVisible = ref(false);
-  const handleUserFilterValue = ref<string[]>([]);
-  const statusFilterOptions = ref<BugOptionItem[]>([]);
-  const statusFilterVisible = ref(false);
-  const statusFilterValue = ref<string[]>([]);
   const severityFilterOptions = ref<BugOptionItem[]>([]);
-  const severityFilterVisible = ref(false);
-  const severityFilterValue = ref<string[]>([]);
-  const severityColumnId = ref('');
 
   // 是否同步完成
   const isComplete = ref(false);
@@ -360,8 +275,6 @@
     //  实例化自定义字段的filters
     customFields.value.forEach((item) => {
       if ((item.fieldName === '严重程度' || item.fieldName === 'Bug Degree') && item.options) {
-        severityFilterOptions.value = [];
-        severityColumnId.value = `custom_single_${item.fieldId}`;
         item.options.forEach((option) => {
           severityFilterOptions.value.push({
             value: option.value,
@@ -374,7 +287,7 @@
     return customFieldToColumns(res);
   };
 
-  const columns: MsTableColumn = [
+  let columns: MsTableColumn = [
     {
       title: 'bugManagement.ID',
       dataIndex: 'num',
@@ -401,11 +314,14 @@
     },
     {
       title: 'bugManagement.status',
-      dataIndex: 'statusName',
+      dataIndex: 'status',
       width: 100,
       showTooltip: true,
-      slotName: 'status',
-      titleSlotName: 'statusFilter',
+      slotName: 'statusName',
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
+      },
       showDrag: true,
       showInTable: true,
     },
@@ -414,8 +330,11 @@
       dataIndex: 'handleUser',
       slotName: 'handleUser',
       showTooltip: true,
-      titleSlotName: 'handleUserFilter',
       width: 125,
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
+      },
       showDrag: true,
       showInTable: true,
     },
@@ -448,10 +367,13 @@
       width: 125,
       showTooltip: true,
       showDrag: true,
-      titleSlotName: 'createUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
       },
       showInTable: true,
     },
@@ -472,10 +394,13 @@
       width: 125,
       showTooltip: true,
       showDrag: true,
-      titleSlotName: 'updateUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: [],
+        labelKey: 'text',
       },
       showInTable: true,
     },
@@ -541,17 +466,9 @@
   };
 
   function initTableParams() {
-    const filterParams: Record<string, any> = {
-      status: statusFilterValue.value,
-      handleUser: handleUserFilterValue.value,
-      updateUser: updateUserFilterValue.value,
-      createUser: createUserFilterValue.value,
-    };
-    filterParams[severityColumnId.value] = severityFilterValue.value;
     return {
       keyword: keyword.value,
       projectId: projectId.value,
-      filter: { ...filterParams },
       condition: {
         keyword: keyword.value,
         filter: propsRes.value.filter,
@@ -809,22 +726,15 @@
   }
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    const filterParams: Record<string, any> = {
-      status: statusFilterValue.value,
-      handleUser: handleUserFilterValue.value,
-      updateUser: updateUserFilterValue.value,
-      createUser: createUserFilterValue.value,
-    };
-    filterParams[severityColumnId.value] = severityFilterValue.value;
     if (params.condition) {
-      params.condition.filter = { ...filterParams };
+      params.condition.filter = propsRes.value.filter;
     } else {
-      params.condition = { filter: { ...filterParams } };
+      params.condition = { filter: propsRes.value.filter };
     }
     const condition = {
       keyword: keyword.value,
       searchMode: filterResult.value.accordBelow,
-      filter: params.condition.filter,
+      filter: propsRes.value.filter,
       combine: filterResult.value.combine,
     };
     currentSelectParams.value = {
@@ -852,10 +762,14 @@
 
   async function initFilterOptions() {
     const res = await getCustomOptionHeader(appStore.currentProjectId);
-    createUserFilterOptions.value = res.userOption;
-    updateUserFilterOptions.value = res.userOption;
-    handleUserFilterOptions.value = res.handleUserOption;
-    statusFilterOptions.value = res.statusOption;
+    const filterOptionsMaps: Record<string, any> = {
+      status: res.statusOption,
+      handleUser: res.handleUserOption,
+      createUser: res.userOption,
+      updateUser: res.userOption,
+    };
+
+    columns = makeColumns(filterOptionsMaps, columns);
   }
 
   function saveSort(sortObj: { [key: string]: string }) {
@@ -878,8 +792,12 @@
       customColumns.forEach((item) => {
         if (item.title === '严重程度' || item.title === 'Bug Degree') {
           item.showInTable = true;
-          item.titleSlotName = 'severityFilter';
           item.slotName = 'severity';
+          item.dataIndex = `custom_single_${item.dataIndex}`;
+          item.filterConfig = {
+            options: cloneDeep(unref(severityFilterOptions.value)) || [],
+            labelKey: 'text',
+          };
         } else {
           item.showInTable = false;
         }
@@ -889,15 +807,15 @@
       console.log(error);
     }
   }
-  await getColumnHeaders();
 
+  await getColumnHeaders();
+  await initFilterOptions();
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
     setCurrentPlatform();
     setExportOptionData();
-    initFilterOptions();
     fetchData();
     if (route.query.id) {
       // 分享或成功进来的页面

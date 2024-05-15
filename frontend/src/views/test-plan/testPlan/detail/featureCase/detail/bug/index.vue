@@ -116,7 +116,7 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: false,
-      width: 200,
+      width: 300,
       ellipsis: true,
       showDrag: false,
     },
