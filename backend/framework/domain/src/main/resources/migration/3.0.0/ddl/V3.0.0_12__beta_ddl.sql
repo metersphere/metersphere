@@ -127,6 +127,10 @@ CREATE TABLE IF NOT EXISTS test_plan_report_bug(
 
 CREATE UNIQUE INDEX idx_test_plan_report_id ON test_plan_report_bug(test_plan_report_id);
 
+-- 场景步骤 csv 表增加场景ID字段
+ALTER TABLE api_scenario_csv_step ADD scenario_id varchar(50) NOT NULL COMMENT '场景ID';
+CREATE INDEX idx_scenario_id USING BTREE ON api_scenario_csv_step (scenario_id);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

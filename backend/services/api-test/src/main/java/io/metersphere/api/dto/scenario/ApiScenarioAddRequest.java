@@ -59,6 +59,7 @@ public class ApiScenarioAddRequest {
     private String environmentId;
 
     @Schema(description = "场景的通用配置")
+    @Valid
     private ScenarioConfig scenarioConfig = new ScenarioConfig();
 
     @Schema(description = "步骤集合")
@@ -80,10 +81,4 @@ public class ApiScenarioAddRequest {
      */
     @Schema(description = "步骤文件操作相关参数")
     private Map<String, ResourceAddFileParam> stepFileParam;
-
-    /**
-     * 步骤文件操作相关参数
-     */
-    @Schema(description = "场景文件操作相关参数")
-    private ResourceAddFileParam fileParam;
 }

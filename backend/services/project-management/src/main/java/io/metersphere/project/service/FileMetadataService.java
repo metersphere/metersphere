@@ -22,10 +22,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.GitRepositoryUtil;
-import io.metersphere.sdk.util.TempFileUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
@@ -214,7 +211,7 @@ public class FileMetadataService {
      * @return
      * @throws Exception
      */
-    public String transferFile(String fileName, String originFileName, String projectId, String moduleId, String operator, byte[] fileBytes) throws Exception {
+    public String transferFile(String fileName, String originFileName, String projectId, String moduleId, String operator, byte[] fileBytes) {
         if (StringUtils.isBlank(originFileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
@@ -228,7 +225,13 @@ public class FileMetadataService {
         uploadFileRequest.setStorage(StorageType.MINIO.name());
 
         FileRepository minio = CommonBeanFactory.getBean(MinioRepository.class);
-        String filePath = minio.saveFile(fileBytes, uploadFileRequest);
+        String filePath;
+        try {
+            filePath = minio.saveFile(fileBytes, uploadFileRequest);
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(Translator.get("file.transfer.failed"), e);
+        }
         fileMetadata.setPath(filePath);
         fileMetadata.setFileVersion(fileMetadata.getId());
         fileMetadataMapper.insert(fileMetadata);

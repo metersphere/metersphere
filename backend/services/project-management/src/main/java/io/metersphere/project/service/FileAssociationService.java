@@ -316,7 +316,7 @@ public class FileAssociationService {
      * @return
      * @throws Exception
      */
-    public String transferAndAssociation(@Validated FileAssociationDTO fileAssociationDTO) throws Exception {
+    public String transferAndAssociation(@Validated FileAssociationDTO fileAssociationDTO) {
         FileAssociationSource source = extFileAssociationMapper.selectNameBySourceTableAndId(FileAssociationSourceUtil.getQuerySql(fileAssociationDTO.getSourceType()), fileAssociationDTO.getSourceId());
         this.validateSourceName(source);
         String fileId = fileMetadataService.transferFile(

@@ -1,6 +1,11 @@
 package io.metersphere.api.utils;
 
 import io.metersphere.api.parser.jmeter.*;
+import io.metersphere.api.parser.jmeter.child.MsCsvChildPreConverter;
+import io.metersphere.api.parser.jmeter.controller.MsConstantTimerControllerConverter;
+import io.metersphere.api.parser.jmeter.controller.MsIfControllerConverter;
+import io.metersphere.api.parser.jmeter.controller.MsLoopControllerConverter;
+import io.metersphere.api.parser.jmeter.controller.MsOnceOnlyControllerConverter;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
@@ -24,7 +29,11 @@ public class JmeterElementConverterRegister {
     private static final Map<Class<? extends MsTestElement>, AbstractJmeterElementConverter<? extends MsTestElement>> parserMap = new HashMap<>();
 
     static {
-        // 注册默认的转换器 todo 注册插件的转换器
+        // 设置获取转换器的方法
+        AbstractJmeterElementConverter.setGetConverterFunc(JmeterElementConverterRegister::getConverter);
+        // 注册子步骤前置解析器
+        AbstractJmeterElementConverter.registerChildPreConverters(new MsCsvChildPreConverter());
+        // 注册默认的转换器
         register(MsHTTPElementConverter.class);
         register(MsCommonElementConverter.class);
         register(MsScriptElementConverter.class);
@@ -43,8 +52,6 @@ public class JmeterElementConverterRegister {
     public static void register(Class<? extends AbstractJmeterElementConverter<? extends MsTestElement>> elementConverterClass) {
         try {
             AbstractJmeterElementConverter<? extends MsTestElement> elementConverter = elementConverterClass.getDeclaredConstructor().newInstance();
-            // 设置获取转换器的方法
-            elementConverter.setGetConverterFunc(JmeterElementConverterRegister::getConverter);
             // 注册到解析器集合中
             parserMap.put(elementConverter.testElementClass, elementConverter);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |

@@ -83,10 +83,4 @@ public class ApiScenarioUpdateRequest {
      */
     @Schema(description = "步骤文件操作相关参数")
     private Map<String, ResourceUpdateFileParam> stepFileParam;
-
-    /**
-     * 步骤文件操作相关参数
-     */
-    @Schema(description = "场景文件操作相关参数")
-    private ResourceUpdateFileParam fileParam;
 }

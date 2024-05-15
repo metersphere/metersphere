@@ -1,4 +1,4 @@
-package io.metersphere.api.parser.jmeter;
+package io.metersphere.api.parser.jmeter.controller;
 
 import io.metersphere.api.dto.request.controller.LoopType;
 import io.metersphere.api.dto.request.controller.MsLoopController;
@@ -27,7 +27,6 @@ public class MsLoopControllerConverter extends AbstractJmeterElementConverter<Ms
             return;
         }
         final HashTree groupTree = controller(tree, element);
-        //TODO 这里需要处理csv文件 场景变量
 
         if (groupTree == null) {
             return;

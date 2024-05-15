@@ -1,5 +1,6 @@
 package io.metersphere.api.dto;
 
+import io.metersphere.api.dto.scenario.CsvVariable;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
@@ -79,5 +80,14 @@ public class ApiParamConfig extends ParameterConfig {
      */
     public EnvironmentInfoDTO getEnvConfig(String projectId) {
         return getEnvConfig();
+    }
+
+    /**
+     * 获取 csv 信息
+     * @param csvId
+     * @return
+     */
+    public CsvVariable getCsvVariable(String csvId) {
+        return null;
     }
 }

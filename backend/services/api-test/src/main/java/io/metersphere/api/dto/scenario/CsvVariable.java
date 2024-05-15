@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.sdk.constants.ValueEnum;
+import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,50 +16,51 @@ import lombok.Data;
 public class CsvVariable {
 
     @Schema(description = "id")
+    @NotBlank
+    @Size(max = 50)
     private String id;
 
     @Schema(description = "文件id/引用文件id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(min = 1, max = 50, message = "{api_scenario_csv.file_id.length_range}")
+    @Size(max = 50, message = "{api_scenario_csv.file_id.length_range}")
+    @NotBlank
     private String fileId;
 
-    @Schema(description = "场景id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(min = 1, max = 50, message = "{api_scenario_csv.scenario_id.length_range}")
-    private String scenarioId;
-
-    @Schema(description = "csv变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(min = 1, max = 255, message = "{api_scenario_csv.name.length_range}")
-    private String name;
-
     @Schema(description = "文件名称")
+    @NotBlank
     private String fileName;
 
-    @Schema(description = "作用域 SCENARIO/STEP")
+    @Schema(description = "是否是关联文件")
+    private Boolean association = false;
+
+    @Schema(description = "csv变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(max = 255, message = "{api_scenario_csv.name.length_range}")
+    private String name;
+
     /**
      * @see CsvVariableScope
      */
+    @Schema(description = "作用域 SCENARIO/STEP")
     @NotBlank(message = "{api_scenario_csv.scope.not_blank}")
     @Size(min = 1, max = 50, message = "{api_scenario_csv.scope.length_range}")
-    private String scope;
+    @EnumValue(enumClass = CsvVariableScope.class)
+    private String scope = CsvVariableScope.SCENARIO.name();
 
     @Schema(description = "启用/禁用")
     private Boolean enable = true;
 
-    @Schema(description = "是否引用")
-    private Boolean association = false;
-
-    @Schema(description = "文件编码")
     /**
      * 文件编码
-     *
      * @see CsvEncodingType
      */
+    @Schema(description = "文件编码 UTF-8/UTF-16/ISO-8859-15/US-ASCII")
     @Size(max = 50, message = "{api_scenario_csv.encoding.length_range}")
-    private String encoding;
+    @EnumValue(enumClass = CsvEncodingType.class)
+    private String encoding = CsvEncodingType.UTF8.getValue();
 
     @Schema(description = "是否随机")
     private Boolean random = false;
 
-    @Schema(description = "变量名称(西文逗号间隔)")
+    @Schema(description = "变量名称(英文逗号间隔)")
     @Size(max = 255, message = "{api_scenario_csv.variable_names.length_range}")
     private String variableNames;
 
@@ -78,7 +81,7 @@ public class CsvVariable {
     private Boolean stopThreadOnEof = false;
 
 
-    public enum CsvEncodingType {
+    public enum CsvEncodingType implements ValueEnum {
         UTF8("UTF-8"), UFT16("UTF-16"), ISO885915("ISO-8859-15"), US_ASCII("US-ASCII");
         private String value;
 
@@ -86,6 +89,7 @@ public class CsvVariable {
             this.value = value;
         }
 
+        @Override
         public String getValue() {
             return value;
         }

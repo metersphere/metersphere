@@ -1,4 +1,4 @@
-package io.metersphere.api.parser.jmeter;
+package io.metersphere.api.parser.jmeter.controller;
 
 import io.metersphere.api.dto.request.controller.MsOnceOnlyController;
 import io.metersphere.plugin.api.dto.ParameterConfig;
@@ -20,7 +20,6 @@ public class MsOnceOnlyControllerConverter extends AbstractJmeterElementConverte
             LogUtils.info("MsOnceOnlyController is disabled");
             return;
         }
-        //TODO 这里需要处理csv文件
 
         HashTree groupTree = tree.add(onceOnlyController(element));
         parseChild(groupTree, element, config);

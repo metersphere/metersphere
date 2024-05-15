@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.dto.assertion.MsScenarioAssertionConfig;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
+import jakarta.validation.Valid;
 import lombok.Data;
 
 /**
@@ -13,6 +14,7 @@ public class ScenarioConfig {
     /**
      * 场景变量
      */
+    @Valid
     private ScenarioVariable variable = new ScenarioVariable();
     /**
      * 前置处理器配置

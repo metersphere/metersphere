@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import io.metersphere.project.dto.environment.variables.CommonVariables;
+import jakarta.validation.Valid;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -15,9 +16,11 @@ public class ScenarioVariable {
     /**
      * 普通变量
      */
+    @Valid
     private List<CommonVariables> commonVariables = new ArrayList<>(0);
     /**
      * csv变量
      */
+    @Valid
     private List<CsvVariable> csvVariables = new ArrayList<>(0);
 }

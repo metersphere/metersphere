@@ -1,4 +1,4 @@
-package io.metersphere.api.parser.jmeter;
+package io.metersphere.api.parser.jmeter.controller;
 
 import io.metersphere.api.dto.request.controller.MsConstantTimerController;
 import io.metersphere.api.parser.jmeter.processor.ScenarioTimeWaitingProcessorConverter;
