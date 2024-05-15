@@ -31,4 +31,5 @@ export default {
   'report.execStatus': 'Execution status',
   'report.plan.name': 'Plan Name',
   'report.passRate': 'Pass rate',
+  'report.completed': 'Completed',
 };

@@ -1,4 +1,7 @@
 // 模板展示字段icon
+import { useI18n } from '@/hooks/useI18n';
+
+const { t } = useI18n();
 export enum ReportEnum {
   API_SCENARIO_REPORT = 'API_SCENARIO_REPORT',
   API_REPORT = 'API_REPORT',
@@ -86,22 +89,34 @@ export const ReportStatus = {
   },
 };
 
-export const PlanReportStatus = {
+export const PlanReportStatus: Record<string, any> = {
   [ReportStatusEnum.EXEC_STATUS]: {
     STOPPED: {
+      key: 'STOPPED',
       icon: 'icon-icon_block_filled',
+      statusText: t('report.stopped'),
       label: 'report.stop',
       color: '!var(--color-text-input-border)',
     },
     RUNNING: {
+      key: 'RUNNING',
       icon: 'icon-icon_testing',
+      statusText: t('report.status.running'),
       label: 'report.inExecution',
       color: '!text-[rgb(var(--link-6))]',
     },
     PENDING: {
+      key: 'PENDING',
       icon: 'icon-icon_wait',
+      statusText: t('report.status.pending'),
       label: 'report.queuing',
       color: '!text-[rgb(var(--link-6))]',
+    },
+    COMPLETED: {
+      key: 'COMPLETED',
+      icon: 'icon-icon_succeed_colorful',
+      statusText: t('report.completed'),
+      label: 'report.successful',
     },
   },
   [ReportStatusEnum.REPORT_STATUS]: {
@@ -112,10 +127,6 @@ export const PlanReportStatus = {
     ERROR: {
       icon: 'icon-icon_close_colorful',
       label: 'report.failure',
-    },
-    FAKE_ERROR: {
-      icon: 'icon-icon_warning_colorful',
-      label: 'report.falseAlarm',
     },
   },
 };

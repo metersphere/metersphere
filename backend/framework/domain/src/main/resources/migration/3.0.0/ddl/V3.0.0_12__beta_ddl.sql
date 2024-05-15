@@ -77,6 +77,9 @@ CREATE TABLE IF NOT EXISTS test_plan_report(
     `result_status` VARCHAR(50)   DEFAULT '-' COMMENT '结果状态: 成功, 失败, 阻塞, 误报' ,
     `pass_threshold` VARCHAR(100) NOT NULL   COMMENT '通过阈值' ,
     `pass_rate` DECIMAL    COMMENT '通过率' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目id' ,
+    `integrated` BIT NOT NULL  DEFAULT 0 COMMENT '是否是集成报告' ,
+    `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告';
 
@@ -87,6 +90,9 @@ CREATE INDEX idx_create_time ON test_plan_report(create_time);
 CREATE INDEX idx_exec_status ON test_plan_report(exec_status);
 CREATE INDEX idx_result_status ON test_plan_report(result_status);
 CREATE INDEX idx_pass_rate ON test_plan_report(pass_rate);
+CREATE INDEX idx_project_id ON test_plan_report(project_id);
+CREATE INDEX idx_integrated ON test_plan_report(integrated);
+CREATE INDEX idx_deleted ON test_plan_report(deleted);
 
 CREATE TABLE IF NOT EXISTS test_plan_report_summary(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,

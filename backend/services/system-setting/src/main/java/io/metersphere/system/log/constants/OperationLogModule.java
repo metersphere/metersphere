@@ -30,7 +30,7 @@ public class OperationLogModule {
     public static final String API_TEST_MANAGEMENT_RECYCLE = "API_TEST_MANAGEMENT_RECYCLE";
 
     public static final String API_REPORT = "API_TEST_REPORT_CASE";
-    public static final String API_TEST_REPORT_SCENARIO  = "API_TEST_REPORT_SCENARIO";
+    public static final String API_TEST_REPORT_SCENARIO = "API_TEST_REPORT_SCENARIO";
     public static final String AUTH_TITLE = "AUTH_TITLE";
     public static final String PROJECT_ENVIRONMENT_SETTING = "PROJECT_ENVIRONMENT_SETTING";
     public static final String PROJECT_PROJECT_MANAGER = "PROJECT_PROJECT_MANAGER";
@@ -170,4 +170,6 @@ public class OperationLogModule {
     public static final String SETTING_ORGANIZATION_TASK_CENTER = "SETTING_ORGANIZATION_TASK_CENTER";
     //项目任务中心：PROJECT_MANAGEMENT_TASK_CENTER
     public static final String PROJECT_MANAGEMENT_TASK_CENTER = "PROJECT_MANAGEMENT_TASK_CENTER";
+
+    public static final String TEST_PLAN_REPORT = "TEST_PLAN_REPORT";
 }
