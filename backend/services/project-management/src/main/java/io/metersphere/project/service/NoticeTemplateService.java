@@ -44,12 +44,10 @@ public class NoticeTemplateService {
                 Field[] allFields = FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.API.toString());
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(ApiScenarioMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.API_REPORT_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(ApiReportMessageDTO.class);
@@ -59,25 +57,21 @@ public class NoticeTemplateService {
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(TestPlan.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, "test_plan_");
-                addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.TEST_PLAN.toString());
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(CaseReview.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, "case_review_");
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.FUNCTIONAL.toString());
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.BUG_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(BugMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.BUG.toString());
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.BUG_SYNC_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(BugSyncNoticeDTO.class);
@@ -88,7 +82,6 @@ public class NoticeTemplateService {
             case NoticeConstants.TaskType.SCHEDULE_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(Schedule.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, "schedule_");
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.JENKINS_TASK -> {
                 MessageTemplateFieldDTO messageTemplateFieldOperator = new MessageTemplateFieldDTO();
@@ -96,7 +89,6 @@ public class NoticeTemplateService {
                 messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
                 messageTemplateFieldOperator.setName(Translator.get("message.jenkins_name"));
                 messageTemplateFieldDTOList.add(messageTemplateFieldOperator);
-                //TODO：获取报告
             }
             default -> messageTemplateFieldDTOList = new ArrayList<>();
         }
@@ -174,6 +166,12 @@ public class NoticeTemplateService {
         List<MessageTemplateFieldDTO> domainTemplateFields = getDomainTemplateFields(projectId, taskType);
         messageTemplateResultDTO.setFieldList(domainTemplateFields);
         Map<String, String> fieldSourceMap = MessageTemplateUtils.getFieldSourceMap();
+        if (!StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK) && !StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.BUG_TASK)) {
+            fieldSourceMap.remove(NoticeConstants.FieldSource.CUSTOM_FIELD);
+        }
+        if (!StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.API_REPORT_TASK) && !StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.TEST_PLAN_REPORT_TASK)) {
+            fieldSourceMap.remove(NoticeConstants.FieldSource.REPORT_FIELD);
+        }
         List<OptionDTO> optionDTOList = new ArrayList<>();
         fieldSourceMap.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
