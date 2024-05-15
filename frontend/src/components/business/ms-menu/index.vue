@@ -391,7 +391,7 @@
             }}
           >
             <a-menu-item
-              class={['flex items-center justify-between', collapsed.value ? 'h-[56px] w-[56px]' : '']}
+              class={['flex w-full items-center justify-between', collapsed.value ? 'h-[56px] w-[56px]' : '']}
               key="personalInfo"
             >
               {collapsed.value ? (
@@ -428,10 +428,12 @@
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
-              {t(
-                collapsed.value
-                  ? element?.meta?.collapsedLocale || element?.meta?.locale || ''
-                  : element?.meta?.locale || ''
+              {collapsed.value ? (
+                <div class="text-center text-[12px] leading-[16px]">
+                  {t(element?.meta?.collapsedLocale || element?.meta?.locale || '')}
+                </div>
+              ) : (
+                t(element?.meta?.locale || '')
               )}
               {xPack.value
                 ? orgTrigger(element, menuSwitchOrgVisible, () => (
@@ -454,10 +456,12 @@
           </a-menu-item>
         ) : (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
-            {t(
-              collapsed.value
-                ? element?.meta?.collapsedLocale || element?.meta?.locale || ''
-                : element?.meta?.locale || ''
+            {collapsed.value ? (
+              <div class="text-center text-[12px] leading-[16px]">
+                {t(element?.meta?.collapsedLocale || element?.meta?.locale || '')}
+              </div>
+            ) : (
+              t(element?.meta?.locale || '')
             )}
           </a-menu-item>
         );
@@ -475,10 +479,12 @@
                     v-slots={{
                       icon,
                       title: () =>
-                        h(
-                          'div',
-                          t(collapsed.value ? element?.meta?.collapsedLocale || '' : element?.meta?.locale || '')
-                        ),
+                        h('div', {
+                          innerHTML: t(
+                            collapsed.value ? element?.meta?.collapsedLocale || '' : element?.meta?.locale || ''
+                          ),
+                          class: collapsed.value ? 'text-[12px] leading-[16px]' : '',
+                        }),
                     }}
                     class={BOTTOM_MENU_LIST.includes(element?.name as string) ? 'arco-menu-inline--bottom' : ''}
                   >
@@ -506,6 +512,7 @@
             selected-keys={selectedKey.value}
             auto-open-selected={true}
             level-indent={34}
+            class={collapsed.value ? 'arco-menu-collapsed' : ''}
             style="height: 100%;width:100%;"
             onCollapse={setCollapse}
             trigger-props={{
@@ -608,10 +615,12 @@
     min-width: 60px;
   }
   .arco-menu-vertical.arco-menu-collapsed {
+    margin-left: 8px;
     width: 56px;
     .arco-menu-inner {
       @apply !p-0;
 
+      padding-top: 12px !important;
       padding-bottom: 32px !important;
       .arco-menu-item,
       .arco-menu-inline--bottom {
@@ -647,6 +656,12 @@
       .arco-icon {
         color: rgb(var(--primary-5));
       }
+    }
+  }
+  .arco-menu-collapsed {
+    .arco-menu-collapse-button {
+      top: 12px;
+      right: -16px;
     }
   }
   .arco-menu-item-tooltip {

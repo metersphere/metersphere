@@ -11,7 +11,7 @@ const ApiTest: AppRouteRecordRaw = {
   meta: {
     locale: 'menu.apiTest',
     collapsedLocale: 'menu.apiTestShort',
-    icon: 'icon-icon_api-test-filled1',
+    icon: 'icon-icon_api-test-filled2',
     order: 4,
     hideChildrenInMenu: true,
     roles: [
