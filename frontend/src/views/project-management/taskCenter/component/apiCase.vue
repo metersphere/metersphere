@@ -14,7 +14,6 @@
         ></a-input-search>
       </div>
     </div>
-
     <ms-base-table
       v-bind="propsRes"
       ref="tableRef"
@@ -42,42 +41,8 @@
           >{{ record.resourceName }}
         </div>
       </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click.stop="statusFilterVisible = true">
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group
-                  v-model:model-value="statusFiltersMap[props.moduleType]"
-                  direction="vertical"
-                  size="small"
-                >
-                  <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="props.moduleType" :status="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="arco-table-filters-bottom">
-                <a-button size="mini" type="secondary" @click="handleFilterReset">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button size="mini" type="primary" @click="handleFilterSubmit()">
-                  {{ t('common.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_API_CASE_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="props.moduleType" :status="filterContent.value" />
       </template>
       <template #status="{ record }">
         <ExecutionStatus
@@ -86,62 +51,18 @@
           :script-identifier="record.scriptIdentifier"
         />
       </template>
+      <template #projectName="{ record }">
+        <a-tooltip :content="`${record.projectName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.projectName) }}</div>
+        </a-tooltip>
+      </template>
+      <template #organizationName="{ record }">
+        <a-tooltip :content="`${record.organizationName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.organizationName) }}</div>
+        </a-tooltip>
+      </template>
       <template #triggerMode="{ record }">
         <span>{{ t(ExecutionMethodsLabel[record.triggerMode as keyof typeof ExecutionMethodsLabel]) }}</span>
-      </template>
-      <template #triggerModeFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="triggerModeVisible"
-          v-model:status-filters="triggerModeFiltersMap[props.moduleType]"
-          :title="(columnConfig.title as string)"
-          :list="triggerModeList"
-          label-key="label"
-          @search="initData()"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
-      </template>
-      <template v-if="appStore.packageType === 'enterprise' && xPack" #orgFilterName="{ columnConfig }">
-        <TableFilter
-          v-model:visible="orgFilterVisible"
-          v-model:status-filters="orgFiltersMap[props.moduleType]"
-          :title="(columnConfig.title as string)"
-          mode="remote"
-          value-key="id"
-          label-key="name"
-          :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
-          :placeholder-text="t('project.taskCenter.filterOrgPlaceholderText')"
-          @search="initData()"
-        >
-        </TableFilter>
-      </template>
-      <template
-        v-if="
-          hasAnyPermission(
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_API_CASE_SYSTEM
-              ? ['SYSTEM_ORGANIZATION_PROJECT:READ']
-              : ['ORGANIZATION_PROJECT:READ']
-          )
-        "
-        #projectFilterName="{ columnConfig }"
-      >
-        <TableFilter
-          v-model:visible="projectFilterVisible"
-          v-model:status-filters="projectFiltersMap[props.moduleType]"
-          :title="(columnConfig.title as string)"
-          mode="remote"
-          :load-option-params="{ organizationId: appStore.currentOrgId }"
-          :placeholder-text="t('project.taskCenter.filterProPlaceholderText')"
-          :type="
-            groupColumnsMap[props.group].key === TableKeyEnum.TASK_API_CASE_SYSTEM
-              ? UserRequestTypeEnum.SYSTEM_PROJECT_LIST
-              : UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT
-          "
-          @search="initData()"
-        >
-        </TableFilter>
       </template>
       <template #operationTime="{ record }">
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
@@ -201,11 +122,9 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import ExecutionStatus from './executionStatus.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchStopRealOrdApi,
@@ -221,32 +140,30 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { useAppStore, useTableStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
+  import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ExecutionMethodsLabel } from '@/enums/taskCenter';
 
-  import type { ResourceTypeMapKey } from './utils';
-  import { Group, ordAndProjectColumn, TaskStatus } from './utils';
+  import type { ExtractedKeys } from './utils';
+  import { getOrgColumns, getProjectColumns, Group, TaskStatus } from './utils';
 
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
-  const appStore = useAppStore();
   const { openModal } = useModal();
 
   const { t } = useI18n();
   const props = defineProps<{
     group: Group;
-    moduleType: ResourceTypeMapKey;
+    moduleType: ExtractedKeys;
     name: string;
   }>();
   const keyword = ref<string>('');
-  const statusFilterVisible = ref(false);
 
   const permissionsMap: Record<Group, any> = {
     organization: {
@@ -307,7 +224,35 @@
   const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
   const hasOperationPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].stop));
 
-  const columns: MsTableColumn = [
+  const statusFilters = computed(() => {
+    return Object.keys(TaskStatus[props.moduleType]).map((key: any) => {
+      return {
+        value: key,
+        ...TaskStatus[props.moduleType][key],
+      };
+    });
+  });
+
+  const triggerModeList = [
+    {
+      value: 'SCHEDULE',
+      label: t('project.taskCenter.scheduledTask'),
+    },
+    {
+      value: 'MANUAL',
+      label: t('project.taskCenter.manualExecution'),
+    },
+    {
+      value: 'API',
+      label: t('project.taskCenter.interfaceCall'),
+    },
+    {
+      value: 'BATCH',
+      label: t('project.taskCenter.batchExecution'),
+    },
+  ];
+
+  const staticColumns: MsTableColumn = [
     {
       title: 'project.taskCenter.resourceID',
       dataIndex: 'resourceNum',
@@ -334,10 +279,13 @@
       title: 'project.taskCenter.executionResult',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'statusFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: statusFilters.value,
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_API_CASE_STATUS,
       },
       showInTable: true,
       width: 200,
@@ -347,10 +295,12 @@
       title: 'project.taskCenter.executionMode',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
-      titleSlotName: 'triggerModeFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: triggerModeList,
       },
       showInTable: true,
       width: 150,
@@ -390,25 +340,22 @@
     },
   ];
 
-  const groupColumnsMap = {
-    system: {
-      key: TableKeyEnum.TASK_API_CASE_SYSTEM,
-      columns: [...ordAndProjectColumn, ...columns],
-    },
-    organization: {
-      key: TableKeyEnum.TASK_API_CASE_ORGANIZATION,
-      columns: [...ordAndProjectColumn.slice(-1), ...columns],
-    },
-    project: {
-      key: TableKeyEnum.TASK_API_CASE_PROJECT,
-      columns,
-    },
+  const tableKeysMap: Record<string, any> = {
+    system: TableKeyEnum.TASK_API_CASE_SYSTEM,
+    organization: TableKeyEnum.TASK_API_CASE_ORGANIZATION,
+    project: TableKeyEnum.TASK_API_CASE_PROJECT,
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const groupColumnsMap: Record<string, any> = {
+    system: [getOrgColumns(), getProjectColumns(tableKeysMap[props.group]), ...staticColumns],
+    organization: [getProjectColumns(tableKeysMap[props.group]), ...staticColumns],
+    project: staticColumns,
+  };
+
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     loadRealMap.value[props.group].list,
     {
-      tableKey: groupColumnsMap[props.group].key,
+      tableKey: tableKeysMap[props.group],
       scroll: {
         x: 1400,
       },
@@ -419,25 +366,6 @@
       showSelectAll: true,
     }
   );
-  const triggerModeList = ref([
-    {
-      value: 'SCHEDULE',
-      label: t('project.taskCenter.scheduledTask'),
-    },
-    {
-      value: 'MANUAL',
-      label: t('project.taskCenter.manualExecution'),
-    },
-    {
-      value: 'API',
-      label: t('project.taskCenter.interfaceCall'),
-    },
-    {
-      value: 'BATCH',
-      label: t('project.taskCenter.batchExecution'),
-    },
-  ]);
-  const triggerModeVisible = ref<boolean>(false);
   const triggerModeApiCase = ref([]);
   const triggerModeApiScenario = ref([]);
 
@@ -454,8 +382,6 @@
     API_SCENARIO: statusFilterApiScenario.value,
   });
 
-  const orgFilterVisible = ref<boolean>(false);
-  const projectFilterVisible = ref<boolean>(false);
   const orgApiCaseFilter = ref([]);
   const orgApiScenarioFilter = ref([]);
 
@@ -470,31 +396,13 @@
     API_CASE: projectApiCaseFilter.value,
     API_SCENARIO: projectApiScenarioFilter.value,
   });
-  const licenseStore = useLicenseStore();
-  const xPack = computed(() => licenseStore.hasLicense());
 
   function initData() {
     setLoadListParams({
       keyword: keyword.value,
       moduleType: props.moduleType,
-      filter: {
-        status: statusFiltersMap.value[props.moduleType],
-        triggerMode: triggerModeFiltersMap.value[props.moduleType],
-        organizationIds: orgFiltersMap.value[props.moduleType],
-        projectIds: projectFiltersMap.value[props.moduleType],
-      },
     });
     loadList();
-  }
-  function handleFilterReset() {
-    statusFiltersMap.value[props.moduleType] = [];
-    statusFilterVisible.value = false;
-    initData();
-  }
-
-  function handleFilterSubmit() {
-    statusFilterVisible.value = false;
-    initData();
   }
 
   const tableBatchActions = {
@@ -600,16 +508,6 @@
     initData();
   });
 
-  const statusFilters = computed(() => {
-    return Object.keys(TaskStatus[props.moduleType]);
-  });
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      initData();
-    }
-  }
-
   /**
    * 报告详情 showReportDetail
    */
@@ -633,6 +531,7 @@
     (val) => {
       if (val) {
         resetSelector();
+        resetFilterParams();
         initData();
       }
     }
@@ -665,7 +564,7 @@
     }
   });
 
-  await tableStore.initColumn(groupColumnsMap[props.group].key, groupColumnsMap[props.group].columns, 'drawer', true);
+  await tableStore.initColumn(tableKeysMap[props.group], groupColumnsMap[props.group], 'drawer', true);
 </script>
 
 <style scoped></style>

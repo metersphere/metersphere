@@ -8,6 +8,12 @@ export enum TaskCenterEnum {
   TEST_RESOURCE = 'TEST_RESOURCE', // 测试资源
   API_IMPORT = 'API_IMPORT', // API导入
 }
+export type ResourceTypeMapKey =
+  | TaskCenterEnum.API_CASE
+  | TaskCenterEnum.API_SCENARIO
+  | TaskCenterEnum.UI_TEST
+  | TaskCenterEnum.LOAD_TEST
+  | TaskCenterEnum.TEST_PLAN;
 
 // 执行方式
 export enum ExecutionMethods {

@@ -106,7 +106,7 @@
                 :options="item.filterConfig.options"
                 :data-index="item.dataIndex"
                 v-bind="item.filterConfig"
-                :filter="filter"
+                :filter="filterData"
                 @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
               >
                 <template #item="{ filterItem }">
@@ -356,8 +356,10 @@
       value: string[] | (string | number)[] | undefined,
       isCustomParam: boolean
     ): void;
+    (e: 'resetFilter', filterValue: Record<string, any>): void;
     (e: 'moduleChange'): void;
     (e: 'initEnd'): void;
+    (e: 'reset'): void;
   }>();
   const attrs = useAttrs();
 
@@ -637,13 +639,11 @@
     columnSelectorVisible.value = true;
   };
 
-  const filter = ref<Record<string, any>>({});
   const handleFilterConfirm = (
     value: string[] | (string | number)[] | undefined,
     dataIndex: string,
     isCustomParam: boolean
   ) => {
-    filter.value[dataIndex] = value;
     emit('filterChange', dataIndex, value, isCustomParam);
   };
 
@@ -652,9 +652,13 @@
     batchLeft.value = getBatchLeft();
   });
 
+  const filterData = computed(() => {
+    return (attrs.filter || {}) as Record<string, any>;
+  });
+
   function hasSelectedFilter(item: MsTableColumnData) {
     if (item.filterConfig && item.dataIndex) {
-      return (filter.value[item.dataIndex] || []).length > 0;
+      return (filterData.value[item.dataIndex] || []).length > 0;
     }
     return false;
   }

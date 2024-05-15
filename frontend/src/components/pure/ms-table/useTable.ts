@@ -345,6 +345,11 @@ export default function useTableProps<T>(
   const getTableQueryParams = () => {
     return tableQueryParams.value;
   };
+  // 重置表头筛选
+  const resetFilterParams = () => {
+    filterItem.value = {};
+    propsRes.value.filter = cloneDeep(filterItem.value);
+  };
 
   // 事件触发组
   const propsEvent = ref({
@@ -472,5 +477,6 @@ export default function useTableProps<T>(
     resetSelector,
     getTableQueryParams,
     setTableSelected,
+    resetFilterParams,
   };
 }
