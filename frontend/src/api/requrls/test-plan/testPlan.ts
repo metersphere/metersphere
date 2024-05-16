@@ -54,3 +54,7 @@ export const DisassociateCaseUrl = '/test-plan/functional/case/disassociate';
 export const BatchDisassociateCaseUrl = '/test-plan/functional/case/batch/disassociate';
 // 计划详情-功能用例-执行
 export const RunFeatureCaseUrl = '/test-plan/functional/case/run';
+// 计划详情-功能用例-批量执行
+export const BatchRunCaseUrl = '/test-plan/functional/case/batch/run';
+// 计划详情-功能用例-批量更新执行人
+export const BatchUpdateCaseExecutorUrl = '/test-plan/functional/case/batch/update/executor';

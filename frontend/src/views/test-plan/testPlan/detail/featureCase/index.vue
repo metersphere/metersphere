@@ -18,6 +18,7 @@
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
         @get-module-count="getModuleCount"
+        @execute-done="emit('executeDone')"
       ></CaseTable>
     </template>
   </MsSplitBox>
@@ -35,6 +36,10 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import type { PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+
+  const emit = defineEmits<{
+    (e: 'executeDone'): void;
+  }>();
 
   const route = useRoute();
 

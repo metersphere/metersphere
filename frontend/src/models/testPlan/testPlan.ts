@@ -162,6 +162,30 @@ export interface DisassociateCaseParams {
 export interface BatchFeatureCaseParams extends BatchActionQueryParams {
   testPlanId: string;
   moduleIds?: string[];
+  projectId: string;
+}
+
+export interface ExecuteFeatureCaseFormParams {
+  lastExecResult: LastExecuteResults;
+  content?: string;
+  commentIds?: string[];
+  planCommentFileIds?: string[];
+}
+
+export interface RunFeatureCaseParams extends ExecuteFeatureCaseFormParams {
+  projectId: string;
+  id: string;
+  testPlanId: string;
+  caseId: string;
+  notifier?: string;
+}
+
+export interface BatchExecuteFeatureCaseParams extends BatchFeatureCaseParams, ExecuteFeatureCaseFormParams {
+  notifier?: string;
+}
+
+export interface BatchUpdateCaseExecutorParams extends BatchFeatureCaseParams {
+  userId: string;
 }
 
 export interface PassRateCountDetail {
@@ -178,21 +202,6 @@ export interface PassRateCountDetail {
   functionalCaseCount: number;
   apiCaseCount: number;
   apiScenarioCount: number;
-}
-
-export interface ExecuteFeatureCaseFormParams {
-  lastExecResult: LastExecuteResults;
-  content?: string;
-  commentIds?: string[];
-  planCommentFileIds?: string[];
-}
-
-export interface RunFeatureCaseParams extends ExecuteFeatureCaseFormParams {
-  projectId: string;
-  id: string;
-  testPlanId: string;
-  caseId: string;
-  notifier?: string;
 }
 
 export default {};

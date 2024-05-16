@@ -90,6 +90,8 @@ export default {
   'testPlan.featureCase.bugCount': 'Bug count',
   'testPlan.featureCase.executor': 'Executor',
   'testPlan.featureCase.changeExecutor': 'Change executor',
+  'testPlan.featureCase.batchChangeExecutor': 'Batch modification executor',
+  'testPlan.featureCase.requestExecutorRequired': 'Executor cannot be empty',
   'testPlan.featureCase.sort': 'sort',
   'testPlan.featureCase.executionHistory': 'Execution History',
   'testPlan.featureCase.noBugDataTooltip': 'No related defects, please',
