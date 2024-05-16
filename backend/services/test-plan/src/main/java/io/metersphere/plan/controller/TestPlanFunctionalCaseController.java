@@ -3,6 +3,7 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -47,7 +48,7 @@ public class TestPlanFunctionalCaseController {
 
 
     @PostMapping(value = "/sort")
-    @Operation(summary = "测试计划功能用例-关联功能用例")
+    @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanResourceSortResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
@@ -159,6 +160,14 @@ public class TestPlanFunctionalCaseController {
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanCaseLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanCaseUpdateRequest request) {
         testPlanFunctionalCaseService.batchUpdateExecutor(request);
+    }
+
+    @GetMapping("/detail/{id}")
+    @Operation(summary = "测试计划-计划详情-功能用例-获取用例详情")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
+        String userId = SessionUtils.getUserId();
+        return testPlanFunctionalCaseService.getFunctionalCaseDetail(id, userId);
     }
 
 
