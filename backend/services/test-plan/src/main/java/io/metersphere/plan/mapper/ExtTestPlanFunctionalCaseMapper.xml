@@ -101,9 +101,12 @@
             test_plan_functional_case.last_exec_time as lastExecTime,
             test_plan_functional_case.last_exec_result as lastExecResult,
             test_plan_functional_case.test_plan_id as testPlanId,
-            test_plan_functional_case.id
+            test_plan_functional_case.id,
+            project.name as projectName,
+            project.id as projectId
         FROM
             functional_case
+        left join project on functional_case.project_id = project.id
         LEFT JOIN project_version ON  functional_case.version_id = project_version.id
         left join test_plan_functional_case on functional_case.id = test_plan_functional_case.functional_case_id
         where functional_case.deleted = #{deleted}
