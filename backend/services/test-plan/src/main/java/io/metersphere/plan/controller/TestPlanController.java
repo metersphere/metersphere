@@ -6,14 +6,13 @@ import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
-import io.metersphere.plan.service.TestPlanLogService;
-import io.metersphere.plan.service.TestPlanManagementService;
-import io.metersphere.plan.service.TestPlanService;
-import io.metersphere.plan.service.TestPlanStatisticsService;
+import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -74,6 +73,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-创建测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.sendAddNotice(#request)", targetClass = TestPlanSendNoticeService.class)
     public String add(@Validated @RequestBody TestPlanCreateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.add(request, SessionUtils.getUserId(), "/test-plan/add", HttpMethodConstants.POST.name());
@@ -83,6 +83,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-更新测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan")
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.sendUpdateNotice(#request)", targetClass = TestPlanSendNoticeService.class)
     public String add(@Validated @RequestBody TestPlanUpdateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.update(request, SessionUtils.getUserId(), "/test-plan/update", HttpMethodConstants.POST.name());
@@ -93,6 +94,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-删除测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.sendDeleteNotice(#id)", targetClass = TestPlanSendNoticeService.class)
     public void delete(@NotBlank @PathVariable String id) {
         testPlanManagementService.checkModuleIsOpen(id, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.delete(id, SessionUtils.getUserId(), "/test-plan/delete", HttpMethodConstants.GET.name());
