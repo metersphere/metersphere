@@ -3,9 +3,14 @@ package io.metersphere.plan.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.domain.TestPlanExample;
 import io.metersphere.plan.dto.TestPlanDTO;
+import io.metersphere.plan.dto.request.TestPlanCreateRequest;
+import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.User;
@@ -40,6 +45,8 @@ public class TestPlanSendNoticeService {
     private NoticeSendService noticeSendService;
     @Resource
     private CommonNoticeSendService commonNoticeSendService;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
 
     public void sendNoticeCase(List<String> relatedUsers, String userId, String caseId, String task, String event, String testPlanId) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
@@ -117,5 +124,31 @@ public class TestPlanSendNoticeService {
         example.createCriteria().andProjectIdEqualTo(projectId).andIdIn(ids);
         List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
         return testPlans.stream().collect(Collectors.toMap(TestPlan::getId, testPlan -> testPlan));
+    }
+
+
+    public TestPlanDTO sendAddNotice(TestPlanCreateRequest request) {
+        TestPlanDTO dto = new TestPlanDTO();
+        BeanUtils.copyBean(dto, request);
+        dto.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        return dto;
+    }
+
+    public TestPlanDTO sendUpdateNotice(TestPlanUpdateRequest request) {
+        TestPlanDTO dto = new TestPlanDTO();
+        BeanUtils.copyBean(dto, request);
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
+        dto.setStatus(testPlan.getStatus());
+        dto.setType(testPlan.getType());
+        return dto;
+    }
+
+    public TestPlanDTO sendDeleteNotice(String id) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(id);
+        TestPlanDTO dto = new TestPlanDTO();
+        BeanUtils.copyBean(dto, testPlan);
+        BeanUtils.copyBean(dto, testPlanConfig);
+        return dto;
     }
 }
