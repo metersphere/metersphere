@@ -15,6 +15,12 @@
         join test_plan tp on tpr.test_plan_id = tp.id
         <include refid="queryWhereCondition"/>
     </select>
+
+    <select id="countExecuteSuccessFunctionalCase" resultType="java.lang.Long">
+        select count(*) from test_plan_report_function_case tprfc
+        where tprfc.test_plan_report_id = #{id} and tprfc.execute_result = 'SUCCESS'
+    </select>
+
     <select id="selectReportByIds" resultType="io.metersphere.plan.domain.TestPlanReport">
         select * from test_plan_report where id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">

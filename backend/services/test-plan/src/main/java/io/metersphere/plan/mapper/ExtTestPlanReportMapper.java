@@ -27,6 +27,13 @@ public interface ExtTestPlanReportMapper {
      */
     List<String> getReportBatchIdsByParam(@Param("request") TestPlanReportBatchRequest request);
 
+    /**
+     * 统计报告中执行通过的功能用例数量
+     * @param reportId 报告ID
+     * @return 用例数量
+     */
+    Long countExecuteSuccessFunctionalCase(@Param("id") String reportId);
+
     List<TestPlanReport> selectReportByIds(@Param("ids") List<String> ids);
 
     List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> subList);

@@ -70,13 +70,14 @@ CREATE TABLE IF NOT EXISTS test_plan_report(
     `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-    `start_time` BIGINT    COMMENT '开始时间' ,
-    `end_time` BIGINT    COMMENT '结束时间' ,
-    `trigger_mode` VARCHAR(50)    COMMENT '触发类型' ,
-    `exec_status` VARCHAR(50) NOT NULL  DEFAULT 'PENDING' COMMENT '执行状态: 未执行, 执行中, 已停止, 已完成;' ,
-    `result_status` VARCHAR(50)   DEFAULT '-' COMMENT '结果状态: 成功, 失败, 阻塞, 误报' ,
-    `pass_threshold` VARCHAR(100) NOT NULL   COMMENT '通过阈值' ,
-    `pass_rate` DECIMAL    COMMENT '通过率' ,
+    `execute_time` BIGINT    COMMENT '执行时间;计划真正执行的时间' ,
+    `start_time` BIGINT    COMMENT '开始时间;计划开始执行的时间' ,
+    `end_time` BIGINT    COMMENT '结束时间;计划结束执行的时间' ,
+    `exec_status` VARCHAR(50) NOT NULL  DEFAULT 'PENDING' COMMENT '执行状态' ,
+    `result_status` VARCHAR(50) NOT NULL  DEFAULT '-' COMMENT '结果状态' ,
+    `pass_rate` DECIMAL(10, 4)    COMMENT '通过率' ,
+    `trigger_mode` VARCHAR(50) NOT NULL   COMMENT '触发类型' ,
+    `pass_threshold` DECIMAL(10, 2) NOT NULL   COMMENT '通过阈值' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目id' ,
     `integrated` BIT NOT NULL  DEFAULT 0 COMMENT '是否是集成报告' ,
     `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
@@ -117,19 +118,22 @@ CREATE TABLE IF NOT EXISTS test_plan_report_function_case(
      PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容功能用例部分';
 
-CREATE UNIQUE INDEX idx_test_plan_report_id ON test_plan_report_function_case(test_plan_report_id);
+CREATE INDEX idx_test_plan_report_id ON test_plan_report_function_case(test_plan_report_id);
 
 CREATE TABLE IF NOT EXISTS test_plan_report_bug(
-    `id` VARCHAR(50)    COMMENT 'ID' ,
-    `test_plan_report_id` VARCHAR(50)    COMMENT '报告ID' ,
-    `bug_id` VARCHAR(50)    COMMENT '缺陷ID'
+   `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+   `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
+   `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
+   PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容缺陷部分';
 
-CREATE UNIQUE INDEX idx_test_plan_report_id ON test_plan_report_bug(test_plan_report_id);
+CREATE INDEX idx_test_plan_report_id ON test_plan_report_bug(test_plan_report_id);
 
 -- 场景步骤 csv 表增加场景ID字段
 ALTER TABLE api_scenario_csv_step ADD scenario_id varchar(50) NOT NULL COMMENT '场景ID';
 CREATE INDEX idx_scenario_id USING BTREE ON api_scenario_csv_step (scenario_id);
+
+ALTER TABLE test_plan_config MODIFY pass_threshold DECIMAL(10, 2) NOT NULL;
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

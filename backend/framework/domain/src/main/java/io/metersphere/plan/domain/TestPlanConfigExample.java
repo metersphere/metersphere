@@ -294,66 +294,6 @@ public class TestPlanConfigExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdIsNull() {
-            addCriterion("pass_threshold is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdIsNotNull() {
-            addCriterion("pass_threshold is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdEqualTo(Double value) {
-            addCriterion("pass_threshold =", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotEqualTo(Double value) {
-            addCriterion("pass_threshold <>", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdGreaterThan(Double value) {
-            addCriterion("pass_threshold >", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdGreaterThanOrEqualTo(Double value) {
-            addCriterion("pass_threshold >=", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdLessThan(Double value) {
-            addCriterion("pass_threshold <", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdLessThanOrEqualTo(Double value) {
-            addCriterion("pass_threshold <=", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdIn(List<Double> values) {
-            addCriterion("pass_threshold in", values, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotIn(List<Double> values) {
-            addCriterion("pass_threshold not in", values, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdBetween(Double value1, Double value2) {
-            addCriterion("pass_threshold between", value1, value2, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotBetween(Double value1, Double value2) {
-            addCriterion("pass_threshold not between", value1, value2, "passThreshold");
-            return (Criteria) this;
-        }
-
         public Criteria andTestPlanningIsNull() {
             addCriterion("test_planning is null");
             return (Criteria) this;
@@ -411,6 +351,66 @@ public class TestPlanConfigExample {
 
         public Criteria andTestPlanningNotBetween(Boolean value1, Boolean value2) {
             addCriterion("test_planning not between", value1, value2, "testPlanning");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdIsNull() {
+            addCriterion("pass_threshold is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdIsNotNull() {
+            addCriterion("pass_threshold is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdEqualTo(Long value) {
+            addCriterion("pass_threshold =", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdNotEqualTo(Long value) {
+            addCriterion("pass_threshold <>", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdGreaterThan(Long value) {
+            addCriterion("pass_threshold >", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdGreaterThanOrEqualTo(Long value) {
+            addCriterion("pass_threshold >=", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdLessThan(Long value) {
+            addCriterion("pass_threshold <", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdLessThanOrEqualTo(Long value) {
+            addCriterion("pass_threshold <=", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdIn(List<Long> values) {
+            addCriterion("pass_threshold in", values, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdNotIn(List<Long> values) {
+            addCriterion("pass_threshold not in", values, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdBetween(Long value1, Long value2) {
+            addCriterion("pass_threshold between", value1, value2, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdNotBetween(Long value1, Long value2) {
+            addCriterion("pass_threshold not between", value1, value2, "passThreshold");
             return (Criteria) this;
         }
     }

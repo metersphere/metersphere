@@ -3,7 +3,9 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
+import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
 import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -77,4 +79,12 @@ public class TestPlanReportController {
     public void batchDelete(@Validated @RequestBody TestPlanReportBatchRequest request) {
         testPlanReportService.batchDelete(request, SessionUtils.getUserId());
     }
+
+	@PostMapping("/gen")
+	@Operation(summary = "测试计划-详情-生成报告")
+	@RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+	@CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+	public TestPlanReport genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
+		return testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
+	}
 }
