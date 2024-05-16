@@ -28,8 +28,31 @@
         @blur="blurHandler(record, 'expected')"
       />
     </template>
+    <template #actualResult="{ record }">
+      <a-textarea
+        v-model="record.actualResult"
+        :max-length="1000"
+        size="mini"
+        :auto-size="true"
+        class="w-max-[267px] param-input"
+        :placeholder="t('system.orgTemplate.actualResultTip')"
+      />
+    </template>
     <template #lastExecResult="{ record }">
-      <ExecuteResult :execute-result="record.executeResult" />
+      <a-select
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+        v-model:model-value="record.executeResult"
+        :placeholder="t('common.pleaseSelect')"
+        class="param-input w-full"
+      >
+        <template #label>
+          <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.executeResult" /></span>
+        </template>
+        <a-option v-for="item in executionResultList" :key="item.key" :value="item.key">
+          <ExecuteResult :execute-result="item.key" />
+        </a-option>
+      </a-select>
+      <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.executeResult" /></span>
     </template>
     <template #operation="{ record }">
       <MsTableMoreAction
@@ -60,9 +83,13 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { getGenerateId } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { StepList } from '@/models/caseManagement/featureCase';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   type refItem = Element | ComponentPublicInstance | null;
   const { t } = useI18n();
@@ -81,6 +108,10 @@
   );
 
   const emit = defineEmits(['update:stepList']);
+
+  const executionResultList = computed(() =>
+    Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.UN_EXECUTED)
+  );
 
   // 步骤描述
   const stepData = ref<StepList[]>([

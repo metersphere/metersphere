@@ -38,12 +38,15 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
+  import type { StepExecutionResult } from '@/models/caseManagement/featureCase';
   import type { ExecuteFeatureCaseFormParams } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
 
   const props = defineProps<{
     caseId: string;
     testPlanId: string;
     id: string;
+    stepExecutionResult?: StepExecutionResult[];
   }>();
 
   const emit = defineEmits<{
@@ -63,6 +66,21 @@
       (form.value.content === '' || form.value.content?.trim() === '<p style=""></p>')
   );
 
+  watch(
+    () => props.stepExecutionResult,
+    () => {
+      const executionResultList = props.stepExecutionResult?.map((item) => item.executeResult);
+      if (executionResultList?.includes(LastExecuteResults.FAILED)) {
+        form.value.lastExecResult = LastExecuteResults.FAILED;
+      } else if (executionResultList?.includes(LastExecuteResults.BLOCKED)) {
+        form.value.lastExecResult = LastExecuteResults.BLOCKED;
+      } else {
+        form.value.lastExecResult = LastExecuteResults.PASSED;
+      }
+    },
+    { deep: true }
+  );
+
   // 提交执行
   async function submit() {
     try {
@@ -73,6 +91,7 @@
         testPlanId: props.testPlanId,
         id: props.id,
         lastExecResult: form.value.lastExecResult,
+        stepsExecResult: JSON.stringify(props.stepExecutionResult) ?? '',
         content: form.value.content,
         notifier: form.value?.commentIds?.join(';'),
       };

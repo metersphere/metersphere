@@ -32,12 +32,12 @@
             <div
               v-for="item of caseList"
               :key="item.id"
-              :class="['case-item', caseDetail.id === item.caseId ? 'case-item--active' : '']"
+              :class="['case-item', activeId === item.id ? 'case-item--active' : '']"
               @click="changeActiveCase(item)"
             >
               <div class="mb-[8px] flex items-center justify-between">
                 <div class="text-[var(--color-text-4)]">{{ item.num }}</div>
-                <ExecuteResult :execute-result="item.lastExecResult" />
+                <ExecuteResult :execute-result="item.lastExecResult ?? LastExecuteResults.UN_EXECUTED" />
               </div>
               <a-tooltip :content="item.name">
                 <div class="one-line-text">{{ item.name }}</div>
@@ -88,7 +88,7 @@
           <!-- TODO: 属性的样式 -->
           <MsDescription v-if="activeTab === 'baseInfo'" :descriptions="descriptions" :column="2" />
           <div v-else-if="activeTab === 'detail'" class="align-content-start flex h-full flex-col">
-            <CaseTabDetail is-test-plan :form="caseDetail" />
+            <CaseTabDetail ref="caseTabDetailRef" is-test-plan :form="caseDetail" />
             <!-- 开始执行 -->
             <div class="px-[16px] py-[8px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]">
               <div class="mb-[12px] flex items-center justify-between">
@@ -115,6 +115,7 @@
                 :id="activeId"
                 :case-id="activeCaseId"
                 :test-plan-id="route.query.id as string"
+                :step-execution-result="stepExecutionResult"
                 @done="executeDone"
               />
             </div>
@@ -153,6 +154,7 @@
   import useAppStore from '@/store/modules/app';
 
   import type { PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { executionResultMap, getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -308,7 +310,7 @@
   }
 
   function changeActiveCase(item: PlanDetailFeatureCaseItem) {
-    if (activeCaseId.value !== item.caseId) {
+    if (activeId.value !== item.id) {
       activeCaseId.value = item.caseId;
       activeId.value = item.id;
     }
@@ -317,6 +319,7 @@
     () => activeCaseId.value,
     () => {
       loadCaseDetail();
+      // TODO 更新历史列表
     }
   );
 
@@ -325,11 +328,21 @@
     await loadCaseDetail();
   }
 
+  const caseTabDetailRef = ref<InstanceType<typeof CaseTabDetail>>();
+  const stepExecutionResult = computed(() => {
+    const stepData = caseTabDetailRef.value?.stepData;
+    return stepData?.map((item) => {
+      return {
+        actualResult: item.actualResult,
+        executeResult: item.executeResult,
+      };
+    });
+  });
   const autoNext = ref(true);
   async function executeDone() {
     if (autoNext.value) {
       // 自动下一个，更改激活的 id会刷新详情
-      const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
+      const index = caseList.value.findIndex((e) => e.id === activeId.value);
       if (index < caseList.value.length - 1) {
         await loadCaseList();
         activeCaseId.value = caseList.value[index + 1].caseId;
@@ -344,10 +357,12 @@
         // 当前是最后一个，刷新数据
         loadCaseDetail();
         loadCaseList();
+        // TODO 更新历史列表
       }
     } else {
       // 不自动下一个才请求详情
       loadCase();
+      // TODO 更新历史列表
     }
   }
 

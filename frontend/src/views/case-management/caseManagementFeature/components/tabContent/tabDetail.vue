@@ -745,6 +745,7 @@
   defineExpose({
     handleOK,
     getParams,
+    stepData,
   });
 </script>
 

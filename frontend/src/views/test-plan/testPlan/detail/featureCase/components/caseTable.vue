@@ -103,6 +103,7 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import type { PlanDetailFeatureCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -217,6 +218,7 @@
     {
       title: 'testPlan.featureCase.executor',
       dataIndex: 'executeUserName',
+      showTooltip: true,
       width: 150,
       showDrag: true,
     },
@@ -243,6 +245,7 @@
     (record) => {
       return {
         ...record,
+        lastExecResult: record.lastExecResult ?? LastExecuteResults.UN_EXECUTED,
         caseLevel: getCaseLevels(record.customFields),
         moduleId: getModules(record.moduleId, props.moduleTree),
       };
