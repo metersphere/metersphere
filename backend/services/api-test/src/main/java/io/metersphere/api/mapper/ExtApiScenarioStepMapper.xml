@@ -13,11 +13,6 @@
             #{scenarioId}
         </foreach>
     </select>
-    <select id="getCsvVariableByScenarioId" resultType="io.metersphere.api.dto.scenario.CsvVariable">
-        select
-        <include refid="io.metersphere.api.mapper.ApiScenarioCsvMapper.Base_Column_List"/>
-        from api_scenario_csv where scenario_id = #{id}
-    </select>
     <select id="getCsvStepByScenarioId" resultType="io.metersphere.api.domain.ApiScenarioCsvStep">
         select
         <include refid="io.metersphere.api.mapper.ApiScenarioCsvStepMapper.Base_Column_List"/>

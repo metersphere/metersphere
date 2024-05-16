@@ -481,18 +481,24 @@ public class ApiScenarioControllerTests extends BaseTest {
         List<CsvVariable> csvVariables = new ArrayList<>();
         CsvVariable csvVariable = new CsvVariable();
         csvVariable.setId(UUID.randomUUID().toString());
-        csvVariable.setFileId(localFileId);
         csvVariable.setName("csv变量");
-        csvVariable.setFileName("test.jbc");
         csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
+        ApiFile file = new ApiFile();
+        file.setFileName("test.jbc");
+        file.setLocal(true);
+        file.setFileId(localFileId);
+        csvVariable.setFile(file);
         csvVariables.add(csvVariable);
+
         csvVariable = new CsvVariable();
         csvVariable.setId(UUID.randomUUID().toString());
-        csvVariable.setFileId(fileMetadataId);
         csvVariable.setName("csv-关联的");
-        csvVariable.setFileName("test.jbc");
+        file = new ApiFile();
+        file.setFileId(fileMetadataId);
+        file.setFileName("test.jbc");
+        file.setLocal(false);
         csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
-        csvVariable.setAssociation(true);
+        csvVariable.setFile(file);
         csvVariables.add(csvVariable);
         return csvVariables;
     }
@@ -646,9 +652,9 @@ public class ApiScenarioControllerTests extends BaseTest {
         // 验证修改步骤
         steps.get(0).setName("test name update");
         CsvVariable csvVariable = request.getScenarioConfig().getVariable().getCsvVariables().get(0);
-        request.getScenarioConfig().getVariable().getCsvVariables().get(0).setId(collect.get(csvVariable.getFileId()).getId());
+        request.getScenarioConfig().getVariable().getCsvVariables().get(0).setId(collect.get(csvVariable.getFile().getFileId()).getId());
         CsvVariable csvVariable1 = request.getScenarioConfig().getVariable().getCsvVariables().get(0);
-        request.getScenarioConfig().getVariable().getCsvVariables().get(1).setId(collect.get(csvVariable1.getFileId()).getId());
+        request.getScenarioConfig().getVariable().getCsvVariables().get(1).setId(collect.get(csvVariable1.getFile().getFileId()).getId());
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         assertUpdateSteps(steps, steptDetailMap);
         addApiScenarioSteps = steps;

@@ -565,6 +565,11 @@ public class ApiScenarioService extends MoveNodeService {
             BeanUtils.copyBean(scenarioCsv, item);
             scenarioCsv.setScenarioId(scenario.getId());
             scenarioCsv.setProjectId(scenario.getProjectId());
+
+            ApiFile file = item.getFile();
+            scenarioCsv.setFileId(file.getFileId());
+            scenarioCsv.setFileName(file.getFileName());
+            scenarioCsv.setAssociation(BooleanUtils.isFalse(file.getLocal()));
             if (!dbCsvIdSet.contains(item.getId())) {
                 addCsvList.add(scenarioCsv);
             } else {
@@ -595,7 +600,9 @@ public class ApiScenarioService extends MoveNodeService {
 
         // 获取请求中关联的文件id
         List<String> refFileIds = csvVariables.stream()
-                .filter(c -> BooleanUtils.isTrue(c.getAssociation())).map(CsvVariable::getFileId).toList();
+                .map(CsvVariable::getFile)
+                .filter(c -> BooleanUtils.isFalse(c.getLocal()))
+                .map(ApiFile::getFileId).toList();
 
         List<String> unlinkFileIds = ListUtils.subtract(dbRefFileIds, refFileIds);
         resourceUpdateRequest.setUnLinkFileIds(unlinkFileIds);
@@ -612,8 +619,9 @@ public class ApiScenarioService extends MoveNodeService {
 
         // 获取请求中的本地文件
         List<String> localFileIds = csvVariables.stream()
-                .filter(c -> BooleanUtils.isFalse(c.getAssociation()))
-                .map(CsvVariable::getFileId).toList();
+                .map(CsvVariable::getFile)
+                .filter(c -> BooleanUtils.isTrue(c.getLocal()))
+                .map(ApiFile::getFileId).toList();
 
         // 待删除文件
         List<String> deleteLocals = ListUtils.subtract(dbLocalFileIds, localFileIds);
@@ -2056,6 +2064,15 @@ public class ApiScenarioService extends MoveNodeService {
         followerExample.createCriteria().andUserIdEqualTo(userId);
         List<ApiScenarioFollower> followers = apiScenarioFollowerMapper.selectByExample(followerExample);
         apiScenarioDetailDTO.setFollow(CollectionUtils.isNotEmpty(followers));
+
+        // 设置关联的文件的最新信息
+        List<ApiFile> csvApiFiles = apiScenarioDetail.getScenarioConfig()
+                .getVariable()
+                .getCsvVariables()
+                .stream()
+                .map(CsvVariable::getFile)
+                .toList();
+        apiCommonService.setLinkFileInfo(apiScenarioDetail.getId(), csvApiFiles);
         return apiScenarioDetailDTO;
     }
 
@@ -2104,8 +2121,7 @@ public class ApiScenarioService extends MoveNodeService {
         }
 
         //存放csv变量
-        List<CsvVariable> csvVariables = extApiScenarioStepMapper.getCsvVariableByScenarioId(scenarioId);
-        apiScenarioDetail.getScenarioConfig().getVariable().setCsvVariables(csvVariables);
+        apiScenarioDetail.getScenarioConfig().getVariable().setCsvVariables(getCsvVariables(scenarioId));
 
         // 获取所有步骤
         List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(scenarioId))
@@ -2152,6 +2168,22 @@ public class ApiScenarioService extends MoveNodeService {
         apiScenarioDetail.setSteps(steps);
 
         return apiScenarioDetail;
+    }
+
+    private List<CsvVariable> getCsvVariables(String scenarioId) {
+        ApiScenarioCsvExample example = new ApiScenarioCsvExample();
+        example.createCriteria().andScenarioIdEqualTo(scenarioId);
+        List<ApiScenarioCsv> csvList = apiScenarioCsvMapper.selectByExample(example);
+        List<CsvVariable> csvVariables = csvList.stream().map(apiScenarioCsv -> {
+            CsvVariable csvVariable = BeanUtils.copyBean(new CsvVariable(), apiScenarioCsv);
+            ApiFile apiFile = new ApiFile();
+            apiFile.setFileId(apiScenarioCsv.getFileId());
+            apiFile.setLocal(!apiScenarioCsv.getAssociation());
+            apiFile.setFileName(apiScenarioCsv.getFileName());
+            csvVariable.setFile(apiFile);
+            return csvVariable;
+        }).collect(Collectors.toList());
+        return csvVariables;
     }
 
     /**
@@ -2312,7 +2344,6 @@ public class ApiScenarioService extends MoveNodeService {
         if (stepDetail instanceof AbstractMsTestElement msTestElement) {
             // 设置关联的文件的最新信息
             if (isRef(step.getRefType())) {
-                apiCommonService.setLinkFileInfo(step.getResourceId(), msTestElement);
                 if (isApi(step.getStepType())) {
                     ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(step.getResourceId());
                     apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
@@ -2321,9 +2352,9 @@ public class ApiScenarioService extends MoveNodeService {
                     ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
                     apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
                 }
-            } else {
-                apiCommonService.setLinkFileInfo(step.getScenarioId(), msTestElement);
             }
+            apiCommonService.setLinkFileInfo(step.getId(), msTestElement);
+
             apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
         } else if (stepDetail instanceof MsScriptElement msScriptElement) {
             apiCommonService.setEnableCommonScriptProcessorInfo(msScriptElement);
