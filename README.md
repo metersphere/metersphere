@@ -16,10 +16,10 @@ MeterSphere 是新一代的测试管理和接口测试工具，让测试工作�
 ## 快速开始
 
 ```
-docker run -d --name=metersphere xxx
+docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/metersphere/data registry.fit2cloud.com/metersphere/metersphere-ce-allinone:v3.0.0-beta
 
-# 用户名: xxx
-# 密码: xxx
+# 用户名: admin
+# 密码: metersphere
 ```
 
 你也可以通过 [1Panel 应用商店](https://1panel.cn/) 快速部署 MeterSphere。
