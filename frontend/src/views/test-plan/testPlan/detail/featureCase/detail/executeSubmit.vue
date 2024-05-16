@@ -1,6 +1,5 @@
 <template>
-  <ExecuteForm v-model:form="form" />
-  <!-- TODO: 双击富文本内容打开弹窗 -->
+  <ExecuteForm v-model:form="form" is-dblclick-placeholder class="execute-form" />
   <a-button
     type="primary"
     class="mt-[12px]"
@@ -29,6 +28,7 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
+  import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
@@ -66,6 +66,16 @@
       (form.value.content === '' || form.value.content?.trim() === '<p style=""></p>')
   );
 
+  // 双击富文本内容打开弹窗
+  onMounted(() => {
+    nextTick(() => {
+      const editorContent = document.querySelector('.execute-form')?.querySelector('.editor-content');
+      useEventListener(editorContent, 'dblclick', () => {
+        modalVisible.value = true;
+      });
+    });
+  });
+
   watch(
     () => props.stepExecutionResult,
     () => {
@@ -81,6 +91,13 @@
     { deep: true }
   );
 
+  watch(
+    () => props.id,
+    () => {
+      form.value = { ...defaultExecuteForm };
+    }
+  );
+
   // 提交执行
   async function submit() {
     try {
@@ -90,9 +107,8 @@
         caseId: props.caseId,
         testPlanId: props.testPlanId,
         id: props.id,
-        lastExecResult: form.value.lastExecResult,
+        ...form.value,
         stepsExecResult: JSON.stringify(props.stepExecutionResult) ?? '',
-        content: form.value.content,
         notifier: form.value?.commentIds?.join(';'),
       };
       await runFeatureCase(params);
@@ -108,3 +124,9 @@
     }
   }
 </script>
+
+<style lang="less" scoped>
+  .execute-form :deep(.rich-wrapper) .halo-rich-text-editor .ProseMirror {
+    height: 58px;
+  }
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <a-form ref="formRef" :model="form">
+  <a-form :model="form">
     <a-form-item field="lastExecResult" class="mb-[8px]">
       <a-radio-group v-model:model-value="form.lastExecResult" @change="clearContent">
         <a-radio v-for="item in executionResultList" :key="item.key" :value="item.key">
@@ -12,9 +12,15 @@
         <MsRichText
           v-model:raw="form.content"
           v-model:commentIds="form.commentIds"
+          v-model:filedIds="form.planCommentFileIds"
           :upload-image="handleUploadImage"
           :preview-url="PreviewEditorImageUrl"
           class="w-full"
+          :placeholder="
+            props.isDblclickPlaceholder
+              ? t('testPlan.featureCase.richTextDblclickPlaceholder')
+              : t('editor.placeholder')
+          "
         />
       </div>
     </a-form-item>
@@ -22,26 +28,28 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { FormInstance } from '@arco-design/web-vue';
-
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultExecuteForm } from '@/config/testPlan';
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { ExecuteFeatureCaseFormParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
+  const props = defineProps<{
+    isDblclickPlaceholder?: boolean;
+  }>();
+
   const form = defineModel<ExecuteFeatureCaseFormParams>('form', {
     required: true,
   });
 
-  const formRef = ref<FormInstance>();
+  const { t } = useI18n();
 
   const executionResultList = computed(() =>
     Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.PENDING)

@@ -101,4 +101,5 @@ export default {
     'After cancellation, it will affect the statistics related to the test plan',
   'testPlan.featureCase.batchDisassociateTipContent':
     ' After cancellation, associate again, and the execution result is unexecuted',
+  'testPlan.featureCase.richTextDblclickPlaceholder': 'Double click for quick input',
 };

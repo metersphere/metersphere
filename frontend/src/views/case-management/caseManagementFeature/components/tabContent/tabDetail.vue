@@ -590,7 +590,7 @@
           step: item.desc,
           expected: item.result,
           actualResult: item.actualResult ?? '',
-          executeResult: item.executeResult ?? 'PASSED',
+          executeResult: item.executeResult,
         };
       });
     }

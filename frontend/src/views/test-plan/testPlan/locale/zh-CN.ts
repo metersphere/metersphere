@@ -98,4 +98,5 @@ export default {
   'testPlan.featureCase.disassociateTipContent': '取消后，影响测试计划相关统计',
   'testPlan.featureCase.batchDisassociateTipContent': '取消后，再次关联，执行结果为：未执行',
   'testPlan.featureCase.startExecution': '开始执行',
+  'testPlan.featureCase.richTextDblclickPlaceholder': '双击可快速输入',
 };

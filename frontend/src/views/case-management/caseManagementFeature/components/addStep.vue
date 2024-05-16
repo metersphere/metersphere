@@ -44,6 +44,7 @@
         v-model:model-value="record.executeResult"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
+        allow-clear
       >
         <template #label>
           <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.executeResult" /></span>

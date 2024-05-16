@@ -45,7 +45,6 @@
             </div>
             <MsEmpty v-if="caseList.length === 0" />
           </div>
-          <!-- TODO 样式 -->
           <MsPagination
             v-model:page-size="pageNation.pageSize"
             v-model:current="pageNation.current"
@@ -85,8 +84,18 @@
           class="relative mx-[16px] border-b"
         />
         <div :class="[' flex-1', activeTab !== 'detail' ? 'tab-content' : 'overflow-hidden']">
-          <!-- TODO: 属性的样式 -->
-          <MsDescription v-if="activeTab === 'baseInfo'" :descriptions="descriptions" :column="2" />
+          <MsDescription v-if="activeTab === 'baseInfo'" :descriptions="descriptions" :column="2">
+            <template #value="{ item }">
+              <template v-if="item.key === 'reviewStatus'">
+                <MsIcon
+                  :type="statusIconMap[item.value as keyof typeof statusIconMap]?.icon || ''"
+                  class="mr-1"
+                  :class="[statusIconMap[item.value as keyof typeof statusIconMap].color]"
+                ></MsIcon>
+                <span>{{ statusIconMap[item.value as keyof typeof statusIconMap]?.statusText || '' }} </span>
+              </template>
+            </template>
+          </MsDescription>
           <div v-else-if="activeTab === 'detail'" class="align-content-start flex h-full flex-col">
             <CaseTabDetail ref="caseTabDetailRef" is-test-plan :form="caseDetail" />
             <!-- 开始执行 -->
@@ -160,7 +169,11 @@
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { executionResultMap, getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
+  import {
+    executionResultMap,
+    getCustomField,
+    statusIconMap,
+  } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -280,6 +293,7 @@
         {
           label: t('caseManagement.featureCase.reviewResult'),
           value: res.reviewStatus,
+          key: 'reviewStatus',
         },
         // 解析用例模板的自定义字段
         ...res.customFields.map((e: Record<string, any>) => {
