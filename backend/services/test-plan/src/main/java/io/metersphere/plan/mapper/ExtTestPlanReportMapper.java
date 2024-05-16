@@ -62,4 +62,10 @@ public interface ExtTestPlanReportMapper {
      * @return 关联的用例集合
      */
     List<FunctionalCasePageDTO> listReportFunctionalCases(@Param("request")TestPlanReportDetailPageRequest request);
+
+    long countReportByTime(@Param("time") long timeMills, @Param("projectId") String projectId);
+
+    List<String> selectReportIdByProjectIdAndTime(@Param("time") long timeMills, @Param("projectId") String projectId);
+
+    List<String> selectReportIdTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 }

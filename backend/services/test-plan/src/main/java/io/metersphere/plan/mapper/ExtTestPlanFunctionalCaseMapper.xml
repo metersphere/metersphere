@@ -13,6 +13,14 @@
         WHERE test_plan_id = #{testPlanId}
         ORDER BY pos ASC
     </select>
+    <select id="selectIdByTestPlanIds" resultType="java.lang.String">
+        SELECT id
+        FROM test_plan_functional_case
+        WHERE test_plan_id IN
+        <foreach collection="testPlanIds" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
     <select id="getMaxPosByTestPlanId" resultType="java.lang.Long">
         SELECT max(pos)
         FROM test_plan_functional_case

@@ -74,7 +74,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.sendAddNotice(#request)", targetClass = TestPlanSendNoticeService.class)
-    public String add(@Validated @RequestBody TestPlanCreateRequest request) {
+    public TestPlan add(@Validated @RequestBody TestPlanCreateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.add(request, SessionUtils.getUserId(), "/test-plan/add", HttpMethodConstants.POST.name());
     }

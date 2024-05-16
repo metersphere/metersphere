@@ -36,4 +36,6 @@ public interface ExtTestPlanMapper {
     List<TestPlan> getTagsByIds(@Param("ids") List<String> ids);
 
     void batchUpdate(@Param("testPlan") TestPlan testPlan, @Param("ids") List<String> ids);
+
+    List<String> selectIdByProjectId(String projectId);
 }

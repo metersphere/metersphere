@@ -6,15 +6,16 @@ import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.dto.ModuleSortCountResultDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.utils.NodeSortUtils;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,7 @@ import java.util.function.Function;
 //测试计划关联表 通用方法
 @Service
 @Transactional(rollbackFor = Exception.class)
-public abstract class TestPlanResourceService {
+public abstract class TestPlanResourceService extends MoveNodeService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
@@ -80,7 +81,7 @@ public abstract class TestPlanResourceService {
      * @param selectPosNodeFunc 通过parentId和pos运算符查询节点的函数
      * @return
      */
-    public AssociationNodeSortDTO getNodeSortDTO(ResourceSortRequest request, Function<String, AssociationNode> selectIdNodeFunc, Function<NodeSortQueryParam, AssociationNode> selectPosNodeFunc) {
+    public AssociationNodeSortDTO getNodeSortDTO(NodeMoveRequest request, String testPlanId, Function<String, AssociationNode> selectIdNodeFunc, Function<NodeSortQueryParam, AssociationNode> selectPosNodeFunc) {
         if (StringUtils.equals(request.getDragNodeId(), request.getDropNodeId())) {
             //两种节点不能一样
             throw new MSException(Translator.get("invalid_parameter") + ": drag node  and drop node");
@@ -104,7 +105,7 @@ public abstract class TestPlanResourceService {
             previousNode = dropNode;
 
             NodeSortQueryParam sortParam = new NodeSortQueryParam();
-            sortParam.setParentId(request.getTestPlanId());
+            sortParam.setParentId(testPlanId);
             sortParam.setPos(previousNode.getPos());
             sortParam.setOperator(MOVE_POS_OPERATOR_MORE);
             nextNode = selectPosNodeFunc.apply(sortParam);
@@ -113,14 +114,14 @@ public abstract class TestPlanResourceService {
             nextNode = dropNode;
             NodeSortQueryParam sortParam = new NodeSortQueryParam();
             sortParam.setPos(nextNode.getPos());
-            sortParam.setParentId(request.getTestPlanId());
+            sortParam.setParentId(testPlanId);
             sortParam.setOperator(MOVE_POS_OPERATOR_LESS);
             previousNode = selectPosNodeFunc.apply(sortParam);
         } else {
             throw new MSException(Translator.get("invalid_parameter") + ": dropPosition");
         }
 
-        return new AssociationNodeSortDTO(request.getTestPlanId(), dragNode, previousNode, nextNode);
+        return new AssociationNodeSortDTO(testPlanId, dragNode, previousNode, nextNode);
     }
 
     //排序

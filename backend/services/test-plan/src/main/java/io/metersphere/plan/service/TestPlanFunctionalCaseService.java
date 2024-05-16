@@ -132,11 +132,23 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     @Override
     public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
-        TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
+        TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+        testPlanFunctionalCaseExample.createCriteria().andTestPlanIdIn(testPlanIdList);
+        testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
+        // 取消关联用例需同步删除计划-用例缺陷关系表
+        BugRelationCaseExample example = new BugRelationCaseExample();
         example.createCriteria().andTestPlanIdIn(testPlanIdList);
-        return testPlanFunctionalCaseMapper.deleteByExample(example);
+        bugRelationCaseMapper.deleteByExample(example);
+        // todo:song.tianyang 删除执行历史
+
+        return testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
     }
 
+
+    @Override
+    public long getNextOrder(String projectId) {
+        return 0;
+    }
 
     @Override
     public void updatePos(String id, long pos) {
@@ -168,20 +180,21 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
-        TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getDragNodeId());
+        TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getMoveId());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         if (dragNode == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
         TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
         AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(
-                request,
+                super.getNodeMoveRequest(request),
+                request.getTestPlanId(),
                 extTestPlanFunctionalCaseMapper::selectDragInfoById,
                 extTestPlanFunctionalCaseMapper::selectNodeByPosOperator
         );
         super.sort(sortDTO);
         response.setSortNodeNum(1);
-        testPlanResourceLogService.saveSortLog(testPlan, request.getDragNodeId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
+        testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
         return response;
     }
 

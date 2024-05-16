@@ -20,6 +20,8 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<String> selectIdByTestPlanIdOrderByPos(String testPlanId);
 
+    List<String> selectIdByTestPlanIds(@Param("testPlanIds") List<String> testPlanIdList);
+
     Long getMaxPosByTestPlanId(String testPlanId);
 
     List<String> getIdByParam(ResourceSelectParam resourceSelectParam);
