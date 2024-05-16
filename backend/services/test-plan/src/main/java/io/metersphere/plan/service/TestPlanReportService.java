@@ -70,6 +70,10 @@ public class TestPlanReportService {
 	private TestPlanReportSummaryMapper testPlanReportSummaryMapper;
 	@Resource
 	private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+	@Resource
+	private TestPlanReportFunctionCaseMapper testPlanReportFunctionCaseMapper;
+    @Resource
+    private TestPlanReportBugMapper testPlanReportBugMapper;
 
     /**
      * 分页查询报告列表
@@ -98,9 +102,9 @@ public class TestPlanReportService {
     }
 
     /**
-     * 删除单个报告
+     * 业务删除报告
      */
-    public void delete(String id) {
+    public void setReportDelete(String id) {
         TestPlanReport report = checkReport(id);
         report.setDeleted(true);
         testPlanReportMapper.updateByPrimaryKeySelective(report);
@@ -111,23 +115,72 @@ public class TestPlanReportService {
      *
      * @param request 请求参数
      */
-    public void batchDelete(TestPlanReportBatchRequest request, String userId) {
+    public void batchSetReportDelete(TestPlanReportBatchRequest request, String userId) {
         List<String> batchIds = getBatchIds(request);
         User user = userMapper.selectByPrimaryKey(userId);
         if (CollectionUtils.isNotEmpty(batchIds)) {
-            SubListUtils.dealForSubList(batchIds, 500, subList -> {
+            SubListUtils.dealForSubList(batchIds, SubListUtils.DEFAULT_BATCH_SIZE, subList -> {
                 TestPlanReportExample example = new TestPlanReportExample();
                 example.createCriteria().andIdIn(subList);
                 TestPlanReport testPlanReport = new TestPlanReport();
                 testPlanReport.setDeleted(true);
                 testPlanReportMapper.updateByExampleSelective(testPlanReport, example);
-
                 testPlanReportLogService.batchDeleteLog(subList, userId, request.getProjectId());
                 testPlanReportNoticeService.batchSendNotice(subList, user, request.getProjectId(), NoticeConstants.Event.DELETE);
             });
         }
     }
 
+    /**
+     * 清空测试计划报告（包括summary
+     *
+     * @param reportIdList
+     */
+    public void cleanAndDeleteReport(List<String> reportIdList) {
+        if (CollectionUtils.isNotEmpty(reportIdList)) {
+            SubListUtils.dealForSubList(reportIdList, SubListUtils.DEFAULT_BATCH_SIZE, subList -> {
+                TestPlanReportExample example = new TestPlanReportExample();
+                example.createCriteria().andIdIn(subList);
+                TestPlanReport testPlanReport = new TestPlanReport();
+                testPlanReport.setDeleted(true);
+                testPlanReportMapper.updateByExampleSelective(testPlanReport, example);
+
+                this.deleteTestPlanReportBlobs(subList);
+            });
+        }
+    }
+
+    /**
+     * 删除测试计划报告（包括summary
+     */
+    public void deleteByTestPlanIds(List<String> testPlanIds) {
+        if (CollectionUtils.isNotEmpty(testPlanIds)) {
+            List<String> reportIdList = extTestPlanReportMapper.selectReportIdTestPlanIds(testPlanIds);
+
+            SubListUtils.dealForSubList(reportIdList, SubListUtils.DEFAULT_BATCH_SIZE, subList -> {
+                TestPlanReportExample example = new TestPlanReportExample();
+                example.createCriteria().andIdIn(subList);
+                testPlanReportMapper.deleteByExample(example);
+
+                this.deleteTestPlanReportBlobs(subList);
+            });
+        }
+    }
+
+    private void deleteTestPlanReportBlobs(List<String> reportIdList) {
+        // todo 后续版本增加 api_case\ api_scenario 的清理
+        TestPlanReportSummaryExample summaryExample = new TestPlanReportSummaryExample();
+        summaryExample.createCriteria().andTestPlanReportIdIn(reportIdList);
+        testPlanReportSummaryMapper.deleteByExample(summaryExample);
+
+        TestPlanReportFunctionCaseExample testPlanReportFunctionCaseExample = new TestPlanReportFunctionCaseExample();
+        testPlanReportFunctionCaseExample.createCriteria().andTestPlanReportIdIn(reportIdList);
+        testPlanReportFunctionCaseMapper.deleteByExample(testPlanReportFunctionCaseExample);
+
+        TestPlanReportBugExample testPlanReportBugExample = new TestPlanReportBugExample();
+        testPlanReportBugExample.createCriteria().andTestPlanReportIdIn(reportIdList);
+        testPlanReportBugMapper.deleteByExample(testPlanReportBugExample);
+    }
 	/**
 	 * 手动生成报告
 	 * @param request 请求参数

@@ -385,6 +385,11 @@
             #{id}
         </foreach>
     </select>
+    <select id="selectIdByProjectId" resultType="java.lang.String">
+        SELECT id
+        FROM test_plan
+        WHERE project_id = #{0}
+    </select>
 
 
     <update id="batchUpdate">

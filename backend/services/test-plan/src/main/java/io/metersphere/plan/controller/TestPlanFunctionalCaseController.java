@@ -49,7 +49,6 @@ public class TestPlanFunctionalCaseController {
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
 
-
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
@@ -59,7 +58,6 @@ public class TestPlanFunctionalCaseController {
         return testPlanFunctionalCaseService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/sort", HttpMethodConstants.POST.name()));
     }
 
-
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联功能用例分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
@@ -68,7 +66,6 @@ public class TestPlanFunctionalCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false));
     }
-
 
     @GetMapping("/tree/{testPlanId}")
     @Operation(summary = "测试计划-已关联功能用例列表模块树")

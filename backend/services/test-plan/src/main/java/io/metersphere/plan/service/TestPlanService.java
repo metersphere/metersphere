@@ -11,8 +11,10 @@ import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ScheduleExample;
+import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
@@ -83,10 +85,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param requestMethod
      * @return
      */
-    public String add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
+    public TestPlan add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator, null);
         testPlanLogService.saveAddLog(testPlan, operator, requestUrl, requestMethod);
-        return testPlan.getId();
+        return testPlan;
     }
 
 
@@ -150,7 +152,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         } else {
             testPlanMapper.deleteByPrimaryKey(id);
             //级联删除
-            this.cascadeDeleteTestPlanIds(Collections.singletonList(id));
+            TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+            this.cascadeDeleteTestPlanIds(Collections.singletonList(id), testPlanReportService);
         }
         //记录日志
         testPlanLogService.saveDeleteLog(testPlan, operator, requestUrl, requestMethod);
@@ -158,12 +161,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     private void deleteByList(List<String> testPlanIds) {
         if (CollectionUtils.isNotEmpty(testPlanIds)) {
+            TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+
             BatchProcessUtils.consumerByString(testPlanIds, (deleteIds) -> {
                 TestPlanExample testPlanExample = new TestPlanExample();
                 testPlanExample.createCriteria().andIdIn(deleteIds);
                 testPlanMapper.deleteByExample(testPlanExample);
                 //级联删除
-                this.cascadeDeleteTestPlanIds(deleteIds);
+                this.cascadeDeleteTestPlanIds(deleteIds, testPlanReportService);
             });
         }
     }
@@ -175,6 +180,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      */
     private void deleteGroupByList(List<String> testPlanGroupIds) {
         if (CollectionUtils.isNotEmpty(testPlanGroupIds)) {
+            TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
             BatchProcessUtils.consumerByString(testPlanGroupIds, (deleteGroupIds) -> {
                 /*
                  * 计划组删除逻辑{第一版需求: 删除组, 组下的子计划Group置为None}:
@@ -187,7 +193,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 List<String> deleteGroupPlanIds = deleteGroupPlans.stream().map(TestPlan::getId).toList();
                 if (CollectionUtils.isNotEmpty(deleteGroupPlanIds)) {
                     // 级联删除子计划关联的资源(计划组不存在关联的资源)
-                    this.cascadeDeleteTestPlanIds(deleteGroupPlanIds);
+                    this.cascadeDeleteTestPlanIds(deleteGroupPlanIds, testPlanReportService);
                 }
                 testPlanExample.clear();
                 testPlanExample.createCriteria().andIdIn(ListUtils.union(deleteGroupIds, deleteGroupPlanIds));
@@ -234,8 +240,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * 级联删除计划关联的资源
      *
      * @param testPlanIds 计划ID集合
+     * @param testPlanReportService 这个方法会在批处理中使用，所以service在调用处通过传参的方式传入
      */
-    private void cascadeDeleteTestPlanIds(List<String> testPlanIds) {
+    private void cascadeDeleteTestPlanIds(List<String> testPlanIds, TestPlanReportService testPlanReportService) {
         //删除当前计划对应的资源
         Map<String, TestPlanResourceService> subTypes = CommonBeanFactory.getBeansOfType(TestPlanResourceService.class);
         subTypes.forEach((k, t) -> {
@@ -253,11 +260,13 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
         allocationExample.createCriteria().andTestPlanIdIn(testPlanIds);
         testPlanAllocationMapper.deleteByExample(allocationExample);
+
+        //删除测试计划报告 todo: 正式版增加接口用例报告、接口场景报告的清理
+        testPlanReportService.deleteByTestPlanIds(testPlanIds);
         /*
         todo
             删除计划定时任务
          */
-
     }
 
 
@@ -619,5 +628,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (tags.size() > MAX_TAG_SIZE) {
             throw new MSException(Translator.getWithArgs("tags_length_large_than", String.valueOf(MAX_TAG_SIZE)));
         }
+    }
+
+    //通过项目删除测试计划
+    public void deleteByProjectId(String projectId) {
+
+        List<String> testPlanIdList = extTestPlanMapper.selectIdByProjectId(projectId);
+
+        //删除测试计划模块
+        TestPlanModuleExample moduleExample = new TestPlanModuleExample();
+        moduleExample.createCriteria().andProjectIdEqualTo(projectId);
+        testPlanModuleMapper.deleteByExample(moduleExample);
+
+        SubListUtils.dealForSubList(testPlanIdList, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
+            this.deleteByList(testPlanIdList);
+        });
     }
 }

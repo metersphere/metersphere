@@ -28,6 +28,11 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
     @Override
+    public long getNextOrder(String projectId) {
+        return 0;
+    }
+
+    @Override
     public void updatePos(String id, long pos) {
         // TODO
         //extTestPlanApiCaseMapper.updatePos(id, pos);

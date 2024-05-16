@@ -73,7 +73,7 @@ public class TestPlanReportController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = TestPlanReportLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDto(#id)", targetClass = TestPlanReportNoticeService.class)
     public void delete(@PathVariable String id) {
-        testPlanReportService.delete(id);
+        testPlanReportService.setReportDelete(id);
     }
 
     @PostMapping("/batch-delete")
@@ -81,7 +81,7 @@ public class TestPlanReportController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchDelete(@Validated @RequestBody TestPlanReportBatchRequest request) {
-        testPlanReportService.batchDelete(request, SessionUtils.getUserId());
+        testPlanReportService.batchSetReportDelete(request, SessionUtils.getUserId());
     }
 
 	@PostMapping("/gen")

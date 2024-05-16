@@ -15,6 +15,8 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -36,6 +38,12 @@ public class TestPlanTestService {
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private TestPlanFollowerMapper testPlanFollowerMapper;
+    @Resource
+    private TestPlanAllocationMapper testPlanAllocationMapper;
+    @Resource
+    private TestPlanReportMapper testPlanReportMapper;
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -378,5 +386,47 @@ public class TestPlanTestService {
             updateCase.setPos(pos);
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(updateCase);
         }
+    }
+
+    public void checkDataEmpty(List<String> testPlanIdList, String projectId) {
+        SubListUtils.dealForSubList(testPlanIdList, SubListUtils.DEFAULT_BATCH_SIZE, (subList) -> {
+            TestPlanExample testPlanExample = new TestPlanExample();
+            testPlanExample.createCriteria().andIdIn(subList);
+            Assertions.assertEquals(testPlanMapper.countByExample(testPlanExample), 0);
+
+            TestPlanModuleExample testPlanModuleExample = new TestPlanModuleExample();
+            testPlanModuleExample.createCriteria().andProjectIdEqualTo(projectId);
+            Assertions.assertEquals(testPlanMapper.countByExample(testPlanExample), 0);
+
+            TestPlanConfigExample testPlanConfigExample = new TestPlanConfigExample();
+            testPlanConfigExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanConfigMapper.countByExample(testPlanConfigExample), 0);
+
+            TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+            testPlanFunctionalCaseExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanFunctionalCaseMapper.countByExample(testPlanFunctionalCaseExample), 0);
+
+            TestPlanApiCaseExample testPlanApiCaseExample = new TestPlanApiCaseExample();
+            testPlanApiCaseExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanApiCaseMapper.countByExample(testPlanApiCaseExample), 0);
+
+            TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
+            testPlanApiScenarioExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanApiScenarioMapper.countByExample(testPlanApiScenarioExample), 0);
+
+            TestPlanFollowerExample testPlanFollowerExample = new TestPlanFollowerExample();
+            testPlanFollowerExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanFollowerMapper.countByExample(testPlanFollowerExample), 0);
+
+            TestPlanAllocationExample testPlanAllocationExample = new TestPlanAllocationExample();
+            testPlanAllocationExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanAllocationMapper.countByExample(testPlanAllocationExample), 0);
+
+            TestPlanReportExample testPlanReportExample = new TestPlanReportExample();
+            testPlanReportExample.createCriteria().andTestPlanIdIn(subList);
+            Assertions.assertEquals(testPlanReportMapper.countByExample(testPlanReportExample), 0);
+
+
+        });
     }
 }

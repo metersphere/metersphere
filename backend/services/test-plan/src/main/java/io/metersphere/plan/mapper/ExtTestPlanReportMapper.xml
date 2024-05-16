@@ -51,6 +51,30 @@
             #{id}
         </foreach>
     </select>
+    <select id="countReportByTime" resultType="java.lang.Long">
+        select count(report.id)
+        from test_plan_report report
+                 inner join test_plan_report_summary summary
+                            on report.id = summary.test_plan_report_id = report.id
+        where report.start_time &lt;= #{time}
+          and report.project_id = #{projectId}
+    </select>
+    <select id="selectReportIdByProjectIdAndTime" resultType="java.lang.String">
+        select report.id
+        from test_plan_report report
+                 inner join test_plan_report_summary summary
+                            on report.id = summary.test_plan_report_id = report.id
+        where report.project_id = #{projectId}
+          and report.start_time = #{time}
+    </select>
+    <select id="selectReportIdTestPlanIds" resultType="java.lang.String">
+        select report.id
+        from test_plan_report report
+        where report.test_plan_id IN
+        <foreach collection="testPlanIds" item="testPlanId" open="(" close=")" separator=",">
+            #{testPlanId}
+        </foreach>
+    </select>
 
     <sql id="queryWhereCondition">
         <where>
