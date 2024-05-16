@@ -386,6 +386,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         functionalCase.setId(request.getId());
         testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
 
+        //更新用例表执行状态
+        updateFunctionalCaseStatus(Arrays.asList(request.getCaseId()), request.getLastExecResult());
+
+
         //执行记录
         TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
         testPlanCaseExecuteHistoryMapper.insert(executeHistory);
@@ -394,6 +398,25 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         idsMap.put(request.getId(), request.getCaseId());
         List<LogDTO> logDTOList = runLog(idsMap, Arrays.asList(request.getCaseId()), request.getProjectId(), organizationId, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
         operationLogService.batchAdd(logDTOList);
+    }
+
+    /**
+     * 更新功能用例表的执行状态
+     *
+     * @param ids
+     * @param lastExecResult
+     */
+    private void updateFunctionalCaseStatus(List<String> ids, String lastExecResult) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseMapper functionalCaseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        ids.forEach(id -> {
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setId(id);
+            functionalCase.setLastExecuteResult(lastExecResult);
+            functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
 
@@ -443,6 +466,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         Map<String, String> idsMap = functionalCases.stream().collect(Collectors.toMap(TestPlanFunctionalCase::getId, TestPlanFunctionalCase::getFunctionalCaseId));
         List<TestPlanCaseExecuteHistory> historyList = getExecHistory(ids, request, logInsertModule, idsMap);
         testPlanCaseExecuteHistoryMapper.batchInsert(historyList);
+
+        updateFunctionalCaseStatus(caseIds, request.getLastExecResult());
 
         List<LogDTO> logDTOList = runLog(idsMap, caseIds, request.getProjectId(), organizationId, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
         operationLogService.batchAdd(logDTOList);
