@@ -10,12 +10,14 @@ import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
@@ -29,6 +31,7 @@ import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.*;
@@ -69,6 +72,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -116,6 +120,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private FunctionalCaseBlobMapper functionalCaseBlobMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
     @Override
@@ -398,7 +404,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         executeHistory.setCaseId(request.getCaseId());
         executeHistory.setStatus(request.getLastExecResult());
         executeHistory.setContent(request.getContent().getBytes());
-        executeHistory.setSteps(request.getStepsExecResult().getBytes());
+        executeHistory.setSteps(StringUtils.defaultIfBlank(request.getStepsExecResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
         executeHistory.setDeleted(false);
         executeHistory.setNotifier(request.getNotifier());
         executeHistory.setCreateUser(operator);
@@ -521,5 +527,19 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         if (CollectionUtils.isNotEmpty(ids)) {
             extTestPlanFunctionalCaseMapper.batchUpdateExecutor(ids, request.getUserId());
         }
+    }
+
+    public List<TestPlanCaseExecHistoryResponse> getCaseExecHistory(TestPlanCaseExecHistoryRequest request) {
+        FunctionalCaseBlob caseBlob = functionalCaseBlobMapper.selectByPrimaryKey(request.getCaseId());
+        List<TestPlanCaseExecHistoryResponse> list = extTestPlanCaseExecuteHistoryMapper.getCaseExecHistory(request);
+        list.forEach(item -> {
+            if (item.getContent() != null) {
+                item.setContentText(new String(item.getContent(), StandardCharsets.UTF_8));
+            }
+            if (caseBlob.getSteps() != null) {
+                item.setSteps(new String(caseBlob.getSteps(), StandardCharsets.UTF_8));
+            }
+        });
+        return list;
     }
 }

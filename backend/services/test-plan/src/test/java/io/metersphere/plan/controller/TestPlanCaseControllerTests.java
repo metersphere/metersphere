@@ -43,6 +43,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_RUN_URL = "/test-plan/functional/case/run";
     public static final String FUNCTIONAL_CASE_BATCH_RUN_URL = "/test-plan/functional/case/batch/run";
     public static final String FUNCTIONAL_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/functional/case/batch/update/executor";
+    public static final String FUNCTIONAL_CASE_EXEC_HISTORY_URL = "/test-plan/functional/case/exec/history";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -194,7 +195,6 @@ public class TestPlanCaseControllerTests extends BaseTest {
     }
 
 
-
     @Test
     @Order(12)
     public void testFunctionalCaseBatchRun() throws Exception {
@@ -227,5 +227,16 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setSelectIds(List.of("relate_case_3"));
         this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_UPDATE_EXECUTOR_URL, request);
 
+    }
+
+
+    @Test
+    @Order(14)
+    public void testExecHistory() throws Exception {
+        TestPlanCaseExecHistoryRequest request = new TestPlanCaseExecHistoryRequest();
+        request.setId("relate_case_1");
+        request.setTestPlanId("plan_1");
+        request.setCaseId("fc_1");
+        this.requestPostWithOk(FUNCTIONAL_CASE_EXEC_HISTORY_URL, request);
     }
 }

@@ -6,6 +6,7 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.service.TestPlanCaseLogService;
@@ -160,5 +161,13 @@ public class TestPlanFunctionalCaseController {
         testPlanFunctionalCaseService.batchUpdateExecutor(request);
     }
 
+
+    @PostMapping("/exec/history")
+    @Operation(summary = "测试计划-计划详情-功能用例-执行历史")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public List<TestPlanCaseExecHistoryResponse> executeHistory(@Validated @RequestBody TestPlanCaseExecHistoryRequest request) {
+        return testPlanFunctionalCaseService.getCaseExecHistory(request);
+    }
 
 }
