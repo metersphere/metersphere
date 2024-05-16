@@ -12,4 +12,25 @@
         </foreach>
     </update>
 
+
+    <select id="getCaseExecHistory" resultType="io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse">
+        SELECT
+            tpceh.status as status,
+            tpceh.content as content,
+            tpceh.steps as stepsExecResult,
+            tpceh.create_user as createUser,
+            u.name AS userName,
+            ux.avatar AS userLogo,
+            u.email AS email
+        FROM
+            test_plan_case_execute_history tpceh
+            left JOIN user u ON tpceh.create_user = u.id
+            left JOIN user_extend ux ON tpceh.create_user = ux.id
+        WHERE
+            tpceh.test_plan_case_id = #{request.id}
+          AND tpceh.deleted = FALSE
+        ORDER BY
+            tpceh.create_time DESC
+    </select>
+
 </mapper>
