@@ -1,5 +1,6 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
@@ -33,9 +34,14 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String DELETE_PLAN_REPORT = "/test-plan/report/delete";
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
     private static final String GEN_PLAN_REPORT = "/test-plan/report/gen";
+    private static final String GET_PLAN_REPORT = "/test-plan/report/get";
+    private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
+    private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE = "/test-plan/report/detail/functional/case/page";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
     private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
+
+    private static String GEN_REPORT_ID;
 
     @Test
     @Order(1)
@@ -181,6 +187,44 @@ public class TestPlanReportControllerTests extends BaseTest {
         genRequest.setTestPlanId("plan_id_for_gen_report_1");
         this.requestPost(GEN_PLAN_REPORT, genRequest);
         genRequest.setTestPlanId("plan_id_for_gen_report");
-        this.requestPost(GEN_PLAN_REPORT, genRequest);
+        MvcResult mvcResult = this.requestPostAndReturn(GEN_PLAN_REPORT, genRequest);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        //返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        TestPlanReport report = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanReport.class);
+        GEN_REPORT_ID = report.getId();
+    }
+
+    @Test
+    @Order(12)
+    void testGetReportSuccess() throws Exception {
+        this.requestGet(GET_PLAN_REPORT + "/" + GEN_REPORT_ID);
+    }
+
+    @Test
+    @Order(13)
+    void testPageReportDetailBugSuccess() throws Exception {
+        TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
+        request.setReportId(GEN_REPORT_ID);
+        request.setProjectId("100001100001");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
+        request.setSort(Map.of("num", "asc"));
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
+    }
+
+    @Test
+    @Order(14)
+    void testPageReportDetailFunctionalCaseSuccess() throws Exception {
+        TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
+        request.setReportId(GEN_REPORT_ID);
+        request.setProjectId("100001100001");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
+        request.setSort(Map.of("num", "asc"));
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
     }
 }

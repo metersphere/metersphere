@@ -1,19 +1,21 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.bug.service.BugService;
+import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.plan.domain.*;
+import io.metersphere.plan.dto.CaseStatusCountMap;
 import io.metersphere.plan.dto.TestPlanReportGenPreParam;
 import io.metersphere.plan.dto.TestPlanReportPostParam;
 import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
 import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
+import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.mapper.*;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.ReportStatus;
-import io.metersphere.sdk.constants.TaskTriggerMode;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.DateUtils;
@@ -37,6 +39,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TestPlanReportService {
@@ -48,6 +51,8 @@ public class TestPlanReportService {
 	@Resource
 	private SqlSessionFactory sqlSessionFactory;
 	@Resource
+	private BugService bugService;
+	@Resource
 	private TestPlanMapper testPlanMapper;
 	@Resource
 	private TestPlanConfigMapper testPlanConfigMapper;
@@ -55,8 +60,6 @@ public class TestPlanReportService {
 	private TestPlanReportMapper testPlanReportMapper;
 	@Resource
 	private ExtBugRelateCaseMapper extBugRelateCaseMapper;
-	@Resource
-	private BugRelationCaseMapper bugRelationCaseMapper;
 	@Resource
 	private ExtTestPlanReportMapper extTestPlanReportMapper;
 	@Resource
@@ -153,6 +156,10 @@ public class TestPlanReportService {
 		TestPlanReportPostParam postParam = new TestPlanReportPostParam();
 		BeanUtils.copyBean(postParam, request);
 		postParam.setReportId(preReport.getId());
+		// 手动生成报告, 执行状态为已完成, 执行及结束时间为当前时间
+		postParam.setExecuteTime(System.currentTimeMillis());
+		postParam.setEndTime(System.currentTimeMillis());
+		postParam.setExecStatus(ExecStatus.COMPLETED.name());
 		return postHandleReport(postParam);
 	}
 
@@ -253,15 +260,15 @@ public class TestPlanReportService {
 		example.createCriteria().andTestPlanReportIdEqualTo(postParam.getReportId());
 		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExample(example).get(0);
 		DecimalFormat rateFormat = new DecimalFormat("#0.0000");
-		rateFormat.setMinimumFractionDigits(2);
-		rateFormat.setMaximumFractionDigits(2);
+		rateFormat.setMinimumFractionDigits(4);
+		rateFormat.setMaximumFractionDigits(4);
 		// 通过的功能用例数
 		// TODO: 接口用例, 场景用例
 		long functionalCasePassCount = extTestPlanReportMapper.countExecuteSuccessFunctionalCase(postParam.getReportId());
 		// 用例总数
 		long caseTotal = reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount();
 		// 通过率 {通过用例数/总用例数}
-		double passRate = (functionalCasePassCount == 0 || caseTotal == 0) ? 0.00 :
+		double passRate = (functionalCasePassCount == 0 || caseTotal == 0) ? 0.0000 :
 				Double.parseDouble(rateFormat.format((double) functionalCasePassCount / (double) caseTotal));
 		// FIXME: 后续替换成PASS_COUNT {保留该逻辑, 四舍五入导致的边界值数据展示偏差}
 		if (passRate == 0 && functionalCasePassCount > 0) {
@@ -273,6 +280,93 @@ public class TestPlanReportService {
 		// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
 		planReport.setResultStatus(passRate >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
 		return planReport;
+	}
+
+	/**
+	 * 获取报告分析详情
+	 * @param reportId 报告ID
+	 * @return 报告分析详情
+	 */
+	public TestPlanReportDetailResponse getReport(String reportId) {
+		TestPlanReport planReport = checkReport(reportId);
+		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
+		example.createCriteria().andTestPlanReportIdEqualTo(reportId);
+		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExample(example).get(0);
+		TestPlanReportDetailResponse planReportDetail = new TestPlanReportDetailResponse();
+		BeanUtils.copyBean(planReportDetail, planReport);
+		int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
+		planReportDetail.setCaseTotal(caseTotal);
+		planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
+		/*
+		 * 统计用例执行数据
+		 */
+		return statisticsCase(planReportDetail);
+	}
+
+	/**
+	 * 分页查询报告详情-缺陷分页数据
+	 * @param request 请求参数
+	 * @return 缺陷分页数据
+	 */
+	public List<BugDTO> listReportDetailBugs(TestPlanReportDetailPageRequest request) {
+		List<BugDTO> bugs = extTestPlanReportMapper.listReportBugs(request);
+		return bugService.handleCustomField(bugs, request.getProjectId());
+	}
+
+	/**
+	 * 分页查询报告详情-缺陷分页数据
+	 * @param request 请求参数
+	 * @return 缺陷分页数据
+	 */
+	public List<FunctionalCasePageDTO> listReportDetailFunctionalCases(TestPlanReportDetailPageRequest request) {
+		return extTestPlanReportMapper.listReportFunctionalCases(request);
+	}
+
+
+	/**
+	 * 统计用例执行数据 (目前只统计功能用例)
+	 * @param reportDetail 用例详情
+	 */
+	private TestPlanReportDetailResponse statisticsCase(TestPlanReportDetailResponse reportDetail) {
+		// 功能用例 (无误报状态)
+		List<CaseStatusCountMap> functionalCaseCountMap = extTestPlanReportMapper.countFunctionalCaseExecuteResult(reportDetail.getId());
+		Map<String, Long> functionalCaseResultMap = functionalCaseCountMap.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
+		TestPlanReportDetailResponse.CaseCount functionalCaseCount = new TestPlanReportDetailResponse.CaseCount();
+		functionalCaseCount.setSuccess(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.SUCCESS.name(), 0L).intValue());
+		functionalCaseCount.setError(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.ERROR.name(), 0L).intValue());
+		functionalCaseCount.setPending(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.PENDING.name(), 0L).intValue());
+		functionalCaseCount.setBlock(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.BLOCKED.name(), 0L).intValue());
+
+
+		// TODO: 接口用例, 场景用例
+
+		// FIXME: 目前只有功能用例
+		TestPlanReportDetailResponse.CaseCount executeCaseCount = new TestPlanReportDetailResponse.CaseCount();
+		executeCaseCount.setSuccess(functionalCaseCount.getSuccess());
+		executeCaseCount.setError(functionalCaseCount.getError());
+		executeCaseCount.setFakeError(functionalCaseCount.getFakeError());
+		executeCaseCount.setPending(functionalCaseCount.getPending());
+		executeCaseCount.setBlock(functionalCaseCount.getBlock());
+
+		// 计算执行完成率
+		DecimalFormat rateFormat = new DecimalFormat("#0.00");
+		rateFormat.setMinimumFractionDigits(2);
+		rateFormat.setMaximumFractionDigits(2);
+		// 执行完成率 {已执行用例数/总用例数}
+		double executeRate = (executeCaseCount.getPending().equals(reportDetail.getCaseTotal()) || reportDetail.getCaseTotal() == 0) ? 0.00 :
+				Double.parseDouble(rateFormat.format((double) (reportDetail.getCaseTotal() - executeCaseCount.getPending()) / (double) reportDetail.getCaseTotal()));
+		// FIXME: 后续替换成PASS_COUNT {保留该逻辑, 四舍五入导致的边界值数据展示偏差}
+		if (executeRate == 0 && reportDetail.getCaseTotal() - executeCaseCount.getPending() > 0) {
+			executeRate = 0.01;
+		} else if (executeRate == 100 && executeCaseCount.getPending() > 0) {
+			executeRate = 99.99;
+		}
+
+		// 详情数据
+		reportDetail.setExecuteRate(executeRate);
+		reportDetail.setFunctionalCount(functionalCaseCount);
+		reportDetail.setExecuteCount(executeCaseCount);
+		return reportDetail;
 	}
 
     /**
