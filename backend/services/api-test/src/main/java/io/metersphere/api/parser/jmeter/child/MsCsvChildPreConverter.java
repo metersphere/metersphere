@@ -37,9 +37,7 @@ public class MsCsvChildPreConverter extends AbstractJmeterElementConverter<Abstr
         csvIds.forEach(csvId -> {
             CsvVariable csvVariable = apiParamConfig.getCsvVariable(csvId);
             if (csvVariable != null) {
-                String shareMode = StringUtils.equals(csvVariable.getScope(), CsvVariable.CsvVariableScope.SCENARIO.name()) ?
-                        JmeterProperty.CSVDataSetProperty.SHARE_MODE_GROUP : JmeterProperty.CSVDataSetProperty.SHARE_MODE_THREAD;
-                addCsvDataSet(tree, shareMode, csvVariable);
+                addCsvDataSet(tree, JmeterProperty.CSVDataSetProperty.SHARE_MODE_THREAD, csvVariable);
             }
         });
     }
@@ -49,8 +47,11 @@ public class MsCsvChildPreConverter extends AbstractJmeterElementConverter<Abstr
     }
 
     private static void addCsvDataSet(HashTree tree, String shareMode, CsvVariable csvVariable) {
+        if (!csvVariable.isValid()) {
+            return;
+        }
         // 执行机执行文件存放的缓存目录
-        String path = LocalRepositoryDir.getSystemCacheDir() + "/" + csvVariable.getFileId() + "/" + csvVariable.getFileName();
+        String path = LocalRepositoryDir.getSystemCacheDir() + "/" + csvVariable.getFile().getFileId() + "/" + csvVariable.getFile().getFileName();
         if (!StringUtils.equals(File.separator, "/")) {
             // windows 系统下运行，将 / 转换为 \，否则jmeter报错
             path = path.replace("/", File.separator);

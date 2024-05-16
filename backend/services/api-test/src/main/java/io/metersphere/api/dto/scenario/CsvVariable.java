@@ -1,11 +1,15 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.sdk.constants.ValueEnum;
 import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -20,21 +24,14 @@ public class CsvVariable {
     @Size(max = 50)
     private String id;
 
-    @Schema(description = "文件id/引用文件id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(max = 50, message = "{api_scenario_csv.file_id.length_range}")
-    @NotBlank
-    private String fileId;
-
-    @Schema(description = "文件名称")
-    @NotBlank
-    private String fileName;
-
-    @Schema(description = "是否是关联文件")
-    private Boolean association = false;
-
     @Schema(description = "csv变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @Size(max = 255, message = "{api_scenario_csv.name.length_range}")
     private String name;
+
+    @Schema(description = "csv 文件", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull
+    @Valid
+    private ApiFile file;
 
     /**
      * @see CsvVariableScope
@@ -80,9 +77,12 @@ public class CsvVariable {
     @Schema(description = "遇到文件结束符停止线程")
     private Boolean stopThreadOnEof = false;
 
+    public boolean isValid() {
+        return StringUtils.isNotBlank(name) && file != null;
+    }
 
     public enum CsvEncodingType implements ValueEnum {
-        UTF8("UTF-8"), UFT16("UTF-16"), ISO885915("ISO-8859-15"), US_ASCII("US-ASCII");
+        UTF8("UTF-8"), UFT16("UTF-16"), ISO885915("ISO-8859-15"), US_ASCII("US-ASCII"), GBK("GBK");
         private String value;
 
         CsvEncodingType(String value) {
