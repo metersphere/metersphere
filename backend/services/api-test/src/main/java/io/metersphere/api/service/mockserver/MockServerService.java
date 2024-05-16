@@ -30,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -175,7 +176,7 @@ public class MockServerService {
                         }
                     }
                 }
-                return StringUtils.equals(new String(binaryFile), new String(bytes));
+                return Arrays.equals(bytes, binaryFile);
             }
         }
         return false;

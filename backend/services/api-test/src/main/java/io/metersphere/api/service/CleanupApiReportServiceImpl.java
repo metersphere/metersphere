@@ -44,7 +44,7 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
         LogUtils.info("清理当前项目[" + projectId + "]相关接口测试报告");
         String expr = map.get(ProjectApplicationType.API.API_CLEAN_REPORT.name());
         long timeMills = getCleanDate(expr);
-        int apiReportCount = extApiReportMapper.selectApiReportByTime(timeMills, projectId);
+        int apiReportCount = extApiReportMapper.countApiReportByTime(timeMills, projectId);
         while (apiReportCount > 0) {
             List<String> ids = extApiReportMapper.selectApiReportByProjectIdAndTime(timeMills, projectId);
             ApiReportExample reportExample = new ApiReportExample();
@@ -53,9 +53,9 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
             report.setDeleted(true);
             apiReportMapper.updateByExampleSelective(report, reportExample);
             deleteApiReport(ids);
-            apiReportCount = extApiReportMapper.selectApiReportByTime(timeMills, projectId);
+            apiReportCount = extApiReportMapper.countApiReportByTime(timeMills, projectId);
         }
-        int scenarioReportCount = extApiScenarioReportMapper.selectScenarioReportByTime(timeMills, projectId);
+        int scenarioReportCount = extApiScenarioReportMapper.countScenarioReportByTime(timeMills, projectId);
         while (scenarioReportCount > 0) {
             List<String> ids = extApiScenarioReportMapper.selectApiReportByProjectIdAndTime(timeMills, projectId);
             ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
@@ -64,7 +64,7 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
             report.setDeleted(true);
             apiScenarioReportMapper.updateByExampleSelective(report, reportExample);
             deleteScenarioReport(ids);
-            scenarioReportCount = extApiScenarioReportMapper.selectScenarioReportByTime(timeMills, projectId);
+            scenarioReportCount = extApiScenarioReportMapper.countScenarioReportByTime(timeMills, projectId);
         }
     }
 

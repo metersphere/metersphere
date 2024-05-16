@@ -27,7 +27,7 @@ public interface ExtApiReportMapper {
 
     List<String> selectApiReportByProjectIdAndTime(@Param("time") long time, @Param("projectId") String projectId);
 
-    int selectApiReportByTime(@Param("time") long time, @Param("projectId") String projectId);
+    int countApiReportByTime(@Param("time") long time, @Param("projectId") String projectId);
 
     List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request, @Param("projectIds") List<String> projectIds,
                                        @Param("startTime") long startTime, @Param("endTime") long endTime);

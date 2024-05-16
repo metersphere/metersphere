@@ -84,15 +84,7 @@
         api_scenario_report.id
         from api_scenario_report where api_scenario_report.project_id = #{projectId} limit 500
     </select>
-    <select id="selectReportByTime" resultType="java.lang.Integer">
-        select
-        api_scenario_report.id
-        from api_scenario_report inner join api_scenario_report_step on
-        api_scenario_report.id = api_scenario_report_step.report_id
-        where api_scenario_report.start_time &gt;= #{startTime}
-        and api_scenario_report.start_time &lt;= #{endTime}
-    </select>
-    <select id="selectScenarioReportByTime" resultType="java.lang.Integer">
+    <select id="countScenarioReportByTime" resultType="java.lang.Integer">
         select
         count(api_scenario_report.id)
         from api_scenario_report inner join api_scenario_report_step on

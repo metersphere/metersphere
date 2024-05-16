@@ -91,7 +91,7 @@
         where api_report.project_id = #{projectId}
             limit 500
     </select>
-    <select id="selectApiReportByTime" resultType="java.lang.Integer">
+    <select id="countApiReportByTime" resultType="java.lang.Integer">
         select
         count(api_report.id)
         from api_report inner join api_report_step on
