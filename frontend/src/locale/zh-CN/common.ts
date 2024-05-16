@@ -183,4 +183,5 @@ export default {
   'common.responsiblePerson': '责任人',
   'common.updateUserName': '更新人',
   'common.updateTime': '更新时间',
+  'common.belongProject': '所属项目',
 };

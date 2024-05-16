@@ -2,9 +2,8 @@ import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
+import { BatchApiParams, DragSortParams } from '@/models/common';
 import { LastExecuteResults } from '@/enums/caseEnum';
-
-import { BatchApiParams } from '../common';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
 
@@ -186,6 +185,10 @@ export interface BatchExecuteFeatureCaseParams extends BatchFeatureCaseParams, E
 
 export interface BatchUpdateCaseExecutorParams extends BatchFeatureCaseParams {
   userId: string;
+}
+
+export interface SortFeatureCaseParams extends DragSortParams {
+  testPlanId: string;
 }
 
 export interface PassRateCountDetail {
