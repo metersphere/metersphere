@@ -160,7 +160,7 @@
   const isNoFilter = computed(() => {
     if (props.filter && JSON.stringify(props.filter) !== '{}') {
       return !Object.keys(props.filter).some((key: any) => {
-        return props.filter[key].length > 0;
+        return (props.filter[key] || []).length > 0;
       });
     }
     return true;

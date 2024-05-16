@@ -12,20 +12,6 @@
         </template>
       </a-popover>
     </template>
-    <template #severityFilter="{ columnConfig }">
-      <TableFilter
-        v-model:visible="severityFilterVisible"
-        v-model:status-filters="severityFilterValue"
-        :title="(columnConfig.title as string)"
-        :list="severityFilterOptions"
-        value-key="value"
-        @search="searchData()"
-      >
-        <template #item="{ item }">
-          {{ item.text }}
-        </template>
-      </TableFilter>
-    </template>
     <template #statusName="{ record }">
       <div class="one-line-text">{{ record.statusName || '-' }}</div>
     </template>
@@ -65,20 +51,19 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
-  import { getLinkedCaseBugList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { BugOptionItem } from '@/models/bug-management';
+  import type { CommonList, TableQueryParams } from '@/models/common';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -87,43 +72,41 @@
     keyword: string;
     bugColumns: MsTableColumn;
     bugTotal: number; // 平台缺陷总数决定是否新建还是关联
+    loadParams?: Record<string, any>;
+    loadBugListApi: (params: TableQueryParams) => Promise<CommonList<Record<string, any>>>; // 获取列表请求函数
   }>();
 
   const emit = defineEmits<{
     (e: 'link'): void;
     (e: 'new'): void;
     (e: 'cancelLink', bugId: string): void;
+    (e: 'update:keyword'): void;
   }>();
 
-  const severityFilterVisible = ref(false);
-  const severityFilterOptions = ref<BugOptionItem[]>([]);
   const bugTableRef = ref();
   const {
     propsRes: linkPropsRes,
     propsEvent: linkTableEvent,
     loadList: loadLinkList,
     setLoadListParams: setLinkListParams,
-  } = useTable(getLinkedCaseBugList, {
+  } = useTable(props.loadBugListApi, {
     columns: props.bugColumns,
     scroll: { x: 'auto' },
     heightUsed: 340,
     enableDrag: false,
   });
-  const severityColumnId = ref('');
-  const severityFilterValue = ref<string[]>([]);
-  function initTableParams() {
-    return {
-      keyword: props.keyword,
-      caseId: props.caseId,
+
+  const innerKeyword = useVModel(props, 'keyword', emit);
+  function searchData() {
+    setLinkListParams({
+      ...props.loadParams,
+      keyword: innerKeyword.value,
       projectId: appStore.currentProjectId,
       condition: {
-        keyword: props.keyword,
-        filter: { ...linkPropsRes.value.filter, [severityColumnId.value]: severityFilterValue.value },
+        keyword: innerKeyword.value,
+        filter: linkPropsRes.value.filter,
       },
-    };
-  }
-  function searchData() {
-    setLinkListParams(initTableParams());
+    });
     loadLinkList();
   }
 
@@ -148,6 +131,15 @@
     (val) => {
       if (val) {
         bugTableRef.value.initColumn(val);
+      }
+    }
+  );
+
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        searchData();
       }
     }
   );

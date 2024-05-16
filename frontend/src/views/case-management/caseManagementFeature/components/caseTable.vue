@@ -95,7 +95,8 @@
           <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
         </template>
         <template #lastExecuteResult="{ record }">
-          <ExecuteStatusTag :execute-result="record.lastExecuteResult" />
+          <ExecuteStatusTag v-if="record.lastExecuteResult" :execute-result="record.lastExecuteResult" />
+          <span v-else>-</span>
         </template>
         <template #moduleId="{ record }">
           <a-tree-select
@@ -571,7 +572,6 @@
       title: 'caseManagement.featureCase.tableColumnExecutionResult',
       dataIndex: 'lastExecuteResult',
       slotName: 'lastExecuteResult',
-      titleSlotName: 'executeResultFilter',
       filterConfig: {
         options: executeResultOptions.value,
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,

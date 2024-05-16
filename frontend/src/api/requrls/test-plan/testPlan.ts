@@ -56,6 +56,12 @@ export const DisassociateCaseUrl = '/test-plan/functional/case/disassociate';
 export const BatchDisassociateCaseUrl = '/test-plan/functional/case/batch/disassociate';
 // 计划详情-功能用例-执行
 export const RunFeatureCaseUrl = '/test-plan/functional/case/run';
+// 测试计划-用例详情-缺陷列表
+export const GetAssociatedBugUrl = '/test-plan/functional/case/has/associate/bug/page';
+// 测试计划-用例详情-关联缺陷
+export const TestPlanAssociateBugUrl = '/test-plan/functional/case/associate/bug';
+// 测试计划-用例详情-取消关联缺陷
+export const TestPlanCancelBugUrl = '/test-plan/functional/case/disassociate/bug';
 // 计划详情-功能用例-批量执行
 export const BatchRunCaseUrl = '/test-plan/functional/case/batch/run';
 // 计划详情-功能用例-批量更新执行人

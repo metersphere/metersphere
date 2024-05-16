@@ -38,108 +38,20 @@
           {{ record.integrated ? t('report.collection') : t('report.independent') }}
         </MsTag>
       </template>
-      <template #integratedFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="reportTypeVisible"
-          v-model:status-filters="integratedFiltersMap[showType]"
-          :title="(columnConfig.title as string)"
-          :list="reportTypeList"
-          @search="initData()"
-        >
-          <template #item="{ item }">
-            <MsTag theme="light" :type="item.value === 'INTEGRATED' ? 'primary' : undefined">
-              {{ item.value === 'INTEGRATED' ? t('report.collection') : t('report.independent') }}
-            </MsTag>
-          </template>
-        </TableFilter>
-      </template>
-      <!-- 报告触发方式筛选 -->
-      <template #triggerModeFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="triggerModeFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px]"
-            @click.stop="triggerModeFilterVisible = true"
-          >
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="triggerModeFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group
-                  v-model:model-value="triggerModeListFiltersMaps[showType]"
-                  direction="vertical"
-                  size="small"
-                >
-                  <a-checkbox v-for="(key, value) of TriggerModeLabel" :key="key" :value="value">
-                    <div class="font-medium">{{ t(key) }}</div>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetTriggerModeFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
-      <!-- 报告结果筛选 -->
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click.stop="statusFilterVisible = true">
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group
-                  v-model:model-value="statusListFiltersMap[showType]"
-                  direction="vertical"
-                  size="small"
-                >
-                  <a-checkbox v-for="key of statusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="props.moduleType" :status="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
-
       <template #status="{ record }">
         <ExecutionStatus
           :module-type="props.moduleType"
           :status="record.status"
           :script-identifier="props.moduleType === ReportEnum.API_SCENARIO_REPORT ? record.scriptIdentifier : null"
         />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_REPORT_TYPE]="{ filterContent }">
+        <MsTag theme="light" :type="filterContent.value ? 'primary' : undefined">
+          {{ filterContent.value ? t('report.collection') : t('report.independent') }}
+        </MsTag>
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
@@ -192,7 +104,6 @@
   import CaseReportDrawer from './caseReportDrawer.vue';
   import ReportDetailDrawer from './reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     getShareTime,
@@ -211,6 +122,9 @@
   import { BatchApiParams } from '@/models/common';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+
+  import { triggerModeOptions } from '@/views/api-test/report/utils';
 
   const { openModal } = useModal();
 
@@ -224,13 +138,18 @@
     name: string;
   }>();
   const keyword = ref<string>('');
-  const statusFilterVisible = ref(false);
-  const triggerModeFilterVisible = ref(false);
-
-  const triggerModeListFilters = ref<string[]>([]);
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
+
+  const statusList = computed(() => {
+    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+      return {
+        value: key,
+        label: t(ReportStatus[ReportEnum.API_REPORT][key].label),
+      };
+    });
+  });
 
   const columns: MsTableColumn = [
     {
@@ -253,7 +172,6 @@
       title: 'report.type',
       slotName: 'integrated',
       dataIndex: 'integrated',
-      titleSlotName: 'integratedFilter',
       width: 150,
       showDrag: true,
     },
@@ -261,7 +179,10 @@
       title: 'report.result',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'statusFilter',
+      filterConfig: {
+        options: statusList.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
+      },
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -279,9 +200,11 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      filterConfig: {
+        options: triggerModeOptions,
+      },
       width: 150,
       showDrag: true,
-      titleSlotName: 'triggerModeFilter',
     },
     {
       title: 'report.operator',
@@ -323,7 +246,7 @@
       return false;
     }
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     reportList,
     {
       tableKey: TableKeyEnum.API_TEST_REPORT,
@@ -342,72 +265,12 @@
     }),
     rename
   );
-  // 全部过滤条件
-  const allListFilters = ref<string[]>([]);
-  const independentListFilters = ref<string[]>([]);
-  const integratedListFilters = ref<string[]>([]);
-
-  const statusListFiltersMap = ref<Record<string, string[]>>({
-    All: allListFilters.value,
-    INDEPENDENT: independentListFilters.value,
-    INTEGRATED: integratedListFilters.value,
-  });
-
-  const allTriggerModeFilters = ref<string[]>([]);
-  const independentTriggerModeFilters = ref<string[]>([]);
-  const integratedTriggerModeFilters = ref<string[]>([]);
-  const triggerModeListFiltersMaps = ref<Record<string, string[]>>({
-    All: allTriggerModeFilters.value,
-    INDEPENDENT: independentTriggerModeFilters.value,
-    INTEGRATED: integratedTriggerModeFilters.value,
-  });
-  // 全部过滤条件
-  const allIntegratedFilters = ref<string[]>([]);
-  const independentIntegratedFilters = ref<string[]>([]);
-  const integratedIntegratedFilters = ref<string[]>([]);
-
-  const reportTypeVisible = ref<boolean>(false);
-
-  const integratedFiltersMap = ref<Record<string, string[]>>({
-    All: allIntegratedFilters.value,
-    INDEPENDENT: independentIntegratedFilters.value,
-    INTEGRATED: integratedIntegratedFilters.value,
-  });
-
-  const reportTypeList = ref([
-    {
-      value: 'INDEPENDENT',
-      label: t('report.independent'),
-    },
-    {
-      value: 'INTEGRATED',
-      label: t('report.collection'),
-    },
-  ]);
-
-  const integratedFilters = computed(() => {
-    if (showType.value === 'All') {
-      if (integratedFiltersMap.value[showType.value].length === 1) {
-        return integratedFiltersMap.value[showType.value].includes('INDEPENDENT') ? [false] : [true];
-      }
-      return undefined;
-    }
-    if (showType.value === 'INTEGRATED') {
-      return [true];
-    }
-    return [false];
-  });
 
   function initData() {
     setLoadListParams({
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleType: props.moduleType,
-      filter: {
-        status: statusListFiltersMap.value[showType.value],
-        integrated: integratedFilters.value,
-        triggerMode: triggerModeListFiltersMaps.value[showType.value],
-      },
     });
     loadList();
   }
@@ -435,11 +298,7 @@
       ...params,
       selectIds: params?.selectedIds || [],
       condition: {
-        filter: {
-          status: statusListFiltersMap.value[showType.value],
-          integrated: integratedFilters.value,
-          triggerMode: triggerModeListFilters.value,
-        },
+        filter: propsRes.value.filter,
         keyword: keyword.value,
       },
       projectId: appStore.currentProjectId,
@@ -503,32 +362,9 @@
     initData();
   });
 
-  const statusFilters = computed(() => {
-    return Object.keys(ReportStatus[props.moduleType]) || [];
-  });
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      triggerModeFilterVisible.value = false;
-      statusFilterVisible.value = false;
-      initData();
-    }
-  }
-
-  function resetTriggerModeFilter() {
-    triggerModeFilterVisible.value = false;
-    triggerModeListFilters.value = [];
-    initData();
-  }
-
-  function resetStatusFilter() {
-    statusFilterVisible.value = false;
-    statusListFiltersMap.value[showType.value] = [];
-    initData();
-  }
-
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
+    resetFilterParams();
     resetSelector();
     initData();
   }
@@ -602,6 +438,7 @@
     (val) => {
       if (val) {
         resetSelector();
+        resetFilterParams();
         initData();
       }
     }

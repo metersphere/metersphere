@@ -37,7 +37,7 @@
             >
               <div class="mb-[8px] flex items-center justify-between">
                 <div class="text-[var(--color-text-4)]">{{ item.num }}</div>
-                <ExecuteResult :execute-result="item.lastExecResult ?? LastExecuteResults.UN_EXECUTED" />
+                <ExecuteResult :execute-result="item.lastExecResult ?? LastExecuteResults.PENDING" />
               </div>
               <a-tooltip :content="item.name">
                 <div class="one-line-text">{{ item.name }}</div>
@@ -120,9 +120,12 @@
               />
             </div>
           </div>
-          <BugList v-if="activeTab === 'defectList'" :case-id="caseDetail.id" />
-          <!-- TODO 待写页面 还未提交 -->
-          <!-- <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" /> -->
+          <BugList
+            v-if="activeTab === 'defectList'"
+            :case-id="caseDetail.id"
+            :test-plan-id="route.query.id as string"
+          />
+          <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" />
         </div>
       </a-spin>
     </div>
@@ -145,9 +148,9 @@
   import ExecuteSubmit from './executeSubmit.vue';
   import CaseTabDetail from '@/views/case-management/caseManagementFeature/components/tabContent/tabDetail.vue';
   import EditCaseDetailDrawer from '@/views/case-management/caseReview/components/editCaseDetailDrawer.vue';
+  import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
-  // import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
   import { getPlanDetailFeatureCaseList, getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';

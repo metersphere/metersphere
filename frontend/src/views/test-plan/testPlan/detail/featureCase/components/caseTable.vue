@@ -350,7 +350,7 @@
     (record) => {
       return {
         ...record,
-        lastExecResult: record.lastExecResult ?? LastExecuteResults.UN_EXECUTED,
+        lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
         caseLevel: getCaseLevels(record.customFields),
         moduleId: getModules(record.moduleId, props.moduleTree),
       };

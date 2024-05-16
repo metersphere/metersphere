@@ -62,7 +62,7 @@
   const submitLoading = ref(false);
   const submitDisabled = computed(
     () =>
-      form.value.lastExecResult !== 'PASSED' &&
+      form.value.lastExecResult !== 'SUCCESS' &&
       (form.value.content === '' || form.value.content?.trim() === '<p style=""></p>')
   );
 
@@ -70,12 +70,12 @@
     () => props.stepExecutionResult,
     () => {
       const executionResultList = props.stepExecutionResult?.map((item) => item.executeResult);
-      if (executionResultList?.includes(LastExecuteResults.FAILED)) {
-        form.value.lastExecResult = LastExecuteResults.FAILED;
+      if (executionResultList?.includes(LastExecuteResults.ERROR)) {
+        form.value.lastExecResult = LastExecuteResults.ERROR;
       } else if (executionResultList?.includes(LastExecuteResults.BLOCKED)) {
         form.value.lastExecResult = LastExecuteResults.BLOCKED;
       } else {
-        form.value.lastExecResult = LastExecuteResults.PASSED;
+        form.value.lastExecResult = LastExecuteResults.SUCCESS;
       }
     },
     { deep: true }

@@ -59,10 +59,14 @@
     <BugList
       v-if="showType === 'link'"
       ref="bugTableListRef"
+      v-model:keyword="keyword"
       :case-id="props.caseId"
-      :keyword="keyword"
       :bug-total="total"
       :bug-columns="columns"
+      :load-bug-list-api="getLinkedCaseBugList"
+      :load-params="{
+        caseId: props.caseId,
+      }"
       @link="linkDefect"
       @new="createDefect"
       @cancel-link="cancelLink"
@@ -111,7 +115,12 @@
         </div>
       </template>
     </ms-base-table>
-    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId" @success="getFetch()" />
+    <AddDefectDrawer
+      v-model:visible="showDrawer"
+      :case-id="props.caseId"
+      :extra-params="{ caseId: props.caseId }"
+      @success="getFetch()"
+    />
     <LinkDefectDrawer
       v-model:visible="showLinkDrawer"
       :case-id="props.caseId"

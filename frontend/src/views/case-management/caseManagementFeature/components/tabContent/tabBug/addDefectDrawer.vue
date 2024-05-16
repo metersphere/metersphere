@@ -57,6 +57,7 @@
   const props = defineProps<{
     visible: boolean;
     caseId: string;
+    extraParams?: Record<string, any>;
   }>();
 
   const emit = defineEmits<{
@@ -106,7 +107,7 @@
         drawerLoading.value = true;
         try {
           await createOrUpdateBug({
-            request: { ...form.value, customFields: templateCustomFields.value, caseId: props.caseId },
+            request: { ...form.value, customFields: templateCustomFields.value, ...props.extraParams },
             fileList: [],
           });
           emit('success');

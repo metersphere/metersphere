@@ -66,8 +66,8 @@
           :sortable="item.sortable"
           :filterable="item.filterable"
           :cell-class="item.cellClass"
-          :header-cell-class="`${
-            item.headerCellClass || (item.filterConfig && hasSelectedFilter(item)) ? 'header-cell-filter' : ''
+          :header-cell-class="`${item.filterConfig && hasSelectedFilter(item) ? 'header-cell-filter' : ''} ${
+            item.headerCellClass
           }`"
           :body-cell-class="item.bodyCellClass"
           :summary-cell-class="item.summaryCellClass"
@@ -101,7 +101,7 @@
                 @init-data="handleInitColumn"
               />
               <DefaultFilter
-                v-else-if="item.filterConfig"
+                v-else-if="(item.filterConfig && item.filterConfig.options?.length) || item?.filterConfig?.remoteMethod"
                 class="ml-[4px]"
                 :options="item.filterConfig.options"
                 :data-index="item.dataIndex"
@@ -639,6 +639,10 @@
     columnSelectorVisible.value = true;
   };
 
+  const filterData = computed(() => {
+    return (attrs.filter || {}) as Record<string, any>;
+  });
+
   const handleFilterConfirm = (
     value: string[] | (string | number)[] | undefined,
     dataIndex: string,
@@ -650,10 +654,6 @@
   onMounted(async () => {
     await initColumn();
     batchLeft.value = getBatchLeft();
-  });
-
-  const filterData = computed(() => {
-    return (attrs.filter || {}) as Record<string, any>;
   });
 
   function hasSelectedFilter(item: MsTableColumnData) {

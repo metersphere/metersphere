@@ -19,6 +19,7 @@
       </div>
     </div>
     <ms-base-table
+      ref="apiTableRef"
       v-bind="propsRes"
       :action-config="batchActions"
       :first-column-width="44"
@@ -30,67 +31,11 @@
       @drag-change="handleTableDragSort"
       @module-change="loadApiList(false)"
     >
-      <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="methodFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="methodFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="methodFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="methodFilters" direction="vertical">
-                  <a-checkbox v-for="key of RequestMethods" :key="key" :value="key">
-                    <apiMethodName :method="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetMethodFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template v-if="props.protocol === 'HTTP'" #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
+        <apiMethodName :method="filterContent.value" />
       </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical">
-                  <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
-                    <apiStatus :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_API_STATUS]="{ filterContent }">
+        <apiStatus :status="filterContent.value" />
       </template>
       <template #num="{ record }">
         <MsButton type="text" @click="openApiTab(record)">{{ record.num }}</MsButton>
@@ -115,6 +60,11 @@
       <template #caseTotal="{ record }">
         {{ record.caseTotal }}
       </template>
+      <template #createUserName="{ record }">
+        <a-tooltip :content="`${record.createUserName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
+        </a-tooltip>
+      </template>
       <template #status="{ record }">
         <a-select
           v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE'])"
@@ -131,20 +81,6 @@
           </a-option>
         </a-select>
         <apiStatus v-else :status="record.status" />
-      </template>
-      <template #createUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="createUserFilterVisible"
-          v-model:status-filters="createUserFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          label-key="label"
-          @search="loadApiList(false)"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
       </template>
       <template #action="{ record }">
         <MsButton
@@ -342,7 +278,6 @@
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDeleteDefinition,
@@ -364,6 +299,7 @@
   import { DragSortParams } from '@/models/common';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const props = defineProps<{
     class?: string;
@@ -404,6 +340,24 @@
       'PROJECT_API_DEFINITION:READ+UPDATE',
     ])
   );
+
+  const requestMethodsOptions = computed(() => {
+    return Object.values(RequestMethods).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+  });
+  const requestApiStatus = computed(() => {
+    return Object.values(RequestDefinitionStatus).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+  });
+
   let columns: MsTableColumn = [
     {
       title: 'ID',
@@ -433,15 +387,21 @@
       title: 'apiTestManagement.apiType',
       dataIndex: 'method',
       slotName: 'method',
-      titleSlotName: 'methodFilter',
       width: 140,
       showDrag: true,
+      filterConfig: {
+        options: requestMethodsOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS,
+      },
     },
     {
       title: 'apiTestManagement.apiStatus',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'statusFilter',
+      filterConfig: {
+        options: requestApiStatus.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_API_STATUS,
+      },
       width: 130,
       showDrag: true,
     },
@@ -498,10 +458,16 @@
     {
       title: 'common.creator',
       slotName: 'createUserName',
-      dataIndex: 'createUserName',
-      titleSlotName: 'createUserFilter',
+      dataIndex: 'createUser',
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
       showInTable: true,
-      showTooltip: true,
       width: 200,
       showDrag: true,
     },
@@ -514,6 +480,21 @@
     },
   ];
 
+  function initFilterColumn() {
+    columns = columns.map((item) => {
+      if (item.dataIndex === 'method') {
+        return {
+          ...item,
+          filterConfig: {
+            ...item.filterConfig,
+            options: props.protocol === 'HTTP' ? requestMethodsOptions.value : [],
+          },
+        };
+      }
+      return item;
+    });
+  }
+  await initFilterColumn();
   await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
   if (props.readOnly) {
     columns = columns.filter(
@@ -581,13 +562,6 @@
     },
   ];
 
-  const methodFilterVisible = ref(false);
-  const methodFilters = ref<string[]>([]);
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>([]);
-  const createUserFilterVisible = ref(false);
-  const createUserFilters = ref<string[]>([]);
-
   async function getModuleIds() {
     let moduleIds: string[] = [];
     if (props.activeModule !== 'all') {
@@ -607,21 +581,13 @@
       projectId: appStore.currentProjectId,
       moduleIds,
       protocol: props.protocol,
-      filter: {
-        status: statusFilters.value,
-        method: methodFilters.value,
-        createUser: createUserFilters.value,
-      },
+      filter: propsRes.value.filter,
     };
 
     if (!hasRefreshTree && typeof refreshModuleTreeCount === 'function') {
       refreshModuleTreeCount({
         keyword: keyword.value,
-        filter: {
-          status: statusFilters.value,
-          method: methodFilters.value,
-          createUser: createUserFilters.value,
-        },
+        filter: propsRes.value.filter,
         moduleIds: [],
         protocol: props.protocol,
         projectId: appStore.currentProjectId,
@@ -656,14 +622,6 @@
       loadApiList(true);
     }
   );
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      loadApiList(false);
-      methodFilterVisible.value = false;
-      statusFilterVisible.value = false;
-    }
-  }
 
   async function handleMethodChange(record: ApiDefinitionDetail) {
     try {
@@ -734,11 +692,7 @@
               excludeIds: params?.excludeIds || [],
               condition: {
                 keyword: keyword.value,
-                filter: {
-                  status: statusFilters.value,
-                  method: methodFilters.value,
-                  createUser: createUserFilters.value,
-                },
+                filter: propsRes.value.filter,
               },
               projectId: appStore.currentProjectId,
               moduleIds: await getModuleIds(),
@@ -861,11 +815,7 @@
             excludeIds: batchParams.value?.excludeIds || [],
             condition: {
               keyword: keyword.value,
-              filter: {
-                status: statusFilters.value,
-                method: methodFilters.value,
-                createUser: createUserFilters.value,
-              },
+              filter: propsRes.value.filter,
             },
             projectId: appStore.currentProjectId,
             moduleIds: await getModuleIds(),
@@ -906,11 +856,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         condition: {
           keyword: keyword.value,
-          filter: {
-            status: statusFilters.value,
-            method: methodFilters.value,
-            createUser: createUserFilters.value,
-          },
+          filter: propsRes.value.filter,
         },
         projectId: appStore.currentProjectId,
         moduleIds: await getModuleIds(),
@@ -941,18 +887,6 @@
   function handleMoveApiModalCancel() {
     moveModalVisible.value = false;
     selectedModuleKeys.value = [];
-  }
-
-  function resetMethodFilter() {
-    methodFilters.value = [];
-    methodFilterVisible.value = false;
-    loadApiList(false);
-  }
-
-  function resetStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    loadApiList(false);
   }
 
   /**
@@ -1013,6 +947,17 @@
       console.log(error);
     }
   }
+
+  const apiTableRef = ref();
+  watch(
+    () => props.protocol,
+    (val) => {
+      if (val) {
+        initFilterColumn();
+        apiTableRef.value.initColumn(columns);
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

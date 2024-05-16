@@ -6,46 +6,13 @@
         <span class="text-[14px]">{{ t('common.notRemind') }}</span>
       </template>
     </a-alert>
-    <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-      <template #typeFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="typeFilter" direction="vertical" size="small">
-                  <a-checkbox v-for="val of typeOptions" :key="val.value" :value="val.value">
-                    <span>{{ t(val.label) }}</span>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetTypeFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
-    </ms-base-table>
+    <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent" @filter-change="filterChange"> </ms-base-table>
   </div>
 </template>
 
 <script setup lang="ts">
   import dayjs from 'dayjs';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -58,10 +25,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
-
-  const typeFilter = ref<string[]>([]);
-
-  const statusFilterVisible = ref(false);
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const props = defineProps<{
     sourceId: string | number;
@@ -74,15 +38,15 @@
 
   const typeOptions = [
     {
-      label: 'system.log.operateType.add',
+      label: t('system.log.operateType.add'),
       value: 'ADD',
     },
     {
-      label: 'system.log.operateType.update',
+      label: t('system.log.operateType.update'),
       value: 'UPDATE',
     },
     {
-      label: 'system.log.operateType.import',
+      label: t('system.log.operateType.import'),
       value: 'IMPORT',
     },
   ];
@@ -97,7 +61,10 @@
       title: 'apiTestManagement.type',
       dataIndex: 'type',
       slotName: 'type',
-      titleSlotName: 'typeFilter',
+      filterConfig: {
+        options: typeOptions,
+        filterSlotName: FilterSlotNameEnum.GLOBAL_CHANGE_HISTORY_TYPE,
+      },
       width: 100,
     },
     {
@@ -139,27 +106,18 @@
     })
   );
 
-  function loadHistory() {
+  function loadHistory(types?: string[]) {
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.sourceId,
       modules: 'API_TEST_MANAGEMENT_CASE',
-      types: typeFilter.value,
+      types,
     });
     loadList();
   }
 
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      statusFilterVisible.value = false;
-      loadHistory();
-    }
-  }
-
-  function resetTypeFilter() {
-    typeFilter.value = [];
-    statusFilterVisible.value = false;
-    loadHistory();
+  function filterChange(dataIndex: string, value: string[] | (string | number)[] | undefined) {
+    loadHistory(value as string[]);
   }
 
   onBeforeMount(() => {
