@@ -6,7 +6,6 @@ import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
-import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
 import io.metersphere.functional.request.*;
@@ -48,8 +47,6 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private FunctionalCaseModuleMapper functionalCaseModuleMapper;
-    @Resource
-    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
 
     @Test
     @Order(1)

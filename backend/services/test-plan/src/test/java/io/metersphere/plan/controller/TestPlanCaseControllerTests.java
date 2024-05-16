@@ -4,9 +4,15 @@ import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.functional.domain.FunctionalCaseBlob;
+import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
+import io.metersphere.functional.dto.FunctionalCaseStepDTO;
+import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
@@ -15,6 +21,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,6 +34,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -43,14 +52,21 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_RUN_URL = "/test-plan/functional/case/run";
     public static final String FUNCTIONAL_CASE_BATCH_RUN_URL = "/test-plan/functional/case/batch/run";
     public static final String FUNCTIONAL_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/functional/case/batch/update/executor";
+    public static final String FUNCTIONAL_CASE_DETAIL = "/test-plan/functional/case/detail/";
+
+
     public static final String FUNCTIONAL_CASE_EXEC_HISTORY_URL = "/test-plan/functional/case/exec/history";
     public static final String FUNCTIONAL_CASE_EDIT_URL = "/test-plan/functional/case/edit";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
     BaseAssociateBugProvider baseAssociateBugProvider;
     @Resource
     BugRelationCaseMapper bugRelationCaseMapper;
+    @Resource
+    FunctionalCaseBlobMapper functionalCaseBlobMapper;
 
 
     @Test
@@ -250,5 +266,57 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setTestPlanId("plan_1");
         request.setLastExecResult("SUCCESS");
         this.requestPostWithOk(FUNCTIONAL_CASE_EDIT_URL, request);
+    }
+
+    @Test
+    @Order(16)
+    public void testGetDetail() throws Exception {
+       this.requestGet(FUNCTIONAL_CASE_DETAIL + "relate_case_1").andExpect(status().is5xxServerError());
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL + "gyq_disassociate_case_4");
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        FunctionalCaseDetailDTO functionalCaseDetailDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCaseDetailDTO.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(JSON.parseArray(functionalCaseDetailDTO.getSteps(), FunctionalCaseDetailDTO.class)));
+        TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
+        testPlanCaseExecuteHistory.setCaseId("gyq_disassociate_fc_4");
+        testPlanCaseExecuteHistory.setTestPlanCaseId("gyq_disassociate_case_4");
+        testPlanCaseExecuteHistory.setDeleted(false);
+        testPlanCaseExecuteHistory.setId("history_id");
+        testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());
+        testPlanCaseExecuteHistory.setCreateUser("admin");
+        testPlanCaseExecuteHistory.setStatus("SUCCESS");
+        testPlanCaseExecuteHistoryMapper.insertSelective(testPlanCaseExecuteHistory);
+        mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL + "gyq_disassociate_case_4");
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+        TestPlanCaseExecuteHistory testPlanCaseExecuteHistory1 = testPlanCaseExecuteHistoryMapper.selectByPrimaryKey("history_id");
+        FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
+        functionalCaseStepDTO.setId("id_step");
+        functionalCaseStepDTO.setNum(1);
+        functionalCaseStepDTO.setDesc("步骤一");
+        functionalCaseStepDTO.setResult("步骤一结果");
+        functionalCaseStepDTO.setActualResult("步骤一实际结果");
+        functionalCaseStepDTO.setExecuteResult("SUCCESS");
+        String jsonString = JSON.toJSONString(functionalCaseStepDTO);
+        testPlanCaseExecuteHistory1.setSteps(jsonString.getBytes());
+        testPlanCaseExecuteHistoryMapper.updateByPrimaryKeySelective(testPlanCaseExecuteHistory1);
+        FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+        functionalCaseBlob.setId("gyq_disassociate_fc_4");
+        functionalCaseBlob.setSteps(jsonString.getBytes());
+        String textDescription = "textDescription";
+        String expectedResult = "expectedResult";
+        String prerequisite = "prerequisite";
+        String description = "description";
+        functionalCaseBlob.setPrerequisite(prerequisite.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setDescription(description.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
+        mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL + "gyq_disassociate_case_4");
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        functionalCaseDetailDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCaseDetailDTO.class);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(JSON.parseArray(functionalCaseDetailDTO.getSteps(), FunctionalCaseDetailDTO.class)));
     }
 }

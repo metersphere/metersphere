@@ -13,6 +13,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
+import io.metersphere.functional.dto.*;
 import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
@@ -22,10 +23,7 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
-import io.metersphere.plan.domain.TestPlanFunctionalCase;
-import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
@@ -57,6 +55,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.mapper.ExtCheckOwnerMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -120,9 +119,16 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private OperationLogService operationLogService;
+
+    @Resource
+    private ExtCheckOwnerMapper extCheckOwnerMapper;
+
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
+
+    private static final String FUNCTIONAL_CASE = "functional_case";
+    private static final String CHECK_OWNER_CASE = "check_owner_case";
 
     @Override
     public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -566,6 +572,58 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             }
         });
         return list;
+    }
+
+    public FunctionalCaseDetailDTO getFunctionalCaseDetail(String id, String userId) {
+        TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(id);
+        String caseId = planFunctionalCase.getFunctionalCaseId();
+        if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, List.of(caseId))) {
+            throw new MSException(Translator.get(CHECK_OWNER_CASE));
+        }
+        FunctionalCaseDetailDTO functionalCaseDetail = functionalCaseService.getFunctionalCaseDetail(caseId, userId);
+        String caseDetailSteps = functionalCaseDetail.getSteps();
+        TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
+        testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(caseId).andTestPlanCaseIdEqualTo(id);
+        testPlanCaseExecuteHistoryExample.setOrderByClause("create_time DESC");
+        List<TestPlanCaseExecuteHistory> testPlanCaseExecuteHistories = testPlanCaseExecuteHistoryMapper.selectByExampleWithBLOBs(testPlanCaseExecuteHistoryExample);
+
+        List<FunctionalCaseStepDTO> functionalCaseStepDTOS = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(testPlanCaseExecuteHistories)) {
+            TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = testPlanCaseExecuteHistories.get(0);
+            if (StringUtils.isNotBlank(caseDetailSteps)) {
+                List<FunctionalCaseStepDTO> newCaseSteps = JSON.parseArray(caseDetailSteps, FunctionalCaseStepDTO.class);
+                compareStep(testPlanCaseExecuteHistory, newCaseSteps);
+                functionalCaseStepDTOS = newCaseSteps;
+                functionalCaseDetail.setSteps(JSON.toJSONString(functionalCaseStepDTOS));
+            }
+        } else {
+            if (StringUtils.isNotBlank(caseDetailSteps)) {
+                functionalCaseStepDTOS = JSON.parseArray(caseDetailSteps, FunctionalCaseStepDTO.class);
+            }
+            functionalCaseDetail.setSteps(JSON.toJSONString(functionalCaseStepDTOS));
+        }
+        return  functionalCaseDetail;
+    }
+
+    private static void compareStep(TestPlanCaseExecuteHistory testPlanCaseExecuteHistory, List<FunctionalCaseStepDTO> newCaseSteps) {
+        if (testPlanCaseExecuteHistory.getSteps() != null) {
+            String historyStepStr = new String(testPlanCaseExecuteHistory.getSteps(), StandardCharsets.UTF_8);
+            if (StringUtils.isNotBlank(historyStepStr)) {
+                List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
+                newCaseSteps.forEach(newCaseStep->{
+                    historySteps.forEach(historyStep->{
+                        setHistoryInfo(newCaseStep, historyStep);
+                    });
+                });
+            }
+        }
+    }
+
+    private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep, FunctionalCaseStepDTO historyStep) {
+        if (StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult())) {
+            newCaseStep.setExecuteResult(historyStep.getExecuteResult());
+            newCaseStep.setActualResult(historyStep.getActualResult());
+        }
     }
 
 
