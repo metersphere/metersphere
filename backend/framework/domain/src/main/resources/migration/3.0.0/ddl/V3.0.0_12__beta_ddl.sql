@@ -131,12 +131,6 @@ CREATE UNIQUE INDEX idx_test_plan_report_id ON test_plan_report_bug(test_plan_re
 ALTER TABLE api_scenario_csv_step ADD scenario_id varchar(50) NOT NULL COMMENT '场景ID';
 CREATE INDEX idx_scenario_id USING BTREE ON api_scenario_csv_step (scenario_id);
 
--- 处理用例历史数据
-update functional_case set last_execute_result = 'PENDING' where last_execute_result = 'UN_EXECUTED';
-update functional_case set last_execute_result = 'SUCCESS' where last_execute_result = 'PASSED';
-update functional_case set last_execute_result = 'ERROR' where last_execute_result = 'FAILED';
-update functional_case set last_execute_result = 'PENDING' where last_execute_result = 'SKIPPED';
-
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
