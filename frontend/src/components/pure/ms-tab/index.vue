@@ -1,5 +1,9 @@
 <template>
-  <a-tabs v-model:active-key="innerActiveKey" :class="[props.class, props.noContent ? 'no-content' : '']">
+  <a-tabs
+    v-if="props.mode === 'origin'"
+    v-model:active-key="innerActiveKey"
+    :class="[props.class, props.noContent ? 'no-content' : '']"
+  >
     <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="item.label">
       <template v-if="props.showBadge" #title>
         <a-badge
@@ -18,11 +22,23 @@
       </template>
     </a-tab-pane>
   </a-tabs>
+  <div v-else class="ms-tab--button">
+    <div
+      v-for="item of props.contentTabList"
+      :key="item.value"
+      class="ms-tab--button-item"
+      :class="item.value === innerActiveKey ? 'ms-tab--button-item--active' : ''"
+      @click="innerActiveKey = item.value"
+    >
+      {{ item.label }}
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
   const props = withDefaults(
     defineProps<{
+      mode?: 'origin' | 'button';
       activeKey: string;
       contentTabList: { label: string; value: string }[];
       class?: string;
@@ -31,6 +47,7 @@
       showBadge?: boolean;
     }>(),
     {
+      mode: 'origin',
       showBadge: true,
       getTextFunc: (value: any) => value,
       class: '',
@@ -61,6 +78,37 @@
   .no-content {
     :deep(.arco-tabs-content) {
       display: none;
+    }
+  }
+  .ms-tab--button {
+    @apply flex;
+
+    border-radius: var(--border-radius-small);
+    .ms-tab--button-item {
+      @apply cursor-pointer;
+
+      padding: 4px 12px;
+      border: 1px solid var(--color-text-n8);
+      color: var(--color-text-2);
+      &:first-child {
+        border-top-left-radius: var(--border-radius-small);
+        border-bottom-left-radius: var(--border-radius-small);
+      }
+      &:last-child {
+        border-top-right-radius: var(--border-radius-small);
+        border-bottom-right-radius: var(--border-radius-small);
+      }
+      &:not(:last-child) {
+        margin-right: -1px;
+      }
+      &:hover {
+        color: rgb(var(--primary-5));
+      }
+    }
+    .ms-tab--button-item--active {
+      z-index: 2;
+      border: 1px solid rgb(var(--primary-5)) !important;
+      color: rgb(var(--primary-5));
     }
   }
 </style>

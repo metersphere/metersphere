@@ -297,7 +297,7 @@ export const mockDefaultParams: MockParams = {
       matchAll: true,
     },
     body: {
-      bodyType: RequestBodyFormat.FORM_DATA,
+      bodyType: RequestBodyFormat.NONE,
       formDataBody: {
         matchRules: [],
         matchAll: true,
@@ -348,7 +348,7 @@ export const mockDefaultParams: MockParams = {
   uploadFileIds: [],
   linkFileIds: [],
 };
-export const makeDefaultParams = () => {
+export const makeMockDefaultParams = () => {
   const defaultParams = cloneDeep(mockDefaultParams);
   defaultParams.id = Date.now().toString();
   defaultParams.mockMatchRule.body.formDataBody.matchRules.push({
@@ -426,7 +426,6 @@ export const defaultNormalParamItem = {
 };
 // 场景-csv参数默认值
 export const defaultCsvParamItem: CsvVariable = {
-  id: '',
   fileId: '',
   scenarioId: '',
   name: '',
@@ -442,4 +441,5 @@ export const defaultCsvParamItem: CsvVariable = {
   allowQuotedData: false,
   recycleOnEof: false,
   stopThreadOnEof: false,
+  settingVisible: false,
 };

@@ -351,13 +351,11 @@
     :deep(.arco-tabs-content) {
       @apply flex-1 pt-0;
       .arco-tabs-content-item {
-        @apply px-0;
+        @apply overflow-y-auto px-0;
+        .ms-scroll-bar();
       }
       .arco-tabs-content-list {
         @apply h-full;
-      }
-      .arco-tabs-content-list .arco-tabs-content-item:nth-of-type(1) .arco-tabs-pane {
-        @apply h-full overflow-hidden;
       }
       .arco-collapse {
         height: calc(100% - 85px);

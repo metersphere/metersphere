@@ -125,6 +125,30 @@
         />
       </a-popover>
     </template>
+    <template #name="{ record, columnConfig, rowIndex }">
+      <a-popover
+        position="tl"
+        :disabled="!record[columnConfig.dataIndex as string] || record[columnConfig.dataIndex as string].trim() === ''"
+        class="ms-params-input-popover"
+      >
+        <template #content>
+          <div class="param-popover-title">
+            {{ t('apiTestDebug.paramName') }}
+          </div>
+          <div class="param-popover-value">
+            {{ record[columnConfig.dataIndex as string] }}
+          </div>
+        </template>
+        <a-input
+          v-model:model-value="record[columnConfig.dataIndex as string]"
+          :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+          class="ms-form-table-input"
+          size="mini"
+          @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
+        />
+      </a-popover>
+    </template>
     <!-- 参数类型 -->
     <template #paramType="{ record, columnConfig, rowIndex }">
       <a-tooltip
@@ -242,7 +266,7 @@
         input-class="ms-form-table-input h-[24px]"
         input-size="small"
         tag-size="small"
-        @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
+        @change="(files, file) => handleFilesChange(files, record, rowIndex, file)"
         @delete-file="() => emitChange('deleteFile')"
       />
       <MsParamsInput
@@ -251,14 +275,14 @@
         :disabled="props.disabledParamValue"
         size="mini"
         @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
-        @dblclick="quickInputParams(record)"
+        @dblclick="() => quickInputParams(record)"
         @apply="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
     <!-- 文件 -->
     <template #file="{ record, rowIndex }">
       <MsAddAttachment
-        v-model:file-list="record.files"
+        :file-list="[record]"
         :disabled="props.disabledParamValue"
         :multiple="false"
         mode="input"
@@ -321,7 +345,7 @@
         :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
         size="mini"
         @input="() => addTableLine(rowIndex)"
-        @dblclick="quickInputDesc(record)"
+        @dblclick="() => quickInputDesc(record)"
         @change="handleDescChange"
       />
     </template>
@@ -464,7 +488,7 @@
         v-if="Array.isArray(record.domain)"
         :tag-list="getDomain(record.domain)"
         size="small"
-        @click="showHostModal(record)"
+        @click="() => showHostModal(record)"
       />
       <div v-else class="text-[var(--color-text-1)]">{{ '-' }}</div>
     </template>
@@ -924,7 +948,10 @@
     emitChange('toggleRequired');
   }
 
-  async function handleFileChange(
+  /**
+   * 处理表格内多个文件上传/关联
+   */
+  async function handleFilesChange(
     files: MsFileItem[],
     record: Record<string, any>,
     rowIndex: number,
@@ -955,6 +982,45 @@
           fileName: e.originalName || '',
           fileAlias: e.name || '',
         }));
+      }
+      addTableLine(rowIndex);
+      emitChange('handleFilesChange');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
+  }
+
+  /**
+   * 处理表格内单个文件上传/关联
+   */
+  async function handleFileChange(
+    files: MsFileItem[],
+    record: Record<string, any>,
+    rowIndex: number,
+    file?: MsFileItem
+  ) {
+    try {
+      if (props.uploadTempFileApi && file?.local) {
+        appStore.showLoading();
+        const res = await props.uploadTempFileApi(file.file);
+        record = {
+          ...record,
+          ...file,
+          fileId: res.data,
+          fileName: file.name || '',
+          fileAlias: file.name || '',
+        };
+      } else if (file) {
+        record = {
+          ...record,
+          ...file,
+          fileId: file.uid || file.fileId || '',
+          fileName: file.originalName || '',
+          fileAlias: file.name || '',
+        };
       }
       addTableLine(rowIndex);
       emitChange('handleFileChange');

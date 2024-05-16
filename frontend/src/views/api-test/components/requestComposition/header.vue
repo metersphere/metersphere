@@ -11,7 +11,7 @@
     :default-param-item="defaultHeaderParamsItem"
     :draggable="!props.disabledExceptParam"
     @change="handleParamTableChange"
-    @batch-add="batchAddKeyValVisible = true"
+    @batch-add="() => (batchAddKeyValVisible = true)"
   />
   <batchAddKeyVal
     v-model:visible="batchAddKeyValVisible"

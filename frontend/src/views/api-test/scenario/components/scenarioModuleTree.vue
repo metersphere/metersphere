@@ -273,7 +273,7 @@
     try {
       loading.value = true;
       const res = await getModuleTree({
-        keyword: moduleKeyword.value,
+        keyword: '',
         projectId: appStore.currentProjectId,
         moduleIds: [],
       });

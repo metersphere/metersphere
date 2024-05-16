@@ -50,7 +50,7 @@
         v-on="propsEvent"
         @batch-action="handleTableBatch"
         @change="changeHandler"
-        @module-change="initData()"
+        @module-change="initData"
         @cell-click="handleCellClick"
       >
         <template #num="{ record }">
@@ -216,7 +216,7 @@
           </MsTag>
         </div>
       </div>
-      <div class="h-[calc(100%-32px)]">
+      <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
         <!-- 脑图开始 -->
         <MsMinder minder-type="FeatureCase" :import-json="importJson" @node-click="handleNodeClick" />
         <MsDrawer v-model:visible="visible" :width="480" :mask="false">
