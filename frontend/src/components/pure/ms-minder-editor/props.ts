@@ -44,6 +44,7 @@ export const mainEditorProps = {
     default: 500,
   },
   disabled: Boolean,
+  extractContentTabList: [] as PropType<{ label: string; value: string }[]>,
 };
 
 export const headerProps = {

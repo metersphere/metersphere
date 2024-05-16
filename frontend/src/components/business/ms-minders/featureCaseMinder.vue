@@ -1,17 +1,18 @@
 <template>
   <MsMinderEditor
+    v-model:activeExtraKey="activeExtraKey"
     :tags="tags"
     :import-json="props.importJson"
     :replaceable-tags="replaceableTags"
     :insert-node="insertNode"
     :priority-disable-check="priorityDisableCheck"
     :after-tag-edit="afterTagEdit"
+    :extract-content-tab-list="extractContentTabList"
     single-tag
     tag-enable
     sequence-enable
     @click="handleNodeClick"
-  >
-  </MsMinderEditor>
+  />
 </template>
 
 <script setup lang="ts">
@@ -34,6 +35,25 @@
   const tags = [...topTags, t('ms.minders.precondition'), ...descTags, t('ms.minders.stepExpect'), t('common.remark')];
   const visible = ref<boolean>(false);
   const nodeData = ref<any>({});
+  const extractContentTabList = [
+    {
+      label: t('common.baseInfo'),
+      value: 'baseInfo',
+    },
+    {
+      label: t('caseManagement.featureCase.attachment'),
+      value: 'attachment',
+    },
+    {
+      value: 'comments',
+      label: t('caseManagement.featureCase.comments'),
+    },
+    {
+      value: 'bug',
+      label: t('caseManagement.featureCase.bug'),
+    },
+  ];
+  const activeExtraKey = ref('baseInfo');
 
   function handleNodeClick(data: any) {
     if (data.resource && data.resource.includes(caseTag)) {

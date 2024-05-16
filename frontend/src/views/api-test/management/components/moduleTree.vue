@@ -299,7 +299,7 @@
     };
   });
 
-  const moduleKeyword = ref('');
+  const moduleKeyword = ref(''); // 只用于前端过滤树节点，不传入后台查询！！！
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
   const selectedKeys = ref<Array<string | number>>([props.activeModule]);
@@ -371,7 +371,7 @@
   const isExpandApi = ref(false);
   const lastModuleCountParam = ref<ApiDefinitionGetModuleParams>({
     projectId: appStore.currentProjectId,
-    keyword: moduleKeyword.value,
+    keyword: '',
     protocol: moduleProtocol.value,
     moduleIds: [],
   });
@@ -427,7 +427,7 @@
       if (props.trash) {
         res = await getTrashModuleTree({
           // 回收站下的模块
-          keyword: moduleKeyword.value,
+          keyword: '',
           protocol: moduleProtocol.value,
           projectId: appStore.currentProjectId,
           moduleIds: [],
@@ -435,7 +435,7 @@
       } else if (isExpandApi.value && !props.readOnly) {
         // 查看模块及模块下的请求
         res = await getModuleTree({
-          keyword: moduleKeyword.value,
+          keyword: '',
           protocol: moduleProtocol.value,
           projectId: appStore.currentProjectId,
           moduleIds: [],
@@ -443,7 +443,7 @@
       } else {
         res = await getModuleTreeOnlyModules({
           // 只查看模块
-          keyword: moduleKeyword.value,
+          keyword: '',
           protocol: moduleProtocol.value,
           projectId: appStore.currentProjectId,
           moduleIds: [],

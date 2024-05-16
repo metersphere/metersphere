@@ -234,7 +234,7 @@ export interface AssertionConfig {
   assertions: ExecuteAssertionItem[];
 }
 export interface CsvVariable {
-  id: string;
+  id?: string;
   fileId: string;
   scenarioId: string;
   name: string;
@@ -250,6 +250,8 @@ export interface CsvVariable {
   allowQuotedData: boolean;
   recycleOnEof: boolean;
   stopThreadOnEof: boolean;
+  // 以下为前端字段
+  settingVisible: boolean;
 }
 export interface CommonVariable {
   id: string | number;

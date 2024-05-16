@@ -281,7 +281,7 @@
   async function initModuleCount() {
     try {
       const res = await getDebugModuleCount({
-        keyword: moduleKeyword.value,
+        keyword: '',
       });
       modulesCount.value = res;
       folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {

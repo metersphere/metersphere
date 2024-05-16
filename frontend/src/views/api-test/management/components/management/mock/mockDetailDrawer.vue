@@ -59,7 +59,7 @@
           </div>
         </template>
       </MsDetailCard>
-      <a-form ref="mockForm" :model="mockDetail" :disabled="isReadOnly">
+      <a-form ref="mockFormRef" :model="mockDetail" :disabled="isReadOnly">
         <a-form-item
           class="hidden-item mb-[16px]"
           field="name"
@@ -196,7 +196,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -234,7 +234,7 @@
     defaultHeaderParamsItem,
     defaultMatchRuleItem,
     defaultRequestParamsItem,
-    makeDefaultParams,
+    makeMockDefaultParams,
   } from '@/views/api-test/components/config';
   import { filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
@@ -258,7 +258,7 @@
 
   const loading = ref(false);
   const isEdit = ref(props.isEditMode);
-  const mockDetail = ref<MockParams>(makeDefaultParams());
+  const mockDetail = ref<MockParams>(makeMockDefaultParams());
   const isReadOnly = computed(() => !mockDetail.value.isNew && !isEdit.value);
   const title = computed(() => {
     if (isReadOnly.value) {
@@ -538,13 +538,17 @@
         appendDefaultMatchRuleItem();
       }
       isEdit.value = !!props.isEditMode;
+      if (props.isEditMode) {
+        // 从表格的编辑按钮进入，给空表格添加默认行
+        appendDefaultMatchRuleItem();
+      }
       if (mockDetail.value.mockMatchRule.body.bodyType !== RequestBodyFormat.NONE) {
         activeTab.value = RequestComposition.BODY;
       } else if (mockDetail.value.mockMatchRule.header.matchRules.length > 0) {
         activeTab.value = RequestComposition.HEADER;
-      } else if (mockDetail.value.mockMatchRule.query) {
+      } else if (mockDetail.value.mockMatchRule.query.matchRules.length > 0) {
         activeTab.value = RequestComposition.QUERY;
-      } else if (mockDetail.value.mockMatchRule.rest) {
+      } else if (mockDetail.value.mockMatchRule.rest.matchRules.length > 0) {
         activeTab.value = RequestComposition.REST;
       }
     } catch (error) {
@@ -609,7 +613,7 @@
   }
 
   function handleCancel() {
-    mockDetail.value = makeDefaultParams();
+    mockDetail.value = makeMockDefaultParams();
     isEdit.value = false;
     visible.value = false;
   }
@@ -624,101 +628,107 @@
     handleCancel();
   }
 
-  async function handleSave(isContinue = false) {
-    try {
-      loading.value = true;
-      const { body } = mockDetail.value.mockMatchRule;
-      const validFormDataBodyMatchRules = filterKeyValParams(
-        body.formDataBody.matchRules,
-        defaultMatchRuleItem
-      ).validParams;
-      const validWwwFormBodyMatchRules = filterKeyValParams(
-        body.wwwFormBody.matchRules,
-        defaultMatchRuleItem
-      ).validParams;
-      const validHeaderMatchRules = filterKeyValParams(
-        mockDetail.value.mockMatchRule.header.matchRules,
-        defaultMatchRuleItem
-      ).validParams;
-      const validQueryMatchRules = filterKeyValParams(
-        mockDetail.value.mockMatchRule.query.matchRules,
-        defaultMatchRuleItem
-      ).validParams;
-      const validRestMatchRules = filterKeyValParams(
-        mockDetail.value.mockMatchRule.rest.matchRules,
-        defaultMatchRuleItem
-      ).validParams;
-      const validResponseHeaders = filterKeyValParams(
-        mockDetail.value.response.headers,
-        defaultHeaderParamsItem
-      ).validParams;
-      const parseFileResult = parseRequestBodyFiles(
-        mockDetail.value.mockMatchRule.body,
-        [mockDetail.value.response as unknown as ResponseDefinition],
-        mockDetail.value.uploadFileIds,
-        mockDetail.value.linkFileIds
-      );
-      const params: MockParams = {
-        ...mockDetail.value,
-        statusCode: mockDetail.value.response.statusCode,
-        mockMatchRule: {
-          ...mockDetail.value.mockMatchRule,
-          body: {
-            ...mockDetail.value.mockMatchRule.body,
-            formDataBody: {
-              ...mockDetail.value.mockMatchRule.body.formDataBody,
-              matchRules: validFormDataBodyMatchRules,
+  const mockFormRef = ref<FormInstance>();
+  function handleSave(isContinue = false) {
+    mockFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          loading.value = true;
+          const { body } = mockDetail.value.mockMatchRule;
+          const validFormDataBodyMatchRules = filterKeyValParams(
+            body.formDataBody.matchRules,
+            defaultMatchRuleItem
+          ).validParams;
+          const validWwwFormBodyMatchRules = filterKeyValParams(
+            body.wwwFormBody.matchRules,
+            defaultMatchRuleItem
+          ).validParams;
+          const validHeaderMatchRules = filterKeyValParams(
+            mockDetail.value.mockMatchRule.header.matchRules,
+            defaultMatchRuleItem
+          ).validParams;
+          const validQueryMatchRules = filterKeyValParams(
+            mockDetail.value.mockMatchRule.query.matchRules,
+            defaultMatchRuleItem
+          ).validParams;
+          const validRestMatchRules = filterKeyValParams(
+            mockDetail.value.mockMatchRule.rest.matchRules,
+            defaultMatchRuleItem
+          ).validParams;
+          const validResponseHeaders = filterKeyValParams(
+            mockDetail.value.response.headers,
+            defaultHeaderParamsItem
+          ).validParams;
+          const parseFileResult = parseRequestBodyFiles(
+            mockDetail.value.mockMatchRule.body,
+            [mockDetail.value.response as unknown as ResponseDefinition],
+            mockDetail.value.uploadFileIds,
+            mockDetail.value.linkFileIds
+          );
+          const params: MockParams = {
+            ...mockDetail.value,
+            statusCode: mockDetail.value.response.statusCode,
+            mockMatchRule: {
+              ...mockDetail.value.mockMatchRule,
+              body: {
+                ...mockDetail.value.mockMatchRule.body,
+                formDataBody: {
+                  ...mockDetail.value.mockMatchRule.body.formDataBody,
+                  matchRules: validFormDataBodyMatchRules,
+                },
+                wwwFormBody: {
+                  ...mockDetail.value.mockMatchRule.body.wwwFormBody,
+                  matchRules: validWwwFormBodyMatchRules,
+                },
+              },
+              header: {
+                ...mockDetail.value.mockMatchRule.header,
+                matchRules: validHeaderMatchRules,
+              },
+              query: {
+                ...mockDetail.value.mockMatchRule.query,
+                matchRules: validQueryMatchRules,
+              },
+              rest: {
+                ...mockDetail.value.mockMatchRule.rest,
+                matchRules: validRestMatchRules,
+              },
             },
-            wwwFormBody: {
-              ...mockDetail.value.mockMatchRule.body.wwwFormBody,
-              matchRules: validWwwFormBodyMatchRules,
+            response: {
+              ...mockDetail.value.response,
+              headers: validResponseHeaders,
             },
-          },
-          header: {
-            ...mockDetail.value.mockMatchRule.header,
-            matchRules: validHeaderMatchRules,
-          },
-          query: {
-            ...mockDetail.value.mockMatchRule.query,
-            matchRules: validQueryMatchRules,
-          },
-          rest: {
-            ...mockDetail.value.mockMatchRule.rest,
-            matchRules: validRestMatchRules,
-          },
-        },
-        response: {
-          ...mockDetail.value.response,
-          headers: validResponseHeaders,
-        },
-        apiDefinitionId: props.definitionDetail.id,
-        projectId: appStore.currentProjectId,
-        uploadFileIds: parseFileResult.uploadFileIds,
-        linkFileIds: parseFileResult.linkFileIds,
-      };
-      if (isEdit.value) {
-        await updateMock({
-          id: mockDetail.value.id || '',
-          ...params,
-          ...parseFileResult,
-        });
-        Message.success(t('common.updateSuccess'));
-      } else {
-        await addMock(params);
-        Message.success(t('common.createSuccess'));
+            apiDefinitionId: props.definitionDetail.id,
+            projectId: appStore.currentProjectId,
+            uploadFileIds: parseFileResult.uploadFileIds,
+            linkFileIds: parseFileResult.linkFileIds,
+          };
+          if (isEdit.value) {
+            await updateMock({
+              id: mockDetail.value.id || '',
+              ...params,
+              ...parseFileResult,
+            });
+            Message.success(t('common.updateSuccess'));
+          } else {
+            await addMock(params);
+            Message.success(t('common.createSuccess'));
+          }
+          emit('addDone');
+          if (isContinue) {
+            mockDetail.value.name = '';
+            mockDetail.value.tags = [];
+          } else {
+            handleCancel();
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          loading.value = false;
+        }
       }
-      emit('addDone');
-      if (isContinue) {
-        mockDetail.value = makeDefaultParams();
-      } else {
-        handleCancel();
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
+    });
   }
 </script>
 

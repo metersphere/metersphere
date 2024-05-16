@@ -27,8 +27,8 @@
     :default-param-item="defaultNormalParamItem"
     :draggable="false"
     :selectable="false"
-    @change="handleParamTableChange"
-    @batch-add="batchAddKeyValVisible = true"
+    @change="handleCommonVariablesChange"
+    @batch-add="() => (batchAddKeyValVisible = true)"
   />
   <paramTable
     v-else
@@ -37,12 +37,19 @@
     :default-param-item="defaultCsvParamItem"
     :draggable="false"
     :selectable="false"
-    @change="handleParamTableChange"
-    @batch-add="batchAddKeyValVisible = true"
+    @change="handleCsvVariablesChange"
+    @batch-add="() => (batchAddKeyValVisible = true)"
   >
     <template #operationPre="{ record }">
-      <a-trigger trigger="click" position="br" class="scenario-csv-trigger">
-        <MsButton type="text" class="!mr-0">{{ t('apiScenario.params.config') }}</MsButton>
+      <a-trigger
+        v-model:popup-visible="record.settingVisible"
+        trigger="click"
+        position="br"
+        class="scenario-csv-trigger"
+      >
+        <MsButton type="text" class="!mr-0" @click="handleRecordConfig(record)">
+          {{ t('apiScenario.params.config') }}
+        </MsButton>
         <template #content>
           <div class="scenario-csv-trigger-content">
             <div class="mb-[16px] flex items-center">
@@ -50,32 +57,32 @@
               <!-- <div class="text-[var(--color-text-4)]">({{ record.key }})</div> -->
             </div>
             <div class="scenario-csv-trigger-content-scroll">
-              <a-form ref="paramFormRef" :model="record" layout="vertical">
+              <a-form ref="paramFormRef" :model="paramForm" layout="vertical">
                 <a-form-item
-                  field="key"
+                  field="name"
                   :label="t('apiScenario.params.csvName')"
                   :rules="[{ required: true, message: t('apiScenario.params.csvNameNotNull') }]"
                   asterisk-position="end"
                   class="mb-[16px]"
                 >
-                  <a-input v-model:model-value="record.key" :max-length="255"></a-input>
+                  <a-input v-model:model-value="paramForm.name" :max-length="255"></a-input>
                 </a-form-item>
                 <a-form-item field="variableNames" :label="t('apiScenario.params.csvParamName')" class="mb-[16px]">
                   <a-input
-                    v-model:model-value="record.variableNames"
+                    v-model:model-value="paramForm.variableNames"
                     :placeholder="t('apiScenario.params.csvParamNamePlaceholder')"
                   ></a-input>
                 </a-form-item>
                 <a-form-item field="encoding" :label="t('apiScenario.params.csvFileCode')" class="mb-[16px]">
                   <a-select
-                    v-model:model-value="record.encoding"
+                    v-model:model-value="paramForm.encoding"
                     :options="encodingOptions"
                     class="w-[120px]"
                   ></a-select>
                 </a-form-item>
                 <a-form-item field="delimiter" :label="t('apiScenario.params.csvSplitChar')" class="mb-[16px]">
                   <a-input
-                    v-model:model-value="record.delimiter"
+                    v-model:model-value="paramForm.delimiter"
                     :placeholder="t('common.pleaseInput')"
                     :max-length="64"
                     class="w-[120px]"
@@ -86,36 +93,40 @@
                   :label="t('apiScenario.params.csvIgnoreFirstLine')"
                   class="mb-[16px]"
                 >
-                  <a-radio-group v-model:model-value="record.ignoreFirstLine">
+                  <a-radio-group v-model:model-value="paramForm.ignoreFirstLine">
                     <a-radio :value="false">False</a-radio>
                     <a-radio :value="true">True</a-radio>
                   </a-radio-group>
                 </a-form-item>
                 <a-form-item field="random" :label="t('apiScenario.params.csvIsRandom')" class="mb-[16px]">
-                  <a-radio-group v-model:model-value="record.random">
+                  <a-radio-group v-model:model-value="paramForm.random">
                     <a-radio :value="false">False</a-radio>
                     <a-radio :value="true">True</a-radio>
                   </a-radio-group>
                 </a-form-item>
                 <a-form-item field="allowQuotedData" :label="t('apiScenario.params.csvQuoteAllow')" class="mb-[16px]">
-                  <a-radio-group v-model:model-value="record.allowQuotedData">
+                  <a-radio-group v-model:model-value="paramForm.allowQuotedData">
                     <a-radio :value="false">False</a-radio>
                     <a-radio :value="true">True</a-radio>
                   </a-radio-group>
                 </a-form-item>
                 <a-form-item field="recycleOnEof" :label="t('apiScenario.params.csvRecycle')" class="mb-[16px]">
-                  <a-radio-group v-model:model-value="record.recycleOnEof">
+                  <a-radio-group v-model:model-value="paramForm.recycleOnEof">
                     <a-radio :value="false">False</a-radio>
                     <a-radio :value="true">True</a-radio>
                   </a-radio-group>
                 </a-form-item>
                 <a-form-item field="stopThreadOnEof" :label="t('apiScenario.params.csvStop')" class="mb-[16px]">
-                  <a-radio-group v-model:model-value="record.stopThreadOnEof">
+                  <a-radio-group v-model:model-value="paramForm.stopThreadOnEof">
                     <a-radio :value="false">False</a-radio>
                     <a-radio :value="true">True</a-radio>
                   </a-radio-group>
                 </a-form-item>
               </a-form>
+            </div>
+            <div class="flex items-center justify-end gap-[8px]">
+              <a-button type="secondary" @click="cancelConfig">{{ t('common.cancel') }}</a-button>
+              <a-button type="primary" @click="applyConfig">{{ t('ms.paramsInput.apply') }}</a-button>
             </div>
           </div>
         </template>
@@ -134,6 +145,7 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
   import { FormInstance } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
@@ -215,8 +227,16 @@
     },
   ];
 
-  function handleParamTableChange(resultArr: any[], isInit?: boolean) {
+  function handleCommonVariablesChange(resultArr: any[], isInit?: boolean) {
     commonVariables.value = [...resultArr];
+    if (!isInit) {
+      emit('change');
+      firstSearch.value = true;
+    }
+  }
+
+  function handleCsvVariablesChange(resultArr: any[], isInit?: boolean) {
+    csvVariables.value = [...resultArr];
     if (!isInit) {
       emit('change');
       firstSearch.value = true;
@@ -255,8 +275,8 @@
   const csvColumns: ParamTableColumn[] = [
     {
       title: 'apiScenario.params.csvName',
-      dataIndex: 'key',
-      slotName: 'key',
+      dataIndex: 'name',
+      slotName: 'name',
       needValidRepeat: true,
     },
     {
@@ -277,11 +297,11 @@
       titleSlotName: 'typeTitle',
       typeTitleTooltip: [t('apiScenario.params.csvScopedTip1'), t('apiScenario.params.csvScopedTip2')],
     },
-    // {
-    //   title: 'apiScenario.params.file',
-    //   dataIndex: 'file',
-    //   slotName: 'file',
-    // },
+    {
+      title: 'apiScenario.params.file',
+      dataIndex: 'file',
+      slotName: 'file',
+    },
     {
       title: 'apiScenario.table.columns.status',
       dataIndex: 'enable',
@@ -295,7 +315,8 @@
     },
   ];
 
-  const configFormRef = ref<FormInstance>();
+  const paramFormRef = ref<FormInstance>();
+  const paramForm = ref<CsvVariable>(cloneDeep(defaultCsvParamItem));
   const encodingOptions = [
     {
       label: 'UTF-8',
@@ -306,6 +327,10 @@
       value: 'UTF-16',
     },
     {
+      label: 'GBK',
+      value: 'GBK',
+    },
+    {
       label: 'ISO-8859-15',
       value: 'ISO-8859-15',
     },
@@ -314,6 +339,31 @@
       value: 'US-ASCII',
     },
   ];
+
+  function handleRecordConfig(record: CsvVariable) {
+    paramForm.value = cloneDeep(record);
+  }
+
+  function cancelConfig() {
+    paramFormRef.value?.resetFields();
+  }
+
+  function applyConfig() {
+    paramFormRef.value?.validate((errors) => {
+      if (!errors) {
+        csvVariables.value = csvVariables.value.map((e) => {
+          if (e.id === paramForm.value.id) {
+            return {
+              ...paramForm.value,
+              settingVisible: false,
+            };
+          }
+          return e;
+        });
+        emit('change');
+      }
+    });
+  }
 </script>
 
 <style lang="less">

@@ -247,7 +247,7 @@
           wrapper-id="ms-table-footer-wrapper"
           :size="props.paginationSize"
           @batch-action="handleBatchAction"
-          @clear="emit('clearSelector')"
+          @clear="() => emit('clearSelector')"
         />
       </div>
       <ms-pagination
@@ -269,7 +269,7 @@
       :show-subdirectory="!!attrs.showSubdirectory"
       @init-data="handleInitColumn"
       @page-size-change="pageSizeChange"
-      @module-change="emit('moduleChange')"
+      @module-change="() => emit('moduleChange')"
     ></ColumnSelector>
   </div>
 </template>

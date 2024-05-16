@@ -93,7 +93,7 @@
                 class="m-0 border-none p-0"
                 :self-style="{ backgroundColor: 'transparent !important' }"
                 :closable="data.value !== '__arco__more' && !props.disabled"
-                @close="handleClose(data)"
+                @close="() => handleClose(data)"
               >
                 {{ data.value === '__arco__more' ? data.label.replace('...', '') : data.label }}
               </MsTag>

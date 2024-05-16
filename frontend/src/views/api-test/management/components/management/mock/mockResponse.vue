@@ -163,7 +163,7 @@
     <template v-else-if="currentSelectedDefinitionResponse">
       <MsTab
         v-model:active-key="definitionActiveTab"
-        :content-tab-list="responseCompositionTabList.filter((e) => e.value !== 'DELAY')"
+        :content-tab-list="responseCompositionTabList"
         class="no-content relative my-[8px] border-b"
         :show-badge="false"
       />
@@ -286,6 +286,19 @@
           disabled
           @change="() => emit('change')"
         />
+        <a-input-number
+          v-else
+          v-model:model-value="mockResponse.delay"
+          :disabled="props.disabled"
+          mode="button"
+          :step="100"
+          :precision="0"
+          :max="600000"
+          :min="0"
+          class="w-[200px]"
+        >
+          <template #suffix> ms </template>
+        </a-input-number>
       </div>
     </template>
   </a-spin>

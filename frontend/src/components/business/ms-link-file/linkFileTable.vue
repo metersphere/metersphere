@@ -121,7 +121,7 @@
     {
       title: 'project.fileManagement.type',
       dataIndex: 'fileType',
-      width: 90,
+      width: 100,
     },
     {
       title: 'project.fileManagement.size',

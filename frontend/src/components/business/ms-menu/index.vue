@@ -148,8 +148,11 @@
           personalMenusVisible.value = false;
           orgKeyword.value = '';
           await userStore.isLogin(true);
-          if (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') {
-            // 没有项目权限(组织没有项目, 或项目全被禁用)
+          if (
+            (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') &&
+            !(route.name as string).startsWith(SettingRouteEnum.SETTING)
+          ) {
+            // 没有项目权限(组织没有项目, 或项目全被禁用)且访问的页面非系统菜单模块，则重定向到无项目权限页面
             router.push({
               name: NO_PROJECT_ROUTE_NAME,
             });

@@ -10,7 +10,7 @@
         @open-api-tab="(record, isExecute) => openApiTab({ apiInfo: record, isCopy: false, isExecute })"
         @open-copy-api-tab="openApiTab({ apiInfo: $event, isCopy: true })"
         @add-api-tab="addApiTab"
-        @import="emit('import')"
+        @import="() => emit('import')"
         @open-edit-api-tab="openApiTab"
       />
     </div>
@@ -156,6 +156,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import {
     RequestAuthType,
+    RequestBodyFormat,
     RequestComposition,
     RequestDefinitionStatus,
     RequestMethods,
@@ -348,6 +349,7 @@
         loadedApiTab = {
           ...loadedApiTab,
           ...(apiInfo as ApiDefinitionDetail).request,
+          activeTab: (apiInfo as ApiDefinitionDetail).activeTab,
         };
       }
       // 如果点击的请求在tab中已经存在，则直接切换到该tab
@@ -385,6 +387,7 @@
         request = {
           ...res.request,
           ...(apiInfo as ApiDefinitionDetail).request,
+          activeTab: (apiInfo as ApiDefinitionDetail).activeTab,
         };
       }
       addApiTab({
@@ -417,6 +420,16 @@
   }
 
   async function openApiTabAndDebugMock(mock: MockDetail) {
+    let activeTab = RequestComposition.BODY;
+    if (mock.mockMatchRule.body.bodyType !== RequestBodyFormat.NONE) {
+      activeTab = RequestComposition.BODY;
+    } else if (mock.mockMatchRule.header.matchRules.length > 0) {
+      activeTab = RequestComposition.HEADER;
+    } else if (mock.mockMatchRule.query.matchRules.length > 0) {
+      activeTab = RequestComposition.QUERY;
+    } else if (mock.mockMatchRule.rest.matchRules.length > 0) {
+      activeTab = RequestComposition.REST;
+    }
     openApiTab({
       apiInfo: {
         id: mock.apiDefinitionId as string,
@@ -465,6 +478,7 @@
               value: e.value,
             })) || [],
         },
+        activeTab,
       } as unknown as ApiDefinitionDetail,
       isExecute: true,
       isDebugMock: true,
