@@ -16,6 +16,7 @@ import {
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
   followPlanUrl,
+  GetAssociatedBugUrl,
   GetFeatureCaseModuleCountUrl,
   GetFeatureCaseModuleUrl,
   GetPlanDetailFeatureCaseListUrl,
@@ -29,6 +30,8 @@ import {
   planPassRateUrl,
   RunFeatureCaseUrl,
   SortFeatureCaseUrl,
+  TestPlanAssociateBugUrl,
+  TestPlanCancelBugUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
@@ -187,4 +190,16 @@ export function batchUpdateCaseExecutor(data: BatchUpdateCaseExecutorParams) {
 // 计划详情-功能用例-执行
 export function runFeatureCase(data: RunFeatureCaseParams) {
   return MSR.post({ url: RunFeatureCaseUrl, data });
+}
+// 测试计划-用例详情-缺陷列表
+export function associatedBugPage(data: TableQueryParams) {
+  return MSR.post({ url: GetAssociatedBugUrl, data });
+}
+// 测试计划-用例详情-关联缺陷
+export function associateBugToPlan(data: TableQueryParams) {
+  return MSR.post({ url: TestPlanAssociateBugUrl, data });
+}
+// 测试计划-用例详情-关联缺陷
+export function testPlanCancelBug(id: string) {
+  return MSR.get({ url: `${TestPlanCancelBugUrl}/${id}` });
 }

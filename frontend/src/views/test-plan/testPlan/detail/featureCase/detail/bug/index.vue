@@ -53,10 +53,15 @@
     </div>
     <BugList
       ref="bugTableListRef"
+      v-model:keyword="keyword"
       :case-id="props.caseId"
-      :keyword="keyword"
       :bug-total="total"
       :bug-columns="columns"
+      :load-bug-list-api="associatedBugPage"
+      :load-params="{
+        testPlanCaseId: route.query.testPlanCaseId,
+        caseId: props.caseId,
+      }"
       @link="linkDefect"
       @new="createDefect"
       @cancel-link="cancelLink"
@@ -67,12 +72,22 @@
       :drawer-loading="drawerLoading"
       @save="saveHandler"
     />
-    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId" @success="initData()" />
+    <AddDefectDrawer
+      v-model:visible="showDrawer"
+      :case-id="props.caseId"
+      ::extra-params="{   
+        testPlanCaseId: route.query.testPlanCaseId,
+        caseId: props.caseId,
+        testPlanId:props.testPlanId,
+      }"
+      @success="initData()"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -82,7 +97,7 @@
   import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
 
   import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';
-  import { associatedDrawerDebug, cancelAssociatedDebug } from '@/api/modules/case-management/featureCase';
+  import { associateBugToPlan, associatedBugPage, testPlanCancelBug } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { hasAnyPermission } from '@/utils/permission';
@@ -96,6 +111,7 @@
   const appStore = useAppStore();
   const props = defineProps<{
     caseId: string;
+    testPlanId: string;
   }>();
 
   const keyword = ref<string>('');
@@ -216,11 +232,11 @@
   }
 
   const cancelLoading = ref<boolean>(false);
-  // 取消关联
+  // 取消关联缺陷
   async function cancelLink(id: string) {
     cancelLoading.value = true;
     try {
-      await cancelAssociatedDebug(id);
+      await testPlanCancelBug(id);
       Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
       initData();
     } catch (error) {
@@ -244,12 +260,18 @@
       columns.value = makeColumns(optionsMap, columns.value);
     }
   }
-
+  const route = useRoute();
   const drawerLoading = ref<boolean>(false);
+  // 关联缺陷
   async function saveHandler(params: TableQueryParams) {
     try {
       drawerLoading.value = true;
-      await associatedDrawerDebug(params);
+      await associateBugToPlan({
+        ...params,
+        caseId: props.caseId,
+        testPlanId: props.testPlanId,
+        testPlanCaseId: route.query.testPlanCaseId as string,
+      });
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       initData();
       showLinkDrawer.value = false;
@@ -259,6 +281,15 @@
       drawerLoading.value = false;
     }
   }
+
+  watch(
+    () => props.caseId,
+    (val) => {
+      if (val) {
+        initBugList();
+      }
+    }
+  );
 
   onBeforeMount(() => {
     initFilterOptions();

@@ -18,7 +18,14 @@ export enum TriggerModeLabel {
   BATCH = 'report.trigger.batch.execution', // 批量执行
   API = 'report.trigger.interface', // 接口调用
 }
-export const ReportStatus = {
+export enum TriggerModeLabelEnum {
+  MANUAL = 'MANUAL', // 手动执行
+  SCHEDULE = 'SCHEDULE', // 定时任务
+  BATCH = 'BATCH', // 批量执行
+  API = 'API', // 接口调用
+}
+
+export const ReportStatus: Record<ReportEnum, Record<string, { icon: string; label: string; color?: string }>> = {
   [ReportEnum.API_REPORT]: {
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
@@ -30,16 +37,16 @@ export const ReportStatus = {
     },
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
-      label: 'report.falseAlarm',
+      label: 'report.fake.error',
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
-      label: 'report.stop',
+      label: 'report.stopped',
       color: '!var(--color-text-input-border)',
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: 'report.inExecution',
+      label: 'report.status.running',
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -49,7 +56,7 @@ export const ReportStatus = {
     // },
     PENDING: {
       icon: 'icon-icon_wait',
-      label: 'report.queuing',
+      label: 'report.status.pending',
       color: '!text-[rgb(var(--link-6))]',
     },
   },
@@ -64,16 +71,16 @@ export const ReportStatus = {
     },
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
-      label: 'report.falseAlarm',
+      label: 'report.fake.error',
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
-      label: 'report.stop',
+      label: 'report.stopped',
       color: 'var(--color-text-input-border)',
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: 'report.inExecution',
+      label: 'report.status.running',
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -83,7 +90,7 @@ export const ReportStatus = {
     // },
     PENDING: {
       icon: 'icon-icon_wait',
-      label: 'report.queuing',
+      label: 'report.status.pending',
       color: '!text-[rgb(var(--link-6))]',
     },
   },
@@ -130,4 +137,5 @@ export const PlanReportStatus: Record<string, any> = {
     },
   },
 };
+
 export default {};

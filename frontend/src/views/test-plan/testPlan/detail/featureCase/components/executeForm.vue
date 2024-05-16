@@ -44,7 +44,7 @@
   const formRef = ref<FormInstance>();
 
   const executionResultList = computed(() =>
-    Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.UN_EXECUTED)
+    Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.PENDING)
   );
 
   async function handleUploadImage(file: File) {

@@ -56,33 +56,27 @@ export const statusIconMap: Record<string, any> = {
 };
 // 图标执行结果 TODO:TS 类型 key
 export const executionResultMap: Record<string, any> = {
-  UN_EXECUTED: {
-    key: 'UN_EXECUTED',
-    icon: StatusType.UN_EXECUTED,
+  PENDING: {
+    key: 'PENDING',
+    icon: StatusType.PENDING,
     statusText: t('caseManagement.featureCase.nonExecution'),
     color: 'text-[var(--color-text-brand)]',
   },
-  PASSED: {
-    key: 'PASSED',
-    icon: StatusType.PASSED,
+  SUCCESS: {
+    key: 'SUCCESS',
+    icon: StatusType.SUCCESS,
     statusText: t('common.success'),
     color: '',
   },
-  /* SKIPPED: {
-    key: 'SKIPPED',
-    icon: StatusType.SKIPPED,
-    statusText: t('caseManagement.featureCase.skip'),
-    color: 'text-[rgb(var(--link-6))]',
-  }, */
   BLOCKED: {
     key: 'BLOCKED',
     icon: StatusType.BLOCKED,
     statusText: t('caseManagement.featureCase.chokeUp'),
     color: 'text-[rgb(var(--warning-6))]',
   },
-  FAILED: {
-    key: 'FAILED',
-    icon: StatusType.FAILED,
+  ERROR: {
+    key: 'ERROR',
+    icon: StatusType.ERROR,
     statusText: t('caseManagement.featureCase.failure'),
     color: '',
   },

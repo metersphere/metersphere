@@ -31,68 +31,6 @@
       @drag-change="changeHandler"
       @module-change="loadScenarioList(false)"
     >
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical">
-                  <a-checkbox v-for="val of Object.values(ApiScenarioStatus)" :key="val" :value="val">
-                    <apiStatus :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
-      <template #priorityFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="priorityFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="priorityFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="priorityFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="priorityFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
-                    <caseLevel :case-level="item.label as CaseLevel" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetPriorityFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
       <template #num="{ record }">
         <div>
           <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openScenarioTab(record)">
@@ -133,23 +71,6 @@
           </div>
         </div>
       </template>
-      <template #status="{ record }">
-        <a-select
-          v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
-          v-model:model-value="record.status"
-          class="param-input w-full"
-          size="mini"
-          @change="() => handleStatusChange(record)"
-        >
-          <template #label>
-            <apiStatus :status="record.status" />
-          </template>
-          <a-option v-for="item of Object.values(ApiScenarioStatus)" :key="item" :value="item">
-            <apiStatus :status="item" />
-          </a-option>
-        </a-select>
-        <apiStatus v-else :status="record.status" />
-      </template>
       <template #priority="{ record }">
         <a-select
           v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
@@ -169,44 +90,42 @@
         </a-select>
         <span v-else class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.priority" /></span>
       </template>
-      <!-- 报告结果筛选 -->
-      <template #lastReportStatusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="lastReportStatusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+        <caseLevel :case-level="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_STATUS]="{ filterContent }">
+        <apiStatus :status="filterContent.value" />
+      </template>
+      <template #status="{ record }">
+        <a-select
+          v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
+          v-model:model-value="record.status"
+          class="param-input w-full"
+          size="mini"
+          @change="() => handleStatusChange(record)"
         >
-          <a-button
-            type="text"
-            class="arco-btn-text--secondary p-[8px_4px] text-[14px]"
-            size="mini"
-            @click="lastReportStatusFilterVisible = true"
-          >
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="lastReportStatusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="flex items-center justify-center px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="lastReportStatusListFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of lastReportStatusFilters" :key="key" :value="key">
-                    <ExecutionStatus :module-type="ReportEnum.API_SCENARIO_REPORT" :status="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetLastReportStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
+          <template #label>
+            <apiStatus :status="record.status" />
           </template>
-        </a-trigger>
+          <a-option v-for="item of Object.values(ApiScenarioStatus)" :key="item" :value="item">
+            <apiStatus :status="item" />
+          </a-option>
+        </a-select>
+        <apiStatus v-else :status="record.status" />
+      </template>
+      <template #createUserName="{ record }">
+        <a-tooltip :content="`${record.createName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
+        </a-tooltip>
+      </template>
+      <template #updateUserName="{ record }">
+        <a-tooltip :content="`${record.createName}`" position="tl">
+          <div class="one-line-text">{{ characterLimit(record.updateUserName) }}</div>
+        </a-tooltip>
+      </template>
+      <!-- 报告结果筛选 -->
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #lastReportStatus="{ record }">
         <ExecutionStatus
@@ -214,32 +133,6 @@
           :status="record.lastReportStatus ? record.lastReportStatus : 'PENDING'"
           :script-identifier="record.scriptIdentifier"
         />
-      </template>
-      <template #createUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="createUserFilterVisible"
-          v-model:status-filters="createUserFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          @search="loadScenarioList"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
-      </template>
-      <template #updateUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="updateUserFilterVisible"
-          v-model:status-filters="updateUserFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          @search="loadScenarioList"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
       </template>
       <template #stepTotal="{ record }">
         {{ record.stepTotal }}
@@ -612,7 +505,6 @@
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import BatchRunModal from '@/views/api-test/scenario/components/batchRunModal.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import { getEnvList, getPoolId, getPoolOption } from '@/api/modules/api-test/management';
   import {
@@ -633,6 +525,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { characterLimit } from '@/utils';
   import { translateTextToPX } from '@/utils/css';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -649,6 +542,7 @@
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
 
@@ -664,14 +558,8 @@
     (e: 'createScenario'): void;
   }>();
 
-  const lastReportStatusFilterVisible = ref(false);
   const lastReportStatusListFilters = ref<string[]>([]);
-  const lastReportStatusFilters = computed(() => {
-    return Object.keys(ReportStatus[ReportEnum.API_SCENARIO_REPORT]);
-  });
-  const createUserFilterVisible = ref(false);
   const createUserFilters = ref<string[]>([]);
-  const updateUserFilterVisible = ref(false);
   const updateUserFilters = ref<string[]>([]);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
@@ -679,7 +567,6 @@
   const { openModal } = useModal();
   const tableRecord = ref<ApiScenarioTableItem>();
   const scheduleModalTitle = ref('');
-  const priorityFilterVisible = ref(false);
   const priorityFilters = ref<string[]>([]);
   const scheduleConfig = ref<ApiScenarioScheduleConfig>({
     scenarioId: '',
@@ -736,6 +623,24 @@
   const isBatchCopy = ref(false); // 是否批量复制场景
   const showBatchExecute = ref(false);
 
+  const requestApiScenarioStatusOptions = computed(() => {
+    return Object.values(ApiScenarioStatus).map((key) => {
+      return {
+        value: key,
+        label: key,
+      };
+    });
+  });
+
+  const statusList = computed(() => {
+    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+      return {
+        value: key,
+        label: t(ReportStatus[ReportEnum.API_REPORT][key].label),
+      };
+    });
+  });
+
   let columns: MsTableColumn = [
     {
       title: 'ID',
@@ -772,7 +677,10 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      titleSlotName: 'priorityFilter',
+      filterConfig: {
+        options: casePriorityOptions,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
       width: 140,
     },
     {
@@ -784,16 +692,23 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      filterConfig: {
+        options: requestApiScenarioStatusOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
+      },
       showDrag: true,
       width: 140,
     },
     {
       title: 'apiScenario.table.columns.runResult',
-      titleSlotName: 'lastReportStatusFilter',
       dataIndex: 'lastReportStatus',
       slotName: 'lastReportStatus',
       showTooltip: false,
       showDrag: true,
+      filterConfig: {
+        options: statusList.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
+      },
       width: 200,
     },
     {
@@ -857,23 +772,37 @@
     },
     {
       title: 'apiScenario.table.columns.createUser',
-      dataIndex: 'createUserName',
+      dataIndex: 'createUser',
       slotName: 'createUserName',
       showInTable: false,
-      titleSlotName: 'createUserFilter',
       showTooltip: true,
       showDrag: true,
       width: 109,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
     },
     {
       title: 'apiScenario.table.columns.updateUser',
-      dataIndex: 'updateUserName',
+      dataIndex: 'updateUser',
       slotName: 'updateUserName',
       showInTable: false,
-      titleSlotName: 'updateUserFilter',
       showTooltip: true,
       showDrag: true,
       width: 109,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
     },
     {
       title: 'common.operation',
@@ -979,8 +908,6 @@
       },
     ];
   }
-
-  const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
   const tableStore = useTableStore();
 
@@ -999,46 +926,12 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
-      filter: {
-        lastReportStatus: lastReportStatusListFilters.value,
-        status: statusFilters.value,
-        priority: priorityFilters.value,
-        createUser: createUserFilters.value,
-        updateUser: updateUserFilters.value,
-      },
     };
     setLoadListParams(params);
     await loadList();
     if (refreshTreeCount) {
       emit('refreshModuleTree', params);
     }
-  }
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      lastReportStatusFilterVisible.value = false;
-      statusFilterVisible.value = false;
-      priorityFilterVisible.value = false;
-      loadScenarioList(true);
-    }
-  }
-
-  function resetStatusFilter() {
-    statusFilterVisible.value = false;
-    statusFilters.value = [];
-    loadScenarioList(true);
-  }
-
-  function resetPriorityFilter() {
-    priorityFilterVisible.value = false;
-    priorityFilters.value = [];
-    loadScenarioList(true);
-  }
-
-  function resetLastReportStatusFilter() {
-    lastReportStatusFilterVisible.value = false;
-    lastReportStatusListFilters.value = [];
-    loadScenarioList(true);
   }
 
   async function handleStatusChange(record: ApiScenarioUpdateDTO) {
@@ -1112,7 +1005,7 @@
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: { ...params?.condition, keyword: keyword.value },
+              condition: { ...params?.condition, keyword: keyword.value, filter: propsRes.value.filter },
               projectId: appStore.currentProjectId,
               moduleIds: params?.moduleIds || [],
               deleteAll: true,
@@ -1328,13 +1221,7 @@
             excludeIds: batchParams.value?.excludeIds || [],
             condition: {
               keyword: keyword.value,
-              filter: {
-                lastReportStatus: lastReportStatusListFilters.value,
-                status: statusFilters.value,
-                priority: priorityFilters.value,
-                createUser: createUserFilters.value,
-                updateUser: updateUserFilters.value,
-              },
+              filter: propsRes.value.filter,
             },
             projectId: appStore.currentProjectId,
             moduleIds: batchParams.value?.moduleIds || [],
@@ -1397,13 +1284,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         condition: {
           keyword: keyword.value,
-          filter: {
-            lastReportStatus: lastReportStatusListFilters.value,
-            status: statusFilters.value,
-            priority: priorityFilters.value,
-            createUser: createUserFilters.value,
-            updateUser: updateUserFilters.value,
-          },
+          filter: propsRes.value.filter,
         },
         projectId: appStore.currentProjectId,
         moduleIds: batchParams.value?.moduleIds || [],

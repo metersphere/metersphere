@@ -12,69 +12,8 @@
       />-->
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-      <template #triggerModeFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="triggerModeFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary" @click="triggerModeFilterVisible = true">
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="triggerModeFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="triggerModeListFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="(key, value) of TriggerModeLabel" :key="key" :value="value">
-                    <div class="font-medium">{{ t(key) }}</div>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetModeFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of statusList" :key="val" :value="val">
-                    <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
@@ -130,13 +69,19 @@
 
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  const triggerModeListFilters = ref<string[]>();
-  const triggerModeFilterVisible = ref(false);
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>();
+  import { triggerModeOptions } from '@/views/api-test/report/utils';
+
+  const appStore = useAppStore();
+  const { t } = useI18n();
   const statusList = computed(() => {
-    return Object.keys(ReportStatus[ReportEnum.API_REPORT]);
+    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+      return {
+        value: key,
+        label: t(ReportStatus[ReportEnum.API_REPORT][key].label),
+      };
+    });
   });
 
   const showResponse = ref(false);
@@ -146,9 +91,6 @@
     moduleType: string;
     protocol: string;
   }>();
-
-  const appStore = useAppStore();
-  const { t } = useI18n();
 
   const keyword = ref('');
 
@@ -164,7 +106,9 @@
       title: 'apiTestManagement.executeMethod',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
-      titleSlotName: 'triggerModeFilter',
+      filterConfig: {
+        options: triggerModeOptions,
+      },
       showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -176,10 +120,13 @@
       title: 'apiTestManagement.executeResult',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'statusFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
+      },
+      filterConfig: {
+        options: statusList.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
       },
       width: 150,
     },
@@ -228,32 +175,8 @@
       projectId: appStore.currentProjectId,
       keyword: keyword.value,
       id: props.sourceId,
-      filter: {
-        triggerMode: triggerModeListFilters.value,
-        status: statusFilters.value,
-      },
     });
     loadList();
-  }
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      loadExecuteList();
-      triggerModeFilterVisible.value = false;
-      statusFilterVisible.value = false;
-    }
-  }
-
-  function resetModeFilter() {
-    triggerModeListFilters.value = [];
-    triggerModeFilterVisible.value = false;
-    loadExecuteList();
-  }
-
-  function resetStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    loadExecuteList();
   }
 
   const activeReportIndex = ref<number>(0);

@@ -110,7 +110,7 @@
   const emit = defineEmits(['update:stepList']);
 
   const executionResultList = computed(() =>
-    Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.UN_EXECUTED)
+    Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.PENDING)
   );
 
   // 步骤描述

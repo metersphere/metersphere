@@ -503,7 +503,7 @@
   const selectedModuleKeys = ref<string[]>([]);
   const tableStore = useTableStore();
   await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer', true);
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     getReviewList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW,
@@ -540,8 +540,6 @@
     ],
   };
 
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>([]);
   const tableQueryParams = ref<any>();
   async function searchReview(filter?: FilterResult) {
     let moduleIds: string[] = [];
@@ -583,21 +581,10 @@
   watch(
     () => innerShowType.value,
     () => {
+      resetFilterParams();
       searchReview();
     }
   );
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      searchReview();
-    }
-  }
-
-  function resetStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    searchReview();
-  }
 
   const batchParams = ref<BatchActionQueryParams>({
     selectedIds: [],

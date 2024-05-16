@@ -32,40 +32,13 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #resultTitle="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
-            <div class="font-medium">
-              {{ t(columnConfig.title as string) }}
-            </div>
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </a-button>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of Object.keys(reviewResultMap)" :key="key" :value="key">
-                    <a-tag :color="reviewResultMap[key as ReviewResult].color" class="px-[4px]" size="small">
-                      {{ t(reviewResultMap[key as ReviewResult].label) }}
-                    </a-tag>
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetReviewStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
+        <a-tag :color="reviewResultMap[filterContent.value as ReviewResult].color" class="px-[4px]" size="small">
+          {{ t(reviewResultMap[filterContent.value as ReviewResult].label) }}
+        </a-tag>
+      </template>
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+        <caseLevel :case-level="filterContent.text" />
       </template>
       <template #num="{ record }">
         <a-tooltip :content="record.num">
@@ -76,20 +49,6 @@
       </template>
       <template #caseLevel="{ record }">
         <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
-      </template>
-      <template #caseLevelFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="caseFilterVisible"
-          v-model:status-filters="caseFilters"
-          :title="(columnConfig.title as string)"
-          :list="caseLevelList"
-          value-key="value"
-          @search="searchCase()"
-        >
-          <template #item="{ item }">
-            <div class="flex"> <caseLevel :case-level="item.text" /></div>
-          </template>
-        </TableFilter>
       </template>
       <template #reviewNames="{ record }">
         <MsTagGroup
@@ -304,6 +263,7 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -343,12 +303,11 @@
   import { BatchApiParams, ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const caseLevelFields = ref<Record<string, any>>({});
-  const caseFilterVisible = ref(false);
-  const caseFilters = ref<string[]>([]);
   const caseLevelList = computed(() => {
     return caseLevelFields.value?.options || [];
   });
@@ -381,7 +340,16 @@
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])
   );
-  const columns: MsTableColumn = [
+
+  const reviewResultOptions = computed(() => {
+    return Object.keys(reviewResultMap).map((key) => {
+      return {
+        value: key,
+        label: t(reviewResultMap[key as ReviewResult].label),
+      };
+    });
+  });
+  let columns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -408,10 +376,13 @@
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
       dataIndex: 'caseLevel',
-      titleSlotName: 'caseLevelFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
+      filterConfig: {
+        options: caseLevelList.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
     },
     {
       title: 'caseManagement.caseReview.reviewer',
@@ -424,7 +395,10 @@
       title: 'caseManagement.caseReview.reviewResult',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'resultTitle',
+      filterConfig: {
+        options: reviewResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT,
+      },
       width: 110,
     },
     // {
@@ -500,7 +474,6 @@
       moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
       keyword: keyword.value,
       viewFlag: props.onlyMine,
-      filter: { status: statusFilters.value, caseLevel: caseFilters.value },
       combine: filter
         ? {
             ...filter.combine,
@@ -516,19 +489,6 @@
       total: propsRes.value.msPagination?.total,
       moduleIds: [],
     });
-  }
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      searchCase();
-      statusFilterVisible.value = false;
-    }
-  }
-
-  function resetReviewStatusFilter() {
-    statusFilters.value = [];
-    statusFilterVisible.value = false;
-    searchCase();
   }
 
   onBeforeMount(() => {
@@ -677,6 +637,23 @@
   async function getCaseLevelFields() {
     const result = await getCaseDefaultFields(appStore.currentProjectId);
     caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
+    columns = columns.map((item) => {
+      if (item.dataIndex === 'caseLevel') {
+        return {
+          title: 'caseManagement.featureCase.tableColumnLevel',
+          slotName: 'caseLevel',
+          dataIndex: 'caseLevel',
+          showInTable: true,
+          width: 200,
+          showDrag: true,
+          filterConfig: {
+            options: cloneDeep(caseLevelFields.value.options),
+            filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+          },
+        };
+      }
+      return item;
+    });
   }
 
   // 批量重新评审
@@ -851,7 +828,6 @@
   }
 
   onBeforeMount(async () => {
-    getCaseLevelFields();
     const [, memberRes] = await Promise.all([
       initReviewers(),
       getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
@@ -905,7 +881,7 @@
     searchCase,
     resetSelector,
   });
-
+  await getCaseLevelFields();
   await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE, columns, 'drawer');
 </script>
 
