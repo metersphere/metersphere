@@ -29,6 +29,9 @@ public class TestPlanCasePageResponse implements Serializable {
     @Schema(description = "项目ID")
     private String projectId;
 
+    @Schema(description = "所属项目")
+    private String projectName;
+
     @Schema(description = "模板ID")
     private String templateId;
 
