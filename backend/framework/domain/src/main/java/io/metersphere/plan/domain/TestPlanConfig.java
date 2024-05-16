@@ -1,12 +1,16 @@
 package io.metersphere.plan.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class TestPlanConfig implements Serializable {
@@ -23,14 +27,13 @@ public class TestPlanConfig implements Serializable {
     @NotNull(message = "{test_plan_config.repeat_case.not_blank}", groups = {Created.class})
     private Boolean repeatCase;
 
-    @Schema(description = "测试计划通过阈值;0-100", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "是否开启测试规划", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_config.test_planning.not_blank}", groups = {Created.class})
+    private Boolean testPlanning;
+
+    @Schema(title = "测试计划通过阈值; 0-100, 保留两位小数", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{test_plan_config.pass_threshold.not_blank}", groups = {Created.class})
     private Double passThreshold;
-
-    @Schema(description = "是否开启测试规划", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_config.test_planning.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{test_plan_config.test_planning.length_range}", groups = {Created.class, Updated.class})
-    private Boolean testPlanning;
 
     private static final long serialVersionUID = 1L;
 
@@ -38,8 +41,8 @@ public class TestPlanConfig implements Serializable {
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         automaticStatusUpdate("automatic_status_update", "automaticStatusUpdate", "BIT", false),
         repeatCase("repeat_case", "repeatCase", "BIT", false),
-        passThreshold("pass_threshold", "passThreshold", "DOUBLE", false),
-        testPlanning("test_planning", "testPlanning", "BIT", false);
+        testPlanning("test_planning", "testPlanning", "BIT", false),
+        passThreshold("pass_threshold", "passThreshold", "DECIMAL", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

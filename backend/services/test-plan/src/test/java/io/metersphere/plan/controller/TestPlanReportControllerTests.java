@@ -32,6 +32,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String RENAME_PLAN_REPORT = "/test-plan/report/rename";
     private static final String DELETE_PLAN_REPORT = "/test-plan/report/delete";
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
+    private static final String GEN_PLAN_REPORT = "/test-plan/report/gen";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
     private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
@@ -160,5 +161,26 @@ public class TestPlanReportControllerTests extends BaseTest {
         // 全选不排除
         request.setExcludeIds(null);
         this.requestPostWithOk(BATCH_DELETE_PLAN_REPORT, request);
+    }
+
+    @Test
+    @Order(10)
+    @Sql(scripts = {"/dml/init_test_plan_report_gen.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    void testGenReportError() throws Exception {
+        TestPlanReportGenRequest genRequest = new TestPlanReportGenRequest();
+        genRequest.setProjectId("100001100001");
+        genRequest.setTestPlanId("plan_id_for_gen_report-x");
+        this.requestPost(GEN_PLAN_REPORT, genRequest, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(11)
+    void testGenReportSuccess() throws Exception {
+        TestPlanReportGenRequest genRequest = new TestPlanReportGenRequest();
+        genRequest.setProjectId("100001100001");
+        genRequest.setTestPlanId("plan_id_for_gen_report_1");
+        this.requestPost(GEN_PLAN_REPORT, genRequest);
+        genRequest.setTestPlanId("plan_id_for_gen_report");
+        this.requestPost(GEN_PLAN_REPORT, genRequest);
     }
 }

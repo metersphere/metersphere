@@ -643,7 +643,7 @@ public class TestPlanTests extends BaseTest {
         request.setGroupId(testPlanTestService.selectTestPlanByName("testPlan_60").getGroupId());
         this.requestPost(URL_POST_TEST_PLAN_ADD, request);
         request.setGroupId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
-        request.setPassThreshold(100.111);
+        request.setPassThreshold(100.11);
         this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().isBadRequest());
         request.setPassThreshold(-0.12);
         this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().isBadRequest());
@@ -889,7 +889,7 @@ public class TestPlanTests extends BaseTest {
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setAutomaticStatusUpdate(true);
         updateRequest.setRepeatCase(true);
-        updateRequest.setPassThreshold(43.123);
+        updateRequest.setPassThreshold(43.12);
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -900,7 +900,7 @@ public class TestPlanTests extends BaseTest {
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setAutomaticStatusUpdate(false);
         updateRequest.setRepeatCase(false);
-        updateRequest.setPassThreshold(56.478);
+        updateRequest.setPassThreshold(56.47);
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);

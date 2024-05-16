@@ -83,4 +83,11 @@ public interface ExtBugRelateCaseMapper {
     List<CaseRelateBugDTO> getBugCountByIds(@Param("ids") List<String> ids);
 
     List<BugProviderDTO> getTestPlanAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
+
+    /**
+     * 获取计划关联的缺陷ID集合(去重)
+     * @param planId 计划ID
+     * @return 缺陷ID集合
+     */
+    List<String> getPlanRelateBugIds(@Param("id") String planId);
 }

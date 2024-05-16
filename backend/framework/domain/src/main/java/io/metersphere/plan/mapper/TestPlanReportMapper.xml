@@ -7,13 +7,14 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="execute_time" jdbcType="BIGINT" property="executeTime" />
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
-    <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="exec_status" jdbcType="VARCHAR" property="execStatus" />
     <result column="result_status" jdbcType="VARCHAR" property="resultStatus" />
-    <result column="pass_threshold" jdbcType="VARCHAR" property="passThreshold" />
     <result column="pass_rate" jdbcType="DECIMAL" property="passRate" />
+    <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
+    <result column="pass_threshold" jdbcType="DECIMAL" property="passThreshold" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="integrated" jdbcType="BIT" property="integrated" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
@@ -77,8 +78,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, `name`, create_user, create_time, start_time, end_time, trigger_mode, 
-    exec_status, result_status, pass_threshold, pass_rate, project_id, integrated, deleted
+    id, test_plan_id, `name`, create_user, create_time, execute_time, start_time, end_time, 
+    exec_status, result_status, pass_rate, trigger_mode, pass_threshold, project_id, 
+    integrated, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportExample" resultMap="BaseResultMap">
     select
@@ -112,17 +114,17 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanReport">
     insert into test_plan_report (id, test_plan_id, `name`, 
-      create_user, create_time, start_time, 
-      end_time, trigger_mode, exec_status, 
-      result_status, pass_threshold, pass_rate, 
-      project_id, integrated, deleted
-      )
+      create_user, create_time, execute_time, 
+      start_time, end_time, exec_status, 
+      result_status, pass_rate, trigger_mode, 
+      pass_threshold, project_id, integrated, 
+      deleted)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{startTime,jdbcType=BIGINT}, 
-      #{endTime,jdbcType=BIGINT}, #{triggerMode,jdbcType=VARCHAR}, #{execStatus,jdbcType=VARCHAR}, 
-      #{resultStatus,jdbcType=VARCHAR}, #{passThreshold,jdbcType=VARCHAR}, #{passRate,jdbcType=DECIMAL}, 
-      #{projectId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, #{deleted,jdbcType=BIT}
-      )
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{executeTime,jdbcType=BIGINT}, 
+      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{execStatus,jdbcType=VARCHAR}, 
+      #{resultStatus,jdbcType=VARCHAR}, #{passRate,jdbcType=DECIMAL}, #{triggerMode,jdbcType=VARCHAR}, 
+      #{passThreshold,jdbcType=DECIMAL}, #{projectId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, 
+      #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReport">
     insert into test_plan_report
@@ -142,14 +144,14 @@
       <if test="createTime != null">
         create_time,
       </if>
+      <if test="executeTime != null">
+        execute_time,
+      </if>
       <if test="startTime != null">
         start_time,
       </if>
       <if test="endTime != null">
         end_time,
-      </if>
-      <if test="triggerMode != null">
-        trigger_mode,
       </if>
       <if test="execStatus != null">
         exec_status,
@@ -157,11 +159,14 @@
       <if test="resultStatus != null">
         result_status,
       </if>
-      <if test="passThreshold != null">
-        pass_threshold,
-      </if>
       <if test="passRate != null">
         pass_rate,
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode,
+      </if>
+      <if test="passThreshold != null">
+        pass_threshold,
       </if>
       <if test="projectId != null">
         project_id,
@@ -189,14 +194,14 @@
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="executeTime != null">
+        #{executeTime,jdbcType=BIGINT},
+      </if>
       <if test="startTime != null">
         #{startTime,jdbcType=BIGINT},
       </if>
       <if test="endTime != null">
         #{endTime,jdbcType=BIGINT},
-      </if>
-      <if test="triggerMode != null">
-        #{triggerMode,jdbcType=VARCHAR},
       </if>
       <if test="execStatus != null">
         #{execStatus,jdbcType=VARCHAR},
@@ -204,11 +209,14 @@
       <if test="resultStatus != null">
         #{resultStatus,jdbcType=VARCHAR},
       </if>
-      <if test="passThreshold != null">
-        #{passThreshold,jdbcType=VARCHAR},
-      </if>
       <if test="passRate != null">
         #{passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="triggerMode != null">
+        #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="passThreshold != null">
+        #{passThreshold,jdbcType=DECIMAL},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
@@ -245,14 +253,14 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.executeTime != null">
+        execute_time = #{record.executeTime,jdbcType=BIGINT},
+      </if>
       <if test="record.startTime != null">
         start_time = #{record.startTime,jdbcType=BIGINT},
       </if>
       <if test="record.endTime != null">
         end_time = #{record.endTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.triggerMode != null">
-        trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       </if>
       <if test="record.execStatus != null">
         exec_status = #{record.execStatus,jdbcType=VARCHAR},
@@ -260,11 +268,14 @@
       <if test="record.resultStatus != null">
         result_status = #{record.resultStatus,jdbcType=VARCHAR},
       </if>
-      <if test="record.passThreshold != null">
-        pass_threshold = #{record.passThreshold,jdbcType=VARCHAR},
-      </if>
       <if test="record.passRate != null">
         pass_rate = #{record.passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.triggerMode != null">
+        trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.passThreshold != null">
+        pass_threshold = #{record.passThreshold,jdbcType=DECIMAL},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -287,13 +298,14 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      execute_time = #{record.executeTime,jdbcType=BIGINT},
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
-      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       exec_status = #{record.execStatus,jdbcType=VARCHAR},
       result_status = #{record.resultStatus,jdbcType=VARCHAR},
-      pass_threshold = #{record.passThreshold,jdbcType=VARCHAR},
       pass_rate = #{record.passRate,jdbcType=DECIMAL},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      pass_threshold = #{record.passThreshold,jdbcType=DECIMAL},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       integrated = #{record.integrated,jdbcType=BIT},
       deleted = #{record.deleted,jdbcType=BIT}
@@ -316,14 +328,14 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="executeTime != null">
+        execute_time = #{executeTime,jdbcType=BIGINT},
+      </if>
       <if test="startTime != null">
         start_time = #{startTime,jdbcType=BIGINT},
       </if>
       <if test="endTime != null">
         end_time = #{endTime,jdbcType=BIGINT},
-      </if>
-      <if test="triggerMode != null">
-        trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       </if>
       <if test="execStatus != null">
         exec_status = #{execStatus,jdbcType=VARCHAR},
@@ -331,11 +343,14 @@
       <if test="resultStatus != null">
         result_status = #{resultStatus,jdbcType=VARCHAR},
       </if>
-      <if test="passThreshold != null">
-        pass_threshold = #{passThreshold,jdbcType=VARCHAR},
-      </if>
       <if test="passRate != null">
         pass_rate = #{passRate,jdbcType=DECIMAL},
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="passThreshold != null">
+        pass_threshold = #{passThreshold,jdbcType=DECIMAL},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -355,13 +370,14 @@
       `name` = #{name,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
+      execute_time = #{executeTime,jdbcType=BIGINT},
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
-      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       exec_status = #{execStatus,jdbcType=VARCHAR},
       result_status = #{resultStatus,jdbcType=VARCHAR},
-      pass_threshold = #{passThreshold,jdbcType=VARCHAR},
       pass_rate = #{passRate,jdbcType=DECIMAL},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      pass_threshold = #{passThreshold,jdbcType=DECIMAL},
       project_id = #{projectId,jdbcType=VARCHAR},
       integrated = #{integrated,jdbcType=BIT},
       deleted = #{deleted,jdbcType=BIT}
@@ -369,16 +385,16 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report
-    (id, test_plan_id, `name`, create_user, create_time, start_time, end_time, trigger_mode, 
-      exec_status, result_status, pass_threshold, pass_rate, project_id, integrated, 
-      deleted)
+    (id, test_plan_id, `name`, create_user, create_time, execute_time, start_time, end_time, 
+      exec_status, result_status, pass_rate, trigger_mode, pass_threshold, project_id, 
+      integrated, deleted)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.startTime,jdbcType=BIGINT}, 
-        #{item.endTime,jdbcType=BIGINT}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.execStatus,jdbcType=VARCHAR}, 
-        #{item.resultStatus,jdbcType=VARCHAR}, #{item.passThreshold,jdbcType=VARCHAR}, 
-        #{item.passRate,jdbcType=DECIMAL}, #{item.projectId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.executeTime,jdbcType=BIGINT}, 
+        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.execStatus,jdbcType=VARCHAR}, 
+        #{item.resultStatus,jdbcType=VARCHAR}, #{item.passRate,jdbcType=DECIMAL}, #{item.triggerMode,jdbcType=VARCHAR}, 
+        #{item.passThreshold,jdbcType=DECIMAL}, #{item.projectId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
         #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
@@ -407,14 +423,14 @@
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
+        <if test="'execute_time'.toString() == column.value">
+          #{item.executeTime,jdbcType=BIGINT}
+        </if>
         <if test="'start_time'.toString() == column.value">
           #{item.startTime,jdbcType=BIGINT}
         </if>
         <if test="'end_time'.toString() == column.value">
           #{item.endTime,jdbcType=BIGINT}
-        </if>
-        <if test="'trigger_mode'.toString() == column.value">
-          #{item.triggerMode,jdbcType=VARCHAR}
         </if>
         <if test="'exec_status'.toString() == column.value">
           #{item.execStatus,jdbcType=VARCHAR}
@@ -422,11 +438,14 @@
         <if test="'result_status'.toString() == column.value">
           #{item.resultStatus,jdbcType=VARCHAR}
         </if>
-        <if test="'pass_threshold'.toString() == column.value">
-          #{item.passThreshold,jdbcType=VARCHAR}
-        </if>
         <if test="'pass_rate'.toString() == column.value">
           #{item.passRate,jdbcType=DECIMAL}
+        </if>
+        <if test="'trigger_mode'.toString() == column.value">
+          #{item.triggerMode,jdbcType=VARCHAR}
+        </if>
+        <if test="'pass_threshold'.toString() == column.value">
+          #{item.passThreshold,jdbcType=DECIMAL}
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}

@@ -1,23 +1,39 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.domain.TestPlanReport;
-import io.metersphere.plan.domain.TestPlanReportExample;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.plan.domain.*;
+import io.metersphere.plan.dto.TestPlanReportGenPreParam;
+import io.metersphere.plan.dto.TestPlanReportPostParam;
 import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
 import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
-import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
-import io.metersphere.plan.mapper.TestPlanReportMapper;
+import io.metersphere.plan.mapper.*;
+import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.TaskTriggerMode;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserService;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,18 +41,32 @@ import java.util.Map;
 @Service
 public class TestPlanReportService {
 
-    @Resource
-    private UserService userService;
-    @Resource
-    private TestPlanReportMapper testPlanReportMapper;
-    @Resource
-    private ExtTestPlanReportMapper extTestPlanReportMapper;
-    @Resource
-    private TestPlanReportLogService testPlanReportLogService;
-    @Resource
-    private TestPlanReportNoticeService testPlanReportNoticeService;
-    @Resource
-    private UserMapper userMapper;
+	@Resource
+	private UserMapper userMapper;
+	@Resource
+	private UserService userService;
+	@Resource
+	private SqlSessionFactory sqlSessionFactory;
+	@Resource
+	private TestPlanMapper testPlanMapper;
+	@Resource
+	private TestPlanConfigMapper testPlanConfigMapper;
+	@Resource
+	private TestPlanReportMapper testPlanReportMapper;
+	@Resource
+	private ExtBugRelateCaseMapper extBugRelateCaseMapper;
+	@Resource
+	private BugRelationCaseMapper bugRelationCaseMapper;
+	@Resource
+	private ExtTestPlanReportMapper extTestPlanReportMapper;
+	@Resource
+	private TestPlanReportLogService testPlanReportLogService;
+	@Resource
+	private TestPlanReportNoticeService testPlanReportNoticeService;
+	@Resource
+	private TestPlanReportSummaryMapper testPlanReportSummaryMapper;
+	@Resource
+	private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
 
     /**
      * 分页查询报告列表
@@ -95,6 +125,155 @@ public class TestPlanReportService {
         }
     }
 
+	/**
+	 * 手动生成报告
+	 * @param request 请求参数
+	 * @return 报告
+	 */
+	public TestPlanReport genReportByManual(TestPlanReportGenRequest request, String currentUser) {
+		TestPlan testPlan = checkPlan(request.getTestPlanId());
+		/*
+		 * 手动生成报告
+		 * 1. 构建预生成报告参数
+		 * 2. 预生成报告
+		 * 3. 报告后置处理
+		 */
+		TestPlanReportGenPreParam genPreParam = new TestPlanReportGenPreParam();
+		BeanUtils.copyBean(genPreParam, request);
+		genPreParam.setTestPlanName(testPlan.getName());
+		genPreParam.setStartTime(System.currentTimeMillis());
+		// 手动触发
+		genPreParam.setTriggerMode(TaskTriggerMode.MANUAL.name());
+		// 报告预生成时, 执行状态为未执行, 结果状态为'-'
+		genPreParam.setExecStatus(ExecStatus.PENDING.name());
+		genPreParam.setResultStatus("-");
+		// 是否集成报告, 目前根据是否计划组来区分
+		genPreParam.setIntegrated(StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP));
+		TestPlanReport preReport = preGenReport(genPreParam, currentUser);
+		TestPlanReportPostParam postParam = new TestPlanReportPostParam();
+		BeanUtils.copyBean(postParam, request);
+		postParam.setReportId(preReport.getId());
+		return postHandleReport(postParam);
+	}
+
+
+	/**
+	 * 预生成报告内容(后续拆分优化)
+	 * @return 报告
+	 */
+	public TestPlanReport preGenReport(TestPlanReportGenPreParam genParam, String currentUser) {
+		// 准备计划数据
+		TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
+
+		/*
+		 * 预生成报告(后续执行生成报告复用)
+		 * 1. 生成报告用例数据, 缺陷数据
+		 * 2. 生成或计算报告统计数据
+		 */
+		SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+		String reportId = IDGenerator.nextStr();
+		// 功能用例
+		List<TestPlanReportFunctionCase> reportFunctionCases = new ArrayList<>();
+		TestPlanFunctionalCaseExample functionalCaseExample = new TestPlanFunctionalCaseExample();
+		functionalCaseExample.createCriteria().andTestPlanIdEqualTo(genParam.getTestPlanId());
+		List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(functionalCaseExample);
+		testPlanFunctionalCases.forEach(functionalCase -> {
+			TestPlanReportFunctionCase reportFunctionCase = new TestPlanReportFunctionCase();
+			reportFunctionCase.setId(IDGenerator.nextStr());
+			reportFunctionCase.setTestPlanReportId(reportId);
+			reportFunctionCase.setFunctionCaseId(functionalCase.getFunctionalCaseId());
+			reportFunctionCase.setTestPlanFunctionCaseId(functionalCase.getId());
+			reportFunctionCase.setExecuteResult(functionalCase.getLastExecResult());
+			reportFunctionCases.add(reportFunctionCase);
+		});
+		if (CollectionUtils.isNotEmpty(reportFunctionCases)) {
+			// 插入计划功能用例关联数据 -> 报告内容
+			TestPlanReportFunctionCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportFunctionCaseMapper.class);
+			batchMapper.batchInsert(reportFunctionCases);
+		}
+
+		// TODO: 接口用例, 场景报告内容 (与接口报告是否能一致)
+
+		// 计划报告缺陷内容
+		List<TestPlanReportBug> reportBugs = new ArrayList<>();
+		List<String> bugIds = extBugRelateCaseMapper.getPlanRelateBugIds(genParam.getTestPlanId());
+		bugIds.forEach(bugId -> {
+			TestPlanReportBug reportBug = new TestPlanReportBug();
+			reportBug.setId(IDGenerator.nextStr());
+			reportBug.setTestPlanReportId(reportId);
+			reportBug.setBugId(bugId);
+			reportBugs.add(reportBug);
+		});
+		if (CollectionUtils.isNotEmpty(reportBugs)) {
+			// 插入计划关联用例缺陷数据(去重) -> 报告内容
+			TestPlanReportBugMapper batchMapper = sqlSession.getMapper(TestPlanReportBugMapper.class);
+			batchMapper.batchInsert(reportBugs);
+		}
+		sqlSession.flushStatements();
+		SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+
+		// 插入报告统计内容
+		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
+		reportSummary.setId(IDGenerator.nextStr());
+		reportSummary.setTestPlanReportId(reportId);
+		reportSummary.setFunctionalCaseCount((long) (CollectionUtils.isEmpty(reportFunctionCases) ? 0 : reportFunctionCases.size()));
+		reportSummary.setApiCaseCount(0L);
+		reportSummary.setApiScenarioCount(0L);
+		reportSummary.setBugCount((long) (CollectionUtils.isEmpty(reportBugs) ? 0 : reportBugs.size()));
+		testPlanReportSummaryMapper.insertSelective(reportSummary);
+		// 插入报告
+		TestPlanReport report = new TestPlanReport();
+		BeanUtils.copyBean(report, genParam);
+		report.setId(reportId);
+		report.setName(genParam.getTestPlanName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+		report.setCreateUser(currentUser);
+		report.setCreateTime(System.currentTimeMillis());
+		report.setDeleted(false);
+		report.setPassThreshold(testPlanConfig.getPassThreshold());
+		testPlanReportMapper.insertSelective(report);
+		return report;
+	}
+
+
+	/**
+	 * 报告结果后置处理
+	 * @param postParam 后置处理参数
+	 * @return 报告
+	 */
+	public TestPlanReport postHandleReport(TestPlanReportPostParam postParam) {
+		/*
+		 * 处理报告(执行状态, 结束时间)
+		 */
+		TestPlanReport planReport = checkReport(postParam.getReportId());
+		BeanUtils.copyBean(planReport, postParam);
+		/*
+		 * TODO: 计算报告通过率, 并对比阈值生成报告结果状态(目前只有功能用例参与计算)
+		 */
+		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
+		example.createCriteria().andTestPlanReportIdEqualTo(postParam.getReportId());
+		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExample(example).get(0);
+		DecimalFormat rateFormat = new DecimalFormat("#0.0000");
+		rateFormat.setMinimumFractionDigits(2);
+		rateFormat.setMaximumFractionDigits(2);
+		// 通过的功能用例数
+		// TODO: 接口用例, 场景用例
+		long functionalCasePassCount = extTestPlanReportMapper.countExecuteSuccessFunctionalCase(postParam.getReportId());
+		// 用例总数
+		long caseTotal = reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount();
+		// 通过率 {通过用例数/总用例数}
+		double passRate = (functionalCasePassCount == 0 || caseTotal == 0) ? 0.00 :
+				Double.parseDouble(rateFormat.format((double) functionalCasePassCount / (double) caseTotal));
+		// FIXME: 后续替换成PASS_COUNT {保留该逻辑, 四舍五入导致的边界值数据展示偏差}
+		if (passRate == 0 && functionalCasePassCount > 0) {
+			passRate = 0.0001;
+		} else if (passRate == 100 && functionalCasePassCount < caseTotal) {
+			passRate = 0.9999;
+		}
+		planReport.setPassRate(passRate);
+		// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
+		planReport.setResultStatus(passRate >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+		return planReport;
+	}
 
     /**
      * 通过请求参数获取批量操作的ID集合
@@ -114,7 +293,21 @@ public class TestPlanReportService {
         }
     }
 
-    /**
+	/**
+	 * 校验计划是否存在
+	 * @param planId 计划ID
+	 * @return 测试计划
+	 */
+	private TestPlan checkPlan(String planId) {
+		TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+		if (testPlan == null) {
+			throw new MSException(Translator.get("test_plan_not_exist"));
+		}
+		return testPlan;
+	}
+
+
+	/**
      * 校验报告是否存在
      *
      * @param id 报告ID

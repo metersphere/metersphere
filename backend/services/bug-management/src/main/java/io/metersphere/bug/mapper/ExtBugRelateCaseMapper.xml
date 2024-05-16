@@ -309,4 +309,8 @@
             </if>
         </where>
     </select>
+
+    <select id="getPlanRelateBugIds" resultType="java.lang.String">
+        select distinct bug_id from bug_relation_case where test_plan_id = #{id}
+    </select>
 </mapper>

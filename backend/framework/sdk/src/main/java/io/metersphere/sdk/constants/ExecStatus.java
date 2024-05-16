@@ -3,7 +3,7 @@ package io.metersphere.sdk.constants;
 /**
  * 报告执行状态
  */
-public enum ReportExecStatus {
+public enum ExecStatus {
     /**
      * 未执行
      */

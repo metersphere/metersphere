@@ -444,6 +444,66 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
+        public Criteria andExecuteTimeIsNull() {
+            addCriterion("execute_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeIsNotNull() {
+            addCriterion("execute_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeEqualTo(Long value) {
+            addCriterion("execute_time =", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeNotEqualTo(Long value) {
+            addCriterion("execute_time <>", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeGreaterThan(Long value) {
+            addCriterion("execute_time >", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("execute_time >=", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeLessThan(Long value) {
+            addCriterion("execute_time <", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeLessThanOrEqualTo(Long value) {
+            addCriterion("execute_time <=", value, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeIn(List<Long> values) {
+            addCriterion("execute_time in", values, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeNotIn(List<Long> values) {
+            addCriterion("execute_time not in", values, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeBetween(Long value1, Long value2) {
+            addCriterion("execute_time between", value1, value2, "executeTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimeNotBetween(Long value1, Long value2) {
+            addCriterion("execute_time not between", value1, value2, "executeTime");
+            return (Criteria) this;
+        }
+
         public Criteria andStartTimeIsNull() {
             addCriterion("start_time is null");
             return (Criteria) this;
@@ -561,76 +621,6 @@ public class TestPlanReportExample {
 
         public Criteria andEndTimeNotBetween(Long value1, Long value2) {
             addCriterion("end_time not between", value1, value2, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeIsNull() {
-            addCriterion("trigger_mode is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeIsNotNull() {
-            addCriterion("trigger_mode is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeEqualTo(String value) {
-            addCriterion("trigger_mode =", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotEqualTo(String value) {
-            addCriterion("trigger_mode <>", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeGreaterThan(String value) {
-            addCriterion("trigger_mode >", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeGreaterThanOrEqualTo(String value) {
-            addCriterion("trigger_mode >=", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeLessThan(String value) {
-            addCriterion("trigger_mode <", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeLessThanOrEqualTo(String value) {
-            addCriterion("trigger_mode <=", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeLike(String value) {
-            addCriterion("trigger_mode like", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotLike(String value) {
-            addCriterion("trigger_mode not like", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeIn(List<String> values) {
-            addCriterion("trigger_mode in", values, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotIn(List<String> values) {
-            addCriterion("trigger_mode not in", values, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeBetween(String value1, String value2) {
-            addCriterion("trigger_mode between", value1, value2, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotBetween(String value1, String value2) {
-            addCriterion("trigger_mode not between", value1, value2, "triggerMode");
             return (Criteria) this;
         }
 
@@ -774,76 +764,6 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdIsNull() {
-            addCriterion("pass_threshold is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdIsNotNull() {
-            addCriterion("pass_threshold is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdEqualTo(String value) {
-            addCriterion("pass_threshold =", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotEqualTo(String value) {
-            addCriterion("pass_threshold <>", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdGreaterThan(String value) {
-            addCriterion("pass_threshold >", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdGreaterThanOrEqualTo(String value) {
-            addCriterion("pass_threshold >=", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdLessThan(String value) {
-            addCriterion("pass_threshold <", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdLessThanOrEqualTo(String value) {
-            addCriterion("pass_threshold <=", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdLike(String value) {
-            addCriterion("pass_threshold like", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotLike(String value) {
-            addCriterion("pass_threshold not like", value, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdIn(List<String> values) {
-            addCriterion("pass_threshold in", values, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotIn(List<String> values) {
-            addCriterion("pass_threshold not in", values, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdBetween(String value1, String value2) {
-            addCriterion("pass_threshold between", value1, value2, "passThreshold");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassThresholdNotBetween(String value1, String value2) {
-            addCriterion("pass_threshold not between", value1, value2, "passThreshold");
-            return (Criteria) this;
-        }
-
         public Criteria andPassRateIsNull() {
             addCriterion("pass_rate is null");
             return (Criteria) this;
@@ -901,6 +821,136 @@ public class TestPlanReportExample {
 
         public Criteria andPassRateNotBetween(Long value1, Long value2) {
             addCriterion("pass_rate not between", value1, value2, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIsNull() {
+            addCriterion("trigger_mode is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIsNotNull() {
+            addCriterion("trigger_mode is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeEqualTo(String value) {
+            addCriterion("trigger_mode =", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotEqualTo(String value) {
+            addCriterion("trigger_mode <>", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeGreaterThan(String value) {
+            addCriterion("trigger_mode >", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeGreaterThanOrEqualTo(String value) {
+            addCriterion("trigger_mode >=", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLessThan(String value) {
+            addCriterion("trigger_mode <", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLessThanOrEqualTo(String value) {
+            addCriterion("trigger_mode <=", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLike(String value) {
+            addCriterion("trigger_mode like", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotLike(String value) {
+            addCriterion("trigger_mode not like", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIn(List<String> values) {
+            addCriterion("trigger_mode in", values, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotIn(List<String> values) {
+            addCriterion("trigger_mode not in", values, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeBetween(String value1, String value2) {
+            addCriterion("trigger_mode between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotBetween(String value1, String value2) {
+            addCriterion("trigger_mode not between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdIsNull() {
+            addCriterion("pass_threshold is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdIsNotNull() {
+            addCriterion("pass_threshold is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdEqualTo(Long value) {
+            addCriterion("pass_threshold =", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdNotEqualTo(Long value) {
+            addCriterion("pass_threshold <>", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdGreaterThan(Long value) {
+            addCriterion("pass_threshold >", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdGreaterThanOrEqualTo(Long value) {
+            addCriterion("pass_threshold >=", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdLessThan(Long value) {
+            addCriterion("pass_threshold <", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdLessThanOrEqualTo(Long value) {
+            addCriterion("pass_threshold <=", value, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdIn(List<Long> values) {
+            addCriterion("pass_threshold in", values, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdNotIn(List<Long> values) {
+            addCriterion("pass_threshold not in", values, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdBetween(Long value1, Long value2) {
+            addCriterion("pass_threshold between", value1, value2, "passThreshold");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassThresholdNotBetween(Long value1, Long value2) {
+            addCriterion("pass_threshold not between", value1, value2, "passThreshold");
             return (Criteria) this;
         }
 
