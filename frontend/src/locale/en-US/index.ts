@@ -28,6 +28,7 @@ export default {
     'menu.bugManagement.bugRecycle': 'Recycle',
     'menu.caseManagement': 'Functional',
     'menu.apiTest': 'API Test',
+    'menu.caseManagementShort': 'Case',
     'menu.apiTestShort': 'API',
     'menu.apiTest.debug': 'Debug',
     'menu.apiTest.debug.debug': 'Debug',
