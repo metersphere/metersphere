@@ -21,6 +21,24 @@
         where tprfc.test_plan_report_id = #{id} and tprfc.execute_result = 'SUCCESS'
     </select>
 
+    <select id="countFunctionalCaseExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
+        select execute_result as status, count(*) as count from test_plan_report_function_case
+        where test_plan_report_id = #{id}
+        group by execute_result
+    </select>
+
+    <select id="listReportBugs" resultType="io.metersphere.bug.dto.response.BugDTO">
+        select distinct b.id as id, b.num as num, b.title as title, b.status as status, b.handle_user as handleUser
+        from test_plan_report_bug tprb inner join bug b on tprb.bug_id = b.id
+        where tprb.test_plan_report_id = #{request.reportId}
+    </select>
+
+    <select id="listReportFunctionalCases" resultType="io.metersphere.functional.dto.FunctionalCasePageDTO">
+        select distinct fc.id as id, fc.num as num, fc.name as name, tprfc.execute_result as lastExecuteResult
+        from test_plan_report_function_case tprfc inner join functional_case fc on tprfc.function_case_id = fc.id
+        where tprfc.test_plan_report_id = #{request.reportId}
+    </select>
+
     <select id="selectReportByIds" resultType="io.metersphere.plan.domain.TestPlanReport">
         select * from test_plan_report where id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
