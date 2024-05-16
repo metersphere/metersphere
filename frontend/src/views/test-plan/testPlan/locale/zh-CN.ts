@@ -88,6 +88,8 @@ export default {
   'testPlan.featureCase.bugCount': '缺陷数',
   'testPlan.featureCase.executor': '执行人',
   'testPlan.featureCase.changeExecutor': '修改执行人',
+  'testPlan.featureCase.batchChangeExecutor': '批量修改执行人',
+  'testPlan.featureCase.requestExecutorRequired': '执行人不能为空',
   'testPlan.featureCase.sort': '排序',
   'testPlan.featureCase.executionHistory': '执行历史',
   'testPlan.featureCase.noBugDataTooltip': '暂无可关联缺陷，请 ',

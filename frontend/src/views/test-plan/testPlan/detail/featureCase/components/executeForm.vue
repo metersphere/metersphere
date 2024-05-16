@@ -38,7 +38,7 @@
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const form = defineModel<ExecuteFeatureCaseFormParams>('form', {
-    default: () => ({ ...defaultExecuteForm }),
+    required: true,
   });
 
   const formRef = ref<FormInstance>();

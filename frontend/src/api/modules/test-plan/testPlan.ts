@@ -9,6 +9,8 @@ import {
   batchDeletePlanUrl,
   BatchDisassociateCaseUrl,
   batchMovePlanUrl,
+  BatchRunCaseUrl,
+  BatchUpdateCaseExecutorUrl,
   copyTestPlanUrl,
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
@@ -36,7 +38,9 @@ import { ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
   AssociateCaseRequestType,
+  BatchExecuteFeatureCaseParams,
   BatchFeatureCaseParams,
+  BatchUpdateCaseExecutorParams,
   DisassociateCaseParams,
   FollowPlanParams,
   PassRateCountDetail,
@@ -165,6 +169,14 @@ export function disassociateCase(data: DisassociateCaseParams) {
 // 计划详情-功能用例列表-批量取消关联用例
 export function batchDisassociateCase(data: BatchFeatureCaseParams) {
   return MSR.post({ url: BatchDisassociateCaseUrl, data });
+}
+// 计划详情-功能用例列表-批量执行
+export function batchExecuteCase(data: BatchExecuteFeatureCaseParams) {
+  return MSR.post({ url: BatchRunCaseUrl, data });
+}
+// 计划详情-功能用例列表-批量更新执行人
+export function batchUpdateCaseExecutor(data: BatchUpdateCaseExecutorParams) {
+  return MSR.post({ url: BatchUpdateCaseExecutorUrl, data });
 }
 // 计划详情-功能用例-执行
 export function runFeatureCase(data: RunFeatureCaseParams) {

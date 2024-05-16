@@ -47,7 +47,12 @@
         <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
       </template>
       <template #operation="{ record }">
-        <MsButton v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']" type="text" class="!mr-0">
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+          type="text"
+          class="!mr-0"
+          @click="toCaseDetail(record)"
+        >
           {{ t('common.execute') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
@@ -74,13 +79,79 @@
         </MsButton>
       </template>
     </MsBaseTable>
+    <!-- 批量执行 -->
+    <a-modal
+      v-model:visible="batchExecuteModalVisible"
+      title-align="start"
+      body-class="p-0"
+      :width="800"
+      :cancel-button-props="{ disabled: batchLoading }"
+      :ok-loading="batchLoading"
+      :ok-text="t('caseManagement.caseReview.commitResult')"
+      @before-ok="handleBatchExecute"
+      @close="resetBatchForm"
+    >
+      <template #title>
+        {{ t('testPlan.testPlanIndex.batchExecution') }}
+        <div class="text-[var(--color-text-4)]">
+          {{
+            t('testPlan.testPlanIndex.selectedCount', {
+              count: batchParams.currentSelectCount || tableSelected.length,
+            })
+          }}
+        </div>
+      </template>
+      <ExecuteForm v-model:form="batchExecuteForm" />
+    </a-modal>
+    <!-- 批量修改执行人 -->
+    <a-modal
+      v-model:visible="batchUpdateExecutorModalVisible"
+      title-align="start"
+      body-class="p-0"
+      :cancel-button-props="{ disabled: batchLoading }"
+      :ok-loading="batchLoading"
+      :ok-button-props="{ disabled: batchUpdateExecutorDisabled }"
+      :ok-text="t('common.update')"
+      @before-ok="handleBatchUpdateExecutor"
+      @close="resetBatchForm"
+    >
+      <template #title>
+        {{ t('testPlan.featureCase.batchChangeExecutor') }}
+        <div class="text-[var(--color-text-4)]">
+          {{
+            t('testPlan.testPlanIndex.selectedCount', {
+              count: batchParams.currentSelectCount || tableSelected.length,
+            })
+          }}
+        </div>
+      </template>
+      <a-form ref="batchUpdateExecutorFormRef" :model="batchUpdateExecutorForm" layout="vertical">
+        <a-form-item
+          field="userId"
+          :label="t('testPlan.featureCase.executor')"
+          :rules="[{ required: true, message: t('testPlan.featureCase.requestExecutorRequired') }]"
+          asterisk-position="end"
+          class="mb-0"
+        >
+          <MsSelect
+            v-model:modelValue="batchUpdateExecutorForm.userId"
+            mode="static"
+            :placeholder="t('common.pleaseSelect')"
+            :loading="batchLoading"
+            :options="userOptions"
+            :search-keys="['label']"
+            allow-search
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
@@ -89,12 +160,17 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import MsSelect from '@/components/business/ms-select';
+  import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
   import {
     batchDisassociateCase,
+    batchExecuteCase,
+    batchUpdateCaseExecutor,
     disassociateCase,
     getPlanDetailFeatureCaseList,
   } from '@/api/modules/test-plan/testPlan';
+  import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -102,7 +178,11 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailFeatureCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type {
+    ExecuteFeatureCaseFormParams,
+    PlanDetailFeatureCaseItem,
+    PlanDetailFeatureCaseListQueryParams,
+  } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -124,6 +204,7 @@
 
   const emit = defineEmits<{
     (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
+    (e: 'executeDone'): void;
   }>();
 
   const { t } = useI18n();
@@ -270,14 +351,6 @@
         eventTag: 'disassociate',
         permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
       },
-      {
-        isDivider: true,
-      },
-      {
-        label: 'common.delete',
-        eventTag: 'delete',
-        danger: true,
-      },
     ],
   };
 
@@ -362,15 +435,78 @@
     });
   }
 
+  // 批量执行
+  const batchLoading = ref(false);
+  const batchExecuteModalVisible = ref(false);
+  const batchExecuteForm = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
+  async function handleBatchExecute() {
+    try {
+      batchLoading.value = true;
+      await batchExecuteCase({
+        ...batchParams.value,
+        ...tableParams.value,
+        ...batchExecuteForm.value,
+        notifier: batchExecuteForm.value?.commentIds?.join(';'),
+      });
+      Message.success(t('common.updateSuccess'));
+      resetSelector();
+      loadList();
+      emit('executeDone');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      batchLoading.value = false;
+    }
+  }
+
+  // 批量修改执行人
+  const batchUpdateExecutorFormRef = ref<FormInstance>();
+  const batchUpdateExecutorModalVisible = ref(false);
+  const batchUpdateExecutorForm = ref<{ userId: string }>({ userId: '' });
+  const batchUpdateExecutorDisabled = computed(() => !batchUpdateExecutorForm.value.userId.length);
+  const userOptions = ref<SelectOptionData[]>([]); // TODO 接口联调
+  async function handleBatchUpdateExecutor() {
+    batchUpdateExecutorFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          batchLoading.value = true;
+          await batchUpdateCaseExecutor({
+            ...batchParams.value,
+            ...tableParams.value,
+            ...batchUpdateExecutorForm.value,
+          });
+          Message.success(t('common.updateSuccess'));
+          resetSelector();
+          loadList();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          batchLoading.value = false;
+        }
+      }
+    });
+  }
+
+  function resetBatchForm() {
+    batchExecuteForm.value = { ...defaultExecuteForm };
+    batchUpdateExecutorForm.value = { userId: '' };
+  }
+
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = params;
     switch (event.eventTag) {
       case 'execute':
+        batchExecuteModalVisible.value = true;
         break;
       case 'disassociate':
         handleBatchDisassociateCase();
+        break;
+      case 'changeExecutor':
+        batchUpdateExecutorModalVisible.value = true;
         break;
       default:
         break;
