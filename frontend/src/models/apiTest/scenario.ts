@@ -234,14 +234,11 @@ export interface AssertionConfig {
   assertions: ExecuteAssertionItem[];
 }
 export interface CsvVariable {
-  id?: string;
-  fileId: string;
+  id: string;
   scenarioId: string;
   name: string;
-  fileName: string;
   scope: string;
   enable: boolean;
-  association: boolean;
   encoding: string;
   random: boolean;
   variableNames: string;
@@ -250,6 +247,14 @@ export interface CsvVariable {
   allowQuotedData: boolean;
   recycleOnEof: boolean;
   stopThreadOnEof: boolean;
+  file: {
+    fileId: string;
+    fileName: string;
+    local: boolean; // 是否是本地上传的文件
+    fileAlias: string; // 文件别名
+    delete: boolean; // 是否删除
+    [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
+  };
   // 以下为前端字段
   settingVisible: boolean;
 }
@@ -353,7 +358,7 @@ export interface ScenarioStepItem {
   stepType: ScenarioStepType;
   refType: ScenarioStepRefType;
   config: ScenarioStepDetail; // 存储步骤列表需要展示的信息
-  csvFileIds?: string[];
+  csvIds?: string[];
   projectId?: string;
   versionId?: string;
   children?: ScenarioStepItem[];

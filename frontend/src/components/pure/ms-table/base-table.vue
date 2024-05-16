@@ -86,7 +86,7 @@
               }"
             >
               <slot :name="item.titleSlotName" :column-config="item">
-                <div v-if="item.title" class="title-name pl-1 text-[var(--color-text-3)]">
+                <div v-if="item.title" class="title-name text-[var(--color-text-3)]">
                   {{ t(item.title as string) }}
                 </div>
               </slot>

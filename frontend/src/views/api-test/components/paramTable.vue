@@ -222,7 +222,7 @@
         :options="columnConfig.typeOptions || []"
         class="ms-form-table-input w-[180px]"
         size="mini"
-        @change="() => addTableLine(rowIndex)"
+        @change="(val) => handleScopeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
     </template>
     <!-- 参数值 -->
@@ -282,7 +282,7 @@
     <!-- 文件 -->
     <template #file="{ record, rowIndex }">
       <MsAddAttachment
-        :file-list="[record]"
+        :file-list="[record.file]"
         :disabled="props.disabledParamValue"
         :multiple="false"
         mode="input"
@@ -500,6 +500,9 @@
         size="small"
         type="line"
         class="ml-[8px]"
+        :before-change="
+          (newValue) => (props.enableChangeIntercept ? props.enableChangeIntercept(record, newValue) : undefined)
+        "
         @change="() => addTableLine(rowIndex)"
       />
     </template>
@@ -624,6 +627,7 @@
   import { groupCategoryEnvList, groupProjectEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId } from '@/utils';
 
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import { HttpForm, ProjectOptionItem } from '@/models/projectManagement/environmental';
@@ -686,6 +690,9 @@
       fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
       fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
       fileModuleOptionsApi?: (projectId: string) => Promise<ModuleTreeNode[]>; // 文件转存目录下拉框接口
+      deleteIntercept?: (record: any, deleteCall: () => void) => void; // 删除行拦截器
+      typeChangeIntercept?: (record: any, doChange: () => void) => void; // type 列切换拦截
+      enableChangeIntercept?: (record: any, val: string | number | boolean) => boolean | Promise<boolean>; // enable 列切换拦截
     }>(),
     {
       params: () => [],
@@ -734,8 +741,15 @@
       emit('treeDelete', record);
       return;
     }
-    paramsData.value.splice(rowIndex, 1);
-    emitChange('deleteParam');
+    if (props.deleteIntercept) {
+      props.deleteIntercept(record, () => {
+        paramsData.value.splice(rowIndex, 1);
+        emitChange('deleteParam');
+      });
+    } else {
+      paramsData.value.splice(rowIndex, 1);
+      emitChange('deleteParam');
+    }
   }
 
   /** 断言-文档-Begin */
@@ -866,13 +880,13 @@
     if (rowIndex === paramsData.value.length - 1) {
       // Don't change this!!!
       // 最后一行的更改才会触发添加新一行
-      const id = new Date().getTime().toString();
+      const id = getGenerateId();
       const lastLineData = paramsData.value[rowIndex]; // 上一行数据
       const selectColumnKeys = props.columns.filter((e) => e.typeOptions).map((e) => e.dataIndex); // 找到下拉框选项的列
       const nextLine = {
         id,
-        ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
+        ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
       } as any;
       selectColumnKeys.forEach((key) => {
         // 如果是更改了下拉框导致添加新的一列，需要将更改后的下拉框的值应用到下一行（产品为了方便统一输入参数类型）
@@ -908,7 +922,7 @@
             hasNoIdItem = true;
             return {
               ...cloneDeep(props.defaultParamItem),
-              id: new Date().getTime() + i,
+              id: getGenerateId(),
             };
           }
           if (!item.id) {
@@ -916,7 +930,7 @@
             hasNoIdItem = true;
             return {
               ...item,
-              id: new Date().getTime() + i,
+              id: getGenerateId(),
             };
           }
           return item;
@@ -926,12 +940,12 @@
         }
       } else {
         if (props.disabledExceptParam) return;
-        const id = new Date().getTime().toString();
+        const id = getGenerateId();
         paramsData.value = [
           {
             id, // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
-            ...cloneDeep(props.defaultParamItem),
             enable: true, // 是否勾选
+            ...cloneDeep(props.defaultParamItem),
           },
         ] as any[];
         emitChange('watch props.params', true);
@@ -1006,20 +1020,18 @@
       if (props.uploadTempFileApi && file?.local) {
         appStore.showLoading();
         const res = await props.uploadTempFileApi(file.file);
-        record = {
-          ...record,
+        record.file = {
           ...file,
           fileId: res.data,
           fileName: file.name || '',
           fileAlias: file.name || '',
         };
-      } else if (file) {
-        record = {
-          ...record,
-          ...file,
-          fileId: file.uid || file.fileId || '',
-          fileName: file.originalName || '',
-          fileAlias: file.name || '',
+      } else if (files[0]) {
+        record.file = {
+          ...files[0],
+          fileId: files[0].uid || files[0].fileId || '',
+          fileName: files[0].originalName || '',
+          fileAlias: files[0].name || '',
         };
       }
       addTableLine(rowIndex);
@@ -1099,6 +1111,23 @@
       }
     }
     emitChange('handleTypeChange');
+  }
+
+  function handleScopeChange(
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
+    record: Record<string, any>,
+    rowIndex: number,
+    addLineDisabled?: boolean
+  ) {
+    if (props.typeChangeIntercept) {
+      props.typeChangeIntercept(record, () => {
+        addTableLine(rowIndex, addLineDisabled);
+        emitChange('handleScopeChange');
+      });
+    } else {
+      addTableLine(rowIndex, addLineDisabled);
+      emitChange('handleScopeChange');
+    }
   }
 
   /**

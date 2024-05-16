@@ -22,6 +22,8 @@
             v-if="activeKey === ScenarioCreateComposition.PARAMS"
             v-model:commonVariables="scenario.scenarioConfig.variable.commonVariables"
             v-model:csvVariables="scenario.scenarioConfig.variable.csvVariables"
+            :scenario-id="scenario.id"
+            @change="() => (scenario.unSaved = true)"
           />
         </a-tab-pane>
         <a-tab-pane
@@ -40,7 +42,7 @@
           <assertion
             v-if="activeKey === ScenarioCreateComposition.ASSERTION"
             v-model:assertion-config="scenario.scenarioConfig.assertionConfig"
-            @change="scenario.unSaved = true"
+            @change="() => (scenario.unSaved = true)"
           />
           <template #title>
             <div class="flex items-center">

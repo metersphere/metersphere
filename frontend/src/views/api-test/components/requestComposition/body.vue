@@ -33,7 +33,7 @@
     :file-save-as-api="props.fileSaveAsApi"
     :file-module-options-api="props.fileModuleOptionsApi"
     @change="handleParamTableChange"
-    @batch-add="batchAddKeyValVisible = true"
+    @batch-add="() => (batchAddKeyValVisible = true)"
   />
   <paramTable
     v-else-if="innerParams.bodyType === RequestBodyFormat.WWW_FORM"
@@ -47,7 +47,7 @@
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_URL_ENCODE"
     :default-param-item="defaultBodyParamsItem"
     @change="handleParamTableChange"
-    @batch-add="batchAddKeyValVisible = true"
+    @batch-add="() => (batchAddKeyValVisible = true)"
   />
   <div v-else-if="innerParams.bodyType === RequestBodyFormat.BINARY">
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
