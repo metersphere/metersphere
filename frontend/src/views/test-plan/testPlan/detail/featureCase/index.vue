@@ -14,11 +14,12 @@
       <CaseTable
         ref="caseTableRef"
         :plan-id="planId"
+        :repeat-case="props.repeatCase"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
         @get-module-count="getModuleCount"
-        @execute-done="emit('executeDone')"
+        @refresh="emit('refresh')"
       ></CaseTable>
     </template>
   </MsSplitBox>
@@ -37,8 +38,12 @@
   import { ModuleTreeNode } from '@/models/common';
   import type { PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
 
+  const props = defineProps<{
+    repeatCase: boolean;
+  }>();
+
   const emit = defineEmits<{
-    (e: 'executeDone'): void;
+    (e: 'refresh'): void;
   }>();
 
   const route = useRoute();

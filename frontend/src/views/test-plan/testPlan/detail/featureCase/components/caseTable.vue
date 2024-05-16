@@ -16,7 +16,13 @@
         </template>
       </a-button>
     </div>
-    <MsBaseTable v-bind="propsRes" :action-config="batchActions" v-on="propsEvent" @batch-action="handleTableBatch">
+    <MsBaseTable
+      v-bind="propsRes"
+      :action-config="batchActions"
+      v-on="propsEvent"
+      @batch-action="handleTableBatch"
+      @drag-change="handleDragChange"
+    >
       <template #num="{ record }">
         <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
       </template>
@@ -70,11 +76,18 @@
         </MsPopconfirm>
         <!-- TODO: 修改permission -->
         <a-divider
+          v-if="props.repeatCase"
           v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
           direction="vertical"
           :margin="8"
         ></a-divider>
-        <MsButton v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']" type="text" class="!mr-0">
+        <MsButton
+          v-if="props.repeatCase"
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+          type="text"
+          class="!mr-0"
+          @click="handleCopyCase(record)"
+        >
           {{ t('common.copy') }}
         </MsButton>
       </template>
@@ -164,11 +177,13 @@
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
   import {
+    associationCaseToPlan,
     batchDisassociateCase,
     batchExecuteCase,
     batchUpdateCaseExecutor,
     disassociateCase,
     getPlanDetailFeatureCaseList,
+    sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
   import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -177,7 +192,7 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ModuleTreeNode } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type {
     ExecuteFeatureCaseFormParams,
     PlanDetailFeatureCaseItem,
@@ -200,11 +215,12 @@
     offspringIds: string[];
     planId: string;
     moduleTree: ModuleTreeNode[];
+    repeatCase: boolean;
   }>();
 
   const emit = defineEmits<{
     (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
-    (e: 'executeDone'): void;
+    (e: 'refresh'): void;
   }>();
 
   const { t } = useI18n();
@@ -282,6 +298,14 @@
       showTooltip: true,
       width: 200,
       showDrag: true,
+    },
+    {
+      title: 'common.belongProject',
+      dataIndex: 'projectName',
+      showTooltip: true,
+      showInTable: false,
+      showDrag: true,
+      width: 150,
     },
     {
       title: 'testPlan.featureCase.bugCount',
@@ -410,6 +434,54 @@
     loadList();
   }
 
+  // 拖拽排序
+  async function handleDragChange(params: DragSortParams) {
+    try {
+      await sortFeatureCase({ ...params, testPlanId: props.planId });
+      Message.success(t('caseManagement.featureCase.sortSuccess'));
+      loadCaseList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 复制用例
+  async function handleCopyCase(record: PlanDetailFeatureCaseItem) {
+    try {
+      await associationCaseToPlan({
+        functionalSelectIds: [record.caseId],
+        testPlanId: props.planId,
+      });
+      Message.success(t('ms.case.associate.associateSuccess'));
+      resetCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 取消关联
+  const disassociateLoading = ref(false);
+  async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
+    try {
+      disassociateLoading.value = true;
+      await disassociateCase({ testPlanId: props.planId, id: record.id });
+      if (done) {
+        done();
+      }
+      Message.success(t('common.unLinkSuccess'));
+      resetCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      disassociateLoading.value = false;
+    }
+  }
+
   // 批量取消关联用例
   function handleBatchDisassociateCase() {
     openModal({
@@ -426,6 +498,7 @@
           });
           Message.success(t('common.updateSuccess'));
           resetCaseList();
+          emit('refresh');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -451,7 +524,7 @@
       Message.success(t('common.updateSuccess'));
       resetSelector();
       loadList();
-      emit('executeDone');
+      emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -510,25 +583,6 @@
         break;
       default:
         break;
-    }
-  }
-
-  // 取消关联
-  const disassociateLoading = ref(false);
-  async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
-    try {
-      disassociateLoading.value = true;
-      await disassociateCase({ testPlanId: props.planId, id: record.id });
-      if (done) {
-        done();
-      }
-      Message.success(t('common.unLinkSuccess'));
-      resetCaseList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      disassociateLoading.value = false;
     }
   }
 
