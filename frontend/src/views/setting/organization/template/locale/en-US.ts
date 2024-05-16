@@ -103,6 +103,7 @@ export default {
   'system.orgTemplate.textDescription': 'Text description',
   'system.orgTemplate.stepTip': 'Please enter steps',
   'system.orgTemplate.expectationTip': 'Please enter expectations',
+  'system.orgTemplate.actualResultTip': 'Please enter actuality',
   'system.orgTemplate.addAttachment': 'Add attachment',
   'system.orgTemplate.addAttachmentTip': 'Support any type of file, the file size does not exceed 50MB',
   'system.orgTemplate.enabledSuccessfully': 'Enabled successfully',

@@ -102,6 +102,7 @@ export default {
   'system.orgTemplate.textDescription': '文本描述',
   'system.orgTemplate.stepTip': '请输入步骤',
   'system.orgTemplate.expectationTip': '请输入预期',
+  'system.orgTemplate.actualResultTip': '请输入实际',
   'system.orgTemplate.addAttachment': '添加附件',
   'system.orgTemplate.addAttachmentTip': '支持任意类型文件，文件大小不超过 50MB',
   'system.orgTemplate.enabledSuccessfully': '启用成功',

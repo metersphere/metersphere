@@ -86,7 +86,11 @@ export interface StepList {
   expected: string; // 预期
   showStep: boolean; // 编辑步骤模式
   showExpected: boolean; // 编辑预期模式
+  actualResult?: string; // 实际
+  executeResult?: string; // 步骤执行结果
 }
+
+export type StepExecutionResult = Pick<StepList, 'actualResult' | 'executeResult'>;
 
 // 关联文件列表
 export interface AssociatedList {

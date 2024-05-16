@@ -33,17 +33,18 @@
   import { defaultExecuteForm } from '@/config/testPlan';
 
   import type { ExecuteFeatureCaseFormParams } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const form = defineModel<ExecuteFeatureCaseFormParams>('form', {
-    required: true,
+    default: () => ({ ...defaultExecuteForm }),
   });
 
   const formRef = ref<FormInstance>();
 
   const executionResultList = computed(() =>
-    Object.values(executionResultMap).filter((item) => item.key !== 'UN_EXECUTED')
+    Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.UN_EXECUTED)
   );
 
   async function handleUploadImage(file: File) {
