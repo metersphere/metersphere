@@ -15,7 +15,8 @@ VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 1, 'TEST_MINDER_MODULE_ID_GYQ', 'pro
     ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', 6, 'TEST_MINDER_MODULE_ID_GYQ5', 'project-case-minder-test', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
        ('TEST_FUNCTIONAL_MINDER_CASE_ID_8', 3, 'TEST_MINDER_MODULE_ID_GYQ2', 'project-case-minder-test', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 25000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_8', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
 
-       ('TEST_FUNCTIONAL_MINDER_CASE_ID_7', 7, 'TEST_MINDER_MODULE_ID_GYQ6', 'project-case-minder-test-xx', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_7', 7, 'TEST_MINDER_MODULE_ID_GYQ6', 'project-case-minder-test-xx', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_9', 8, 'TEST_MINDER_MODULE_ID_GYQ6', 'project-case-minder-test', '100001', 'copy_用来删除', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 
 
@@ -41,7 +42,9 @@ VALUES
     ('TEST_MINDER_MODULE_ID_GYQ5', 'project-case-minder-test', '测试所属模块5', 'TEST_MINDER_MODULE_ID_GYQ4', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
     ('TEST_MINDER_MODULE_ID_GYQ7', 'project-case-minder-test', '测试所属模块7', 'TEST_MINDER_MODULE_ID_GYQ', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
     ('TEST_MINDER_MODULE_ID_GYQ8', 'project-case-minder-test', '测试所属模块8', 'TEST_MINDER_MODULE_ID_GYQ', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
-    ('TEST_MINDER_MODULE_ID_GYQ6', 'project-case-minder-test-xx', '测试所属模块1', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+    ('TEST_MINDER_MODULE_ID_GYQ6', 'project-case-minder-test-xx', '测试所属模块1', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
+    ('TEST_MINDER_MODULE_ID_GYQ9', 'project-case-minder-test', '用来删除', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+;
 
 
 

@@ -7,25 +7,19 @@ import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
-import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author wx
@@ -196,86 +187,7 @@ public class FunctionalCaseLogService {
         }
         return dtoList;
     }
-
-    public List<LogDTO> batchUpdateFunctionalCaseLogByIds(List<String> ids, String path) {
-        List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
-            functionalCases.forEach(functionalCase -> {
-                LogDTO dto = new LogDTO(
-                        functionalCase.getProjectId(),
-                        null,
-                        functionalCase.getId(),
-                        null,
-                        OperationLogType.UPDATE.name(),
-                        OperationLogModule.FUNCTIONAL_CASE,
-                        functionalCase.getName());
-
-                dto.setPath(path);
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
-                dtoList.add(dto);
-            });
-        }
-        return dtoList;
-    }
-
-    public List<LogDTO> deleteBatchMinderFunctionalCaseLog(List<MinderOptionDTO> resourceList) {
-        if (CollectionUtils.isEmpty(resourceList)) {
-            return new ArrayList<>();
-        }
-        String path = "/functional/mind/case/batch/delete/";
-        List<String> caseAllIds = new ArrayList<>();
-        Map<String, List<MinderOptionDTO>> resourceMap = resourceList.stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
-        List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.case"));
-        if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
-            List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-            caseAllIds.addAll(caseIds);
-        }
-        List<MinderOptionDTO> moduleOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.module"));
-        if (CollectionUtils.isNotEmpty(moduleOptionDTOS)) {
-            List<String> moduleIds = moduleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-            List<FunctionalCase> functionalCaseByModuleIds = getFunctionalCaseByModuleIds(moduleIds, new ArrayList<>());
-            List<String> list = functionalCaseByModuleIds.stream().map(FunctionalCase::getId).toList();
-            caseAllIds.addAll(list);
-        }
-
-        Set<String> strings = resourceMap.keySet();
-        List<LogDTO>logDTOS = new ArrayList<>();
-        List<String>ids = new ArrayList<>();
-        for (String key : strings) {
-            if (StringUtils.equalsIgnoreCase(key, Translator.get("minder_extra_node.case")) ||  StringUtils.equalsIgnoreCase(key, Translator.get("minder_extra_node.module"))) {
-                List<LogDTO> logDTOS1 = batchDeleteFunctionalCaseLogByIds(caseAllIds, path);
-                logDTOS.addAll(logDTOS1);
-            } else {
-                //更新
-                List<MinderOptionDTO> keyOptionDTOS = resourceMap.get(key);
-                if (CollectionUtils.isNotEmpty(keyOptionDTOS)) {
-                    List<String> list = keyOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-                    ids.addAll(list);
-                }
-            }
-        }
-        List<LogDTO> logDTOS1 = batchUpdateFunctionalCaseLogByIds(ids, path);
-        logDTOS.addAll(logDTOS1);
-        return logDTOS;
-    }
-
-    public List<FunctionalCase> getFunctionalCaseByModuleIds(List<String> deleteIds, List<FunctionalCase> functionalCases) {
-        if (CollectionUtils.isEmpty(deleteIds)) {
-            return functionalCases;
-        }
-        List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.checkCaseByModuleIds(deleteIds);
-        if (CollectionUtils.isNotEmpty(functionalCaseList)) {
-            functionalCases.addAll(functionalCaseList);
-        }
-        List<String> childrenIds = extFunctionalCaseModuleMapper.selectChildrenIdsByParentIds(deleteIds);
-        if (CollectionUtils.isNotEmpty(childrenIds)) {
-            getFunctionalCaseByModuleIds(childrenIds, functionalCases);
-        }
-        return functionalCases;
-    }
-
+    
     /**
      * 恢复项目
      *
@@ -505,35 +417,6 @@ public class FunctionalCaseLogService {
             return dto;
         }
         return null;
-    }
-
-    public LogDTO updateMinderFunctionalCaseLog(FunctionalCaseMinderEditRequest request) {
-        if (StringUtils.equalsIgnoreCase(request.getType(), Translator.get("minder_extra_node.module"))) {
-            return null;
-        }
-        FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(request.getId());
-        LogDTO dto = getUpdateLogDTO(request.getProjectId(), request.getId(), request.getName(), "/functional/case/update");
-        dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
-        FunctionalCaseHistoryLogDTO newDto = new FunctionalCaseHistoryLogDTO();
-        BeanUtils.copyBean(newDto, historyLogDTO);
-        if (StringUtils.isNotBlank(request.getName())) {
-            newDto.getFunctionalCase().setName(request.getName());
-        }
-        if (StringUtils.isNotBlank(request.getPriority())) {
-            List<FunctionalCaseCustomField> functionalCaseCustomFields = newDto.getCustomFields();
-            CustomFieldExample example = new CustomFieldExample();
-            example.createCriteria().andNameEqualTo("functional_priority").andSceneEqualTo("FUNCTIONAL").andScopeIdEqualTo(request.getProjectId());
-            List<CustomField> customFields = customFieldMapper.selectByExample(example);
-            String field = customFields.get(0).getId();
-            for (FunctionalCaseCustomField customField : functionalCaseCustomFields) {
-                if (StringUtils.equalsIgnoreCase(customField.getFieldId(), field)) {
-                    customField.setValue(request.getPriority());
-                }
-            }
-            newDto.setCustomFields(functionalCaseCustomFields);
-        }
-        dto.setModifiedValue(JSON.toJSONBytes(newDto));
-        return dto;
     }
 
     @NotNull

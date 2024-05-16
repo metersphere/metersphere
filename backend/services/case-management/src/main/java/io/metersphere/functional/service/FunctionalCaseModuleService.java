@@ -132,7 +132,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
             batchDelLog(functionalCases, deleteModule.getProjectId());
             List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
             User user = userMapper.selectByPrimaryKey(userId);
-            functionalCaseNoticeService.batchSendNotice(deleteModule.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
+            functionalCaseNoticeService.batchSendNotice(deleteModule.getProjectId(), ids, user, NoticeConstants.Event.DELETE);
         }
     }
 

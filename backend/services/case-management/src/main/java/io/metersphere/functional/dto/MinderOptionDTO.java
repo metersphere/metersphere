@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MinderOptionDTO {
 
-    @Schema(description = "节点ID，如果是用例的子节点，比如 前置条件，步骤描述，等传其父节点ID")
+    @Schema(description = "节点ID(用例/模块的id)")
     @NotBlank(message = "{functional_case.id.not_blank}")
     private String id;
 
@@ -22,7 +22,4 @@ public class MinderOptionDTO {
     @NotBlank(message = "{functional_case_test.test_type.not_blank}")
     private String type;
 
-    @Schema(description = "节点顺序")
-    @NotBlank(message = "{functional_case.pos.not_blank}")
-    private Long pos;
 }
