@@ -95,6 +95,12 @@
                   @change="handleStepContentChange($event, step)"
                   @click.stop
                 />
+                <csvTag
+                  :step="step"
+                  :csv-variables="scenario.scenarioConfig.variable.csvVariables"
+                  @remove="(id) => removeCsv(step, id)"
+                  @replace="(id) => replaceCsv(step, id)"
+                />
                 <!-- 自定义请求、API、CASE、场景步骤名称 -->
                 <template v-if="checkStepIsApi(step)">
                   <apiMethodName v-if="checkStepShowMethod(step)" :method="step.config.method" />
@@ -176,9 +182,9 @@
             v-model:steps="steps"
             v-permission="['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEFINITION:READ+UPDATE']"
             :step="step"
-            @click="setFocusNodeKey(step.uniqueId)"
+            @click="() => setFocusNodeKey(step.uniqueId)"
             @other-create="handleOtherCreate"
-            @close="setFocusNodeKey('')"
+            @close="() => setFocusNodeKey('')"
             @add-done="handleAddStepDone"
           />
         </template>
@@ -223,9 +229,9 @@
       :permission-map="permissionMap"
       :steps="steps"
       @add-step="addCustomApiStep"
-      @delete-step="deleteStep(activeStep)"
+      @delete-step="() => deleteStep(activeStep)"
       @apply-step="applyApiStep"
-      @stop-debug="handleStopExecute(activeStep)"
+      @stop-debug="() => handleStopExecute(activeStep)"
       @execute="handleApiExecute"
       @replace="handleReplaceStep"
     />
@@ -239,8 +245,8 @@
       :step-responses="scenario.stepResponses"
       :permission-map="permissionMap"
       @apply-step="applyApiStep"
-      @delete-step="deleteStep(activeStep)"
-      @stop-debug="handleStopExecute(activeStep)"
+      @delete-step="() => deleteStep(activeStep)"
+      @stop-debug="() => handleStopExecute(activeStep)"
       @execute="(request, executeType) => handleApiExecute((request as unknown as RequestParam), executeType)"
       @replace="handleReplaceStep"
     />
@@ -439,6 +445,13 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <quoteCsvDrawer
+      v-model:visible="csvDrawerVisible"
+      :csv-variables="scenario.scenarioConfig.variable.csvVariables"
+      :exclude-keys="activeStep?.csvIds"
+      :is-single="!!replaceCsvId"
+      @confirm="handleQuoteCsvConfirm"
+    />
   </div>
 </template>
 
@@ -451,12 +464,14 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
-  import { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import { ImportData } from '../common/importApiDrawer/index.vue';
+  import quoteCsvDrawer from '../common/quoteCsvDrawer.vue';
   import stepType from '../common/stepType/stepType.vue';
   import createStepActions from './createAction/createStepActions.vue';
   import stepInsertStepTrigger from './createAction/stepInsertStepTrigger.vue';
   import conditionContent from './stepNodeComposition/conditionContent.vue';
+  import csvTag from './stepNodeComposition/csvTag.vue';
   import loopControlContent from './stepNodeComposition/loopContent.vue';
   import quoteContent from './stepNodeComposition/quoteContent.vue';
   import waitTimeContent from './stepNodeComposition/waitTimeContent.vue';
@@ -464,37 +479,23 @@
   import { RequestParam as CaseRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import saveAsApiModal from '@/views/api-test/components/saveAsApiModal.vue';
 
-  import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import { addCase, getDefinitionDetail } from '@/api/modules/api-test/management';
-  import { debugScenario, getScenarioDetail, getScenarioStep } from '@/api/modules/api-test/scenario';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
+  import { getScenarioDetail, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import {
-    deleteNode,
-    findNodeByKey,
-    getGenerateId,
-    handleTreeDragDrop,
-    insertNodes,
-    mapTree,
-    traverseTree,
-    TreeNode,
-  } from '@/utils';
+  import { deleteNode, findNodeByKey, getGenerateId, insertNodes, mapTree, TreeNode } from '@/utils';
 
   import {
     ExecuteApiRequestFullParams,
     ExecuteConditionProcessor,
     ExecutePluginRequestParams,
-    RequestResult,
   } from '@/models/apiTest/common';
   import { AddApiCaseParams } from '@/models/apiTest/management';
   import {
-    ApiScenarioDebugRequest,
     CreateStepAction,
     Scenario,
     ScenarioStepConfig,
-    ScenarioStepDetail,
     ScenarioStepDetails,
     ScenarioStepFileParams,
     ScenarioStepItem,
@@ -508,8 +509,10 @@
   } from '@/enums/apiEnum';
 
   import type { RequestParam } from '../common/customApiDrawer.vue';
-  import updateStepStatus from '../utils';
   import useCreateActions from './createAction/useCreateActions';
+  import useStepExecute from './useStepExecute';
+  import useStepNodeEdit from './useStepNodeEdit';
+  import useStepOperation from './useStepOperation';
   import { casePriorityOptions, caseStatusOptions } from '@/views/api-test/components/config';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
@@ -563,6 +566,15 @@
   const focusStepKey = ref<string | number>(''); // 聚焦的key
   const activeStep = ref<ScenarioStepItem>(); // 用于弹窗配置时记录当前操作的步骤节点
   const activeStepByCreate = ref<ScenarioStepItem | undefined>(); // 用于抽屉操作创建步骤时记录当前操作的步骤节点
+
+  const { executeStep, handleApiExecute, handleStopExecute } = useStepExecute({
+    scenario,
+    steps,
+    stepDetails,
+    activeStep,
+    isPriorityLocalExec,
+    localExecuteUrl,
+  });
 
   function setFocusNodeKey(id: string | number) {
     focusStepKey.value = id || '';
@@ -704,6 +716,14 @@
           danger: true,
         },
       ];
+    }
+    if ((node as ScenarioStepItem).stepType === ScenarioStepType.LOOP_CONTROLLER) {
+      const arr = [...stepMoreActions];
+      arr.splice(1, 0, {
+        label: 'apiScenario.quoteCsv',
+        eventTag: 'quoteCsv',
+      });
+      return arr;
     }
     return stepMoreActions;
   }
@@ -938,6 +958,33 @@
     });
   }
 
+  const csvDrawerVisible = ref(false);
+  const replaceCsvId = ref('');
+  function removeCsv(step: ScenarioStepItem, id?: string) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
+    if (id && realStep) {
+      realStep.csvIds = realStep.csvIds.filter((item: string) => item !== id);
+    }
+  }
+
+  function replaceCsv(step: ScenarioStepItem, id?: string) {
+    csvDrawerVisible.value = true;
+    activeStep.value = step;
+    replaceCsvId.value = id || '';
+  }
+
+  function handleQuoteCsvConfirm(keys: string[]) {
+    if (activeStep.value) {
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
+      if (replaceCsvId.value && realStep) {
+        const index = realStep.csvIds.findIndex((item: string) => item === replaceCsvId.value);
+        realStep.csvIds?.splice(index, 1, keys[0]);
+      } else if (realStep) {
+        realStep.csvIds?.push(...keys);
+      }
+    }
+  }
+
   function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
     switch (item.eventTag) {
       case 'copy':
@@ -1048,6 +1095,11 @@
         activeStep.value = node as ScenarioStepItem;
         saveCaseModalVisible.value = true;
         break;
+      case 'quoteCsv':
+        activeStep.value = node as ScenarioStepItem;
+        replaceCsvId.value = '';
+        csvDrawerVisible.value = true;
+        break;
       default:
         break;
     }
@@ -1062,87 +1114,11 @@
    */
   const showStepNameEditInputStepId = ref<string | number>('');
   const tempStepName = ref('');
-  function handleStepNameClick(step: ScenarioStepItem) {
-    tempStepName.value = step.name;
-    showStepNameEditInputStepId.value = step.uniqueId;
-    nextTick(() => {
-      // 等待输入框渲染完成后聚焦
-      const input = treeRef.value?.$el.querySelector('.name-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
-      input?.focus();
-    });
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.draggable = false; // 编辑时禁止拖拽
-    }
-  }
-
-  function applyStepNameChange(step: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.name = tempStepName.value || realStep.name;
-      realStep.draggable = true; // 编辑完恢复拖拽
-    }
-    showStepNameEditInputStepId.value = '';
-    scenario.value.unSaved = !!tempStepName.value;
-  }
-
   /**
    * 处理非 api、case、场景步骤名称编辑
    */
   const showStepDescEditInputStepId = ref<string | number>('');
   const tempStepDesc = ref('');
-  function handleStepDescClick(step: ScenarioStepItem) {
-    tempStepDesc.value = step.name;
-    showStepDescEditInputStepId.value = step.uniqueId;
-    nextTick(() => {
-      // 等待输入框渲染完成后聚焦
-      const input = treeRef.value?.$el.querySelector('.desc-warp .arco-input-wrapper .arco-input') as HTMLInputElement;
-      input?.focus();
-    });
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.draggable = false; // 编辑时禁止拖拽
-    }
-  }
-
-  function applyStepDescChange(step: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.name = tempStepDesc.value || realStep.name;
-      realStep.draggable = true; // 编辑完恢复拖拽
-    }
-    showStepDescEditInputStepId.value = '';
-    scenario.value.unSaved = !!tempStepDesc.value;
-  }
-
-  function handleStepContentChange($event: Record<string, any>, step: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-    if (realStep) {
-      Object.keys($event).forEach((key) => {
-        realStep.config[key] = $event[key];
-      });
-      scenario.value.unSaved = true;
-    }
-  }
-
-  /**
-   * 处理步骤展开折叠
-   */
-  function handleStepExpand(data: MsTreeExpandedData) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.node?.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.expanded = !realStep.expanded;
-    }
-  }
-
-  function handleStepToggleEnable(data: ScenarioStepItem) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, data.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.enable = !realStep.enable;
-      scenario.value.unSaved = true;
-    }
-  }
-
   const importApiDrawerVisible = ref(false);
   const customCaseDrawerVisible = ref(false);
   const customApiDrawerVisible = ref(false);
@@ -1167,240 +1143,17 @@
     scenario.value.unSaved = true;
   }
 
-  /**
-   * 处理步骤选中事件
-   * @param _selectedKeys 选中的 key集合
-   * @param step 点击的步骤节点
-   */
-  async function handleStepSelect(_selectedKeys: Array<string | number>, step: ScenarioStepItem) {
-    const _stepType = getStepType(step);
-    const offspringIds: string[] = [];
-    mapTree(step.children || [], (e) => {
-      offspringIds.push(e.uniqueId);
-      return e;
-    });
-    selectedKeys.value = [step.uniqueId, ...offspringIds];
-    if (_stepType.isCopyApi || _stepType.isQuoteApi || step.stepType === ScenarioStepType.CUSTOM_REQUEST) {
-      // 复制 api、引用 api、自定义 api打开抽屉
-      activeStep.value = step;
-      if (
-        (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
-        (stepDetails.value[step.id] === undefined && !step.isNew)
-      ) {
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
-        await getStepDetail(step);
-      }
-      customApiDrawerVisible.value = true;
-    } else if (step.stepType === ScenarioStepType.API_CASE) {
-      activeStep.value = step;
-      if (
-        _stepType.isCopyCase &&
-        ((stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
-          (stepDetails.value[step.id] === undefined && !step.isNew))
-      ) {
-        // 只有复制的 case 需要查看步骤详情，引用的无法更改所以不需要在此初始化详情
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
-        await getStepDetail(step);
-      }
-      customCaseDrawerVisible.value = true;
-    } else if (step.stepType === ScenarioStepType.SCRIPT) {
-      activeStep.value = step;
-      if (
-        (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
-        (stepDetails.value[step.id] === undefined && !step.isNew)
-      ) {
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
-        await getStepDetail(step);
-      }
-      scriptOperationDrawerVisible.value = true;
-    }
-  }
-
-  const websocketMap: Record<string | number, WebSocket> = {};
-
-  /**
-   * 开启websocket监听，接收执行结果
-   */
-  function debugSocket(step: ScenarioStepItem, _scenario: Scenario, reportId: string | number) {
-    websocketMap[reportId] = getSocket(
-      reportId || '',
-      scenario.value.executeType === 'localExec' ? '/ws/debug' : '',
-      scenario.value.executeType === 'localExec' ? localExecuteUrl?.value : ''
-    );
-    websocketMap[reportId].addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (step.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          data.taskResult.requestResults.forEach((result: RequestResult) => {
-            if (_scenario.stepResponses[result.stepId] === undefined) {
-              _scenario.stepResponses[result.stepId] = [];
-            }
-            _scenario.stepResponses[result.stepId].push({
-              ...result,
-              console: data.taskResult.console,
-            });
-          });
-        }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocketMap[reportId]?.close();
-        if (step.reportId === data.reportId) {
-          step.isExecuting = false;
-          updateStepStatus([step], _scenario.stepResponses, step.uniqueId);
-        }
-      }
-    });
-  }
-
-  async function realExecute(
-    executeParams: Pick<ApiScenarioDebugRequest, 'steps' | 'stepDetails' | 'reportId' | 'stepFileParam'>
-  ) {
-    const [currentStep] = executeParams.steps;
-    try {
-      currentStep.isExecuting = true;
-      currentStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
-      debugSocket(currentStep, scenario.value, executeParams.reportId); // 开启websocket
-      const res = await debugScenario({
-        id: scenario.value.id || '',
-        grouped: false,
-        environmentId: appStore.currentEnvConfig?.id || '',
-        projectId: appStore.currentProjectId,
-        scenarioConfig: scenario.value.scenarioConfig,
-        frontendDebug: scenario.value.executeType === 'localExec',
-        ...executeParams,
-        steps: mapTree(executeParams.steps, (node) => {
-          return {
-            ...node,
-            enable: node.uniqueId === currentStep.uniqueId || node.enable, // 单步骤执行，则临时无视顶层启用禁用状态
-            parent: null, // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
-          };
-        }),
-      });
-      if (scenario.value.executeType === 'localExec' && localExecuteUrl?.value) {
-        await localExecuteApiDebug(localExecuteUrl.value, res);
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      websocketMap[executeParams.reportId].close();
-      currentStep.isExecuting = false;
-      updateStepStatus([currentStep], scenario.value.stepResponses, currentStep.uniqueId);
-    }
-  }
-
-  /**
-   * 单个步骤执行调试
-   */
-  function executeStep(node: MsTreeNodeData) {
-    if (node.isExecuting) {
-      return;
-    }
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, node.uniqueId, 'uniqueId');
-    if (realStep) {
-      realStep.reportId = getGenerateId();
-      const _stepDetails: Record<string, any> = {};
-      const stepFileParam = scenario.value.stepFileParam[realStep.id];
-      traverseTree(
-        realStep,
-        (step) => {
-          if (step.enable || step.uniqueId === realStep.uniqueId) {
-            // 启用的步骤才执行；如果点击的是禁用步骤也执行，但是禁用的子步骤不执行
-            _stepDetails[step.id] = stepDetails.value[step.id];
-            step.executeStatus = ScenarioExecuteStatus.EXECUTING;
-          } else {
-            step.executeStatus = undefined;
-          }
-          delete scenario.value.stepResponses[step.uniqueId]; // 先移除上一次的执行结果
-        },
-        (step) => {
-          // 当前步骤是启用的情或是在禁用的步骤上点击执行，才需要继续递归子孙步骤；否则无需向下递归
-          return step.enable || step.uniqueId === realStep.uniqueId;
-        }
-      );
-      scenario.value.executeType = isPriorityLocalExec?.value ? 'localExec' : 'serverExec';
-      realExecute({
-        steps: [realStep as ScenarioStepItem],
-        stepDetails: _stepDetails,
-        reportId: realStep.reportId,
-        stepFileParam: {
-          [realStep.id]: stepFileParam,
-        },
-      });
-    }
-  }
-
-  /**
-   * 处理 api 详情抽屉的执行动作
-   * @param request 抽屉内的请求参数
-   * @param executeType 执行类型
-   */
-  function handleApiExecute(request: RequestParam, executeType?: 'localExec' | 'serverExec') {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.stepId, 'uniqueId');
-    if (realStep) {
-      delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
-      realStep.reportId = getGenerateId();
-      realStep.executeStatus = ScenarioExecuteStatus.EXECUTING;
-      request.executeLoading = true;
-      scenario.value.executeType = executeType;
-      realExecute({
-        steps: [realStep as ScenarioStepItem],
-        stepDetails: {
-          [realStep.id]: request,
-        },
-        reportId: realStep.reportId,
-        stepFileParam: {
-          [realStep.uniqueId]: {
-            uploadFileIds: request.uploadFileIds || [],
-            linkFileIds: request.linkFileIds || [],
-          },
-        },
-      });
-    } else {
-      // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
-      delete scenario.value.stepResponses[request.stepId]; // 先移除上一次的执行结果
-      const reportId = getGenerateId();
-      request.executeLoading = true;
-      activeStep.value = {
-        id: request.stepId,
-        name: t('apiScenario.customApi'),
-        stepType: ScenarioStepType.CUSTOM_REQUEST,
-        refType: ScenarioStepRefType.DIRECT,
-        sort: 1,
-        enable: true,
-        isNew: true,
-        config: {},
-        projectId: appStore.currentProjectId,
-        isExecuting: false,
-        reportId,
-        uniqueId: request.stepId,
-      };
-      realExecute({
-        steps: [activeStep.value],
-        stepDetails: {
-          [request.stepId]: request,
-        },
-        reportId,
-        stepFileParam: {
-          [request.stepId]: {
-            uploadFileIds: request.uploadFileIds || [],
-            linkFileIds: request.linkFileIds || [],
-          },
-        },
-      });
-    }
-  }
-
-  async function handleStopExecute(step?: ScenarioStepItem) {
-    if (step?.reportId) {
-      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-      websocketMap[step.reportId].close();
-      if (realStep) {
-        realStep.isExecuting = false;
-        updateStepStatus([realStep as ScenarioStepItem], scenario.value.stepResponses, realStep.uniqueId);
-      }
-    }
-  }
+  const { handleStepExpand, handleStepSelect, deleteStep, handleDrop } = useStepOperation({
+    scenario,
+    steps,
+    stepDetails,
+    activeStep,
+    selectedKeys,
+    customApiDrawerVisible,
+    customCaseDrawerVisible,
+    scriptOperationDrawerVisible,
+    loading,
+  });
 
   function handleReplaceStep(newStep: ScenarioStepItem) {
     if (activeStep.value) {
@@ -1617,34 +1370,6 @@
   }
 
   /**
-   * 删除
-   */
-  function deleteStep(step?: ScenarioStepItem) {
-    if (step) {
-      openModal({
-        type: 'error',
-        title: t('common.tip'),
-        content: t('apiScenario.deleteStepConfirm', { name: step.name }),
-        okText: t('common.confirmDelete'),
-        cancelText: t('common.cancel'),
-        okButtonProps: {
-          status: 'danger',
-        },
-        maskClosable: false,
-        onBeforeOk: async () => {
-          customCaseDrawerVisible.value = false;
-          customApiDrawerVisible.value = false;
-          deleteNode(steps.value, step.uniqueId, 'uniqueId');
-          activeStep.value = undefined;
-          scenario.value.unSaved = true;
-          Message.success(t('common.deleteSuccess'));
-        },
-        hideCancel: false,
-      });
-    }
-  }
-
-  /**
    * 添加脚本操作步骤
    */
   function addScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor) {
@@ -1693,126 +1418,33 @@
     }
   }
 
-  /**
-   * 释放允许拖拽步骤到释放的节点内
-   * @param dropNode 释放节点
-   */
-  function isAllowDropInside(dropNode: MsTreeNodeData) {
-    return (
-      // 逻辑控制器内可以拖拽任意类型的步骤
-      [
-        ScenarioStepType.LOOP_CONTROLLER,
-        ScenarioStepType.IF_CONTROLLER,
-        ScenarioStepType.ONCE_ONLY_CONTROLLER,
-      ].includes(dropNode.stepType) ||
-      // 复制的场景内可以释放任意类型的步骤
-      (dropNode.stepType === ScenarioStepType.API_SCENARIO && dropNode.refType === ScenarioStepRefType.COPY)
-    );
-  }
-
-  /**
-   * 处理步骤节点拖拽事件
-   * @param tree 树数据
-   * @param dragNode 拖拽节点
-   * @param dropNode 释放节点
-   * @param dropPosition 释放位置（取值：-1，,0，,1。 -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）
-   */
-  function handleDrop(
-    tree: MsTreeNodeData[],
-    dragNode: MsTreeNodeData,
-    dropNode: MsTreeNodeData,
-    dropPosition: number
-  ) {
-    try {
-      if (dropPosition === 0 && !isAllowDropInside(dropNode)) {
-        // Message.error(t('apiScenario.notAllowDropInside')); TODO:不允许释放提示
-        return;
-      }
-      loading.value = true;
-      const offspringIds: string[] = [];
-      mapTree(cloneDeep(dragNode.children || []), (e) => {
-        offspringIds.push(e.uniqueId);
-        return e;
-      });
-      const stepIdAndOffspringIds = [dragNode.uniqueId, ...offspringIds];
-      if (dropPosition === 0) {
-        // 拖拽到节点内
-        if (selectedKeys.value.includes(dropNode.uniqueId)) {
-          // 释放位置的节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
-          selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
-        }
-      } else if (dropNode.parent && selectedKeys.value.includes(dropNode.parent.uniqueId)) {
-        // 释放位置的节点的父节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
-        selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
-      } else if (dragNode.parent && selectedKeys.value.includes(dragNode.parent.uniqueId)) {
-        // 如果被拖动的节点的父节点在选中的节点中，则需要把被拖动的节点及其子孙节点从选中的节点中移除
-        selectedKeys.value = selectedKeys.value.filter((e) => {
-          for (let i = 0; i < stepIdAndOffspringIds.length; i++) {
-            const id = stepIdAndOffspringIds[i];
-            if (e === id) {
-              stepIdAndOffspringIds.splice(i, 1);
-              return false;
-            }
-          }
-          return true;
-        });
-      }
-      const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'uniqueId');
-      if (dragResult) {
-        Message.success(t('common.moveSuccess'));
-        scenario.value.unSaved = true;
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      nextTick(() => {
-        loading.value = false;
-      });
-    }
-  }
-
   const showQuickInput = ref(false);
   const quickInputParamValue = ref<any>('');
   const quickInputDataKey = ref('');
 
-  function setQuickInput(step: ScenarioStepItem, dataKey: keyof ScenarioStepDetail) {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
-    if (realStep) {
-      activeStep.value = realStep as ScenarioStepItem;
-    }
-    quickInputDataKey.value = dataKey;
-    quickInputParamValue.value = step.config?.[dataKey] || '';
-    if (quickInputDataKey.value === 'msWhileVariableValue' && activeStep.value?.config.whileController) {
-      quickInputParamValue.value = activeStep.value.config.whileController.msWhileVariable.value;
-    } else if (quickInputDataKey.value === 'msWhileVariableScriptValue' && activeStep.value?.config.whileController) {
-      quickInputParamValue.value = activeStep.value.config.whileController.msWhileScript.scriptValue;
-    } else if (quickInputDataKey.value === 'conditionValue' && activeStep.value?.config) {
-      quickInputParamValue.value = activeStep.value.config.value || '';
-    }
-    showQuickInput.value = true;
-  }
-
-  function clearQuickInput() {
-    activeStep.value = undefined;
-    quickInputParamValue.value = '';
-    quickInputDataKey.value = '';
-  }
-
-  function applyQuickInput() {
-    if (activeStep.value) {
-      if (quickInputDataKey.value === 'msWhileVariableValue' && activeStep.value.config.whileController) {
-        activeStep.value.config.whileController.msWhileVariable.value = quickInputParamValue.value;
-      } else if (quickInputDataKey.value === 'msWhileVariableScriptValue' && activeStep.value.config.whileController) {
-        activeStep.value.config.whileController.msWhileScript.scriptValue = quickInputParamValue.value;
-      } else if (quickInputDataKey.value === 'conditionValue' && activeStep.value.config) {
-        activeStep.value.config.value = quickInputParamValue.value;
-      }
-      showQuickInput.value = false;
-      clearQuickInput();
-      scenario.value.unSaved = true;
-    }
-  }
+  const {
+    setQuickInput,
+    clearQuickInput,
+    applyQuickInput,
+    handleStepDescClick,
+    applyStepDescChange,
+    handleStepContentChange,
+    handleStepToggleEnable,
+    handleStepNameClick,
+    applyStepNameChange,
+  } = useStepNodeEdit({
+    steps,
+    scenario,
+    activeStep,
+    quickInputDataKey,
+    quickInputParamValue,
+    showQuickInput,
+    treeRef,
+    tempStepDesc,
+    showStepDescEditInputStepId,
+    tempStepName,
+    showStepNameEditInputStepId,
+  });
 
   const dbClick = ref({
     e: null as MouseEvent | null,
@@ -1937,8 +1569,6 @@
     }
     .ms-tree-node-extra {
       @apply !visible !w-auto;
-
-      margin-right: 24px;
     }
   }
   .ms-form {

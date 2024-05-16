@@ -7,15 +7,17 @@
       :scroll="props.scroll"
     >
       <template #assertionItem="{ record }">
-        <div class="flex items-center gap-[4px]">
-          【{{
-            t(
-              responseAssertionTypeMap[(record as ResponseAssertionTableItem).assertionType] ||
-                'apiTestDebug.responseBody'
-            )
-          }}】
-          {{ record.name }}
-        </div>
+        <a-tooltip :content="record.name">
+          <div class="flex items-center gap-[4px]">
+            【{{
+              t(
+                responseAssertionTypeMap[(record as ResponseAssertionTableItem).assertionType] ||
+                  'apiTestDebug.responseBody'
+              )
+            }}】
+            {{ record.name }}
+          </div>
+        </a-tooltip>
       </template>
       <template #condition="{ record }">
         {{
@@ -61,7 +63,6 @@
     {
       title: 'apiTestDebug.assertionItem',
       dataIndex: 'assertionItem',
-      showTooltip: true,
       slotName: 'assertionItem',
       width: 200,
     },

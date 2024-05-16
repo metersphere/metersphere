@@ -145,6 +145,7 @@ export default function useCreateActions() {
         children: item.children || [],
         stepType,
         refType,
+        csvIds: [],
         originProjectId: item.originProjectId,
         copyFromStepId: item.copyFromStepId,
         ...resourceField,

@@ -449,7 +449,12 @@
     td {
       background-color: white !important;
     }
-    * {
+    .arco-btn-icon {
+      border-color: var(--color-text-n8);
+      color: var(--color-text-4);
+    }
+    *:not(.arco-btn-icon) {
+      border-color: var(--color-text-n8) !important;
       color: var(--color-text-4) !important;
     }
   }

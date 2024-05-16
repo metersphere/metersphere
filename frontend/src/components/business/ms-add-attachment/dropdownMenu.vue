@@ -1,7 +1,9 @@
 <template>
   <a-dropdown v-model:popup-visible="dropdownVisible" :disabled="props.disabled" position="tl" trigger="click">
     <a-button :disabled="props.disabled" size="mini" type="outline">
-      <template #icon> <icon-upload class="text-[14px] !text-[rgb(var(--primary-5))]" /> </template>
+      <template #icon>
+        <icon-upload class="!hover:text-[rgb(var(--primary-5))] text-[14px] !text-[rgb(var(--primary-5))]" />
+      </template>
     </a-button>
     <template #content>
       <MsUpload

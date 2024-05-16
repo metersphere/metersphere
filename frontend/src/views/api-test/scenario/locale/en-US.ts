@@ -277,4 +277,19 @@ export default {
   'apiScenario.execute.no.step.tips': 'No open step',
   'apiScenario.preConditionTip': 'Execute once before the scene step',
   'apiScenario.postConditionTip': 'Execute once after the scene step',
+  'apiScenario.deleteCsvConfirm': 'Are you sure you want to delete {name}?',
+  'apiScenario.deleteCsvConfirmContent':
+    'After deletion, all scenes using the CSV file will be updated, please operate with caution!',
+  'apiScenario.deleteCsvSuccess': 'Deleted',
+  'apiScenario.changeScopeConfirm': 'Are you sure you want to change the scope to {type}?',
+  'apiScenario.changeScopeToScenarioConfirmContent':
+    'After being changed, the parameters in the CSV file will take effect for the entire scene, so please operate with caution!',
+  'apiScenario.changeScopeToStepConfirmContent':
+    'After modification, the parameters in the CSV file will only take effect for the steps, please operate with caution!',
+  'apiScenario.confirmChange': 'Confirm changes',
+  'apiScenario.changeScopeSuccess': 'Change successful',
+  'apiScenario.quoteCsv': 'Quote CSV',
+  'apiScenario.csvQuote': 'CSV quote',
+  'apiScenario.csvNameNotNull': 'CSV name cannot be empty',
+  'apiScenario.csvFileNotNull': 'CSV file cannot be empty',
 };

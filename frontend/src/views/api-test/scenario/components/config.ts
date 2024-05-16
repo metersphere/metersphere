@@ -76,6 +76,7 @@ export const defaultStepItemCommon = {
   executeStatus: undefined,
   isRefScenarioStep: false,
   isQuoteScenarioStep: false,
+  csvIds: [],
 };
 
 export const defaultScenario: Scenario = {

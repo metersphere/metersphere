@@ -426,13 +426,11 @@ export const defaultNormalParamItem = {
 };
 // 场景-csv参数默认值
 export const defaultCsvParamItem: CsvVariable = {
-  fileId: '',
+  id: '',
   scenarioId: '',
   name: '',
-  fileName: '',
   scope: 'SCENARIO',
-  enable: true,
-  association: false,
+  enable: false,
   encoding: 'UTF-8',
   random: false,
   variableNames: '',
@@ -442,4 +440,11 @@ export const defaultCsvParamItem: CsvVariable = {
   recycleOnEof: false,
   stopThreadOnEof: false,
   settingVisible: false,
+  file: {
+    fileId: '',
+    fileName: '',
+    local: false,
+    fileAlias: '',
+    delete: false,
+  },
 };

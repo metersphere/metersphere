@@ -146,9 +146,14 @@
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
+  import { defaultCsvParamItem, defaultNormalParamItem } from '../components/config';
   import { defaultScenario } from './components/config';
   import updateStepStatus from './components/utils';
-  import { filterAssertions, filterConditionsSqlValidParams } from '@/views/api-test/components/utils';
+  import {
+    filterAssertions,
+    filterConditionsSqlValidParams,
+    filterKeyValParams,
+  } from '@/views/api-test/components/utils';
 
   // 异步导入
   const detail = defineAsyncComponent(() => import('./detail/index.vue'));
@@ -510,6 +515,16 @@
             preProcessorConfig: filterConditionsSqlValidParams(
               activeScenarioTab.value.scenarioConfig.preProcessorConfig
             ),
+            variable: {
+              commonVariables: filterKeyValParams(
+                activeScenarioTab.value.scenarioConfig.variable.commonVariables,
+                defaultNormalParamItem
+              ).validParams,
+              csvVariables: filterKeyValParams(
+                activeScenarioTab.value.scenarioConfig.variable.csvVariables,
+                defaultCsvParamItem
+              ).validParams,
+            },
           },
           projectId: appStore.currentProjectId,
           environmentId: appStore.getCurrentEnvId || '',
