@@ -247,7 +247,8 @@ public class MockServerService {
                 case "JSON" -> responseEntity(responseCode, responseBody.getJsonBody().getJsonWithSchema(), headers);
                 case "XML" -> responseEntity(responseCode, responseBody.getXmlBody().getValue(), headers);
                 case "RAW" -> responseEntity(responseCode, responseBody.getRawBody().getValue(), headers);
-                default -> handleBinaryBody(responseBody, projectId, resourceId, isMock);
+                case "BINARY" -> handleBinaryBody(responseBody, projectId, resourceId, isMock);
+                default -> responseEntity(responseCode, StringUtils.EMPTY, headers);
             };
         }
 
