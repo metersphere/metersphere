@@ -16,6 +16,8 @@ public class TestPlanReportDetailResponse {
 	private Long executeTime;
 	@Schema(description = "报告结束(执行)时间")
 	private Long ednTime;
+	@Schema(description = "报告内容")
+	private String summary;
 
 	/**
 	 * 报告分析

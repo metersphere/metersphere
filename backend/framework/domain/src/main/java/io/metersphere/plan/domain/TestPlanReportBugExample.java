@@ -313,6 +313,276 @@ public class TestPlanReportBugExample {
             addCriterion("bug_id not between", value1, value2, "bugId");
             return (Criteria) this;
         }
+
+        public Criteria andBugNumIsNull() {
+            addCriterion("bug_num is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumIsNotNull() {
+            addCriterion("bug_num is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumEqualTo(Long value) {
+            addCriterion("bug_num =", value, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumNotEqualTo(Long value) {
+            addCriterion("bug_num <>", value, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumGreaterThan(Long value) {
+            addCriterion("bug_num >", value, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumGreaterThanOrEqualTo(Long value) {
+            addCriterion("bug_num >=", value, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumLessThan(Long value) {
+            addCriterion("bug_num <", value, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumLessThanOrEqualTo(Long value) {
+            addCriterion("bug_num <=", value, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumIn(List<Long> values) {
+            addCriterion("bug_num in", values, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumNotIn(List<Long> values) {
+            addCriterion("bug_num not in", values, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumBetween(Long value1, Long value2) {
+            addCriterion("bug_num between", value1, value2, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugNumNotBetween(Long value1, Long value2) {
+            addCriterion("bug_num not between", value1, value2, "bugNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleIsNull() {
+            addCriterion("bug_title is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleIsNotNull() {
+            addCriterion("bug_title is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleEqualTo(String value) {
+            addCriterion("bug_title =", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleNotEqualTo(String value) {
+            addCriterion("bug_title <>", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleGreaterThan(String value) {
+            addCriterion("bug_title >", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleGreaterThanOrEqualTo(String value) {
+            addCriterion("bug_title >=", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleLessThan(String value) {
+            addCriterion("bug_title <", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleLessThanOrEqualTo(String value) {
+            addCriterion("bug_title <=", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleLike(String value) {
+            addCriterion("bug_title like", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleNotLike(String value) {
+            addCriterion("bug_title not like", value, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleIn(List<String> values) {
+            addCriterion("bug_title in", values, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleNotIn(List<String> values) {
+            addCriterion("bug_title not in", values, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleBetween(String value1, String value2) {
+            addCriterion("bug_title between", value1, value2, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugTitleNotBetween(String value1, String value2) {
+            addCriterion("bug_title not between", value1, value2, "bugTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusIsNull() {
+            addCriterion("bug_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusIsNotNull() {
+            addCriterion("bug_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusEqualTo(String value) {
+            addCriterion("bug_status =", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusNotEqualTo(String value) {
+            addCriterion("bug_status <>", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusGreaterThan(String value) {
+            addCriterion("bug_status >", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("bug_status >=", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusLessThan(String value) {
+            addCriterion("bug_status <", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusLessThanOrEqualTo(String value) {
+            addCriterion("bug_status <=", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusLike(String value) {
+            addCriterion("bug_status like", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusNotLike(String value) {
+            addCriterion("bug_status not like", value, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusIn(List<String> values) {
+            addCriterion("bug_status in", values, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusNotIn(List<String> values) {
+            addCriterion("bug_status not in", values, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusBetween(String value1, String value2) {
+            addCriterion("bug_status between", value1, value2, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugStatusNotBetween(String value1, String value2) {
+            addCriterion("bug_status not between", value1, value2, "bugStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserIsNull() {
+            addCriterion("bug_handle_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserIsNotNull() {
+            addCriterion("bug_handle_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserEqualTo(String value) {
+            addCriterion("bug_handle_user =", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserNotEqualTo(String value) {
+            addCriterion("bug_handle_user <>", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserGreaterThan(String value) {
+            addCriterion("bug_handle_user >", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserGreaterThanOrEqualTo(String value) {
+            addCriterion("bug_handle_user >=", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserLessThan(String value) {
+            addCriterion("bug_handle_user <", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserLessThanOrEqualTo(String value) {
+            addCriterion("bug_handle_user <=", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserLike(String value) {
+            addCriterion("bug_handle_user like", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserNotLike(String value) {
+            addCriterion("bug_handle_user not like", value, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserIn(List<String> values) {
+            addCriterion("bug_handle_user in", values, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserNotIn(List<String> values) {
+            addCriterion("bug_handle_user not in", values, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserBetween(String value1, String value2) {
+            addCriterion("bug_handle_user between", value1, value2, "bugHandleUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugHandleUserNotBetween(String value1, String value2) {
+            addCriterion("bug_handle_user not between", value1, value2, "bugHandleUser");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

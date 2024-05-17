@@ -6,7 +6,13 @@
     <result column="test_plan_report_id" jdbcType="VARCHAR" property="testPlanReportId" />
     <result column="test_plan_function_case_id" jdbcType="VARCHAR" property="testPlanFunctionCaseId" />
     <result column="function_case_id" jdbcType="VARCHAR" property="functionCaseId" />
-    <result column="execute_result" jdbcType="VARCHAR" property="executeResult" />
+    <result column="function_case_num" jdbcType="BIGINT" property="functionCaseNum" />
+    <result column="function_case_name" jdbcType="VARCHAR" property="functionCaseName" />
+    <result column="function_case_module" jdbcType="VARCHAR" property="functionCaseModule" />
+    <result column="function_case_priority" jdbcType="VARCHAR" property="functionCasePriority" />
+    <result column="function_case_execute_user" jdbcType="VARCHAR" property="functionCaseExecuteUser" />
+    <result column="function_case_bug_count" jdbcType="VARCHAR" property="functionCaseBugCount" />
+    <result column="function_case_execute_result" jdbcType="VARCHAR" property="functionCaseExecuteResult" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +73,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_report_id, test_plan_function_case_id, function_case_id, execute_result
+    id, test_plan_report_id, test_plan_function_case_id, function_case_id, function_case_num, 
+    function_case_name, function_case_module, function_case_priority, function_case_execute_user, 
+    function_case_bug_count, function_case_execute_result
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportFunctionCaseExample" resultMap="BaseResultMap">
     select
@@ -101,9 +109,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
     insert into test_plan_report_function_case (id, test_plan_report_id, test_plan_function_case_id, 
-      function_case_id, execute_result)
+      function_case_id, function_case_num, function_case_name, 
+      function_case_module, function_case_priority, 
+      function_case_execute_user, function_case_bug_count, 
+      function_case_execute_result)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{testPlanFunctionCaseId,jdbcType=VARCHAR}, 
-      #{functionCaseId,jdbcType=VARCHAR}, #{executeResult,jdbcType=VARCHAR})
+      #{functionCaseId,jdbcType=VARCHAR}, #{functionCaseNum,jdbcType=BIGINT}, #{functionCaseName,jdbcType=VARCHAR}, 
+      #{functionCaseModule,jdbcType=VARCHAR}, #{functionCasePriority,jdbcType=VARCHAR}, 
+      #{functionCaseExecuteUser,jdbcType=VARCHAR}, #{functionCaseBugCount,jdbcType=VARCHAR}, 
+      #{functionCaseExecuteResult,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
     insert into test_plan_report_function_case
@@ -120,8 +134,26 @@
       <if test="functionCaseId != null">
         function_case_id,
       </if>
-      <if test="executeResult != null">
-        execute_result,
+      <if test="functionCaseNum != null">
+        function_case_num,
+      </if>
+      <if test="functionCaseName != null">
+        function_case_name,
+      </if>
+      <if test="functionCaseModule != null">
+        function_case_module,
+      </if>
+      <if test="functionCasePriority != null">
+        function_case_priority,
+      </if>
+      <if test="functionCaseExecuteUser != null">
+        function_case_execute_user,
+      </if>
+      <if test="functionCaseBugCount != null">
+        function_case_bug_count,
+      </if>
+      <if test="functionCaseExecuteResult != null">
+        function_case_execute_result,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -137,8 +169,26 @@
       <if test="functionCaseId != null">
         #{functionCaseId,jdbcType=VARCHAR},
       </if>
-      <if test="executeResult != null">
-        #{executeResult,jdbcType=VARCHAR},
+      <if test="functionCaseNum != null">
+        #{functionCaseNum,jdbcType=BIGINT},
+      </if>
+      <if test="functionCaseName != null">
+        #{functionCaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseModule != null">
+        #{functionCaseModule,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCasePriority != null">
+        #{functionCasePriority,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseExecuteUser != null">
+        #{functionCaseExecuteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseBugCount != null">
+        #{functionCaseBugCount,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseExecuteResult != null">
+        #{functionCaseExecuteResult,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -163,8 +213,26 @@
       <if test="record.functionCaseId != null">
         function_case_id = #{record.functionCaseId,jdbcType=VARCHAR},
       </if>
-      <if test="record.executeResult != null">
-        execute_result = #{record.executeResult,jdbcType=VARCHAR},
+      <if test="record.functionCaseNum != null">
+        function_case_num = #{record.functionCaseNum,jdbcType=BIGINT},
+      </if>
+      <if test="record.functionCaseName != null">
+        function_case_name = #{record.functionCaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionCaseModule != null">
+        function_case_module = #{record.functionCaseModule,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionCasePriority != null">
+        function_case_priority = #{record.functionCasePriority,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionCaseExecuteUser != null">
+        function_case_execute_user = #{record.functionCaseExecuteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionCaseBugCount != null">
+        function_case_bug_count = #{record.functionCaseBugCount,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionCaseExecuteResult != null">
+        function_case_execute_result = #{record.functionCaseExecuteResult,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -177,7 +245,13 @@
       test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
       test_plan_function_case_id = #{record.testPlanFunctionCaseId,jdbcType=VARCHAR},
       function_case_id = #{record.functionCaseId,jdbcType=VARCHAR},
-      execute_result = #{record.executeResult,jdbcType=VARCHAR}
+      function_case_num = #{record.functionCaseNum,jdbcType=BIGINT},
+      function_case_name = #{record.functionCaseName,jdbcType=VARCHAR},
+      function_case_module = #{record.functionCaseModule,jdbcType=VARCHAR},
+      function_case_priority = #{record.functionCasePriority,jdbcType=VARCHAR},
+      function_case_execute_user = #{record.functionCaseExecuteUser,jdbcType=VARCHAR},
+      function_case_bug_count = #{record.functionCaseBugCount,jdbcType=VARCHAR},
+      function_case_execute_result = #{record.functionCaseExecuteResult,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -194,8 +268,26 @@
       <if test="functionCaseId != null">
         function_case_id = #{functionCaseId,jdbcType=VARCHAR},
       </if>
-      <if test="executeResult != null">
-        execute_result = #{executeResult,jdbcType=VARCHAR},
+      <if test="functionCaseNum != null">
+        function_case_num = #{functionCaseNum,jdbcType=BIGINT},
+      </if>
+      <if test="functionCaseName != null">
+        function_case_name = #{functionCaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseModule != null">
+        function_case_module = #{functionCaseModule,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCasePriority != null">
+        function_case_priority = #{functionCasePriority,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseExecuteUser != null">
+        function_case_execute_user = #{functionCaseExecuteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseBugCount != null">
+        function_case_bug_count = #{functionCaseBugCount,jdbcType=VARCHAR},
+      </if>
+      <if test="functionCaseExecuteResult != null">
+        function_case_execute_result = #{functionCaseExecuteResult,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -205,17 +297,27 @@
     set test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
       test_plan_function_case_id = #{testPlanFunctionCaseId,jdbcType=VARCHAR},
       function_case_id = #{functionCaseId,jdbcType=VARCHAR},
-      execute_result = #{executeResult,jdbcType=VARCHAR}
+      function_case_num = #{functionCaseNum,jdbcType=BIGINT},
+      function_case_name = #{functionCaseName,jdbcType=VARCHAR},
+      function_case_module = #{functionCaseModule,jdbcType=VARCHAR},
+      function_case_priority = #{functionCasePriority,jdbcType=VARCHAR},
+      function_case_execute_user = #{functionCaseExecuteUser,jdbcType=VARCHAR},
+      function_case_bug_count = #{functionCaseBugCount,jdbcType=VARCHAR},
+      function_case_execute_result = #{functionCaseExecuteResult,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_function_case
-    (id, test_plan_report_id, test_plan_function_case_id, function_case_id, execute_result
-      )
+    (id, test_plan_report_id, test_plan_function_case_id, function_case_id, function_case_num, 
+      function_case_name, function_case_module, function_case_priority, function_case_execute_user, 
+      function_case_bug_count, function_case_execute_result)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanReportId,jdbcType=VARCHAR}, #{item.testPlanFunctionCaseId,jdbcType=VARCHAR}, 
-        #{item.functionCaseId,jdbcType=VARCHAR}, #{item.executeResult,jdbcType=VARCHAR}
+        #{item.functionCaseId,jdbcType=VARCHAR}, #{item.functionCaseNum,jdbcType=BIGINT}, 
+        #{item.functionCaseName,jdbcType=VARCHAR}, #{item.functionCaseModule,jdbcType=VARCHAR}, 
+        #{item.functionCasePriority,jdbcType=VARCHAR}, #{item.functionCaseExecuteUser,jdbcType=VARCHAR}, 
+        #{item.functionCaseBugCount,jdbcType=VARCHAR}, #{item.functionCaseExecuteResult,jdbcType=VARCHAR}
         )
     </foreach>
   </insert>
@@ -241,8 +343,26 @@
         <if test="'function_case_id'.toString() == column.value">
           #{item.functionCaseId,jdbcType=VARCHAR}
         </if>
-        <if test="'execute_result'.toString() == column.value">
-          #{item.executeResult,jdbcType=VARCHAR}
+        <if test="'function_case_num'.toString() == column.value">
+          #{item.functionCaseNum,jdbcType=BIGINT}
+        </if>
+        <if test="'function_case_name'.toString() == column.value">
+          #{item.functionCaseName,jdbcType=VARCHAR}
+        </if>
+        <if test="'function_case_module'.toString() == column.value">
+          #{item.functionCaseModule,jdbcType=VARCHAR}
+        </if>
+        <if test="'function_case_priority'.toString() == column.value">
+          #{item.functionCasePriority,jdbcType=VARCHAR}
+        </if>
+        <if test="'function_case_execute_user'.toString() == column.value">
+          #{item.functionCaseExecuteUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'function_case_bug_count'.toString() == column.value">
+          #{item.functionCaseBugCount,jdbcType=VARCHAR}
+        </if>
+        <if test="'function_case_execute_result'.toString() == column.value">
+          #{item.functionCaseExecuteResult,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

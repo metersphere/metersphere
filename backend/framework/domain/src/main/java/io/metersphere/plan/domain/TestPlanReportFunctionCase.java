@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -33,10 +34,31 @@ public class TestPlanReportFunctionCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_function_case.function_case_id.length_range}", groups = {Created.class, Updated.class})
     private String functionCaseId;
 
+    @Schema(description = "功能用例业务ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_function_case.function_case_num.not_blank}", groups = {Created.class})
+    private Long functionCaseNum;
+
+    @Schema(description = "功能用例名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_report_function_case.function_case_name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{test_plan_report_function_case.function_case_name.length_range}", groups = {Created.class, Updated.class})
+    private String functionCaseName;
+
+    @Schema(description = "功能用例所属模块")
+    private String functionCaseModule;
+
+    @Schema(description = "功能用例用例等级")
+    private String functionCasePriority;
+
+    @Schema(description = "功能用例执行人")
+    private String functionCaseExecuteUser;
+
+    @Schema(description = "功能用例关联缺陷数")
+    private String functionCaseBugCount;
+
     @Schema(description = "执行结果", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_report_function_case.execute_result.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_report_function_case.execute_result.length_range}", groups = {Created.class, Updated.class})
-    private String executeResult;
+    @NotBlank(message = "{test_plan_report_function_case.function_case_execute_result.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_report_function_case.function_case_execute_result.length_range}", groups = {Created.class, Updated.class})
+    private String functionCaseExecuteResult;
 
     private static final long serialVersionUID = 1L;
 
@@ -45,7 +67,13 @@ public class TestPlanReportFunctionCase implements Serializable {
         testPlanReportId("test_plan_report_id", "testPlanReportId", "VARCHAR", false),
         testPlanFunctionCaseId("test_plan_function_case_id", "testPlanFunctionCaseId", "VARCHAR", false),
         functionCaseId("function_case_id", "functionCaseId", "VARCHAR", false),
-        executeResult("execute_result", "executeResult", "VARCHAR", false);
+        functionCaseNum("function_case_num", "functionCaseNum", "BIGINT", false),
+        functionCaseName("function_case_name", "functionCaseName", "VARCHAR", false),
+        functionCaseModule("function_case_module", "functionCaseModule", "VARCHAR", false),
+        functionCasePriority("function_case_priority", "functionCasePriority", "VARCHAR", false),
+        functionCaseExecuteUser("function_case_execute_user", "functionCaseExecuteUser", "VARCHAR", false),
+        functionCaseBugCount("function_case_bug_count", "functionCaseBugCount", "VARCHAR", false),
+        functionCaseExecuteResult("function_case_execute_result", "functionCaseExecuteResult", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

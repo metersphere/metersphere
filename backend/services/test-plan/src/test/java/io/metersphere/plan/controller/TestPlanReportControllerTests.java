@@ -46,6 +46,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
     private static final String GEN_PLAN_REPORT = "/test-plan/report/gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
+    private static final String EDIT_PLAN_REPORT = "/test-plan/report/edit";
     private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
     private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE = "/test-plan/report/detail/functional/case/page";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
@@ -222,7 +223,6 @@ public class TestPlanReportControllerTests extends BaseTest {
     void testPageReportDetailBugSuccess() throws Exception {
         TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
         request.setReportId(GEN_REPORT_ID);
-        request.setProjectId("100001100001");
         request.setCurrent(1);
         request.setPageSize(10);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
@@ -235,12 +235,20 @@ public class TestPlanReportControllerTests extends BaseTest {
     void testPageReportDetailFunctionalCaseSuccess() throws Exception {
         TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
         request.setReportId(GEN_REPORT_ID);
-        request.setProjectId("100001100001");
         request.setCurrent(1);
         request.setPageSize(10);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
         request.setSort(Map.of("num", "asc"));
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
+    }
+
+    @Test
+    @Order(15)
+    void testEditReportDetail() throws Exception {
+        TestPlanReportDetailEditRequest request = new TestPlanReportDetailEditRequest();
+        request.setId(GEN_REPORT_ID);
+        request.setSummary("This is a summary for report detail");
+        this.requestPostWithOk(EDIT_PLAN_REPORT, request);
     }
 
     @Resource
