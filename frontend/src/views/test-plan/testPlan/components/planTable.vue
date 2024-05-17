@@ -591,7 +591,7 @@
       tableKey: TableKeyEnum.TEST_PLAN_ALL_TABLE,
       selectable: true,
       showSetting: true,
-      heightUsed: 128,
+      heightUsed: 236,
       paginationSize: 'mini',
       showSelectorAll: false,
     },
