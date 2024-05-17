@@ -21,6 +21,7 @@ public class JmeterProperty {
         public static final String QUOTED_DATA = "quotedData";
         public static final String SHARE_MODE_GROUP = "shareMode.group";
         public static final String SHARE_MODE_THREAD = "shareMode.thread";
+        public static final String VARIABLE_NAMES = "variableNames";
 
     }
 }
