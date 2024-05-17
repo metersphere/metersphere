@@ -13,7 +13,6 @@
           <a-form
             ref="formRef"
             :model="form"
-            size="large"
             layout="vertical"
             :label-col-props="{ span: 0 }"
             :wrapper-col-props="{ span: 24 }"

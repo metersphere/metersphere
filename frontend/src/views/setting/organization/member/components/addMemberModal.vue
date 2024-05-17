@@ -16,7 +16,7 @@
       }}
     </template>
     <div class="form">
-      <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
+      <a-form ref="memberFormRef" :model="form" layout="vertical">
         <!-- 编辑项目 -->
         <a-form-item v-if="type === 'edit'" :label="t('organization.member.project')" asterisk-position="end">
           <MsUserSelector

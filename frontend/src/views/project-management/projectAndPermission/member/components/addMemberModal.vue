@@ -8,7 +8,7 @@
     :close="closeHandler"
   >
     <div class="form">
-      <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
+      <a-form ref="memberFormRef" :model="form" layout="vertical">
         <a-form-item
           field="userIds"
           :label="t('project.member.member')"
