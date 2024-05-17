@@ -10,12 +10,15 @@ import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.plan.mapper.TestPlanReportSummaryMapper;
 import io.metersphere.plan.service.CleanupTestPlanReportServiceImpl;
 import io.metersphere.plan.service.TestPlanReportService;
+import io.metersphere.project.domain.ProjectApplicationExample;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -46,18 +49,25 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
     private static final String GEN_PLAN_REPORT = "/test-plan/report/gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
-    private static final String EDIT_PLAN_REPORT = "/test-plan/report/edit";
+    private static final String EDIT_PLAN_REPORT = "/test-plan/report/detail/edit";
     private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
     private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE = "/test-plan/report/detail/functional/case/page";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
     private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
+    private static final String GET_SHARE_REPORT = "/test-plan/report/share/get";
+    private static final String GET_SHARE_REPORT_BUG_LIST = "/test-plan/report/share/detail/bug/page";
+    private static final String GET_SHARE_REPORT_FUNCTIONAL_LIST = "/test-plan/report/share/detail/functional/case/page";
+
     @Autowired
     private TestPlanReportMapper testPlanReportMapper;
     @Resource
     private TestPlanReportService testPlanReportService;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
 
     private static String GEN_REPORT_ID;
+    private static String GEN_SHARE_ID;
 
     @Test
     @Order(1)
@@ -140,6 +150,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         TestPlanShareInfo shareInfo = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), TestPlanShareInfo.class);
         Assertions.assertNotNull(shareInfo);
         this.requestGet(GET_SHARE_INFO + "/" + shareInfo.getId());
+        GEN_SHARE_ID = shareInfo.getId();
     }
 
     @Test
@@ -160,6 +171,36 @@ public class TestPlanReportControllerTests extends BaseTest {
 
     @Test
     @Order(8)
+    void testGetShareReportTableList() throws Exception{
+        BasePageRequest request = new BasePageRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        // 获取分享的报告的列表明细
+        this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
+        this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
+        request.setSort(Map.of("num", "asc"));
+        this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
+        this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
+    }
+
+    @Test
+    @Order(9)
+    void testGetShareReport() throws Exception{
+        // 获取分享的报告
+        this.requestGet(GET_SHARE_REPORT + "/" + GEN_SHARE_ID + "/test-plan-report-id-1");
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo("100001100001").andTypeEqualTo("TEST_PLAN_SHARE_REPORT");
+        projectApplicationMapper.deleteByExample(example);
+        this.requestGet(GET_SHARE_REPORT + "/" + GEN_SHARE_ID + "/test-plan-report-id-1");
+        TestPlanReport report = new TestPlanReport();
+        report.setId("test-plan-report-id-1");
+        report.setDeleted(true);
+        testPlanReportMapper.updateByPrimaryKeySelective(report);
+        this.requestGet(GET_SHARE_REPORT + "/" + GEN_SHARE_ID + "/test-plan-report-id-1");
+    }
+
+    @Test
+    @Order(10)
     void testDeletePlanReport() throws Exception {
         TestPlanReportDeleteRequest request = new TestPlanReportDeleteRequest();
         request.setId("test-plan-report-id-1");
@@ -168,7 +209,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(9)
+    @Order(11)
     void testBatchDeletePlanReport() throws Exception {
         TestPlanReportBatchRequest request = new TestPlanReportBatchRequest();
         request.setProjectId("100001100001");
@@ -186,7 +227,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(12)
     @Sql(scripts = {"/dml/init_test_plan_report_gen.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     void testGenReportError() throws Exception {
         TestPlanReportGenRequest genRequest = new TestPlanReportGenRequest();
@@ -196,7 +237,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(13)
     void testGenReportSuccess() throws Exception {
         TestPlanReportGenRequest genRequest = new TestPlanReportGenRequest();
         genRequest.setProjectId("100001100001");
@@ -213,37 +254,35 @@ public class TestPlanReportControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(12)
+    @Order(14)
     void testGetReportSuccess() throws Exception {
         this.requestGet(GET_PLAN_REPORT + "/" + GEN_REPORT_ID);
     }
 
     @Test
-    @Order(13)
-    void testPageReportDetailBugSuccess() throws Exception {
-        TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
-        request.setReportId(GEN_REPORT_ID);
-        request.setCurrent(1);
-        request.setPageSize(10);
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
-        request.setSort(Map.of("num", "asc"));
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
-    }
-
-    @Test
-    @Order(14)
-    void testPageReportDetailFunctionalCaseSuccess() throws Exception {
-        TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
-        request.setReportId(GEN_REPORT_ID);
-        request.setCurrent(1);
-        request.setPageSize(10);
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
-        request.setSort(Map.of("num", "asc"));
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
-    }
-
-    @Test
     @Order(15)
+    void testPageReportDetailBugSuccess() throws Exception {
+        BasePageRequest request = new BasePageRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE + "/" + GEN_REPORT_ID, request);
+        request.setSort(Map.of("num", "asc"));
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE + "/" + GEN_REPORT_ID, request);
+    }
+
+    @Test
+    @Order(16)
+    void testPageReportDetailFunctionalCaseSuccess() throws Exception {
+        BasePageRequest request = new BasePageRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE + "/" + GEN_REPORT_ID, request);
+        request.setSort(Map.of("num", "asc"));
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE + "/" + GEN_REPORT_ID, request);
+    }
+
+    @Test
+    @Order(17)
     void testEditReportDetail() throws Exception {
         TestPlanReportDetailEditRequest request = new TestPlanReportDetailEditRequest();
         request.setId(GEN_REPORT_ID);
