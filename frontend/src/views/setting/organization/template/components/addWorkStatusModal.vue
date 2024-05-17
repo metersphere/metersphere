@@ -14,7 +14,7 @@
     }"
   >
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" layout="vertical">
+      <a-form ref="formRef" :model="form" layout="vertical">
         <a-form-item
           field="name"
           :label="t('system.orgTemplate.stateName')"

@@ -42,7 +42,7 @@
     >
       <template #title> {{ t('caseManagement.featureCase.saveAsVersion') }} </template>
       <div class="form">
-        <a-form ref="versionFormRef" :model="form" size="large" layout="vertical">
+        <a-form ref="versionFormRef" :model="form" layout="vertical">
           <a-form-item
             field="versionId"
             :label="t('caseManagement.featureCase.tableColumnVersion')"

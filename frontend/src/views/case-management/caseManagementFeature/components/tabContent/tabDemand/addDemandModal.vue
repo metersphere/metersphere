@@ -14,7 +14,7 @@
     </template>
 
     <div class="form">
-      <a-form ref="demandFormRef" :model="modelForm" size="large" layout="vertical">
+      <a-form ref="demandFormRef" :model="modelForm" layout="vertical">
         <a-form-item :label="t('caseManagement.featureCase.tableColumnID')" asterisk-position="end" field="demandId">
           <a-input
             v-model="modelForm.demandId"

@@ -15,7 +15,7 @@
     }"
   >
     <div class="form">
-      <a-form ref="formRef" :model="form" size="large" layout="vertical">
+      <a-form ref="formRef" :model="form" layout="vertical">
         <a-form-item
           field="selectedAttrsId"
           :label="t('caseManagement.featureCase.selectAttrs')"
