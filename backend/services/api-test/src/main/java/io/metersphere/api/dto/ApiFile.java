@@ -2,6 +2,7 @@ package io.metersphere.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 接口执行所需要的文件
@@ -33,4 +34,8 @@ public class ApiFile {
      * 引用的文件被删除，需要标识
      */
     private Boolean delete = false;
+
+    public boolean isValid() {
+        return StringUtils.isNotBlank(fileId) && StringUtils.isNotBlank(fileName) ;
+    }
 }

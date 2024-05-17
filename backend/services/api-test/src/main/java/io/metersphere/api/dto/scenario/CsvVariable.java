@@ -79,7 +79,7 @@ public class CsvVariable {
     private Boolean stopThreadOnEof = false;
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(name) && file != null;
+        return StringUtils.isNotBlank(name) && file != null && file.isValid();
     }
 
     public boolean isEnable() {

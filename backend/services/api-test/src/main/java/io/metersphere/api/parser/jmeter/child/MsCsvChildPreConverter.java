@@ -18,6 +18,7 @@ import org.apache.jorphan.collections.HashTree;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 解析 csv 文件
@@ -37,7 +38,10 @@ public class MsCsvChildPreConverter extends AbstractJmeterElementConverter<Abstr
         csvIds.forEach(csvId -> {
             CsvVariable csvVariable = apiParamConfig.getCsvVariable(csvId);
             if (csvVariable != null) {
-                addCsvDataSet(tree, JmeterProperty.CSVDataSetProperty.SHARE_MODE_THREAD, csvVariable);
+                // 场景级的线程共享，步骤级的私有
+                String shareMode = StringUtils.equals(csvVariable.getScope(), CsvVariable.CsvVariableScope.SCENARIO.name()) ?
+                        JmeterProperty.CSVDataSetProperty.SHARE_MODE_THREAD : UUID.randomUUID().toString();
+                addCsvDataSet(tree, shareMode, csvVariable);
             }
         });
     }
@@ -66,6 +70,7 @@ public class MsCsvChildPreConverter extends AbstractJmeterElementConverter<Abstr
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.FILE_NAME, path);
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.SHARE_MODE, shareMode);
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.RECYCLE, true);
+        csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.VARIABLE_NAMES, csvVariable.getVariableNames());
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.DELIMITER, csvVariable.getDelimiter());
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.QUOTED_DATA, csvVariable.getAllowQuotedData());
         tree.add(csvDataSet);
