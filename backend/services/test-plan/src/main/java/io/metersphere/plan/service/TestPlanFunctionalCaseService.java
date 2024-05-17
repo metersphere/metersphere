@@ -10,7 +10,6 @@ import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
@@ -42,7 +41,6 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
-import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.aspect.OperationLogAspect;
@@ -409,10 +407,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
         testPlanCaseExecuteHistoryMapper.insert(executeHistory);
 
-        Map<String, String> idsMap = new HashMap<>();
-        idsMap.put(request.getId(), request.getCaseId());
-        List<LogDTO> logDTOList = runLog(idsMap, Arrays.asList(request.getCaseId()), request.getProjectId(), organizationId, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
-        operationLogService.batchAdd(logDTOList);
     }
 
     /**
@@ -439,6 +433,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
         executeHistory.setId(IDGenerator.nextStr());
         executeHistory.setTestPlanCaseId(request.getId());
+        executeHistory.setTestPlanId(request.getTestPlanId());
         executeHistory.setCaseId(request.getCaseId());
         executeHistory.setStatus(request.getLastExecResult());
         executeHistory.setContent(request.getContent().getBytes());
@@ -484,8 +479,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
         updateFunctionalCaseStatus(caseIds, request.getLastExecResult());
 
-        List<LogDTO> logDTOList = runLog(idsMap, caseIds, request.getProjectId(), organizationId, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
-        operationLogService.batchAdd(logDTOList);
     }
 
     private List<TestPlanCaseExecuteHistory> getExecHistory(List<String> ids, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule, Map<String, String> idsMap) {
@@ -495,6 +488,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
             executeHistory.setId(IDGenerator.nextStr());
             executeHistory.setTestPlanCaseId(id);
+            executeHistory.setTestPlanId(request.getTestPlanId());
             executeHistory.setCaseId(idsMap.get(id));
             executeHistory.setStatus(request.getLastExecResult());
             executeHistory.setContent(request.getContent().getBytes());
@@ -530,30 +524,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             //失败 发送通知
             testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_FAIL, testPlanId);
         }
-    }
-
-
-    public List<LogDTO> runLog(Map<String, String> idsMap, List<String> caseIds, String projectId, String organizationId, ResourceLogInsertModule logInsertModule) {
-        FunctionalCaseExample example = new FunctionalCaseExample();
-        example.createCriteria().andIdIn(caseIds);
-        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(example);
-        Map<String, String> caseMap = functionalCases.stream().collect(Collectors.toMap(FunctionalCase::getId, FunctionalCase::getName));
-        List<LogDTO> list = new ArrayList<>();
-        idsMap.forEach((k, v) -> {
-            LogDTO dto = LogDTOBuilder.builder()
-                    .projectId(projectId)
-                    .organizationId(organizationId)
-                    .type(OperationLogType.EXECUTE.name())
-                    .module(OperationLogModule.TEST_PLAN)
-                    .method(logInsertModule.getRequestMethod())
-                    .path(logInsertModule.getRequestUrl())
-                    .sourceId(k)
-                    .content(Translator.get("run_functional_case") + ":" + caseMap.get(v))
-                    .createUser(logInsertModule.getOperator())
-                    .build().getLogDTO();
-            list.add(dto);
-        });
-        return list;
     }
 
 
@@ -623,7 +593,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
     }
 
-    private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep,  Map<String, FunctionalCaseStepDTO> historyStepMap) {
+    private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep, Map<String, FunctionalCaseStepDTO> historyStepMap) {
         FunctionalCaseStepDTO historyStep = historyStepMap.get(newCaseStep.getId());
         if (historyStep != null && StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult())) {
             newCaseStep.setExecuteResult(historyStep.getExecuteResult());
@@ -645,6 +615,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
         executeHistory.setId(IDGenerator.nextStr());
         executeHistory.setTestPlanCaseId(planFunctionalCase.getId());
+        executeHistory.setTestPlanId(planFunctionalCase.getTestPlanId());
         executeHistory.setCaseId(planFunctionalCase.getFunctionalCaseId());
         executeHistory.setStatus(request.getLastExecResult());
         executeHistory.setDeleted(false);
