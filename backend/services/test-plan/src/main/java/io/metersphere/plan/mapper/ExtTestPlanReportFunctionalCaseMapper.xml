@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportFunctionalCaseMapper">
+
+    <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
+        select tpfc.id as testPlanFunctionCaseId, fc.id as functionCaseId, fc.num as functionCaseNum, fc.name as functionCaseName,
+               fcm.name as functionCaseModule, tpfc.execute_user as functionCaseExecuteUser,
+               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult
+        from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
+        left join functional_case_module fcm on fcm.id = fc.module_id
+        left join bug_relation_case brc on brc.test_plan_case_id = tpfc.id
+        where tpfc.test_plan_id = #{id}
+    </select>
+
+    <select id="getCasePriorityByIds" resultType="io.metersphere.plugin.platform.dto.SelectOption">
+        select distinct
+        fc.id as value,
+        fccf.`value` as text
+        from functional_case fc
+        left join functional_case_custom_field fccf ON fc.id = fccf.case_id
+        left join custom_field cf on cf.id = fccf.field_id
+        left join custom_field_option cfo on cfo.field_id = cf.id
+        where cf.`name` = 'functional_priority' and fc.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="countExecuteSuccessCase" resultType="java.lang.Long">
+        select count(*) from test_plan_report_function_case tprfc
+        where tprfc.test_plan_report_id = #{id} and tprfc.function_case_execute_result = 'SUCCESS'
+    </select>
+
+    <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
+        select tprfc.function_case_execute_result as status, count(*) as count from test_plan_report_function_case tprfc
+        where tprfc.test_plan_report_id = #{id}
+        group by tprfc.function_case_execute_result
+    </select>
+
+    <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
+        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
+        select distinct tprfc.function_case_id as id, tprfc.function_case_num as num, tprfc.function_case_name as name,
+                        tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority,
+                        tprfc.function_case_execute_result as executeResult, tprfc.function_case_execute_user as executeUser,
+                        tprfc.function_case_bug_count as bugCount
+        from test_plan_report_function_case tprfc
+        where tprfc.test_plan_report_id = #{request.reportId}
+    </select>
+
+</mapper>

@@ -384,73 +384,483 @@ public class TestPlanReportFunctionCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultIsNull() {
-            addCriterion("execute_result is null");
+        public Criteria andFunctionCaseNumIsNull() {
+            addCriterion("function_case_num is null");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultIsNotNull() {
-            addCriterion("execute_result is not null");
+        public Criteria andFunctionCaseNumIsNotNull() {
+            addCriterion("function_case_num is not null");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultEqualTo(String value) {
-            addCriterion("execute_result =", value, "executeResult");
+        public Criteria andFunctionCaseNumEqualTo(Long value) {
+            addCriterion("function_case_num =", value, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultNotEqualTo(String value) {
-            addCriterion("execute_result <>", value, "executeResult");
+        public Criteria andFunctionCaseNumNotEqualTo(Long value) {
+            addCriterion("function_case_num <>", value, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultGreaterThan(String value) {
-            addCriterion("execute_result >", value, "executeResult");
+        public Criteria andFunctionCaseNumGreaterThan(Long value) {
+            addCriterion("function_case_num >", value, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultGreaterThanOrEqualTo(String value) {
-            addCriterion("execute_result >=", value, "executeResult");
+        public Criteria andFunctionCaseNumGreaterThanOrEqualTo(Long value) {
+            addCriterion("function_case_num >=", value, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultLessThan(String value) {
-            addCriterion("execute_result <", value, "executeResult");
+        public Criteria andFunctionCaseNumLessThan(Long value) {
+            addCriterion("function_case_num <", value, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultLessThanOrEqualTo(String value) {
-            addCriterion("execute_result <=", value, "executeResult");
+        public Criteria andFunctionCaseNumLessThanOrEqualTo(Long value) {
+            addCriterion("function_case_num <=", value, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultLike(String value) {
-            addCriterion("execute_result like", value, "executeResult");
+        public Criteria andFunctionCaseNumIn(List<Long> values) {
+            addCriterion("function_case_num in", values, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultNotLike(String value) {
-            addCriterion("execute_result not like", value, "executeResult");
+        public Criteria andFunctionCaseNumNotIn(List<Long> values) {
+            addCriterion("function_case_num not in", values, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultIn(List<String> values) {
-            addCriterion("execute_result in", values, "executeResult");
+        public Criteria andFunctionCaseNumBetween(Long value1, Long value2) {
+            addCriterion("function_case_num between", value1, value2, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultNotIn(List<String> values) {
-            addCriterion("execute_result not in", values, "executeResult");
+        public Criteria andFunctionCaseNumNotBetween(Long value1, Long value2) {
+            addCriterion("function_case_num not between", value1, value2, "functionCaseNum");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultBetween(String value1, String value2) {
-            addCriterion("execute_result between", value1, value2, "executeResult");
+        public Criteria andFunctionCaseNameIsNull() {
+            addCriterion("function_case_name is null");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteResultNotBetween(String value1, String value2) {
-            addCriterion("execute_result not between", value1, value2, "executeResult");
+        public Criteria andFunctionCaseNameIsNotNull() {
+            addCriterion("function_case_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameEqualTo(String value) {
+            addCriterion("function_case_name =", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameNotEqualTo(String value) {
+            addCriterion("function_case_name <>", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameGreaterThan(String value) {
+            addCriterion("function_case_name >", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_name >=", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameLessThan(String value) {
+            addCriterion("function_case_name <", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameLessThanOrEqualTo(String value) {
+            addCriterion("function_case_name <=", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameLike(String value) {
+            addCriterion("function_case_name like", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameNotLike(String value) {
+            addCriterion("function_case_name not like", value, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameIn(List<String> values) {
+            addCriterion("function_case_name in", values, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameNotIn(List<String> values) {
+            addCriterion("function_case_name not in", values, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameBetween(String value1, String value2) {
+            addCriterion("function_case_name between", value1, value2, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseNameNotBetween(String value1, String value2) {
+            addCriterion("function_case_name not between", value1, value2, "functionCaseName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleIsNull() {
+            addCriterion("function_case_module is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleIsNotNull() {
+            addCriterion("function_case_module is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleEqualTo(String value) {
+            addCriterion("function_case_module =", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleNotEqualTo(String value) {
+            addCriterion("function_case_module <>", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleGreaterThan(String value) {
+            addCriterion("function_case_module >", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_module >=", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleLessThan(String value) {
+            addCriterion("function_case_module <", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleLessThanOrEqualTo(String value) {
+            addCriterion("function_case_module <=", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleLike(String value) {
+            addCriterion("function_case_module like", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleNotLike(String value) {
+            addCriterion("function_case_module not like", value, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleIn(List<String> values) {
+            addCriterion("function_case_module in", values, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleNotIn(List<String> values) {
+            addCriterion("function_case_module not in", values, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleBetween(String value1, String value2) {
+            addCriterion("function_case_module between", value1, value2, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseModuleNotBetween(String value1, String value2) {
+            addCriterion("function_case_module not between", value1, value2, "functionCaseModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityIsNull() {
+            addCriterion("function_case_priority is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityIsNotNull() {
+            addCriterion("function_case_priority is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityEqualTo(String value) {
+            addCriterion("function_case_priority =", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityNotEqualTo(String value) {
+            addCriterion("function_case_priority <>", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityGreaterThan(String value) {
+            addCriterion("function_case_priority >", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_priority >=", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityLessThan(String value) {
+            addCriterion("function_case_priority <", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityLessThanOrEqualTo(String value) {
+            addCriterion("function_case_priority <=", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityLike(String value) {
+            addCriterion("function_case_priority like", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityNotLike(String value) {
+            addCriterion("function_case_priority not like", value, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityIn(List<String> values) {
+            addCriterion("function_case_priority in", values, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityNotIn(List<String> values) {
+            addCriterion("function_case_priority not in", values, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityBetween(String value1, String value2) {
+            addCriterion("function_case_priority between", value1, value2, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCasePriorityNotBetween(String value1, String value2) {
+            addCriterion("function_case_priority not between", value1, value2, "functionCasePriority");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserIsNull() {
+            addCriterion("function_case_execute_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserIsNotNull() {
+            addCriterion("function_case_execute_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserEqualTo(String value) {
+            addCriterion("function_case_execute_user =", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserNotEqualTo(String value) {
+            addCriterion("function_case_execute_user <>", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserGreaterThan(String value) {
+            addCriterion("function_case_execute_user >", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_execute_user >=", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserLessThan(String value) {
+            addCriterion("function_case_execute_user <", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserLessThanOrEqualTo(String value) {
+            addCriterion("function_case_execute_user <=", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserLike(String value) {
+            addCriterion("function_case_execute_user like", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserNotLike(String value) {
+            addCriterion("function_case_execute_user not like", value, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserIn(List<String> values) {
+            addCriterion("function_case_execute_user in", values, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserNotIn(List<String> values) {
+            addCriterion("function_case_execute_user not in", values, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserBetween(String value1, String value2) {
+            addCriterion("function_case_execute_user between", value1, value2, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteUserNotBetween(String value1, String value2) {
+            addCriterion("function_case_execute_user not between", value1, value2, "functionCaseExecuteUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountIsNull() {
+            addCriterion("function_case_bug_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountIsNotNull() {
+            addCriterion("function_case_bug_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountEqualTo(String value) {
+            addCriterion("function_case_bug_count =", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountNotEqualTo(String value) {
+            addCriterion("function_case_bug_count <>", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountGreaterThan(String value) {
+            addCriterion("function_case_bug_count >", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_bug_count >=", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountLessThan(String value) {
+            addCriterion("function_case_bug_count <", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountLessThanOrEqualTo(String value) {
+            addCriterion("function_case_bug_count <=", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountLike(String value) {
+            addCriterion("function_case_bug_count like", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountNotLike(String value) {
+            addCriterion("function_case_bug_count not like", value, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountIn(List<String> values) {
+            addCriterion("function_case_bug_count in", values, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountNotIn(List<String> values) {
+            addCriterion("function_case_bug_count not in", values, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountBetween(String value1, String value2) {
+            addCriterion("function_case_bug_count between", value1, value2, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseBugCountNotBetween(String value1, String value2) {
+            addCriterion("function_case_bug_count not between", value1, value2, "functionCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultIsNull() {
+            addCriterion("function_case_execute_result is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultIsNotNull() {
+            addCriterion("function_case_execute_result is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultEqualTo(String value) {
+            addCriterion("function_case_execute_result =", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultNotEqualTo(String value) {
+            addCriterion("function_case_execute_result <>", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultGreaterThan(String value) {
+            addCriterion("function_case_execute_result >", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_execute_result >=", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultLessThan(String value) {
+            addCriterion("function_case_execute_result <", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultLessThanOrEqualTo(String value) {
+            addCriterion("function_case_execute_result <=", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultLike(String value) {
+            addCriterion("function_case_execute_result like", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultNotLike(String value) {
+            addCriterion("function_case_execute_result not like", value, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultIn(List<String> values) {
+            addCriterion("function_case_execute_result in", values, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultNotIn(List<String> values) {
+            addCriterion("function_case_execute_result not in", values, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultBetween(String value1, String value2) {
+            addCriterion("function_case_execute_result between", value1, value2, "functionCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteResultNotBetween(String value1, String value2) {
+            addCriterion("function_case_execute_result not between", value1, value2, "functionCaseExecuteResult");
             return (Criteria) this;
         }
     }

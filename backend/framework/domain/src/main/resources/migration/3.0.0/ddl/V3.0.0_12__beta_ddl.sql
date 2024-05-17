@@ -112,9 +112,15 @@ CREATE UNIQUE INDEX idx_test_plan_report_id ON test_plan_report_summary(test_pla
 CREATE TABLE IF NOT EXISTS test_plan_report_function_case(
      `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
      `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
-     `test_plan_function_case_id` VARCHAR(50) NOT NULL   COMMENT '测试计划功能用例关联ID' ,
+     `test_plan_function_case_id` VARCHAR(50) NOT NULL   COMMENT '测试计划功能用例关联ID(同一计划下可重复关联, 暂时保留)' ,
      `function_case_id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
-     `execute_result` VARCHAR(50) NOT NULL   COMMENT '执行结果' ,
+     `function_case_num` BIGINT NOT NULL   COMMENT '功能用例业务ID' ,
+     `function_case_name` VARCHAR(255)  NOT NULL  COMMENT '功能用例名称' ,
+     `function_case_module` VARCHAR(255)    COMMENT '功能用例所属模块' ,
+     `function_case_priority` VARCHAR(50)    COMMENT '功能用例用例等级' ,
+     `function_case_execute_user` VARCHAR(50)    COMMENT '功能用例执行人' ,
+     `function_case_bug_count` VARCHAR(255)    COMMENT '功能用例关联缺陷数' ,
+     `function_case_execute_result` VARCHAR(50) NOT NULL   COMMENT '执行结果' ,
      PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容功能用例部分';
 
@@ -124,6 +130,10 @@ CREATE TABLE IF NOT EXISTS test_plan_report_bug(
    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
    `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
    `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
+   `bug_num` BIGINT NOT NULL   COMMENT '缺陷业务ID' ,
+   `bug_title` VARCHAR(255) NOT NULL   COMMENT '缺陷标题' ,
+   `bug_status` VARCHAR(50)    COMMENT '缺陷状态' ,
+   `bug_handle_user` VARCHAR(50)    COMMENT '缺陷处理人' ,
    PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容缺陷部分';
 

@@ -1,20 +1,18 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
-import io.metersphere.bug.service.BugService;
-import io.metersphere.functional.dto.FunctionalCasePageDTO;
+import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.CaseStatusCountMap;
+import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.TestPlanReportGenPreParam;
 import io.metersphere.plan.dto.TestPlanReportPostParam;
-import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
-import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
-import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.utils.RateCalculateUtils;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -35,7 +33,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +48,7 @@ public class TestPlanReportService {
 	@Resource
 	private SqlSessionFactory sqlSessionFactory;
 	@Resource
-	private BugService bugService;
+	private BugCommonService bugCommonService;
 	@Resource
 	private TestPlanMapper testPlanMapper;
 	@Resource
@@ -59,17 +56,17 @@ public class TestPlanReportService {
 	@Resource
 	private TestPlanReportMapper testPlanReportMapper;
 	@Resource
-	private ExtBugRelateCaseMapper extBugRelateCaseMapper;
-	@Resource
 	private ExtTestPlanReportMapper extTestPlanReportMapper;
+	@Resource
+	private ExtTestPlanReportBugMapper extTestPlanReportBugMapper;
+	@Resource
+	private ExtTestPlanReportFunctionalCaseMapper extTestPlanReportFunctionalCaseMapper;
 	@Resource
 	private TestPlanReportLogService testPlanReportLogService;
 	@Resource
 	private TestPlanReportNoticeService testPlanReportNoticeService;
 	@Resource
 	private TestPlanReportSummaryMapper testPlanReportSummaryMapper;
-	@Resource
-	private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
 	@Resource
 	private TestPlanReportFunctionCaseMapper testPlanReportFunctionCaseMapper;
     @Resource
@@ -134,7 +131,7 @@ public class TestPlanReportService {
     /**
      * 清空测试计划报告（包括summary
      *
-     * @param reportIdList
+     * @param reportIdList 报告ID集合
      */
     public void cleanAndDeleteReport(List<String> reportIdList) {
         if (CollectionUtils.isNotEmpty(reportIdList)) {
@@ -233,20 +230,16 @@ public class TestPlanReportService {
 		SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		String reportId = IDGenerator.nextStr();
 		// 功能用例
-		List<TestPlanReportFunctionCase> reportFunctionCases = new ArrayList<>();
-		TestPlanFunctionalCaseExample functionalCaseExample = new TestPlanFunctionalCaseExample();
-		functionalCaseExample.createCriteria().andTestPlanIdEqualTo(genParam.getTestPlanId());
-		List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(functionalCaseExample);
-		testPlanFunctionalCases.forEach(functionalCase -> {
-			TestPlanReportFunctionCase reportFunctionCase = new TestPlanReportFunctionCase();
-			reportFunctionCase.setId(IDGenerator.nextStr());
-			reportFunctionCase.setTestPlanReportId(reportId);
-			reportFunctionCase.setFunctionCaseId(functionalCase.getFunctionalCaseId());
-			reportFunctionCase.setTestPlanFunctionCaseId(functionalCase.getId());
-			reportFunctionCase.setExecuteResult(functionalCase.getLastExecResult());
-			reportFunctionCases.add(reportFunctionCase);
-		});
+		List<TestPlanReportFunctionCase> reportFunctionCases = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCases(genParam.getTestPlanId());
 		if (CollectionUtils.isNotEmpty(reportFunctionCases)) {
+			List<String> ids = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseId).distinct().toList();
+			List<SelectOption> options = extTestPlanReportFunctionalCaseMapper.getCasePriorityByIds(ids);
+			Map<String, String> casePriorityMap = options.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+			reportFunctionCases.forEach(reportFunctionalCase -> {
+				reportFunctionalCase.setId(IDGenerator.nextStr());
+				reportFunctionalCase.setTestPlanReportId(reportId);
+				reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
+			});
 			// 插入计划功能用例关联数据 -> 报告内容
 			TestPlanReportFunctionCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportFunctionCaseMapper.class);
 			batchMapper.batchInsert(reportFunctionCases);
@@ -255,14 +248,19 @@ public class TestPlanReportService {
 		// TODO: 接口用例, 场景报告内容 (与接口报告是否能一致)
 
 		// 计划报告缺陷内容
-		List<TestPlanReportBug> reportBugs = new ArrayList<>();
-		List<String> bugIds = extBugRelateCaseMapper.getPlanRelateBugIds(genParam.getTestPlanId());
-		bugIds.forEach(bugId -> {
-			TestPlanReportBug reportBug = new TestPlanReportBug();
+		List<TestPlanReportBug> reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId());
+		// MS处理人会与第三方的值冲突, 分开查询
+		List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(genParam.getProjectId());
+		Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+		List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(genParam.getProjectId());
+		Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+		Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(genParam.getProjectId());
+		reportBugs.forEach(reportBug -> {
 			reportBug.setId(IDGenerator.nextStr());
 			reportBug.setTestPlanReportId(reportId);
-			reportBug.setBugId(bugId);
-			reportBugs.add(reportBug);
+			reportBug.setBugHandleUser(headerHandleUserMap.containsKey(reportBug.getBugHandleUser()) ?
+					headerHandleUserMap.get(reportBug.getBugHandleUser()) : localHandleUserMap.get(reportBug.getBugHandleUser()));
+			reportBug.setBugStatus(allStatusMap.get(reportBug.getBugStatus()));
 		});
 		if (CollectionUtils.isNotEmpty(reportBugs)) {
 			// 插入计划关联用例缺陷数据(去重) -> 报告内容
@@ -312,26 +310,16 @@ public class TestPlanReportService {
 		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
 		example.createCriteria().andTestPlanReportIdEqualTo(postParam.getReportId());
 		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExample(example).get(0);
-		DecimalFormat rateFormat = new DecimalFormat("#0.0000");
-		rateFormat.setMinimumFractionDigits(4);
-		rateFormat.setMaximumFractionDigits(4);
 		// 通过的功能用例数
 		// TODO: 接口用例, 场景用例
-		long functionalCasePassCount = extTestPlanReportMapper.countExecuteSuccessFunctionalCase(postParam.getReportId());
+		long functionalCasePassCount = extTestPlanReportFunctionalCaseMapper.countExecuteSuccessCase(postParam.getReportId());
 		// 用例总数
 		long caseTotal = reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount();
 		// 通过率 {通过用例数/总用例数}
-		double passRate = (functionalCasePassCount == 0 || caseTotal == 0) ? 0.0000 :
-				Double.parseDouble(rateFormat.format((double) functionalCasePassCount / (double) caseTotal));
-		// FIXME: 后续替换成PASS_COUNT {保留该逻辑, 四舍五入导致的边界值数据展示偏差}
-		if (passRate == 0 && functionalCasePassCount > 0) {
-			passRate = 0.0001;
-		} else if (passRate == 100 && functionalCasePassCount < caseTotal) {
-			passRate = 0.9999;
-		}
-		planReport.setPassRate(passRate);
+		// FIXME: 后续替换成PASS_COUNT
+		planReport.setPassRate(RateCalculateUtils.divWithPrecision((int) functionalCasePassCount, (int) caseTotal, 2));
 		// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
-		planReport.setResultStatus(passRate >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+		planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
 		return planReport;
 	}
 
@@ -350,10 +338,25 @@ public class TestPlanReportService {
 		int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
 		planReportDetail.setCaseTotal(caseTotal);
 		planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
+		planReportDetail.setSummary(reportSummary.getSummary());
 		/*
 		 * 统计用例执行数据
 		 */
 		return statisticsCase(planReportDetail);
+	}
+
+	/**
+	 * 更新报告详情
+	 * @param request 更新请求参数
+	 * @return 报告详情
+	 */
+	public TestPlanReportDetailResponse edit(TestPlanReportDetailEditRequest request) {
+		TestPlanReport planReport = checkReport(request.getId());
+		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
+		reportSummary.setId(planReport.getId());
+		reportSummary.setSummary(request.getSummary());
+		testPlanReportSummaryMapper.updateByPrimaryKeySelective(reportSummary);
+		return getReport(planReport.getId());
 	}
 
 	/**
@@ -362,8 +365,7 @@ public class TestPlanReportService {
 	 * @return 缺陷分页数据
 	 */
 	public List<BugDTO> listReportDetailBugs(TestPlanReportDetailPageRequest request) {
-		List<BugDTO> bugs = extTestPlanReportMapper.listReportBugs(request);
-		return bugService.handleCustomField(bugs, request.getProjectId());
+		return extTestPlanReportBugMapper.list(request);
 	}
 
 	/**
@@ -371,8 +373,8 @@ public class TestPlanReportService {
 	 * @param request 请求参数
 	 * @return 缺陷分页数据
 	 */
-	public List<FunctionalCasePageDTO> listReportDetailFunctionalCases(TestPlanReportDetailPageRequest request) {
-		return extTestPlanReportMapper.listReportFunctionalCases(request);
+	public List<ReportDetailCasePageDTO> listReportDetailFunctionalCases(TestPlanReportDetailPageRequest request) {
+		return extTestPlanReportFunctionalCaseMapper.list(request);
 	}
 
 
@@ -382,7 +384,7 @@ public class TestPlanReportService {
 	 */
 	private TestPlanReportDetailResponse statisticsCase(TestPlanReportDetailResponse reportDetail) {
 		// 功能用例 (无误报状态)
-		List<CaseStatusCountMap> functionalCaseCountMap = extTestPlanReportMapper.countFunctionalCaseExecuteResult(reportDetail.getId());
+		List<CaseStatusCountMap> functionalCaseCountMap = extTestPlanReportFunctionalCaseMapper.countExecuteResult(reportDetail.getId());
 		Map<String, Long> functionalCaseResultMap = functionalCaseCountMap.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
 		TestPlanReportDetailResponse.CaseCount functionalCaseCount = new TestPlanReportDetailResponse.CaseCount();
 		functionalCaseCount.setSuccess(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.SUCCESS.name(), 0L).intValue());
@@ -402,21 +404,8 @@ public class TestPlanReportService {
 		executeCaseCount.setBlock(functionalCaseCount.getBlock());
 
 		// 计算执行完成率
-		DecimalFormat rateFormat = new DecimalFormat("#0.00");
-		rateFormat.setMinimumFractionDigits(2);
-		rateFormat.setMaximumFractionDigits(2);
-		// 执行完成率 {已执行用例数/总用例数}
-		double executeRate = (executeCaseCount.getPending().equals(reportDetail.getCaseTotal()) || reportDetail.getCaseTotal() == 0) ? 0.00 :
-				Double.parseDouble(rateFormat.format((double) (reportDetail.getCaseTotal() - executeCaseCount.getPending()) / (double) reportDetail.getCaseTotal()));
-		// FIXME: 后续替换成PASS_COUNT {保留该逻辑, 四舍五入导致的边界值数据展示偏差}
-		if (executeRate == 0 && reportDetail.getCaseTotal() - executeCaseCount.getPending() > 0) {
-			executeRate = 0.01;
-		} else if (executeRate == 100 && executeCaseCount.getPending() > 0) {
-			executeRate = 99.99;
-		}
-
-		// 详情数据
-		reportDetail.setExecuteRate(executeRate);
+		reportDetail.setExecuteRate(RateCalculateUtils.divWithPrecision(reportDetail.getCaseTotal() - executeCaseCount.getPending(), reportDetail.getCaseTotal(), 2));
+		// 分析详情数据
 		reportDetail.setFunctionalCount(functionalCaseCount);
 		reportDetail.setExecuteCount(executeCaseCount);
 		return reportDetail;

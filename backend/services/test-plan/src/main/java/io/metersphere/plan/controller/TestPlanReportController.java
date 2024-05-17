@@ -3,13 +3,10 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlanReport;
-import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
-import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
-import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
+import io.metersphere.plan.dto.ReportDetailCasePageDTO;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -92,6 +89,8 @@ public class TestPlanReportController {
 		return testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
 	}
 
+    // 报告详情开始
+
     @GetMapping("/get/{id}")
     @Operation(summary = "测试计划-报告-详情")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
@@ -100,13 +99,21 @@ public class TestPlanReportController {
         return testPlanReportService.getReport(id);
     }
 
+    @PostMapping("/edit")
+    @Operation(summary = "测试计划-报告-详情-报告内容更新")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_report")
+    public TestPlanReportDetailResponse edit(@Validated @RequestBody TestPlanReportDetailEditRequest request) {
+        return testPlanReportService.edit(request);
+    }
+
     @PostMapping("/detail/bug/page")
     @Operation(summary = "测试计划-报告-详情-缺陷分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "b.num desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailBugs(request));
     }
 
@@ -114,9 +121,9 @@ public class TestPlanReportController {
     @Operation(summary = "测试计划-报告-详情-功能用例分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
-    public Pager<List<FunctionalCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+    public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "fc.num desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.function_case_num, tprfc.id desc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailFunctionalCases(request));
     }
 }

@@ -6,12 +6,12 @@ import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
+import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,9 +66,6 @@ public class TestPlanStatisticsService {
 		 * 1. 查询计划下的用例数据集合(目前只有功能用例)
 		 * 2. 根据执行结果统计(结果小数保留两位)
 		 */
-		DecimalFormat rateFormat = new DecimalFormat("#0.00");
-		rateFormat.setMinimumFractionDigits(2);
-		rateFormat.setMaximumFractionDigits(2);
 
 		// 计划的更多配置
 		TestPlanConfigExample example = new TestPlanConfigExample();
@@ -107,13 +104,8 @@ public class TestPlanStatisticsService {
 			// FIXME: CaseTotal后续会补充接口用例及场景的统计数据
 			statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount());
 			// 通过率 {通过用例数/总用例数} && 执行进度 {非未执行的用例数/总用例数}
-			double passRate = (statisticsResponse.getSuccessCount() == 0 || statisticsResponse.getCaseTotal() == 0) ? 0.00 :
-					Double.parseDouble(rateFormat.format((double) statisticsResponse.getSuccessCount() * 100 / (double) statisticsResponse.getCaseTotal()));
-			double executeRate = (statisticsResponse.getPendingCount().equals(statisticsResponse.getCaseTotal()) || statisticsResponse.getCaseTotal() == 0) ? 0.00 :
-					Double.parseDouble(rateFormat.format((double) (statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount()) * 100 / (double) statisticsResponse.getCaseTotal()));
-			// V2旧逻辑, 如果算出的结果(99.999%)由于精度问题四舍五入为100%, 且计算数量小于总数, 实际值设为99.99%
-			statisticsResponse.setPassRate((passRate == 100 && statisticsResponse.getSuccessCount() < statisticsResponse.getCaseTotal()) ? 99.99 : passRate);
-			statisticsResponse.setExecuteRate((executeRate == 100 && statisticsResponse.getPendingCount() > 0) ? 99.99 : executeRate);
+			statisticsResponse.setPassRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getSuccessCount(), statisticsResponse.getCaseTotal(), 2));
+			statisticsResponse.setExecuteRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount(), statisticsResponse.getCaseTotal(), 2));
 			planStatisticsResponses.add(statisticsResponse);
 		});
 		return planStatisticsResponses;
