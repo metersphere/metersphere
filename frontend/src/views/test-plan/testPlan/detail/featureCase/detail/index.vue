@@ -195,6 +195,7 @@
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
@@ -557,6 +558,15 @@
     initBugList();
     await loadCase();
   });
+
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val === 'detail') {
+        getBugTotal();
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>
