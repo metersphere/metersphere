@@ -25,6 +25,7 @@ import {
   GetFeatureCaseModuleUrl,
   GetPlanDetailFeatureCaseListUrl,
   getStatisticalCountUrl,
+  GetTestPlanCaseListUrl,
   GetTestPlanDetailUrl,
   GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
@@ -43,7 +44,7 @@ import {
 } from '@/api/requrls/test-plan/testPlan';
 
 import { ReviewUserItem } from '@/models/caseManagement/caseReview';
-import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
+import type { CaseManagementTable, CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import { ModuleTreeNode } from '@/models/common';
 import type {
@@ -112,6 +113,10 @@ export function getTestPlanList(data: TableQueryParams) {
 // 创建测试计划
 export function addTestPlan(data: AddTestPlanParams) {
   return MSR.post({ url: AddTestPlanUrl, data });
+}
+// 功能用例列表
+export function getTestPlanCaseList(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetTestPlanCaseListUrl, data });
 }
 // 创建测试计划
 export function copyTestPlan(data: AddTestPlanParams) {
