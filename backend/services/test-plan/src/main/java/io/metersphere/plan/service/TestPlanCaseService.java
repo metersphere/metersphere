@@ -6,6 +6,7 @@ import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
+import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -43,6 +44,8 @@ public class TestPlanCaseService {
             testPlanFunctionalCase.setPos(pox);
             testPlanFunctionalCase.setCreateTime(now);
             testPlanFunctionalCase.setCreateUser(associationParam.getOperator());
+            testPlanFunctionalCase.setLastExecResult(FunctionalCaseExecuteResult.PENDING.name());
+            testPlanFunctionalCase.setExecuteUser(associationParam.getOperator());
             testPlanFunctionalCaseList.add(testPlanFunctionalCase);
             pox += ServiceUtils.POS_STEP;
         }

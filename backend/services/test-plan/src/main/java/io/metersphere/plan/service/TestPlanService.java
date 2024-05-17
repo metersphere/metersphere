@@ -74,6 +74,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private UserMapper userMapper;
     @Resource
     private TestPlanSendNoticeService testPlanSendNoticeService;
+    @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
     private static final int MAX_TAG_SIZE = 10;
 
     /**
@@ -239,7 +241,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 级联删除计划关联的资源
      *
-     * @param testPlanIds 计划ID集合
+     * @param testPlanIds           计划ID集合
      * @param testPlanReportService 这个方法会在批处理中使用，所以service在调用处通过传参的方式传入
      */
     private void cascadeDeleteTestPlanIds(List<String> testPlanIds, TestPlanReportService testPlanReportService) {
@@ -260,6 +262,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
         allocationExample.createCriteria().andTestPlanIdIn(testPlanIds);
         testPlanAllocationMapper.deleteByExample(allocationExample);
+
+        TestPlanCaseExecuteHistoryExample historyExample = new TestPlanCaseExecuteHistoryExample();
+        historyExample.createCriteria().andTestPlanIdIn(testPlanIds);
+        testPlanCaseExecuteHistoryMapper.deleteByExample(historyExample);
 
         //删除测试计划报告 todo: 正式版增加接口用例报告、接口场景报告的清理
         testPlanReportService.deleteByTestPlanIds(testPlanIds);
