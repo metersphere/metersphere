@@ -41,7 +41,7 @@ export const defaultDetailCount: PassRateCountDetail = {
 };
 
 export const defaultExecuteForm = {
-  lastExecResult: 'PASSED' as LastExecuteResults,
+  lastExecResult: LastExecuteResults.SUCCESS,
   content: '',
   planCommentFileIds: [],
   notifier: [] as string[],

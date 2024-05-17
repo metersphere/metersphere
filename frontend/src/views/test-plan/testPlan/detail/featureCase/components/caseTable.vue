@@ -42,6 +42,7 @@
           v-model:model-value="record.lastExecResult"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
+          @change="() => handleEditLastExecResult(record)"
         >
           <template #label>
             <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
@@ -182,6 +183,7 @@
     batchExecuteCase,
     batchUpdateCaseExecutor,
     disassociateCase,
+    editLastExecResult,
     getPlanDetailFeatureCaseList,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
@@ -462,6 +464,22 @@
     }
   }
 
+  // 更新执行结果
+  async function handleEditLastExecResult(record: PlanDetailFeatureCaseItem) {
+    try {
+      await editLastExecResult({
+        id: record.id,
+        testPlanId: props.planId,
+        lastExecResult: record.lastExecResult,
+      });
+      Message.success(t('common.updateSuccess'));
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   // 取消关联
   const disassociateLoading = ref(false);
   async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
@@ -570,7 +588,7 @@
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
-    batchParams.value = params;
+    batchParams.value = { ...params, selectIds: params?.selectedIds };
     switch (event.eventTag) {
       case 'execute':
         batchExecuteModalVisible.value = true;
