@@ -110,10 +110,10 @@
                 <div class="flex items-center">
                   <a-switch v-model:model-value="autoNext" size="small" />
                   <div class="mx-[8px]">{{ t('caseManagement.caseReview.autoNext') }}</div>
-                  <a-tooltip position="right">
+                  <a-tooltip position="top">
                     <template #content>
-                      <div>{{ t('caseManagement.caseReview.autoNextTip1') }}</div>
-                      <div>{{ t('caseManagement.caseReview.autoNextTip2') }}</div>
+                      <div>{{ t('testPlan.featureCase.autoNextTip1') }}</div>
+                      <div>{{ t('testPlan.featureCase.autoNextTip2') }}</div>
                     </template>
                     <icon-question-circle
                       class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-4))]"
