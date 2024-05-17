@@ -32,4 +32,5 @@ export default {
   'report.plan.name': 'Plan Name',
   'report.passRate': 'Pass rate',
   'report.completed': 'Completed',
+  'report.passRateTip': 'Pass rate: successful cases in the plan / cases in the plan * 100%',
 };

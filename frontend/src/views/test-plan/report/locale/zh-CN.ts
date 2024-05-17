@@ -31,6 +31,6 @@ export default {
   'report.execStatus': '执行状态',
   'report.plan.name': '计划名称',
   'report.passRate': '通过率',
-  'report.passRateTip': '测试计划报告通过率',
+  'report.passRateTip': '通过率：执行成功的用例/计划内用例 * 100%',
   'report.completed': '已完成',
 };
