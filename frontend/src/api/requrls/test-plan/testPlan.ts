@@ -68,5 +68,7 @@ export const TestPlanAssociateBugUrl = '/test-plan/functional/case/associate/bug
 export const TestPlanCancelBugUrl = '/test-plan/functional/case/disassociate/bug';
 // 计划详情-功能用例-批量执行
 export const BatchRunCaseUrl = '/test-plan/functional/case/batch/run';
+// 计划详情-功能用例-获取用户列表
+export const GetTestPlanUsersUrl = '/test-plan/functional/case/user-option';
 // 计划详情-功能用例-批量更新执行人
 export const BatchUpdateCaseExecutorUrl = '/test-plan/functional/case/batch/update/executor';

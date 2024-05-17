@@ -26,6 +26,7 @@ import {
   GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
+  GetTestPlanUsersUrl,
   MoveTestPlanModuleUrl,
   planDetailBugPageUrl,
   planPassRateUrl,
@@ -38,6 +39,7 @@ import {
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
 
+import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import { ModuleTreeNode } from '@/models/common';
@@ -190,6 +192,10 @@ export function batchDisassociateCase(data: BatchFeatureCaseParams) {
 export function batchExecuteCase(data: BatchExecuteFeatureCaseParams) {
   return MSR.post({ url: BatchRunCaseUrl, data });
 }
+// 计划详情-功能用例-获取用户列表
+export const GetTestPlanUsers = (projectId: string, keyword: string) => {
+  return MSR.get<ReviewUserItem[]>({ url: `${GetTestPlanUsersUrl}/${projectId}`, params: { keyword } });
+};
 // 计划详情-功能用例列表-批量更新执行人
 export function batchUpdateCaseExecutor(data: BatchUpdateCaseExecutorParams) {
   return MSR.post({ url: BatchUpdateCaseExecutorUrl, data });
