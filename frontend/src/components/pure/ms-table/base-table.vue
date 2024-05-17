@@ -108,6 +108,7 @@
                 v-bind="item.filterConfig"
                 :filter="filterData"
                 @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
+                @click.stop="null"
               >
                 <template #item="{ filterItem }">
                   <slot :name="item.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
