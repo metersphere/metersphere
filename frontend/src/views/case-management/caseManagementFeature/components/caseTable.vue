@@ -219,7 +219,7 @@
       </div>
       <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
         <!-- 脑图开始 -->
-        <MsMinder minder-type="FeatureCase" :import-json="importJson" @node-click="handleNodeClick" />
+        <MsMinder minder-type="FeatureCase" :module-id="props.activeFolder" :module-name="props.moduleName" />
         <MsDrawer v-model:visible="visible" :width="480" :mask="false">
           {{ nodeData.text }}
         </MsDrawer>
@@ -383,7 +383,7 @@
 
   const props = defineProps<{
     activeFolder: string;
-    activeFolderType: 'folder' | 'module';
+    moduleName: string;
     offspringIds: string[]; // 当前选中文件夹的所有子孙节点id
     modulesCount: Record<string, number>; // 模块数量
   }>();
@@ -414,64 +414,10 @@
       };
     });
   });
-  const moduleId = computed(() => featureCaseStore.moduleId[0]);
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const visible = ref<boolean>(false);
   const nodeData = ref<any>({});
-
-  const importJson = ref<any>({});
-
-  function handleNodeClick(data: any) {
-    if (data.resource && data.resource.includes('用例')) {
-      visible.value = true;
-      nodeData.value = data;
-    }
-  }
-
-  onBeforeMount(() => {
-    importJson.value = {
-      root: {
-        data: {
-          text: '测试用例',
-          id: 'xxxx',
-        },
-        children: [
-          {
-            data: {
-              id: 'sdasdas',
-              text: '模块 1',
-              resource: ['模块'],
-            },
-          },
-          {
-            data: {
-              id: 'dasdasda',
-              text: '模块 2',
-              expandState: 'collapse',
-            },
-            children: [
-              {
-                data: {
-                  id: 'frihofiuho3f',
-                  text: '用例 1',
-                  resource: ['用例'],
-                },
-              },
-              {
-                data: {
-                  id: 'df09348f034f',
-                  text: ' 用例 2',
-                  resource: ['用例'],
-                },
-              },
-            ],
-          },
-        ],
-      },
-      template: 'default',
-    };
-  });
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])

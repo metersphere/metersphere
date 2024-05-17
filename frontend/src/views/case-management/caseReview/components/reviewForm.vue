@@ -71,6 +71,7 @@
     <MsRichText
       v-model:raw="caseResultForm.reason"
       v-model:commentIds="caseResultForm.commentIds"
+      v-model:filed-ids="caseResultForm.fileList"
       :upload-image="handleUploadImage"
       :preview-url="PreviewEditorImageUrl"
       class="w-full"
@@ -84,7 +85,6 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import { MsFileItem } from '@/components/pure/ms-upload/types';
 
   import { getCaseReviewerList, saveCaseReviewResult } from '@/api/modules/case-management/caseReview';
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
@@ -114,7 +114,7 @@
   const caseResultForm = ref({
     result: 'PASS' as ReviewResult,
     reason: '',
-    fileList: [] as MsFileItem[],
+    fileList: [] as string[],
     commentIds: [] as string[],
   });
   const submitReviewLoading = ref(false);
@@ -152,6 +152,7 @@
             reviewPassRule: props.reviewPassRule,
             content: caseResultForm.value.reason,
             notifier: caseResultForm.value.commentIds.join(';'),
+            reviewCommentFileIds: caseResultForm.value.fileList,
           };
           await saveCaseReviewResult(params);
           modalVisible.value = false;
@@ -169,7 +170,7 @@
           caseResultForm.value = {
             result: 'PASS' as ReviewResult,
             reason: '',
-            fileList: [] as MsFileItem[],
+            fileList: [] as string[],
             commentIds: [] as string[],
           };
           if (typeof done === 'function') {

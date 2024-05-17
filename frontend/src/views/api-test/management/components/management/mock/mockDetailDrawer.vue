@@ -77,7 +77,7 @@
         >
           <MsTagsInput
             v-model:model-value="mockDetail.tags"
-            class="w-[732px]"
+            input-class="w-[732px]"
             allow-clear
             unique-value
             retain-input-value
@@ -269,12 +269,8 @@
     }
     return t('mockManagement.createMock');
   });
-  const activeTab = ref<RequestComposition>(RequestComposition.BODY);
+  const activeTab = ref<RequestComposition>(RequestComposition.HEADER);
   const mockTabList = [
-    {
-      value: RequestComposition.BODY,
-      label: t('apiTestDebug.body'),
-    },
     {
       value: RequestComposition.HEADER,
       label: t('apiTestDebug.header'),
@@ -286,6 +282,10 @@
     {
       value: RequestComposition.REST,
       label: RequestComposition.REST,
+    },
+    {
+      value: RequestComposition.BODY,
+      label: t('apiTestDebug.body'),
     },
   ];
 
