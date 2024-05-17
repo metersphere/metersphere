@@ -360,13 +360,6 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'testPlan.testPlanIndex.desc',
-      slotName: 'desc',
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
       title: 'testPlan.testPlanIndex.executionResult',
       dataIndex: 'status',
       slotName: 'status',
