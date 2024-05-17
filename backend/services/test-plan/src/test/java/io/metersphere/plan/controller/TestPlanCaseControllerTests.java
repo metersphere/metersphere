@@ -306,6 +306,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
         testPlanCaseExecuteHistory.setCaseId("gyq_disassociate_fc_4");
         testPlanCaseExecuteHistory.setTestPlanCaseId("gyq_disassociate_case_4");
+        testPlanCaseExecuteHistory.setTestPlanId("gyq_disassociate_plan_2");
         testPlanCaseExecuteHistory.setDeleted(false);
         testPlanCaseExecuteHistory.setId("history_id");
         testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());

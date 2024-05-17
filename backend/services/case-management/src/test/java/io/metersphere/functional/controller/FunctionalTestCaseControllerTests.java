@@ -568,6 +568,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     public void testPlanExecuteHistoryList() throws Exception {
         TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
         testPlanCaseExecuteHistory.setTestPlanCaseId("associate_case_plan_gyq_one");
+        testPlanCaseExecuteHistory.setTestPlanId("test_plan_associate_case_gyq_one");
         testPlanCaseExecuteHistory.setCaseId("gyq_associate_function_case");
         testPlanCaseExecuteHistory.setCreateUser("admin");
         testPlanCaseExecuteHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
@@ -579,7 +580,8 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         List<TestPlanCaseExecuteHistoryDTO> gyqReviewCaseTest = getPlanExecuteHistoryList("gyq_associate_function_case");
         Assertions.assertTrue(StringUtils.isNotBlank(gyqReviewCaseTest.get(0).getContentText()));
         testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
-        testPlanCaseExecuteHistory.setTestPlanCaseId("associate_case_plan_gyq_two");
+        testPlanCaseExecuteHistory.setTestPlanCaseId("test_plan_associate_case_gyq_two");
+        testPlanCaseExecuteHistory.setTestPlanId("associate_case_plan_gyq_two");
         testPlanCaseExecuteHistory.setCaseId("gyq_associate_function_case");
         testPlanCaseExecuteHistory.setCreateUser("admin");
         testPlanCaseExecuteHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
