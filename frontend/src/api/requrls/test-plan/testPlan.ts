@@ -14,6 +14,8 @@ export const GetTestPlanModuleCountUrl = '/test-plan/module/count';
 export const GetTestPlanListUrl = '/test-plan/page';
 // 创建测试计划
 export const AddTestPlanUrl = '/test-plan/add';
+// 功能用例列表
+export const GetTestPlanCaseListUrl = '/test-plan/association/page';
 // 获取测试计划详情
 export const GetTestPlanDetailUrl = '/test-plan';
 // 更新测试计划

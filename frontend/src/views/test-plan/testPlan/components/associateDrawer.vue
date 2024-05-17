@@ -3,7 +3,7 @@
     v-model:visible="innerVisible"
     v-model:currentSelectCase="currentSelectCase"
     :get-modules-func="getCaseModuleTree"
-    :get-table-func="getCaseList"
+    :get-table-func="getTestPlanCaseList"
     :confirm-loading="confirmLoading"
     :associated-ids="props.hasNotAssociatedIds || []"
     :project-id="currentProjectId"
@@ -19,7 +19,8 @@
   import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
   import { RequestModuleEnum } from '@/components/business/ms-case-associate/utils';
 
-  import { getCaseList, getCaseModuleTree } from '@/api/modules/case-management/featureCase';
+  import { getCaseModuleTree } from '@/api/modules/case-management/featureCase';
+  import { getTestPlanCaseList } from '@/api/modules/test-plan/testPlan';
   import useAppStore from '@/store/modules/app';
 
   import type { AssociateCaseRequest } from '@/models/testPlan/testPlan';
