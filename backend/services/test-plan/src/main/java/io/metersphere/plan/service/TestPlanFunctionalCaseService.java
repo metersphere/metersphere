@@ -620,7 +620,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep, FunctionalCaseStepDTO historyStep) {
-        if (StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult())) {
+        if (StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult()) && StringUtils.equals(historyStep.getId(), newCaseStep.getId())) {
             newCaseStep.setExecuteResult(historyStep.getExecuteResult());
             newCaseStep.setActualResult(historyStep.getActualResult());
         }
