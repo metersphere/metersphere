@@ -114,9 +114,9 @@
             project.id as projectId
         FROM
             functional_case
-        left join project on functional_case.project_id = project.id
+        inner join project on functional_case.project_id = project.id
+        inner join test_plan_functional_case on functional_case.id = test_plan_functional_case.functional_case_id
         LEFT JOIN project_version ON  functional_case.version_id = project_version.id
-        left join test_plan_functional_case on functional_case.id = test_plan_functional_case.functional_case_id
         where functional_case.deleted = #{deleted}
         and test_plan_functional_case.test_plan_id = #{request.testPlanId}
           and functional_case.project_id = #{request.projectId}
@@ -126,7 +126,7 @@
             functional_case.${sort}
         </if>
         <if test="sort == null or sort == ''">
-            functional_case.pos desc
+            test_plan_functional_case.pos desc
         </if>
     </select>
 

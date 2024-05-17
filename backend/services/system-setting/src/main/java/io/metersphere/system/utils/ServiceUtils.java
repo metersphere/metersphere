@@ -19,7 +19,8 @@ import static io.metersphere.system.controller.handler.result.MsHttpResultCode.N
 
 public class ServiceUtils {
 
-    public static final int POS_STEP = 5000;
+    //用于排序的pos
+    public static final int POS_STEP = 4096;
 
     /**
      * 保存资源名称，在处理 NOT_FOUND 异常时，拼接资源名称
