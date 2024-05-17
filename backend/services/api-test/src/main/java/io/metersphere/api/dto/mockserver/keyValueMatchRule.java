@@ -15,9 +15,9 @@ public class keyValueMatchRule {
     @Schema(description = "匹配规则")
     private List<KeyValueInfo> matchRules;
 
-    public boolean match(Map<String, String> matchParam) {
-        if ((MapUtils.isEmpty(matchParam) && CollectionUtils.isNotEmpty(matchRules)) ||
-                (CollectionUtils.isEmpty(matchRules) && MapUtils.isNotEmpty(matchParam))) {
+    public boolean match(Map<String, String> matchParam, boolean isHeader) {
+        if (!isHeader && ((MapUtils.isEmpty(matchParam) && CollectionUtils.isNotEmpty(matchRules)) ||
+                (CollectionUtils.isEmpty(matchRules) && MapUtils.isNotEmpty(matchParam)))) {
             return false;
         }
         if (isMatchAll) {
