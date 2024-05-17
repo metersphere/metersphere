@@ -8,6 +8,7 @@ import {
   batchCopyPlanUrl,
   batchDeletePlanUrl,
   BatchDisassociateCaseUrl,
+  BatchEditTestPlanUrl,
   batchMovePlanUrl,
   BatchRunCaseUrl,
   BatchUpdateCaseExecutorUrl,
@@ -16,6 +17,7 @@ import {
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
   EditCaseLastExecResultUrl,
+  ExecuteHistoryUrl,
   followPlanUrl,
   GenerateReportUrl,
   GetAssociatedBugUrl,
@@ -52,6 +54,8 @@ import type {
   BatchUpdateCaseExecutorParams,
   DisassociateCaseParams,
   EditLastExecResultParams,
+  ExecuteHistoryItem,
+  ExecuteHistoryType,
   FollowPlanParams,
   PassRateCountDetail,
   PlanDetailBugItem,
@@ -83,6 +87,11 @@ export function updatePlanModuleTree(data: UpdateModule) {
 // 移动模块树
 export function moveTestPlanModuleTree(data: MoveModules) {
   return MSR.post({ url: MoveTestPlanModuleUrl, data });
+}
+
+// 批量编辑测试计划
+export function batchEditTestPlan(data: TableQueryParams) {
+  return MSR.post({ url: BatchEditTestPlanUrl, data });
 }
 
 // 删除模块
@@ -225,4 +234,8 @@ export function associateBugToPlan(data: TableQueryParams) {
 // 测试计划-用例详情-关联缺陷
 export function testPlanCancelBug(id: string) {
   return MSR.get({ url: `${TestPlanCancelBugUrl}/${id}` });
+}
+// 测试计划-用例详情-执行历史
+export function executeHistory(data: ExecuteHistoryType) {
+  return MSR.post<ExecuteHistoryItem[]>({ url: ExecuteHistoryUrl, data });
 }

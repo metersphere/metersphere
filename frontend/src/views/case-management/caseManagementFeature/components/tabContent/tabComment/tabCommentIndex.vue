@@ -45,7 +45,7 @@
                 {{ t('caseManagement.caseReview.fail') }}
               </div>
               <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
-                <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+                <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--link-6))]" />
                 {{ t('caseManagement.caseReview.suggestion') }}
               </div>
               <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
@@ -57,11 +57,11 @@
                 {{ t('caseManagement.featureCase.execute.success') }}
               </div>
               <div v-if="item.status === 'BLOCKED'" class="flex items-center">
-                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
                 {{ t('caseManagement.featureCase.execute.blocked') }}
               </div>
               <div v-if="item.status === 'FAILED'" class="flex items-center">
-                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
                 {{ t('caseManagement.featureCase.execute.failed') }}
               </div>
             </div>

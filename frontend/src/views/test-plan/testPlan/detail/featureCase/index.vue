@@ -76,4 +76,12 @@
   function initModuleTree(tree: ModuleTreeNode[]) {
     moduleTree.value = unref(tree);
   }
+
+  function getCaseTableList() {
+    caseTableRef.value?.loadCaseList();
+  }
+
+  defineExpose({
+    getCaseTableList,
+  });
 </script>

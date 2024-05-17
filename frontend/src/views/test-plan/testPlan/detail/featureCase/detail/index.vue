@@ -120,7 +120,33 @@
                       size="16"
                     />
                   </a-tooltip>
-                  <!-- TODO: 缺陷 -->
+                  <MsTag type="danger" theme="light" size="medium" class="ml-4">
+                    <MsIcon type="icon-icon_defect" class="!text-[14px] text-[rgb(var(--danger-6))]" size="16" />
+                    <span class="ml-1 text-[rgb(var(--danger-6))]"> {{ t('testPlan.featureCase.bug') }}</span>
+                    <span class="ml-1 text-[rgb(var(--danger-6))]">{{ bugCount }}</span>
+                  </MsTag>
+                  <a-dropdown @select="handleSelect">
+                    <a-button type="outline" size="mini" class="ml-1">
+                      <template #icon> <icon-plus class="text-[12px]" /> </template>
+                    </a-button>
+                    <template #content>
+                      <a-doption value="new">{{ t('common.newCreate') }}</a-doption>
+                      <a-doption v-if="createdBugCount > 0" value="link">{{ t('common.associated') }}</a-doption>
+                      <a-popover v-else title="" position="left">
+                        <a-doption :disabled="true" value="link">{{ t('common.associated') }}</a-doption>
+                        <template #content>
+                          <div class="flex items-center text-[14px]">
+                            <span class="text-[var(--color-text-4)]">{{
+                              t('testPlan.featureCase.noBugDataTooltip')
+                            }}</span>
+                            <MsButton type="text" @click="handleSelect('new')">
+                              {{ t('testPlan.featureCase.noBugDataNewBug') }}
+                            </MsButton>
+                          </div>
+                        </template>
+                      </a-popover>
+                    </template>
+                  </a-dropdown>
                 </div>
               </div>
               <ExecuteSubmit
@@ -134,19 +160,39 @@
           </div>
           <BugList
             v-if="activeTab === 'defectList'"
-            :case-id="caseDetail.id"
+            ref="bugRef"
+            :case-id="activeCaseId"
             :test-plan-id="route.query.id as string"
+            @link="linkDefect"
+            @new="addBug"
           />
-          <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="caseDetail.id" />
+          <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="activeCaseId" />
         </div>
       </a-spin>
     </div>
   </MsCard>
   <EditCaseDetailDrawer v-model:visible="editCaseVisible" :case-id="activeCaseId" @load-case="loadCase" />
+  <LinkDefectDrawer
+    v-model:visible="showLinkDrawer"
+    :case-id="activeCaseId"
+    :drawer-loading="drawerLoading"
+    @save="associateSuccessHandler"
+  />
+  <AddDefectDrawer
+    v-model:visible="showDrawer"
+    :case-id="activeCaseId"
+    ::extra-params="{
+        testPlanCaseId: route.query.testPlanCaseId,
+        caseId: activeCaseId,
+        testPlanId:route.query.id as string,
+      }"
+    @success="addSuccess"
+  />
 </template>
 
 <script setup lang="ts">
   import { useRoute, useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -154,19 +200,31 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
   import MsTab from '@/components/pure/ms-tab/index.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugList from './bug/index.vue';
   import ExecuteSubmit from './executeSubmit.vue';
+  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
+  import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
   import CaseTabDetail from '@/views/case-management/caseManagementFeature/components/tabContent/tabDetail.vue';
   import EditCaseDetailDrawer from '@/views/case-management/caseReview/components/editCaseDetailDrawer.vue';
   import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
-  import { getCaseDetail, getPlanDetailFeatureCaseList, getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
+  import { getBugList } from '@/api/modules/bug-management';
+  import {
+    associateBugToPlan,
+    associatedBugPage,
+    getCaseDetail,
+    getPlanDetailFeatureCaseList,
+    getTestPlanDetail,
+  } from '@/api/modules/test-plan/testPlan';
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
+  import type { TableQueryParams } from '@/models/common';
   import type { PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
@@ -338,7 +396,6 @@
     () => activeId.value,
     () => {
       loadCaseDetail();
-      // TODO 更新历史列表
     }
   );
 
@@ -389,6 +446,95 @@
     }
   }
 
+  const bugCount = ref<number>(0);
+
+  const showLinkDrawer = ref<boolean>(false);
+  const drawerLoading = ref<boolean>(false);
+
+  const showDrawer = ref<boolean>(false);
+
+  function addBug() {
+    showDrawer.value = true;
+  }
+
+  function linkDefect() {
+    showLinkDrawer.value = true;
+  }
+
+  function handleSelect(value: string | number | Record<string, any> | undefined) {
+    switch (value) {
+      case 'new':
+        addBug();
+        break;
+      default:
+        linkDefect();
+        break;
+    }
+  }
+  const bugRef = ref();
+
+  async function getBugTotal() {
+    try {
+      const params = {
+        testPlanCaseId: route.query.testPlanCaseId,
+        caseId: activeCaseId.value,
+        projectId: appStore.currentProjectId,
+        current: 1,
+        pageSize: 10,
+      };
+      const res = await associatedBugPage(params);
+      bugCount.value = res.total;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function addSuccess() {
+    if (activeTab.value === 'defectList') {
+      bugRef.value?.initData();
+    } else {
+      getBugTotal();
+    }
+  }
+
+  async function associateSuccessHandler(params: TableQueryParams) {
+    try {
+      drawerLoading.value = true;
+      await associateBugToPlan({
+        ...params,
+        caseId: activeCaseId.value,
+        testPlanId: route.query.id as string,
+        testPlanCaseId: route.query.testPlanCaseId as string,
+      });
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      showLinkDrawer.value = false;
+      addSuccess();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
+  }
+
+  const createdBugCount = ref<number>(0);
+
+  async function initBugList() {
+    if (!hasAnyPermission(['PROJECT_BUG:READ'])) {
+      return;
+    }
+    const res = await getBugList({
+      current: 1,
+      pageSize: 10,
+      sort: {},
+      filter: {},
+      keyword: '',
+      combine: {},
+      searchMode: 'AND',
+      projectId: appStore.currentProjectId,
+    });
+    createdBugCount.value = res.total;
+  }
+
   onBeforeMount(async () => {
     const lastPageParams = window.history.state.params ? JSON.parse(window.history.state.params) : null; // 获取上个页面带过来的表格查询参数
     if (lastPageParams) {
@@ -404,7 +550,11 @@
         moduleIds,
       };
     }
+    if (activeTab.value === 'detail') {
+      getBugTotal();
+    }
     getPlanDetail();
+    initBugList();
     await loadCase();
   });
 </script>

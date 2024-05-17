@@ -65,7 +65,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { BatchEditCaseType, CustomAttributes } from '@/models/caseManagement/featureCase';
+  import type { CustomAttributes } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
   import Message from '@arco-design/web-vue/es/message';

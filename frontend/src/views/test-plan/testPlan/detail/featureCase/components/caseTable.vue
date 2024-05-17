@@ -534,6 +534,7 @@
         ...tableParams.value,
         ...batchExecuteForm.value,
         notifier: batchExecuteForm.value?.commentIds?.join(';'),
+        selectIds: batchParams.value.selectedIds,
       });
       Message.success(t('common.updateSuccess'));
       resetSelector();
@@ -636,6 +637,7 @@
 
   defineExpose({
     resetSelector,
+    loadCaseList,
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE, columns, 'drawer', true);

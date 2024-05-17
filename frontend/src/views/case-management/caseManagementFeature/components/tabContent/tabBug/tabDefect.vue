@@ -73,19 +73,19 @@
     />
     <ms-base-table v-else v-bind="testPlanPropsRes" ref="planTableRef" v-on="testPlanTableEvent">
       <template #name="{ record }">
-        <div class="one-line-text max-w-[300px]"> {{ record.name }}</div>
-        <a-popover title="" position="right">
-          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-          <template #content>
-            <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
-              {{ record.content }}
-            </div>
-          </template>
-        </a-popover>
+        <div class="flex flex-nowrap items-center">
+          <div class="one-line-text">{{ characterLimit(record.name) }}</div>
+          <a-popover title="" position="right" style="width: 480px">
+            <div class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</div>
+            <template #content>
+              <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
+            </template>
+          </a-popover>
+        </div>
       </template>
       <template #handleUserName="{ record }">
         <a-tooltip :content="record.handleUserName">
-          <div class="one-line-text max-w-[200px]">{{ characterLimit(record.handleUserName) }}</div>
+          <div class="one-line-text max-w-[200px]">{{ characterLimit(record.handleUserName) || '-' }}</div>
         </a-tooltip>
       </template>
       <template #testPlanName="{ record }">
@@ -259,7 +259,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'num',
-      width: 200,
+      width: 100,
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
@@ -271,7 +271,7 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
-      width: 300,
+      width: 250,
       ellipsis: true,
       showDrag: false,
     },
@@ -281,7 +281,7 @@
       dataIndex: 'testPlanName',
       showInTable: true,
       showTooltip: true,
-      width: 300,
+      width: 200,
       ellipsis: true,
       showDrag: false,
     },
@@ -291,7 +291,7 @@
       dataIndex: 'defectState',
       showInTable: true,
       showTooltip: true,
-      width: 300,
+      width: 150,
       ellipsis: true,
       showDrag: false,
     },
@@ -305,7 +305,7 @@
       },
       showInTable: true,
       showTooltip: true,
-      width: 300,
+      width: 200,
       ellipsis: true,
     },
   ];
@@ -364,7 +364,7 @@
       return;
     }
     if (showType.value === 'link') {
-      bugTableListRef.value?.searchData();
+      bugTableListRef.value?.searchData(keyword.value);
     } else {
       setTestPlanListParams(initTableParams());
       await testPlanLinkList();
@@ -373,7 +373,7 @@
   }
   async function resetFetch() {
     if (showType.value === 'link') {
-      bugTableListRef.value?.searchData();
+      bugTableListRef.value?.searchData(keyword.value);
     } else {
       setTestPlanListParams({ keyword: '', projectId: appStore.currentProjectId, testPlanCaseId: props.caseId });
       await testPlanLinkList();

@@ -57,7 +57,6 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
   import debounce from 'lodash-es/debounce';
 
   const { t } = useI18n();

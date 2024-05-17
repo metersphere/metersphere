@@ -101,11 +101,21 @@
   </MsCard>
   <!-- special-height的174: 上面卡片高度158 + mt的16 -->
   <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding>
-    <FeatureCase v-if="activeTab === 'featureCase'" :repeat-case="detail.repeatCase" @refresh="getStatistics" />
+    <FeatureCase
+      v-if="activeTab === 'featureCase'"
+      ref="featureCaseRef"
+      :repeat-case="detail.repeatCase"
+      @refresh="getStatistics"
+    />
     <!-- TODO 先不上 -->
     <!-- <BugManagement v-if="activeTab === 'defectList'" :plan-id="detail.id" /> -->
   </MsCard>
-  <AssociateDrawer v-model:visible="caseAssociateVisible" :associated-ids="hasSelectedIds" @success="success" />
+  <AssociateDrawer
+    v-model:visible="caseAssociateVisible"
+    :associated-ids="detail.repeatCase ? hasSelectedIds : []"
+    :save-api="associationCaseToPlan"
+    @success="handleSuccess"
+  />
   <CreateAndEditPlanDrawer
     v-model:visible="showPlanDrawer"
     :plan-id="planId"
@@ -117,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
@@ -153,12 +163,7 @@
   import { characterLimit } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type {
-    AssociateCaseRequest,
-    PassRateCountDetail,
-    TestPlanDetail,
-    TestPlanItem,
-  } from '@/models/testPlan/testPlan';
+  import type { PassRateCountDetail, TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
 
   const userStore = useUserStore();
   const appStore = useAppStore();
@@ -353,6 +358,7 @@
   function successHandler() {
     initDetail();
   }
+
   const testPlanTree = ref<ModuleTreeNode[]>([]);
   async function initPlanTree() {
     try {
@@ -362,19 +368,10 @@
     }
   }
 
-  // 关联用例到测试计划
-  async function success(params: AssociateCaseRequest) {
-    try {
-      await associationCaseToPlan({
-        functionalSelectIds: params.selectIds,
-        testPlanId: planId.value,
-      });
-      Message.success(t('ms.case.associate.associateSuccess'));
-      caseAssociateVisible.value = false;
-      initDetail();
-    } catch (error) {
-      console.log(error);
-    }
+  const featureCaseRef = ref<InstanceType<typeof FeatureCase>>();
+  function handleSuccess() {
+    initDetail();
+    featureCaseRef.value?.getCaseTableList();
   }
 
   onBeforeMount(() => {

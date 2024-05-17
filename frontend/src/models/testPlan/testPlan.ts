@@ -185,6 +185,8 @@ export interface RunFeatureCaseParams extends ExecuteFeatureCaseFormParams {
   notifier?: string;
 }
 
+export type ExecuteHistoryType = Pick<RunFeatureCaseParams, 'id' | 'testPlanId' | 'caseId'>;
+
 export interface BatchExecuteFeatureCaseParams extends BatchFeatureCaseParams, ExecuteFeatureCaseFormParams {
   notifier?: string;
 }
@@ -211,6 +213,21 @@ export interface PassRateCountDetail {
   functionalCaseCount: number;
   apiCaseCount: number;
   apiScenarioCount: number;
+}
+
+// 执行历史
+export interface ExecuteHistoryItem {
+  status: string;
+  content: string;
+  contentText: string;
+  stepsExecResult: string;
+  createUser: string;
+  userName: string;
+  userLogo: string;
+  email: string;
+  steps: string;
+  createTime: string;
+  deleted: boolean;
 }
 
 export default {};
