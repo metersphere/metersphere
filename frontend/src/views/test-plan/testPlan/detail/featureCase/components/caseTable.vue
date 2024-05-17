@@ -151,7 +151,7 @@
             v-model:modelValue="batchUpdateExecutorForm.userId"
             mode="static"
             :placeholder="t('common.pleaseSelect')"
-            :loading="batchLoading"
+            :loading="executorLoading"
             :options="userOptions"
             :search-keys="['label']"
             allow-search
@@ -185,6 +185,7 @@
     disassociateCase,
     editLastExecResult,
     getPlanDetailFeatureCaseList,
+    GetTestPlanUsers,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
   import { defaultExecuteForm } from '@/config/testPlan';
@@ -194,6 +195,7 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { ReviewUserItem } from '@/models/caseManagement/caseReview';
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type {
     ExecuteFeatureCaseFormParams,
@@ -407,9 +409,6 @@
       pageSize: propsRes.value.msPagination?.pageSize,
     });
   }
-  onBeforeMount(() => {
-    loadCaseList();
-  });
   watch(
     () => props.activeModule,
     () => {
@@ -556,7 +555,21 @@
   const batchUpdateExecutorModalVisible = ref(false);
   const batchUpdateExecutorForm = ref<{ userId: string }>({ userId: '' });
   const batchUpdateExecutorDisabled = computed(() => !batchUpdateExecutorForm.value.userId.length);
-  const userOptions = ref<SelectOptionData[]>([]); // TODO 接口联调
+  const userOptions = ref<SelectOptionData[]>([]);
+  const executorLoading = ref(false);
+  async function initUserOptions() {
+    try {
+      executorLoading.value = true;
+      const res = await GetTestPlanUsers(appStore.currentProjectId, '');
+      userOptions.value = res.map((e: ReviewUserItem) => ({ label: e.name, value: e.id }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      executorLoading.value = false;
+    }
+  }
+
   async function handleBatchUpdateExecutor() {
     batchUpdateExecutorFormRef.value?.validate(async (errors) => {
       if (!errors) {
@@ -618,6 +631,11 @@
       },
     });
   }
+
+  onBeforeMount(() => {
+    loadCaseList();
+    initUserOptions();
+  });
 
   defineExpose({
     resetSelector,
