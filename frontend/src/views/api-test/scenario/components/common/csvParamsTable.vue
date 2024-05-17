@@ -169,6 +169,7 @@
       title: 'apiScenario.params.file',
       dataIndex: 'file',
       slotName: 'file',
+      accept: 'csv',
     },
     {
       title: 'apiScenario.table.columns.status',

@@ -8,7 +8,7 @@
     <template #content>
       <MsUpload
         v-model:file-list="innerFileList"
-        accept="none"
+        :accept="props.accept || 'none'"
         :auto-upload="false"
         :show-file-list="false"
         :limit="50"
@@ -38,12 +38,13 @@
 <script setup lang="ts">
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
 
   import { useI18n } from '@/hooks/useI18n';
 
   const props = defineProps<{
     disabled?: boolean;
+    accept?: UploadType;
   }>();
 
   const emit = defineEmits<{

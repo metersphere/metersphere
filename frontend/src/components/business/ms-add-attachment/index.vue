@@ -51,6 +51,7 @@
       <dropdownMenu
         :file-list="fileList"
         :disabled="props.disabled"
+        :accept="props.accept"
         @link-file="associatedFile"
         @change="handleChange"
       />
@@ -186,7 +187,12 @@
       </a-popover>
     </div>
     <div v-else class="flex w-full items-center gap-[4px]">
-      <dropdownMenu :disabled="props.disabled" @link-file="associatedFile" @change="handleChange" />
+      <dropdownMenu
+        :accept="props.accept"
+        :disabled="props.disabled"
+        @link-file="associatedFile"
+        @change="handleChange"
+      />
       <a-input
         v-model:model-value="inputFileName"
         :disabled="props.disabled"
@@ -206,6 +212,7 @@
     :get-list-request="getAssociatedFileListUrl"
     :get-list-fun-params="getListFunParams"
     :selector-type="props.multiple ? 'checkbox' : 'radio'"
+    :filetype="props.accept"
     @save="saveSelectAssociatedFile"
   />
 </template>
@@ -218,7 +225,7 @@
   import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import type { MsFileItem } from '@/components/pure/ms-upload/types';
+  import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import dropdownMenu from './dropdownMenu.vue';
   import saveAsFilePopover from './saveAsFilePopover.vue';
@@ -237,6 +244,7 @@
     defineProps<{
       disabled?: boolean;
       mode?: 'button' | 'input';
+      accept?: UploadType;
       multiple?: boolean;
       inputClass?: string;
       inputSize?: 'small' | 'medium' | 'large' | 'mini';

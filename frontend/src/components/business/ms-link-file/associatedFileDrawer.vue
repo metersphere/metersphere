@@ -73,6 +73,7 @@
           :get-list-fun-params="props.getListFunParams"
           :selector-type="props.selectorType"
           :file-all-count-by-storage="fileAllCountByStorage"
+          :filetype="props.filetype"
           @init="handleModuleTableInit"
         />
       </template>
@@ -105,6 +106,7 @@
     getListRequest: (params: TableQueryParams) => Promise<CommonList<AssociatedList>>; // 获取表格请求
     getListFunParams: TableQueryParams; // 关联表去重id
     selectorType?: 'none' | 'checkbox' | 'radio';
+    filetype?: string;
   }>();
 
   const emit = defineEmits<{
