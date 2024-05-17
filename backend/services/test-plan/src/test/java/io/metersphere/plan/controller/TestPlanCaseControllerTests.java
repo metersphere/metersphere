@@ -20,6 +20,7 @@ import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.User;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -57,6 +58,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_EXEC_HISTORY_URL = "/test-plan/functional/case/exec/history";
     public static final String FUNCTIONAL_CASE_EDIT_URL = "/test-plan/functional/case/edit";
+    public static final String USER_URL = "/test-plan/functional/case/user-option/";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -318,5 +320,16 @@ public class TestPlanCaseControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         functionalCaseDetailDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCaseDetailDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(JSON.parseArray(functionalCaseDetailDTO.getSteps(), FunctionalCaseDetailDTO.class)));
+    }
+
+
+    @Test
+    @Order(17)
+    public void testUserList() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(USER_URL + DEFAULT_PROJECT_ID);
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<User> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), User.class);
+        Assertions.assertFalse(list.isEmpty());
     }
 }

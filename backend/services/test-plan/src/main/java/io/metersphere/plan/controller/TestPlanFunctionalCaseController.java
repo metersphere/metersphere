@@ -19,6 +19,7 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -26,8 +27,10 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -186,5 +189,15 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void editFunctionalCase(@Validated @RequestBody TestPlanCaseEditRequest request) {
         testPlanFunctionalCaseService.editFunctionalCase(request, SessionUtils.getUserId());
+    }
+
+
+    @GetMapping("/user-option/{projectId}")
+    @Operation(summary = "测试计划-计划详情-功能用例-获取用户列表")
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_READ_UPDATE, PermissionConstants.TEST_PLAN_READ_ADD}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<UserDTO> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    @RequestParam(value = "keyword", required = false) String keyword) {
+        return testPlanFunctionalCaseService.getExecUserList(projectId, keyword);
     }
 }
