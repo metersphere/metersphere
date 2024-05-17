@@ -587,9 +587,10 @@
     if (steps) {
       stepData.value = JSON.parse(steps).map((item: any) => {
         return {
+          id: item.id,
           step: item.desc,
           expected: item.result,
-          actualResult: item.actualResult ?? '',
+          actualResult: item.actualResult,
           executeResult: item.executeResult,
         };
       });

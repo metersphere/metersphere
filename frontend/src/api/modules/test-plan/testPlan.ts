@@ -15,6 +15,7 @@ import {
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
+  EditCaseLastExecResultUrl,
   followPlanUrl,
   GetAssociatedBugUrl,
   GetFeatureCaseModuleCountUrl,
@@ -32,6 +33,7 @@ import {
   SortFeatureCaseUrl,
   TestPlanAssociateBugUrl,
   TestPlanCancelBugUrl,
+  TestPlanCaseDetailUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
@@ -46,6 +48,7 @@ import type {
   BatchFeatureCaseParams,
   BatchUpdateCaseExecutorParams,
   DisassociateCaseParams,
+  EditLastExecResultParams,
   FollowPlanParams,
   PassRateCountDetail,
   PlanDetailBugItem,
@@ -171,6 +174,10 @@ export function getFeatureCaseModule(planId: string) {
 export function disassociateCase(data: DisassociateCaseParams) {
   return MSR.post({ url: DisassociateCaseUrl, data });
 }
+// 计划详情-功能用例列表-编辑执行结果
+export function editLastExecResult(data: EditLastExecResultParams) {
+  return MSR.post({ url: EditCaseLastExecResultUrl, data });
+}
 // 计划详情-功能用例列表-拖拽排序
 export const sortFeatureCase = (data: SortFeatureCaseParams) => {
   return MSR.post({ url: SortFeatureCaseUrl, data });
@@ -190,6 +197,10 @@ export function batchUpdateCaseExecutor(data: BatchUpdateCaseExecutorParams) {
 // 计划详情-功能用例-执行
 export function runFeatureCase(data: RunFeatureCaseParams) {
   return MSR.post({ url: RunFeatureCaseUrl, data });
+}
+// 计划详情-功能用例-详情
+export function getCaseDetail(id: string) {
+  return MSR.get({ url: `${TestPlanCaseDetailUrl}/${id}` });
 }
 // 测试计划-用例详情-缺陷列表
 export function associatedBugPage(data: TableQueryParams) {

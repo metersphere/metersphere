@@ -159,8 +159,7 @@
   import EditCaseDetailDrawer from '@/views/case-management/caseReview/components/editCaseDetailDrawer.vue';
   import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
-  import { getCaseDetail } from '@/api/modules/case-management/featureCase';
-  import { getPlanDetailFeatureCaseList, getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
+  import { getCaseDetail, getPlanDetailFeatureCaseList, getTestPlanDetail } from '@/api/modules/test-plan/testPlan';
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -278,7 +277,7 @@
   async function loadCaseDetail() {
     try {
       caseDetailLoading.value = true;
-      const res = await getCaseDetail(activeCaseId.value);
+      const res = await getCaseDetail(activeId.value);
       caseDetail.value = res;
       descriptions.value = [
         {
@@ -333,7 +332,7 @@
     }
   }
   watch(
-    () => activeCaseId.value,
+    () => activeId.value,
     () => {
       loadCaseDetail();
       // TODO 更新历史列表
@@ -348,8 +347,12 @@
   const caseTabDetailRef = ref<InstanceType<typeof CaseTabDetail>>();
   const stepExecutionResult = computed(() => {
     const stepData = caseTabDetailRef.value?.stepData;
-    return stepData?.map((item) => {
+    return stepData?.map((item, index) => {
       return {
+        id: item.id,
+        num: index,
+        desc: item.step,
+        result: item.expected,
         actualResult: item.actualResult,
         executeResult: item.executeResult,
       };
