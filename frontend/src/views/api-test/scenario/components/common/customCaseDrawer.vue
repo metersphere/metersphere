@@ -340,6 +340,7 @@
     stepName: '',
     type: 'api',
     stepId: '',
+    uniqueId: '',
     resourceId: '',
     customizeRequestEnvEnable: false,
     protocol: 'HTTP',
@@ -432,7 +433,7 @@
   watch(
     () => props.stepResponses,
     (val) => {
-      if (val && val[requestVModel.value.stepId]) {
+      if (val && val[requestVModel.value.uniqueId]) {
         requestVModel.value.executeLoading = false;
       }
     },
@@ -628,7 +629,7 @@
   const handlePluginFormChange = debounce(() => {
     if (isEditableApi.value) {
       // 复制或者新建的时候需要缓存表单数据，引用的不能更改
-      temporaryPluginFormMap[requestVModel.value.stepId] = fApi.value?.formData();
+      temporaryPluginFormMap[requestVModel.value.uniqueId] = fApi.value?.formData();
     }
     handleActiveDebugChange();
   }, 300);
@@ -659,7 +660,7 @@
    * 设置插件表单数据
    */
   function setPluginFormData() {
-    const tempForm = temporaryPluginFormMap[requestVModel.value.stepId];
+    const tempForm = temporaryPluginFormMap[requestVModel.value.uniqueId];
     if (tempForm || !requestVModel.value.isNew) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
       const formData = isEditableApi.value ? tempForm || requestVModel.value : requestVModel.value;
@@ -820,6 +821,7 @@
       unSaved: requestVModel.value.unSaved,
       resourceId: requestVModel.value.resourceId,
       stepId: requestVModel.value.stepId,
+      uniqueId: requestVModel.value.uniqueId,
       activeTab: requestVModel.value.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
       responseActiveTab: ResponseComposition.BODY,
       protocol: requestVModel.value.protocol,
@@ -977,7 +979,7 @@
         activeTab: res.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
         unSaved: false,
         isNew: false,
-        label: res.name,
+        label: activeStep.value?.name || res.name,
         ...res.request,
         ...res,
         response: cloneDeep(defaultResponse),
@@ -986,6 +988,7 @@
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
         stepId: activeStep.value?.id || '',
+        uniqueId: activeStep.value?.uniqueId || '',
         ...parseRequestBodyResult,
       };
       nextTick(() => {
@@ -1005,11 +1008,14 @@
    * @param newStep 替换的新步骤
    */
   function handleReplace(newStep: ScenarioStepItem) {
-    emit('replace', newStep);
+    emit('replace', {
+      ...newStep,
+      name: activeStep.value?.name || newStep.name,
+    });
   }
 
   watch(
-    () => props.request?.stepId,
+    () => props.request?.uniqueId,
     () => {
       isSwitchingContent.value = true;
     },
@@ -1031,6 +1037,7 @@
           ...props.request,
           isNew: false,
           stepId: props.request?.stepId || '',
+          uniqueId: activeStep.value?.uniqueId || '',
           stepName: activeStep.value?.name || props.request?.name || '',
         });
         if (isQuote.value || isCopyNeedInit.value) {

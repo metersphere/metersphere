@@ -124,6 +124,7 @@
   import { CsvVariable } from '@/models/apiTest/scenario';
 
   import { defaultCsvParamItem } from '@/views/api-test/components/config';
+  import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     scenarioId?: string | number;
@@ -310,6 +311,18 @@
     }
     return true;
   }
+
+  onBeforeMount(() => {
+    if (
+      csvVariables.value.length > 0 &&
+      !filterKeyValParams(csvVariables.value, defaultCsvParamItem).lastDataIsDefault
+    ) {
+      csvVariables.value.push({
+        ...cloneDeep(defaultCsvParamItem),
+        id: getGenerateId(),
+      });
+    }
+  });
 </script>
 
 <style lang="less">

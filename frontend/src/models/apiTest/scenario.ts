@@ -386,6 +386,11 @@ export interface ScenarioStepFileParams {
   deleteFileIds?: string[];
   unLinkFileIds?: string[];
 }
+// 场景文件参数
+export interface ScenarioFileParams {
+  uploadFileIds: string[];
+  linkFileIds: string[];
+}
 // 场景步骤详情
 export type ScenarioStepDetails = Partial<RequestParam | CaseRequestParam | ExecuteConditionProcessor>;
 // 场景
@@ -405,6 +410,7 @@ export interface Scenario {
   steps: ScenarioStepItem[];
   stepDetails: Record<string, ScenarioStepDetails>; // case、api、脚本操作抽屉的详情结构
   stepFileParam: Record<string, ScenarioStepFileParams>;
+  fileParam: ScenarioFileParams;
   follow?: boolean;
   uploadFileIds: string[];
   linkFileIds: string[];
@@ -455,6 +461,7 @@ export interface ApiScenarioDebugRequest {
   steps: ScenarioStepItem[];
   projectId: string;
   stepFileParam: Record<string, ScenarioStepFileParams>;
+  fileParam: ScenarioFileParams;
   frontendDebug?: boolean;
 }
 

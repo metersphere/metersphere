@@ -116,6 +116,10 @@ export const defaultScenario: Scenario = {
   steps: [],
   stepDetails: {},
   stepFileParam: {},
+  fileParam: {
+    linkFileIds: [],
+    uploadFileIds: [],
+  },
   executeTime: 0,
   executeSuccessCount: 0,
   executeFailCount: 0,

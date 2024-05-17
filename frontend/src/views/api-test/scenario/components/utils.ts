@@ -1,5 +1,5 @@
 import { RequestResult } from '@/models/apiTest/common';
-import { ScenarioStepItem } from '@/models/apiTest/scenario';
+import { type Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
 import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
 
 /**
@@ -93,4 +93,24 @@ export default function updateStepStatus(
       }
     }
   }
+}
+
+/**
+ * 获取场景文件参数
+ * @param scenario 场景对象
+ */
+export function getScenarioFileParams(scenario: Scenario) {
+  const linkFileIds = new Set<string>();
+  const uploadFileIds = new Set<string>();
+  scenario.scenarioConfig.variable.csvVariables.forEach((item) => {
+    if (item.file.local) {
+      uploadFileIds.add(item.file.fileId);
+    } else if (item.file.fileId) {
+      linkFileIds.add(item.file.fileId);
+    }
+  });
+  return {
+    linkFileIds: Array.from(linkFileIds),
+    uploadFileIds: Array.from(uploadFileIds),
+  };
 }

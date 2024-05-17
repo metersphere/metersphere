@@ -916,7 +916,7 @@
     (arr) => {
       if (arr.length > 0) {
         let hasNoIdItem = false;
-        paramsData.value = arr.map((item, i) => {
+        paramsData.value = arr.map((item) => {
           if (!item) {
             // 批量添加过来的数据最后一行会是 undefined
             hasNoIdItem = true;
@@ -935,7 +935,12 @@
           }
           return item;
         });
-        if (hasNoIdItem && !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault && !props.isTreeTable) {
+        if (
+          (!props.disabledExceptParam || !props.disabledParamValue) &&
+          hasNoIdItem &&
+          !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault &&
+          !props.isTreeTable
+        ) {
           addTableLine(arr.length - 1, false, true);
         }
       } else {
