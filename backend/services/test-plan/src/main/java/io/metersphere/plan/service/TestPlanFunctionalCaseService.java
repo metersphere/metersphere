@@ -10,11 +10,9 @@ import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.*;
-import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
@@ -121,8 +119,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Resource
     private ExtCheckOwnerMapper extCheckOwnerMapper;
 
-    @Resource
-    private FunctionalCaseBlobMapper functionalCaseBlobMapper;
     @Resource
     private ExtUserMapper extUserMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -561,14 +557,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     public List<TestPlanCaseExecHistoryResponse> getCaseExecHistory(TestPlanCaseExecHistoryRequest request) {
-        FunctionalCaseBlob caseBlob = functionalCaseBlobMapper.selectByPrimaryKey(request.getCaseId());
         List<TestPlanCaseExecHistoryResponse> list = extTestPlanCaseExecuteHistoryMapper.getCaseExecHistory(request);
         list.forEach(item -> {
             if (item.getContent() != null) {
                 item.setContentText(new String(item.getContent(), StandardCharsets.UTF_8));
-            }
-            if (caseBlob.getSteps() != null) {
-                item.setSteps(new String(caseBlob.getSteps(), StandardCharsets.UTF_8));
             }
         });
         return list;

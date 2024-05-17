@@ -15,10 +15,14 @@
 
     <select id="getCaseExecHistory" resultType="io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse">
         SELECT
+            tpceh.id as id,
+            tpceh.case_id as caseId,
             tpceh.status as status,
             tpceh.content as content,
             tpceh.steps as stepsExecResult,
             tpceh.create_user as createUser,
+            tpceh.create_time as createTime,
+            tpceh.notifier as notifier,
             u.name AS userName,
             ux.avatar AS userLogo,
             u.email AS email

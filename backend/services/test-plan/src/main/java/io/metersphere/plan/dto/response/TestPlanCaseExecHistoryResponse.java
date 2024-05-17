@@ -16,6 +16,12 @@ public class TestPlanCaseExecHistoryResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
+    private String id;
+
+    @Schema(description = "用例id")
+    private String caseId;
+
+    @Schema(description = "执行结果")
     private String status;
 
     @Schema(description = "评论内容")
@@ -40,5 +46,8 @@ public class TestPlanCaseExecHistoryResponse implements Serializable {
     private String email;
 
     @Schema(description = "执行时间")
-    private String steps;
+    private String createTime;
+
+    @Schema(description = "通知人")
+    private String notifier;
 }
