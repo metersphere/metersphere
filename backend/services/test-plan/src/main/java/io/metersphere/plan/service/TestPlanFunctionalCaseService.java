@@ -602,7 +602,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             }
             functionalCaseDetail.setSteps(JSON.toJSONString(functionalCaseStepDTOS));
         }
-        return  functionalCaseDetail;
+        return functionalCaseDetail;
     }
 
     private static void compareStep(TestPlanCaseExecuteHistory testPlanCaseExecuteHistory, List<FunctionalCaseStepDTO> newCaseSteps) {
@@ -610,22 +610,21 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             String historyStepStr = new String(testPlanCaseExecuteHistory.getSteps(), StandardCharsets.UTF_8);
             if (StringUtils.isNotBlank(historyStepStr)) {
                 List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
-                newCaseSteps.forEach(newCaseStep->{
-                    historySteps.forEach(historyStep->{
-                        setHistoryInfo(newCaseStep, historyStep);
-                    });
+                Map<String, FunctionalCaseStepDTO> historyStepMap = historySteps.stream().collect(Collectors.toMap(FunctionalCaseStepDTO::getId, t -> t));
+                newCaseSteps.forEach(newCaseStep -> {
+                    setHistoryInfo(newCaseStep, historyStepMap);
                 });
             }
         }
     }
 
-    private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep, FunctionalCaseStepDTO historyStep) {
-        if (StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult())) {
+    private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep,  Map<String, FunctionalCaseStepDTO> historyStepMap) {
+        FunctionalCaseStepDTO historyStep = historyStepMap.get(newCaseStep.getId());
+        if (historyStep != null && StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult())) {
             newCaseStep.setExecuteResult(historyStep.getExecuteResult());
             newCaseStep.setActualResult(historyStep.getActualResult());
         }
     }
-
 
     public void editFunctionalCase(TestPlanCaseEditRequest request, String userId) {
         TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getId());
