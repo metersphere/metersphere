@@ -81,6 +81,8 @@ export default {
   'testPlan.planForm.repeatCaseTip2': '关闭：不可重复关联同一用例',
   'testPlan.planForm.pickCases': '选择用例',
   'testPlan.testPlanDetail.executed': '已执行',
+  'testPlan.testPlanDetail.generateReport': '生成报告',
+  'testPlan.testPlanDetail.successfullyGenerated': '生成成功',
   'testPlan.bugManagement.bug': '缺陷列表',
   'testPlan.bugManagement.bugName': '名称',
   'testPlan.bugManagement.defectState': '缺陷状态',

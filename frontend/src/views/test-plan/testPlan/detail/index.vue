@@ -32,6 +32,15 @@
         {{ t('common.edit') }}
       </MsButton>
       <MsButton
+        v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+        type="button"
+        status="default"
+        @click="handleGenerateReport"
+      >
+        <MsIcon type="icon-icon_generate_report" class="mr-[8px]" />
+        {{ t('testPlan.testPlanDetail.generateReport') }}
+      </MsButton>
+      <MsButton
         v-permission="['PROJECT_TEST_PLAN:READ+ADD']"
         type="button"
         status="default"
@@ -131,6 +140,7 @@
     archivedPlan,
     associationCaseToPlan,
     followPlanRequest,
+    generateReport,
     getPlanPassRate,
     getTestPlanDetail,
     getTestPlanModule,
@@ -295,6 +305,20 @@
     caseAssociateVisible.value = true;
   }
   const showPlanDrawer = ref(false);
+
+  // 生成报告
+  async function handleGenerateReport() {
+    try {
+      await generateReport({
+        projectId: appStore.currentProjectId,
+        testPlanId: detail.value.id as string,
+      });
+      Message.success(t('testPlan.testPlanDetail.successfullyGenerated'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   // 更新 | 复制
   const isCopy = ref<boolean>(false);

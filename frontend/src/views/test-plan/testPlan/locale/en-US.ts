@@ -83,6 +83,8 @@ export default {
   'testPlan.planForm.repeatCaseTip2': 'Close: Cannot be associated with the same case repeatedly',
   'testPlan.planForm.pickCases': 'Select cases',
   'testPlan.testPlanDetail.executed': 'Executed',
+  'testPlan.testPlanDetail.generateReport': 'Generate report',
+  'testPlan.testPlanDetail.successfullyGenerated': 'Successfully generated',
   'testPlan.bugManagement.bug': 'Defect list',
   'testPlan.bugManagement.bugName': 'name',
   'testPlan.bugManagement.defectState': 'Defect state',

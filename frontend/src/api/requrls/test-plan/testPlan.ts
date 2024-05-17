@@ -36,6 +36,8 @@ export const batchArchivedPlanUrl = '/test-plan/batch-archived';
 export const planDetailBugPageUrl = '/test-plan/bug/page';
 // 关注测试计划
 export const followPlanUrl = '/test-plan/edit/follower';
+// 生成报告
+export const GenerateReportUrl = '/test-plan/report/gen';
 // 复制测试计划
 export const copyTestPlanUrl = '/test-plan/copy';
 // 关联测试计划
