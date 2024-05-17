@@ -163,7 +163,13 @@
                 source-id-key="caseId"
                 @finish="emit('updateSuccess')"
               />
-              <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFileHandler(item)">
+              <MsButton
+                v-if="!props.isTestPlan"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="transferFileHandler(item)"
+              >
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
               <MsButton
