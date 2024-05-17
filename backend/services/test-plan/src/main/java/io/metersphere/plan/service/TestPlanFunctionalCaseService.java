@@ -14,10 +14,6 @@ import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.*;
-import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
-import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
-import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
-import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
@@ -50,12 +46,14 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.ExtCheckOwnerMapper;
+import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -125,6 +123,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
     private static final String FUNCTIONAL_CASE = "functional_case";
@@ -602,7 +602,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             }
             functionalCaseDetail.setSteps(JSON.toJSONString(functionalCaseStepDTOS));
         }
-        return  functionalCaseDetail;
+        return functionalCaseDetail;
     }
 
     private static void compareStep(TestPlanCaseExecuteHistory testPlanCaseExecuteHistory, List<FunctionalCaseStepDTO> newCaseSteps) {
@@ -610,8 +610,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             String historyStepStr = new String(testPlanCaseExecuteHistory.getSteps(), StandardCharsets.UTF_8);
             if (StringUtils.isNotBlank(historyStepStr)) {
                 List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
-                newCaseSteps.forEach(newCaseStep->{
-                    historySteps.forEach(historyStep->{
+                newCaseSteps.forEach(newCaseStep -> {
+                    historySteps.forEach(historyStep -> {
                         setHistoryInfo(newCaseStep, historyStep);
                     });
                 });
@@ -651,5 +651,16 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         //通知
         handleFileAndNotice(planFunctionalCase.getFunctionalCaseId(), null, null, userId, null, null, request.getTestPlanId(), request.getLastExecResult());
 
+    }
+
+    /**
+     * 获取项目下的所有用户
+     *
+     * @param projectId
+     * @param keyword
+     * @return
+     */
+    public List<UserDTO> getExecUserList(String projectId, String keyword) {
+        return extUserMapper.getUserByKeyword(projectId, keyword);
     }
 }
