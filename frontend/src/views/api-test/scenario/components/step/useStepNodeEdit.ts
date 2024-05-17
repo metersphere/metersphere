@@ -1,8 +1,13 @@
+import { Message } from '@arco-design/web-vue';
+
 import MsTree from '@/components/business/ms-tree/index.vue';
 
-import { findNodeByKey } from '@/utils';
+import { getScenarioDetail } from '@/api/modules/api-test/scenario';
+import { t } from '@/hooks/useI18n';
+import { findNodeByKey, getGenerateId, mapTree } from '@/utils';
 
-import type { Scenario, ScenarioStepDetail, ScenarioStepItem } from '@/models/apiTest/scenario';
+import type { Scenario, ScenarioStepConfig, ScenarioStepDetail, ScenarioStepItem } from '@/models/apiTest/scenario';
+import { ScenarioStepRefType } from '@/enums/apiEnum';
 
 /**
  * 处理步骤节点信息更改
@@ -19,6 +24,9 @@ export default function useStepNodeEdit({
   showStepDescEditInputStepId,
   tempStepName,
   showStepNameEditInputStepId,
+  loading,
+  selectedKeys,
+  showScenarioConfig,
 }: {
   steps: Ref<ScenarioStepItem[]>;
   scenario: Ref<Scenario>;
@@ -31,6 +39,9 @@ export default function useStepNodeEdit({
   showStepDescEditInputStepId: Ref<string | number>;
   tempStepName: Ref<string>;
   showStepNameEditInputStepId: Ref<string | number>;
+  loading: Ref<boolean>;
+  selectedKeys: Ref<Array<string | number>>;
+  showScenarioConfig: Ref<boolean>;
 }) {
   /**
    * 打开快速输入
@@ -162,6 +173,125 @@ export default function useStepNodeEdit({
     scenario.value.unSaved = !!tempStepName.value;
   }
 
+  const scenarioConfigForm = ref<
+    ScenarioStepConfig & {
+      refType: ScenarioStepRefType;
+    }
+  >({
+    refType: ScenarioStepRefType.REF,
+    enableScenarioEnv: false,
+    useOriginScenarioParamPreferential: true,
+    useOriginScenarioParam: false,
+  });
+  // const scenarioConfigParamTip = computed(() => {
+  //   if (!scenarioConfigForm.value.useOriginScenarioParam && !scenarioConfigForm.value.enableScenarioEnv) {
+  //     // 非使用原场景参数-非选择源场景环境
+  //     return t('apiScenario.notSource');
+  //   }
+  //   if (!scenarioConfigForm.value.useOriginScenarioParam && scenarioConfigForm.value.enableScenarioEnv) {
+  //     // 非使用原场景参数-选择源场景环境
+  //     return t('apiScenario.notSourceParamAndSourceEnv');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     !scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用原场景参数
+  //     return t('apiScenario.sourceParamAndSource');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用原场景参数-选择源场景环境
+  //     return t('apiScenario.sourceParamAndSourceEnv');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     !scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用当前场景参数
+  //     return t('apiScenario.currentParamAndSource');
+  //   }
+  //   if (
+  //     scenarioConfigForm.value.useOriginScenarioParam &&
+  //     !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
+  //     scenarioConfigForm.value.enableScenarioEnv
+  //   ) {
+  //     // 使用原场景参数-优先使用当前场景参数-选择源场景环境
+  //     return t('apiScenario.currentParamAndSourceEnv');
+  //   }
+  // });
+
+  // 关闭场景配置弹窗
+  function cancelScenarioConfig() {
+    showScenarioConfig.value = false;
+    scenarioConfigForm.value = {
+      refType: ScenarioStepRefType.REF,
+      enableScenarioEnv: false,
+      useOriginScenarioParamPreferential: true,
+      useOriginScenarioParam: false,
+    };
+  }
+
+  /**
+   * 刷新引用场景的步骤数据
+   */
+  async function refreshScenarioStepInfo(step: ScenarioStepItem, id: string | number) {
+    try {
+      loading.value = true;
+      const res = await getScenarioDetail(id);
+      if (step.children) {
+        step.children = mapTree(res.steps || [], (child) => {
+          child.uniqueId = getGenerateId();
+          child.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+          child.isRefScenarioStep = true; // 标记为完全引用场景
+          child.draggable = false; // 引用场景下的任何步骤不可拖拽
+          if (selectedKeys.value.includes(step.uniqueId) && !selectedKeys.value.includes(child.uniqueId)) {
+            // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中
+            selectedKeys.value.push(child.uniqueId);
+          }
+          return child;
+        }) as ScenarioStepItem[];
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  // 应用场景配置
+  async function saveScenarioConfig() {
+    if (activeStep.value) {
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
+      if (realStep) {
+        realStep.refType = scenarioConfigForm.value.refType; // 更新场景引用类型
+        realStep.config = {
+          ...realStep.config,
+          ...scenarioConfigForm.value,
+        };
+        if (scenarioConfigForm.value.refType === ScenarioStepRefType.REF) {
+          // 更新子孙步骤完全引用
+          await refreshScenarioStepInfo(realStep as ScenarioStepItem, realStep.resourceId);
+        } else {
+          realStep.children = mapTree<ScenarioStepItem>(realStep.children || [], (child) => {
+            // 更新子孙步骤-步骤引用
+            child.isRefScenarioStep = false;
+            return child;
+          });
+        }
+        Message.success(t('apiScenario.setSuccess'));
+        scenario.value.unSaved = true;
+        cancelScenarioConfig();
+      }
+    }
+  }
+
   return {
     setQuickInput,
     clearQuickInput,
@@ -172,5 +302,8 @@ export default function useStepNodeEdit({
     handleStepToggleEnable,
     handleStepNameClick,
     applyStepNameChange,
+    saveScenarioConfig,
+    cancelScenarioConfig,
+    scenarioConfigForm,
   };
 }

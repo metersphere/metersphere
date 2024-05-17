@@ -480,7 +480,6 @@
   import saveAsApiModal from '@/views/api-test/components/saveAsApiModal.vue';
 
   import { addCase, getDefinitionDetail } from '@/api/modules/api-test/management';
-  import { getScenarioDetail, getScenarioStep } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -495,7 +494,6 @@
   import {
     CreateStepAction,
     Scenario,
-    ScenarioStepConfig,
     ScenarioStepDetails,
     ScenarioStepFileParams,
     ScenarioStepItem,
@@ -514,7 +512,6 @@
   import useStepNodeEdit from './useStepNodeEdit';
   import useStepOperation from './useStepOperation';
   import { casePriorityOptions, caseStatusOptions } from '@/views/api-test/components/config';
-  import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import getStepType from '@/views/api-test/scenario/components/common/stepType/utils';
   import { defaultStepItemCommon } from '@/views/api-test/scenario/components/config';
 
@@ -728,151 +725,68 @@
     return stepMoreActions;
   }
 
-  const scenarioConfigForm = ref<
-    ScenarioStepConfig & {
-      refType: ScenarioStepRefType;
-    }
-  >({
-    refType: ScenarioStepRefType.REF,
-    enableScenarioEnv: false,
-    useOriginScenarioParamPreferential: true,
-    useOriginScenarioParam: false,
-  });
   const showScenarioConfig = ref(false);
-  // const scenarioConfigParamTip = computed(() => {
-  //   if (!scenarioConfigForm.value.useOriginScenarioParam && !scenarioConfigForm.value.enableScenarioEnv) {
-  //     // 非使用原场景参数-非选择源场景环境
-  //     return t('apiScenario.notSource');
-  //   }
-  //   if (!scenarioConfigForm.value.useOriginScenarioParam && scenarioConfigForm.value.enableScenarioEnv) {
-  //     // 非使用原场景参数-选择源场景环境
-  //     return t('apiScenario.notSourceParamAndSourceEnv');
-  //   }
-  //   if (
-  //     scenarioConfigForm.value.useOriginScenarioParam &&
-  //     scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-  //     !scenarioConfigForm.value.enableScenarioEnv
-  //   ) {
-  //     // 使用原场景参数-优先使用原场景参数
-  //     return t('apiScenario.sourceParamAndSource');
-  //   }
-  //   if (
-  //     scenarioConfigForm.value.useOriginScenarioParam &&
-  //     scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-  //     scenarioConfigForm.value.enableScenarioEnv
-  //   ) {
-  //     // 使用原场景参数-优先使用原场景参数-选择源场景环境
-  //     return t('apiScenario.sourceParamAndSourceEnv');
-  //   }
-  //   if (
-  //     scenarioConfigForm.value.useOriginScenarioParam &&
-  //     !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-  //     !scenarioConfigForm.value.enableScenarioEnv
-  //   ) {
-  //     // 使用原场景参数-优先使用当前场景参数
-  //     return t('apiScenario.currentParamAndSource');
-  //   }
-  //   if (
-  //     scenarioConfigForm.value.useOriginScenarioParam &&
-  //     !scenarioConfigForm.value.useOriginScenarioParamPreferential &&
-  //     scenarioConfigForm.value.enableScenarioEnv
-  //   ) {
-  //     // 使用原场景参数-优先使用当前场景参数-选择源场景环境
-  //     return t('apiScenario.currentParamAndSourceEnv');
-  //   }
-  // });
-
-  // 关闭场景配置弹窗
-  function cancelScenarioConfig() {
-    showScenarioConfig.value = false;
-    scenarioConfigForm.value = {
-      refType: ScenarioStepRefType.REF,
-      enableScenarioEnv: false,
-      useOriginScenarioParamPreferential: true,
-      useOriginScenarioParam: false,
-    };
-  }
 
   /**
-   * 刷新引用场景的步骤数据
+   * 处理api、case、场景步骤名称编辑
    */
-  async function refreshScenarioStepInfo(step: ScenarioStepItem, id: string | number) {
-    try {
-      loading.value = true;
-      const res = await getScenarioDetail(id);
-      if (step.children) {
-        step.children = mapTree(res.steps || [], (child) => {
-          child.uniqueId = getGenerateId();
-          child.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
-          child.isRefScenarioStep = true; // 标记为完全引用场景
-          child.draggable = false; // 引用场景下的任何步骤不可拖拽
-          if (selectedKeys.value.includes(step.uniqueId) && !selectedKeys.value.includes(child.uniqueId)) {
-            // 如果有新增的子步骤，且当前步骤被选中，则这个新增的子步骤也要选中
-            selectedKeys.value.push(child.uniqueId);
-          }
-          return child;
-        }) as ScenarioStepItem[];
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
-  }
+  const showStepNameEditInputStepId = ref<string | number>('');
+  const tempStepName = ref('');
+  /**
+   * 处理非 api、case、场景步骤名称编辑
+   */
+  const showStepDescEditInputStepId = ref<string | number>('');
+  const tempStepDesc = ref('');
+  const importApiDrawerVisible = ref(false);
+  const customCaseDrawerVisible = ref(false);
+  const customApiDrawerVisible = ref(false);
+  const scriptOperationDrawerVisible = ref(false);
 
-  // 应用场景配置
-  async function saveScenarioConfig() {
-    if (activeStep.value) {
-      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
-      if (realStep) {
-        realStep.refType = scenarioConfigForm.value.refType; // 更新场景引用类型
-        realStep.config = {
-          ...realStep.config,
-          ...scenarioConfigForm.value,
-        };
-        if (scenarioConfigForm.value.refType === ScenarioStepRefType.REF) {
-          // 更新子孙步骤完全引用
-          await refreshScenarioStepInfo(realStep as ScenarioStepItem, realStep.resourceId);
-        } else {
-          realStep.children = mapTree<ScenarioStepItem>(realStep.children || [], (child) => {
-            // 更新子孙步骤-步骤引用
-            child.isRefScenarioStep = false;
-            return child;
-          });
-        }
-        Message.success(t('apiScenario.setSuccess'));
-        scenario.value.unSaved = true;
-        cancelScenarioConfig();
-      }
-    }
-  }
+  const { handleStepExpand, handleStepSelect, deleteStep, handleDrop, getStepDetail } = useStepOperation({
+    scenario,
+    steps,
+    stepDetails,
+    activeStep,
+    selectedKeys,
+    customApiDrawerVisible,
+    customCaseDrawerVisible,
+    scriptOperationDrawerVisible,
+    loading,
+  });
 
-  async function getStepDetail(step: ScenarioStepItem) {
-    try {
-      appStore.showLoading();
-      const res = await getScenarioStep(step.copyFromStepId || step.id);
-      let parseRequestBodyResult;
-      if (step.config.protocol === 'HTTP' && res.body) {
-        parseRequestBodyResult = parseRequestBodyFiles(res.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
-      }
-      stepDetails.value[step.id] = {
-        ...res,
-        stepId: step.id,
-        protocol: step.config.protocol || '',
-        method: step.config.method || '',
-        ...parseRequestBodyResult,
-      };
-      scenario.value.stepFileParam[step.id] = {
-        ...parseRequestBodyResult,
-      };
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      appStore.hideLoading();
-    }
-  }
+  const showQuickInput = ref(false);
+  const quickInputParamValue = ref<any>('');
+  const quickInputDataKey = ref('');
+
+  const {
+    setQuickInput,
+    clearQuickInput,
+    applyQuickInput,
+    handleStepDescClick,
+    applyStepDescChange,
+    handleStepContentChange,
+    handleStepToggleEnable,
+    handleStepNameClick,
+    applyStepNameChange,
+    saveScenarioConfig,
+    cancelScenarioConfig,
+    scenarioConfigForm,
+  } = useStepNodeEdit({
+    steps,
+    scenario,
+    activeStep,
+    quickInputDataKey,
+    quickInputParamValue,
+    showQuickInput,
+    treeRef,
+    tempStepDesc,
+    showStepDescEditInputStepId,
+    tempStepName,
+    showStepNameEditInputStepId,
+    loading,
+    selectedKeys,
+    showScenarioConfig,
+  });
 
   const saveNewApiModalVisible = ref(false);
   const tempApiDetail = ref<RequestParam>();
@@ -1109,20 +1023,6 @@
     treeRef.value?.checkAll(val);
   }
 
-  /**
-   * 处理api、case、场景步骤名称编辑
-   */
-  const showStepNameEditInputStepId = ref<string | number>('');
-  const tempStepName = ref('');
-  /**
-   * 处理非 api、case、场景步骤名称编辑
-   */
-  const showStepDescEditInputStepId = ref<string | number>('');
-  const tempStepDesc = ref('');
-  const importApiDrawerVisible = ref(false);
-  const customCaseDrawerVisible = ref(false);
-  const customApiDrawerVisible = ref(false);
-  const scriptOperationDrawerVisible = ref(false);
   const activeCreateAction = ref<CreateStepAction>(); // 用于抽屉操作创建步骤时记录当前插入类型
   const currentStepDetail = computed<ScenarioStepDetails | undefined>(() => {
     if (activeStep.value) {
@@ -1142,18 +1042,6 @@
     emit('stepAdd');
     scenario.value.unSaved = true;
   }
-
-  const { handleStepExpand, handleStepSelect, deleteStep, handleDrop } = useStepOperation({
-    scenario,
-    steps,
-    stepDetails,
-    activeStep,
-    selectedKeys,
-    customApiDrawerVisible,
-    customCaseDrawerVisible,
-    scriptOperationDrawerVisible,
-    loading,
-  });
 
   function handleReplaceStep(newStep: ScenarioStepItem) {
     if (activeStep.value) {
@@ -1343,14 +1231,13 @@
     }
     if (activeStep.value) {
       const _stepType = getStepType(activeStep.value);
-      if (_stepType.isQuoteCase || activeStep.value.isQuoteScenarioStep) {
-        // 引用的 case 和引用的场景步骤都不可更改（除了步骤名）
+      if (_stepType.isQuoteCase && !activeStep.value.isQuoteScenarioStep) {
         activeStep.value.name = request.stepName || request.name;
         stepDetails.value[activeStep.value.id] = request; // 为了设置一次正确的polymorphicName
         return;
       }
     }
-    if (activeStep.value) {
+    if (activeStep.value && !activeStep.value.isQuoteScenarioStep) {
       request.isNew = false;
       stepDetails.value[activeStep.value.id] = request;
       scenario.value.stepFileParam[activeStep.value?.id] = {
@@ -1363,10 +1250,9 @@
         ...activeStep.value.config,
         method: request.method,
       };
-      activeStep.value.name = request.stepName || request.name;
       emit('updateResource', request.uploadFileIds, request.linkFileIds);
-      activeStep.value = undefined;
     }
+    activeStep.value = undefined;
   }
 
   /**
@@ -1408,7 +1294,8 @@
   }
 
   function saveScriptStep(name: string, scriptProcessor: ExecuteConditionProcessor, unSaved = false) {
-    if (activeStep.value) {
+    if (activeStep.value && !activeStep.value.isQuoteScenarioStep) {
+      // 引用的场景步骤不需要存储详情
       stepDetails.value[activeStep.value.id] = cloneDeep(scriptProcessor);
       activeStep.value.name = name;
       activeStep.value = undefined;
@@ -1417,34 +1304,6 @@
       }
     }
   }
-
-  const showQuickInput = ref(false);
-  const quickInputParamValue = ref<any>('');
-  const quickInputDataKey = ref('');
-
-  const {
-    setQuickInput,
-    clearQuickInput,
-    applyQuickInput,
-    handleStepDescClick,
-    applyStepDescChange,
-    handleStepContentChange,
-    handleStepToggleEnable,
-    handleStepNameClick,
-    applyStepNameChange,
-  } = useStepNodeEdit({
-    steps,
-    scenario,
-    activeStep,
-    quickInputDataKey,
-    quickInputParamValue,
-    showQuickInput,
-    treeRef,
-    tempStepDesc,
-    showStepDescEditInputStepId,
-    tempStepName,
-    showStepNameEditInputStepId,
-  });
 
   const dbClick = ref({
     e: null as MouseEvent | null,

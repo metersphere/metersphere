@@ -6,7 +6,13 @@
         ><span class="ml-[4px] text-[var(--color-text-4)]">({{ moduleInfo.count }})</span></div
       >
       <div class="header-right">
-        <a-select v-model="tableFileType" class="w-[240px]" :loading="fileTypeLoading" @change="searchList">
+        <a-select
+          v-model="tableFileType"
+          class="w-[240px]"
+          :loading="fileTypeLoading"
+          :disabled="!!props.filetype"
+          @change="searchList"
+        >
           <a-option key="" value="">{{ t('common.all') }}</a-option>
           <a-option v-for="item of tableFileTypeOptions" :key="item" :value="item">
             {{ item }}
@@ -91,6 +97,7 @@
     getListFunParams: TableQueryParams; // 表格额外去重参数
     selectorType?: 'none' | 'checkbox' | 'radio';
     fileAllCountByStorage: number;
+    filetype?: string;
   }>();
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
@@ -98,7 +105,7 @@
   }>();
 
   const tableFileTypeOptions = ref<string[]>([]);
-  const tableFileType = ref(''); // 文件格式筛选
+  const tableFileType = ref(props.filetype || ''); // 文件格式筛选
   const keyword = ref('');
   const fileTypeLoading = ref(false);
   const fileType = ref('module'); // 当前查看的文件类型，模块/存储库
@@ -249,7 +256,7 @@
       } else {
         res = await getFileTypes(appStore.currentProjectId);
       }
-      tableFileType.value = '';
+      tableFileType.value = props.filetype || '';
       tableFileTypeOptions.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console

@@ -241,6 +241,7 @@ export default function useStepOperation({
   }
 
   return {
+    getStepDetail,
     handleStepExpand,
     handleStepSelect,
     deleteStep,

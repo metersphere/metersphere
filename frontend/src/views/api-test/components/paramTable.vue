@@ -260,6 +260,7 @@
           id: 'fileId',
           name: 'fileAlias',
         }"
+        :accept="columnConfig.accept"
         :file-save-as-source-id="props.fileSaveAsSourceId"
         :file-save-as-api="props.fileSaveAsApi"
         :file-module-options-api="props.fileModuleOptionsApi"
@@ -280,7 +281,7 @@
       />
     </template>
     <!-- 文件 -->
-    <template #file="{ record, rowIndex }">
+    <template #file="{ record, rowIndex, columnConfig }">
       <MsAddAttachment
         :file-list="[record.file]"
         :disabled="props.disabledParamValue"
@@ -290,6 +291,7 @@
           id: 'fileId',
           name: 'fileAlias',
         }"
+        :accept="columnConfig.accept"
         :file-save-as-source-id="props.fileSaveAsSourceId"
         :file-save-as-api="props.fileSaveAsApi"
         :file-module-options-api="props.fileModuleOptionsApi"
@@ -619,7 +621,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
   import MsSelect from '@/components/business/ms-select/index';
   import paramDescInput from './paramDescInput.vue';
   import DomainModal from '@/views/project-management/environmental/components/envParams/popUp/domain.vue';
@@ -656,6 +658,7 @@
     format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器
     addLineDisabled?: boolean; // 用于 是否禁用添加新行
     disabledColumn?: boolean; // 用于禁用某一列不能编辑
+    accept?: UploadType; // 用于文件上传列的 accept 属性
   }
 
   const props = withDefaults(

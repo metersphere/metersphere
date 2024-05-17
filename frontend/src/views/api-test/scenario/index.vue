@@ -317,7 +317,10 @@
     const waitTingDebugSteps = filterTree(activeScenarioTab.value.steps, (node) => {
       if (node.enable) {
         node.executeStatus = ScenarioExecuteStatus.EXECUTING;
-        waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
+        if (!node.isQuoteScenarioStep) {
+          // 引用场景的步骤详情不传
+          waitingDebugStepDetails[node.id] = activeScenarioTab.value.stepDetails[node.id];
+        }
       } else {
         node.executeStatus = undefined;
       }

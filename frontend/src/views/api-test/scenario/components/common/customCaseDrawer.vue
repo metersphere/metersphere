@@ -35,6 +35,7 @@
             >
           </a-tooltip>
           <MsIcon
+            v-if="!activeStep || !activeStep.isQuoteScenarioStep"
             type="icon-icon_edit_outlined"
             class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
             @click="showEditScriptNameInput"
