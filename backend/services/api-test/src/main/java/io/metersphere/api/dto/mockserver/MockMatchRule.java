@@ -37,7 +37,7 @@ public class MockMatchRule implements Serializable {
         if (matchRule == null) {
             return true;
         }
-        return matchRule.match(matchParam);
+        return matchRule.match(matchParam, StringUtils.equals("header", matchType));
     }
 
     public boolean requestParamMatch(HttpRequestParam httpRequestParam) {
@@ -74,11 +74,11 @@ public class MockMatchRule implements Serializable {
                                     formDataBodyRule.getMatchRules().add(keyValueInfo);
                                 });
                     }
-                    return formDataBodyRule.match(httpRequestParam.getBodyParamsObj());
+                    return formDataBodyRule.match(httpRequestParam.getBodyParamsObj(), false);
                 case RAW:
                     return StringUtils.contains(body.getRawBody().getValue(), httpRequestParam.getRaw());
                 case WWW_FORM:
-                    return body.getWwwFormBody().match(httpRequestParam.getBodyParamsObj());
+                    return body.getWwwFormBody().match(httpRequestParam.getBodyParamsObj(), false);
                 default:
                     return true;
             }
