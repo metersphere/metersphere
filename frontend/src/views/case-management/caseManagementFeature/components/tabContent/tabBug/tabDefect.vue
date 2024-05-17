@@ -149,7 +149,7 @@
 
   import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';
   import {
-    associatedDrawerDebug,
+    associatedDebug,
     cancelAssociatedDebug,
     getLinkedCaseBugList,
   } from '@/api/modules/case-management/featureCase';
@@ -412,7 +412,7 @@
   async function saveHandler(params: TableQueryParams) {
     try {
       drawerLoading.value = true;
-      await associatedDrawerDebug(params);
+      await associatedDebug(params);
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       getFetch();
       showLinkDrawer.value = false;

@@ -253,11 +253,9 @@
               json: parseJson.value,
               path: expressionForm.value.expression,
             })?.map((e: any) =>
-              typeof e === 'string'
-                ? e
-                : JSON.stringify(e)
-                    .replace(/Number\(([^)]+)\)/g, '$1')
-                    .replace(/^"|"$/g, '')
+              JSON.stringify(e)
+                .replace(/Number\(([^)]+)\)/g, '$1')
+                .replace(/^"|"$/g, '')
             ) || [];
         } catch (error) {
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];

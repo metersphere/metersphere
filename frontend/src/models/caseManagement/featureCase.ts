@@ -364,3 +364,57 @@ export interface ContentTabsMap {
   tabList: TabItemType[];
   backupTabList: TabItemType[];
 }
+// 脑图删除的模块/用例的集合
+export interface FeatureCaseMinderDeleteResourceList {
+  id: string;
+  type: string;
+}
+// 脑图新增/修改的模块集合（只记录操作的节点，节点下的子节点不需要记录）
+export interface FeatureCaseMinderUpdateModuleList {
+  id: string;
+  name: string;
+  parentId: string;
+  type: 'ADD' | 'UPDATE'; // 操作类型（新增(ADD)/更新(UPDATE)）
+  moveMode: string;
+  targetId: string;
+}
+
+export interface CustomField {
+  fieldId: string;
+  value: string;
+}
+// 脑图用例步骤描述项
+export interface FeatureCaseMinderStepItem {
+  id: string;
+  num: number;
+  desc: string;
+  result?: string;
+  actualResult?: string;
+  executeResult?: string;
+}
+// 脑图新增/修改的用例对象集合
+export interface FeatureCaseMinderUpdateCaseList {
+  id: string;
+  templateId: string; // 模板id
+  type: string;
+  name: string;
+  moduleId: string;
+  moveMode?: string;
+  targetId?: string;
+  prerequisite: string;
+  caseEditType: 'STEP' | 'TEXT'; // 编辑模式
+  steps: string;
+  textDescription: string;
+  expectedResult: string;
+  description: string;
+  tags: string[];
+  customFields: CustomField[];
+}
+// 脑图
+export interface FeatureCaseMinder {
+  projectId: string;
+  versionId?: string;
+  updateCaseList: FeatureCaseMinderUpdateCaseList[];
+  updateModuleList: FeatureCaseMinderUpdateModuleList[];
+  deleteResourceList: FeatureCaseMinderDeleteResourceList[];
+}

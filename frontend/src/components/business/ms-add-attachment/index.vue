@@ -1,8 +1,13 @@
 <template>
-  <a-form-item v-if="props.mode === 'button'" field="attachment" :label="t('caseManagement.featureCase.addAttachment')">
+  <a-form-item
+    v-if="props.mode === 'button'"
+    field="attachment"
+    :class="props.onlyButton ? 'hidden-item' : ''"
+    :label="t('caseManagement.featureCase.addAttachment')"
+  >
     <!-- TODO:跟下面统一样式 -->
     <div class="flex flex-col">
-      <div class="mb-1">
+      <div class="mb-1" :class="props.onlyButton ? 'mb-[12px]' : ''">
         <a-dropdown
           v-model:popup-visible="buttonDropDownVisible"
           :disabled="props.disabled"
@@ -41,7 +46,7 @@
           </template>
         </a-dropdown>
       </div>
-      <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
+      <div v-if="!props.onlyButton" class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
         {{ t('system.orgTemplate.addAttachmentTip') }}
       </div>
     </div>
@@ -244,6 +249,7 @@
     defineProps<{
       disabled?: boolean;
       mode?: 'button' | 'input';
+      onlyButton?: boolean;
       accept?: UploadType;
       multiple?: boolean;
       inputClass?: string;

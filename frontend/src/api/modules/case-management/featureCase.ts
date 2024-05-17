@@ -41,6 +41,7 @@ import {
   GetAssociationPublicCasePageUrl,
   GetAssociationPublicModuleTreeUrl,
   GetCaseListUrl,
+  GetCaseMinderUrl,
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
   getChangeHistoryListUrl,
@@ -67,6 +68,7 @@ import {
   publicAssociatedCaseUrl,
   RecoverRecycleCaseListUrl,
   RestoreCaseListUrl,
+  SaveCaseMinderUrl,
   TransferFileUrl,
   UpdateCaseModuleTreeUrl,
   UpdateCaseUrl,
@@ -78,11 +80,8 @@ import {
 import type { BugListItem } from '@/models/bug-management';
 import type {
   AssociatedList,
-  BatchDeleteType,
-  BatchEditCaseType,
   BatchMoveOrCopyType,
   CaseManagementTable,
-  CaseModuleQueryParams,
   ChangeHistoryItem,
   CreateOrUpdateDemand,
   CreateOrUpdateModule,
@@ -90,6 +89,7 @@ import type {
   DeleteDependencyParams,
   DemandItem,
   DragCase,
+  FeatureCaseMinder,
   ImportExcelType,
   ModulesTreeType,
   OperationFile,
@@ -98,7 +98,7 @@ import type {
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, ModuleTreeNode, MoveModules, TableQueryParams } from '@/models/common';
 import { ProjectListItem } from '@/models/setting/project';
-import { AssociateFunctionalCaseItem, TestPlanItem } from '@/models/testPlan/testPlan';
+import { AssociateFunctionalCaseItem } from '@/models/testPlan/testPlan';
 
 // 获取模块树
 export function getCaseModuleTree(params: TableQueryParams) {
@@ -178,6 +178,16 @@ export function batchMoveToModules(data: BatchMoveOrCopyType) {
 // 批量复制到模块
 export function batchCopyToModules(data: BatchMoveOrCopyType) {
   return MSR.post({ url: `${BatchCopyCaseUrl}`, data });
+}
+
+// 保存脑图
+export function saveCaseMinder(data: FeatureCaseMinder) {
+  return MSR.post({ url: `${SaveCaseMinderUrl}`, data });
+}
+
+// 获取脑图
+export function getCaseMinder(data: { projectId: string; moduleId: string }) {
+  return MSR.post({ url: `${GetCaseMinderUrl}`, data });
 }
 
 // 回收站
@@ -362,7 +372,7 @@ export function getDrawerDebugPage(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: GetDebugDrawerPageUrl, data });
 }
 // 关联缺陷
-export function associatedDrawerDebug(data: TableQueryParams) {
+export function associatedDebug(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: AssociatedDebuggerUrl, data });
 }
 

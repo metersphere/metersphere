@@ -21,89 +21,11 @@
     </div>
 
     <!-- 评审评论 -->
-    <div
+    <ReviewCommentList
       v-show="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
-      class="flex flex-1 flex-col overflow-hidden"
-    >
-      <div class="review-history-list">
-        <div v-for="item of reviewCommentList" :key="item.id" class="review-history-list-item">
-          <div class="flex items-center">
-            <MSAvatar :avatar="item.userLogo" />
-            <div class="ml-[8px] flex items-center">
-              <a-tooltip :content="item.userName" :mouse-enter-delay="300">
-                <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{
-                  item.userName
-                }}</div>
-              </a-tooltip>
-              <a-divider direction="vertical" margin="8px"></a-divider>
-              <div v-if="item.status === 'PASS'" class="flex items-center">
-                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
-                {{ t('caseManagement.caseReview.pass') }}
-              </div>
-              <div v-else-if="item.status === 'UN_PASS'" class="flex items-center">
-                <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
-                {{ t('caseManagement.caseReview.fail') }}
-              </div>
-              <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
-                <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--link-6))]" />
-                {{ t('caseManagement.caseReview.suggestion') }}
-              </div>
-              <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
-                <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                {{ t('caseManagement.caseReview.reReview') }}
-              </div>
-              <div v-if="item.status === 'PASSED'" class="flex items-center">
-                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
-                {{ t('caseManagement.featureCase.execute.success') }}
-              </div>
-              <div v-if="item.status === 'BLOCKED'" class="flex items-center">
-                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                {{ t('caseManagement.featureCase.execute.blocked') }}
-              </div>
-              <div v-if="item.status === 'FAILED'" class="flex items-center">
-                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
-                {{ t('caseManagement.featureCase.execute.failed') }}
-              </div>
-            </div>
-          </div>
-          <div class="markdown-body" style="margin-left: 48px" v-html="item.contentText"></div>
-          <div class="ml-[48px] mt-[8px] flex text-[var(--color-text-4)]">
-            {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
-            <div v-if="activeComment === 'reviewComment'">
-              <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
-                <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
-                  {{ characterLimit(item.reviewName) }}
-                </span>
-
-                <span
-                  v-else
-                  class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
-                  @click="review(item)"
-                >
-                  {{ characterLimit(item.reviewName) }}
-                </span>
-              </a-tooltip>
-            </div>
-            <div v-if="activeComment === 'executiveComment'">
-              <a-tooltip :content="item.testPlanName" :mouse-enter-delay="300">
-                <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
-                  {{ characterLimit(item.testPlanName) }}
-                </span>
-
-                <span
-                  v-else
-                  class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
-                  @click="toPlan(item)"
-                >
-                  {{ characterLimit(item.testPlanName) }}
-                </span>
-              </a-tooltip>
-            </div>
-          </div>
-        </div>
-        <MsEmpty v-if="reviewCommentList.length === 0" />
-      </div>
-    </div>
+      :review-comment-list="reviewCommentList"
+      :active-comment="activeComment"
+    />
   </div>
 </template>
 
@@ -111,12 +33,11 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
-  import dayjs from 'dayjs';
 
-  import MSAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsComment from '@/components/business/ms-comment/comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
+  import ReviewCommentList from './reviewCommentList.vue';
 
   import {
     addOrUpdateCommentList,
@@ -130,7 +51,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { characterLimit } from '@/utils';
 
   import { CaseManagementRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
 

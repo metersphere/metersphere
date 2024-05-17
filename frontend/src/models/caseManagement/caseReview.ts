@@ -225,6 +225,7 @@ export interface CommitReviewResultParams {
   status: ReviewResult;
   content: string;
   notifier: string;
+  reviewCommentFileIds?: string[];
 }
 // 评审详情-获取用例评审历史
 export interface ReviewHistoryItem {

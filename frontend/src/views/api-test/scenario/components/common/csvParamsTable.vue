@@ -210,7 +210,7 @@
   ];
 
   function handleCsvVariablesChange(resultArr: any[], isInit?: boolean) {
-    csvVariables.value = [...resultArr];
+    csvVariables.value = resultArr.map((e) => ({ ...e, enable: e.name && e.fileId }));
     if (!isInit) {
       emit('change');
     }

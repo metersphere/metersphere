@@ -49,15 +49,18 @@
         @enter-node="handleEnterNode"
       />
     </div>
-    <div v-if="props.extractContentTabList?.length" class="ms-minder-editor-extra-content">
-      <MsTab v-model:activeKey="activeExtraKey" :content-tab-list="props.extractContentTabList" mode="button" />
+    <div v-if="props.extractContentTabList?.length" class="ms-minder-editor-extra">
+      <div class="pl-[16px] pt-[16px]">
+        <MsTab v-model:activeKey="activeExtraKey" :content-tab-list="props.extractContentTabList" mode="button" />
+      </div>
+      <div class="ms-minder-editor-extra-content">
+        <slot name="extractTabContent"></slot>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" name="minderEditor" setup>
-  import { onMounted } from 'vue';
-
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import minderHeader from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
@@ -134,13 +137,18 @@
 <style lang="less" scoped>
   .ms-minder-editor-container {
     @apply relative flex h-full;
-    .ms-minder-editor-extra-content {
-      @apply border-l;
+    .ms-minder-editor-extra {
+      @apply flex flex-col border-l;
 
-      padding: 16px;
       width: 35%;
       min-width: 360px;
       border-color: var(--color-text-n8);
+      .ms-minder-editor-extra-content {
+        @apply relative  flex-1 overflow-y-auto;
+        .ms-scroll-bar();
+
+        margin-top: 16px;
+      }
     }
   }
 </style>

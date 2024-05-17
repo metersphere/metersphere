@@ -110,8 +110,8 @@
             ref="caseTableRef"
             :active-folder="activeFolder"
             :offspring-ids="offspringIds"
-            :active-folder-type="activeCaseType"
             :modules-count="modulesCount"
+            :module-name="activeFolderName"
             @init="initModulesCount"
             @import="importCase"
           ></CaseTable>
@@ -156,6 +156,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import CaseTable from './components/caseTable.vue';
   import FeatureCaseTree from './components/caseTree.vue';
   import ExportExcelModal from './components/export/exportCaseModal.vue';
@@ -191,6 +192,7 @@
   };
 
   const activeFolder = ref<string>('all');
+  const activeFolderName = ref('');
 
   // 选中节点
   const selectedKeys = computed({
@@ -220,11 +222,12 @@
 
   const featureCaseStore = useFeatureCaseStore();
   // 处理用例树节点选中
-  function caseNodeSelect(keys: string[], _offspringIds: string[]) {
+  function caseNodeSelect(keys: string[], _offspringIds: string[], node: MsTreeNodeData) {
     [activeFolder.value] = keys;
     activeCaseType.value = 'module';
     offspringIds.value = [..._offspringIds];
     featureCaseStore.setModuleId(keys);
+    activeFolderName.value = node.title || node.name;
   }
 
   const confirmLoading = ref(false);

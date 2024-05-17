@@ -239,7 +239,7 @@
       offspringIds.push(e.id);
       return e;
     });
-    emits('caseNodeSelect', selectedKeys, offspringIds);
+    emits('caseNodeSelect', selectedKeys, offspringIds, node);
   };
 
   // 用例树节点更多事件

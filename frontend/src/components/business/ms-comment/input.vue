@@ -16,6 +16,7 @@
       ></a-input>
       <div v-else class="flex flex-col justify-between">
         <MsRichText
+          v-if="props.mode === 'rich'"
           v-model:raw="currentContent"
           v-model:commentIds="commentIds"
           :upload-image="props.uploadImage"
@@ -23,6 +24,11 @@
           class="w-full"
           placeholder="ms.comment.enterPlaceHolderTip"
         />
+        <a-textarea
+          v-else
+          v-model:model-value="currentContent"
+          :placeholder="t('ms.comment.enterPlaceHolderTip')"
+        ></a-textarea>
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
           <a-button @click="cancelClick">{{ t('common.cancel') }}</a-button>
           <a-button type="primary" :disabled="!currentContent" @click="publish">{{ t('common.publish') }}</a-button>
@@ -45,12 +51,18 @@
 
   const { t } = useI18n();
 
-  const props = defineProps<{
-    isShowAvatar: boolean; // 是否显示评论人头像
-    isUseBottom: boolean; // 是否被用于底部
-    uploadImage?: (file: File) => Promise<any>;
-    previewUrl?: string;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      mode?: 'rich' | 'textarea';
+      isShowAvatar: boolean; // 是否显示评论人头像
+      isUseBottom: boolean; // 是否被用于底部
+      uploadImage?: (file: File) => Promise<any>;
+      previewUrl?: string;
+    }>(),
+    {
+      mode: 'rich',
+    }
+  );
 
   const currentContent = defineModel<string>('defaultValue', { default: '' });
   const commentIds = defineModel<string[]>('noticeUserIds', { default: [] });

@@ -299,7 +299,7 @@
         input-size="small"
         tag-size="small"
         @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
-        @delete-file="() => emitChange('deleteFile')"
+        @delete-file="() => handleSingleFileDelete(record)"
       />
     </template>
     <!-- 长度范围 -->
@@ -725,6 +725,7 @@
     (e: 'projectChange', projectId: string): void;
     (e: 'treeDelete', record: Record<string, any>): void;
     (e: 'batchAdd'): void;
+    (e: 'deleteFile', record: Record<string, any>): void;
   }>();
 
   const appStore = useAppStore();
@@ -1050,6 +1051,17 @@
     } finally {
       appStore.hideLoading();
     }
+  }
+
+  function handleSingleFileDelete(record: Record<string, any>) {
+    record.file = {
+      fileId: '',
+      fileName: '',
+      fileAlias: '',
+      local: false,
+      delete: false,
+    };
+    emitChange('deleteFile');
   }
 
   const showQuickInputParam = ref(false);
