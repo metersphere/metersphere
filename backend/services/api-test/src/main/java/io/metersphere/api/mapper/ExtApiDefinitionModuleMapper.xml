@@ -123,6 +123,14 @@
             #{parentId}
         </foreach>
     </select>
+    <select id="getNameInfoByIds" resultType="io.metersphere.api.domain.ApiDefinitionModule">
+        SELECT id, name
+        FROM api_definition_module
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <sql id="api_request">
         <where>

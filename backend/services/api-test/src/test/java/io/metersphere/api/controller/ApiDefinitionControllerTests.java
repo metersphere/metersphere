@@ -136,6 +136,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+
+    @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
 
     @Resource
@@ -879,14 +882,35 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(9)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getPage() throws Exception {
-        doApiDefinitionPage("All", PAGE);
-        doApiDefinitionPage("KEYWORD", PAGE);
+        assertPateDate(doApiDefinitionPage("All", PAGE));
+        assertPateDate(doApiDefinitionPage("KEYWORD", PAGE));
         //doApiDefinitionPage("FILTER", PAGE);
-        doApiDefinitionPage("COMBINE", PAGE);
-        doApiDefinitionPage("DELETED", PAGE);
+        assertPateDate(doApiDefinitionPage("COMBINE", PAGE));
+        assertPateDate(doApiDefinitionPage("DELETED", PAGE));
     }
 
-    private void doApiDefinitionPage(String search, String url) throws Exception {
+    private void assertPateDate(Pager pageData) {
+        List<ApiDefinitionDTO> apiDefinitions = ApiDataUtils.parseArray(JSON.toJSONString(pageData.getList()), ApiDefinitionDTO.class);
+        if (CollectionUtils.isNotEmpty(apiDefinitions)) {
+            ApiDefinitionDTO apiDefinitionDTO = apiDefinitions.get(0);
+            // 判断用例数是否正确
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            example.createCriteria()
+                    .andApiDefinitionIdEqualTo(apiDefinitionDTO.getId())
+                    .andDeletedEqualTo(false);
+            List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+            Assertions.assertEquals(apiDefinitionDTO.getCaseTotal(), apiTestCases.size());
+            // 判断模块名是否正确
+            ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(apiDefinitionDTO.getModuleId());
+            if (apiDefinitionModule == null) {
+                Assertions.assertEquals(apiDefinitionDTO.getModuleName(), Translator.get("api_unplanned_request"));
+            } else {
+                Assertions.assertEquals(apiDefinitionDTO.getModuleName(), apiDefinitionModule.getName());
+            }
+        }
+    }
+
+    private Pager doApiDefinitionPage(String search, String url) throws Exception {
         ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setCurrent(1);
@@ -905,19 +929,15 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(url, request);
-        // 获取返回值
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
-        Assertions.assertNotNull(resultHolder);
-        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        Pager pageData = getResultData(mvcResult, Pager.class);
         // 返回值不为空
         Assertions.assertNotNull(pageData);
         // 返回值的页码和当前页码相同
         Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
-
+        return pageData;
     }
 
     private void configureAllSearch(ApiDefinitionPageRequest request) {

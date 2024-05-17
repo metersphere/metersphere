@@ -1,5 +1,6 @@
 package io.metersphere.api.mapper;
 
+import io.metersphere.api.domain.ApiDefinitionModule;
 import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -36,4 +37,6 @@ public interface ExtApiDefinitionModuleMapper {
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
 
     List<String> getModuleIdsByParentIds(@Param("parentIds") List<String> parentIds);
+
+    List<ApiDefinitionModule> getNameInfoByIds(@Param("ids") List<String> ids);
 }

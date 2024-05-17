@@ -3,7 +3,6 @@ package io.metersphere.api.controller.definition;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;

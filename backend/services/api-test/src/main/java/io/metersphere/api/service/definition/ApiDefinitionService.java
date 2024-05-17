@@ -25,10 +25,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ApiFileResourceType;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.OperationLogBlob;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
@@ -80,6 +77,9 @@ public class ApiDefinitionService extends MoveNodeService {
     private ExtApiDefinitionMapper extApiDefinitionMapper;
 
     @Resource
+    private ExtApiDefinitionModuleMapper extApiDefinitionModuleMapper;
+
+    @Resource
     private ApiDefinitionFollowerMapper apiDefinitionFollowerMapper;
 
     @Resource
@@ -117,8 +117,6 @@ public class ApiDefinitionService extends MoveNodeService {
 
     @Resource
     private ApiDefinitionLogService apiDefinitionLogService;
-    @Resource
-    private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
 
     @Resource
     private ApiDefinitionMockService apiDefinitionMockService;
@@ -136,9 +134,7 @@ public class ApiDefinitionService extends MoveNodeService {
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
-        if (!CollectionUtils.isEmpty(list)) {
-            processApiDefinitions(list, request.getProjectId());
-        }
+        processApiDefinitions(list);
         return list;
     }
 
@@ -437,45 +433,42 @@ public class ApiDefinitionService extends MoveNodeService {
         }
     }
 
-    private void processApiDefinitions(List<ApiDefinitionDTO> list, String projectId) {
+    private void processApiDefinitions(List<ApiDefinitionDTO> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
         Set<String> userIds = extractUserIds(list);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
-      /*  List<String> apiDefinitionIds = list.stream().map(ApiDefinitionDTO::getId).toList();
-        List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(apiDefinitionIds, projectId);
-        Map<String, ApiCaseComputeDTO> resultMap = apiCaseComputeList.stream().collect(Collectors.toMap(ApiCaseComputeDTO::getApiDefinitionId, Function.identity()));
 
-        List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(apiDefinitionIds, projectId);
-        Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
-*/
+        List<String> apiDefinitionIds = list.stream().map(ApiDefinitionDTO::getId).toList();
+        List<ApiTestCase> apiCaseList = extApiDefinitionMapper.selectNotInTrashCaseIdsByApiIds(apiDefinitionIds);
+        Map<String, List<ApiTestCase>> apiCaseMap = apiCaseList.stream().
+                collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+
+        List<String> moduleIds = list.stream().map(ApiDefinitionDTO::getModuleId).toList();
+        List<ApiDefinitionModule> modules = extApiDefinitionModuleMapper.getNameInfoByIds(moduleIds);
+        Map<String, String> moduleNameMap = modules.stream()
+                .collect(Collectors.toMap(ApiDefinitionModule::getId, ApiDefinitionModule::getName));
+
         list.forEach(item -> {
             // Convert User IDs to Names
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setDeleteUserName(userMap.get(item.getDeleteUser()));
             item.setUpdateUserName(userMap.get(item.getUpdateUser()));
 
-            // Custom Fields
-            /*item.setCustomFields(customFieldMap.get(item.getId()));
-
             // Calculate API Case Metrics
-            ApiCaseComputeDTO apiCaseComputeDTO = resultMap.get(item.getId());
-            if (apiCaseComputeDTO != null) {
-                item.setCaseTotal(apiCaseComputeDTO.getCaseTotal());
-                item.setCasePassRate(apiCaseComputeDTO.getCasePassRate());
-                // 状态优先级 未执行，未通过，误报（FAKE_ERROR），通过
-                if ((apiCaseComputeDTO.getError() + apiCaseComputeDTO.getFakeError() + apiCaseComputeDTO.getSuccess()) < apiCaseComputeDTO.getCaseTotal()) {
-                    item.setCaseStatus(ApiReportStatus.PENDING.name());
-                } else if (apiCaseComputeDTO.getError() > 0) {
-                    item.setCaseStatus(ApiReportStatus.ERROR.name());
-                } else if (apiCaseComputeDTO.getFakeError() > 0) {
-                    item.setCaseStatus(ApiReportStatus.FAKE_ERROR.name());
-                } else {
-                    item.setCaseStatus(ApiReportStatus.SUCCESS.name());
-                }
+            List<ApiTestCase> apiTestCases = apiCaseMap.get(item.getId());
+            if (apiTestCases != null) {
+                item.setCaseTotal(apiTestCases.size());
             } else {
                 item.setCaseTotal(0);
-                item.setCasePassRate("-");
-                item.setCaseStatus("-");
-            }*/
+            }
+
+            if (moduleNameMap.get(item.getModuleId()) == null) {
+                item.setModuleName(Translator.get("api_unplanned_request"));
+            } else {
+                item.setModuleName(moduleNameMap.get(item.getModuleId()));
+            }
         });
     }
 

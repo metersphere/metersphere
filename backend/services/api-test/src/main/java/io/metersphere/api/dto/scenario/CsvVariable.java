@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -79,6 +80,10 @@ public class CsvVariable {
 
     public boolean isValid() {
         return StringUtils.isNotBlank(name) && file != null;
+    }
+
+    public boolean isEnable() {
+        return BooleanUtils.isTrue(enable);
     }
 
     public enum CsvEncodingType implements ValueEnum {
