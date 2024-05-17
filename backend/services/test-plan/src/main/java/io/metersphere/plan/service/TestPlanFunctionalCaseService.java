@@ -436,7 +436,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         executeHistory.setTestPlanId(request.getTestPlanId());
         executeHistory.setCaseId(request.getCaseId());
         executeHistory.setStatus(request.getLastExecResult());
-        executeHistory.setContent(request.getContent().getBytes());
+        if (StringUtils.isNotBlank(request.getContent())) {
+            executeHistory.setContent(request.getContent().getBytes());
+        }
         executeHistory.setSteps(StringUtils.defaultIfBlank(request.getStepsExecResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
         executeHistory.setDeleted(false);
         executeHistory.setNotifier(request.getNotifier());
@@ -544,6 +546,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         list.forEach(item -> {
             if (item.getContent() != null) {
                 item.setContentText(new String(item.getContent(), StandardCharsets.UTF_8));
+            }
+            if (item.getSteps() != null) {
+                item.setStepsExecResult(new String(item.getSteps(), StandardCharsets.UTF_8));
             }
         });
         return list;

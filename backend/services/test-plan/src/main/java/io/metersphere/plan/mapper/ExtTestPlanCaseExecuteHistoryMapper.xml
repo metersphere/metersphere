@@ -19,7 +19,7 @@
             tpceh.case_id as caseId,
             tpceh.status as status,
             tpceh.content as content,
-            tpceh.steps as stepsExecResult,
+            tpceh.steps as steps,
             tpceh.create_user as createUser,
             tpceh.create_time as createTime,
             tpceh.notifier as notifier,
