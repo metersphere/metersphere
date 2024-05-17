@@ -299,14 +299,14 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, testPlanId, moduleCountDTOList);
 
         //通过广度遍历的方式构建返回值
-        return testPlanModuleService.getIdCountMapByBreadth(treeNodeList);
+        return functionalCaseModuleService.getIdCountMapByBreadth(treeNodeList);
     }
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<String> moduleIds = extTestPlanModuleMapper.selectIdByProjectIdAndTestPlanId(projectId, testPlanId);
-        List<BaseTreeNode> nodeByNodeIds = testPlanModuleService.getNodeByNodeIds(moduleIds);
-        return testPlanModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
+        List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(moduleIds);
+        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
 
 
     }

@@ -85,9 +85,9 @@
     </select>
 
     <select id="selectIdByProjectIdAndTestPlanId" resultType="java.lang.String">
-        SELECT tpm.id, tpm.project_id
-        FROM test_plan_module tpm
-        WHERE tpm.id IN
+        SELECT fcm.id, fcm.project_id
+        FROM functional_case_module fcm
+        WHERE fcm.id IN
               (SELECT fc.module_id FROM functional_case fc LEFT JOIN test_plan_functional_case tpfc ON tpfc.functional_case_id = fc.id WHERE tpfc.test_plan_id = #{testPlanId} AND fc.deleted = false and fc.project_id = #{projectId})
     </select>
 </mapper>
