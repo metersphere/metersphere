@@ -47,7 +47,7 @@ public class TestPlanModuleService extends ModuleTreeService {
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extTestPlanModuleMapper.selectBaseByProjectId(projectId);
-        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("unplanned.plan"));
     }
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
