@@ -17,6 +17,7 @@ import {
   DisassociateCaseUrl,
   EditCaseLastExecResultUrl,
   followPlanUrl,
+  GenerateReportUrl,
   GetAssociatedBugUrl,
   GetFeatureCaseModuleCountUrl,
   GetFeatureCaseModuleUrl,
@@ -58,6 +59,7 @@ import type {
   PlanDetailFeatureCaseListQueryParams,
   RunFeatureCaseParams,
   SortFeatureCaseParams,
+  TestPlanBaseParams,
   TestPlanDetail,
   TestPlanItem,
   UseCountType,
@@ -147,6 +149,10 @@ export function batchArchivedPlan(data: TableQueryParams) {
 // 计划详情缺陷管理列表
 export function planDetailBugPage(data: TableQueryParams) {
   return MSR.post<CommonList<PlanDetailBugItem>>({ url: planDetailBugPageUrl, data });
+}
+// 生成报告
+export function generateReport(data: TestPlanBaseParams) {
+  return MSR.post({ url: GenerateReportUrl, data });
 }
 // 关注
 export function followPlanRequest(data: FollowPlanParams) {

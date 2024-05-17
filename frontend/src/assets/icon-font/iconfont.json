@@ -6,6 +6,20 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "40376562",
+      "name": "icon_generate_report",
+      "font_class": "icon_generate_report",
+      "unicode": "e7b6",
+      "unicode_decimal": 59318
+    },
+    {
+      "icon_id": "40366122",
+      "name": "icon_project",
+      "font_class": "icon_project",
+      "unicode": "e7b5",
+      "unicode_decimal": 59317
+    },
+    {
       "icon_id": "40342056",
       "name": "icon_api-test-filled",
       "font_class": "icon_api-test-filled2",

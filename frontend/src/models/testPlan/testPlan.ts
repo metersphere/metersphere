@@ -131,6 +131,11 @@ export interface FollowPlanParams {
   testPlanId: string;
 }
 
+export interface TestPlanBaseParams {
+  projectId: string;
+  testPlanId: string;
+}
+
 export interface PlanDetailFeatureCaseItem {
   id: string;
   num: string;
@@ -149,10 +154,7 @@ export interface PlanDetailFeatureCaseItem {
   testPlanId: string;
 }
 
-export interface PlanDetailFeatureCaseListQueryParams extends TableQueryParams {
-  testPlanId: string;
-  projectId: string;
-}
+export interface PlanDetailFeatureCaseListQueryParams extends TableQueryParams, TestPlanBaseParams {}
 export interface DisassociateCaseParams {
   testPlanId: string;
   id: string;
