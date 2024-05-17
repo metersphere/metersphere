@@ -2,6 +2,10 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.*;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample;
+import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
@@ -43,6 +47,10 @@ public class DeleteFunctionalCaseService {
     private FunctionalCaseRelationshipEdgeMapper functionalCaseRelationshipEdgeMapper;
     @Resource
     private ExtFunctionalCaseRelationshipEdgeMapper extFunctionalCaseRelationshipEdgeMapper;
+    @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
 
 
     public void deleteFunctionalCaseResource(List<String> ids, String projectId) {
@@ -116,6 +124,14 @@ public class DeleteFunctionalCaseService {
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
         caseReviewHistoryExample.createCriteria().andCaseIdIn(ids);
         caseReviewHistoryMapper.deleteByExample(caseReviewHistoryExample);
+        //删除和测试计划的关联关系
+        TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+        testPlanFunctionalCaseExample.createCriteria().andFunctionalCaseIdIn(ids);
+        testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
+        //删除执行历史
+        TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
+        testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdIn(ids);
+        testPlanCaseExecuteHistoryMapper.deleteByExample(testPlanCaseExecuteHistoryExample);
 
     }
 }
