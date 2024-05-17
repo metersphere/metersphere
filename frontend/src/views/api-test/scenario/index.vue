@@ -148,7 +148,7 @@
 
   import { defaultCsvParamItem, defaultNormalParamItem } from '../components/config';
   import { defaultScenario } from './components/config';
-  import updateStepStatus from './components/utils';
+  import updateStepStatus, { getScenarioFileParams } from './components/utils';
   import {
     filterAssertions,
     filterConditionsSqlValidParams,
@@ -263,6 +263,9 @@
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           ...executeParams,
           stepFileParam: activeScenarioTab.value.stepFileParam,
+          fileParam: {
+            ...getScenarioFileParams(activeScenarioTab.value),
+          },
           steps: mapTree(executeParams.steps, (node) => {
             return {
               ...node,
@@ -278,6 +281,9 @@
           projectId: appStore.currentProjectId,
           scenarioConfig: activeScenarioTab.value.scenarioConfig,
           stepFileParam: activeScenarioTab.value.stepFileParam,
+          fileParam: {
+            ...getScenarioFileParams(activeScenarioTab.value),
+          },
           frontendDebug: executeType === 'localExec',
           ...executeParams,
           steps: mapTree(executeParams.steps, (node) => {

@@ -12,7 +12,7 @@ import type { ApiScenarioDebugRequest, Scenario, ScenarioStepItem } from '@/mode
 import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
 import type { RequestParam } from '../common/customApiDrawer.vue';
-import updateStepStatus from '../utils';
+import updateStepStatus, { getScenarioFileParams } from '../utils';
 
 /**
  * 步骤执行逻辑
@@ -85,6 +85,9 @@ export default function useStepExecute({
         projectId: appStore.currentProjectId,
         scenarioConfig: scenario.value.scenarioConfig,
         frontendDebug: scenario.value.executeType === 'localExec',
+        fileParam: {
+          ...getScenarioFileParams(scenario.value),
+        },
         ...executeParams,
         steps: mapTree(executeParams.steps, (node) => {
           return {
@@ -153,7 +156,7 @@ export default function useStepExecute({
    * @param executeType 执行类型
    */
   function handleApiExecute(request: RequestParam, executeType?: 'localExec' | 'serverExec') {
-    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.stepId, 'uniqueId');
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.uniqueId || request.stepId, 'uniqueId');
     if (realStep) {
       delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
       realStep.reportId = getGenerateId();
@@ -175,7 +178,7 @@ export default function useStepExecute({
       });
     } else {
       // 步骤列表找不到该步骤，说明是新建的自定义请求还未保存，则临时创建一个步骤进行调试（不保存步骤信息）
-      delete scenario.value.stepResponses[request.stepId]; // 先移除上一次的执行结果
+      delete scenario.value.stepResponses[request.uniqueId || request.stepId]; // 先移除上一次的执行结果
       const reportId = getGenerateId();
       request.executeLoading = true;
       activeStep.value = {
@@ -190,7 +193,7 @@ export default function useStepExecute({
         projectId: appStore.currentProjectId,
         isExecuting: false,
         reportId,
-        uniqueId: request.stepId,
+        uniqueId: request.uniqueId,
       };
       realExecute({
         steps: [activeStep.value],

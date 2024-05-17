@@ -409,6 +409,7 @@
     label: string;
     name: string;
     stepId: string | number; // 所属步骤 id
+    uniqueId: string | number; // 前端生成的唯一 id
     stepName: string; // 所属步骤名称
     resourceId: string | number; // 引用、复制的资源 id
     isNew: boolean;
@@ -471,6 +472,7 @@
     name: '',
     type: 'api',
     stepId: '',
+    uniqueId: '',
     stepName: '',
     resourceId: '',
     customizeRequest: true,
@@ -560,7 +562,7 @@
   );
   const currentLoop = ref(1);
   const currentResponse = computed(() => {
-    if (requestVModel.value.stepId === props.step?.uniqueId && props.step?.uniqueId) {
+    if (requestVModel.value.uniqueId === props.step?.uniqueId && props.step?.uniqueId) {
       // 判断当前步骤 id 与传入的激活步骤 id 是否一致，避免在操作插入步骤时带入的是其他步骤的响应内容
       return props.stepResponses?.[props.step?.uniqueId]?.[currentLoop.value - 1];
     }
@@ -574,7 +576,7 @@
   watch(
     () => props.stepResponses,
     (val) => {
-      if (val && val[requestVModel.value.stepId]) {
+      if (val && val[requestVModel.value.uniqueId]) {
         requestVModel.value.executeLoading = false;
       }
     },
@@ -766,7 +768,7 @@
   const handlePluginFormChange = debounce(() => {
     if (isEditableApi.value) {
       // 复制或者新建的时候需要缓存表单数据，引用的不能更改
-      temporaryPluginFormMap[requestVModel.value.stepId] = fApi.value?.formData();
+      temporaryPluginFormMap[requestVModel.value.uniqueId] = fApi.value?.formData();
     }
     handleActiveDebugChange();
   }, 300);
@@ -797,7 +799,7 @@
    * 设置插件表单数据
    */
   function setPluginFormData() {
-    const tempForm = temporaryPluginFormMap[requestVModel.value.stepId];
+    const tempForm = temporaryPluginFormMap[requestVModel.value.uniqueId];
     if (tempForm || !requestVModel.value.isNew) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
       const formData = isEditableApi.value ? tempForm || requestVModel.value : requestVModel.value;
@@ -981,6 +983,7 @@
       ...requestParams,
       resourceId: requestVModel.value.resourceId,
       stepId: requestVModel.value.stepId,
+      uniqueId: requestVModel.value.uniqueId,
       activeTab: requestVModel.value.protocol === 'HTTP' ? RequestComposition.HEADER : RequestComposition.PLUGIN,
       responseActiveTab: ResponseComposition.BODY,
       protocol: requestVModel.value.protocol,
@@ -1153,7 +1156,7 @@
         activeTab: contentTabList.value[0].value,
         unSaved: false,
         isNew: false,
-        label: res.name,
+        label: props.step?.name || res.name,
         stepName: props.step?.name || res.name,
         ...res.request,
         ...res,
@@ -1162,6 +1165,7 @@
         name: res.name, // request里面还有个name但是是null
         resourceId: res.id,
         stepId: props.step?.id || '',
+        uniqueId: props.step?.uniqueId || '',
         responseActiveTab: ResponseComposition.BODY,
         ...parseRequestBodyResult,
       };
@@ -1214,11 +1218,14 @@
    * @param newStep 替换的新步骤
    */
   function handleReplace(newStep: ScenarioStepItem) {
-    emit('replace', newStep);
+    emit('replace', {
+      ...newStep,
+      name: props.step?.name || newStep.name,
+    });
   }
 
   watch(
-    () => props.request?.stepId,
+    () => props.request?.uniqueId,
     () => {
       isSwitchingContent.value = true;
     },
@@ -1245,6 +1252,7 @@
             activeTab: contentTabList.value[0].value,
             responseActiveTab: ResponseComposition.BODY,
             stepId: props.step?.uniqueId || '',
+            uniqueId: props.step?.uniqueId || '',
             isNew: false,
           });
           if (_stepType.value.isQuoteApi) {
@@ -1258,9 +1266,11 @@
           handleActiveDebugProtocolChange(requestVModel.value.protocol);
         } else {
           // 新建自定义请求
+          const id = getGenerateId();
           requestVModel.value = cloneDeep({
             ...defaultApiParams,
-            stepId: getGenerateId(),
+            stepId: id,
+            uniqueId: id,
           });
         }
         requestVModel.value.activeTab = contentTabList.value[0].value;

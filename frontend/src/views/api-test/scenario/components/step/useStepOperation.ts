@@ -96,32 +96,37 @@ export default function useStepOperation({
       // 复制 api、引用 api、自定义 api打开抽屉
       activeStep.value = step;
       if (
+        step.isQuoteScenarioStep ||
         (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
         (stepDetails.value[step.id] === undefined && !step.isNew)
       ) {
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+        // 引用的场景步骤资源每次加载最新数据
+        // 查看步骤详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
         await getStepDetail(step);
       }
       customApiDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.API_CASE) {
       activeStep.value = step;
       if (
-        _stepType.isCopyCase &&
-        ((stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
-          (stepDetails.value[step.id] === undefined && !step.isNew))
+        step.isQuoteScenarioStep ||
+        (_stepType.isCopyCase && stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
+        (stepDetails.value[step.id] === undefined && !step.isNew)
       ) {
+        // 引用的场景步骤资源每次加载最新数据
         // 只有复制的 case 需要查看步骤详情，引用的无法更改所以不需要在此初始化详情
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+        // 查看步骤详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
         await getStepDetail(step);
       }
       customCaseDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.SCRIPT) {
       activeStep.value = step;
       if (
+        step.isQuoteScenarioStep ||
         (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
         (stepDetails.value[step.id] === undefined && !step.isNew)
       ) {
-        // 查看场景详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+        // 引用的场景步骤资源每次加载最新数据
+        // 查看步骤详情时，详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
         await getStepDetail(step);
       }
       scriptOperationDrawerVisible.value = true;
