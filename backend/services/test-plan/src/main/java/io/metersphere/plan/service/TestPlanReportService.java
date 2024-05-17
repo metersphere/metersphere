@@ -20,6 +20,7 @@ import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserService;
@@ -364,8 +365,11 @@ public class TestPlanReportService {
 	 * @param request 请求参数
 	 * @return 缺陷分页数据
 	 */
-	public List<BugDTO> listReportDetailBugs(TestPlanReportDetailPageRequest request) {
-		return extTestPlanReportBugMapper.list(request);
+	public List<BugDTO> listReportDetailBugs(BasePageRequest request, String reportId) {
+		TestPlanReportDetailPageRequest reportRequest = new TestPlanReportDetailPageRequest();
+		BeanUtils.copyBean(reportRequest, request);
+		reportRequest.setReportId(reportId);
+		return extTestPlanReportBugMapper.list(reportRequest);
 	}
 
 	/**
@@ -373,8 +377,11 @@ public class TestPlanReportService {
 	 * @param request 请求参数
 	 * @return 缺陷分页数据
 	 */
-	public List<ReportDetailCasePageDTO> listReportDetailFunctionalCases(TestPlanReportDetailPageRequest request) {
-		return extTestPlanReportFunctionalCaseMapper.list(request);
+	public List<ReportDetailCasePageDTO> listReportDetailFunctionalCases(BasePageRequest request, String reportId) {
+		TestPlanReportDetailPageRequest reportRequest = new TestPlanReportDetailPageRequest();
+		BeanUtils.copyBean(reportRequest, request);
+		reportRequest.setReportId(reportId);
+		return extTestPlanReportFunctionalCaseMapper.list(reportRequest);
 	}
 
 

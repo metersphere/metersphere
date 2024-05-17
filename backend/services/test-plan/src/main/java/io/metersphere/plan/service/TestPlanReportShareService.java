@@ -10,6 +10,7 @@ import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.domain.ShareInfo;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -18,10 +19,16 @@ import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static io.metersphere.sdk.util.ShareUtil.getTimeMills;
 
 @Service
 public class TestPlanReportShareService {
@@ -34,6 +41,33 @@ public class TestPlanReportShareService {
 	private TestPlanReportMapper testPlanReportMapper;
 	@Resource
 	private ProjectApplicationMapper projectApplicationMapper;
+
+	private static final Long DEFAULT = 1000L * 60 * 60 * 24;
+
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public void validateExpired(ShareInfo shareInfo) {
+		String shareType = shareInfo.getShareType();
+		String projectId = "";
+		if (StringUtils.equals(shareType, ShareInfoType.TEST_PLAN_SHARE_REPORT.name())) {
+			TestPlanReport planReport = testPlanReportMapper.selectByPrimaryKey(new String(shareInfo.getCustomData()));
+			if (planReport != null && BooleanUtils.isFalse(planReport.getDeleted())) {
+				projectId = planReport.getProjectId();
+			}
+		}
+		if (StringUtils.isBlank(projectId)) {
+			throw new MSException(Translator.get("test_plan_report_not_exist"));
+		}
+		ProjectApplicationExample example = new ProjectApplicationExample();
+		example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(shareType);
+		List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+		if (CollectionUtils.isEmpty(projectApplications)) {
+			millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime(), DEFAULT, shareInfo.getId());
+		} else {
+			String expr = projectApplications.getFirst().getTypeValue();
+			long timeMills = getTimeMills(shareInfo.getUpdateTime(), expr);
+			millisCheck(System.currentTimeMillis(), timeMills, shareInfo.getId());
+		}
+	}
 
 	/**
 	 * 生成计划报告分享信息
@@ -94,7 +128,7 @@ public class TestPlanReportShareService {
 	 * @param id 分享ID
 	 * @return 分享资源信息
 	 */
-	private ShareInfo checkResource(String id) {
+	public ShareInfo checkResource(String id) {
 		ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(id);
 		if (shareInfo == null) {
 			throw new RuntimeException(Translator.get("connection_expired"));
@@ -129,5 +163,18 @@ public class TestPlanReportShareService {
 			testPlanShareInfo.setShareUrl(url);
 		}
 		return testPlanShareInfo;
+	}
+
+	/**
+	 * 校验时间是否过期
+	 * @param compareMillis 比较时间
+	 * @param millis 分享时间
+	 * @param shareInfoId 分享ID
+	 */
+	private void millisCheck(long compareMillis, long millis, String shareInfoId) {
+		if (compareMillis > millis) {
+			shareInfoMapper.deleteByPrimaryKey(shareInfoId);
+			throw new MSException(Translator.get("connection_expired"));
+		}
 	}
 }

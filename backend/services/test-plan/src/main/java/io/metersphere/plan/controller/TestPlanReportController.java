@@ -6,7 +6,10 @@ import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
-import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanReportDetailEditRequest;
+import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
+import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -14,6 +17,7 @@ import io.metersphere.plan.service.TestPlanReportLogService;
 import io.metersphere.plan.service.TestPlanReportNoticeService;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -91,15 +95,15 @@ public class TestPlanReportController {
 
     // 报告详情开始
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/get/{reportId}")
     @Operation(summary = "测试计划-报告-详情")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#id", resourceType = "test_plan_report")
-    public TestPlanReportDetailResponse get(@PathVariable String id) {
-        return testPlanReportService.getReport(id);
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public TestPlanReportDetailResponse get(@PathVariable String reportId) {
+        return testPlanReportService.getReport(reportId);
     }
 
-    @PostMapping("/edit")
+    @PostMapping("/detail/edit")
     @Operation(summary = "测试计划-报告-详情-报告内容更新")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_report")
@@ -107,23 +111,25 @@ public class TestPlanReportController {
         return testPlanReportService.edit(request);
     }
 
-    @PostMapping("/detail/bug/page")
+    @PostMapping("/detail/bug/page/{reportId}")
     @Operation(summary = "测试计划-报告-详情-缺陷分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
-    public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public Pager<List<BugDTO>> pageBug(@PathVariable String reportId,
+                                       @Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailBugs(request));
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailBugs(request, reportId));
     }
 
-    @PostMapping("/detail/functional/case/page")
+    @PostMapping("/detail/functional/case/page/{reportId}")
     @Operation(summary = "测试计划-报告-详情-功能用例分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
-    public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@PathVariable String reportId,
+                                                                   @Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.function_case_num, tprfc.id desc");
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailFunctionalCases(request));
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailFunctionalCases(request, reportId));
     }
 }
