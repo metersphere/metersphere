@@ -2,6 +2,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -23,7 +24,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionDTO> listDoc(@Param("request") ApiDefinitionDocRequest request);
 
-    List<ApiCaseComputeDTO> selectApiCaseByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
+    List<ApiTestCase> selectNotInTrashCaseIdsByApiIds(@Param("apiIds") List<String> apiIds);
 
     Long getPos(@Param("projectId") String projectId);
 

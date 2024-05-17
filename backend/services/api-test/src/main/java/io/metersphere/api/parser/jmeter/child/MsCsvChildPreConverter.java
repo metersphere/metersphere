@@ -47,7 +47,7 @@ public class MsCsvChildPreConverter extends AbstractJmeterElementConverter<Abstr
     }
 
     private static void addCsvDataSet(HashTree tree, String shareMode, CsvVariable csvVariable) {
-        if (!csvVariable.isValid()) {
+        if (!csvVariable.isValid() || !csvVariable.isEnable()) {
             return;
         }
         // 执行机执行文件存放的缓存目录
