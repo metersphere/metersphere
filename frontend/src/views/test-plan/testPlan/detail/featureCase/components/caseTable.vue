@@ -36,9 +36,8 @@
         <ExecuteResult :execute-result="filterContent.key" />
       </template>
       <template #lastExecResult="{ record }">
-        <!-- TODO: 修改permission -->
         <a-select
-          v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])"
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
           v-model:model-value="record.lastExecResult"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
@@ -55,7 +54,7 @@
       </template>
       <template #operation="{ record }">
         <MsButton
-          v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+          v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
           type="text"
           class="!mr-0"
           @click="toCaseDetail(record)"
@@ -75,16 +74,15 @@
             {{ t('common.cancelLink') }}
           </MsButton>
         </MsPopconfirm>
-        <!-- TODO: 修改permission -->
         <a-divider
           v-if="props.repeatCase"
-          v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
           direction="vertical"
           :margin="8"
         ></a-divider>
         <MsButton
           v-if="props.repeatCase"
-          v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
           type="text"
           class="!mr-0"
           @click="handleCopyCase(record)"
@@ -240,7 +238,6 @@
     projectId: appStore.currentProjectId,
   });
 
-  // TODO: 复制的Permission
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION'])
   );
@@ -360,7 +357,6 @@
       };
     }
   );
-  // TODO: permission
   const batchActions = {
     baseAction: [
       {
@@ -371,6 +367,7 @@
       {
         label: 'testPlan.featureCase.changeExecutor',
         eventTag: 'changeExecutor',
+        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
       },
     ],
     moreAction: [

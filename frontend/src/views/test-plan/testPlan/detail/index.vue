@@ -82,9 +82,13 @@
         <StatusProgress :status-detail="countDetail" height="8px" radius="var(--border-radius-mini)" />
       </div>
     </template>
-    <a-tabs v-model:active-key="activeTab" class="no-content">
-      <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.title" />
-    </a-tabs>
+    <MsTab
+      v-model:active-key="activeTab"
+      :get-text-func="getTabBadge"
+      :content-tab-list="tabList"
+      no-content
+      class="relative mx-[16px] border-b"
+    />
   </MsCard>
   <!-- special-height的174: 上面卡片高度158 + mt的16 -->
   <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding>
@@ -112,6 +116,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
@@ -209,6 +214,16 @@
     return fullActions.filter((e) => e.eventTag !== 'archive');
   });
 
+  function getTabBadge(tabKey: string) {
+    switch (tabKey) {
+      case 'featureCase':
+        const count = detail.value.functionalCaseCount ?? 0;
+        return `${count > 0 ? count : ''}`;
+      default:
+        return '';
+    }
+  }
+
   function archiveHandler() {
     openModal({
       type: 'warning',
@@ -264,8 +279,8 @@
   const activeTab = ref('featureCase');
   const tabList = ref([
     {
-      key: 'featureCase',
-      title: t('menu.caseManagement.featureCase'),
+      value: 'featureCase',
+      label: t('menu.caseManagement.featureCase'),
     },
     // TODO 先不上
     // {

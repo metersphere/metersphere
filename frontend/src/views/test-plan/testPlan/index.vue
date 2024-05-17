@@ -9,22 +9,14 @@
               :placeholder="t('caseManagement.featureCase.searchTip')"
               allow-clear
             />
-            <a-dropdown-button
+            <a-button
               v-permission="['PROJECT_TEST_PLAN:READ+ADD']"
               class="ml-2"
               type="primary"
               @click="handleSelect('createPlan')"
             >
               {{ t('common.newCreate') }}
-              <template #icon>
-                <icon-down />
-              </template>
-              <template #content>
-                <a-doption value="Excel">
-                  {{ t('testPlan.testPlanIndex.newCreatePlanGroup') }}
-                </a-doption>
-              </template>
-            </a-dropdown-button>
+            </a-button>
           </div>
 
           <div class="test-plan h-[100%]">
