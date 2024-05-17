@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,6 +37,8 @@ public class TestPlanCaseService {
         long now = System.currentTimeMillis();
         List<TestPlanFunctionalCase> testPlanFunctionalCaseList = new ArrayList<>();
         List<String> associationIdList = associationParam.getResourceIdList();
+        // 批量添加时，按照列表顺序进行展示。所以这里将集合倒叙排列
+        Collections.reverse(associationIdList);
         for (int i = 0; i < associationIdList.size(); i++) {
             TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
             testPlanFunctionalCase.setId(IDGenerator.nextStr());

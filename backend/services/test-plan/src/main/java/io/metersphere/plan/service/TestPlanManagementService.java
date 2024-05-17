@@ -45,6 +45,11 @@ public class TestPlanManagementService {
         TestPlanQueryConditions testPlanQueryConditions = new TestPlanQueryConditions(null, request.getProjectId(), request);
         List<ModuleCountDTO> moduleCountDTOList = extTestPlanMapper.countModuleIdByConditions(testPlanQueryConditions);
         Map<String, Long> moduleCountMap = testPlanModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
+        long allCount = 0;
+        for (ModuleCountDTO item : moduleCountDTOList) {
+            allCount += item.getDataCount();
+        }
+        moduleCountMap.put("all", allCount);
         return moduleCountMap;
     }
 
