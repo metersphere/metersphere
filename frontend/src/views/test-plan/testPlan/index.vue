@@ -32,7 +32,7 @@
                     isExpandAll ? t('testPlan.testPlanIndex.collapseAll') : t('testPlan.testPlanIndex.expandAll')
                   "
                 >
-                  <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
+                  <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" position="top" @click="expandHandler">
                     <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
                   </MsButton>
                 </a-tooltip>

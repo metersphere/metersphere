@@ -22,6 +22,8 @@ export const UpdateTestPlanUrl = '/test-plan/update';
 export const batchDeletePlanUrl = '/test-plan/batch-delete';
 // 删除测试计划
 export const deletePlanUrl = '/test-plan/delete';
+// 测试计划批量编辑
+export const BatchEditTestPlanUrl = '/test-plan/batch-edit';
 // 获取统计数量
 export const getStatisticalCountUrl = '/test-plan/getCount';
 // 归档
@@ -29,7 +31,7 @@ export const archivedPlanUrl = '/test-plan/archived';
 // 批量复制
 export const batchCopyPlanUrl = '/test-plan/batch-copy';
 // 批量移动
-export const batchMovePlanUrl = '/test-plan/batch/move';
+export const batchMovePlanUrl = '/test-plan/batch-move';
 // 批量归档
 export const batchArchivedPlanUrl = '/test-plan/batch-archived';
 // 计划详情缺陷管理列表
@@ -74,3 +76,5 @@ export const BatchRunCaseUrl = '/test-plan/functional/case/batch/run';
 export const GetTestPlanUsersUrl = '/test-plan/functional/case/user-option';
 // 计划详情-功能用例-批量更新执行人
 export const BatchUpdateCaseExecutorUrl = '/test-plan/functional/case/batch/update/executor';
+// 计划详情-功能用例-执行历史
+export const ExecuteHistoryUrl = '/test-plan/functional/case/exec/history';

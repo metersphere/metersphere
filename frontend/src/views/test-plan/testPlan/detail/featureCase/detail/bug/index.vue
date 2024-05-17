@@ -48,7 +48,7 @@
         class="mx-[8px] w-[240px]"
         @search="initData"
         @press-enter="initData"
-        @clear="initData"
+        @clear="resetHandler"
       />
     </div>
     <BugList
@@ -62,25 +62,9 @@
         testPlanCaseId: route.query.testPlanCaseId,
         caseId: props.caseId,
       }"
-      @link="linkDefect"
-      @new="createDefect"
+      @link="emit('link')"
+      @new="emit('new')"
       @cancel-link="cancelLink"
-    />
-    <LinkDefectDrawer
-      v-model:visible="showLinkDrawer"
-      :case-id="props.caseId"
-      :drawer-loading="drawerLoading"
-      @save="saveHandler"
-    />
-    <AddDefectDrawer
-      v-model:visible="showDrawer"
-      :case-id="props.caseId"
-      ::extra-params="{   
-        testPlanCaseId: route.query.testPlanCaseId,
-        caseId: props.caseId,
-        testPlanId:props.testPlanId,
-      }"
-      @success="initData()"
     />
   </div>
 </template>
@@ -92,12 +76,10 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
   import BugList from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugList.vue';
-  import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
 
   import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';
-  import { associateBugToPlan, associatedBugPage, testPlanCancelBug } from '@/api/modules/test-plan/testPlan';
+  import { associatedBugPage, testPlanCancelBug } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { hasAnyPermission } from '@/utils/permission';
@@ -115,6 +97,12 @@
   }>();
 
   const keyword = ref<string>('');
+
+  const emit = defineEmits<{
+    (e: 'link'): void;
+    (e: 'new'): void;
+    (e: 'save', params: TableQueryParams): void;
+  }>();
 
   const columns = ref<MsTableColumn>([
     {
@@ -188,26 +176,16 @@
     if (!hasAnyPermission(['FUNCTIONAL_CASE:READ', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])) {
       return;
     }
-    bugTableListRef.value?.searchData();
-  }
-
-  const showLinkDrawer = ref<boolean>(false);
-  function linkDefect() {
-    showLinkDrawer.value = true;
-  }
-
-  const showDrawer = ref<boolean>(false);
-  function createDefect() {
-    showDrawer.value = true;
+    bugTableListRef.value?.searchData(keyword.value);
   }
 
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     switch (value) {
       case 'associated':
-        linkDefect();
+        emit('link');
         break;
       default:
-        createDefect();
+        emit('new');
         break;
     }
   }
@@ -232,6 +210,7 @@
   }
 
   const cancelLoading = ref<boolean>(false);
+
   // 取消关联缺陷
   async function cancelLink(id: string) {
     cancelLoading.value = true;
@@ -261,25 +240,10 @@
     }
   }
   const route = useRoute();
-  const drawerLoading = ref<boolean>(false);
-  // 关联缺陷
-  async function saveHandler(params: TableQueryParams) {
-    try {
-      drawerLoading.value = true;
-      await associateBugToPlan({
-        ...params,
-        caseId: props.caseId,
-        testPlanId: props.testPlanId,
-        testPlanCaseId: route.query.testPlanCaseId as string,
-      });
-      Message.success(t('caseManagement.featureCase.associatedSuccess'));
-      initData();
-      showLinkDrawer.value = false;
-    } catch (error) {
-      console.log(error);
-    } finally {
-      drawerLoading.value = false;
-    }
+
+  function resetHandler() {
+    keyword.value = '';
+    initData();
   }
 
   watch(
@@ -295,6 +259,10 @@
     initFilterOptions();
     initData();
     initBugList();
+  });
+
+  defineExpose({
+    initData,
   });
 </script>
 

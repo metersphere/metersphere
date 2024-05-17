@@ -44,6 +44,7 @@
     class="mt-4"
     :action-config="testPlanBatchActions"
     filter-icon-align-left
+    :selectable="hasOperationPermission"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
@@ -115,7 +116,7 @@
         <StatusProgress :status-detail="defaultCountDetailMap[record.id]" height="5px" />
       </div>
       <div class="text-[var(--color-text-1)]">
-        {{ `${record.passRate || 0}%` }}
+        {{ `${defaultCountDetailMap[record.id] ? defaultCountDetailMap[record.id].passRate : '-'}%` }}
       </div>
     </template>
     <template #passRateTitleSlot="{ columnConfig }">
@@ -173,10 +174,17 @@
 
     <template #operation="{ record }">
       <div class="flex items-center">
-        <MsButton v-if="record.functionalCaseCount > 0" class="!mx-0">{{
-          t('testPlan.testPlanIndex.execution')
-        }}</MsButton>
-        <a-divider v-if="record.functionalCaseCount > 0" direction="vertical" :margin="8"></a-divider>
+        <MsButton
+          v-if="record.functionalCaseCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          class="!mx-0"
+          @click="openDetail(record.id)"
+          >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
+        >
+        <a-divider
+          v-if="record.functionalCaseCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
 
         <MsButton
           v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
@@ -245,6 +253,7 @@
     :active-folder="props.activeFolder"
     :offspring-ids="props.offspringIds"
     :condition="conditionParams"
+    :show-type="showType"
     @success="successHandler"
   />
 </template>
@@ -289,6 +298,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
   import type { PassRateCountDetail, planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -318,6 +328,10 @@
     (e: 'init', params: any): void;
     (e: 'editOrCopy', id: string, isCopy: boolean): void;
   }>();
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE', 'PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ADD'])
+  );
 
   const columns: MsTableColumn = [
     {
@@ -443,11 +457,11 @@
       showDrag: true,
     },
     {
-      title: 'testPlan.testPlanIndex.operation',
+      title: hasOperationPermission.value ? 'testPlan.testPlanIndex.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: hasOperationPermission.value ? 200 : 50,
       showInTable: true,
       showDrag: false,
     },
@@ -537,27 +551,29 @@
     {
       label: 'common.archive',
       eventTag: 'archive',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
     },
   ];
   const copyActions: ActionsItem[] = [
     {
       label: 'common.copy',
       eventTag: 'copy',
+      permission: ['PROJECT_TEST_PLAN:READ+ADD'],
     },
   ];
 
   function getMoreActions(status: planStatusType, useCount: number) {
+    // 有用例数量才可以执行 否则不展示执行
     const copyAction = useCount > 0 ? copyActions : [];
-    if (status === 'COMPLETED' || status === 'ARCHIVED') {
+    // 单独操作已归档和已完成 不展示归档
+    if (status === 'ARCHIVED' || status === 'PREPARED' || status === 'UNDERWAY') {
       return [
         ...copyAction,
-        {
-          isDivider: true,
-        },
         {
           label: 'common.delete',
           danger: true,
           eventTag: 'delete',
+          permission: ['PROJECT_TEST_PLAN:READ+DELETE'],
         },
       ];
     }
@@ -565,9 +581,13 @@
       ...copyAction,
       ...archiveActions,
       {
+        isDivider: true,
+      },
+      {
         label: 'common.delete',
         danger: true,
         eventTag: 'delete',
+        permission: ['PROJECT_TEST_PLAN:READ+DELETE'],
       },
     ];
   }
@@ -610,7 +630,6 @@
       filter: propsRes.value.filter,
       combine: batchParams.value.condition,
     };
-
     return {
       type: showType.value,
       moduleIds: props.activeFolder && props.activeFolder !== 'all' ? [props.activeFolder, ...props.offspringIds] : [],
@@ -620,6 +639,7 @@
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
       condition: {
+        filter: propsRes.value.filter,
         keyword: keyword.value,
       },
       combine: {
@@ -832,6 +852,7 @@
   }
 
   function successHandler() {
+    resetSelector();
     fetchData();
   }
 

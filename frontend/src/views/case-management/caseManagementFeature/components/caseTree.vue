@@ -25,7 +25,7 @@
         children: 'children',
         count: 'count',
       }"
-      title-tooltip-position="left"
+      title-tooltip-position="top"
       @select="caseNodeSelect"
       @more-action-select="handleCaseMoreSelect"
       @more-actions-close="moreActionsClose"

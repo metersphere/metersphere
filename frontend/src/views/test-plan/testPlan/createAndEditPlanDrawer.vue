@@ -287,9 +287,12 @@
       if (props.planId?.length) {
         const result = await getTestPlanDetail(props.planId);
         form.value = cloneDeep(result);
-        let copyName = `copy_${result.name}`;
-        copyName = copyName.length > 255 ? copyName.slice(0, 255) : copyName;
-        form.value.name = copyName;
+        if (props.isCopy) {
+          let copyName = `copy_${result.name}`;
+          copyName = copyName.length > 255 ? copyName.slice(0, 255) : copyName;
+          form.value.name = copyName;
+        }
+
         form.value.cycle = [result.plannedStartTime as number, result.plannedEndTime as number];
       }
     } catch (error) {

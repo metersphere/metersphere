@@ -8,7 +8,7 @@
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
       :empty-text="t('testPlan.testPlanIndex.planEmptyContent')"
-      draggable
+      :draggable="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE'])"
       :virtual-list-props="virtualListProps"
       block-node
       :field-names="{
@@ -17,7 +17,7 @@
         children: 'children',
         count: 'count',
       }"
-      title-tooltip-position="left"
+      title-tooltip-position="top"
       @select="planNodeSelect"
       @more-action-select="handlePlanMoreSelect"
       @more-actions-close="moreActionsClose"
@@ -33,6 +33,7 @@
       </template>
       <template #extra="nodeData">
         <MsPopConfirm
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
           :visible="addSubVisible"
           :is-delete="false"
           :all-names="[]"
@@ -50,6 +51,7 @@
           </MsButton>
         </MsPopConfirm>
         <MsPopConfirm
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE'])"
           :title="t('testPlan.testPlanIndex.rename')"
           :all-names="[]"
           :is-delete="false"
@@ -87,6 +89,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';

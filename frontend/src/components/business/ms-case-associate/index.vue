@@ -86,7 +86,7 @@
             }"
             :expand-all="isExpandAll"
             block-node
-            title-tooltip-position="left"
+            title-tooltip-position="top"
             @select="folderNodeSelect"
           >
             <template #title="nodeData">
@@ -212,9 +212,11 @@
       moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
       hideProjectSelect?: boolean; // 是否隐藏项目选择
       isHiddenCaseLevel?: boolean;
+      selectorAll: boolean;
     }>(),
     {
       isHiddenCaseLevel: false,
+      selectorAll: false,
     }
   );
 
@@ -421,6 +423,7 @@
       selectable: true,
       showSelectAll: true,
       heightUsed: 310,
+      showSelectorAll: !props.selectorAll,
     },
     (record) => {
       return {

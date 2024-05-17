@@ -97,10 +97,10 @@
   });
 
   const innerKeyword = useVModel(props, 'keyword', emit);
-  function searchData() {
+  function searchData(keyword?: string) {
     setLinkListParams({
       ...props.loadParams,
-      keyword: innerKeyword.value,
+      keyword,
       projectId: appStore.currentProjectId,
       condition: {
         keyword: innerKeyword.value,
@@ -123,7 +123,7 @@
   }
 
   onBeforeMount(() => {
-    searchData();
+    searchData(innerKeyword.value);
   });
 
   watch(
@@ -139,7 +139,7 @@
     () => props.caseId,
     (val) => {
       if (val) {
-        searchData();
+        searchData(innerKeyword.value);
       }
     }
   );
