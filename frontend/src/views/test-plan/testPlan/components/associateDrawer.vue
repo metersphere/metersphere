@@ -5,6 +5,9 @@
     :get-modules-func="getCaseModuleTree"
     :get-table-func="getTestPlanCaseList"
     :confirm-loading="confirmLoading"
+    :table-params="{
+      testPlanId: props?.testPlanId,
+    }"
     :associated-ids="props.hasNotAssociatedIds || []"
     :project-id="currentProjectId"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
@@ -35,6 +38,7 @@
   const props = defineProps<{
     hasNotAssociatedIds?: string[];
     saveApi?: (params: AssociateCaseRequestType) => Promise<any>;
+    testPlanId?: string;
   }>();
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
