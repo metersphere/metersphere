@@ -114,6 +114,7 @@
     v-model:visible="caseAssociateVisible"
     :associated-ids="detail.repeatCase ? hasSelectedIds : []"
     :save-api="associationCaseToPlan"
+    :test-plan-id="planId"
     @success="handleSuccess"
   />
   <CreateAndEditPlanDrawer
