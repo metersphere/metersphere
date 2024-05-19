@@ -52,6 +52,13 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     @Order(1)
     @Sql(scripts = {"/dml/init_file_minder_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetPageList() throws Exception {
+        FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
+        request.setProjectId("project-case-minder-test");
+        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
         List<FunctionalCaseStepDTO> list = new ArrayList<>();
         FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
         functionalCaseStepDTO.setId("12455");
@@ -87,12 +94,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlob6.setDescription(description.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
 
-        FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
-        request.setProjectId("project-case-minder-test");
-        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
-        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
         String jsonString = JSON.toJSONString(baseTreeNodes);
