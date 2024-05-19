@@ -175,19 +175,21 @@ public class FunctionalCaseMinderService {
         int i = 1;
         if (StringUtils.equalsIgnoreCase(functionalCaseMindDTO.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.STEP.name()) && functionalCaseMindDTO.getSteps() != null) {
             String stepText = new String(functionalCaseMindDTO.getSteps(), StandardCharsets.UTF_8);
-            List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
-            for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
-                i = i + 1;
-                FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getDesc(), Translator.get("minder_extra_node.steps"), Long.valueOf(functionalCaseStepDTO.getNum()));
-                stepFunctionalMinderTreeDTO.getData().setId(functionalCaseStepDTO.getId());
-                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO;
-                if (functionalCaseMindDTO.getExpectedResult() != null) {
-                    expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getResult(), Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
-                } else {
-                    expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO("", Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
+            if(StringUtils.isNotBlank(stepText)){
+                List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
+                for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
+                    i = i + 1;
+                    FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getDesc(), Translator.get("minder_extra_node.steps"), Long.valueOf(functionalCaseStepDTO.getNum()));
+                    stepFunctionalMinderTreeDTO.getData().setId(functionalCaseStepDTO.getId());
+                    FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO;
+                    if (functionalCaseMindDTO.getExpectedResult() != null) {
+                        expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getResult(), Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
+                    } else {
+                        expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO("", Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
+                    }
+                    stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
+                    children.add(stepFunctionalMinderTreeDTO);
                 }
-                stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
-                children.add(stepFunctionalMinderTreeDTO);
             }
         }
 
