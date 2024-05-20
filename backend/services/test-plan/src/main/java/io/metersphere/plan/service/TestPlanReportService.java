@@ -321,6 +321,10 @@ public class TestPlanReportService {
 		planReport.setPassRate(RateCalculateUtils.divWithPrecision((int) functionalCasePassCount, (int) caseTotal, 2));
 		// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
 		planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+
+		planReport.setEndTime(System.currentTimeMillis());
+
+		testPlanReportMapper.updateByPrimaryKeySelective(planReport);
 		return planReport;
 	}
 
