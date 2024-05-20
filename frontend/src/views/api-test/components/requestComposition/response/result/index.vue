@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" @click.stop="() => {}">
     <div class="response-header">
-      <div v-if="isShowLoopControl" class="my-4 flex items-center justify-start" @click.stop="() => {}">
+      <div v-if="isShowLoopControl" class="flex w-full items-center justify-start bg-white p-4" @click.stop="() => {}">
         <a-pagination
           v-model:page-size="controlPageSize"
           v-model:current="controlCurrent"
