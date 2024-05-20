@@ -257,6 +257,7 @@ export interface CsvVariable {
   };
   // 以下为前端字段
   settingVisible: boolean;
+  copyId?: string; // 复制场景时，源场景的 csv 参数的 id
 }
 export interface CommonVariable {
   id: string | number;
@@ -412,6 +413,7 @@ export interface Scenario {
   stepFileParam: Record<string, ScenarioStepFileParams>;
   fileParam: ScenarioFileParams;
   follow?: boolean;
+  copyFromScenarioId?: string | number;
   uploadFileIds: string[];
   linkFileIds: string[];
   // 前端渲染字段

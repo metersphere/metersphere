@@ -1,3 +1,4 @@
+import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
@@ -187,7 +188,7 @@ export function saveCaseMinder(data: FeatureCaseMinder) {
 
 // 获取脑图
 export function getCaseMinder(data: { projectId: string; moduleId: string }) {
-  return MSR.post({ url: `${GetCaseMinderUrl}`, data });
+  return MSR.post<MinderJsonNode[]>({ url: `${GetCaseMinderUrl}`, data });
 }
 
 // 回收站

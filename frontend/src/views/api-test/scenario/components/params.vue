@@ -54,7 +54,7 @@
 
   import { CommonVariable, CsvVariable } from '@/models/apiTest/scenario';
 
-  import { defaultNormalParamItem } from '@/views/api-test/components/config';
+  import { defaultNormalParamItem } from './config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{

@@ -2,6 +2,7 @@ import { Message } from '@arco-design/web-vue';
 
 import { useI18n } from '@/hooks/useI18n';
 import router from '@/router';
+import { WHITE_LIST } from '@/router/constants';
 import { useAppStore, useUserStore } from '@/store';
 
 export default function useUser() {
@@ -33,8 +34,14 @@ export default function useUser() {
     return window.location.hash.indexOf('login') > -1;
   };
 
+  const isWhiteListPage = () => {
+    const currentRoute = router.currentRoute.value;
+    return WHITE_LIST.some((e) => e.path.includes(currentRoute.path));
+  };
+
   return {
     logout,
     isLoginPage,
+    isWhiteListPage,
   };
 }

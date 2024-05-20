@@ -12,7 +12,7 @@
     :file-save-as-source-id="props.scenarioId"
     :file-save-as-api="transferFile"
     :file-module-options-api="getTransferOptions"
-    @change="handleCsvVariablesChange"
+    @change="(data) => handleCsvVariablesChange(data as CsvVariable[])"
   >
     <template #operationPre="{ record }">
       <a-trigger
@@ -123,7 +123,7 @@
 
   import { CsvVariable } from '@/models/apiTest/scenario';
 
-  import { defaultCsvParamItem } from '@/views/api-test/components/config';
+  import { defaultCsvParamItem } from '../config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
@@ -209,8 +209,8 @@
     },
   ];
 
-  function handleCsvVariablesChange(resultArr: any[], isInit?: boolean) {
-    csvVariables.value = resultArr.map((e) => ({ ...e, enable: e.name && e.fileId }));
+  function handleCsvVariablesChange(resultArr: CsvVariable[], isInit?: boolean) {
+    csvVariables.value = resultArr.map((e) => ({ ...e, enable: e.name && e.file.fileId ? e.enable : false }));
     if (!isInit) {
       emit('change');
     }
@@ -309,6 +309,7 @@
         Message.warning(t('apiScenario.csvFileNotNull'));
         return false;
       }
+      return true;
     }
     return true;
   }

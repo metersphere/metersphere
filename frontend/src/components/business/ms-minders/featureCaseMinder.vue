@@ -1,7 +1,9 @@
 <template>
   <MsMinderEditor
     v-model:activeExtraKey="activeExtraKey"
-    :tags="tags"
+    v-model:extra-visible="extraVisible"
+    v-model:loading="loading"
+    :tags="[]"
     :import-json="importJson"
     :replaceable-tags="replaceableTags"
     :insert-node="insertNode"
@@ -15,8 +17,8 @@
     @save="handleMinderSave"
   >
     <template #extractTabContent>
-      <div>
-        <div v-if="activeExtraKey === 'baseInfo'" class="pl-[16px]">
+      <div v-if="activeExtraKey === 'baseInfo'" class="h-full pl-[16px]">
+        <div class="baseInfo-form">
           <a-skeleton v-if="baseInfoLoading" :loading="baseInfoLoading" :animation="true">
             <a-space direction="vertical" class="w-full" size="large">
               <a-skeleton-line :rows="rowLength" :line-height="30" :line-spacing="30" />
@@ -30,35 +32,6 @@
             >
               <a-input v-model:model-value="baseInfoForm.name" :placeholder="t('common.pleaseInput')"></a-input>
             </a-form-item>
-            <a-form-item
-              field="moduleId"
-              asterisk-position="end"
-              :label="t('caseManagement.featureCase.ModuleOwned')"
-              :rules="[{ required: true, message: t('system.orgTemplate.moduleRuleTip') }]"
-            >
-              <a-tree-select
-                v-model="baseInfoForm.moduleId"
-                :allow-search="true"
-                :data="caseTree"
-                :field-names="{
-                  title: 'name',
-                  key: 'id',
-                  children: 'children',
-                }"
-                :draggable="false"
-                :tree-props="{
-                  virtualListProps: {
-                    height: 200,
-                  },
-                }"
-              >
-                <template #tree-slot-title="node">
-                  <a-tooltip :content="`${node.name}`" position="tl">
-                    <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
-                  </a-tooltip>
-                </template>
-              </a-tree-select>
-            </a-form-item>
             <MsFormCreate
               v-if="formRules.length"
               ref="formCreateRef"
@@ -70,176 +43,171 @@
               <MsTagsInput v-model:model-value="baseInfoForm.tags" :max-tag-count="6" />
             </a-form-item>
           </a-form>
-          <div class="flex items-center gap-[12px]">
-            <a-button type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
-            <a-button type="secondary">{{ t('common.cancel') }}</a-button>
-          </div>
         </div>
-        <div v-else-if="activeExtraKey === 'attachment'" class="pl-[16px]">
-          <MsAddAttachment
-            v-model:file-list="fileList"
-            multiple
-            only-button
-            @change="handleFileChange"
-            @link-file="() => (showLinkFileDrawer = true)"
-          />
-          <MsFileList
-            v-if="fileList.length > 0"
-            ref="fileListRef"
-            v-model:file-list="fileList"
-            mode="static"
-            :init-file-save-tips="t('ms.upload.waiting_save')"
-            :show-upload-type-desc="true"
-          >
-            <template #actions="{ item }">
-              <!-- 本地文件 -->
-              <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-                <MsButton
-                  v-if="item.status !== 'init' && item.file.type.includes('image/')"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="handlePreview(item)"
-                >
-                  {{ t('ms.upload.preview') }}
-                </MsButton>
-                <SaveAsFilePopover
-                  v-model:visible="transferVisible"
-                  :saving-file="activeTransferFileParams"
-                  :file-save-as-source-id="activeCase.id"
-                  :file-save-as-api="transferFileRequest"
-                  :file-module-options-api="getTransferFileTree"
-                  source-id-key="caseId"
-                />
-                <MsButton
-                  v-if="item.status !== 'init'"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="transferFile(item)"
-                >
-                  {{ t('caseManagement.featureCase.storage') }}
-                </MsButton>
-                <MsButton
-                  v-if="item.status !== 'init'"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="downloadFile(item)"
-                >
-                  {{ t('caseManagement.featureCase.download') }}
-                </MsButton>
-              </div>
-              <!-- 关联文件 -->
-              <div v-else class="flex flex-nowrap">
-                <MsButton
-                  v-if="item.file.type.includes('/image')"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="handlePreview(item)"
-                >
-                  {{ t('ms.upload.preview') }}
-                </MsButton>
-                <MsButton
-                  v-if="activeCase.id"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="downloadFile(item)"
-                >
-                  {{ t('caseManagement.featureCase.download') }}
-                </MsButton>
-                <MsButton
-                  v-if="activeCase.id && item.isUpdateFlag"
-                  type="button"
-                  status="primary"
-                  @click="handleUpdateFile(item)"
-                >
-                  {{ t('common.update') }}
-                </MsButton>
-              </div>
-            </template>
-            <template #title="{ item }">
-              <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]">
-                <icon-exclamation-circle-fill />
-                <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
-              </span>
-            </template>
-          </MsFileList>
+        <div class="flex items-center gap-[12px] bg-white py-[16px]">
+          <a-button type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
+          <a-button type="secondary">{{ t('common.cancel') }}</a-button>
         </div>
-        <div v-else-if="activeExtraKey === 'comments'" class="pl-[16px]">
-          <div class="flex items-center justify-between">
-            <div class="text-[var(--color-text-4)]">
-              {{
-                t('ms.minders.commentTotal', {
-                  num: activeComment === 'caseComment' ? commentList.length : reviewCommentList.length,
-                })
-              }}
+      </div>
+      <div v-else-if="activeExtraKey === 'attachment'" class="pl-[16px]">
+        <MsAddAttachment
+          v-model:file-list="fileList"
+          multiple
+          only-button
+          @change="handleFileChange"
+          @link-file="() => (showLinkFileDrawer = true)"
+        />
+        <MsFileList
+          v-if="fileList.length > 0"
+          ref="fileListRef"
+          v-model:file-list="fileList"
+          mode="static"
+          :init-file-save-tips="t('ms.upload.waiting_save')"
+          :show-upload-type-desc="true"
+        >
+          <template #actions="{ item }">
+            <!-- 本地文件 -->
+            <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+              <MsButton
+                v-if="item.status !== 'init' && item.file.type.includes('image/')"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <SaveAsFilePopover
+                v-model:visible="transferVisible"
+                :saving-file="activeTransferFileParams"
+                :file-save-as-source-id="activeCase.id"
+                :file-save-as-api="transferFileRequest"
+                :file-module-options-api="getTransferFileTree"
+                source-id-key="caseId"
+              />
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="transferFile(item)"
+              >
+                {{ t('caseManagement.featureCase.storage') }}
+              </MsButton>
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
+                {{ t('caseManagement.featureCase.download') }}
+              </MsButton>
             </div>
-            <a-select
-              v-model:model-value="activeComment"
-              :options="commentTypeOptions"
-              class="w-[120px]"
-              @change="getAllCommentList"
-            ></a-select>
-          </div>
-          <ReviewCommentList
-            v-if="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
-            :review-comment-list="reviewCommentList"
-            :active-comment="activeComment"
-          />
-          <template v-else>
-            <MsComment
-              :upload-image="handleUploadImage"
-              :comment-list="commentList"
-              :preview-url="PreviewEditorImageUrl"
-              @delete="handleDelete"
-              @update-or-add="handleUpdateOrAdd"
-            />
-            <MsEmpty v-if="commentList.length === 0" />
+            <!-- 关联文件 -->
+            <div v-else class="flex flex-nowrap">
+              <MsButton
+                v-if="item.file.type.includes('/image')"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <MsButton
+                v-if="activeCase.id"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
+                {{ t('caseManagement.featureCase.download') }}
+              </MsButton>
+              <MsButton
+                v-if="activeCase.id && item.isUpdateFlag"
+                type="button"
+                status="primary"
+                @click="handleUpdateFile(item)"
+              >
+                {{ t('common.update') }}
+              </MsButton>
+            </div>
           </template>
-          <inputComment
-            ref="commentInputRef"
-            v-model:content="content"
-            v-model:notice-user-ids="noticeUserIds"
-            v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
-            :preview-url="PreviewEditorImageUrl"
-            :is-active="isActive"
-            mode="textarea"
-            is-show-avatar
-            is-use-bottom
-            :upload-image="handleUploadImage"
-            @publish="publishHandler"
-            @cancel="cancelPublish"
-          />
-        </div>
-        <div v-else class="pl-[16px]">
-          <a-button
-            v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
-            class="mr-3"
-            type="primary"
-            @click="linkBug"
-          >
-            {{ t('caseManagement.featureCase.linkDefect') }}
-          </a-button>
-          <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug"
-            >{{ t('caseManagement.featureCase.createDefect') }}
-          </a-button>
-          <div class="bug-list">
-            <div v-for="item of bugList" :key="item.id" class="bug-item">
-              <div class="mb-[4px] flex items-center justify-between">
-                <MsButton type="text" @click="goBug(item.id)">{{ item.num }}</MsButton>
-                <MsButton type="text" @click="disassociateBug(item.id)">
-                  {{ t('ms.add.attachment.cancelAssociate') }}
-                </MsButton>
-              </div>
-              <a-tooltip :content="item.name">
-                <div class="one-line-text">{{ item.name }}</div>
-              </a-tooltip>
-            </div>
-            <MsEmpty v-if="bugList.length === 0" />
+          <template #title="{ item }">
+            <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]">
+              <icon-exclamation-circle-fill />
+              <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
+            </span>
+          </template>
+        </MsFileList>
+      </div>
+      <div v-else-if="activeExtraKey === 'comments'" class="pl-[16px]">
+        <div class="flex items-center justify-between">
+          <div class="text-[var(--color-text-4)]">
+            {{
+              t('ms.minders.commentTotal', {
+                num: activeComment === 'caseComment' ? commentList.length : reviewCommentList.length,
+              })
+            }}
           </div>
+          <a-select
+            v-model:model-value="activeComment"
+            :options="commentTypeOptions"
+            class="w-[120px]"
+            @change="getAllCommentList"
+          ></a-select>
+        </div>
+        <ReviewCommentList
+          v-if="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
+          :review-comment-list="reviewCommentList"
+          :active-comment="activeComment"
+        />
+        <template v-else>
+          <MsComment
+            :upload-image="handleUploadImage"
+            :comment-list="commentList"
+            :preview-url="PreviewEditorImageUrl"
+            @delete="handleDelete"
+            @update-or-add="handleUpdateOrAdd"
+          />
+          <MsEmpty v-if="commentList.length === 0" />
+        </template>
+        <inputComment
+          ref="commentInputRef"
+          v-model:content="content"
+          v-model:notice-user-ids="noticeUserIds"
+          v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
+          :preview-url="PreviewEditorImageUrl"
+          :is-active="isActive"
+          mode="textarea"
+          is-show-avatar
+          is-use-bottom
+          :upload-image="handleUploadImage"
+          @publish="publishHandler"
+          @cancel="cancelPublish"
+        />
+      </div>
+      <div v-else class="pl-[16px]">
+        <a-button v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])" class="mr-3" type="primary" @click="linkBug">
+          {{ t('caseManagement.featureCase.linkDefect') }}
+        </a-button>
+        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug"
+          >{{ t('caseManagement.featureCase.createDefect') }}
+        </a-button>
+        <div class="bug-list">
+          <div v-for="item of bugList" :key="item.id" class="bug-item">
+            <div class="mb-[4px] flex items-center justify-between">
+              <MsButton type="text" @click="goBug(item.id)">{{ item.num }}</MsButton>
+              <MsButton type="text" @click="disassociateBug(item.id)">
+                {{ t('ms.add.attachment.cancelAssociate') }}
+              </MsButton>
+            </div>
+            <a-tooltip :content="item.name">
+              <div class="one-line-text">{{ item.name }}</div>
+            </a-tooltip>
+          </div>
+          <MsEmpty v-if="bugList.length === 0" />
         </div>
       </div>
     </template>
@@ -300,6 +268,7 @@
     editorUploadFile,
     getAssociatedFileListUrl,
     getCaseDefaultFields,
+    getCaseDetail,
     getCaseMinder,
     getCaseModuleTree,
     getCommentList,
@@ -317,14 +286,15 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { downloadByteFile, getGenerateId } from '@/utils';
+  import { downloadByteFile, getGenerateId, mapTree, traverseTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociatedList, OptionsFieldId } from '@/models/caseManagement/featureCase';
-  import { ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { TableQueryParams } from '@/models/common';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
   import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { Api } from '@form-create/arco-design';
 
   const AddDefectDrawer = defineAsyncComponent(
     () => import('@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue')
@@ -336,6 +306,7 @@
   const props = defineProps<{
     moduleId: string;
     moduleName: string;
+    modulesCount: Record<string, number>; // 模块数量
   }>();
 
   const router = useRouter();
@@ -344,14 +315,67 @@
   const userStore = useUserStore();
   const { t } = useI18n();
 
+  const caseTag = t('common.case');
+  const moduleTag = t('common.module');
+  const topTags = [moduleTag, caseTag];
+  const descTags = [t('ms.minders.stepDesc'), t('ms.minders.textDesc')];
   const importJson = ref<MinderJson>({
     root: {},
     template: 'default',
     treePath: [],
   });
+  const caseTree = ref<MinderJsonNode[]>([]);
+  const loading = ref(false);
+
+  async function initCaseTree() {
+    try {
+      loading.value = true;
+      const res = await getCaseModuleTree({
+        projectId: appStore.currentProjectId,
+        moduleId: props.moduleId === 'all' ? '' : props.moduleId,
+      });
+      caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
+        ...e,
+        data: {
+          id: e.id,
+          text: e.name,
+          resource: e.data?.id === 'fakeNode' ? [] : [moduleTag],
+          expandState: e.level === 1 ? 'expand' : 'collapse',
+          count: props.modulesCount[e.id],
+        },
+        children:
+          props.modulesCount[e.id] > 0 && !e.children?.length
+            ? [
+                {
+                  data: {
+                    id: 'fakeNode',
+                    text: 'fakeNode',
+                    resource: ['fakeNode'],
+                  },
+                },
+              ]
+            : e.children,
+      }));
+      importJson.value.root = {
+        children: caseTree.value,
+        data: {
+          id: 'all',
+          text: t('ms.minders.allModule'),
+          resource: [moduleTag],
+        },
+      };
+      window.minder.importJson(importJson.value);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
 
   async function initMinder() {
     try {
+      loading.value = true;
       const res = await getCaseMinder({
         projectId: appStore.currentProjectId,
         moduleId: props.moduleId === 'all' ? '' : props.moduleId,
@@ -366,54 +390,18 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
   watchEffect(() => {
-    if (props.moduleId) {
+    if (props.moduleId === 'all') {
+      initCaseTree();
+    } else {
       initMinder();
     }
   });
-
-  const caseTag = t('common.case');
-  const moduleTag = t('common.module');
-  const topTags = [moduleTag, caseTag];
-  const descTags = [t('ms.minders.stepDesc'), t('ms.minders.textDesc')];
-  const tags = [...topTags, t('ms.minders.precondition'), ...descTags, t('ms.minders.stepExpect'), t('common.remark')];
-  const visible = ref<boolean>(false);
-  const activeCase = ref<any>({});
-  const extractContentTabList = computed(() => {
-    const fullTabList = [
-      {
-        label: t('common.baseInfo'),
-        value: 'baseInfo',
-      },
-      {
-        label: t('caseManagement.featureCase.attachment'),
-        value: 'attachment',
-      },
-      {
-        value: 'comments',
-        label: t('caseManagement.featureCase.comments'),
-      },
-      {
-        value: 'bug',
-        label: t('caseManagement.featureCase.bug'),
-      },
-    ];
-    if (activeCase.value.id) {
-      return fullTabList;
-    }
-    return fullTabList.filter((item) => item.value === 'baseInfo');
-  });
-  const activeExtraKey = ref<'baseInfo' | 'attachment' | 'comments' | 'bug'>('baseInfo');
-
-  function handleNodeClick(data: any) {
-    if (data.resource && data.resource.includes(caseTag)) {
-      visible.value = true;
-      activeCase.value = data;
-    }
-  }
 
   async function handleMinderSave(data: any) {
     try {
@@ -435,6 +423,10 @@
    * @param node 选中节点
    */
   function replaceableTags(node: MinderJsonNode) {
+    if (Object.keys(node.data || {}).length === 0 || node.data?.id === 'root') {
+      // 没有数据的节点或默认模块节点不可替换
+      return [];
+    }
     if (node.data?.resource?.some((e) => topTags.includes(e))) {
       // 选中节点属于顶级节点，可替换为除自身外的顶级标签
       return !node.children || node.children.length === 0
@@ -444,7 +436,7 @@
     if (node.data?.resource?.some((e) => descTags.includes(e))) {
       // 选中节点属于描述节点，可替换为除自身外的描述标签
       if (
-        node.data?.resource?.includes(t('ms.minders.stepDesc')) &&
+        node.data.resource.includes(t('ms.minders.stepDesc')) &&
         (node.parent?.children?.filter((e) => e.data?.resource?.includes(t('ms.minders.stepDesc'))) || []).length > 1
       ) {
         // 如果当前节点是步骤描述，则需要判断是否有其他步骤描述节点，如果有，则不可替换为文本描述
@@ -453,7 +445,7 @@
       return descTags.filter((tag) => !node.data?.resource?.includes(tag));
     }
     if (
-      (!node.data?.resource || node.data?.resource?.length === 0) &&
+      (!node.data?.resource || node.data.resource.length === 0) &&
       (!node.parent?.data?.resource ||
         node.parent?.data?.resource.length === 0 ||
         node.parent?.data?.resource?.some((e) => topTags.includes(e)))
@@ -469,6 +461,11 @@
     return [];
   }
 
+  /**
+   * 执行插入节点
+   * @param command 插入命令
+   * @param node 目标节点
+   */
   function execInert(command: string, node?: MinderJsonNodeData) {
     if (window.minder.queryCommandState(command) !== -1) {
       window.minder.execCommand(command, node);
@@ -716,7 +713,7 @@
   const rowLength = ref<number>(0);
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
-  const fApi = ref<any>(null);
+  const fApi = ref<Api>();
   // 初始化模板默认字段
   async function initDefaultFields() {
     formRules.value = [];
@@ -734,7 +731,10 @@
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
           }
         }
-
+        if (item.internal && item.type === 'SELECT') {
+          // TODO:过滤用例等级字段，等级字段后续可自定义，需要调整
+          return false;
+        }
         return {
           type: item.type,
           name: item.fieldId,
@@ -748,7 +748,7 @@
           },
         };
       });
-      formRules.value = result;
+      formRules.value = result.filter((e: any) => e);
       baseInfoLoading.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -756,27 +756,116 @@
     }
   }
 
-  const caseTree = ref<ModuleTreeNode[]>([]);
+  const extraVisible = ref<boolean>(false);
+  const activeCase = ref<Record<string, any>>({});
+  const extractContentTabList = computed(() => {
+    const fullTabList = [
+      {
+        label: t('common.baseInfo'),
+        value: 'baseInfo',
+      },
+      {
+        label: t('caseManagement.featureCase.attachment'),
+        value: 'attachment',
+      },
+      {
+        value: 'comments',
+        label: t('caseManagement.featureCase.comments'),
+      },
+      {
+        value: 'bug',
+        label: t('caseManagement.featureCase.bug'),
+      },
+    ];
+    if (activeCase.value.id) {
+      return fullTabList;
+    }
+    return fullTabList.filter((item) => item.value === 'baseInfo');
+  });
+  const activeExtraKey = ref<'baseInfo' | 'attachment' | 'comments' | 'bug'>('baseInfo');
 
-  async function initSelectTree() {
-    try {
-      caseTree.value = await getCaseModuleTree({ projectId: appStore.currentProjectId });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+  async function handleNodeClick(node: MinderJsonNode) {
+    const { data } = node;
+    if (data?.resource && data.resource.includes(caseTag)) {
+      extraVisible.value = true;
+      try {
+        baseInfoLoading.value = true;
+        const res = await getCaseDetail(data.id);
+        activeCase.value = res;
+        baseInfoForm.value.name = res.name;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        baseInfoLoading.value = false;
+      }
+    } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
+      try {
+        loading.value = true;
+        const res = await getCaseMinder({
+          projectId: appStore.currentProjectId,
+          moduleId: data.id,
+        });
+        const fakeNode = node.children?.find((e) => e.data?.id === undefined); // 移除占位的虚拟节点
+        window.minder.removeNode(fakeNode);
+        res.forEach((e) => {
+          // 用例节点
+          const child = window.minder.createNode(e.data, node);
+          child.render();
+          e.children?.forEach((item) => {
+            // 前置/步骤/备注节点
+            const grandChild = window.minder.createNode(item.data, child);
+            grandChild.render();
+            item.children?.forEach((subItem) => {
+              // 预期结果节点
+              const greatGrandChild = window.minder.createNode(subItem.data, grandChild);
+              greatGrandChild.render();
+            });
+            child.renderTree();
+          });
+          child.expand();
+          child.renderTree();
+        });
+        node.expand();
+        node.renderTree();
+        window.minder.layout();
+        if (node.data) {
+          node.data.isLoaded = true;
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      extraVisible.value = false;
+      activeCase.value = {};
     }
   }
 
   onBeforeMount(() => {
     initDefaultFields();
-    initSelectTree();
   });
 
   function handleSave() {
     if (activeExtraKey.value === 'baseInfo') {
       baseInfoFormRef.value?.validate((errors) => {
         if (!errors) {
-          Message.success(t('common.saveSuccess'));
+          fApi.value?.validate((valid) => {
+            if (valid) {
+              const data = {
+                ...baseInfoForm.value,
+                customFields: formItem.value.map((item: any) => {
+                  return {
+                    fieldId: item.field,
+                    value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+                  };
+                }),
+              };
+              console.log(data);
+            }
+          });
         }
       });
     }
@@ -1129,6 +1218,12 @@
 <style lang="less" scoped>
   :deep(.commentWrapper) {
     right: 0;
+  }
+  .baseInfo-form {
+    .ms-scroll-bar();
+
+    overflow-y: auto;
+    height: calc(100% - 64px);
   }
   .bug-list {
     .ms-scroll-bar();

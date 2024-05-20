@@ -230,6 +230,12 @@
               :disabled-param-value="props.disabled"
               :scroll="{ x: '100%' }"
               :columns="scriptColumns"
+              :default-param-item="{
+                key: '',
+                value: '',
+                description: '',
+                required: false,
+              }"
               :selectable="false"
               @change="() => emit('change')"
             />

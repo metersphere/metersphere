@@ -1,5 +1,5 @@
 <template>
-  <FeatureCaseMinder :module-id="props.moduleId" :module-name="props.moduleName" />
+  <FeatureCaseMinder :module-id="props.moduleId" :module-name="props.moduleName" :modules-count="props.modulesCount" />
 </template>
 
 <script setup lang="ts">
@@ -9,6 +9,7 @@
     minderType: 'FeatureCase';
     moduleId: string;
     moduleName: string;
+    modulesCount: Record<string, number>; // 模块数量
   }>();
 </script>
 

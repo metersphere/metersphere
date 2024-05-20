@@ -179,11 +179,13 @@ export function filterKeyValParams<T>(
   }
   // id、enable、valid属性不参与比较
   delete lastData.id;
-  delete lastData.enable;
   delete lastData.valid;
-  delete defaultParam.valid;
   delete defaultParam.id;
-  delete defaultParam.enable;
+  delete defaultParam.valid;
+  if (!filterEnable) {
+    delete lastData.enable;
+    delete defaultParam.enable;
+  }
   const lastDataIsDefault = isEqual(lastData, defaultParam) || lastData.key === '';
   let validParams: (T & Record<string, any>)[];
   if (lastDataIsDefault) {

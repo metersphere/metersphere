@@ -109,5 +109,6 @@ export default {
       delete: 'Delete',
       enterNode: 'Enter the current node',
     },
+    loading: 'Mind map loading...',
   },
 };

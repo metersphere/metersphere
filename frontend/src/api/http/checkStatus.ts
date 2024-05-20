@@ -9,7 +9,7 @@ import type { ErrorMessageMode } from '#/axios';
 
 export default function checkStatus(status: number, msg: string, errorMessageMode: ErrorMessageMode = 'message'): void {
   const { t } = useI18n();
-  const { logout, isLoginPage } = useUser();
+  const { logout, isLoginPage, isWhiteListPage } = useUser();
   let errMessage = '';
   switch (status) {
     case 400:
@@ -17,7 +17,7 @@ export default function checkStatus(status: number, msg: string, errorMessageMod
       break;
     case 401: {
       errMessage = msg || t('api.errMsg401');
-      if (!isLoginPage()) {
+      if (!isLoginPage() && !isWhiteListPage()) {
         // 不是登录页再调用logout
         logout();
       }

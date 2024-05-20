@@ -890,11 +890,14 @@
   function handleQuoteCsvConfirm(keys: string[]) {
     if (activeStep.value) {
       const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
-      if (replaceCsvId.value && realStep) {
+      if (!!replaceCsvId.value && realStep !== null) {
         const index = realStep.csvIds.findIndex((item: string) => item === replaceCsvId.value);
-        realStep.csvIds?.splice(index, 1, keys[0]);
-      } else if (realStep) {
-        realStep.csvIds?.push(...keys);
+        if (!realStep.csvIds) {
+          realStep.csvIds = [];
+        }
+        realStep.csvIds.splice(index, 1, keys[0]);
+      } else if (realStep !== null) {
+        realStep.csvIds = [...(realStep.csvIds || []), ...keys];
       }
     }
   }
