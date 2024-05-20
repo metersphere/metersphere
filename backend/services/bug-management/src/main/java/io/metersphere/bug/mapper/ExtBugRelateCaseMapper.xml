@@ -272,6 +272,7 @@
             <foreach collection="ids" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
+        and bug_relation_case.test_plan_id = #{testPlanId}
         ORDER BY
             bug.pos DESC
     </select>
