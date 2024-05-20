@@ -57,6 +57,7 @@
   const { t } = useI18n();
   const props = defineProps<{
     caseId: string;
+    testPlanCaseId: string;
   }>();
 
   const executeHistoryList = ref<ExecuteHistoryItem[]>([]);
@@ -69,7 +70,7 @@
     try {
       executeHistoryList.value = await executeHistory({
         caseId: props.caseId,
-        id: route.query.testPlanCaseId as string,
+        id: props.testPlanCaseId,
         testPlanId: route.query.id as string,
       });
     } catch (error) {

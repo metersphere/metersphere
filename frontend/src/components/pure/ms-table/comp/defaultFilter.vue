@@ -103,7 +103,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'handleConfirm', value: (string | number)[] | string[] | undefined): void;
+    (e: 'handleConfirm', value: (string | number | boolean)[] | string[] | undefined): void;
   }>();
 
   const visible = ref(false);
