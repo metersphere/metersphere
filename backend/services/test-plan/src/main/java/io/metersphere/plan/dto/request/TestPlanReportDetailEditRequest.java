@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TestPlanReportDetailEditRequest {
 
@@ -13,4 +15,7 @@ public class TestPlanReportDetailEditRequest {
 
 	@Schema(description = "报告内容")
 	private String summary;
+
+	@Schema(description = "富文本临时文件ID(图片)")
+	private List<String> richTextTmpFileIds;
 }

@@ -4,10 +4,8 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
-import io.metersphere.plan.mapper.TestPlanReportBugMapper;
-import io.metersphere.plan.mapper.TestPlanReportFunctionCaseMapper;
-import io.metersphere.plan.mapper.TestPlanReportMapper;
-import io.metersphere.plan.mapper.TestPlanReportSummaryMapper;
+import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.service.CleanupTestPlanReportServiceImpl;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.project.domain.ProjectApplicationExample;
@@ -25,15 +23,14 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +45,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
     private static final String GEN_PLAN_REPORT = "/test-plan/report/gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
+    private static final String EDIT_PLAN_REPORT_AND_UPLOAD_PIC = "/test-plan/report/upload/md/file";
     private static final String EDIT_PLAN_REPORT = "/test-plan/report/detail/edit";
     private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
     private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE = "/test-plan/report/detail/functional/case/page";
@@ -64,6 +62,8 @@ public class TestPlanReportControllerTests extends BaseTest {
     private TestPlanReportService testPlanReportService;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private TestPlanReportAttachmentMapper reportAttachmentMapper;
 
     private static String GEN_REPORT_ID;
     private static String GEN_SHARE_ID;
@@ -291,6 +291,17 @@ public class TestPlanReportControllerTests extends BaseTest {
         request.setId(GEN_REPORT_ID);
         request.setSummary("This is a summary for report detail");
         this.requestPostWithOk(EDIT_PLAN_REPORT, request);
+        request.setRichTextTmpFileIds(List.of("rich-text-file-id-for-report"));
+        this.requestPost(EDIT_PLAN_REPORT, request, status().is5xxServerError());
+        generateReportMdFile();
+        this.requestPostWithOk(EDIT_PLAN_REPORT, request);
+        MockMultipartFile file = new MockMultipartFile("file", "test.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        MvcResult mvcResult = this.requestUploadFileWithOkAndReturn(EDIT_PLAN_REPORT_AND_UPLOAD_PIC, file);
+        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
+        String fileId = resultHolder.getData().toString();
+        request.setRichTextTmpFileIds(List.of(fileId));
+        this.requestPostWithOk(EDIT_PLAN_REPORT, request);
     }
 
     @Resource
@@ -328,5 +339,21 @@ public class TestPlanReportControllerTests extends BaseTest {
         Assertions.assertEquals(testPlanReportSummaryMapper.countByExample(summaryExample), 0);
         Assertions.assertEquals(testPlanReportFunctionCaseMapper.countByExample(testPlanReportFunctionCaseExample), 0);
         Assertions.assertEquals(testPlanReportBugMapper.countByExample(testPlanReportBugExample), 0);
+    }
+
+    /**
+     * 生成报告附件的测试数据
+     */
+    private void generateReportMdFile() {
+        TestPlanReportAttachment attachment = new TestPlanReportAttachment();
+        attachment.setId(UUID.randomUUID().toString());
+        attachment.setTestPlanReportId(GEN_REPORT_ID);
+        attachment.setFileId("rich-text-file-id-for-report");
+        attachment.setFileName("test-file");
+        attachment.setSize(111L);
+        attachment.setSource(TestPlanReportAttachmentSourceType.RICH_TEXT.name());
+        attachment.setCreateUser("admin");
+        attachment.setCreateTime(System.currentTimeMillis());
+        reportAttachmentMapper.insert(attachment);
     }
 }

@@ -10,16 +10,20 @@ import io.metersphere.plan.dto.TestPlanReportPostParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
+import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.DateUtils;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileCopyRequest;
+import io.metersphere.sdk.file.FileRepository;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserService;
@@ -34,6 +38,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +76,10 @@ public class TestPlanReportService {
 	private TestPlanReportFunctionCaseMapper testPlanReportFunctionCaseMapper;
     @Resource
     private TestPlanReportBugMapper testPlanReportBugMapper;
+	@Resource
+	private TestPlanReportAttachmentMapper testPlanReportAttachmentMapper;
+	@Resource
+	private BaseUserMapper baseUserMapper;
 
     /**
      * 分页查询报告列表
@@ -321,8 +330,6 @@ public class TestPlanReportService {
 		// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
 		planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
 
-		planReport.setEndTime(System.currentTimeMillis());
-
 		testPlanReportMapper.updateByPrimaryKeySelective(planReport);
 		return planReport;
 	}
@@ -354,12 +361,14 @@ public class TestPlanReportService {
 	 * @param request 更新请求参数
 	 * @return 报告详情
 	 */
-	public TestPlanReportDetailResponse edit(TestPlanReportDetailEditRequest request) {
+	public TestPlanReportDetailResponse edit(TestPlanReportDetailEditRequest request, String currentUser) {
 		TestPlanReport planReport = checkReport(request.getId());
 		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
 		reportSummary.setId(planReport.getId());
 		reportSummary.setSummary(request.getSummary());
 		testPlanReportSummaryMapper.updateByPrimaryKeySelective(reportSummary);
+		// 处理富文本文件
+		transferRichTextTmpFile(request.getId(), planReport.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
 		return getReport(planReport.getId());
 	}
 
@@ -373,14 +382,21 @@ public class TestPlanReportService {
 	}
 
 	/**
-	 * 分页查询报告详情-缺陷分页数据
+	 * 分页查询报告详情-功能用例分页数据
 	 * @param request 请求参数
 	 * @return 缺陷分页数据
 	 */
 	public List<ReportDetailCasePageDTO> listReportDetailFunctionalCases(TestPlanReportDetailPageRequest request) {
-		return extTestPlanReportFunctionalCaseMapper.list(request);
+		List<ReportDetailCasePageDTO> functionalCases = extTestPlanReportFunctionalCaseMapper.list(request);
+		if (CollectionUtils.isEmpty(functionalCases)) {
+			return new ArrayList<>();
+		}
+		List<String> distinctUserIds = functionalCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().toList();
+		List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(distinctUserIds);
+		Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+		functionalCases.forEach(functionalCase -> functionalCase.setExecuteUser(userMap.getOrDefault(functionalCase.getExecuteUser(), functionalCase.getExecuteUser())));
+		return functionalCases;
 	}
-
 
 	/**
 	 * 统计用例执行数据 (目前只统计功能用例)
@@ -459,4 +475,113 @@ public class TestPlanReportService {
         }
         return testPlanReport;
     }
+
+	/**
+	 * 转存报告内容富文本临时文件
+	 * @param reportId 报告ID
+	 * @param projectId 项目ID
+	 * @param uploadFileIds 上传的文件ID集合
+	 * @param userId 用户ID
+	 * @param source 文件来源
+	 */
+	private void transferRichTextTmpFile(String reportId, String projectId, List<String> uploadFileIds, String userId, String source) {
+		if (CollectionUtils.isEmpty(uploadFileIds)) {
+			return;
+		}
+		//过滤已上传过的
+		TestPlanReportAttachmentExample example = new TestPlanReportAttachmentExample();
+		example.createCriteria().andTestPlanReportIdEqualTo(reportId).andFileIdIn(uploadFileIds).andSourceEqualTo(source);
+		List<TestPlanReportAttachment> existReportMdFiles = testPlanReportAttachmentMapper.selectByExample(example);
+		Map<String, TestPlanReportAttachment> existFileMap = existReportMdFiles.stream().collect(Collectors.toMap(TestPlanReportAttachment::getFileId, v -> v));
+		List<String> fileIds = uploadFileIds.stream().filter(t -> !existFileMap.containsKey(t) && StringUtils.isNotBlank(t)).toList();
+		if (CollectionUtils.isEmpty(fileIds)) {
+			return;
+		}
+		// 处理本地上传文件
+		FileRepository defaultRepository = FileCenter.getDefaultRepository();
+		String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+		// 添加文件与测试计划报告的关联关系
+		Map<String, String> addFileMap = new HashMap<>(fileIds.size());
+		LogUtils.info("开始上传副文本里的附件");
+		List<TestPlanReportAttachment> attachments = fileIds.stream().map(fileId -> {
+			TestPlanReportAttachment attachment = new TestPlanReportAttachment();
+			String fileName = getTempFileNameByFileId(fileId);
+			attachment.setId(IDGenerator.nextStr());
+			attachment.setTestPlanReportId(reportId);
+			attachment.setFileId(fileId);
+			attachment.setFileName(fileName);
+			attachment.setSource(source);
+			long fileSize;
+			try {
+				FileCopyRequest fileCopyRequest = new FileCopyRequest();
+				fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
+				fileCopyRequest.setFileName(fileName);
+				fileSize = defaultRepository.getFileSize(fileCopyRequest);
+			} catch (Exception e) {
+				throw new MSException("读取富文本临时文件失败");
+			}
+			attachment.setSize(fileSize);
+			attachment.setCreateUser(userId);
+			attachment.setCreateTime(System.currentTimeMillis());
+			addFileMap.put(fileId, fileName);
+			return attachment;
+		}).toList();
+		testPlanReportAttachmentMapper.batchInsert(attachments);
+		// 上传文件到对象存储
+		LogUtils.info("upload to minio start");
+		uploadFileResource(DefaultRepositoryDir.getPlanReportDir(projectId, reportId), addFileMap);
+		LogUtils.info("upload to minio end");
+	}
+
+	/**
+	 * 根据文件ID，查询MINIO中对应目录下的文件名称
+	 */
+	private String getTempFileNameByFileId(String fileId) {
+		try {
+			FileRequest fileRequest = new FileRequest();
+			fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+			List<String> folderFileNames = FileCenter.getDefaultRepository().getFolderFileNames(fileRequest);
+			if (CollectionUtils.isEmpty(folderFileNames)) {
+				return null;
+			}
+			String[] pathSplit = folderFileNames.get(0).split("/");
+			return pathSplit[pathSplit.length - 1];
+		} catch (Exception e) {
+			LogUtils.error(e);
+			return null;
+		}
+	}
+
+	/**
+	 * 上传文件到资源目录
+	 * @param folder 文件夹
+	 * @param addFileMap 文件ID与文件名映射
+	 */
+	private void uploadFileResource(String folder, Map<String, String> addFileMap) {
+		FileRepository defaultRepository = FileCenter.getDefaultRepository();
+		for (String fileId : addFileMap.keySet()) {
+			String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+			try {
+				String fileName = addFileMap.get(fileId);
+				if (StringUtils.isEmpty(fileName)) {
+					continue;
+				}
+				// 按ID建文件夹，避免文件名重复
+				FileCopyRequest fileCopyRequest = new FileCopyRequest();
+				fileCopyRequest.setCopyFolder(systemTempDir + "/" + fileId);
+				fileCopyRequest.setCopyfileName(fileName);
+				fileCopyRequest.setFileName(fileName);
+				fileCopyRequest.setFolder(folder + "/" + fileId);
+				// 将文件从临时目录复制到资源目录
+				defaultRepository.copyFile(fileCopyRequest);
+				// 删除临时文件
+				fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
+				fileCopyRequest.setFileName(fileName);
+				defaultRepository.delete(fileCopyRequest);
+			} catch (Exception e) {
+				LogUtils.error("上传副文本文件失败：{}",e);
+				throw new MSException(Translator.get("file_upload_fail"));
+			}
+		}
+	}
 }

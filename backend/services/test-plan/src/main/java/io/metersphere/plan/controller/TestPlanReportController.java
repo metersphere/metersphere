@@ -3,6 +3,7 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.response.BugDTO;
+import io.metersphere.bug.service.BugAttachmentService;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +40,8 @@ import java.util.List;
 @Tag(name = "测试计划-报告")
 public class TestPlanReportController {
 
+    @Resource
+    private BugAttachmentService bugAttachmentService;
     @Resource
     private TestPlanManagementService testPlanManagementService;
     @Resource
@@ -99,12 +103,20 @@ public class TestPlanReportController {
         return testPlanReportService.getReport(reportId);
     }
 
+    @PostMapping("/upload/md/file")
+    @Operation(summary = "测试计划-报告-详情-上传富文本(图片)")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
+    public String upload(@RequestParam("file") MultipartFile file) {
+        return bugAttachmentService.uploadMdFile(file);
+    }
+
     @PostMapping("/detail/edit")
     @Operation(summary = "测试计划-报告-详情-报告内容更新")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_report")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateDetailLog(#request)", msClass = TestPlanReportLogService.class)
     public TestPlanReportDetailResponse edit(@Validated @RequestBody TestPlanReportDetailEditRequest request) {
-        return testPlanReportService.edit(request);
+        return testPlanReportService.edit(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/detail/bug/page")

@@ -59,6 +59,7 @@ public class DefaultRepositoryDir {
     private static final String PROJECT_API_SCENARIO_DIR = PROJECT_DIR + "/api-scenario/%s";
     private static final String PROJECT_API_SCENARIO_STEP_DIR = PROJECT_API_SCENARIO_DIR + "/step/%s";
     private static final String PROJECT_BUG_DIR = PROJECT_DIR + "/bug/%s";
+    private static final String PROJECT_PLAN_REPORT_DIR = PROJECT_DIR + "/plan-report/%s";
 
     /**
      * 接口定义相关文件的存储目录
@@ -111,6 +112,10 @@ public class DefaultRepositoryDir {
 
     public static String getBugDir(String projectId, String bugId) {
         return String.format(PROJECT_BUG_DIR, projectId, bugId);
+    }
+
+    public static String getPlanReportDir(String projectId, String reportId) {
+        return String.format(PROJECT_PLAN_REPORT_DIR, projectId, reportId);
     }
 
     public static String getApiDebugDir(String projectId, String apiDebugId) {

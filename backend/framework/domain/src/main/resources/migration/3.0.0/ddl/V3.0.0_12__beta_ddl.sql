@@ -142,6 +142,22 @@ CREATE TABLE IF NOT EXISTS test_plan_report_bug(
 
 CREATE INDEX idx_test_plan_report_id ON test_plan_report_bug(test_plan_report_id);
 
+CREATE TABLE IF NOT EXISTS test_plan_report_attachment(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '报告ID' ,
+    `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
+    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
+    `size` BIGINT NOT NULL   COMMENT '文件大小' ,
+    `source` VARCHAR(255) NOT NULL   COMMENT '文件来源' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告附件关系表';
+
+CREATE INDEX idx_report_id ON test_plan_report_attachment(test_plan_report_id);
+CREATE INDEX idx_file_id ON test_plan_report_attachment(file_id);
+CREATE INDEX idx_source ON test_plan_report_attachment(source);
+
 -- 场景步骤 csv 表增加场景ID字段
 ALTER TABLE api_scenario_csv_step ADD scenario_id varchar(50) NOT NULL COMMENT '场景ID';
 CREATE INDEX idx_scenario_id USING BTREE ON api_scenario_csv_step (scenario_id);

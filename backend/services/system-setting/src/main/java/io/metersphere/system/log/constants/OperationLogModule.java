@@ -155,6 +155,7 @@ public class OperationLogModule {
     //测试计划
     public static final String TEST_PLAN = "TEST_PLAN";
     public static final String TEST_PLAN_MODULE = "TEST_PLAN_MODULE";
+    public static final String TEST_PLAN_REPORT = "TEST_PLAN_REPORT";
 
     // 个人信息-基本信息
     public static final String PERSONAL_INFORMATION_BASE_INFO = "PERSONAL_INFORMATION_BASE_INFO";
@@ -170,6 +171,4 @@ public class OperationLogModule {
     public static final String SETTING_ORGANIZATION_TASK_CENTER = "SETTING_ORGANIZATION_TASK_CENTER";
     //项目任务中心：PROJECT_MANAGEMENT_TASK_CENTER
     public static final String PROJECT_MANAGEMENT_TASK_CENTER = "PROJECT_MANAGEMENT_TASK_CENTER";
-
-    public static final String TEST_PLAN_REPORT = "TEST_PLAN_REPORT";
 }
