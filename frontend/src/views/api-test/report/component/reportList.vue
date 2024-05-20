@@ -6,15 +6,22 @@
         <a-radio value="INDEPENDENT">{{ t('report.independent') }}</a-radio>
         <a-radio value="INTEGRATED">{{ t('report.collection') }}</a-radio>
       </a-radio-group>
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('project.menu.nameSearch')"
-        allow-clear
-        class="mx-[8px] w-[240px]"
-        @search="searchList"
-        @press-enter="searchList"
-        @clear="searchList"
-      />
+      <div class="items-right flex gap-[8px]">
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('project.menu.nameSearch')"
+          allow-clear
+          class="mx-[8px] w-[240px]"
+          @search="searchList"
+          @press-enter="searchList"
+          @clear="searchList"
+        />
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="initData">
+          <template #icon>
+            <icon-refresh class="text-[var(--color-text-4)]" />
+          </template>
+        </a-button>
+      </div>
     </div>
     <!-- 报告列表 -->
     <ms-base-table
