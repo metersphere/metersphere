@@ -210,6 +210,17 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 httpResponse.setBody(body);
                 response.add(httpResponse);
             });
+            // 判断  如果是200  默认defaultFlag为true 否则的话  随机挑一个为true
+            if (CollectionUtils.isNotEmpty(response)) {
+                response.forEach(httpResponse -> {
+                    if (StringUtils.equals("200", httpResponse.getStatusCode())) {
+                        httpResponse.setDefaultFlag(true);
+                    }
+                });
+                if (response.stream().noneMatch(httpResponse -> StringUtils.equals("200", httpResponse.getStatusCode()))) {
+                    response.getFirst().setDefaultFlag(true);
+                }
+            }
         }
 
     }
