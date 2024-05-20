@@ -46,6 +46,22 @@
                         tprfc.function_case_bug_count as bugCount
         from test_plan_report_function_case tprfc
         where tprfc.test_plan_report_id = #{request.reportId}
+        <include refid="filter"/>
     </select>
 
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 执行状态 -->
+                        <when test="key == 'executeResult'">
+                            and tprfc.function_case_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 </mapper>

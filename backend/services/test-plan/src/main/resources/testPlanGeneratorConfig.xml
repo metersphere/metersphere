@@ -84,6 +84,7 @@
 <!--        <table tableName="test_plan_report_summary"/>-->
 <!--        <table tableName="test_plan_report_function_case"/>-->
 <!--        <table tableName="test_plan_report_bug"/>-->
+<!--        <table tableName="test_plan_report_attachment"/>-->
         <!--        <table tableName="test_plan_config"/>-->
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

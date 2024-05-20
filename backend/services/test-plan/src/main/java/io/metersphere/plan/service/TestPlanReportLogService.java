@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlanReport;
+import io.metersphere.plan.dto.request.TestPlanReportDetailEditRequest;
 import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
 import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.project.domain.Project;
@@ -65,6 +66,10 @@ public class TestPlanReportLogService {
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(report));
         return dto;
+    }
+
+    public LogDTO updateDetailLog(TestPlanReportDetailEditRequest request) {
+        return updateLog(request.getId());
     }
 
     public void batchDeleteLog(List<String> ids, String userId, String projectId) {
