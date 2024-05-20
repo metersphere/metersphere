@@ -59,8 +59,8 @@
       :bug-columns="columns"
       :load-bug-list-api="associatedBugPage"
       :load-params="{
-        testPlanCaseId: route.query.testPlanCaseId,
         caseId: props.caseId,
+        testPlanCaseId: props.testPlanCaseId,
       }"
       @link="emit('link')"
       @new="emit('new')"
@@ -93,7 +93,7 @@
   const appStore = useAppStore();
   const props = defineProps<{
     caseId: string;
-    testPlanId: string;
+    testPlanCaseId: string;
   }>();
 
   const keyword = ref<string>('');

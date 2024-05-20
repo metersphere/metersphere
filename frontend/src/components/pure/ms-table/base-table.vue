@@ -354,7 +354,7 @@
     (
       e: 'filterChange',
       dataIndex: string,
-      value: string[] | (string | number)[] | undefined,
+      value: string[] | (string | number | boolean)[] | undefined,
       isCustomParam: boolean
     ): void;
     (e: 'resetFilter', filterValue: Record<string, any>): void;
@@ -645,7 +645,7 @@
   });
 
   const handleFilterConfirm = (
-    value: string[] | (string | number)[] | undefined,
+    value: string[] | (string | number | boolean)[] | undefined,
     dataIndex: string,
     isCustomParam: boolean
   ) => {

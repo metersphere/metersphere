@@ -116,7 +116,7 @@
     loadList();
   }
 
-  function filterChange(dataIndex: string, value: string[] | (string | number)[] | undefined) {
+  function filterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
     loadHistory(value as string[]);
   }
 

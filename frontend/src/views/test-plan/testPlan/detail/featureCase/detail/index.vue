@@ -162,11 +162,15 @@
             v-if="activeTab === 'defectList'"
             ref="bugRef"
             :case-id="activeCaseId"
-            :test-plan-id="route.query.id as string"
+            :test-plan-case-id="activeId"
             @link="linkDefect"
             @new="addBug"
           />
-          <ExecutionHistory v-if="activeTab === 'executionHistory'" :case-id="activeCaseId" />
+          <ExecutionHistory
+            v-if="activeTab === 'executionHistory'"
+            :case-id="activeCaseId"
+            :test-plan-case-id="activeId"
+          />
         </div>
       </a-spin>
     </div>
@@ -181,8 +185,8 @@
   <AddDefectDrawer
     v-model:visible="showDrawer"
     :case-id="activeCaseId"
-    ::extra-params="{
-        testPlanCaseId: route.query.testPlanCaseId,
+    :extra-params="{
+        testPlanCaseId: activeId,
         caseId: activeCaseId,
         testPlanId:route.query.id as string,
       }"
@@ -505,7 +509,7 @@
         ...params,
         caseId: activeCaseId.value,
         testPlanId: route.query.id as string,
-        testPlanCaseId: route.query.testPlanCaseId as string,
+        testPlanCaseId: activeId.value,
       });
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       showLinkDrawer.value = false;

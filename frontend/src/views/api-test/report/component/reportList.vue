@@ -30,6 +30,7 @@
       :action-config="tableBatchActions"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
+      @filter-change="filterChange"
     >
       <template #name="{ record, rowIndex }">
         <div
@@ -273,11 +274,28 @@
     rename
   );
 
-  function initData() {
+  const typeFilter = computed(() => {
+    if (showType.value === 'All') {
+      return [];
+    }
+    return showType.value === 'INDEPENDENT' ? [false] : [true];
+  });
+
+  function initData(dataIndex?: string, value?: string[] | (string | number | boolean)[] | undefined) {
+    const filterParams = {
+      ...propsRes.value.filter,
+    };
+    if (dataIndex && value) {
+      filterParams[dataIndex] = value;
+    }
     setLoadListParams({
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleType: props.moduleType,
+      filter: {
+        integrated: typeFilter.value,
+        ...filterParams,
+      },
     });
     loadList();
   }
@@ -374,6 +392,10 @@
     resetFilterParams();
     resetSelector();
     initData();
+  }
+
+  function filterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
+    initData(dataIndex, value);
   }
 
   /**
