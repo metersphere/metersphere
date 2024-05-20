@@ -13,6 +13,7 @@ import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
@@ -410,8 +411,10 @@ public class FunctionalCaseService {
         //获取已关联测试计划数量
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andFunctionalCaseIdEqualTo(functionalCaseDetailDTO.getId());
-        functionalCaseDetailDTO.setTestPlanCount((int) testPlanFunctionalCaseMapper.countByExample(testPlanFunctionalCaseExample));
-
+        List<TestPlanFunctionalCase> testPlanFunctionalCases = testPlanFunctionalCaseMapper.selectByExample(testPlanFunctionalCaseExample);
+        Map<String, List<TestPlanFunctionalCase>> planMap = testPlanFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
+        functionalCaseDetailDTO.setTestPlanCount(planMap.size());
+        
         //获取评论总数量数量
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
         caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
