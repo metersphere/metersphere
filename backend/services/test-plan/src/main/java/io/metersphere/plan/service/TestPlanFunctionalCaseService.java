@@ -21,10 +21,7 @@ import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
-import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
-import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
-import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
+import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -554,7 +551,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         return list;
     }
 
-    public FunctionalCaseDetailDTO getFunctionalCaseDetail(String id, String userId) {
+    public TestPlanCaseDetailResponse getFunctionalCaseDetail(String id, String userId) {
         TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(id);
         String caseId = planFunctionalCase.getFunctionalCaseId();
         if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, List.of(caseId))) {
@@ -566,7 +563,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(caseId).andTestPlanCaseIdEqualTo(id);
         testPlanCaseExecuteHistoryExample.setOrderByClause("create_time DESC");
         List<TestPlanCaseExecuteHistory> testPlanCaseExecuteHistories = testPlanCaseExecuteHistoryMapper.selectByExampleWithBLOBs(testPlanCaseExecuteHistoryExample);
-
+        Integer runListCount = 0;
         List<FunctionalCaseStepDTO> functionalCaseStepDTOS = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(testPlanCaseExecuteHistories)) {
             TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = testPlanCaseExecuteHistories.get(0);
@@ -576,13 +573,24 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 functionalCaseStepDTOS = newCaseSteps;
                 functionalCaseDetail.setSteps(JSON.toJSONString(functionalCaseStepDTOS));
             }
+            runListCount = testPlanCaseExecuteHistories.size();
         } else {
             if (StringUtils.isNotBlank(caseDetailSteps)) {
                 functionalCaseStepDTOS = JSON.parseArray(caseDetailSteps, FunctionalCaseStepDTO.class);
             }
             functionalCaseDetail.setSteps(JSON.toJSONString(functionalCaseStepDTOS));
         }
-        return functionalCaseDetail;
+        TestPlanCaseDetailResponse response = new TestPlanCaseDetailResponse();
+        BeanUtils.copyBean(response, functionalCaseDetail);
+        response.setRunListCount(runListCount);
+        response.setBugListCount(getBugListCount(id, planFunctionalCase.getTestPlanId()));
+        return response;
+    }
+
+    private Integer getBugListCount(String id, String testPlanId) {
+        BugRelationCaseExample example = new BugRelationCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId).andTestPlanCaseIdEqualTo(id);
+        return (int) bugRelationCaseMapper.countByExample(example);
     }
 
     private static void compareStep(TestPlanCaseExecuteHistory testPlanCaseExecuteHistory, List<FunctionalCaseStepDTO> newCaseSteps) {

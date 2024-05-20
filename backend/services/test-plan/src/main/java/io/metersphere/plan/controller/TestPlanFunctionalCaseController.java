@@ -3,13 +3,9 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.dto.BugProviderDTO;
-import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
-import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
-import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
-import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
+import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.service.TestPlanCaseLogService;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -165,7 +161,7 @@ public class TestPlanFunctionalCaseController {
     @GetMapping("/detail/{id}")
     @Operation(summary = "测试计划-计划详情-功能用例-获取用例详情")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
+    public TestPlanCaseDetailResponse getFunctionalCaseDetail(@PathVariable String id) {
         String userId = SessionUtils.getUserId();
         return testPlanFunctionalCaseService.getFunctionalCaseDetail(id, userId);
     }
