@@ -76,21 +76,25 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlob6.setPrerequisite(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob6.setDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
+        mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
         List<FunctionalCaseStepDTO> list = new ArrayList<>();
         FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
         functionalCaseStepDTO.setId("12455");
         functionalCaseStepDTO.setNum(0);
-        functionalCaseStepDTO.setDesc("步骤一");
+        functionalCaseStepDTO.setDesc("");
         functionalCaseStepDTO.setResult("步骤一结果");
         list.add(functionalCaseStepDTO);
         functionalCaseStepDTO = new FunctionalCaseStepDTO();
         functionalCaseStepDTO.setId("12ddd455");
         functionalCaseStepDTO.setNum(1);
         functionalCaseStepDTO.setDesc("步骤二");
-        functionalCaseStepDTO.setResult("步骤二结果");
+        functionalCaseStepDTO.setResult("");
         list.add(functionalCaseStepDTO);
         String textDescription = "hahahahah，这是文本描述";
-        String expectedResult = "文本描述的结果";
+        String expectedResult = "";
         String prerequisite = "前置条件";
         String description = "备注";
 
@@ -98,7 +102,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
         functionalCaseBlob.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setExpectedResult(null);
         functionalCaseBlob.setPrerequisite(prerequisite.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob.setDescription(description.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
@@ -106,10 +110,24 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlob6.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
         functionalCaseBlob6.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob6.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob6.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setExpectedResult(null);
         functionalCaseBlob6.setPrerequisite(prerequisite.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob6.setDescription(description.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
+        mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+        expectedResult = "文本描述的结果";
+        functionalCaseBlob = new FunctionalCaseBlob();
+        functionalCaseBlob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
+        functionalCaseBlob.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
+        functionalCaseBlob6 = new FunctionalCaseBlob();
+        functionalCaseBlob6.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
+        functionalCaseBlob6.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
+
 
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
         contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
