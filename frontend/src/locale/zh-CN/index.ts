@@ -39,6 +39,7 @@ export default {
     'menu.apiTest.scenario': '场景',
     'menu.apiTest.scenario.recycle': '回收站',
     'menu.apiTest.report': '报告',
+    'menu.apiTest.reportDetail': '报告详情',
     'menu.uiTest': 'UI测试',
     'menu.workstation': '工作台',
     'menu.loadTest': '性能测试',

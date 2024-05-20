@@ -83,6 +83,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -102,6 +103,7 @@
 
   import { BatchApiParams } from '@/models/common';
   import { PlanReportStatus, ReportStatusEnum, TriggerModeLabel } from '@/enums/reportEnum';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -111,6 +113,7 @@
   const tableStore = useTableStore();
   const { t } = useI18n();
   const keyword = ref<string>('');
+  const router = useRouter();
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
@@ -387,7 +390,6 @@
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
     resetSelector();
-    console.log(propsRes.value);
     propsRes.value.filter = {
       integrated: integratedFilters.value,
     };
@@ -398,7 +400,12 @@
    * 报告详情 showReportDetail
    */
   function showReportDetail(id: string, rowIndex: number) {
-    // 待处理
+    router.push({
+      name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
+      query: {
+        id,
+      },
+    });
   }
 </script>
 
