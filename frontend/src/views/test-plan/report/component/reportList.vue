@@ -55,10 +55,10 @@
         <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="record.resultStatus" />
       </template>
       <template #execStatus="{ record }">
-        <ExecutionStatus :module-type="ReportStatusEnum.EXEC_STATUS" :status="record.execStatus" />
+        <ExecStatus :status="record.execStatus" />
       </template>
       <template #[FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS]="{ filterContent }">
-        <ExecutionStatus :module-type="ReportStatusEnum.EXEC_STATUS" :status="filterContent.value" />
+        <ExecStatus :status="filterContent.value" />
       </template>
       <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
         <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="filterContent.value" />
@@ -91,6 +91,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
 
   import { reportBathDelete, reportDelete, reportList, reportRename } from '@/api/modules/test-plan/report';
@@ -102,6 +103,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { TestPlanExecStatus } from '@/enums/apiEnum';
   import { PlanReportStatus, ReportStatusEnum, TriggerModeLabel } from '@/enums/reportEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -119,10 +121,10 @@
   const showType = ref<ReportShowType>('All');
 
   const executeResultOptions = computed(() => {
-    return Object.keys(PlanReportStatus[ReportStatusEnum.EXEC_STATUS]).map((key) => {
+    return Object.values(TestPlanExecStatus).map((e) => {
       return {
-        value: key,
-        label: PlanReportStatus[ReportStatusEnum.EXEC_STATUS][key].statusText,
+        value: e,
+        key: e,
       };
     });
   });
@@ -390,6 +392,7 @@
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
     resetSelector();
+    console.log(propsRes.value);
     propsRes.value.filter = {
       integrated: integratedFilters.value,
     };

@@ -335,3 +335,10 @@ export enum FullResponseAssertionType {
   XPATH = 'XPATH',
   REGEX = 'REGEX',
 }
+
+export enum TestPlanExecStatus {
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  STOPPED = 'STOPPED',
+  COMPLETED = 'COMPLETED',
+}
