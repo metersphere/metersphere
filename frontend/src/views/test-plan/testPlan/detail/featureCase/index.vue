@@ -3,6 +3,7 @@
     <template #first>
       <div class="p-[16px]">
         <CaseTree
+          ref="caseTreeRef"
           :modules-count="modulesCount"
           :selected-keys="selectedKeys"
           @folder-node-select="handleFolderNodeSelect"
@@ -20,6 +21,7 @@
         :module-tree="moduleTree"
         @get-module-count="getModuleCount"
         @refresh="emit('refresh')"
+        @init-modules="initModules"
       ></CaseTable>
     </template>
   </MsSplitBox>
@@ -77,7 +79,13 @@
     moduleTree.value = unref(tree);
   }
 
+  const caseTreeRef = ref<InstanceType<typeof CaseTree>>();
+  function initModules() {
+    caseTreeRef.value?.initModules();
+  }
+
   function getCaseTableList() {
+    initModules();
     caseTableRef.value?.loadCaseList();
   }
 

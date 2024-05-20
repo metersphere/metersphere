@@ -223,6 +223,7 @@
   const emit = defineEmits<{
     (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
     (e: 'refresh'): void;
+    (e: 'initModules'): void;
   }>();
 
   const { t } = useI18n();
@@ -487,6 +488,7 @@
       }
       Message.success(t('common.unLinkSuccess'));
       resetCaseList();
+      emit('initModules');
       emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -512,6 +514,7 @@
           });
           Message.success(t('common.updateSuccess'));
           resetCaseList();
+          emit('initModules');
           emit('refresh');
         } catch (error) {
           // eslint-disable-next-line no-console
