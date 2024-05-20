@@ -1,4 +1,4 @@
-import { Scenario, ScenarioStepConfig } from '@/models/apiTest/scenario';
+import { type CsvVariable, Scenario, ScenarioStepConfig } from '@/models/apiTest/scenario';
 import {
   ApiScenarioStatus,
   RequestAssertionCondition,
@@ -180,3 +180,38 @@ export const conditionOptions = [
     label: 'apiScenario.notNull',
   },
 ];
+
+// 场景-常规参数默认值
+export const defaultNormalParamItem = {
+  key: '',
+  paramType: 'CONSTANT',
+  value: '',
+  description: '',
+  tags: [],
+  enable: true,
+};
+
+// 场景-csv参数默认值
+export const defaultCsvParamItem: CsvVariable = {
+  id: '',
+  scenarioId: '',
+  name: '',
+  scope: 'SCENARIO',
+  enable: false,
+  encoding: 'UTF-8',
+  random: false,
+  variableNames: '',
+  ignoreFirstLine: false,
+  delimiter: ',',
+  allowQuotedData: false,
+  recycleOnEof: false,
+  stopThreadOnEof: false,
+  settingVisible: false,
+  file: {
+    fileId: '',
+    fileName: '',
+    local: false,
+    fileAlias: '',
+    delete: false,
+  },
+};

@@ -30,14 +30,14 @@
           </a-popover>
         </template>
         <template #right>
-          <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
+          <!-- <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
             <a-radio value="list" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_view-list_outlined" />
             </a-radio>
-            <!--            <a-radio value="xMind" class="show-type-icon !m-[2px]">
+            <a-radio value="xMind" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
-            </a-radio>-->
-          </a-radio-group>
+            </a-radio>
+          </a-radio-group> -->
         </template>
       </MsAdvanceFilter>
       <ms-base-table
@@ -54,9 +54,9 @@
         @cell-click="handleCellClick"
       >
         <template #num="{ record }">
-          <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{
-            record.num
-          }}</span>
+          <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
+            {{ record.num }}
+          </span>
         </template>
         <template #name="{ record }">
           <div class="one-line-text">{{ characterLimit(record.name) }}</div>
@@ -219,7 +219,12 @@
       </div>
       <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
         <!-- 脑图开始 -->
-        <MsMinder minder-type="FeatureCase" :module-id="props.activeFolder" :module-name="props.moduleName" />
+        <MsMinder
+          minder-type="FeatureCase"
+          :module-id="props.activeFolder"
+          :modules-count="props.modulesCount"
+          :module-name="props.moduleName"
+        />
         <MsDrawer v-model:visible="visible" :width="480" :mask="false">
           {{ nodeData.text }}
         </MsDrawer>

@@ -103,5 +103,6 @@ export default {
       delete: '删除',
       enterNode: '进入当前节点',
     },
+    loading: '脑图加载中...',
   },
 };

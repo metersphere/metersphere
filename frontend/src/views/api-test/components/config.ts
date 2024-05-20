@@ -13,7 +13,6 @@ import {
   ResponseDefinition,
 } from '@/models/apiTest/common';
 import type { MockParams } from '@/models/apiTest/mock';
-import type { CsvVariable } from '@/models/apiTest/scenario';
 import {
   FullResponseAssertionType,
   RequestAssertionCondition,
@@ -414,37 +413,3 @@ export const matchRuleOptions = [
 ];
 // mock 参数为文件类型的匹配规则选项
 export const mockFileMatchRules = ['EQUALS', 'NOT_EQUALS', 'IS_EMPTY', 'IS_NOT_EMPTY'];
-
-// 场景-常规参数默认值
-export const defaultNormalParamItem = {
-  key: '',
-  paramType: 'CONSTANT',
-  value: '',
-  description: '',
-  tags: [],
-  enable: true,
-};
-// 场景-csv参数默认值
-export const defaultCsvParamItem: CsvVariable = {
-  id: '',
-  scenarioId: '',
-  name: '',
-  scope: 'SCENARIO',
-  enable: false,
-  encoding: 'UTF-8',
-  random: false,
-  variableNames: '',
-  ignoreFirstLine: false,
-  delimiter: ',',
-  allowQuotedData: false,
-  recycleOnEof: false,
-  stopThreadOnEof: false,
-  settingVisible: false,
-  file: {
-    fileId: '',
-    fileName: '',
-    local: false,
-    fileAlias: '',
-    delete: false,
-  },
-};

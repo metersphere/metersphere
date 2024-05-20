@@ -31,7 +31,7 @@
 
   import { CsvVariable } from '@/models/apiTest/scenario';
 
-  import { defaultCsvParamItem } from '@/views/api-test/components/config';
+  import { defaultCsvParamItem } from '../config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const props = defineProps<{

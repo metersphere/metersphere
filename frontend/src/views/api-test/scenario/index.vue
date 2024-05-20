@@ -146,8 +146,7 @@
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
-  import { defaultCsvParamItem, defaultNormalParamItem } from '../components/config';
-  import { defaultScenario } from './components/config';
+  import { defaultCsvParamItem, defaultNormalParamItem, defaultScenario } from './components/config';
   import updateStepStatus, { getScenarioFileParams } from './components/utils';
   import {
     filterAssertions,
@@ -382,6 +381,11 @@
     if (defaultScenarioInfo) {
       const isCopy = action === 'copy';
       let copySteps: ScenarioStepItem[] = [];
+      const copyCsvVariables = defaultScenarioInfo.scenarioConfig.variable.csvVariables.map((e) => ({
+        ...e,
+        copyId: e.id,
+        id: getGenerateId(),
+      }));
       if (isCopy) {
         // 场景被复制，递归处理节点，增加copyFromStepId
         copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
@@ -405,6 +409,9 @@
           if (!node.isQuoteScenarioStep && !node.isRefScenarioStep) {
             // 非引用场景步骤
             node.id = getGenerateId(); // 重新生成 ID
+          }
+          if (node.csvIds && node.csvIds.length > 0) {
+            node.csvIds = node.csvIds.map((e: string) => copyCsvVariables.find((c) => c.copyId === e)?.id || '');
           }
           node.uniqueId = node.id;
           return node;
@@ -439,9 +446,17 @@
         ...defaultScenarioInfo,
         steps: copySteps,
         id: isCopy ? getGenerateId() : defaultScenarioInfo.id || '',
+        copyFromScenarioId: isCopy ? defaultScenarioInfo.id : '',
         label: isCopy ? copyName : defaultScenarioInfo.name,
         name: isCopy ? copyName : defaultScenarioInfo.name,
         isNew: isCopy,
+        scenarioConfig: {
+          ...defaultScenarioInfo.scenarioConfig,
+          variable: {
+            commonVariables: defaultScenarioInfo.scenarioConfig.variable.commonVariables,
+            csvVariables: copyCsvVariables,
+          },
+        },
         stepResponses: {},
         errorMessageInfo: {},
       });
@@ -531,7 +546,8 @@
               ).validParams,
               csvVariables: filterKeyValParams(
                 activeScenarioTab.value.scenarioConfig.variable.csvVariables,
-                defaultCsvParamItem
+                defaultCsvParamItem,
+                true
               ).validParams,
             },
           },
@@ -587,6 +603,17 @@
             preProcessorConfig: filterConditionsSqlValidParams(
               activeScenarioTab.value.scenarioConfig.preProcessorConfig
             ),
+            variable: {
+              commonVariables: filterKeyValParams(
+                activeScenarioTab.value.scenarioConfig.variable.commonVariables,
+                defaultNormalParamItem
+              ).validParams,
+              csvVariables: filterKeyValParams(
+                activeScenarioTab.value.scenarioConfig.variable.csvVariables,
+                defaultCsvParamItem,
+                true
+              ).validParams,
+            },
           },
           environmentId: appStore.getCurrentEnvId || '',
           steps: mapTree(activeScenarioTab.value.steps, (node) => {
@@ -621,7 +648,7 @@
       (e) => e.id === (typeof record === 'string' ? record : record.id)
     );
     if (isLoadedTabIndex > -1 && action !== 'copy') {
-      // 如果点击的请求在tab中已经存在，则直接切换到该tab
+      // 如果点击的场景在tab中已经存在，则直接切换到该tab
       activeScenarioTab.value = scenarioTabs.value[isLoadedTabIndex];
       // tab子组件里监听的是id变化,所以id相等的时候需要单独调执行
       if (action === 'execute') {

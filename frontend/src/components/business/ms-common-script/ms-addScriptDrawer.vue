@@ -43,6 +43,12 @@
       <paramTable
         v-model:params="innerParams"
         :columns="columns"
+        :default-param-item="{
+          key: '',
+          value: '',
+          description: '',
+          required: false,
+        }"
         :scroll="{ x: 'auto' }"
         :height-used="heightUsed"
         :selectable="false"

@@ -495,9 +495,9 @@
       <div v-else class="text-[var(--color-text-1)]">{{ '-' }}</div>
     </template>
     <!-- 单独启用/禁用列 -->
-    <template #enable="{ record, rowIndex }">
+    <template v-if="!props.selectable" #enable="{ record, rowIndex }">
       <a-switch
-        v-model="record.enable"
+        v-model:model-value="record.enable"
         :disabled="props.disabledExceptParam"
         size="small"
         type="line"
@@ -513,7 +513,7 @@
       <div class="flex w-full flex-row items-center" :class="{ 'justify-end': columnConfig.align === 'right' }">
         <a-switch
           v-if="columnConfig.hasDisable"
-          v-model="record.enable"
+          v-model:model-value="record.enable"
           :disabled="props.disabledExceptParam"
           size="small"
           type="line"
@@ -664,7 +664,7 @@
   const props = withDefaults(
     defineProps<{
       params?: Record<string, any>[];
-      defaultParamItem?: Record<string, any>; // 默认参数项，用于添加新行时的默认值
+      defaultParamItem: Record<string, any>; // 默认参数项，用于添加新行时的默认值
       columns: ParamTableColumn[];
       scroll?: {
         x?: number | string;
@@ -703,20 +703,6 @@
       showSetting: false,
       tableKey: undefined,
       isSimpleSetting: true,
-      defaultParamItem: () => ({
-        required: false,
-        key: '',
-        paramType: RequestParamsType.STRING,
-        value: '',
-        minLength: undefined,
-        maxLength: undefined,
-        contentType: RequestContentTypeEnum.TEXT,
-        tag: [],
-        description: '',
-        encode: false,
-        disable: false,
-        mustContain: false,
-      }),
     }
   );
   const emit = defineEmits<{
@@ -942,7 +928,7 @@
         if (
           (!props.disabledExceptParam || !props.disabledParamValue) &&
           hasNoIdItem &&
-          !filterKeyValParams(arr, props.defaultParamItem).lastDataIsDefault &&
+          !filterKeyValParams(arr, props.defaultParamItem, !props.selectable).lastDataIsDefault &&
           !props.isTreeTable
         ) {
           addTableLine(arr.length - 1, false, true);

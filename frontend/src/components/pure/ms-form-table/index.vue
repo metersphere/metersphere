@@ -358,8 +358,8 @@
       const id = new Date().getTime().toString();
       propsRes.value.data.push({
         id,
-        ...cloneDeep(props.defaultParamDataItem), // 深拷贝，避免有嵌套引用类型，数据隔离
         enable: true, // 是否勾选
+        ...cloneDeep(props.defaultParamDataItem), // 深拷贝，避免有嵌套引用类型，数据隔离
       } as any);
       emitChange('addTableLine', isInit);
     }

@@ -13,13 +13,16 @@ export interface MinderJsonNodeData {
   id: string;
   text: string;
   resource?: string[];
-  expandState?: string;
+  expandState?: 'collapse' | 'expand';
   priority?: number;
+  // 前端渲染字段
+  [key: string]: any;
 }
 export interface MinderJsonNode {
   parent?: MinderJsonNode;
   data?: MinderJsonNodeData;
   children?: MinderJsonNode[];
+  [key: string]: any; // minder 内置字段
 }
 
 export interface MinderJson {
