@@ -74,6 +74,7 @@
         <include refid="planFilters">
             <property name="filter" value="request.filter"/>
         </include>
+        group by tpfc.test_plan_id
     </select>
 
     <select id="getPlanExecuteHistoryList" resultType="io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO">

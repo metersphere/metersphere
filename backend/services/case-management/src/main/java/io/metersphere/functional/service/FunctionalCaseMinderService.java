@@ -126,6 +126,9 @@ public class FunctionalCaseMinderService {
     public List<FunctionalMinderTreeDTO> getMindFunctionalCase(FunctionalCaseMindRequest request, boolean deleted) {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
         //查出当前模块下的所有用例
+        if (StringUtils.isBlank(request.getModuleId())) {
+            return new ArrayList<>();
+        }
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseList(request, deleted);
         //构造父子级数据
         buildList(functionalCaseMindDTOList, list);
