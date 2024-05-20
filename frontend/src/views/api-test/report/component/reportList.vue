@@ -16,7 +16,7 @@
           @press-enter="searchList"
           @clear="searchList"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="initData">
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="initData()">
           <template #icon>
             <icon-refresh class="text-[var(--color-text-4)]" />
           </template>
@@ -323,7 +323,10 @@
       ...params,
       selectIds: params?.selectedIds || [],
       condition: {
-        filter: propsRes.value.filter,
+        filter: {
+          ...propsRes.value.filter,
+          integrated: typeFilter.value,
+        },
         keyword: keyword.value,
       },
       projectId: appStore.currentProjectId,
