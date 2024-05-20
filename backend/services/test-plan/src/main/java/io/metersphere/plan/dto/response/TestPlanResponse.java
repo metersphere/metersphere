@@ -23,6 +23,8 @@ public class TestPlanResponse extends TestPlanStatisticsResponse {
     private String schedule;
     @Schema(description = "创建人")
     private String createUser;
+    @Schema(description = "创建人名称")
+    private String createUserName;
     @Schema(description = "创建时间")
     private String createTime;
     @Schema(description = "模块")

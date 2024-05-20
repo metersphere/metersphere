@@ -34,10 +34,11 @@
     </select>
 
     <select id="selectByConditions"
-            resultMap="testPlanBaseInfo">
+            resultType="io.metersphere.plan.dto.response.TestPlanResponse">
         SELECT
         t.id,t.num,t.name,t.status,t.group_id,
-        createUser.name AS createUser,
+        t.create_user AS createUser,
+        createUser.name AS createUserName,
         t.create_time,
         t.module_id,
         t.type,
