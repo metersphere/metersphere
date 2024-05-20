@@ -64,6 +64,7 @@ export enum TestPlanRouteEnum {
   TEST_PLAN_INDEX_DETAIL = 'testPlanIndexDetail',
   TEST_PLAN_INDEX_DETAIL_FEATURE_CASE_DETAIL = 'testPlanIndexDetailFeatureCaseDetail',
   TEST_PLAN_REPORT = 'testPlanReport',
+  TEST_PLAN_REPORT_DETAIL = 'testPlanReportDetail',
 }
 
 export enum UITestRouteEnum {

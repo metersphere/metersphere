@@ -38,6 +38,25 @@ const TestPlan: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    {
+      path: 'testPlanReportDetail',
+      name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
+      component: () => import('@/views/test-plan/report/detail/index.vue'),
+      meta: {
+        locale: 'menu.apiTest.reportDetail',
+        roles: ['*'],
+        breadcrumbs: [
+          {
+            name: TestPlanRouteEnum.TEST_PLAN_REPORT,
+            locale: 'menu.apiTest.report',
+          },
+          {
+            name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
+            locale: 'menu.testPlan.testPlanDetail',
+          },
+        ],
+      },
+    },
     // 测试计划详情
     {
       path: 'testPlanIndexDetail',

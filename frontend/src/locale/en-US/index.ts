@@ -37,6 +37,7 @@ export default {
     'menu.apiTest.scenario': 'Scenario',
     'menu.apiTest.scenario.recycle': 'Recycle',
     'menu.apiTest.report': 'Report',
+    'menu.apiTest.reportDetail': 'Report Detail',
     'menu.uiTest': 'UI Test',
     'menu.performanceTest': 'Performance Test',
     'menu.projectManagement': 'Project',
