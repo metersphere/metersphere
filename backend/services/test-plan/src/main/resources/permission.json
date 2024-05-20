@@ -2,29 +2,11 @@
   {
     "id": "TEST_PLAN",
     "name": "permission.test_plan.name",
-    "type": "TEST_PLAN",
+    "type": "PROJECT",
     "children": [
       {
-        "id": "TEST_PLAN_MODULE",
-        "name": "permission.test_plan_module.name",
-        "permissions": [
-          {
-            "id": "PROJECT_TEST_PLAN_MODULE:READ"
-          },
-          {
-            "id": "PROJECT_TEST_PLAN_MODULE:READ+ADD"
-          },
-          {
-            "id": "PROJECT_TEST_PLAN_MODULE:READ+UPDATE"
-          },
-          {
-            "id": "PROJECT_TEST_PLAN_MODULE:READ+DELETE"
-          }
-        ]
-      },
-      {
-        "id": "TEST_PLAN",
-        "name": "permission.test_plan.name",
+        "id": "PROJECT_TEST_PLAN",
+        "name": "permission.test_plan",
         "permissions": [
           {
             "id": "PROJECT_TEST_PLAN:READ"
@@ -39,10 +21,30 @@
             "id": "PROJECT_TEST_PLAN:READ+DELETE"
           },
           {
-            "id": "PROJECT_TEST_PLAN:READ+ASSOCIATION"
+            "id": "PROJECT_TEST_PLAN:READ+ASSOCIATION",
+            "name": "permission.association"
           },
           {
             "id": "PROJECT_TEST_PLAN:READ+EXECUTE"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_TEST_PLAN_REPORT",
+        "name": "permission.test_plan_report",
+        "permissions": [
+          {
+            "id": "PROJECT_TEST_PLAN_REPORT:READ"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_REPORT:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_REPORT:READ+SHARE",
+            "name": "permission.api_doc.share"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_REPORT:READ+DELETE"
           }
         ]
       }

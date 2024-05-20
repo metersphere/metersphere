@@ -206,7 +206,7 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
 
         //判断权限
-        this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ, String.format(URL_GET_MODULE_TREE, DEFAULT_PROJECT_ID));
+        this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, String.format(URL_GET_MODULE_TREE, DEFAULT_PROJECT_ID));
         testPlanTableRequest.setProjectId(DEFAULT_PROJECT_ID);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
     }
@@ -439,7 +439,7 @@ public class TestPlanTests extends BaseTest {
         this.requestPost(URL_POST_MODULE_ADD, request).andExpect(status().is5xxServerError());
 
         //判断权限
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ_ADD, URL_POST_MODULE_ADD, request);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ADD, URL_POST_MODULE_ADD, request);
     }
 
     @Test
@@ -496,7 +496,7 @@ public class TestPlanTests extends BaseTest {
         this.requestPost(URL_POST_MODULE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
         //判断权限
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ_UPDATE, URL_POST_MODULE_UPDATE, updateRequest);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_MODULE_UPDATE, updateRequest);
     }
 
     @Resource
@@ -1387,7 +1387,7 @@ public class TestPlanTests extends BaseTest {
         );
 
         //判断权限
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ_UPDATE, URL_POST_MODULE_MOVE, request);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_MODULE_MOVE, request);
     }
 
     @Test
@@ -1522,7 +1522,7 @@ public class TestPlanTests extends BaseTest {
         testPlanModuleService.deleteModule(new ArrayList<>(), project.getId(), null, null, null);
 
         //判断权限
-        this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_MODULE_READ_DELETE, (String.format(URL_GET_MODULE_DELETE, IDGenerator.nextNum())));
+        this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ_DELETE, (String.format(URL_GET_MODULE_DELETE, IDGenerator.nextNum())));
 
         //删除当前项目下的所有测试计划相关的数据
         CleanupPlanResourceService cleanupPlanResourceService = CommonBeanFactory.getBean(CleanupPlanResourceService.class);

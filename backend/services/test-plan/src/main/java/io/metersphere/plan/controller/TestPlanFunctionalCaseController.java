@@ -107,6 +107,7 @@ public class TestPlanFunctionalCaseController {
     @PostMapping("/associate/bug/page")
     @Operation(summary = "测试计划-计划详情-功能用例-获取缺陷列表")
     @CheckOwner(resourceId = "#request.getProjectId", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.bugPage(request));
@@ -114,6 +115,7 @@ public class TestPlanFunctionalCaseController {
 
     @PostMapping("/associate/bug")
     @Operation(summary = "测试计划-计划详情-功能用例-关联其他用例-关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanCaseId()", resourceType = "test_plan_functional_case")
     public void associateBug(@Validated @RequestBody TestPlanCaseAssociateBugRequest request) {
         testPlanFunctionalCaseService.associateBug(request, SessionUtils.getUserId());
@@ -121,6 +123,7 @@ public class TestPlanFunctionalCaseController {
 
     @GetMapping("/disassociate/bug/{id}")
     @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = TestPlanFunctionalCaseService.class)
     @CheckOwner(resourceId = "#id", resourceType = "bug_relation_case")
     public void disassociateBug(@PathVariable String id) {
@@ -135,7 +138,6 @@ public class TestPlanFunctionalCaseController {
         testPlanFunctionalCaseService.run(request, SessionUtils.getCurrentOrganizationId(), new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
     }
 
-
     @PostMapping("/batch/run")
     @Operation(summary = "测试计划-计划详情-功能用例-批量执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
@@ -146,12 +148,12 @@ public class TestPlanFunctionalCaseController {
 
     @PostMapping("/has/associate/bug/page")
     @Operation(summary = "测试计划-计划详情-功能用例-获取已关联的缺陷列表")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanCaseId()", resourceType = "test_plan_functional_case")
     public Pager<List<BugProviderDTO>> getAssociateBugList(@Validated @RequestBody AssociateBugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.hasAssociateBugPage(request));
     }
-
 
     @PostMapping("/batch/update/executor")
     @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
@@ -170,7 +172,6 @@ public class TestPlanFunctionalCaseController {
         return testPlanFunctionalCaseService.getFunctionalCaseDetail(id, userId);
     }
 
-
     @PostMapping("/exec/history")
     @Operation(summary = "测试计划-计划详情-功能用例-执行历史")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
@@ -179,7 +180,6 @@ public class TestPlanFunctionalCaseController {
         return testPlanFunctionalCaseService.getCaseExecHistory(request);
     }
 
-
     @PostMapping("/edit")
     @Operation(summary = "测试计划-计划详情-功能用例-编辑执行结果")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
@@ -187,7 +187,6 @@ public class TestPlanFunctionalCaseController {
     public void editFunctionalCase(@Validated @RequestBody TestPlanCaseEditRequest request) {
         testPlanFunctionalCaseService.editFunctionalCase(request, SessionUtils.getUserId());
     }
-
 
     @GetMapping("/user-option/{projectId}")
     @Operation(summary = "测试计划-计划详情-功能用例-获取用户列表")

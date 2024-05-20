@@ -299,10 +299,6 @@ public class PermissionConstants {
 
     //测试计划
     /*------ start: TEST_PLAN ------*/
-    public static final String TEST_PLAN_MODULE_READ = "PROJECT_TEST_PLAN_MODULE:READ";
-    public static final String TEST_PLAN_MODULE_READ_ADD = "PROJECT_TEST_PLAN_MODULE:READ+ADD";
-    public static final String TEST_PLAN_MODULE_READ_UPDATE = "PROJECT_TEST_PLAN_MODULE:READ+UPDATE";
-    public static final String TEST_PLAN_MODULE_READ_DELETE = "PROJECT_TEST_PLAN_MODULE:READ+DELETE";
 
     public static final String TEST_PLAN_READ = "PROJECT_TEST_PLAN:READ";
     public static final String TEST_PLAN_READ_ADD = "PROJECT_TEST_PLAN:READ+ADD";

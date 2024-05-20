@@ -33,7 +33,7 @@ public class TestPlanModuleController {
 
     @GetMapping("/tree/{projectId}")
     @Operation(summary = "测试计划管理-模块树-查找模块")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_MODULE_READ)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@PathVariable String projectId) {
         testPlanManagementService.checkModuleIsOpen(projectId, TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));
@@ -42,7 +42,7 @@ public class TestPlanModuleController {
 
     @PostMapping("/add")
     @Operation(summary = "测试计划管理-模块树-添加模块")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_MODULE_READ_ADD)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String add(@RequestBody @Validated TestPlanModuleCreateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));
@@ -51,7 +51,7 @@ public class TestPlanModuleController {
 
     @PostMapping("/update")
     @Operation(summary = "测试计划管理-模块树-修改模块")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_MODULE_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "file_module")
     public boolean list(@RequestBody @Validated TestPlanModuleUpdateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN_MODULE, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));
@@ -61,7 +61,7 @@ public class TestPlanModuleController {
 
     @GetMapping("/delete/{deleteId}")
     @Operation(summary = "测试计划管理-模块树-删除模块")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_MODULE_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
     @CheckOwner(resourceId = "#deleteId", resourceType = "file_module")
     public void deleteNode(@PathVariable String deleteId) {
         testPlanManagementService.checkModuleIsOpen(deleteId, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN_MODULE, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));
@@ -70,7 +70,7 @@ public class TestPlanModuleController {
 
     @PostMapping("/move")
     @Operation(summary = "测试计划管理-模块树-移动模块")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_MODULE_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getDragNodeId()", resourceType = "test_plan_module")
     public void moveNode(@Validated @RequestBody NodeMoveRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getDragNodeId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN_MODULE, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));

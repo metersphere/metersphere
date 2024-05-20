@@ -68,7 +68,6 @@ public class TestPlanController {
         return testPlanManagementService.moduleCount(request);
     }
 
-
     @PostMapping("/add")
     @Operation(summary = "测试计划-创建测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
@@ -89,7 +88,6 @@ public class TestPlanController {
         return testPlanService.update(request, SessionUtils.getUserId(), "/test-plan/update", HttpMethodConstants.POST.name());
     }
 
-
     @GetMapping("/delete/{id}")
     @Operation(summary = "测试计划-删除测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
@@ -108,7 +106,6 @@ public class TestPlanController {
         String userId = SessionUtils.getUserId();
         testPlanService.editFollower(request.getTestPlanId(), userId);
     }
-
 
     @GetMapping("/archived/{id}")
     @Operation(summary = "测试计划-归档")
@@ -155,7 +152,6 @@ public class TestPlanController {
         testPlanService.batchCopy(request, SessionUtils.getUserId(), "/test-plan/batch-copy", HttpMethodConstants.POST.name());
     }
 
-
     @PostMapping("/batch-move")
     @Operation(summary = "测试计划-批量移动测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
@@ -182,7 +178,6 @@ public class TestPlanController {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         testPlanService.association(request);
     }
-
 
     @PostMapping("/batch-edit")
     @Operation(summary = "测试计划-批量编辑")
