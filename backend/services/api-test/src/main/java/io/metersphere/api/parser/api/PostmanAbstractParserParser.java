@@ -27,6 +27,7 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.auth.BasicAuth;
 import io.metersphere.project.dto.environment.auth.DigestAuth;
 import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
+import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -110,7 +111,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         if (CollectionUtils.isNotEmpty(response)) {
             response.forEach(r -> {
                 HttpResponse httpResponse = new HttpResponse();
-                //httpResponse.setId(IDGenerator.nextStr());
+                httpResponse.setId(IDGenerator.nextStr());
                 httpResponse.setName(r.getName());
                 httpResponse.setStatusCode(r.getCode().toString());
                 if (CollectionUtils.isNotEmpty(r.getHeader())) {
@@ -123,6 +124,14 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
                 httpResponse.getBody().setBodyType(Body.BodyType.RAW.name());
                 detail.getResponse().add(httpResponse);
             });
+            detail.getResponse().forEach(httpResponse -> {
+                if (StringUtils.equals("200", httpResponse.getStatusCode())) {
+                    httpResponse.setDefaultFlag(true);
+                }
+            });
+            if (detail.getResponse().stream().noneMatch(httpResponse -> StringUtils.equals("200", httpResponse.getStatusCode()))) {
+                detail.getResponse().getFirst().setDefaultFlag(true);
+            }
         }
     }
 
@@ -317,7 +326,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
                 JsonNode usernameNode = digestObject.get(USERNAME);
                 JsonNode passwordNode = digestObject.get(PASSWORD);
                 digestAuth.setUserName(usernameNode instanceof TextNode ? usernameNode.asText() : StringUtils.EMPTY);
-                digestAuth.setPassword(passwordNode instanceof TextNode ?passwordNode.asText() : StringUtils.EMPTY);
+                digestAuth.setPassword(passwordNode instanceof TextNode ? passwordNode.asText() : StringUtils.EMPTY);
             } else if (digestNode instanceof ArrayNode digestArray) {
                 digestArray.forEach(node -> {
                     JsonNode keyNode = node.get(KEY);
