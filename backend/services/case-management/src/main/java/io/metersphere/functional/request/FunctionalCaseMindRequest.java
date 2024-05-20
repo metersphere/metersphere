@@ -11,6 +11,5 @@ public class FunctionalCaseMindRequest {
     private String projectId;
 
     @Schema(description = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_module.id.not_blank}")
     private String moduleId;
 }
