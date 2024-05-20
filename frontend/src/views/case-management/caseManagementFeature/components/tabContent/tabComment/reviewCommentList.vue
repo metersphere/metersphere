@@ -25,7 +25,7 @@
               <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
               {{ t('caseManagement.caseReview.reReview') }}
             </div>
-            <div v-if="item.status === 'PASSED'" class="flex items-center">
+            <div v-if="item.status === 'SUCCESS'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
               {{ t('caseManagement.featureCase.execute.success') }}
             </div>
@@ -33,7 +33,7 @@
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
               {{ t('caseManagement.featureCase.execute.blocked') }}
             </div>
-            <div v-if="item.status === 'FAILED'" class="flex items-center">
+            <div v-if="item.status === 'ERROR'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
               {{ t('caseManagement.featureCase.execute.failed') }}
             </div>
