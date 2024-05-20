@@ -18,7 +18,6 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +54,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
     private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
-    private static final String GET_SHARE_REPORT = "/test-plan/report/share/get";
+    private static final String GET_SHARE_REPORT = "/test-plan/report/share/get/detail";
     private static final String GET_SHARE_REPORT_BUG_LIST = "/test-plan/report/share/detail/bug/page";
     private static final String GET_SHARE_REPORT_FUNCTIONAL_LIST = "/test-plan/report/share/detail/functional/case/page";
 
@@ -172,15 +171,17 @@ public class TestPlanReportControllerTests extends BaseTest {
     @Test
     @Order(8)
     void testGetShareReportTableList() throws Exception{
-        BasePageRequest request = new BasePageRequest();
+        TestPlanShareReportDetailRequest request = new TestPlanShareReportDetailRequest();
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setReportId("test-plan-report-id-1");
+        request.setShareId(GEN_SHARE_ID);
         // 获取分享的报告的列表明细
-        this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
-        this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
+        this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST, request);
+        this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST, request);
         request.setSort(Map.of("num", "asc"));
-        this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
-        this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST + "/" + GEN_SHARE_ID + "/test-plan-report-id-1", request);
+        this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST, request);
+        this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST, request);
     }
 
     @Test
@@ -262,23 +263,25 @@ public class TestPlanReportControllerTests extends BaseTest {
     @Test
     @Order(15)
     void testPageReportDetailBugSuccess() throws Exception {
-        BasePageRequest request = new BasePageRequest();
+        TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
         request.setCurrent(1);
         request.setPageSize(10);
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE + "/" + GEN_REPORT_ID, request);
+        request.setReportId(GEN_REPORT_ID);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
         request.setSort(Map.of("num", "asc"));
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE + "/" + GEN_REPORT_ID, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_BUG_PAGE, request);
     }
 
     @Test
     @Order(16)
     void testPageReportDetailFunctionalCaseSuccess() throws Exception {
-        BasePageRequest request = new BasePageRequest();
+        TestPlanReportDetailPageRequest request = new TestPlanReportDetailPageRequest();
         request.setCurrent(1);
         request.setPageSize(10);
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE + "/" + GEN_REPORT_ID, request);
+        request.setReportId(GEN_REPORT_ID);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
         request.setSort(Map.of("num", "asc"));
-        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE + "/" + GEN_REPORT_ID, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
     }
 
     @Test

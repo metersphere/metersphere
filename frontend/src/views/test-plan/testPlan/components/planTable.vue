@@ -103,6 +103,9 @@
     <template #status="{ record }">
       <MsStatusTag :status="record.status" />
     </template>
+    <template #createUserName="{ record }">
+      <span type="text" class="px-0">{{ record.createUserName || '-' }}</span>
+    </template>
     <template #moduleId="{ record }">
       <a-tooltip :content="getModules(record.moduleId, props.moduleTree)" position="top">
         <span class="one-line-text inline-block">
@@ -298,7 +301,6 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
   import type { PassRateCountDetail, planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -374,7 +376,7 @@
     {
       title: 'common.creator',
       slotName: 'createUser',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       showInTable: true,
       width: 200,
       showDrag: true,
