@@ -103,8 +103,10 @@
     <template #status="{ record }">
       <MsStatusTag :status="record.status" />
     </template>
-    <template #createUserName="{ record }">
-      <span type="text" class="px-0">{{ record.createUserName || '-' }}</span>
+    <template #createUser="{ record }">
+      <a-tooltip :content="`${record.createUserName}`" position="tl">
+        <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
+      </a-tooltip>
     </template>
     <template #moduleId="{ record }">
       <a-tooltip :content="getModules(record.moduleId, props.moduleTree)" position="top">
