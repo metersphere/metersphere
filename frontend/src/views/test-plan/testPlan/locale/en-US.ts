@@ -23,6 +23,7 @@ export default {
   'testPlan.testPlanIndex.belongModule': 'belong module',
   'testPlan.testPlanIndex.createTime': 'create time',
   'testPlan.testPlanIndex.operation': 'operation',
+  'testPlan.testPlanIndex.execution': 'execution',
   'testPlan.testPlanIndex.newCreatePlanGroup': 'New Plan group',
   'testPlan.testPlanIndex.planStartToEndTime': 'plan times',
   'testPlan.testPlanIndex.actualStartToEndTime': 'Actual times',
