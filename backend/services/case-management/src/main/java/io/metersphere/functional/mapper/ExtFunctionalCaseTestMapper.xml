@@ -57,7 +57,8 @@
     </select>
 
     <select id="getPlanList" parameterType="io.metersphere.functional.request.AssociatePlanPageRequest" resultType="io.metersphere.functional.dto.FunctionalCaseTestPlanDTO">
-        SELECT
+        SELECT r.* from (
+        SELECT distinct tpfc.test_plan_id as testPlanId,
         tpfc.*, tp.name as testPlanName, tp.num as testPlanNum, tp.status as planStatus, p.name as projectName
         FROM
         test_plan_functional_case tpfc
@@ -74,7 +75,7 @@
         <include refid="planFilters">
             <property name="filter" value="request.filter"/>
         </include>
-        order by tpfc.last_exec_time desc
+        order by tpfc.last_exec_time desc) as r group by r.test_plan_id
     </select>
 
     <select id="getPlanExecuteHistoryList" resultType="io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO">
