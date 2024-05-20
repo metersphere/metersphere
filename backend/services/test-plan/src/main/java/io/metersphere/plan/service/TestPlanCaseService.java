@@ -59,7 +59,8 @@ public class TestPlanCaseService {
     public long getNextOrder(String testPlanId) {
         Long maxPos = extTestPlanFunctionalCaseMapper.getMaxPosByTestPlanId(testPlanId);
         if (maxPos == null) {
-            return 0;
+            //默认返回POS_STEP，不能直接返回0， 否则无法进行“前置”排序
+            return ServiceUtils.POS_STEP;
         } else {
             return maxPos + ServiceUtils.POS_STEP;
         }
