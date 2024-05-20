@@ -131,7 +131,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
     public TestPlanDetailResponse detail(@NotBlank @PathVariable String id) {
-        return testPlanService.detail(id);
+        return testPlanService.detail(id, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/batch-delete")

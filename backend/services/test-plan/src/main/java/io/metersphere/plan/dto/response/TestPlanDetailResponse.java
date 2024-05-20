@@ -60,4 +60,7 @@ public class TestPlanDetailResponse extends TestPlanStatisticsResponse implement
 
     @Schema(description = "是否定时任务")
     private Boolean useSchedule;
+
+    @Schema(description = "关注标识")
+    private Boolean followFlag;
 }
