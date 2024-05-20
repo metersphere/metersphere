@@ -13,8 +13,8 @@
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
-      <template #reviewName="{ record }">
-        <a-button type="text" class="px-0" @click="review(record)">{{ record.reviewName }}</a-button>
+      <template #reviewNum="{ record }">
+        <a-button type="text" class="px-0" @click="review(record)">{{ record.reviewNum }}</a-button>
       </template>
       <template #reviewStatus="{ record }">
         <MsStatusTag :status="record.reviewStatus || 'PREPARED'" />
@@ -86,6 +86,7 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
+      slotName: 'reviewNum',
       dataIndex: 'reviewNum',
       sortIndex: 1,
       showTooltip: true,
