@@ -154,22 +154,27 @@ public class FunctionalCaseMinderService {
         List<FunctionalMinderTreeDTO> children = new ArrayList<>();
         if (functionalCaseMindDTO.getPrerequisite() != null) {
             String prerequisiteText = new String(functionalCaseMindDTO.getPrerequisite(), StandardCharsets.UTF_8);
-            FunctionalMinderTreeDTO prerequisiteFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(prerequisiteText, Translator.get("minder_extra_node.prerequisite"), 0L);
-            children.add(prerequisiteFunctionalMinderTreeDTO);
+            if (StringUtils.isNotBlank(prerequisiteText)) {
+                FunctionalMinderTreeDTO prerequisiteFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(prerequisiteText, Translator.get("minder_extra_node.prerequisite"), 0L);
+                children.add(prerequisiteFunctionalMinderTreeDTO);
+            }
         }
 
         if (StringUtils.equalsIgnoreCase(functionalCaseMindDTO.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name()) && functionalCaseMindDTO.getTextDescription() != null) {
             String textDescription = new String(functionalCaseMindDTO.getTextDescription(), StandardCharsets.UTF_8);
             FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(textDescription, Translator.get("minder_extra_node.text_description"), 1L);
+            String expectedResultText = "";
             if (functionalCaseMindDTO.getExpectedResult() != null) {
-                String expectedResultText = new String(functionalCaseMindDTO.getExpectedResult(), StandardCharsets.UTF_8);
+                expectedResultText = new String(functionalCaseMindDTO.getExpectedResult(), StandardCharsets.UTF_8);
                 FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(expectedResultText, Translator.get("minder_extra_node.text_expected_result"), 1L);
                 stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
             } else {
-                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO("", Translator.get("minder_extra_node.text_expected_result"), 1L);
+                FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(expectedResultText, Translator.get("minder_extra_node.text_expected_result"), 1L);
                 stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
             }
-            children.add(stepFunctionalMinderTreeDTO);
+            if (StringUtils.isNotBlank(textDescription) ||  StringUtils.isNotBlank(expectedResultText)) {
+                children.add(stepFunctionalMinderTreeDTO);
+            }
         }
 
         int i = 1;
@@ -179,24 +184,31 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
                 for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
                     i = i + 1;
-                    FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getDesc(), Translator.get("minder_extra_node.steps"), Long.valueOf(functionalCaseStepDTO.getNum()));
+                    String desc = functionalCaseStepDTO.getDesc();
+                    FunctionalMinderTreeDTO stepFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(desc, Translator.get("minder_extra_node.steps"), Long.valueOf(functionalCaseStepDTO.getNum()));
                     stepFunctionalMinderTreeDTO.getData().setId(functionalCaseStepDTO.getId());
                     FunctionalMinderTreeDTO expectedResultFunctionalMinderTreeDTO;
+                    String result = "";
                     if (functionalCaseMindDTO.getExpectedResult() != null) {
-                        expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(functionalCaseStepDTO.getResult(), Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
+                        result = functionalCaseStepDTO.getResult();
+                        expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(result, Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
                     } else {
-                        expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO("", Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
+                        expectedResultFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(result, Translator.get("minder_extra_node.steps_expected_result"), Long.valueOf(functionalCaseStepDTO.getNum()));
                     }
                     stepFunctionalMinderTreeDTO.getChildren().add(expectedResultFunctionalMinderTreeDTO);
-                    children.add(stepFunctionalMinderTreeDTO);
+                    if (StringUtils.isNotBlank(desc) || StringUtils.isNotBlank(result)) {
+                        children.add(stepFunctionalMinderTreeDTO);
+                    }
                 }
             }
         }
 
         if (functionalCaseMindDTO.getDescription() != null) {
             String descriptionText = new String(functionalCaseMindDTO.getDescription(), StandardCharsets.UTF_8);
-            FunctionalMinderTreeDTO descriptionFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(descriptionText, Translator.get("minder_extra_node.description"), (long) (i + 1));
-            children.add(descriptionFunctionalMinderTreeDTO);
+            if (StringUtils.isNotBlank(descriptionText)) {
+                FunctionalMinderTreeDTO descriptionFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(descriptionText, Translator.get("minder_extra_node.description"), (long) (i + 1));
+                children.add(descriptionFunctionalMinderTreeDTO);
+            }
         }
         return children;
     }

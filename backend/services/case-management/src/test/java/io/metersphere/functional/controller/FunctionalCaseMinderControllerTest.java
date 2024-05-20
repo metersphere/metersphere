@@ -15,6 +15,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,6 +60,22 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+        FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+        functionalCaseBlob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
+        functionalCaseBlob.setSteps(JSON.toJSONString(new ArrayList<>()).getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setTextDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setExpectedResult(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setPrerequisite(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob.setDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.insert(functionalCaseBlob);
+        FunctionalCaseBlob functionalCaseBlob6 = new FunctionalCaseBlob();
+        functionalCaseBlob6.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
+        functionalCaseBlob6.setSteps(JSON.toJSONString(new ArrayList<>()).getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setTextDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setExpectedResult(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setPrerequisite(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlob6.setDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
         List<FunctionalCaseStepDTO> list = new ArrayList<>();
         FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
         functionalCaseStepDTO.setId("12455");
@@ -77,15 +94,15 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         String prerequisite = "前置条件";
         String description = "备注";
 
-        FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+        functionalCaseBlob = new FunctionalCaseBlob();
         functionalCaseBlob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
         functionalCaseBlob.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob.setExpectedResult(expectedResult.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob.setPrerequisite(prerequisite.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob.setDescription(description.getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlobMapper.insert(functionalCaseBlob);
-        FunctionalCaseBlob functionalCaseBlob6 = new FunctionalCaseBlob();
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
+        functionalCaseBlob6 = new FunctionalCaseBlob();
         functionalCaseBlob6.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
         functionalCaseBlob6.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
         functionalCaseBlob6.setTextDescription(textDescription.getBytes(StandardCharsets.UTF_8));
@@ -99,8 +116,6 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
-        String jsonString = JSON.toJSONString(baseTreeNodes);
-        System.out.println(jsonString);
         Assertions.assertEquals(2, baseTreeNodes.size());
 
     }
@@ -207,8 +222,6 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
-        String jsonString = JSON.toJSONString(baseTreeNodes);
-        System.out.println(jsonString);
         Assertions.assertEquals(1, baseTreeNodes.size());
         request = new FunctionalCaseReviewMindRequest();
         request.setProjectId("project-case-minder-test");
@@ -221,10 +234,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
-        jsonString = JSON.toJSONString(baseTreeNodes);
-        System.out.println(jsonString);
         Assertions.assertEquals(1, baseTreeNodes.size());
-
     }
 
 }
