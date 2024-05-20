@@ -460,7 +460,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param id 计划ID
      * @return 计划的详情数据
      */
-    public TestPlanDetailResponse detail(String id) {
+    public TestPlanDetailResponse detail(String id, String userId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         TestPlanDetailResponse response = new TestPlanDetailResponse();
         String moduleName = getModuleName(testPlan.getModuleId());
@@ -485,7 +485,19 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(id).andResourceTypeEqualTo("TEST_PLAN");
         response.setUseSchedule(scheduleMapper.countByExample(example) > 0);
+
+        //是否关注计划
+        Boolean isFollow = checkIsFollowCase(id, userId);
+        response.setFollowFlag(isFollow);
+
         return response;
+    }
+
+
+    private Boolean checkIsFollowCase(String testPlanId, String userId) {
+        TestPlanFollowerExample example = new TestPlanFollowerExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId).andUserIdEqualTo(userId);
+        return testPlanFollowerMapper.countByExample(example) > 0;
     }
 
     private void getOtherConfig(TestPlanDetailResponse response, TestPlan testPlan) {
