@@ -34,8 +34,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author guoyuqi
@@ -252,15 +254,7 @@ public class FunctionalTestCaseService {
      * @return List<FunctionalCaseTestPlanDTO>
      */
     public List<FunctionalCaseTestPlanDTO> hasAssociatePlanPage(AssociatePlanPageRequest request) {
-        List<FunctionalCaseTestPlanDTO> planList = extFunctionalCaseTestMapper.getPlanList(request);
-        List<FunctionalCaseTestPlanDTO> returnList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(planList)) {
-            LinkedHashMap<String, List<FunctionalCaseTestPlanDTO>> caseMap = planList.stream().collect(Collectors.groupingBy(FunctionalCaseTestPlanDTO::getTestPlanId, LinkedHashMap::new, Collectors.toList()));
-            caseMap.forEach((planId,list)->{
-                returnList.add(list.get(0));
-            });
-        }
-        return returnList;
+        return extFunctionalCaseTestMapper.getPlanList(request);
     }
 
     public List<TestPlanCaseExecuteHistoryDTO> getTestPlanCaseExecuteHistory(String caseId) {
