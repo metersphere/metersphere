@@ -33,4 +33,7 @@ export default {
   'report.passRate': 'Pass rate',
   'report.completed': 'Completed',
   'report.passRateTip': 'Pass rate: successful cases in the plan / cases in the plan * 100%',
+  'report.detail.reportSummary': 'Report summary',
+  'report.detail.bugDetails': 'Bug details',
+  'report.detail.featureCaseDetails': 'Feature case details',
 };
