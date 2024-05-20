@@ -33,4 +33,7 @@ export default {
   'report.passRate': '通过率',
   'report.passRateTip': '通过率：执行成功的用例/计划内用例 * 100%',
   'report.completed': '已完成',
+  'report.detail.reportSummary': '报告总结',
+  'report.detail.bugDetails': '缺陷明细',
+  'report.detail.featureCaseDetails': '功能用例明细',
 };
