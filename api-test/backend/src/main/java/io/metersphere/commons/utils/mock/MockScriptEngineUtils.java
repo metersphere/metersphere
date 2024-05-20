@@ -132,6 +132,7 @@ public class MockScriptEngineUtils {
                 if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.JSON.name())) {
                     String jsonBody = requestMockParams.getRaw();
                     jsonBody = StringUtils.replace(jsonBody, "\n", "");
+                    jsonBody = StringUtils.replace(jsonBody, "\r", "");
                     jsonBody = StringUtils.replace(jsonBody, "\\", "\\\\");
                     jsonBody = StringUtils.replace(jsonBody, "\"", "\\\"");
                     preScriptBuffer.append("vars.put(\"body.json\",\"").append(jsonBody).append("\");\n");
@@ -139,11 +140,14 @@ public class MockScriptEngineUtils {
                     String xmlRaw = requestMockParams.getRaw();
                     xmlRaw = StringUtils.chomp(xmlRaw);
                     xmlRaw = StringUtils.replace(xmlRaw, "\n", "");
+                    xmlRaw = StringUtils.replace(xmlRaw, "\r", "");
                     xmlRaw = StringUtils.replace(xmlRaw, "\\", "\\\\");
                     xmlRaw = StringUtils.replace(xmlRaw, "\"", "\\\"");
                     preScriptBuffer.append("vars.put(\"body.xml\",\"").append(xmlRaw).append("\");\n");
                 } else if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.RAW.name())) {
                     String bodyRowString = requestMockParams.getRaw();
+                    bodyRowString = StringUtils.replace(bodyRowString, "\n", "");
+                    bodyRowString = StringUtils.replace(bodyRowString, "\r", "");
                     bodyRowString = StringUtils.replace(bodyRowString, "\\", "\\\\").replace("\"", "\\\"");
                     preScriptBuffer.append("vars.put(\"bodyRaw\",\"").append(bodyRowString).append("\");\n");
                 }
@@ -209,6 +213,7 @@ public class MockScriptEngineUtils {
                     String jsonRaw = requestMockParams.getRaw();
                     jsonRaw = StringUtils.chomp(jsonRaw);
                     jsonRaw = StringUtils.replace(jsonRaw, "\n", "");
+                    jsonRaw = StringUtils.replace(jsonRaw, "\r", "");
                     jsonRaw = StringUtils.replace(jsonRaw, "\\", "\\\\");
                     jsonRaw = StringUtils.replace(jsonRaw, "\"", "\\\"");
                     preScriptBuffer.append("vars[\"body.json\"]=\"").append(jsonRaw).append("\";\n");
@@ -216,11 +221,14 @@ public class MockScriptEngineUtils {
                     String xmlRaw = requestMockParams.getRaw();
                     xmlRaw = StringUtils.chomp(xmlRaw);
                     xmlRaw = StringUtils.replace(xmlRaw, "\n", "");
+                    xmlRaw = StringUtils.replace(xmlRaw, "\r", "");
                     xmlRaw = StringUtils.replace(xmlRaw, "\\", "\\\\");
                     xmlRaw = StringUtils.replace(xmlRaw, "\"", "\\\"");
                     preScriptBuffer.append("vars[\"body.xml\"]=\"").append(xmlRaw).append("\";\n");
                 } else if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.RAW.name())) {
                     String bodyRowString = requestMockParams.getRaw();
+                    bodyRowString = StringUtils.replace(bodyRowString, "\n", "");
+                    bodyRowString = StringUtils.replace(bodyRowString, "\r", "");
                     bodyRowString = StringUtils.replace(bodyRowString, "\\", "\\\\").replace("\"", "\\\"");
                     preScriptBuffer.append("vars[\"bodyRaw\"]=\"").append(bodyRowString).append("\";\n");
                 }
