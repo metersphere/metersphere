@@ -3,23 +3,21 @@ on:
     branches:
       - v3.*
     paths:
-      - "backend/**"
-      - "pom.xml"
+      - "frontend/**"
   pull_request:
     branches:
       - v3.*
     paths:
-      - "backend/**"
-      - "pom.xml"
+      - "frontend/**"
 
-name: MeterSphere 覆盖率统计
+name: MeterSphere 前端代码校验
 
 permissions:
   pull-requests: write
 
 jobs:
   generic_handler:
-    name: 覆盖率统计
+    name: 前端代码校验
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -31,9 +29,5 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '**/pom.xml' # optional
           check-latest: true
-      - name: Build with Maven - other
-        run: mvn -T 1C -B package --file pom.xml -pl '!frontend'
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Build with Maven - only frontend
+        run: mvn -T 1C -B package --file pom.xml -pl frontend

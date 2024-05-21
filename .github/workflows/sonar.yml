@@ -3,8 +3,14 @@ on:
   push:
     branches:
       - v3.x
+    paths:
+      - "backend/**"
+      - "pom.xml"
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - "backend/**"
+      - "pom.xml"
 jobs:
   build:
     name: Build and analyze
