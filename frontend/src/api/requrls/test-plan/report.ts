@@ -10,7 +10,13 @@ export const PlanBatchDeleteUrl = '/test-plan/report/batch-delete';
 export const PlanReportDetailUrl = '/test-plan/report/get';
 // 测试计划-报告-详情-缺陷分页查询
 export const ReportBugListUrl = '/test-plan/report/detail/bug/page';
+// 测试计划-报告-详情-缺陷分页查询（分享）
+export const ReportShareBugListUrl = '/test-plan/report/share/detail/bug/page';
 // 测试计划-报告-详情-功能用例分页查询
 export const ReportFeatureCaseListUrl = '/test-plan/report/detail/functional/case/page';
+// 测试计划-报告-详情-功能用例分页查询（分享）
+export const ReportShareFeatureCaseListUrl = '/test-plan/report/share/detail/functional/case/page';
 // 测试计划-报告-详情-报告内容更新
 export const UpdateReportDetailUrl = '/test-plan/report/detail/edit';
+// 测试计划-报告-详情-富文本编辑器上传图片文件
+export const EditorUploadFileUrl = '/test-plan/report/upload/md/file';

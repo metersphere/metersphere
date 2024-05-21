@@ -4,23 +4,22 @@
 
 <script setup lang="ts">
   import { onBeforeMount } from 'vue';
-  import { useRoute } from 'vue-router';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { getReportBugList } from '@/api/modules/test-plan/report';
+  import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
   import { useTableStore } from '@/store';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     reportId: string;
+    shareId?: string;
   }>();
 
   const tableStore = useTableStore();
-  const route = useRoute();
 
   const columns: MsTableColumn = [
     {
@@ -65,7 +64,10 @@
       width: 80,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getReportBugList, {
+  const reportBugList = () => {
+    return !props.shareId ? getReportBugList : getReportShareBugList;
+  };
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportBugList(), {
     scroll: { x: '100%' },
     columns,
     tableKey: TableKeyEnum.TEST_PLAN_REPORT_DETAIL_BUG,
@@ -73,7 +75,7 @@
   });
 
   async function loadCaseList() {
-    setLoadListParams({ reportId: props.reportId, shareId: route.query.shareId as string | undefined });
+    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
     loadList();
   }
 
