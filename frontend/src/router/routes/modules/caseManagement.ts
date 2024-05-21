@@ -23,7 +23,7 @@ const CaseManagement: AppRouteRecordRaw = {
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
       component: () => import('@/views/case-management/caseManagementFeature/index.vue'),
       meta: {
-        locale: 'menu.caseManagement.featureCase',
+        locale: 'menu.caseManagementShort',
         roles: ['FUNCTIONAL_CASE:READ'],
         isTopMenu: true,
       },
@@ -86,7 +86,7 @@ const CaseManagement: AppRouteRecordRaw = {
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
       component: () => import('@/views/case-management/caseReview/index.vue'),
       meta: {
-        locale: 'menu.caseManagement.caseManagementReview',
+        locale: 'menu.caseManagement.caseManagementReviewShort',
         roles: ['CASE_REVIEW:READ'],
         isTopMenu: true,
       },

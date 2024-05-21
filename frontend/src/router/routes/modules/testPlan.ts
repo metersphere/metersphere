@@ -23,7 +23,7 @@ const TestPlan: AppRouteRecordRaw = {
       name: TestPlanRouteEnum.TEST_PLAN_INDEX,
       component: () => import('@/views/test-plan/testPlan/index.vue'),
       meta: {
-        locale: 'menu.testPlan',
+        locale: 'menu.testPlanShort',
         roles: ['PROJECT_TEST_PLAN:READ'],
         isTopMenu: true,
       },
