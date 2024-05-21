@@ -18,5 +18,13 @@ export const ReportFeatureCaseListUrl = '/test-plan/report/detail/functional/cas
 export const ReportShareFeatureCaseListUrl = '/test-plan/report/share/detail/functional/case/page';
 // 测试计划-报告-详情-报告内容更新
 export const UpdateReportDetailUrl = '/test-plan/report/detail/edit';
+// 测试计划-报告-详情-分享
+export const PlanReportShareUrl = '/test-plan/report/share/gen';
+// 测试计划-报告-分享详情查看
+export const PlanReportShareDetailUrl = '/test-plan/report/share/get/detail';
+// 测试计划-报告-获取分享链接
+export const PlanGetShareHrefDetailUrl = '/test-plan/report/share/get';
+// 测试计划-报告-获取分享链接时效
+export const GetShareValidityUrl = '/test-plan/report/share/get-share-time';
 // 测试计划-报告-详情-富文本编辑器上传图片文件
 export const EditorUploadFileUrl = '/test-plan/report/upload/md/file';

@@ -28,6 +28,11 @@ export const WHITE_LIST = [
     path: '/shareReportCase',
     children: [],
   },
+  {
+    name: 'shareReportTestPlan',
+    path: '/shareReportTestPlan',
+    children: [],
+  },
 ];
 
 // 左侧菜单底部对齐的菜单数组，数组项为一级路由的name
