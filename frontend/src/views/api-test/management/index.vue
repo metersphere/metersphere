@@ -3,7 +3,7 @@
     <MsSplitBox :size="300" :max="0.5">
       <template #first>
         <div class="flex flex-col">
-          <div class="p-[16px]">
+          <div class="p-[16px]" :style="{ height: `calc(100vh - 120px)` }">
             <moduleTree
               ref="moduleTreeRef"
               :active-node-id="activeNodeId"

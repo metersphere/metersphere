@@ -38,4 +38,6 @@ public interface ExtTestPlanMapper {
     void batchUpdate(@Param("testPlan") TestPlan testPlan, @Param("ids") List<String> ids);
 
     List<String> selectIdByProjectId(String projectId);
+
+    List<String> selectNotArchivedIds(@Param("ids") List<String> selectIds);
 }

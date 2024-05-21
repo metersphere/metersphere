@@ -39,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.metersphere.sdk.constants.TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService extends TestPlanBaseUtilsService {
@@ -104,7 +106,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator, String id) {
         //检查模块的合法性
         checkModule(createOrCopyRequest.getModuleId());
-
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
         //        5.21，查询需求文档、测试用例：测试计划名称允许重复
@@ -148,6 +149,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param requestMethod
      */
     public void delete(String id, String operator, String requestUrl, String requestMethod) {
+        this.checkTestPlanNotArchived(id);
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             // 计划组的删除暂时预留
@@ -287,6 +289,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @return
      */
     public TestPlan update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
+        this.checkTestPlanNotArchived(request.getId());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
@@ -358,9 +361,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             //测试计划组归档
             updateGroupStatus(testPlan.getId(), userId);
-        } else {
+        } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
             //测试计划
-            testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            testPlan.setStatus(TEST_PLAN_STATUS_ARCHIVED);
             testPlan.setUpdateUser(userId);
             testPlan.setUpdateTime(System.currentTimeMillis());
             testPlanMapper.updateByPrimaryKeySelective(testPlan);
@@ -378,7 +381,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         List<String> batchArchivedIds = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(batchArchivedIds)) {
             TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andIdIn(batchArchivedIds);
+            example.createCriteria().andIdIn(batchArchivedIds).andStatusEqualTo(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
             List<TestPlan> archivedPlanList = testPlanMapper.selectByExample(example);
             Map<String, List<TestPlan>> plans = archivedPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
             testPlanBatchArchivedService.batchArchived(plans, request, currentUser);
@@ -404,7 +407,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (CollectionUtils.isEmpty(ids)) {
             throw new MSException(Translator.get("test_plan.group.not_plan"));
         }
-        extTestPlanMapper.batchUpdateStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
+        extTestPlanMapper.batchUpdateStatus(TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
     }
 
     /**
@@ -663,5 +666,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         SubListUtils.dealForSubList(testPlanIdList, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
             this.deleteByList(testPlanIdList);
         });
+    }
+
+    // 过滤掉已归档的测试计划
+    public void filterArchivedIds(TestPlanBatchProcessRequest request) {
+        if (CollectionUtils.isNotEmpty(request.getSelectIds())) {
+            request.setSelectIds(extTestPlanMapper.selectNotArchivedIds(request.getSelectIds()));
+        }
+    }
+
+    public void checkTestPlanNotArchived(String testPlanId) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdEqualTo(testPlanId).andStatusEqualTo(TEST_PLAN_STATUS_ARCHIVED);
+        if (testPlanMapper.countByExample(example) > 0) {
+            throw new MSException(Translator.get("test_plan.is.archived"));
+        }
     }
 }
