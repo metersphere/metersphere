@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class DisassociateOtherCaseRequest extends BaseFunctionalCaseBatchDTO {
 
-    @Schema(description = "功能用例选择的项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "功能用例id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.id.not_blank}")
     private String caseId;
 
