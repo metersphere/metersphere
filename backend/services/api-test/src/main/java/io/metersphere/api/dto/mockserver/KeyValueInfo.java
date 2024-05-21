@@ -26,13 +26,13 @@ public class KeyValueInfo {
         return switch (ParamConditionEnums.valueOf(this.condition)) {
             case EQUALS -> StringUtils.equals(this.value, value);
             case NOT_EQUALS -> !StringUtils.equals(this.value, value);
-            case CONTAINS -> StringUtils.contains(this.value, value);
-            case NOT_CONTAINS -> !StringUtils.contains(this.value, value);
+            case CONTAINS -> StringUtils.contains(value, this.value);
+            case NOT_CONTAINS -> !StringUtils.contains(value, this.value);
             case LENGTH_EQUALS -> this.value.length() == value.length();
             case LENGTH_NOT_EQUALS -> this.value.length() != value.length();
-            case LENGTH_SHOT -> this.value.length() < value.length();
-            case LENGTH_LARGE -> this.value.length() > value.length();
-            case REGULAR_MATCH -> this.value.matches(Pattern.quote(value));
+            case LENGTH_SHOT -> value.length() < this.value.length();
+            case LENGTH_LARGE -> value.length() > this.value.length();
+            case REGULAR_MATCH -> value.matches(Pattern.quote(this.value));
             case IS_EMPTY -> StringUtils.isBlank(value);
             case IS_NOT_EMPTY -> StringUtils.isNotBlank(value);
             default -> false;

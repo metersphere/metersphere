@@ -75,7 +75,7 @@ public class ApiDebugModuleLogService {
 
     public void saveDeleteModuleLog(List<BaseTreeNode> deleteModule, String operator, String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
-        List<LogDTO> dtos = new ArrayList<>();
+        List<LogDTO> dos = new ArrayList<>();
         deleteModule.forEach(item -> {
                     LogDTO dto = LogDTOBuilder.builder()
                             .projectId(project.getId())
@@ -88,10 +88,10 @@ public class ApiDebugModuleLogService {
                             .content(item.getName() + " " + Translator.get("log.delete_module"))
                             .createUser(operator)
                             .build().getLogDTO();
-                    dtos.add(dto);
+                    dos.add(dto);
                 }
         );
-        operationLogService.batchAdd(dtos);
+        operationLogService.batchAdd(dos);
     }
 
     public void saveDeleteDataLog(List<ApiDebug> deleteData, String operator, String projectId) {

@@ -98,6 +98,7 @@ public class MockServerService {
 
         // Get and return the response body
         try {
+
             return getResponseBody(compareMockConfig, apiDefinition.getId(), apiDefinition.getProjectId());
         } catch (Exception e) {
             return requestNotFound();
@@ -127,20 +128,14 @@ public class MockServerService {
         List<ApiDefinitionMockConfig> mockConfigs = apiDefinitionMockConfigMapper.selectByExampleWithBLOBs(mockConfigExample);
         // 寻找匹配的 ApiDefinitionMockConfig
         ApiDefinitionMockConfig apiDefinitionMockConfig = mockConfigs.stream()
-                .filter(mockConfig -> MockServerUtils.matchMockConfig(mockConfig.getMatching(), requestHeaderMap, param))
+                .filter(mockConfig -> MockServerUtils.matchMockConfig(mockConfig.getMatching(), requestHeaderMap, param) && matchBinaryBody(mockConfig, param.getBinaryParamsObj(), apiId))
                 .findFirst()
                 .orElse(null);
-        // 如果是binary类型的body，需要特殊处理
-        if (param.getBinaryParamsObj() != null) {
-            if (apiDefinitionMockConfig != null && !matchBinaryBody(apiDefinitionMockConfig, param.getBinaryParamsObj(), apiDefinitionMockList.getFirst().getProjectId())) {
-                apiDefinitionMockConfig = null;
-            }
-        }
+
         if (apiDefinitionMockConfig != null) {
             ApiMockConfigDTO apiMockConfigDTO = new ApiMockConfigDTO();
             BeanUtils.copyBean(apiMockConfigDTO, apiDefinitionMockConfig);
-            ApiDefinitionMockConfig finalApiDefinitionMockConfig = apiDefinitionMockConfig;
-            apiDefinitionMockList.stream().filter(mock -> StringUtils.equals(mock.getId(), finalApiDefinitionMockConfig.getId()))
+            apiDefinitionMockList.stream().filter(mock -> StringUtils.equals(mock.getId(), apiDefinitionMockConfig.getId()))
                     .findFirst()
                     .ifPresent(mock -> apiMockConfigDTO.setEnable(mock.getEnable()));
             return apiMockConfigDTO;
@@ -179,7 +174,7 @@ public class MockServerService {
                 return Arrays.equals(bytes, binaryFile);
             }
         }
-        return false;
+        return true;
     }
 
     private ResponseEntity<?> getResponseBody(ApiDefinitionMockConfig config, String apiId, String projectId) {

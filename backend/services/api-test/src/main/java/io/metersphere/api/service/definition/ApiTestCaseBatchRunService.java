@@ -214,7 +214,8 @@ public class ApiTestCaseBatchRunService {
     }
 
     /**
-     *  集成报告，执行前先设置成 RUNNING
+     * 集成报告，执行前先设置成 RUNNING
+     *
      * @param runModeConfig
      */
     private void setRunningIntegrateReport(ApiRunModeConfigDTO runModeConfig) {
@@ -326,7 +327,7 @@ public class ApiTestCaseBatchRunService {
 
         TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
         taskRequest.setQueueId(queue.getQueueId());
-        taskRequest.setRequestCount(1l);
+        taskRequest.setRequestCount(1L);
         execute(taskRequest, apiTestCase, apiTestCaseBlob, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
     }
 
