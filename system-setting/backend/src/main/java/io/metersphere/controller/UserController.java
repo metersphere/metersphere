@@ -60,8 +60,8 @@ public class UserController {
         return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
     }
 
-    @GetMapping("/special/user/group/{userId}")
-    public UserGroupPermissionDTO getUserGroup(@PathVariable("userId") String userId) {
+    @PostMapping("/special/user/group")
+    public UserGroupPermissionDTO getUserGroup(@RequestBody String userId) {
         return userService.getUserGroup(userId);
     }
 
@@ -199,7 +199,7 @@ public class UserController {
     }
 
     @GetMapping("/project/member/delete/{projectId}/{userId}")
-    @RequiresPermissions(value={PermissionConstants.PROJECT_USER_READ_DELETE, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_DELETE_USER}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_USER_READ_DELETE, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_DELETE_USER}, logical = Logical.OR)
     @MsRequestLog(module = OperLogModule.PROJECT_PROJECT_MEMBER)
     public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         String currentUserId = SessionUtils.getUser().getId();
