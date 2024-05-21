@@ -164,6 +164,9 @@ CREATE INDEX idx_scenario_id USING BTREE ON api_scenario_csv_step (scenario_id);
 
 ALTER TABLE test_plan_config MODIFY pass_threshold DECIMAL(10, 2) NOT NULL;
 
+-- 修改测试计划模块名称长度
+ALTER TABLE test_plan_module  MODIFY COLUMN `name` varchar(255);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
