@@ -2247,6 +2247,7 @@ public class TestPlanService {
                     TestPlanRunRequest runRequest = JSON.parseObject(JSON.toJSONString(jsonObject), TestPlanRunRequest.class);
                     runRequest.setReportId(planExecutionQueue.getReportId());
                     runRequest.setTriggerMode(request.getTriggerMode());
+                    runRequest.setUserId(request.getUserId());
                     runPlan(runRequest);
                 }
             }

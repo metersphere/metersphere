@@ -7,6 +7,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ScheduleDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
@@ -311,6 +312,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanIds)", msClass = TestPlanService.class)
     public void runBatch(@RequestBody TestPlanRunRequest request) {
+        request.setUserId(SessionUtils.getUserId());
         baseUserService.checkUserAndProject(request.getUserId(), request.getProjectId());
         request.setTriggerMode(TriggerMode.BATCH.name());
         testPlanService.runBatch(request);
