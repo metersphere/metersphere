@@ -1,6 +1,7 @@
 import MSR from '@/api/http';
 import * as reportUrl from '@/api/requrls/test-plan/report';
 
+import type { GetShareId } from '@/models/apiTest/report';
 import { CommonList, TableQueryParams } from '@/models/common';
 import { FeatureCaseItem, ReportBugItem, UpdateReportDetailParams } from '@/models/testPlan/report';
 
@@ -57,6 +58,23 @@ export function updateReportDetail(data: UpdateReportDetailParams) {
 // 测试计划-报告-详情
 export function getReportDetail(id: string) {
   return MSR.get({ url: `${reportUrl.PlanReportDetailUrl}/${id}` });
+}
+
+// 测试计划-报告-详情-分享
+export function planReportShare(data: GetShareId) {
+  return MSR.post({ url: reportUrl.PlanReportShareUrl, data });
+}
+// 测试计划-报告-分享详情查看
+export function planReportShareDetail(shareId: string, reportId: string) {
+  return MSR.get({ url: `${reportUrl.PlanReportShareDetailUrl}/${shareId}/${reportId}` });
+}
+// 测试计划-报告-获取分享链接
+export function planGetShareHref(id: string) {
+  return MSR.get({ url: `${reportUrl.PlanGetShareHrefDetailUrl}/${id}` });
+}
+// 测试计划-报告-获取分享链接时效
+export function getShareValidity(id: string) {
+  return MSR.get({ url: `${reportUrl.GetShareValidityUrl}/${id}` });
 }
 
 export default {};

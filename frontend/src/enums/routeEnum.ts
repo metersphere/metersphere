@@ -108,6 +108,7 @@ export enum ShareEnum {
   SHARE = 'share',
   SHARE_REPORT_SCENARIO = 'shareReportScenario',
   SHARE_REPORT_CASE = 'shareReportCase',
+  SHARE_REPORT_TEST_PLAN = 'shareReportTestPlan',
 }
 
 export const RouteEnum = {

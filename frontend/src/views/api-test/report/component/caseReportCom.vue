@@ -398,7 +398,6 @@
 
 <style scoped lang="less">
   .report-container {
-    padding: 16px;
     height: calc(100vh - 56px);
     background: var(--color-text-n9);
     .report-header {

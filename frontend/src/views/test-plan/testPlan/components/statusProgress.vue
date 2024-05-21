@@ -100,14 +100,6 @@
         },
       ];
     }
-    if (detailCount.value.passRate > detailCount.value.passThreshold) {
-      return [
-        {
-          percentage: 100,
-          color: 'rgb(var(--success-6))',
-        },
-      ];
-    }
     return [
       {
         percentage: (successCount / caseTotal) * 100,

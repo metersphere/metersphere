@@ -108,6 +108,11 @@
         <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
       </a-tooltip>
     </template>
+    <template #createTime="{ record }">
+      <a-tooltip :content="`${dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}`" position="tl">
+        <div class="one-line-text">{{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}</div>
+      </a-tooltip>
+    </template>
     <template #moduleId="{ record }">
       <a-tooltip :content="getModules(record.moduleId, props.moduleTree)" position="top">
         <span class="one-line-text inline-block">
@@ -268,6 +273,7 @@
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
+  import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
@@ -420,7 +426,6 @@
     {
       title: 'testPlan.testPlanIndex.createTime',
       slotName: 'createTime',
-      dataIndex: 'createTime',
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
