@@ -6,6 +6,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.domain.ProjectParameter;
 import io.metersphere.sdk.mapper.ProjectParameterMapper;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -32,7 +33,7 @@ public class GlobalParamsLogService {
                 null,
                 OperationLogType.ADD.name(),
                 OperationLogModule.PROJECT_MANAGEMENT_ENVIRONMENT,
-                null);
+                Translator.get("global_request_header"));
 
         dto.setOriginalValue(JSON.toJSONBytes(request.getGlobalParams()));
         return dto;
@@ -47,7 +48,7 @@ public class GlobalParamsLogService {
                 null,
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.PROJECT_MANAGEMENT_ENVIRONMENT,
-                null);
+                Translator.get("global_request_header"));
         ProjectParameter projectParameters = projectParametersMapper.selectByPrimaryKey(request.getId());
         dto.setOriginalValue(projectParameters.getParameters());
         dto.setModifiedValue(JSON.toJSONBytes(request.getGlobalParams()));

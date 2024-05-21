@@ -16,7 +16,7 @@
   const httpHeader = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/header.vue'));
 
   defineOptions({
-    name: 'EnvManangeGloblaRequestHeader',
+    name: 'EnvManageGlobalRequestHeader',
   });
 
   const props = defineProps<{
