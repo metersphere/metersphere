@@ -345,6 +345,13 @@
         }
       );
 
+      watch(
+        () => props.readOnly,
+        (val) => {
+          editor.updateOptions({ readOnly: val });
+        }
+      );
+
       onBeforeUnmount(() => {
         editor.dispose();
       });

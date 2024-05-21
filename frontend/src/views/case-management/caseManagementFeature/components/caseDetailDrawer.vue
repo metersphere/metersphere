@@ -317,7 +317,6 @@
   }>();
 
   const emit = defineEmits(['update:visible', 'success']);
-  const userId = computed(() => userStore.userInfo.id);
   const appStore = useAppStore();
 
   const currentProjectId = computed(() => appStore.currentProjectId);

@@ -164,7 +164,7 @@
       }
     }
     .ms-minder-editor-extra--visible {
-      width: 35%;
+      width: 40%;
       transition: all 300ms ease-in-out;
     }
   }

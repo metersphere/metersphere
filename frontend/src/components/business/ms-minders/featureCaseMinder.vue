@@ -21,7 +21,7 @@
         <div class="baseInfo-form">
           <a-skeleton v-if="baseInfoLoading" :loading="baseInfoLoading" :animation="true">
             <a-space direction="vertical" class="w-full" size="large">
-              <a-skeleton-line :rows="rowLength" :line-height="30" :line-spacing="30" />
+              <a-skeleton-line :rows="10" :line-height="30" :line-spacing="30" />
             </a-space>
           </a-skeleton>
           <a-form v-else ref="baseInfoFormRef" :model="baseInfoForm" layout="vertical">
@@ -29,8 +29,13 @@
               field="name"
               :label="t('ms.minders.caseName')"
               :rules="[{ required: true, message: t('ms.minders.caseNameNotNull') }]"
+              asterisk-position="end"
             >
-              <a-input v-model:model-value="baseInfoForm.name" :placeholder="t('common.pleaseInput')"></a-input>
+              <a-input
+                v-model:model-value="baseInfoForm.name"
+                :placeholder="t('common.pleaseInput')"
+                allow-clear
+              ></a-input>
             </a-form-item>
             <MsFormCreate
               v-if="formRules.length"
@@ -45,102 +50,114 @@
           </a-form>
         </div>
         <div class="flex items-center gap-[12px] bg-white py-[16px]">
-          <a-button type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
-          <a-button type="secondary">{{ t('common.cancel') }}</a-button>
+          <a-button
+            v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+            type="primary"
+            :loading="saveLoading"
+            @click="handleSave"
+          >
+            {{ t('common.save') }}
+          </a-button>
+          <a-button type="secondary" :disabled="saveLoading">{{ t('common.cancel') }}</a-button>
         </div>
       </div>
       <div v-else-if="activeExtraKey === 'attachment'" class="pl-[16px]">
-        <MsAddAttachment
-          v-model:file-list="fileList"
-          multiple
-          only-button
-          @change="handleFileChange"
-          @link-file="() => (showLinkFileDrawer = true)"
-        />
-        <MsFileList
-          v-if="fileList.length > 0"
-          ref="fileListRef"
-          v-model:file-list="fileList"
-          mode="static"
-          :init-file-save-tips="t('ms.upload.waiting_save')"
-          :show-upload-type-desc="true"
-        >
-          <template #actions="{ item }">
-            <!-- 本地文件 -->
-            <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-              <MsButton
-                v-if="item.status !== 'init' && item.file.type.includes('image/')"
-                type="button"
-                status="primary"
-                class="!mr-[4px]"
-                @click="handlePreview(item)"
-              >
-                {{ t('ms.upload.preview') }}
-              </MsButton>
-              <SaveAsFilePopover
-                v-model:visible="transferVisible"
-                :saving-file="activeTransferFileParams"
-                :file-save-as-source-id="activeCase.id"
-                :file-save-as-api="transferFileRequest"
-                :file-module-options-api="getTransferFileTree"
-                source-id-key="caseId"
-              />
-              <MsButton
-                v-if="item.status !== 'init'"
-                type="button"
-                status="primary"
-                class="!mr-[4px]"
-                @click="transferFile(item)"
-              >
-                {{ t('caseManagement.featureCase.storage') }}
-              </MsButton>
-              <MsButton
-                v-if="item.status !== 'init'"
-                type="button"
-                status="primary"
-                class="!mr-[4px]"
-                @click="downloadFile(item)"
-              >
-                {{ t('caseManagement.featureCase.download') }}
-              </MsButton>
-            </div>
-            <!-- 关联文件 -->
-            <div v-else class="flex flex-nowrap">
-              <MsButton
-                v-if="item.file.type.includes('/image')"
-                type="button"
-                status="primary"
-                class="!mr-[4px]"
-                @click="handlePreview(item)"
-              >
-                {{ t('ms.upload.preview') }}
-              </MsButton>
-              <MsButton
-                v-if="activeCase.id"
-                type="button"
-                status="primary"
-                class="!mr-[4px]"
-                @click="downloadFile(item)"
-              >
-                {{ t('caseManagement.featureCase.download') }}
-              </MsButton>
-              <MsButton
-                v-if="activeCase.id && item.isUpdateFlag"
-                type="button"
-                status="primary"
-                @click="handleUpdateFile(item)"
-              >
-                {{ t('common.update') }}
-              </MsButton>
-            </div>
-          </template>
-          <template #title="{ item }">
-            <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]">
-              <icon-exclamation-circle-fill />
-              <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
-            </span>
-          </template>
-        </MsFileList>
+        <a-spin :loading="attachmentLoading" class="h-full w-full">
+          <MsAddAttachment
+            v-model:file-list="fileList"
+            multiple
+            only-button
+            @change="(files, file) => handleFileChange(file ? [file] : [])"
+            @link-file="() => (showLinkFileDrawer = true)"
+          />
+          <MsFileList
+            v-if="fileList.length > 0"
+            ref="fileListRef"
+            v-model:file-list="fileList"
+            mode="static"
+            :init-file-save-tips="t('ms.upload.waiting_save')"
+            :show-upload-type-desc="true"
+            :handle-delete="deleteFileHandler"
+            show-delete
+            button-in-title
+          >
+            <template #title="{ item }">
+              <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]">
+                <icon-exclamation-circle-fill />
+                <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
+              </span>
+            </template>
+            <template #titleAction="{ item }">
+              <!-- 本地文件 -->
+              <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+                <MsButton
+                  v-if="item.status !== 'init' && item.file.type.includes('image/')"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="handlePreview(item)"
+                >
+                  {{ t('ms.upload.preview') }}
+                </MsButton>
+                <SaveAsFilePopover
+                  v-model:visible="transferVisible"
+                  :saving-file="activeTransferFileParams"
+                  :file-save-as-source-id="activeCase.id || ''"
+                  :file-save-as-api="transferFileRequest"
+                  :file-module-options-api="getTransferFileTree"
+                  source-id-key="caseId"
+                />
+                <MsButton
+                  v-if="item.status !== 'init'"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="transferFile(item)"
+                >
+                  {{ t('caseManagement.featureCase.storage') }}
+                </MsButton>
+                <MsButton
+                  v-if="item.status !== 'init'"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="downloadFile(item)"
+                >
+                  {{ t('caseManagement.featureCase.download') }}
+                </MsButton>
+              </div>
+              <!-- 关联文件 -->
+              <div v-else class="flex flex-nowrap">
+                <MsButton
+                  v-if="item.file.type.includes('/image')"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="handlePreview(item)"
+                >
+                  {{ t('ms.upload.preview') }}
+                </MsButton>
+                <MsButton
+                  v-if="activeCase.id"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="downloadFile(item)"
+                >
+                  {{ t('caseManagement.featureCase.download') }}
+                </MsButton>
+                <MsButton
+                  v-if="activeCase.id && item.isUpdateFlag"
+                  type="button"
+                  status="primary"
+                  @click="handleUpdateFile(item)"
+                >
+                  {{ t('common.update') }}
+                </MsButton>
+              </div>
+            </template>
+          </MsFileList>
+        </a-spin>
       </div>
       <div v-else-if="activeExtraKey === 'comments'" class="pl-[16px]">
         <div class="flex items-center justify-between">
@@ -262,8 +279,10 @@
     addOrUpdateCommentList,
     associatedDebug,
     cancelAssociatedDebug,
+    checkFileIsUpdateRequest,
     createCommentList,
     deleteCommentList,
+    deleteFileOrCancelAssociation,
     downloadFileRequest,
     editorUploadFile,
     getAssociatedFileListUrl,
@@ -278,7 +297,9 @@
     previewFile,
     saveCaseMinder,
     transferFileRequest,
+    updateCaseRequest,
     updateFile,
+    uploadOrAssociationFile,
   } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
@@ -286,14 +307,14 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { downloadByteFile, getGenerateId, mapTree, traverseTree } from '@/utils';
+  import { downloadByteFile, getGenerateId, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { AssociatedList, OptionsFieldId } from '@/models/caseManagement/featureCase';
+  import type { AssociatedList, AttachFileInfo, OptionsFieldId } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { convertToFile, initFormCreate } from '@/views/case-management/caseManagementFeature/components/utils';
   import { Api } from '@form-create/arco-design';
 
   const AddDefectDrawer = defineAsyncComponent(
@@ -710,7 +731,6 @@
   });
   const baseInfoLoading = ref(false);
 
-  const rowLength = ref<number>(0);
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref<Api>();
@@ -784,100 +804,10 @@
   });
   const activeExtraKey = ref<'baseInfo' | 'attachment' | 'comments' | 'bug'>('baseInfo');
 
-  async function handleNodeClick(node: MinderJsonNode) {
-    const { data } = node;
-    if (data?.resource && data.resource.includes(caseTag)) {
-      extraVisible.value = true;
-      try {
-        baseInfoLoading.value = true;
-        const res = await getCaseDetail(data.id);
-        activeCase.value = res;
-        baseInfoForm.value.name = res.name;
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        baseInfoLoading.value = false;
-      }
-    } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
-      try {
-        loading.value = true;
-        const res = await getCaseMinder({
-          projectId: appStore.currentProjectId,
-          moduleId: data.id,
-        });
-        const fakeNode = node.children?.find((e) => e.data?.id === undefined); // 移除占位的虚拟节点
-        window.minder.removeNode(fakeNode);
-        res.forEach((e) => {
-          // 用例节点
-          const child = window.minder.createNode(e.data, node);
-          child.render();
-          e.children?.forEach((item) => {
-            // 前置/步骤/备注节点
-            const grandChild = window.minder.createNode(item.data, child);
-            grandChild.render();
-            item.children?.forEach((subItem) => {
-              // 预期结果节点
-              const greatGrandChild = window.minder.createNode(subItem.data, grandChild);
-              greatGrandChild.render();
-            });
-            child.renderTree();
-          });
-          child.expand();
-          child.renderTree();
-        });
-        node.expand();
-        node.renderTree();
-        window.minder.layout();
-        if (node.data) {
-          node.data.isLoaded = true;
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        loading.value = false;
-      }
-    } else {
-      extraVisible.value = false;
-      activeCase.value = {};
-    }
-  }
-
-  onBeforeMount(() => {
-    initDefaultFields();
-  });
-
-  function handleSave() {
-    if (activeExtraKey.value === 'baseInfo') {
-      baseInfoFormRef.value?.validate((errors) => {
-        if (!errors) {
-          fApi.value?.validate((valid) => {
-            if (valid) {
-              const data = {
-                ...baseInfoForm.value,
-                customFields: formItem.value.map((item: any) => {
-                  return {
-                    fieldId: item.field,
-                    value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
-                  };
-                }),
-              };
-              console.log(data);
-            }
-          });
-        }
-      });
-    }
-  }
-
   const fileList = ref<MsFileItem[]>([]);
+  const attachmentsList = ref<AttachFileInfo[]>([]);
+  const checkUpdateFileIds = ref<string[]>([]);
 
-  // 处理关联文件
-  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
-    fileList.value.push(...fileResultList);
-  }
   const getListFunParams = ref<TableQueryParams>({
     combine: {
       hiddenIds: [],
@@ -895,15 +825,93 @@
     { deep: true }
   );
 
-  const showLinkFileDrawer = ref<boolean>(false);
+  const showLinkFileDrawer = ref(false);
+  const attachmentLoading = ref(false);
 
-  function handleFileChange(_fileList: MsFileItem[]) {
-    fileList.value = _fileList.map((e) => {
-      return {
-        ...e,
-        enable: true, // 是否启用
+  /**
+   * 初始化用例详情
+   * @param data 节点数据/用例数据
+   */
+  async function initCaseDetail(data: MinderJsonNodeData | Record<string, any>) {
+    try {
+      baseInfoLoading.value = true;
+      const res = await getCaseDetail(data.id);
+      activeCase.value = res;
+      baseInfoForm.value.name = res.name;
+      const fileIds = (res.attachments || []).map((item: any) => item.id) || [];
+      if (fileIds.length) {
+        checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
+      }
+      formRules.value = initFormCreate(res.customFields, ['FUNCTIONAL_CASE:READ+UPDATE']);
+      if (res.attachments) {
+        attachmentsList.value = res.attachments;
+        // 处理文件列表
+        fileList.value = res.attachments
+          .map((fileInfo: any) => {
+            return {
+              ...fileInfo,
+              name: fileInfo.fileName,
+              isUpdateFlag: checkUpdateFileIds.value.includes(fileInfo.id),
+            };
+          })
+          .map((fileInfo: any) => {
+            return convertToFile(fileInfo);
+          });
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      baseInfoLoading.value = false;
+    }
+  }
+
+  /**
+   * 处理文件更改
+   * @param _fileList 文件列表
+   * @param isAssociated 是否是关联文件
+   */
+  async function handleFileChange(_fileList: MsFileItem[], isAssociated = false) {
+    try {
+      attachmentLoading.value = true;
+      const params = {
+        request: {
+          caseId: activeCase.value.id,
+          projectId: appStore.currentProjectId,
+          fileIds: isAssociated ? _fileList.map((item) => item.uid) : [],
+          enable: true,
+        },
+        file: isAssociated ? _fileList.map((item) => item.file) : _fileList[0].file,
       };
-    });
+      await uploadOrAssociationFile(params);
+      if (isAssociated) {
+        fileList.value.unshift(..._fileList);
+      } else {
+        fileList.value = fileList.value.map((item) => {
+          if (item.status === 'init') {
+            return { ...item, status: 'done', local: true };
+          }
+          return item;
+        });
+      }
+      Message.success(t('ms.upload.uploadSuccess'));
+      await initCaseDetail(activeCase.value);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      fileList.value = fileList.value.map((item) => ({ ...item, status: 'error' }));
+    } finally {
+      attachmentLoading.value = false;
+    }
+  }
+
+  /**
+   * 处理关联文件
+   * @param fileData 文件信息集合
+   */
+  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
+    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
+    handleFileChange(fileResultList, true);
   }
 
   const imageUrl = ref('');
@@ -912,8 +920,9 @@
   // 预览图片
   async function handlePreview(item: MsFileItem) {
     try {
+      imageUrl.value = '';
       previewVisible.value = true;
-      if (item.status !== 'init') {
+      if (!item.local) {
         const res = await previewFile({
           projectId: appStore.currentProjectId,
           caseId: activeCase.value.id,
@@ -941,6 +950,60 @@
     transferVisible.value = true;
   }
 
+  // 删除本地文件
+  async function deleteFileHandler(item: MsFileItem) {
+    if (!item.local) {
+      try {
+        const params = {
+          id: item.uid,
+          local: item.local,
+          caseId: activeCase.value.id,
+          projectId: appStore.currentProjectId,
+        };
+        await deleteFileOrCancelAssociation(params);
+        Message.success(
+          item.local ? t('caseManagement.featureCase.deleteSuccess') : t('caseManagement.featureCase.cancelLinkSuccess')
+        );
+        fileList.value = fileList.value.filter((e) => e.uid !== item.uid);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    } else {
+      openModal({
+        type: 'error',
+        title: t('caseManagement.featureCase.deleteFile', { name: item?.name }),
+        content: t('caseManagement.featureCase.deleteFileTip'),
+        okText: t('common.confirmDelete'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            const params = {
+              id: item.uid,
+              local: item.local,
+              caseId: activeCase.value.id,
+              projectId: appStore.currentProjectId,
+            };
+            await deleteFileOrCancelAssociation(params);
+            Message.success(
+              item.local
+                ? t('caseManagement.featureCase.deleteSuccess')
+                : t('caseManagement.featureCase.cancelLinkSuccess')
+            );
+            fileList.value = fileList.value.filter((e) => e.uid !== item.uid);
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
+    }
+  }
+
   // 下载
   async function downloadFile(item: MsFileItem) {
     try {
@@ -965,6 +1028,117 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    }
+  }
+
+  /**
+   * 处理脑图节点激活/点击
+   * @param node 被激活/点击的节点
+   */
+  async function handleNodeClick(node: MinderJsonNode) {
+    const { data } = node;
+    if (data?.resource && data.resource.includes(caseTag)) {
+      extraVisible.value = true;
+      activeExtraKey.value = 'baseInfo';
+      initCaseDetail(data);
+    } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
+      try {
+        loading.value = true;
+        const res = await getCaseMinder({
+          projectId: appStore.currentProjectId,
+          moduleId: data.id,
+        });
+        const fakeNode = node.children?.find((e) => e.data?.id === undefined); // 移除占位的虚拟节点
+        if (fakeNode) {
+          window.minder.removeNode(fakeNode);
+        }
+        if ((!res || res.length === 0) && node.children?.length) {
+          // 如果模块下没有用例且有别的模块节点，正常展开
+          node.expand();
+          node.renderTree();
+          window.minder.layout();
+          return;
+        }
+        // TODO:递归渲染存在的子节点
+        res.forEach((e) => {
+          // 用例节点
+          const child = window.minder.createNode(e.data, node);
+          child.render();
+          e.children?.forEach((item) => {
+            // 前置/步骤/备注节点
+            const grandChild = window.minder.createNode(item.data, child);
+            grandChild.render();
+            item.children?.forEach((subItem) => {
+              // 预期结果节点
+              const greatGrandChild = window.minder.createNode(subItem.data, grandChild);
+              greatGrandChild.render();
+            });
+          });
+          child.expand();
+          child.renderTree();
+        });
+        node.expand();
+        node.renderTree();
+        window.minder.layout();
+        if (node.data) {
+          node.data.isLoaded = true;
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      extraVisible.value = false;
+      activeCase.value = {};
+    }
+  }
+
+  onBeforeMount(() => {
+    initDefaultFields();
+  });
+
+  const saveLoading = ref(false);
+  function handleSave() {
+    if (activeExtraKey.value === 'baseInfo') {
+      baseInfoFormRef.value?.validate((errors) => {
+        if (!errors) {
+          fApi.value?.validate(async (valid) => {
+            if (valid === true) {
+              try {
+                saveLoading.value = true;
+                const data = {
+                  ...baseInfoForm.value,
+                  id: activeCase.value.id,
+                  projectId: appStore.currentProjectId,
+                  caseEditType: activeCase.value.caseEditType,
+                  customFields: formItem.value.map((item: any) => {
+                    return {
+                      fieldId: item.field,
+                      value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+                    };
+                  }),
+                };
+                await updateCaseRequest({
+                  request: data,
+                  fileList: [],
+                });
+                const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+                if (selectedNode.data) {
+                  selectedNode.data.text = baseInfoForm.value.name;
+                }
+                Message.success(t('common.saveSuccess'));
+              } catch (error) {
+                // eslint-disable-next-line no-console
+                console.log(error);
+              } finally {
+                saveLoading.value = false;
+              }
+            }
+          });
+        }
+      });
     }
   }
 
@@ -1213,6 +1387,15 @@
       drawerLoading.value = false;
     }
   }
+
+  watch(
+    () => activeExtraKey.value,
+    (val) => {
+      if (val === 'comments') {
+        getAllCommentList();
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

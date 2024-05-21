@@ -780,7 +780,8 @@
   function controlPluginFormFields() {
     const currentFormFields = fApi.value?.fields();
     let fields: string[] = [];
-    if (requestVModel.value.customizeRequestEnvEnable) {
+    if (requestVModel.value.customizeRequestEnvEnable || _stepType.value.isQuoteApi) {
+      // 自定义请求引用环境或是引用的 api 时，使用环境的字段显示
       fields = pluginScriptMap.value[requestVModel.value.protocol].apiDefinitionFields || [];
     } else {
       fields = pluginScriptMap.value[requestVModel.value.protocol].apiDebugFields || [];

@@ -68,6 +68,7 @@
           <a-input
             v-model:model-value="mockDetail.name"
             :placeholder="t('mockManagement.namePlaceholder')"
+            :max-length="255"
             class="w-[732px]"
           ></a-input>
         </a-form-item>
@@ -490,6 +491,18 @@
 
   const fileList = ref<MsFileItem[]>([]);
 
+  function showFirstHasDataTab() {
+    if (mockDetail.value.mockMatchRule.body.bodyType !== RequestBodyFormat.NONE) {
+      activeTab.value = RequestComposition.BODY;
+    } else if (mockDetail.value.mockMatchRule.header.matchRules.length > 0) {
+      activeTab.value = RequestComposition.HEADER;
+    } else if (mockDetail.value.mockMatchRule.query.matchRules.length > 0) {
+      activeTab.value = RequestComposition.QUERY;
+    } else if (mockDetail.value.mockMatchRule.rest.matchRules.length > 0) {
+      activeTab.value = RequestComposition.REST;
+    }
+  }
+
   async function initMockDetail() {
     try {
       loading.value = true;
@@ -500,7 +513,7 @@
       // form-data 的匹配规则含有文件类型，特殊处理
       const formDataMatch = res.mockMatchRule.body.formDataBody.matchRules.map((item) => {
         const newParamType =
-          currentBodyKeyOptions.value.find((e) => e.value === item.key)?.paramType || item.files
+          currentBodyKeyOptions.value.find((e) => e.value === item.key)?.paramType || item.files.length > 0
             ? RequestParamsType.FILE
             : defaultMatchRuleItem.paramType;
         item.paramType = newParamType;
@@ -542,15 +555,7 @@
         // 从表格的编辑按钮进入，给空表格添加默认行
         appendDefaultMatchRuleItem();
       }
-      if (mockDetail.value.mockMatchRule.body.bodyType !== RequestBodyFormat.NONE) {
-        activeTab.value = RequestComposition.BODY;
-      } else if (mockDetail.value.mockMatchRule.header.matchRules.length > 0) {
-        activeTab.value = RequestComposition.HEADER;
-      } else if (mockDetail.value.mockMatchRule.query.matchRules.length > 0) {
-        activeTab.value = RequestComposition.QUERY;
-      } else if (mockDetail.value.mockMatchRule.rest.matchRules.length > 0) {
-        activeTab.value = RequestComposition.REST;
-      }
+      showFirstHasDataTab();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -567,6 +572,16 @@
           initMockDetail();
         } else {
           fileList.value = [];
+          const { body } = props.definitionDetail;
+          mockDetail.value.mockMatchRule.body = {
+            ...mockDetail.value.mockMatchRule.body,
+            bodyType: body.bodyType,
+            binaryBody: cloneDeep(body.binaryBody),
+            jsonBody: cloneDeep(body.jsonBody),
+            xmlBody: cloneDeep(body.xmlBody),
+            rawBody: cloneDeep(body.rawBody),
+          };
+          showFirstHasDataTab();
         }
       }
     },
