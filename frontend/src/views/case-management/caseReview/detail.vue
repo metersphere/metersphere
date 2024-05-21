@@ -389,6 +389,7 @@
   function handleRefresh(params: ReviewDetailCaseListQueryParams) {
     initModulesCount(params);
     initDetail();
+    folderTreeRef.value?.initModules();
   }
 
   const moduleTree = ref<ModuleTreeNode[]>([]);

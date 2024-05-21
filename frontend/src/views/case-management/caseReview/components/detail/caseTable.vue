@@ -559,7 +559,13 @@
     try {
       disassociateLoading.value = true;
       await disassociateReviewCase(route.query.id as string, record.caseId);
-      emit('refresh', tableParams.value);
+      emit('refresh', {
+        ...tableParams.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        total: propsRes.value.msPagination?.total,
+        moduleIds: [],
+      });
       if (done) {
         done();
       }
