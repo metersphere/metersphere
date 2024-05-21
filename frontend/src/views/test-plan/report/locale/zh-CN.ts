@@ -36,4 +36,11 @@ export default {
   'report.detail.reportSummary': '报告总结',
   'report.detail.bugDetails': '缺陷明细',
   'report.detail.featureCaseDetails': '功能用例明细',
+  'report.detail.executionAnalysis': '执行分析',
+  'report.detail.threshold': '通过阈值',
+  'report.detail.reportPassRate': '报告通过率',
+  'report.detail.performCompletion': '执行完成率',
+  'report.detail.totalDefects': '缺陷总数',
+  'report.detail.useCaseAnalysis': '功能用例分析',
+  'report.detail.number': '个',
 };

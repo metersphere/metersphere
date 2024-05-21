@@ -72,7 +72,7 @@ export const executionResultMap: Record<string, any> = {
     key: 'BLOCKED',
     icon: StatusType.BLOCKED,
     statusText: t('caseManagement.featureCase.chokeUp'),
-    color: 'text-[rgb(var(--warning-6))]',
+    color: 'text-[rgb(var(--primary-3))]',
   },
   ERROR: {
     key: 'ERROR',

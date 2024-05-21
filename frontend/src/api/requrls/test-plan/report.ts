@@ -6,6 +6,8 @@ export const PlanReportRenameUrl = '/test-plan/report/rename';
 export const PlanDeleteUrl = '/test-plan/report/delete';
 // 批量删除报告
 export const PlanBatchDeleteUrl = '/test-plan/report/batch-delete';
+// 测试计划-报告-详情
+export const PlanReportDetailUrl = '/test-plan/report/get';
 // 测试计划-报告-详情-缺陷分页查询
 export const ReportBugListUrl = '/test-plan/report/detail/bug/page';
 // 测试计划-报告-详情-功能用例分页查询

@@ -1,7 +1,7 @@
 <template>
-  <div class="flex min-h-[110px] items-center">
+  <div :class="`min-h-[${props.size || '110px'}] flex items-center`">
     <div class="relative mr-4">
-      <div class="charts absolute text-center">
+      <div :class="`${props.offset || defaultOffset} charts absolute text-center`">
         <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
         <a-popover position="bottom" content-class="response-popover-content">
           <div class="flex justify-center text-[18px] font-medium">
@@ -18,7 +18,7 @@
         </a-popover>
       </div>
       <a-popover position="bottom" content-class="response-popover-content">
-        <div> <MsChart width="110px" height="110px" :options="props.options" /></div>
+        <div> <MsChart :width="props.size || '110px'" :height="props.size || '110px'" :options="props.options" /></div>
         <template #content>
           <div class="min-w-[176px] max-w-[400px] p-4">
             <div v-for="item of legendData" :key="item.value" class="mb-2 flex justify-between">
@@ -40,8 +40,10 @@
           <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
           <div class="mr-2 text-[var(--color-text-4)]">{{ item.label }}</div>
         </div>
-        <div class="count">{{ item.count || 0 }}</div>
-        <div class="count">{{ item.rote || 0 }} <span v-if="String(item.rote) !== 'Calculating'">%</span></div>
+        <div class="count font-medium">{{ item.count || 0 }}</div>
+        <div class="count text-right font-medium"
+          >{{ item.rote || 0 }} <span v-if="String(item.rote) !== 'Calculating'"></span
+        ></div>
       </div>
     </div>
   </div>
@@ -56,7 +58,7 @@
   import MsChart from '@/components/pure/chart/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { addCommasToNumber, formatDuration } from '@/utils';
+  import { addCommasToNumber } from '@/utils';
 
   import type { LegendData } from '@/models/apiTest/report';
 
@@ -67,7 +69,11 @@
     options: Record<string, any>;
     legendData: LegendData[];
     requestTotal: number;
+    size?: string;
+    offset?: string;
   }>();
+
+  const defaultOffset = ref('top-[30%] right-0 bottom-0 left-0');
 </script>
 
 <style scoped lang="less">
@@ -83,10 +89,6 @@
     }
   }
   .charts {
-    top: 30%;
-    right: 0;
-    bottom: 0;
-    left: 0;
     z-index: 99;
     margin: auto;
   }

@@ -40,7 +40,7 @@
       label: 'BLOCKED',
       icon: StatusType.BLOCKED,
       statusText: t('caseManagement.featureCase.chokeUp'),
-      color: 'rgb(var(--warning-6))',
+      color: 'rgb(var(--primary-3))',
     },
     ERROR: {
       label: 'ERROR',

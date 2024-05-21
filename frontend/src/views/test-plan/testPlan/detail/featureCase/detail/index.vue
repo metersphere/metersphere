@@ -397,12 +397,6 @@
       activeId.value = item.id;
     }
   }
-  watch(
-    () => activeId.value,
-    () => {
-      loadCaseDetail();
-    }
-  );
 
   async function loadCase() {
     await loadCaseList();
@@ -481,7 +475,7 @@
   async function getBugTotal() {
     try {
       const params = {
-        testPlanCaseId: route.query.testPlanCaseId,
+        testPlanCaseId: activeId.value,
         caseId: activeCaseId.value,
         projectId: appStore.currentProjectId,
         current: 1,
@@ -562,6 +556,14 @@
     initBugList();
     await loadCase();
   });
+  watch(
+    () => activeId.value,
+    () => {
+      loadCaseDetail();
+      initBugList();
+      getBugTotal();
+    }
+  );
 
   watch(
     () => activeTab.value,
