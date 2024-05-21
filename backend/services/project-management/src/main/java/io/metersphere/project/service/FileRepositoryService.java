@@ -140,7 +140,7 @@ public class FileRepositoryService extends FileModuleService {
         if (fileAttachInfo == null || fileAttachInfo.fileIsNotExist()) {
             throw new MSException(Translator.get("file.not.exist"));
         }
-        FileMetadata fileMetadata = fileMetadataService.genFileMetadata(request.getFilePath(), StorageType.GIT.name(), fileAttachInfo.getSize(), request.isEnable(),
+        FileMetadata fileMetadata = fileMetadataService.genFileMetadata(null, request.getFilePath(), StorageType.GIT.name(), fileAttachInfo.getSize(), request.isEnable(),
                 fileModule.getProjectId(), fileModule.getId(), operator);
 
         //判断文件是否存在: 同一存储库下文件路径和分支不能重复
