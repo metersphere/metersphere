@@ -364,9 +364,10 @@ public class TestPlanReportService {
 	public TestPlanReportDetailResponse edit(TestPlanReportDetailEditRequest request, String currentUser) {
 		TestPlanReport planReport = checkReport(request.getId());
 		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
-		reportSummary.setId(planReport.getId());
 		reportSummary.setSummary(request.getSummary());
-		testPlanReportSummaryMapper.updateByPrimaryKeySelective(reportSummary);
+		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
+		example.createCriteria().andTestPlanReportIdEqualTo(planReport.getId());
+		testPlanReportSummaryMapper.updateByExampleSelective(reportSummary, example);
 		// 处理富文本文件
 		transferRichTextTmpFile(request.getId(), planReport.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
 		return getReport(planReport.getId());
