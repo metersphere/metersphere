@@ -152,7 +152,7 @@ export default {
         if (!hasPermission('PROJECT_API_DEFINITION:READ')) {
           return;
         }
-        this.redirectPageWithDataType('api', 'api', 'edit:' + row.id);
+        this.redirectPage('api', 'api', 'edit:' + row.id);
       }
     },
     search(versionId) {
