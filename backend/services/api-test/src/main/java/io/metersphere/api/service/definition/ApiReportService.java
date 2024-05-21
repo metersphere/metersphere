@@ -53,8 +53,6 @@ public class ApiReportService {
     @Resource
     private ApiReportLogService apiReportLogService;
     @Resource
-    private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
-    @Resource
     private ApiReportLogMapper apiReportLogMapper;
     @Resource
     private UserMapper userMapper;
@@ -192,7 +190,7 @@ public class ApiReportService {
         List<ApiReportLog> apiReportLogs = apiReportLogMapper.selectByExampleWithBLOBs(consoleExample);
         if (CollectionUtils.isNotEmpty(apiReportLogs)) {
             //获取所有的console,生成集合
-            List<String> consoleList = apiReportLogs.stream().map(c -> new String (c.getConsole())).toList();
+            List<String> consoleList = apiReportLogs.stream().map(c -> new String(c.getConsole())).toList();
             apiReportDTO.setConsole(String.join("\n", consoleList));
         }
         //查询资源池名称
@@ -230,7 +228,7 @@ public class ApiReportService {
         apiReportDetails.forEach(apiReportDetail -> {
             ApiReportDetailDTO apiReportDetailDTO = new ApiReportDetailDTO();
             BeanUtils.copyBean(apiReportDetailDTO, apiReportDetail);
-            apiReportDetailDTO.setContent(apiReportDetail.getContent() != null ? ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class): null);
+            apiReportDetailDTO.setContent(apiReportDetail.getContent() != null ? ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class) : null);
             results.add(apiReportDetailDTO);
         });
         return results;
@@ -248,6 +246,7 @@ public class ApiReportService {
 
     /**
      * 更新执行中的用例报告
+     *
      * @param reportId
      */
     public void updateReportStatus(String reportId, String status) {
