@@ -70,7 +70,7 @@ CREATE INDEX idx_case_id ON test_plan_case_execute_history(case_id);
 CREATE TABLE IF NOT EXISTS test_plan_report(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
-    `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
+    `name` VARCHAR(300) NOT NULL   COMMENT '报告名称' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `execute_time` BIGINT    COMMENT '执行时间;计划真正执行的时间' ,
