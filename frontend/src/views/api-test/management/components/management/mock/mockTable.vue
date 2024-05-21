@@ -262,7 +262,6 @@
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
-      width: 150,
     },
     {
       title: 'mockManagement.apiPath',
@@ -410,7 +409,7 @@
    * 删除接口
    */
   function removeMock(record?: ApiDefinitionMockDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('apiTestManagement.deleteMockTip', { name: record?.name });
+    let title = t('apiTestManagement.confirmDelete', { name: record?.name });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('mockManagement.batchDeleteMockTip', {

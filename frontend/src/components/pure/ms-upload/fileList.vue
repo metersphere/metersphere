@@ -46,12 +46,45 @@
                     <div class="one-line-text max-w-[421px] pl-[4px] font-normal">
                       {{ item.file.name.slice(0, item.file.name.indexOf('.')) }}
                     </div>
-                    <span class="font-normal text-[var(--color-text-1)]">{{
-                      item.file.name.slice(item.file.name.indexOf('.'))
-                    }}</span>
+                    <span class="font-normal text-[var(--color-text-1)]">
+                      {{ item.file.name.slice(item.file.name.indexOf('.')) }}
+                    </span>
                   </div>
                 </a-tooltip>
                 <slot name="title" :item="item"></slot>
+                <div v-if="props.buttonInTitle" class="ml-auto flex items-center">
+                  <slot name="titleAction" :item="item">
+                    <MsButton
+                      v-if="item.file.type.includes('image/')"
+                      type="button"
+                      status="primary"
+                      class="!mr-0"
+                      @click="handlePreview(item)"
+                    >
+                      {{ t('ms.upload.preview') }}
+                    </MsButton>
+                    <a-divider v-if="item.file.type.includes('image/')" direction="vertical" />
+                    <MsButton
+                      v-if="item.status === UploadStatus.error"
+                      type="button"
+                      status="secondary"
+                      class="!mr-0"
+                      @click="reupload(item)"
+                    >
+                      {{ t('ms.upload.reUpload') }}
+                    </MsButton>
+                    <a-divider v-if="item.status === UploadStatus.error" direction="vertical" />
+                  </slot>
+                  <MsButton
+                    v-if="props.showDelete && item.status !== 'uploading'"
+                    type="button"
+                    :status="item.deleteContent ? 'primary' : 'danger'"
+                    class="!mr-[4px]"
+                    @click="deleteFile(item)"
+                  >
+                    {{ t(item.deleteContent) || t('ms.upload.delete') }}
+                  </MsButton>
+                </div>
               </div>
             </template>
             <template #description>
@@ -100,7 +133,7 @@
               </div>
             </template>
           </a-list-item-meta>
-          <template #actions>
+          <template v-if="!props.buttonInTitle" #actions>
             <div class="flex items-center">
               <MsButton
                 v-if="item.file.type.includes('image/')"
@@ -192,6 +225,7 @@
       handleView?: (item: MsFileItem) => void; // 是否自定义预览
       showUploadTypeDesc?: boolean; // 自定义上传类型关联于&上传于
       initFileSaveTips?: string; // 上传初始文件时的提示
+      buttonInTitle?: boolean; // 按钮是否在标题中
     }>(),
     {
       mode: 'remote',
@@ -200,6 +234,7 @@
       showMode: 'fileList',
       boolean: false,
       showUploadTypeDesc: false,
+      buttonInTitle: false,
     }
   );
   const emit = defineEmits<{

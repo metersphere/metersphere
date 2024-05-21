@@ -354,4 +354,11 @@
   });
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-form-item-label) {
+    @apply flex items-center;
+    span {
+      @apply block overflow-hidden overflow-ellipsis whitespace-nowrap;
+    }
+  }
+</style>

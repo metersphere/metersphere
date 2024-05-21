@@ -180,6 +180,9 @@
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+          if (typeof done === 'function') {
+            done(false);
+          }
         } finally {
           submitReviewLoading.value = false;
         }

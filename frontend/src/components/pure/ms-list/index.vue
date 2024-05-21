@@ -245,7 +245,7 @@
       .arco-list-item-meta {
         @apply p-0;
         .arco-list-item-meta-content {
-          @apply flex-1;
+          @apply flex-1 overflow-hidden;
         }
         .arco-list-item-meta-title:not(:last-child) {
           @apply mb-0;
@@ -265,6 +265,9 @@
     }
     :deep(.arco-list-content) {
       .ms-scroll-bar();
+    }
+    :deep(.arco-list-item-main) {
+      @apply overflow-hidden;
     }
   }
   .ms-list-ghost {
