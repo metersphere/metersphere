@@ -26,7 +26,7 @@ public class TestPlanResponse extends TestPlanStatisticsResponse {
     @Schema(description = "创建人名称")
     private String createUserName;
     @Schema(description = "创建时间")
-    private String createTime;
+    private Long createTime;
     @Schema(description = "模块")
     private String moduleName;
     @Schema(description = "模块Id")
@@ -38,4 +38,7 @@ public class TestPlanResponse extends TestPlanStatisticsResponse {
 
     @Schema(description = "测试计划组Id")
     private String groupId;
+
+    @Schema(description = "描述")
+    private String description;
 }
