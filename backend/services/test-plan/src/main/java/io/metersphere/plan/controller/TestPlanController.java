@@ -140,6 +140,7 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.filterArchivedIds(request);
         testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
     }
 
@@ -149,6 +150,7 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchCopy(@Validated @RequestBody TestPlanBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.filterArchivedIds(request);
         testPlanService.batchCopy(request, SessionUtils.getUserId(), "/test-plan/batch-copy", HttpMethodConstants.POST.name());
     }
 
@@ -158,6 +160,7 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchMove(@Validated @RequestBody TestPlanBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.filterArchivedIds(request);
         testPlanService.batchMove(request, SessionUtils.getUserId(), "/test-plan/batch-move", HttpMethodConstants.POST.name());
     }
 
@@ -176,6 +179,7 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void association(@Validated @RequestBody TestPlanAssociationRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
+        testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
         testPlanService.association(request);
     }
 
@@ -186,6 +190,7 @@ public class TestPlanController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchEditLog(#request)", msClass = TestPlanLogService.class)
     public void batchEdit(@Validated @RequestBody TestPlanBatchEditRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.filterArchivedIds(request);
         testPlanService.batchEdit(request, SessionUtils.getUserId());
     }
 }
