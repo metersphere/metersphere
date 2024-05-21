@@ -77,7 +77,7 @@ public class FunctionalTestCaseController {
     @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联用例")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
-    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    @CheckOwner(resourceId = "#request.caseId", resourceType = "functional_case")
     public void disassociateCase(@Validated @RequestBody DisassociateOtherCaseRequest request) {
         functionalTestCaseService.disassociateCase(request);
     }
