@@ -191,7 +191,7 @@ public class FunctionalTestCaseService {
     public List<String> doSelectIds(DisassociateOtherCaseRequest request) {
         if (request.isSelectAll()) {
             List<String> ids = extFunctionalCaseTestMapper.getIds(request);
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
             return ids;
