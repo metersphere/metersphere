@@ -54,6 +54,7 @@ export default {
     'menu.caseManagement.featureCaseEdit': 'Update Case',
     'menu.caseManagement.featureCaseCreateSuccess': 'Create Success',
     'menu.caseManagement.caseManagementReview': 'Feature Case Review',
+    'menu.caseManagement.caseManagementReviewShort': 'Review',
     'menu.caseManagement.caseManagementReviewCreate': 'Create Review',
     'menu.caseManagement.caseManagementReviewDetail': 'Review Detail',
     'menu.caseManagement.caseManagementReviewDetailCaseDetail': 'Review Case Detail',

@@ -62,6 +62,7 @@ export default {
     'menu.caseManagement.featureCaseEdit': '更新用例',
     'menu.caseManagement.featureCaseCreateSuccess': '创建用例成功',
     'menu.caseManagement.caseManagementReview': '用例评审',
+    'menu.caseManagement.caseManagementReviewShort': '评审',
     'menu.caseManagement.caseManagementReviewCreate': '创建评审',
     'menu.caseManagement.caseManagementReviewDetail': '评审详情',
     'menu.caseManagement.caseManagementReviewDetailCaseDetail': '评审用例详情',
