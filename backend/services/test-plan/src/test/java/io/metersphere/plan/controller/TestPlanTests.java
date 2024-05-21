@@ -549,12 +549,6 @@ public class TestPlanTests extends BaseTest {
                 a1b1NodeCount++;
             }
 
-            if (i == 201) {
-                //第201时，先测试能否添加重复用例
-                request.setName("testPlan_200");
-                request.setModuleId(moduleId);
-                this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().is5xxServerError());
-            }
             //添加测试计划
             request.setName("testPlan_" + i);
             request.setModuleId(moduleId);
@@ -865,6 +859,13 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertEquals(returnId, testPlan.getId());
         testPlanTestService.checkTestPlanUpdateResult(testPlan, testPlanConfig, updateRequest);
 
+        //名称重复
+        updateRequest.setName("testPlan_400");
+        this.requestPost(URL_POST_TEST_PLAN_UPDATE, updateRequest).andExpect(status().isOk());
+        //修改回来
+        updateRequest.setName("testPlan_21");
+        this.requestPost(URL_POST_TEST_PLAN_UPDATE, updateRequest).andExpect(status().isOk());
+
         //修改模块
         BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
@@ -966,10 +967,6 @@ public class TestPlanTests extends BaseTest {
         //什么都不修改
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
-
-        //反例：名称重复
-        updateRequest.setName("testPlan_400");
-        this.requestPost(URL_POST_TEST_PLAN_UPDATE, updateRequest).andExpect(status().is5xxServerError());
 
         //因为有条数据被移动了测试计划组里，所以检查一下moduleCount.
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();

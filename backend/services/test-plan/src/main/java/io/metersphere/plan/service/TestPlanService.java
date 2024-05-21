@@ -107,7 +107,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
-        validateTestPlan(createTestPlan);
+        //        5.21，查询需求文档、测试用例：测试计划名称允许重复
+        //        validateTestPlan(createTestPlan);
 
         createTestPlan.setId(IDGenerator.nextStr());
         long operateTime = System.currentTimeMillis();
@@ -298,7 +299,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             if (StringUtils.isNotBlank(request.getName())) {
                 updateTestPlan.setName(request.getName());
                 updateTestPlan.setProjectId(testPlan.getProjectId());
-                validateTestPlan(updateTestPlan);
+                //        5.21，查询需求文档、测试用例：测试计划名称允许重复
+                //                validateTestPlan(updateTestPlan);
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateTestPlan.setTags(new ArrayList<>(request.getTags()));

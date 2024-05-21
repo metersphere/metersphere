@@ -45,7 +45,8 @@ public class TestPlanBatchMoveService extends TestPlanBaseUtilsService {
             List<TestPlan> testPlans = plans.get(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
             testPlans.forEach(testPlan -> {
                 testPlan.setModuleId(request.getModuleId());
-                validateTestPlan(testPlan);
+                //        5.21，查询需求文档、测试用例：测试计划名称允许重复
+                //                validateTestPlan(testPlan);
             });
             List<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
             extTestPlanMapper.batchMove(ids, request.getModuleId(), userId, System.currentTimeMillis());
