@@ -148,7 +148,7 @@ public class FileMetadataService {
         }
     }
 
-    public FileMetadata genFileMetadata(String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
+    public FileMetadata genFileMetadata(String fileSpecifyName, String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
         if (size > maxFileSize.toBytes()) {
             throw new MSException(Translator.get("file.size.is.too.large"));
         }
@@ -157,6 +157,10 @@ public class FileMetadataService {
         //如果开启了开关，检查是否是jar文件
         if (enable) {
             this.checkEnableFile(fileMetadata.getType());
+        }
+        // 指定了文件名称，则替换原文件名
+        if (StringUtils.isNotBlank(fileSpecifyName)) {
+            fileMetadata.setName(fileSpecifyName);
         }
         //检查处理后的用户名合法性
         if (StringUtils.equals(storage, StorageType.MINIO.name())) {
@@ -186,7 +190,7 @@ public class FileMetadataService {
 
         String fileName = StringUtils.trim(uploadFile.getOriginalFilename());
 
-        FileMetadata fileMetadata = this.genFileMetadata(fileName, StorageType.MINIO.name(), uploadFile.getSize(), request.isEnable(), request.getProjectId(), request.getModuleId(), operator);
+        FileMetadata fileMetadata = this.genFileMetadata(null, fileName, StorageType.MINIO.name(), uploadFile.getSize(), request.isEnable(), request.getProjectId(), request.getModuleId(), operator);
 
         // 上传文件
         String filePath = this.uploadFile(fileMetadata, uploadFile);
@@ -215,7 +219,7 @@ public class FileMetadataService {
         if (StringUtils.isBlank(originFileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
-        FileMetadata fileMetadata = this.genFileMetadata(originFileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
+        FileMetadata fileMetadata = this.genFileMetadata(fileName, originFileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
         if (StringUtils.isNotBlank(fileName)) {
             fileMetadata.setName(fileName);
         }
