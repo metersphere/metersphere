@@ -47,7 +47,7 @@ export function specialListUsers(data, page, size) {
 }
 
 export function specialGetUserGroup(userId) {
-  return get(`/user/special/user/group/${userId}`);
+  return post(`/user/special/user/group`, userId);
 }
 
 export function specialModifyUserDisable(user) {
