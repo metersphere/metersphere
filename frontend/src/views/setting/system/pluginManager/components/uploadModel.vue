@@ -67,7 +67,7 @@
               <a-option v-for="item of organizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
             </a-select>
           </a-form-item>
-          <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
+          <a-form-item field="describe" :label="t('common.desc')" asterisk-position="end">
             <a-textarea
               v-model="form.description"
               :max-length="1000"

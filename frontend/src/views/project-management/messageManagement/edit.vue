@@ -39,7 +39,7 @@
                     </div>
                     <div class="flex">
                       <div class="mr-[8px] whitespace-nowrap text-[var(--color-text-4)]">
-                        {{ t('project.messageManagement.desc') }}
+                        {{ t('common.desc') }}
                       </div>
                       <div class="text-[var(--color-text-1)]">{{ field.name }}</div>
                     </div>

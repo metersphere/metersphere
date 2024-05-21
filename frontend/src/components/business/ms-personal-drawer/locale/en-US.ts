@@ -34,7 +34,6 @@ export default {
   'ms.personal.expiredTip': 'The expiration time can be changed in [Settings]',
   'ms.personal.validTime': 'Effective time',
   'ms.personal.setValidTime': 'Set effective time',
-  'ms.personal.desc': 'Description',
   'ms.personal.createTime': 'Created time',
   'ms.personal.copySuccess': 'Copied successfully',
   'ms.personal.maxTip': 'Up to 5 APIKEYs can be added',

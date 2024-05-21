@@ -14,7 +14,6 @@ export default {
   'testPlan.testPlanIndex.testPlanGroup': '测试计划组',
   'testPlan.testPlanIndex.testPlanName': '测试计划名称',
   'testPlan.testPlanIndex.ID': 'ID',
-  'testPlan.testPlanIndex.desc': '描述',
   'testPlan.testPlanIndex.executionResult': '执行结果',
   'testPlan.testPlanIndex.passRate': '通过率',
   'testPlan.testPlanIndex.useCount': '用例数',

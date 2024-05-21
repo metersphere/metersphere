@@ -14,7 +14,6 @@ export default {
   'testPlan.testPlanIndex.testPlanGroup': 'Test planning groups',
   'testPlan.testPlanIndex.testPlanName': 'name',
   'testPlan.testPlanIndex.ID': 'ID',
-  'testPlan.testPlanIndex.desc': 'Description',
   'testPlan.testPlanIndex.executionResult': 'Execution Result',
   'testPlan.testPlanIndex.passRate': 'Pass Rate',
   'testPlan.testPlanIndex.useCount': 'Use cases',

@@ -119,7 +119,7 @@
       width: 200,
     },
     {
-      title: 'apiScenario.params.desc',
+      title: 'common.desc',
       dataIndex: 'description',
       slotName: 'description',
     },

@@ -32,7 +32,6 @@ export default {
   'ms.personal.expiredTip': '可在【设置】内更改到期时间',
   'ms.personal.validTime': '有效时间',
   'ms.personal.setValidTime': '设置有效时间',
-  'ms.personal.desc': '描述',
   'ms.personal.createTime': '创建时间',
   'ms.personal.copySuccess': '复制成功',
   'ms.personal.maxTip': '最多可添加 5 个APIKEY',

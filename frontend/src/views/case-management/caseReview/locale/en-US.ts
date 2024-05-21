@@ -31,7 +31,6 @@ export default {
   'caseManagement.caseReview.singleTip': 'The last review result is the final review result',
   'caseManagement.caseReview.multi': 'Multiple reviewers',
   'caseManagement.caseReview.multiTip': 'If all reviewers pass the review, then it passes',
-  'caseManagement.caseReview.desc': 'Description',
   'caseManagement.caseReview.passRateTip': 'Passed use cases/all use cases*100%',
   'caseManagement.caseReview.deleteReviewTitle': 'Are you sure you want to delete {name}?',
   'caseManagement.caseReview.deleteReviewContent':

@@ -7,7 +7,6 @@ export default {
   'system.resourcePool.editPool': 'Edit',
   'system.resourcePool.tableColumnName': 'Name',
   'system.resourcePool.tableColumnStatus': 'Status',
-  'system.resourcePool.tableColumnDescription': 'Description',
   'system.resourcePool.tableColumnType': 'Type',
   'system.resourcePool.tableColumnCreateTime': 'CreateTime',
   'system.resourcePool.tableColumnUpdateTime': 'UpdateTime',
@@ -25,7 +24,6 @@ export default {
   'system.resourcePool.deletePoolConfirm': 'Confirm',
   'system.resourcePool.deletePoolCancel': 'Cancel',
   'system.resourcePool.deletePoolSuccess': 'Deleted successfully',
-  'system.resourcePool.detailDesc': 'Description',
   'system.resourcePool.detailUrl': 'Intranet URL',
   'system.resourcePool.detailRange': 'Applied organization',
   'system.resourcePool.detailUse': 'Use',
@@ -39,7 +37,6 @@ export default {
   'system.resourcePool.name': 'Resource pool name',
   'system.resourcePool.nameRequired': 'Please enter a resource pool name',
   'system.resourcePool.namePlaceholder': 'Please enter a resource pool name',
-  'system.resourcePool.desc': 'Description',
   'system.resourcePool.descPlaceholder': 'Please describe the resource pool',
   'system.resourcePool.serverUrl': 'Intranet URL',
   'system.resourcePool.serverUrlTip':

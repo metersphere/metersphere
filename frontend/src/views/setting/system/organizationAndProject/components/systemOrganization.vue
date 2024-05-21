@@ -175,7 +175,7 @@
       disableTitle: 'common.end',
     },
     {
-      title: 'system.organization.description',
+      title: 'common.desc',
       dataIndex: 'description',
       showTooltip: true,
     },

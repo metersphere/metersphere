@@ -234,7 +234,7 @@
         width: 200,
       },
       {
-        title: 'apiTestDebug.desc',
+        title: 'common.desc',
         dataIndex: 'description',
         slotName: 'description',
       },

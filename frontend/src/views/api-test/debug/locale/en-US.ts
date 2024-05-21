@@ -24,7 +24,6 @@ export default {
   'apiTestDebug.paramValuePlaceholder': 'Starting with {at}, double-click to quickly enter',
   'apiTestDebug.extractValueByColumn': 'Extract value by column',
   'apiTestDebug.paramValuePreview': 'Parameter preview',
-  'apiTestDebug.desc': 'Description',
   'apiTestDebug.paramRequired': 'Required',
   'apiTestDebug.paramNotRequired': 'Optional',
   'apiTestDebug.paramType': 'Param type',

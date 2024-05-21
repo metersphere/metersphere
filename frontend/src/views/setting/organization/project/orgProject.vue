@@ -177,7 +177,7 @@
       showDrag: true,
     },
     {
-      title: 'system.organization.description',
+      title: 'common.desc',
       dataIndex: 'description',
       showTooltip: true,
       showDrag: true,

@@ -52,7 +52,6 @@ export default {
   'system.orgTemplate.fieldName': 'Field name',
   'system.orgTemplate.fieldNameRules': 'The field name cannot be empty',
   'system.orgTemplate.fieldNamePlaceholder': 'Please enter a field name',
-  'system.orgTemplate.description': 'Description',
   'system.orgTemplate.resDescription': 'Describe the fields pool',
   'system.orgTemplate.fieldType': 'Field type',
   'system.orgTemplate.fieldTypePlaceholder': 'Please select a field type',

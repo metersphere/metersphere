@@ -48,7 +48,7 @@
           </template>
         </a-table-column>
         <a-table-column
-          :title="t('system.plugin.tableColumnsDescription')"
+          :title="t('common.desc')"
           data-index="description"
           :ellipsis="true"
           :tooltip="true"

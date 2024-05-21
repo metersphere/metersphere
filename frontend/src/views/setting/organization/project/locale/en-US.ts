@@ -22,7 +22,6 @@ export default {
   'system.organization.organizationAdmin': 'Organization administrator',
   'system.organization.organizationAdminPlaceholder':
     'The organization administrator defaults to the person who created the organization',
-  'system.organization.description': 'Description',
   'system.project.affiliatedOrgExtra':
     'After selecting an organization, prompt the user to confirm the selected organization. After the project is successfully created, the organization cannot be changed',
   'system.organization.descriptionPlaceholder': 'Please describe the organization',

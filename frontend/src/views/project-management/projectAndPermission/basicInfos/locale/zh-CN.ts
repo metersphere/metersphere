@@ -14,7 +14,6 @@ export default {
   'project.basicInfo.createTip': '项目启用后，将展示在项目切换列表',
   'project.basicInfo.projectName': '项目名称',
   'project.basicInfo.projectNameTip': '项目名称不能为空',
-  'project.basicInfo.Description': '描述',
   'project.basicInfo.alertDescription': '所属项目将于 30 日后删除，如需撤销删除，请联系管理员',
   'project.basicInfo.updateContentTip': '更新成功！',
 };

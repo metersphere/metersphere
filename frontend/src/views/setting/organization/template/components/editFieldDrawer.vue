@@ -27,7 +27,7 @@
             :max-length="255"
           ></a-input>
         </a-form-item>
-        <a-form-item field="remark" :label="t('system.orgTemplate.description')" asterisk-position="end">
+        <a-form-item field="remark" :label="t('common.desc')" asterisk-position="end">
           <a-textarea
             v-model="fieldForm.remark"
             :max-length="1000"

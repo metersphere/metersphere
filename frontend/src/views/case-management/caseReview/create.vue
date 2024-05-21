@@ -17,7 +17,7 @@
           :max-length="255"
         />
       </a-form-item>
-      <a-form-item field="desc" :label="t('caseManagement.caseReview.desc')">
+      <a-form-item field="desc" :label="t('common.desc')">
         <a-textarea
           v-model:modelValue="reviewForm.desc"
           :placeholder="t('caseManagement.caseReview.descPlaceholder')"

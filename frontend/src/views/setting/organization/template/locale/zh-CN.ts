@@ -51,7 +51,6 @@ export default {
   'system.orgTemplate.fieldName': '字段名称',
   'system.orgTemplate.fieldNameRules': '字段名称不能为空',
   'system.orgTemplate.fieldNamePlaceholder': '请输入字段名称',
-  'system.orgTemplate.description': '描述',
   'system.orgTemplate.resDescription': '请对该字段进行描述',
   'system.orgTemplate.fieldType': '字段类型',
   'system.orgTemplate.fieldTypePlaceholder': '请选择字段类型',

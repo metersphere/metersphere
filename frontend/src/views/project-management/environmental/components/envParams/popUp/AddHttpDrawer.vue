@@ -74,8 +74,8 @@
           <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
         </a-select>
       </a-form-item> -->
-      <a-form-item class="mb-[16px]" field="description" :label="t('project.environmental.http.description')">
-        <a-input v-model="form.description" />
+      <a-form-item class="mb-[16px]" field="description" :label="t('common.desc')">
+        <a-textarea v-model="form.description" :max-length="1000" auto-size :placeholder="t('common.pleaseInput')" />
       </a-form-item>
       <!-- 选择UI测试模块 -->
       <!-- <a-form-item

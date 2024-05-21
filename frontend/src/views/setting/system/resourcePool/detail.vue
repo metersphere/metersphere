@@ -25,7 +25,7 @@
           @change="() => setIsSave(false)"
         ></a-input>
       </a-form-item>
-      <a-form-item :label="t('system.resourcePool.desc')" field="description" class="form-item">
+      <a-form-item :label="t('common.desc')" field="description" class="form-item">
         <a-textarea
           v-model:model-value="form.description"
           :placeholder="t('system.resourcePool.descPlaceholder')"
