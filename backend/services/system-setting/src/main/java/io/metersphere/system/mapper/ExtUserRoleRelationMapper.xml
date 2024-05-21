@@ -33,6 +33,7 @@
             and (
             u.name like concat('%', #{request.keyword},'%')
             or u.email like concat('%', #{request.keyword},'%')
+            or u.phone like concat('%', #{request.keyword},'%')
             )
         </if>
         order by urr.create_time desc

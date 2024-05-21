@@ -82,8 +82,9 @@
             AND (
             id = #{keyword} OR
             (name LIKE CONCAT('%', #{keyword}, '%')
-            OR email LIKE CONCAT('%', #{keyword}, '%'))
-            )
+            OR email LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%')
+            ))
 
         </if>
     </select>
