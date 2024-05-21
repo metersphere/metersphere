@@ -60,8 +60,12 @@ public class TestPlanTestService {
     public TestPlan selectTestPlanByName(String name) {
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andNameEqualTo(name);
-        TestPlan testPlan = testPlanMapper.selectByExample(testPlanExample).get(0);
-        return testPlan;
+        List<TestPlan> testPlanList = testPlanMapper.selectByExample(testPlanExample);
+        if (CollectionUtils.isEmpty(testPlanList)) {
+            return null;
+        } else {
+            return testPlanList.getFirst();
+        }
     }
     public void checkTestPlanByAddTest() {
         /*

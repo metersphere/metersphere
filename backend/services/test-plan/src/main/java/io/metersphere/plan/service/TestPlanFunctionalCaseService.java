@@ -511,17 +511,17 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         //发通知
         if (StringUtils.isNotBlank(notifier)) {
             List<String> relatedUsers = Arrays.asList(notifier.split(";"));
-            testPlanSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.REVIEW_AT, testPlanId);
+            testPlanSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_AT, testPlanId);
         }
 
         if (StringUtils.equalsIgnoreCase(lastExecResult, FunctionalCaseExecuteResult.SUCCESS.name())) {
             //成功 发送通知
-            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_PASSED, testPlanId);
+            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.EXECUTE_PASSED, testPlanId);
         }
 
         if (StringUtils.equalsIgnoreCase(lastExecResult, FunctionalCaseExecuteResult.ERROR.name())) {
             //失败 发送通知
-            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.Event.EXECUTE_FAIL, testPlanId);
+            testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.EXECUTE_FAIL, testPlanId);
         }
     }
 
