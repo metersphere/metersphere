@@ -10,7 +10,6 @@ import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
@@ -40,19 +39,6 @@ public class TestPlanBaseUtilsService {
     private TestPlanCaseService testPlanCaseService;
     @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
-
-    /**
-     * 校验模块下重名
-     *
-     * @param testPlan
-     */
-    public void validateTestPlan(TestPlan testPlan) {
-        if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equals(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            TestPlan group = testPlanMapper.selectByPrimaryKey(testPlan.getGroupId());
-            testPlan.setModuleId(group.getModuleId());
-        }
-    }
-
 
     /**
      * 校验模块

@@ -82,7 +82,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-更新测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan")
-    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.sendUpdateNotice(#request)", targetClass = TestPlanSendNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.sendUpdateNotice(#request)", targetClass = TestPlanSendNoticeService.class)
     public String add(@Validated @RequestBody TestPlanUpdateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.update(request, SessionUtils.getUserId(), "/test-plan/update", HttpMethodConstants.POST.name());
@@ -92,7 +92,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-删除测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
-    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.sendDeleteNotice(#id)", targetClass = TestPlanSendNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.sendDeleteNotice(#id)", targetClass = TestPlanSendNoticeService.class)
     public void delete(@NotBlank @PathVariable String id) {
         testPlanManagementService.checkModuleIsOpen(id, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.delete(id, SessionUtils.getUserId(), "/test-plan/delete", HttpMethodConstants.GET.name());
