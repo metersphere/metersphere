@@ -86,7 +86,7 @@ public class FunctionalTestCaseController {
     @PostMapping("/has/associate/case/page")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取已关联的用例列表")
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.sourceId", resourceType = "functional_case")
     public Pager<List<FunctionalCaseTestDTO>> getAssociateOtherCaseList(@Validated @RequestBody FunctionalCaseTestRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, functionalTestCaseService.hasAssociatePage(request));
