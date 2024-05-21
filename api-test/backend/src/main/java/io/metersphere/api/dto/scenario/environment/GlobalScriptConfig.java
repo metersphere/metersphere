@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario.environment;
 
 import lombok.Data;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.List;
 
@@ -10,9 +11,17 @@ public class GlobalScriptConfig {
     private List<String> filterRequestPreScript;
     private List<String> filterRequestPostScript;
     //是否在请求自有脚本之后再执行
-    private boolean isPreScriptExecAfterPrivateScript;
-    private boolean isPostScriptExecAfterPrivateScript;
+    private Boolean isPreScriptExecAfterPrivateScript;
+    private Boolean isPostScriptExecAfterPrivateScript;
     //是否统计到场景中
     private boolean connScenarioPreScript;
     private boolean connScenarioPostScript;
+
+    public boolean isPreScriptExecAfterPrivateScript() {
+        return BooleanUtils.isTrue(isPreScriptExecAfterPrivateScript);
+    }
+
+    public boolean isPostScriptExecAfterPrivateScript() {
+        return BooleanUtils.isTrue(isPostScriptExecAfterPrivateScript);
+    }
 }
