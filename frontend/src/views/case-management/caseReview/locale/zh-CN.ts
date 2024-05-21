@@ -31,7 +31,6 @@ export default {
   'caseManagement.caseReview.singleTip': '最后一次评审结果，为最终审结果',
   'caseManagement.caseReview.multi': '多人评审',
   'caseManagement.caseReview.multiTip': '所有评审人评审通过则通过',
-  'caseManagement.caseReview.desc': '描述',
   'caseManagement.caseReview.passRateTip': '已通过用例/全部用例*100%',
   'caseManagement.caseReview.deleteReviewTitle': '确认删除 {name} 吗？',
   'caseManagement.caseReview.deleteReviewContent': '该评审 {status}，删除后数据将不可恢复，请谨慎操作！',

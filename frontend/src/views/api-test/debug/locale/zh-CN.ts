@@ -30,7 +30,6 @@ export default {
   'apiTestDebug.paramMin': '最小值',
   'apiTestDebug.paramMax': '最大值',
   'apiTestDebug.paramValuePreview': '参数预览',
-  'apiTestDebug.desc': '描述',
   'apiTestDebug.encode': '编码',
   'apiTestDebug.encodeTip1': '开启：使用编码',
   'apiTestDebug.encodeTip2': '关闭：不使用编码',

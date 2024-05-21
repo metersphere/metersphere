@@ -84,7 +84,6 @@ export default {
   'project.messageManagement.contentTip': '点击添加左侧名称编辑通知模板',
   'project.messageManagement.contentMax': '内容长度不能超过 500 个字符',
   'project.messageManagement.var': '变量',
-  'project.messageManagement.desc': '描述',
   'project.messageManagement.saveSuccess': '模板保存成功',
   'project.messageManagement.enableRobotSuccess': '{name} 已启用',
   'project.messageManagement.disableRobotSuccess': '{name} 已禁用',

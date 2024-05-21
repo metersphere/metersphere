@@ -22,12 +22,7 @@
               :placeholder="t('project.environmental.group.envGroupPlaceholder')"
             />
           </a-form-item>
-          <a-form-item
-            class="mb-[16px]"
-            asterisk-position="end"
-            field="description"
-            :label="t('project.environmental.group.desc')"
-          >
+          <a-form-item class="mb-[16px]" asterisk-position="end" field="description" :label="t('common.desc')">
             <a-textarea
               v-model="form.description"
               :max-length="1000"
@@ -116,7 +111,7 @@
       width: 456,
     },
     {
-      title: 'project.environmental.desc',
+      title: 'common.desc',
       dataIndex: 'description',
       slotName: 'description',
     },

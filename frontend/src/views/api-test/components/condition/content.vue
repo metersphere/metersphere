@@ -687,7 +687,7 @@ if (!result){
       addLineDisabled: true,
     },
     {
-      title: 'project.commonScript.description',
+      title: 'common.desc',
       slotName: 'description',
       dataIndex: 'description',
       addLineDisabled: true,

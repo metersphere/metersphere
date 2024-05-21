@@ -93,7 +93,7 @@
     {
       filed: 'description',
       type: 'input',
-      label: 'project.environmental.host.desc',
+      label: 'common.desc',
       placeholder: 'project.environmental.host.descPlaceholder',
     },
   ]);

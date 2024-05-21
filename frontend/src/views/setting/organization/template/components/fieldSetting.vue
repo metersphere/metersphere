@@ -125,7 +125,7 @@
           </a-tooltip>
         </div>
         <div class="flex">
-          <span class="label">{{ t('system.orgTemplate.description') }}</span>
+          <span class="label">{{ t('common.desc') }}</span>
           <a-tooltip mini position="lt" :content="detailInfo?.remark">
             <span class="content ellipsis">{{ detailInfo?.remark || '-' }}</span>
           </a-tooltip>

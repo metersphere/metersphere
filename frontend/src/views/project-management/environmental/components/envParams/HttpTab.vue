@@ -143,7 +143,7 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'project.environmental.http.desc',
+      title: 'common.desc',
       dataIndex: 'description',
       showDrag: true,
       showTooltip: true,

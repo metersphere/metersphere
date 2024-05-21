@@ -456,7 +456,7 @@
       headerCellClass: 'pl-[16px]',
     },
     {
-      title: 'project.menu.description',
+      title: 'common.desc',
       slotName: 'description',
       dataIndex: 'description',
       showDrag: true,

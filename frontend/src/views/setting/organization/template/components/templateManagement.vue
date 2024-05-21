@@ -133,7 +133,7 @@
       showTooltip: true,
     },
     {
-      title: 'system.orgTemplate.description',
+      title: 'common.desc',
       dataIndex: 'remark',
       showDrag: true,
       showInTable: true,

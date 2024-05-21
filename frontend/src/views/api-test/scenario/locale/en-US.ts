@@ -39,7 +39,6 @@ export default {
   'apiScenario.params.type': 'Type',
   'apiScenario.params.paramValue': 'Parameter Value',
   'apiScenario.params.tag': 'Tag',
-  'apiScenario.params.desc': 'Description',
   'apiScenario.params.typeTooltip': 'Json: only supports UI testing',
   'apiScenario.table.columns.name': 'Name',
   'apiScenario.table.columns.level': 'Level',

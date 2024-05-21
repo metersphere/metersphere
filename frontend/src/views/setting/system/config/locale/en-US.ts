@@ -113,7 +113,6 @@ export default {
   'system.config.auth.edit': 'Edit',
   'system.config.auth.name': 'Name',
   'system.config.auth.status': 'Status',
-  'system.config.auth.desc': 'Description',
   'system.config.auth.createTime': 'Creation time',
   'system.config.auth.updateTime': 'Update time',
   'system.config.auth.action': 'Action',

@@ -13,7 +13,6 @@ export default {
   'project.basicInfo.status': 'Status',
   'project.basicInfo.projectName': 'Project Name',
   'project.basicInfo.projectNameTip': 'The project name cannot be empty',
-  'project.basicInfo.Description': 'Description',
   'project.basicInfo.alertDescription':
     'The organization will be deleted 30 days later. To cancel the deletion, contact the administrator',
   'project.basicInfo.updateContentTip': 'Update successfully!',

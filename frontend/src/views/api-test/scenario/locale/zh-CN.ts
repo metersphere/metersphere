@@ -48,7 +48,6 @@ export default {
   'apiScenario.params.type': '类型',
   'apiScenario.params.paramValue': '参数值',
   'apiScenario.params.tag': '标签',
-  'apiScenario.params.desc': '描述',
   'apiScenario.params.typeTooltip': 'Json：仅支持 UI 测试',
   'apiScenario.table.columns.name': '场景名称',
   'apiScenario.table.columns.level': '场景等级',

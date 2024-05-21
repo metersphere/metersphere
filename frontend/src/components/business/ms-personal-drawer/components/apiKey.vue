@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="px-[16px]">
-          <div class="api-item-label">{{ t('ms.personal.desc') }}</div>
+          <div class="api-item-label">{{ t('common.desc') }}</div>
           <a-textarea
             v-if="item.showDescInput"
             v-model:model-value="item.description"

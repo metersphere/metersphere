@@ -21,7 +21,6 @@ export default {
   'system.organization.organizationNameDuplicate': '已有 {name} 请更改',
   'system.organization.organizationAdmin': '组织管理员',
   'system.organization.organizationAdminPlaceholder': '默认选择创建组织人为组织管理员',
-  'system.organization.description': '描述',
   'system.organization.descriptionPlaceholder': '请对该组织进行描述',
   'system.organization.ID': 'ID',
   'system.organization.name': '名称',

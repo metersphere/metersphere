@@ -35,7 +35,7 @@
     <div v-if="showType === 'detail'">
       <div class="detailField mt-4">
         <div class="item">
-          <span class="label">{{ t('project.commonScript.description') }}</span>
+          <span class="label">{{ t('common.desc') }}</span>
           <span class="content">{{ form.description }}</span>
         </div>
         <div class="item">
@@ -156,7 +156,7 @@
       showInTable: true,
     },
     {
-      title: 'project.commonScript.description',
+      title: 'common.desc',
       slotName: 'description',
       dataIndex: 'description',
       showTooltip: true,

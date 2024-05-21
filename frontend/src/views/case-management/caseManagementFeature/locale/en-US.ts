@@ -70,7 +70,6 @@ export default {
   'caseManagement.featureCase.associated': 'Associated',
   'caseManagement.featureCase.fileType': 'File Type',
   'caseManagement.featureCase.fileName': 'fileName',
-  'caseManagement.featureCase.description': 'Description',
   'caseManagement.featureCase.tags': 'Tags',
   'caseManagement.featureCase.enableTags': `On: adds a label`,
   'caseManagement.featureCase.closeTags': 'Off: overwrites an existing label',

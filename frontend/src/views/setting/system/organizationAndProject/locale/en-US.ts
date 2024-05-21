@@ -23,7 +23,6 @@ export default {
   'system.organization.organizationAdmin': 'Organization administrator',
   'system.organization.organizationAdminPlaceholder':
     'The organization administrator defaults to the person who created the organization',
-  'system.organization.description': 'Description',
   'system.organization.descriptionPlaceholder': 'Please describe the organization',
   'system.organization.ID': 'ID',
   'system.organization.name': 'Name',

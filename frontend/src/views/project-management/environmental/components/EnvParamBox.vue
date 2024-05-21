@@ -16,12 +16,7 @@
             @blur="store.currentEnvDetailInfo.name = form.name"
           />
         </a-form-item>
-        <a-form-item
-          class="mb-[16px]"
-          asterisk-position="end"
-          field="description"
-          :label="t('project.environmental.desc')"
-        >
+        <a-form-item class="mb-[16px]" asterisk-position="end" field="description" :label="t('common.desc')">
           <a-textarea
             v-model="form.description"
             :placeholder="t('project.environmental.envDescPlaceholder')"

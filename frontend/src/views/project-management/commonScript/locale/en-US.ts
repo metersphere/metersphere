@@ -3,7 +3,6 @@ export default {
   'project.commonScript.addPublicScript': 'Add Script',
   'project.commonScript.editPublicScript': 'Edit Script',
   'project.commonScript.name': 'Name',
-  'project.commonScript.description': 'Description',
   'project.commonScript.enable': 'Status',
   'project.commonScript.createUser': 'CreateUser',
   'project.commonScript.createTime': 'CreateTime',

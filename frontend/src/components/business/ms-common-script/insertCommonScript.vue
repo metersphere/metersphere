@@ -227,7 +227,7 @@
       showInTable: true,
     },
     {
-      title: 'project.commonScript.description',
+      title: 'common.desc',
       dataIndex: 'description',
       showDrag: true,
       showTooltip: true,

@@ -93,7 +93,6 @@ export default {
   'project.messageManagement.contentTip': 'Click Add Name Edit Notification Template on the left',
   'project.messageManagement.contentMax': 'Content length cannot exceed 500 characters',
   'project.messageManagement.var': 'Variable',
-  'project.messageManagement.desc': 'Description',
   'project.messageManagement.saveSuccess': 'Template saved successfully',
   'project.messageManagement.enableRobotSuccess': '{name} is enabled',
   'project.messageManagement.disableRobotSuccess': '{name} is disabled',

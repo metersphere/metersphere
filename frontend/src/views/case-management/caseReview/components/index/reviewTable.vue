@@ -365,7 +365,7 @@
           type: FilterType.TAGS_INPUT,
         },
         {
-          title: 'caseManagement.caseReview.desc',
+          title: 'common.desc',
           dataIndex: 'description',
           type: FilterType.INPUT,
         },
@@ -480,7 +480,7 @@
       width: 170,
     },
     {
-      title: 'caseManagement.caseReview.desc',
+      title: 'common.desc',
       dataIndex: 'description',
       width: 150,
       showDrag: true,

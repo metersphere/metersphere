@@ -121,7 +121,7 @@
       dataIndex: 'enable',
     },
     {
-      title: 'system.resourcePool.tableColumnDescription',
+      title: 'common.desc',
       dataIndex: 'description',
       showTooltip: true,
     },
@@ -394,7 +394,7 @@
           : [];
         activePoolDesc.value = [
           {
-            label: t('system.resourcePool.detailDesc'),
+            label: t('common.desc'),
             value: activePool.value.description,
           },
           {

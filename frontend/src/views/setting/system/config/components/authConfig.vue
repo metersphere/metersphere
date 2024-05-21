@@ -99,7 +99,7 @@
             allow-clear
           ></a-input>
         </a-form-item>
-        <a-form-item :label="t('system.config.auth.desc')" field="description" asterisk-position="end">
+        <a-form-item :label="t('common.desc')" field="description" asterisk-position="end">
           <a-textarea
             v-model:model-value="activeAuthForm.description"
             :max-length="1000"
@@ -671,7 +671,7 @@
       dataIndex: 'enable',
     },
     {
-      title: 'system.config.auth.desc',
+      title: 'common.desc',
       dataIndex: 'description',
       showTooltip: true,
     },
@@ -838,7 +838,7 @@
       const { configuration } = activeAuthDetail.value;
       let description: Description[] = [
         {
-          label: t('system.config.auth.desc'),
+          label: t('common.desc'),
           value: activeAuthDetail.value.description,
         },
       ];

@@ -589,7 +589,7 @@
   </a-modal>
   <a-modal
     v-model:visible="showQuickInputDesc"
-    :title="t('apiTestDebug.desc')"
+    :title="t('common.desc')"
     :ok-text="t('common.save')"
     :ok-button-props="{ disabled: !quickInputDescValue || quickInputDescValue.trim() === '' }"
     class="ms-modal-form"
@@ -833,7 +833,7 @@
   //     width: 300,
   //   },
   //   {
-  //     title: t('project.environmental.http.desc'),
+  //     title: t('common.desc'),
   //     dataIndex: 'description',
   //   },
   // ];

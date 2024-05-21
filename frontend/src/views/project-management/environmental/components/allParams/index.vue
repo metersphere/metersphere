@@ -125,7 +125,7 @@
       showDrag: true,
     },
     {
-      title: 'project.environmental.desc',
+      title: 'common.desc',
       dataIndex: 'description',
       slotName: 'description',
       showInTable: true,

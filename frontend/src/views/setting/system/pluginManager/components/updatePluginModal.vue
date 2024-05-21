@@ -63,7 +63,7 @@
         <div v-if="showRemoveOrg" class="mb-[16px] ml-1 text-[12px] text-[rgb(var(--danger-6))]">
           {{ t('system.plugin.changeOrganizeTip') }}
         </div>
-        <a-form-item field="description" :label="t('system.plugin.description')" asterisk-position="end">
+        <a-form-item field="description" :label="t('common.desc')" asterisk-position="end">
           <a-textarea
             v-model="form.description"
             :max-length="1000"

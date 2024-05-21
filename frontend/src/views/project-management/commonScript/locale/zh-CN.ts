@@ -3,7 +3,6 @@ export default {
   'project.commonScript.addPublicScript': '添加公共脚本',
   'project.commonScript.editPublicScript': '编辑公共脚本',
   'project.commonScript.name': '名称',
-  'project.commonScript.description': '描述',
   'project.commonScript.enable': '状态',
   'project.commonScript.createUser': '创建人',
   'project.commonScript.createTime': '创建时间',

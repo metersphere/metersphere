@@ -70,7 +70,6 @@ export default {
   'caseManagement.featureCase.associated': '关联',
   'caseManagement.featureCase.fileType': '文件类型',
   'caseManagement.featureCase.fileName': '文件名',
-  'caseManagement.featureCase.description': '描述',
   'caseManagement.featureCase.tags': '标签',
   'caseManagement.featureCase.enableTags': '开启：新增标签',
   'caseManagement.featureCase.closeTags': '关闭：覆盖原有标签',
