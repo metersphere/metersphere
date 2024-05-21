@@ -39,9 +39,10 @@
         t.id,t.num,t.name,t.status,t.group_id,
         t.create_user AS createUser,
         createUser.name AS createUserName,
-        t.create_time,
-        t.module_id,
+        t.create_time as createTime,
+        t.module_id as moduleId,
         t.type,
+        t.description,
         t.tags
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
