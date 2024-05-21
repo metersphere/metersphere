@@ -211,7 +211,7 @@ public class TestPlanReportService {
 		genPreParam.setResultStatus("-");
 		// 是否集成报告, 目前根据是否计划组来区分
 		genPreParam.setIntegrated(StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP));
-		TestPlanReport preReport = preGenReport(genPreParam, currentUser);
+		TestPlanReport preReport = preGenReport(genPreParam, currentUser, "/test-plan/report/gen");
 		TestPlanReportPostParam postParam = new TestPlanReportPostParam();
 		BeanUtils.copyBean(postParam, request);
 		postParam.setReportId(preReport.getId());
@@ -227,7 +227,7 @@ public class TestPlanReportService {
 	 * 预生成报告内容(后续拆分优化)
 	 * @return 报告
 	 */
-	public TestPlanReport preGenReport(TestPlanReportGenPreParam genParam, String currentUser) {
+	public TestPlanReport preGenReport(TestPlanReportGenPreParam genParam, String currentUser, String logPath) {
 		// 准备计划数据
 		TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
 
@@ -298,6 +298,9 @@ public class TestPlanReportService {
 		report.setDeleted(false);
 		report.setPassThreshold(testPlanConfig.getPassThreshold());
 		testPlanReportMapper.insertSelective(report);
+
+		// 插入生成报告日志
+		testPlanReportLogService.addLog(report, currentUser, genParam.getProjectId(), logPath);
 		return report;
 	}
 

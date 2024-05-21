@@ -44,6 +44,10 @@ public class TestPlanReportBug implements Serializable {
     @Schema(description = "缺陷处理人")
     private String bugHandleUser;
 
+    @Schema(description = "缺陷用例数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_bug.bug_case_count.not_blank}", groups = {Created.class})
+    private Long bugCaseCount;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -53,7 +57,8 @@ public class TestPlanReportBug implements Serializable {
         bugNum("bug_num", "bugNum", "BIGINT", false),
         bugTitle("bug_title", "bugTitle", "VARCHAR", false),
         bugStatus("bug_status", "bugStatus", "VARCHAR", false),
-        bugHandleUser("bug_handle_user", "bugHandleUser", "VARCHAR", false);
+        bugHandleUser("bug_handle_user", "bugHandleUser", "VARCHAR", false),
+        bugCaseCount("bug_case_count", "bugCaseCount", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

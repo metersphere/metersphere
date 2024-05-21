@@ -53,7 +53,7 @@ public class TestPlanReportFunctionCase implements Serializable {
     private String functionCaseExecuteUser;
 
     @Schema(description = "功能用例关联缺陷数")
-    private String functionCaseBugCount;
+    private Long functionCaseBugCount;
 
     @Schema(description = "执行结果", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report_function_case.function_case_execute_result.not_blank}", groups = {Created.class})
@@ -72,7 +72,7 @@ public class TestPlanReportFunctionCase implements Serializable {
         functionCaseModule("function_case_module", "functionCaseModule", "VARCHAR", false),
         functionCasePriority("function_case_priority", "functionCasePriority", "VARCHAR", false),
         functionCaseExecuteUser("function_case_execute_user", "functionCaseExecuteUser", "VARCHAR", false),
-        functionCaseBugCount("function_case_bug_count", "functionCaseBugCount", "VARCHAR", false),
+        functionCaseBugCount("function_case_bug_count", "functionCaseBugCount", "BIGINT", false),
         functionCaseExecuteResult("function_case_execute_result", "functionCaseExecuteResult", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS test_plan_report_function_case(
      `function_case_module` VARCHAR(255)    COMMENT '功能用例所属模块' ,
      `function_case_priority` VARCHAR(50)    COMMENT '功能用例用例等级' ,
      `function_case_execute_user` VARCHAR(50)    COMMENT '功能用例执行人' ,
-     `function_case_bug_count` VARCHAR(255)    COMMENT '功能用例关联缺陷数' ,
+     `function_case_bug_count` BIGINT    COMMENT '功能用例关联缺陷数' ,
      `function_case_execute_result` VARCHAR(50) NOT NULL   COMMENT '执行结果' ,
      PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容功能用例部分';
@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS test_plan_report_bug(
    `bug_title` VARCHAR(255) NOT NULL   COMMENT '缺陷标题' ,
    `bug_status` VARCHAR(50)    COMMENT '缺陷状态' ,
    `bug_handle_user` VARCHAR(50)    COMMENT '缺陷处理人' ,
+   `bug_case_count` BIGINT NOT NULL   COMMENT '缺陷用例数' ,
    PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容缺陷部分';
 

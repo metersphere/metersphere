@@ -2,9 +2,8 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.domain.TestPlanReportBug;
 import io.metersphere.plan.domain.TestPlanReportBugExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface TestPlanReportBugMapper {
     long countByExample(TestPlanReportBugExample example);
