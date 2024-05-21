@@ -133,6 +133,8 @@ public class ApiScenarioService extends MoveNodeService {
     @Resource
     private ApiFileResourceService apiFileResourceService;
     @Resource
+    private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
     private ApiScenarioStepMapper apiScenarioStepMapper;
     @Resource
     private ExtApiScenarioStepMapper extApiScenarioStepMapper;
@@ -435,6 +437,9 @@ public class ApiScenarioService extends MoveNodeService {
         apiScenarioBlob.setConfig(JSON.toJSONString(request.getScenarioConfig()).getBytes());
         apiScenarioBlobMapper.insert(apiScenarioBlob);
 
+        // 处理复制场景时的文件复制
+        handleCopyFromScenarioFile(request, scenario, creator);
+
         // 处理csv文件
         handCsvFilesAdd(request, creator, scenario);
 
@@ -443,7 +448,53 @@ public class ApiScenarioService extends MoveNodeService {
 
         // 处理步骤文件
         handleStepFilesAdd(request, creator, scenario);
+
         return scenario;
+    }
+
+    /**
+     * 处理复制场景时的文件复制
+     * @param request
+     * @param scenario
+     */
+    private void handleCopyFromScenarioFile(ApiScenarioAddRequest request, ApiScenario scenario, String userId) {
+        String copyFromScenarioId = request.getCopyFromScenarioId();
+        if (StringUtils.isNotBlank(copyFromScenarioId)) {
+            // 查询原场景的 csv 文件
+            ApiScenarioCsvExample example = new ApiScenarioCsvExample();
+            example.createCriteria().andScenarioIdEqualTo(copyFromScenarioId);
+            Map<String, ApiScenarioCsv> csvMap = apiScenarioCsvMapper.selectByExample(example)
+                    .stream()
+                    .collect(Collectors.toMap(ApiScenarioCsv::getFileId, Function.identity()));
+
+            if (!csvMap.isEmpty()) {
+                ScenarioConfig scenarioConfig = request.getScenarioConfig();
+                List<CsvVariable> csvVariables = scenarioConfig.getVariable().getCsvVariables();
+                for (CsvVariable csvVariable : csvVariables) {
+                    String originFileId = csvVariable.getFile().getFileId();
+                    ApiScenarioCsv copyFromCsv = csvMap.get(originFileId);
+                    if (copyFromCsv != null && BooleanUtils.isTrue(csvVariable.getFile().getLocal())) {
+                        // 重新生成 fileId，从原场景复制文件
+                        csvVariable.getFile().setFileId(IDGenerator.nextStr());
+                        String sourceDir = DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), copyFromScenarioId);
+                        String targetDir = DefaultRepositoryDir.getApiScenarioDir(request.getProjectId(), scenario.getId());
+                        apiFileResourceService.copyFile(sourceDir + "/" + copyFromCsv.getFileId(),
+                                targetDir + "/" + csvVariable.getFile().getFileId(),
+                                csvVariable.getFile().getFileName());
+
+                        // 在临时文件没有找到文件，则不会创建关联关系，这里手动添加
+                        ApiFileResource apiFileResource = new ApiFileResource();
+                        apiFileResource.setFileId(csvVariable.getFile().getFileId());
+                        apiFileResource.setResourceId(scenario.getId());
+                        apiFileResource.setResourceType(ApiResourceType.API_SCENARIO.name());
+                        apiFileResource.setProjectId(scenario.getProjectId());
+                        apiFileResource.setCreateTime(System.currentTimeMillis());
+                        apiFileResource.setFileName(csvVariable.getFile().getFileName());
+                        apiFileResourceMapper.insert(apiFileResource);
+                    }
+                }
+            }
+        }
     }
 
     private void handleStepAdd(ApiScenarioAddRequest request, ApiScenario scenario) {

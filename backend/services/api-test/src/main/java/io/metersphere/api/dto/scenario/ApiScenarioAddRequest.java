@@ -58,6 +58,10 @@ public class ApiScenarioAddRequest {
     @Size(max = 50, message = "{api_scenario.environment_id.length_range}")
     private String environmentId;
 
+    @Schema(description = "复制的原场景ID")
+    @Size(max = 50)
+    private String copyFromScenarioId;
+
     @Schema(description = "场景的通用配置")
     @Valid
     private ScenarioConfig scenarioConfig = new ScenarioConfig();

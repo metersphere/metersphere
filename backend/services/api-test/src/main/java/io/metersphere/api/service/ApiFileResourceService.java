@@ -126,7 +126,7 @@ public class ApiFileResourceService {
                 String fileName = getTempFileNameByFileId(fileId);
                 if (StringUtils.isBlank(fileName)) {
                     // 如果 fileName 查不到，说明该文件已经从临时目录移到正式目录，已经关联过了，无需关联
-                    break;
+                    continue;
                 }
                 ApiFileResource apiFileResource = new ApiFileResource();
                 apiFileResource.setFileId(fileId);
@@ -343,11 +343,25 @@ public class ApiFileResourceService {
                     apiFileResources.add(apiFileResource);
                 } catch (Exception e) {
                     LogUtils.error(e);
-                    throw new MSException(Translator.get("file_copy_fail"));
+                    throw new MSException(e);
                 }
             });
 
             apiFileResourceMapper.batchInsert(apiFileResources);
+        }
+    }
+
+    public void copyFile(String sourceFolder, String targetFolder, String fileName) {
+        try {
+            FileCopyRequest fileCopyRequest = new FileCopyRequest();
+            fileCopyRequest.setCopyFolder(sourceFolder);
+            fileCopyRequest.setCopyfileName(fileName);
+            fileCopyRequest.setFileName(fileName);
+            fileCopyRequest.setFolder(targetFolder);
+            FileCenter.getDefaultRepository().copyFile(fileCopyRequest);
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(e);
         }
     }
 
