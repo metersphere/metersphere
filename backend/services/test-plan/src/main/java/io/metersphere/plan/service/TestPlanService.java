@@ -286,7 +286,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param requestMethod
      * @return
      */
-    public String update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
+    public TestPlan update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
@@ -323,7 +323,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
         }
         testPlanLogService.saveUpdateLog(testPlan, testPlanMapper.selectByPrimaryKey(request.getId()), testPlan.getProjectId(), userId, requestUrl, requestMethod);
-        return request.getId();
+        return testPlan;
     }
 
 

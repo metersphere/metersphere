@@ -140,6 +140,13 @@ public class TestPlanSendNoticeService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
         dto.setStatus(testPlan.getStatus());
         dto.setType(testPlan.getType());
+        dto.setActualEndTime(testPlan.getActualEndTime());
+        dto.setActualStartTime(testPlan.getActualStartTime());
+        dto.setCreateTime(testPlan.getCreateTime());
+        dto.setCreateUser(testPlan.getCreateUser());
+        dto.setUpdateTime(testPlan.getUpdateTime());
+        dto.setUpdateUser(testPlan.getUpdateUser());
+        dto.setNum(testPlan.getNum());
         return dto;
     }
 
@@ -147,8 +154,11 @@ public class TestPlanSendNoticeService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(id);
         TestPlanDTO dto = new TestPlanDTO();
-        BeanUtils.copyBean(dto, testPlan);
-        BeanUtils.copyBean(dto, testPlanConfig);
-        return dto;
+        if (testPlan != null) {
+            BeanUtils.copyBean(dto, testPlan);
+            BeanUtils.copyBean(dto, testPlanConfig);
+            return dto;
+        }
+        return null;
     }
 }
