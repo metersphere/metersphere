@@ -1215,8 +1215,10 @@ public class TestCaseService {
                     }
                     httpRequest.setAttribute("ms-req-title", String.join(",", names));
                     httpRequest.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
+                } else {
+                    MSException.throwException(Translator.get("no_legitimate_case_tip"));
+                    return null;
                 }
-
             }
             xmindParser.clear();
         } catch (Exception e) {
