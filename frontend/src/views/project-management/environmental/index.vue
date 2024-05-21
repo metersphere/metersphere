@@ -37,7 +37,7 @@
               :class="{ 'bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]': activeKey === ALL_PARAM }"
               @click="handleListItemClick({ id: 'allParam', name: 'allParam', description: '' })"
             >
-              {{ t('project.environmental.allParam') }}
+              {{ t('project.environmental.requestHeader') }}
               <div class="node-extra">
                 <MsMoreAction
                   v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
