@@ -39,4 +39,9 @@ export function updateReportDetail(data: UpdateReportDetailParams) {
   return MSR.post({ url: reportUrl.UpdateReportDetailUrl, data });
 }
 
+// 测试计划-报告-详情
+export function getReportDetail(id: string) {
+  return MSR.get({ url: `${reportUrl.PlanReportDetailUrl}/${id}` });
+}
+
 export default {};

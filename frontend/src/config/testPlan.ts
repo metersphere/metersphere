@@ -1,6 +1,6 @@
 import type { PassRateCountDetail, planStatusType, TestPlanDetail } from '@/models/testPlan/testPlan';
+import type { PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
 import { LastExecuteResults } from '@/enums/caseEnum';
-
 // TODO: 对照后端字段
 // 测试计划详情
 export const testPlanDefaultDetail: TestPlanDetail = {
@@ -46,5 +46,77 @@ export const defaultExecuteForm = {
   planCommentFileIds: [],
   notifier: [] as string[],
 };
+// 报告详情
+export const defaultReportDetail: PlanReportDetail = {
+  id: '',
+  name: '',
+  startTime: 0,
+  executeTime: 0, // 报告执行开始时间
+  endTime: 0,
+  summary: '',
+  passThreshold: 0, // 通过阈值
+  passRate: 0, // 通过率
+  executeRate: 0, // 执行完成率
+  bugCount: 0,
+  caseTotal: 0,
+  executeCount: {
+    success: 0,
+    error: 0,
+    fakeError: 0,
+    block: 0,
+    pending: 0,
+  },
+  functionalCount: {
+    success: 0,
+    error: 0,
+    fakeError: 0,
+    block: 0,
+    pending: 0,
+  },
+};
+
+export const statusConfig: StatusListType[] = [
+  {
+    label: 'common.success',
+    value: 'success',
+    color: '#00C261',
+    class: 'bg-[rgb(var(--success-6))]',
+    rateKey: 'requestPassRate',
+    key: 'SUCCESS',
+  },
+  // TODO 这个版本不展示误报
+  // {
+  //   label: 'common.fakeError',
+  //   value: 'fakeError',
+  //   color: '#FFC14E',
+  //   class: 'bg-[rgb(var(--warning-6))]',
+  //   rateKey: 'requestFakeErrorRate',
+  //   key: 'FAKE_ERROR',
+  // },
+  {
+    label: 'common.fail',
+    value: 'error',
+    color: '#ED0303',
+    class: 'bg-[rgb(var(--danger-6))]',
+    rateKey: 'requestErrorRate',
+    key: 'ERROR',
+  },
+  {
+    label: 'common.unExecute',
+    value: 'pending',
+    color: '#D4D4D8',
+    class: 'bg-[var(--color-text-input-border)]',
+    rateKey: 'requestPendingRate',
+    key: 'PENDING',
+  },
+  {
+    label: 'common.block',
+    value: 'block',
+    color: '#B379C8',
+    class: 'bg-[rgb(var(--primary-3))]',
+    rateKey: 'requestPendingRate',
+    key: 'BLOCK',
+  },
+];
 
 export default {};

@@ -30,7 +30,7 @@
               {{ t('caseManagement.featureCase.execute.success') }}
             </div>
             <div v-if="item.status === 'BLOCKED'" class="flex items-center">
-              <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+              <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--primary-3))]" />
               {{ t('caseManagement.featureCase.execute.blocked') }}
             </div>
             <div v-if="item.status === 'ERROR'" class="flex items-center">

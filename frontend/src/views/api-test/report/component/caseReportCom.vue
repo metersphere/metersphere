@@ -383,7 +383,7 @@
         ...item,
         label: t(item.label),
         count: detail.value[item.value] || 0,
-        rote: detail.value[item.rateKey] || 0,
+        rote: `${detail.value[item.rateKey] || 0}%`,
       };
     });
   }
