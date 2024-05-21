@@ -45,7 +45,7 @@ public class JSONSchemaBuilder {
                     formatObject(map, allOfElementObj, rootObj);
                 }
             }
-        } else if (object.has(PropertyConstant.PROPERTIES)) {
+        } else if (object.has(PropertyConstant.PROPERTIES) && !object.get(PropertyConstant.PROPERTIES).getAsJsonObject().isEmpty()) {
             formatObject(map, object, rootObj);
         } else if (object.has(PropertyConstant.TYPE)) {
             if (object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.ARRAY)) {
@@ -256,7 +256,7 @@ public class JSONSchemaBuilder {
     }
 
     private static void formatObject(Map<String, String> map, JsonObject jsonObject, JSONObject concept) {
-        JsonObject propertiesObj = jsonObject.has(PropertyConstant.PROPERTIES) ? jsonObject.get(PropertyConstant.PROPERTIES).getAsJsonObject(): new JsonObject();
+        JsonObject propertiesObj = jsonObject.has(PropertyConstant.PROPERTIES) ? jsonObject.get(PropertyConstant.PROPERTIES).getAsJsonObject() : new JsonObject();
         for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
             String propertyKey = entry.getKey();
             JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
@@ -285,7 +285,7 @@ public class JSONSchemaBuilder {
             JSONArray jsonArray = (JSONArray) root.get(PropertyConstant.MS_OBJECT);
             List<String> list = new LinkedList<>();
             JSONSchemaParser.toJsonString(jsonArray, list);
-            return JSON.toJSONString(list);
+            return list.toString();
         }
         return JSON.toJSONString(JSON.toMap(root));
     }
