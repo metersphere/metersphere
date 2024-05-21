@@ -664,7 +664,7 @@ export default {
             id: "version",
             name: this.$t('commons.version')
           })
-          let versionOptions = this.$refs.versionSelect.versionOptions;
+          let versionOptions = this.$refs.versionSelect.versionOptions.filter(r => r.status === 'open');
           // console.info("version-options", versionOptions);
           this.valueArr['version'] = versionOptions;
         }
