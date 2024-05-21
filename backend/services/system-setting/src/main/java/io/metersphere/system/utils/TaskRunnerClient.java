@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class TaskRunnerClient {
         return retry(url, requestBody, action);
     }
 
-    private static ResultHolder retry(String url, Object requestBody, Action action) throws IOException {
+    private static ResultHolder retry(String url, Object requestBody, Action action) throws Exception {
         ResultHolder body;
         try {
             // 首次调用
@@ -93,13 +94,13 @@ public class TaskRunnerClient {
             if (body != null && body.getCode() == MsHttpResultCode.SUCCESS.getCode()) {
                 return body;
             }
-        } catch (NoHttpResponseException | ConnectTimeoutException | SocketException e) {
+        } catch (NoHttpResponseException | ConnectTimeoutException | SocketException | ResourceAccessException e) {
             return doRetry(url, requestBody, action, e);
         }
         return body;
     }
 
-    private static ResultHolder doRetry(String url, Object requestBody, Action action, IOException e) throws IOException {
+    private static ResultHolder doRetry(String url, Object requestBody, Action action, Exception e) throws Exception {
         ResultHolder body;
         // 增加token失败重试
         for (int i = 1; i <= RETRY_COUNT; i++) {
