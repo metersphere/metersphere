@@ -473,6 +473,19 @@ export default {
           formData.append("variablesFiles", f);
         })
       }
+      if (environment.config.assertions && environment.config.assertions.document && environment.config.assertions.document.originalData) {
+        this.mergeDocumentData(
+            environment.config.assertions.document.originalData,
+            environment.config.assertions.document.tableData,
+            environment.config.assertions.document.rootData
+        );
+        if (environment.config.assertions.document.type === 'JSON') {
+          environment.config.assertions.document.data.json = environment.config.assertions.document.originalData;
+        } else {
+          environment.config.assertions.document.data.xml = environment.config.assertions.document.originalData;
+        }
+      }
+
       let param = this.buildParam(environment);
       formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
       editEnv(formData, param).then((response) => {
@@ -483,6 +496,39 @@ export default {
         this.$emit('errorRefresh', error);
       });
 
+    },
+    mergeDocumentData(originalData, childMap, rootData) {
+      originalData.forEach((item) => {
+        if (item.id === "root" && rootData) {
+          item.type = rootData.type;
+          item.name = rootData.name;
+          item.typeVerification = rootData.typeVerification;
+          item.arrayVerification = rootData.arrayVerification;
+          item.contentVerification = rootData.contentVerification;
+          item.jsonPath = rootData.jsonPath;
+          item.expectedOutcome = rootData.expectedOutcome;
+          item.include = rootData.include;
+          item.conditions = rootData.conditions;
+        }
+        if (
+            childMap &&
+            childMap.size !== 0 &&
+            childMap instanceof Map &&
+            childMap.has(item.id)
+        ) {
+          let sourceData = JSON.parse(JSON.stringify(item.children));
+          item.children = JSON.parse(JSON.stringify(childMap.get(item.id)));
+          item.children.forEach((target) => {
+            let index = sourceData.findIndex((source) => source.id === target.id);
+            if (index !== -1) {
+              target.children = sourceData[index].children;
+            }
+          });
+          if (item.children && item.children.length > 0) {
+            this.mergeDocumentData(item.children, childMap);
+          }
+        }
+      });
     },
     buildParam: function (environment) {
       let param = {};
