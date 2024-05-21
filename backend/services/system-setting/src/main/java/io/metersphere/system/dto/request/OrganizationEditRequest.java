@@ -25,7 +25,7 @@ public class OrganizationEditRequest implements Serializable {
     private String name;
 
     @Schema(description =  "描述")
-    @Size(max = 500, groups = {Created.class, Updated.class})
+    @Size(max = 1000, groups = {Created.class, Updated.class})
     private String description;
 
     @Schema(description = "成员ID集合")

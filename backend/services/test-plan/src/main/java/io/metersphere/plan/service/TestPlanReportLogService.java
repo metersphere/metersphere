@@ -93,4 +93,27 @@ public class TestPlanReportLogService {
         });
         operationLogService.batchAdd(logs);
     }
+
+    /**
+     * 生成报告日志
+     * @param report 报告
+     * @param userId 用户ID
+     * @param projectId 项目ID
+     * @param path 路径
+     */
+    public void addLog(TestPlanReport report, String userId, String projectId, String path) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        LogDTO log = new LogDTO(
+                projectId,
+                project.getOrganizationId(),
+                report.getId(),
+                userId,
+                OperationLogType.ADD.name(),
+                OperationLogModule.TEST_PLAN_REPORT,
+                report.getName());
+        log.setPath(path);
+        log.setMethod(HttpMethodConstants.POST.name());
+        log.setOriginalValue(JSON.toJSONBytes(report));
+        operationLogService.add(log);
+    }
 }

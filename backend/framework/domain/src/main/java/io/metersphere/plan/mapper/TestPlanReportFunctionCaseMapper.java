@@ -2,9 +2,8 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.domain.TestPlanReportFunctionCase;
 import io.metersphere.plan.domain.TestPlanReportFunctionCaseExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface TestPlanReportFunctionCaseMapper {
     long countByExample(TestPlanReportFunctionCaseExample example);

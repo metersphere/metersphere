@@ -583,6 +583,66 @@ public class TestPlanReportBugExample {
             addCriterion("bug_handle_user not between", value1, value2, "bugHandleUser");
             return (Criteria) this;
         }
+
+        public Criteria andBugCaseCountIsNull() {
+            addCriterion("bug_case_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountIsNotNull() {
+            addCriterion("bug_case_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountEqualTo(Long value) {
+            addCriterion("bug_case_count =", value, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountNotEqualTo(Long value) {
+            addCriterion("bug_case_count <>", value, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountGreaterThan(Long value) {
+            addCriterion("bug_case_count >", value, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("bug_case_count >=", value, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountLessThan(Long value) {
+            addCriterion("bug_case_count <", value, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountLessThanOrEqualTo(Long value) {
+            addCriterion("bug_case_count <=", value, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountIn(List<Long> values) {
+            addCriterion("bug_case_count in", values, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountNotIn(List<Long> values) {
+            addCriterion("bug_case_count not in", values, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountBetween(Long value1, Long value2) {
+            addCriterion("bug_case_count between", value1, value2, "bugCaseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andBugCaseCountNotBetween(Long value1, Long value2) {
+            addCriterion("bug_case_count not between", value1, value2, "bugCaseCount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

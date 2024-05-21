@@ -734,62 +734,52 @@ public class TestPlanReportFunctionCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountEqualTo(String value) {
+        public Criteria andFunctionCaseBugCountEqualTo(Long value) {
             addCriterion("function_case_bug_count =", value, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountNotEqualTo(String value) {
+        public Criteria andFunctionCaseBugCountNotEqualTo(Long value) {
             addCriterion("function_case_bug_count <>", value, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountGreaterThan(String value) {
+        public Criteria andFunctionCaseBugCountGreaterThan(Long value) {
             addCriterion("function_case_bug_count >", value, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountGreaterThanOrEqualTo(String value) {
+        public Criteria andFunctionCaseBugCountGreaterThanOrEqualTo(Long value) {
             addCriterion("function_case_bug_count >=", value, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountLessThan(String value) {
+        public Criteria andFunctionCaseBugCountLessThan(Long value) {
             addCriterion("function_case_bug_count <", value, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountLessThanOrEqualTo(String value) {
+        public Criteria andFunctionCaseBugCountLessThanOrEqualTo(Long value) {
             addCriterion("function_case_bug_count <=", value, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountLike(String value) {
-            addCriterion("function_case_bug_count like", value, "functionCaseBugCount");
-            return (Criteria) this;
-        }
-
-        public Criteria andFunctionCaseBugCountNotLike(String value) {
-            addCriterion("function_case_bug_count not like", value, "functionCaseBugCount");
-            return (Criteria) this;
-        }
-
-        public Criteria andFunctionCaseBugCountIn(List<String> values) {
+        public Criteria andFunctionCaseBugCountIn(List<Long> values) {
             addCriterion("function_case_bug_count in", values, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountNotIn(List<String> values) {
+        public Criteria andFunctionCaseBugCountNotIn(List<Long> values) {
             addCriterion("function_case_bug_count not in", values, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountBetween(String value1, String value2) {
+        public Criteria andFunctionCaseBugCountBetween(Long value1, Long value2) {
             addCriterion("function_case_bug_count between", value1, value2, "functionCaseBugCount");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionCaseBugCountNotBetween(String value1, String value2) {
+        public Criteria andFunctionCaseBugCountNotBetween(Long value1, Long value2) {
             addCriterion("function_case_bug_count not between", value1, value2, "functionCaseBugCount");
             return (Criteria) this;
         }

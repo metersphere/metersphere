@@ -9,6 +9,7 @@
     <result column="bug_title" jdbcType="VARCHAR" property="bugTitle" />
     <result column="bug_status" jdbcType="VARCHAR" property="bugStatus" />
     <result column="bug_handle_user" jdbcType="VARCHAR" property="bugHandleUser" />
+    <result column="bug_case_count" jdbcType="BIGINT" property="bugCaseCount" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_report_id, bug_id, bug_num, bug_title, bug_status, bug_handle_user
+    id, test_plan_report_id, bug_id, bug_num, bug_title, bug_status, bug_handle_user, 
+    bug_case_count
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportBugExample" resultMap="BaseResultMap">
     select
@@ -104,10 +106,10 @@
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanReportBug">
     insert into test_plan_report_bug (id, test_plan_report_id, bug_id, 
       bug_num, bug_title, bug_status, 
-      bug_handle_user)
+      bug_handle_user, bug_case_count)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, 
       #{bugNum,jdbcType=BIGINT}, #{bugTitle,jdbcType=VARCHAR}, #{bugStatus,jdbcType=VARCHAR}, 
-      #{bugHandleUser,jdbcType=VARCHAR})
+      #{bugHandleUser,jdbcType=VARCHAR}, #{bugCaseCount,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportBug">
     insert into test_plan_report_bug
@@ -133,6 +135,9 @@
       <if test="bugHandleUser != null">
         bug_handle_user,
       </if>
+      <if test="bugCaseCount != null">
+        bug_case_count,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +160,9 @@
       </if>
       <if test="bugHandleUser != null">
         #{bugHandleUser,jdbcType=VARCHAR},
+      </if>
+      <if test="bugCaseCount != null">
+        #{bugCaseCount,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -188,6 +196,9 @@
       <if test="record.bugHandleUser != null">
         bug_handle_user = #{record.bugHandleUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.bugCaseCount != null">
+        bug_case_count = #{record.bugCaseCount,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +212,8 @@
       bug_num = #{record.bugNum,jdbcType=BIGINT},
       bug_title = #{record.bugTitle,jdbcType=VARCHAR},
       bug_status = #{record.bugStatus,jdbcType=VARCHAR},
-      bug_handle_user = #{record.bugHandleUser,jdbcType=VARCHAR}
+      bug_handle_user = #{record.bugHandleUser,jdbcType=VARCHAR},
+      bug_case_count = #{record.bugCaseCount,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +239,9 @@
       <if test="bugHandleUser != null">
         bug_handle_user = #{bugHandleUser,jdbcType=VARCHAR},
       </if>
+      <if test="bugCaseCount != null">
+        bug_case_count = #{bugCaseCount,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -237,18 +252,19 @@
       bug_num = #{bugNum,jdbcType=BIGINT},
       bug_title = #{bugTitle,jdbcType=VARCHAR},
       bug_status = #{bugStatus,jdbcType=VARCHAR},
-      bug_handle_user = #{bugHandleUser,jdbcType=VARCHAR}
+      bug_handle_user = #{bugHandleUser,jdbcType=VARCHAR},
+      bug_case_count = #{bugCaseCount,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_bug
-    (id, test_plan_report_id, bug_id, bug_num, bug_title, bug_status, bug_handle_user
-      )
+    (id, test_plan_report_id, bug_id, bug_num, bug_title, bug_status, bug_handle_user, 
+      bug_case_count)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanReportId,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, 
         #{item.bugNum,jdbcType=BIGINT}, #{item.bugTitle,jdbcType=VARCHAR}, #{item.bugStatus,jdbcType=VARCHAR}, 
-        #{item.bugHandleUser,jdbcType=VARCHAR})
+        #{item.bugHandleUser,jdbcType=VARCHAR}, #{item.bugCaseCount,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -281,6 +297,9 @@
         </if>
         <if test="'bug_handle_user'.toString() == column.value">
           #{item.bugHandleUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'bug_case_count'.toString() == column.value">
+          #{item.bugCaseCount,jdbcType=BIGINT}
         </if>
       </foreach>
       )

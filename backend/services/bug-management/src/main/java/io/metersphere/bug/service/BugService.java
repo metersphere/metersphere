@@ -799,7 +799,13 @@ public class BugService {
         // 状态从内置自定义字段中获取
         Optional<BugCustomFieldDTO> statusField = request.getCustomFields().stream().filter(field -> StringUtils.equals(field.getId(), BugTemplateCustomField.STATUS.getId())).findFirst();
         if (statusField.isPresent()) {
-            bug.setStatus(statusField.get().getValue());
+            if (StringUtils.isBlank(statusField.get().getValue()) && StringUtils.equalsIgnoreCase(BugPlatform.LOCAL.getName(), platformName)) {
+                // Local平台设置状态默认值为状态流-开始状态
+                List<SelectOption> localStartStatusItem = bugStatusService.getToStatusItemOptionOnLocal(request.getProjectId(), StringUtils.EMPTY);
+                bug.setStatus(localStartStatusItem.get(0).getValue());
+            } else {
+                bug.setStatus(statusField.get().getValue());
+            }
             request.getCustomFields().removeIf(field -> StringUtils.equals(field.getId(), BugTemplateCustomField.STATUS.getId()));
         } else {
             throw new MSException(Translator.get("bug_status_can_not_be_empty"));
