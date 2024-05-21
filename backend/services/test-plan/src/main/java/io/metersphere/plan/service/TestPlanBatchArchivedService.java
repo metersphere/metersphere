@@ -7,7 +7,10 @@ import io.metersphere.plan.dto.request.TestPlanBatchRequest;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,36 +27,36 @@ public class TestPlanBatchArchivedService extends TestPlanBaseUtilsService {
 
     public void batchArchived(Map<String, List<TestPlan>> plans, TestPlanBatchRequest request, String userId) {
         int affectedGroupPlanCount = batchArchivedGroup(plans, request, userId);
-        int affectedPlanCount = batchArchivedPlan(plans, request, userId);
+        int affectedPlanCount = batchArchivedPlan(plans, userId);
         if (affectedGroupPlanCount <= 0 && affectedPlanCount <= 0) {
             // 暂无可归档的计划
-            throw new MSException("");
+            throw new MSException(Translator.get("no_plan_to_archive"));
         }
     }
 
     /**
-     * 批量移动组
+     * 批量归档组
      *
-     * @param plans
+     * @param planGroups 计划组
      */
-    private int batchArchivedGroup(Map<String, List<TestPlan>> plans, TestPlanBatchProcessRequest request, String userId) {
+    private int batchArchivedGroup(Map<String, List<TestPlan>> planGroups, TestPlanBatchProcessRequest request, String userId) {
         //TODO 批量归档计划组
         return 0;
     }
 
     /**
-     * 批量移动计划
+     * 批量归档计划
      *
      * @param plans 归档测试计划集合
      */
-    private int batchArchivedPlan(Map<String, List<TestPlan>> plans, TestPlanBatchRequest request, String userId) {
+    private int batchArchivedPlan(Map<String, List<TestPlan>> plans, String userId) {
         if (plans.containsKey(TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
             List<TestPlan> testPlans = plans.get(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
-            testPlans.forEach(testPlan -> {
-                testPlan.setModuleId(request.getModuleId());
-                validateTestPlan(testPlan);
-            });
-            List<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
+            List<String> ids = testPlans.stream().filter(plan -> StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))
+                    .map(TestPlan::getId).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(ids)) {
+                return 0;
+            }
             TestPlan record = new TestPlan();
             record.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
             record.setUpdateUser(userId);
