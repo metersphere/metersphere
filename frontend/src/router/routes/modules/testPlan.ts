@@ -14,7 +14,7 @@ const TestPlan: AppRouteRecordRaw = {
     icon: 'icon-a-icon_test-tracking_filled1',
     order: 2,
     hideChildrenInMenu: true,
-    roles: ['*'],
+    roles: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
   },
   children: [
     // 测试计划
@@ -24,7 +24,7 @@ const TestPlan: AppRouteRecordRaw = {
       component: () => import('@/views/test-plan/testPlan/index.vue'),
       meta: {
         locale: 'menu.testPlan',
-        roles: ['*'],
+        roles: ['PROJECT_TEST_PLAN:READ'],
         isTopMenu: true,
       },
     },
@@ -34,7 +34,7 @@ const TestPlan: AppRouteRecordRaw = {
       component: () => import('@/views/test-plan/report/index.vue'),
       meta: {
         locale: 'menu.apiTest.report',
-        roles: ['*'],
+        roles: ['PROJECT_TEST_PLAN_REPORT:READ'],
         isTopMenu: true,
       },
     },
@@ -44,7 +44,7 @@ const TestPlan: AppRouteRecordRaw = {
       component: () => import('@/views/test-plan/report/detail/index.vue'),
       meta: {
         locale: 'menu.apiTest.reportDetail',
-        roles: ['*'],
+        roles: ['PROJECT_TEST_PLAN_REPORT:READ'],
         breadcrumbs: [
           {
             name: TestPlanRouteEnum.TEST_PLAN_REPORT,
