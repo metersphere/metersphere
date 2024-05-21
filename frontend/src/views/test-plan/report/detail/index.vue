@@ -140,7 +140,7 @@
       :preview-url="PreviewEditorImageUrl"
       class="mt-[8px] w-full"
     />
-    <div class="mt-[16px] flex items-center gap-[12px]">
+    <div v-show="showButton" class="mt-[16px] flex items-center gap-[12px]">
       <a-button type="primary" @click="handleUpdateReportDetail">{{ t('common.save') }}</a-button>
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
     </div>
@@ -153,14 +153,16 @@
       no-content
       class="relative mb-[16px] border-b"
     />
-    <BugTable v-if="activeTab === 'bug'" :report-id="reportId" />
-    <FeatureCaseTable v-if="activeTab === 'featureCase'" :report-id="reportId" />
+    <BugTable v-if="activeTab === 'bug'" :report-id="reportId" :share-id="shareId" />
+    <FeatureCaseTable v-if="activeTab === 'featureCase'" :report-id="reportId" :share-id="shareId" />
   </MsCard>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
+  import { useEventListener } from '@vueuse/core';
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
@@ -174,8 +176,7 @@
   import FeatureCaseTable from './component/featureCaseTable.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
 
-  import { editorUploadFile } from '@/api/modules/case-management/featureCase';
-  import { getReportDetail } from '@/api/modules/test-plan/report';
+  import { editorUploadFile, getReportDetail, updateReportDetail } from '@/api/modules/test-plan/report';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultReportDetail, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -191,8 +192,13 @@
   const route = useRoute();
 
   const reportId = ref<string>(route.query.id as string);
+  const shareId = ref<string>(route.query.shareId as string);
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
+  const showButton = ref(false);
+  const richText = ref<{ summary: string; richTextTmpFileIds?: string[] }>({
+    summary: '',
+  });
 
   // 分享
   const shareLoading = ref<boolean>(false);
@@ -342,15 +348,48 @@
   async function getDetail() {
     try {
       detail.value = await getReportDetail(reportId.value);
+      richText.value = { summary: detail.value.summary };
     } catch (error) {
       console.log(error);
     }
   }
 
   onMounted(async () => {
+    nextTick(() => {
+      const editorContent = document.querySelector('.editor-content');
+      useEventListener(editorContent, 'click', () => {
+        showButton.value = true;
+      });
+    });
     await getDetail();
     initOptionsData();
   });
+
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
+  async function handleUpdateReportDetail() {
+    try {
+      await updateReportDetail({
+        id: detail.value.id,
+        summary: richText.value.summary,
+        richTextTmpFileIds: richText.value.richTextTmpFileIds ?? [],
+      });
+      Message.success(t('common.updateSuccess'));
+      showButton.value = false;
+      await getDetail();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  function handleCancel() {
+    richText.value = { summary: detail.value.summary };
+    showButton.value = false;
+  }
 
   const activeTab = ref('bug');
   const contentTabList = ref([
@@ -363,24 +402,6 @@
       label: t('report.detail.featureCaseDetails'),
     },
   ]);
-
-  // TODO 暂时
-  const richText = ref({
-    summary: '',
-    richTextTmpFileIds: [],
-  });
-  async function handleUploadImage(file: File) {
-    const { data } = await editorUploadFile({
-      fileList: [file],
-    });
-    return data;
-  }
-  function handleUpdateReportDetail() {
-    // TODO: 更新
-  }
-  function handleCancel() {
-    // TODO: 取消 数据还原
-  }
 </script>
 
 <style scoped lang="less">
@@ -421,5 +442,8 @@
         margin: auto;
       }
     }
+  }
+  :deep(.rich-wrapper) .halo-rich-text-editor .ProseMirror {
+    height: 58px;
   }
 </style>

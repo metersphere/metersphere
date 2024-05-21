@@ -14,7 +14,6 @@
 
 <script setup lang="ts">
   import { onBeforeMount } from 'vue';
-  import { useRoute } from 'vue-router';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -22,7 +21,7 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
-  import { getReportFeatureCaseList } from '@/api/modules/test-plan/report';
+  import { getReportFeatureCaseList, getReportShareFeatureCaseList } from '@/api/modules/test-plan/report';
   import { useTableStore } from '@/store';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -32,10 +31,10 @@
 
   const props = defineProps<{
     reportId: string;
+    shareId?: string;
   }>();
 
   const tableStore = useTableStore();
-  const route = useRoute();
 
   const columns: MsTableColumn = [
     {
@@ -63,10 +62,17 @@
       width: 180,
     },
     {
+      title: 'common.belongModule',
+      dataIndex: 'moduleName',
+      ellipsis: true,
+      showTooltip: true,
+      width: 200,
+    },
+    {
       title: 'case.caseLevel',
       dataIndex: 'priority',
       slotName: 'caseLevel',
-      width: 150,
+      width: 120,
     },
     {
       title: 'common.executionResult',
@@ -81,25 +87,21 @@
       width: 150,
     },
     {
-      title: 'common.belongModule',
-      dataIndex: 'moduleName',
-      ellipsis: true,
+      title: 'testPlan.featureCase.executor',
+      dataIndex: 'executeUser',
       showTooltip: true,
-      width: 200,
+      width: 150,
     },
     {
       title: 'testPlan.featureCase.bugCount',
       dataIndex: 'bugCount',
       width: 100,
     },
-    {
-      title: 'testPlan.featureCase.executor',
-      dataIndex: 'executeUserName',
-      showTooltip: true,
-      width: 150,
-    },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getReportFeatureCaseList, {
+  const reportFeatureCaseList = () => {
+    return !props.shareId ? getReportFeatureCaseList : getReportShareFeatureCaseList;
+  };
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
     scroll: { x: '100%' },
     columns,
     tableKey: TableKeyEnum.TEST_PLAN_REPORT_DETAIL_FEATURE_CASE,
@@ -108,7 +110,7 @@
   });
 
   async function loadCaseList() {
-    setLoadListParams({ reportId: props.reportId, shareId: route.query.shareId as string | undefined });
+    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
     loadList();
   }
 

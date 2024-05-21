@@ -29,9 +29,24 @@ export function getReportBugList(data: TableQueryParams) {
   return MSR.post<CommonList<ReportBugItem>>({ url: reportUrl.ReportBugListUrl, data });
 }
 
+// 测试计划-报告-详情-缺陷分页查询 (分享)
+export function getReportShareBugList(data: TableQueryParams) {
+  return MSR.post<CommonList<ReportBugItem>>({ url: reportUrl.ReportShareBugListUrl, data });
+}
+
 // 测试计划-报告-详情-功能用例分页查询
 export function getReportFeatureCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<FeatureCaseItem>>({ url: reportUrl.ReportFeatureCaseListUrl, data });
+}
+
+// 测试计划-报告-详情-功能用例分页查询 (分享)
+export function getReportShareFeatureCaseList(data: TableQueryParams) {
+  return MSR.post<CommonList<FeatureCaseItem>>({ url: reportUrl.ReportShareFeatureCaseListUrl, data });
+}
+
+// 测试计划-报告-详情-富文本编辑器上传图片文件
+export function editorUploadFile(data: { fileList: File[] }) {
+  return MSR.uploadFile({ url: reportUrl.EditorUploadFileUrl }, { fileList: data.fileList }, '', false);
 }
 
 // 测试计划-报告-详情-报告内容更新
