@@ -411,11 +411,10 @@ public class TestPlanReportService {
 		List<CaseStatusCountMap> functionalCaseCountMap = extTestPlanReportFunctionalCaseMapper.countExecuteResult(reportDetail.getId());
 		Map<String, Long> functionalCaseResultMap = functionalCaseCountMap.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
 		TestPlanReportDetailResponse.CaseCount functionalCaseCount = new TestPlanReportDetailResponse.CaseCount();
-		functionalCaseCount.setSuccess(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.SUCCESS.name(), 0L).intValue());
-		functionalCaseCount.setError(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.ERROR.name(), 0L).intValue());
-		functionalCaseCount.setPending(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.PENDING.name(), 0L).intValue());
-		functionalCaseCount.setBlock(functionalCaseResultMap.getOrDefault(FunctionalCaseExecuteResult.BLOCKED.name(), 0L).intValue());
-
+		functionalCaseCount.setSuccess(functionalCaseResultMap.getOrDefault(ExecStatus.SUCCESS.name(), 0L).intValue());
+		functionalCaseCount.setError(functionalCaseResultMap.getOrDefault(ExecStatus.ERROR.name(), 0L).intValue());
+		functionalCaseCount.setPending(functionalCaseResultMap.getOrDefault(ExecStatus.PENDING.name(), 0L).intValue());
+		functionalCaseCount.setBlock(functionalCaseResultMap.getOrDefault(ExecStatus.BLOCKED.name(), 0L).intValue());
 
 		// TODO: 接口用例, 场景用例
 

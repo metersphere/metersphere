@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -43,7 +44,9 @@ public abstract class TestPlanResourceService extends MoveNodeService {
 
     public abstract void refreshPos(String testPlanId);
 
-    public abstract int deleteBatchByTestPlanId(List<String> testPlanIdList);
+    public abstract void deleteBatchByTestPlanId(List<String> testPlanIdList);
+
+    public abstract Map<String, Long> caseExecResultCount(String testPlanId);
 
     private static final String MOVE_POS_OPERATOR_LESS = "lessThan";
     private static final String MOVE_POS_OPERATOR_MORE = "moreThan";

@@ -13,7 +13,7 @@ public enum ExecStatus {
      */
     RUNNING,
     /**
-     * 重新执行
+     * 重新执行中
      */
     RERUNNING,
     /**
@@ -21,7 +21,25 @@ public enum ExecStatus {
      */
     STOPPED,
     /**
-     * 已完成
+     * 完成
      */
-    COMPLETED
+    COMPLETED,
+
+    /**
+     * 通过
+     */
+    SUCCESS,
+
+    /**
+     * 失败
+     */
+    ERROR,
+    /**
+     * 阻塞
+     */
+    BLOCKED,
+    /**
+     * 误报
+     */
+    FAKE_ERROR
 }

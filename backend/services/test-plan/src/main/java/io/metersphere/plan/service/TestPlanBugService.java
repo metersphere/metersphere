@@ -45,7 +45,7 @@ public class TestPlanBugService extends TestPlanResourceService {
     }
 
     @Override
-    public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
+    public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         BugRelationCaseExample example = new BugRelationCaseExample();
         example.createCriteria().andTestPlanIdIn(testPlanIdList);
         List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(example);
@@ -66,7 +66,11 @@ public class TestPlanBugService extends TestPlanResourceService {
             deleteExample.createCriteria().andIdIn(relateIdsByPlan);
             bugRelationCaseMapper.deleteByExample(deleteExample);
         }
-        return bugRelationCases.size();
+    }
+
+    @Override
+    public Map<String, Long> caseExecResultCount(String testPlanId) {
+        return Map.of();
     }
 
 

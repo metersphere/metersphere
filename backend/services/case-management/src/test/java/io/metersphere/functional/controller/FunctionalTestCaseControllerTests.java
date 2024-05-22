@@ -25,7 +25,7 @@ import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.provider.BaseAssociateScenarioProvider;
 import io.metersphere.request.*;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -450,7 +450,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCase.setPos(500L);
         functionalCase.setVersionId("12335");
         functionalCase.setRefId(functionalCase.getId());
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+        functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
         functionalCase.setPublicCase(false);
         functionalCase.setLatest(true);
         functionalCase.setCreateUser("gyq");

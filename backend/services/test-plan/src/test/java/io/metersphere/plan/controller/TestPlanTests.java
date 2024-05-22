@@ -1041,7 +1041,7 @@ public class TestPlanTests extends BaseTest {
     @Test
     @Order(22)
     public void testPlanFunctionCaseSort() throws Exception {
-        if (FUNCTIONAL_CASES.size() == 0) {
+        if (FUNCTIONAL_CASES.isEmpty()) {
             this.testPlanAssociationFunctionCase();
         }
         List<TestPlanFunctionalCase> funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
@@ -1751,8 +1751,15 @@ public class TestPlanTests extends BaseTest {
     @Test
     @Order(302)
     public void testArchived() throws Exception {
-        //计划
+        //计划 -- 首先状态不是已完成
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
+        //更改状态再归档
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId("wx_test_plan_id_1");
+        testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
+
         //计划组
         this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2"));
         this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_3"));
@@ -1889,10 +1896,14 @@ public class TestPlanTests extends BaseTest {
     @Order(305)
     public void testAssociation() throws Exception {
         TestPlanAssociationRequest request = new TestPlanAssociationRequest();
-        request.setTestPlanId("wx_test_plan_id_1");
+        request.setTestPlanId("wx_test_plan_id_2");
         this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
         request.setFunctionalSelectIds(Arrays.asList("my_test_1", "my_test_2", "my_test_3"));
         this.requestPostWithOkAndReturn(URL_POST_RESOURCE_CASE_ASSOCIATION, request);
+
+        //测试归档的关联会报错
+        request.setTestPlanId("wx_test_plan_id_1");
+        this.requestPost(URL_POST_RESOURCE_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
     }
 
     @Test

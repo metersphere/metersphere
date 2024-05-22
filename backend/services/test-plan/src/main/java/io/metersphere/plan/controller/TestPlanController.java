@@ -119,7 +119,7 @@ public class TestPlanController {
 
     @PostMapping("/copy")
     @Operation(summary = "测试计划-复制测试计划")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @Log(type = OperationLogType.COPY, expression = "#msClass.copyLog(#request)", msClass = TestPlanLogService.class)
     public TestPlan copy(@Validated @RequestBody TestPlanCopyRequest request) {
@@ -140,13 +140,12 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        testPlanService.filterArchivedIds(request);
         testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
     }
 
     @PostMapping("/batch-copy")
     @Operation(summary = "测试计划-批量复制测试计划")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchCopy(@Validated @RequestBody TestPlanBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
@@ -181,6 +180,7 @@ public class TestPlanController {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
         testPlanService.association(request);
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
     @PostMapping("/batch-edit")

@@ -2,6 +2,7 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
+import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,4 +21,6 @@ public interface ExtTestPlanApiScenarioMapper {
     AssociationNode selectDragInfoById(String id);
 
     AssociationNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<TestPlanCaseRunResultCount> selectCaseExecResultCount(String testPlanId);
 }

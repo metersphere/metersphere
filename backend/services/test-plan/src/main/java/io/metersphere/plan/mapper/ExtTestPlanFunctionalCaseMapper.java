@@ -6,6 +6,7 @@ import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
+import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
@@ -53,4 +54,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     void batchUpdate(@Param("ids") List<String> ids, @Param("lastExecResult") String lastExecResult, @Param("lastExecTime") long lastExecTime, @Param("userId") String userId);
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
+
+    List<TestPlanCaseRunResultCount> selectCaseExecResultCount(String testPlanId);
 }

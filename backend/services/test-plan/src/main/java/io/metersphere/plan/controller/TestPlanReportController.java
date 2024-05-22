@@ -10,10 +10,7 @@ import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
-import io.metersphere.plan.service.TestPlanManagementService;
-import io.metersphere.plan.service.TestPlanReportLogService;
-import io.metersphere.plan.service.TestPlanReportNoticeService;
-import io.metersphere.plan.service.TestPlanReportService;
+import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -46,6 +43,8 @@ public class TestPlanReportController {
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanReportService testPlanReportService;
+    @Resource
+    private TestPlanService testPlanService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-报告-表格分页查询")
@@ -90,6 +89,7 @@ public class TestPlanReportController {
 	@RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
 	@CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
 	public TestPlanReport genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
+        testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
 		return testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
 	}
 

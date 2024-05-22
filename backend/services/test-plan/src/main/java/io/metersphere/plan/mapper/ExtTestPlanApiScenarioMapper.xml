@@ -67,4 +67,10 @@
         </if>
         LIMIT 1
     </select>
+    <select id="selectCaseExecResultCount" resultType="io.metersphere.plan.dto.TestPlanCaseRunResultCount">
+        select last_exec_result as result, count(id) as resultCount
+        from test_plan_api_scenario
+        where test_plan_id = #{0}
+        group by last_exec_result;
+    </select>
 </mapper>

@@ -10,7 +10,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.utils.NodeSortUtils;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -734,7 +734,7 @@ public class FunctionalCaseMinderService {
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setPos(functionalCaseService.getNextOrder(functionalCase.getProjectId()));
         functionalCase.setRefId(caseId);
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+        functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);
         functionalCase.setUpdateUser(userId);

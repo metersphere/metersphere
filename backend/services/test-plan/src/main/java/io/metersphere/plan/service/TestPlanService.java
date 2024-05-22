@@ -4,10 +4,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.mapper.*;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -27,12 +24,15 @@ import io.metersphere.system.utils.BatchProcessUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -142,14 +142,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 删除测试计划
-     *
-     * @param id
-     * @param operator
-     * @param requestUrl
-     * @param requestMethod
      */
     public void delete(String id, String operator, String requestUrl, String requestMethod) {
-        this.checkTestPlanNotArchived(id);
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             // 计划组的删除暂时预留
@@ -681,5 +675,37 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (testPlanMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("test_plan.is.archived"));
         }
+    }
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    public void refreshTestPlanStatus(String testPlanId) {
+        Map<String, Long> caseExecResultCount = new HashMap<>();
+        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+        beansOfType.forEach((k, v) -> {
+            Map<String, Long> map = v.caseExecResultCount(testPlanId);
+            map.forEach((key, value) -> {
+                if (value != 0) {
+                    caseExecResultCount.merge(key, value, Long::sum);
+                }
+            });
+        });
+
+        String testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY;
+        if (MapUtils.isEmpty(caseExecResultCount)) {
+            // 没有任何执行结果： 状态是未开始
+            testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
+        } else if (caseExecResultCount.size() == 1 && caseExecResultCount.containsKey(ExecStatus.PENDING.name()) && caseExecResultCount.get(ExecStatus.PENDING.name()) > 0) {
+            // 执行结果只有未开始： 状态是未开始
+            testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
+        } else if (!caseExecResultCount.containsKey(ExecStatus.PENDING.name())) {
+            // 执行结果没有未开始： 已完成
+            testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_COMPLETED;
+        }
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId(testPlanId);
+        testPlan.setStatus(testPlanFinalStatus);
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 }

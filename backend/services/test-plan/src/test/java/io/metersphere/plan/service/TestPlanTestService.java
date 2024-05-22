@@ -150,7 +150,7 @@ public class TestPlanTestService {
             functionalCase.setReviewStatus("UN_REVIEWED");
             functionalCase.setPos((long) (i * 64));
             functionalCase.setRefId(functionalCase.getId());
-            functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+            functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
             functionalCase.setLatest(true);
             functionalCase.setCreateUser("admin");
             functionalCase.setCreateTime(System.currentTimeMillis());
