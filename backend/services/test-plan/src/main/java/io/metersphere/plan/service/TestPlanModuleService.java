@@ -104,7 +104,7 @@ public class TestPlanModuleService extends ModuleTreeService {
                 example.clear();
             }
         }
-        example.createCriteria().andParentIdEqualTo(module.getParentId()).andNameEqualTo(module.getName()).andIdNotEqualTo(module.getId());
+        example.createCriteria().andParentIdEqualTo(module.getParentId()).andProjectIdEqualTo(module.getProjectId()).andNameEqualTo(module.getName()).andIdNotEqualTo(module.getId());
         if (testPlanModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
@@ -117,6 +117,7 @@ public class TestPlanModuleService extends ModuleTreeService {
         updateModule.setId(request.getId());
         updateModule.setName(request.getName().trim());
         updateModule.setParentId(module.getParentId());
+        updateModule.setProjectId(module.getProjectId());
         this.checkDataValidity(updateModule);
         updateModule.setUpdateTime(System.currentTimeMillis());
         updateModule.setUpdateUser(userId);

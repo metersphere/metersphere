@@ -562,12 +562,12 @@ public class TestPlanTests extends BaseTest {
                 groupTestPlanId7 = returnId;
             } else if (i == 15) {
                 groupTestPlanId15 = returnId;
-            } else if (i > 700) {
+            } else if (i > 700 && i < 750) {
 
 
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
                 TestPlanReportMapper batchInsert = sqlSession.getMapper(TestPlanReportMapper.class);
-                //大于600要创建测试计划报告   每个测试计划创建250个报告
+                // 701-749 要创建测试计划报告   每个测试计划创建250个报告
                 for (int reportCount = 0; reportCount < 250; reportCount++) {
                     TestPlanReport testPlanReport = new TestPlanReport();
                     testPlanReport.setId(IDGenerator.nextStr());
