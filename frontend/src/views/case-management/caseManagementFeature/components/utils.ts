@@ -72,7 +72,7 @@ export const executionResultMap: Record<string, any> = {
     key: 'BLOCKED',
     icon: StatusType.BLOCKED,
     statusText: t('common.block'),
-    color: 'text-[rgb(var(--primary-3))]',
+    color: 'text-[var(--color-fill-p-3)]',
   },
   ERROR: {
     key: 'ERROR',

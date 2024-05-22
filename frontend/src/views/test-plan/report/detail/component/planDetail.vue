@@ -133,14 +133,22 @@
   </div>
   <MsCard class="mb-[16px]" simple auto-height>
     <div class="font-medium">{{ t('report.detail.reportSummary') }}</div>
-    <MsRichText
-      v-model:raw="richText.summary"
-      v-model:filedIds="richText.richTextTmpFileIds"
-      :upload-image="handleUploadImage"
-      :preview-url="PreviewEditorImageUrl"
-      class="mt-[8px] w-full"
-    />
-    <div v-show="showButton" class="mt-[16px] flex items-center gap-[12px]">
+    <div
+      :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`"
+    >
+      <MsRichText
+        v-model:raw="richText.summary"
+        v-model:filedIds="richText.richTextTmpFileIds"
+        :upload-image="handleUploadImage"
+        :preview-url="PreviewEditorImageUrl"
+        class="mt-[8px] w-full"
+        :disabled="true"
+    /></div>
+
+    <div
+      v-show="showButton && hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId"
+      class="mt-[16px] flex items-center gap-[12px]"
+    >
       <a-button type="primary" @click="handleUpdateReportDetail">{{ t('common.save') }}</a-button>
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
     </div>

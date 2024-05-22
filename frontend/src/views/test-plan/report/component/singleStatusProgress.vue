@@ -55,7 +55,7 @@
           </tr> -->
           <tr class="popover-tr">
             <td class="popover-label-td">
-              <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--primary-3))]"></div>
+              <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-fill-p-3)]"></div>
               <div>{{ t('common.block') }}</div>
             </td>
             <td class="popover-value-td-count">

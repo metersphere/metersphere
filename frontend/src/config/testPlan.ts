@@ -113,7 +113,7 @@ export const statusConfig: StatusListType[] = [
     label: 'common.block',
     value: 'block',
     color: '#B379C8',
-    class: 'bg-[rgb(var(--primary-3))]',
+    class: 'bg-[var(--color-fill-p-3)]',
     rateKey: 'requestPendingRate',
     key: 'BLOCK',
   },
