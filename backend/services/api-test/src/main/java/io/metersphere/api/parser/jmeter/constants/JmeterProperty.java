@@ -14,6 +14,8 @@ public class JmeterProperty {
     public final static String FILE_ENCODING = "fileEncoding";
 
     public class CSVDataSetProperty {
+        public static final String IGNORE_FIRST_LINE = "ignoreFirstLine";
+        public static final String STOP_THREAD = "stopThread";
         public static final String FILE_NAME = "filename";
         public static final String SHARE_MODE = "shareMode";
         public static final String RECYCLE = "recycle";
