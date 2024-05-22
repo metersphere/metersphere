@@ -56,7 +56,7 @@ public class BodyParamMatchRule {
     private BinaryBody binaryBody = new BinaryBody();
 
     public boolean matchXml(Map<String, Object> requestMap) {
-        Map<String, Object> mockMap = XMLUtils.xmlStringToJson(rawBody.getValue());
+        Map<String, Object> mockMap = XMLUtils.xmlStringToJson(xmlBody.getValue());
         return this.matchMap(mockMap, requestMap);
     }
 
@@ -109,6 +109,9 @@ public class BodyParamMatchRule {
     }
 
     private boolean matchMap(Map<String, Object> mockMap, Map<String, Object> requestMap) {
+        if ((mockMap.isEmpty() && !requestMap.isEmpty()) || (!mockMap.isEmpty() && requestMap.isEmpty())) {
+            return false;
+        }
         for (Map.Entry<String, Object> entry : mockMap.entrySet()) {
             if (!this.matchObject(entry.getValue(), requestMap.get(entry.getKey()))) {
                 return false;

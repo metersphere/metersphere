@@ -46,20 +46,36 @@
           v-model="record.enable"
           type="line"
           :before-change="() => handleBeforeEnableChange(record)"
+          :disabled="!hasAnyPermission(['PROJECT_API_DEFINITION_MOCK:READ+UPDATE'])"
         ></a-switch>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0" @click="editMock(record)">
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION_MOCK:READ+UPDATE']"
+          type="text"
+          class="!mr-0"
+          @click="editMock(record)"
+        >
           {{ t('common.edit') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0" @click="debugMock(record)">
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
+          type="text"
+          class="!mr-0"
+          @click="debugMock(record)"
+        >
           {{ t('apiTestManagement.debug') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton type="text" class="!mr-0" @click="handleCopyMock(record)">
-          {{ t('common.copy') }}
-        </MsButton>
+        <MsButton
+          v-permission="['PROJECT_API_DEFINITION_MOCK:READ+ADD']"
+          type="text"
+          class="!mr-0"
+          @click="handleCopyMock(record)"
+        >
+          {{ t('common.copy') }} </MsButton
+        >x
         <a-divider direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
       </template>
@@ -322,11 +338,13 @@
       {
         label: 'mockManagement.batchEdit',
         eventTag: 'edit',
+        permission: ['PROJECT_API_DEFINITION_MOCK:READ+UPDATE'],
       },
       {
         label: 'mockManagement.batchDelete',
         eventTag: 'delete',
         danger: true,
+        permission: ['PROJECT_API_DEFINITION_MOCK:READ+DELETE'],
       },
     ],
   };
@@ -335,11 +353,13 @@
       eventTag: 'copyMock',
       label: t('mockManagement.copyMock'),
       danger: false,
+      permission: ['PROJECT_API_DEFINITION_MOCK:READ+ADD'],
     },
     {
       eventTag: 'delete',
       label: t('common.delete'),
       danger: true,
+      permission: ['PROJECT_API_DEFINITION_MOCK:READ+DELETE'],
     },
   ];
 
