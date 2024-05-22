@@ -26,11 +26,11 @@
     [ReportStatusEnum.REPORT_STATUS]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'report.successful',
+        label: 'common.success',
       },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'report.failure',
+        label: 'common.fail',
       },
       DEFAULT: {
         label: '-',
@@ -40,17 +40,17 @@
     [ReportStatusEnum.EXEC_STATUS]: {
       STOPPED: {
         icon: 'icon-icon_block_filled',
-        label: 'report.stopped',
+        label: 'common.stop',
         color: '!text-[var(--color-text-input-border)]',
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'report.status.running',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       PENDING: {
         icon: 'icon-icon_wait',
-        label: 'report.status.pending',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
       COMPLETED: {

@@ -15,22 +15,22 @@
   // TODO: Record<string,any>
   const statusMap: Record<string, any> = {
     PENDING: {
-      label: 'report.detail.pendingCount',
+      label: 'common.unExecute',
       value: 'PENDING',
       type: 'default',
     },
     FAKE_ERROR: {
-      label: 'report.detail.fakeErrorCount',
+      label: 'common.fakeError',
       value: 'FAKE_ERROR',
       type: 'warning',
     },
     ERROR: {
-      label: 'report.failure',
+      label: 'common.fail',
       value: 'ERROR',
       type: 'danger',
     },
     SUCCESS: {
-      label: 'report.detail.successCount',
+      label: 'common.pass',
       value: 'SUCCESS',
       type: 'success',
     },

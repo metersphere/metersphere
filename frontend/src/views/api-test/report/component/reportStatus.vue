@@ -42,24 +42,24 @@
     [ReportEnum.API_REPORT]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'report.successful',
+        label: 'common.success',
       },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'report.failure',
+        label: 'common.fail',
       },
       FAKE_ERROR: {
         icon: 'icon-icon_warning_colorful',
-        label: 'report.fake.error',
+        label: 'common.fakeError',
       },
       STOPPED: {
         icon: 'icon-icon_block_filled',
-        label: 'report.stopped',
+        label: 'common.stop',
         color: '!text-[var(--color-text-input-border)]',
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'report.status.running',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       // RERUNNING: {
@@ -69,36 +69,36 @@
       // },
       PENDING: {
         icon: 'icon-icon_block_filled',
-        label: 'report.status.pending',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
       null: {
         icon: 'icon-icon_block_filled',
-        label: 'report.status.pending',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
     },
     [ReportEnum.API_SCENARIO_REPORT]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'report.successful',
+        label: 'common.success',
       },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'report.failure',
+        label: 'common.fail',
       },
       FAKE_ERROR: {
         icon: 'icon-icon_warning_colorful',
-        label: 'report.fake.error',
+        label: 'common.fakeError',
       },
       STOPPED: {
         icon: 'icon-icon_block_filled',
-        label: 'report.stopped',
+        label: 'common.stop',
         color: '!text-[var(--color-text-input-border)]',
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'report.status.running',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       // RERUNNING: {
@@ -108,7 +108,7 @@
       // },
       PENDING: {
         icon: 'icon-icon_wait',
-        label: 'report.status.pending',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
     },

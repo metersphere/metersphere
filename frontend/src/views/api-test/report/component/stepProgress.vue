@@ -5,7 +5,7 @@
         <tr>
           <td class="popover-label-td">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
-            <div>{{ t('report.detail.successCount') }}</div>
+            <div>{{ t('common.pass') }}</div>
           </td>
           <td class="popover-value-td">
             {{ props.reportDetail.stepSuccessCount }}
@@ -14,7 +14,7 @@
         <tr>
           <td class="popover-label-td">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
-            <div>{{ t('report.detail.fakeErrorCount') }}</div>
+            <div>{{ t('common.fakeError') }}</div>
           </td>
           <td class="popover-value-td">
             {{ props.reportDetail.stepFakeErrorCount }}
@@ -23,7 +23,7 @@
         <tr>
           <td class="popover-label-td">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
-            <div>{{ t('report.detail.errorCount') }}</div>
+            <div>{{ t('common.fail') }}</div>
           </td>
           <td class="popover-value-td">
             {{ props.reportDetail.stepErrorCount }}
@@ -32,7 +32,7 @@
         <tr>
           <td class="popover-label-td">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
-            <div>{{ t('report.detail.pendingCount') }}</div>
+            <div>{{ t('common.unExecute') }}</div>
           </td>
           <td class="popover-value-td">
             {{ props.reportDetail.stepPendingCount }}

@@ -277,28 +277,28 @@
       data: [
         {
           value: 0,
-          name: t('report.detail.api.pass'),
+          name: t('common.pass'),
           itemStyle: {
             color: '#00C261',
           },
         },
         {
           value: 0,
-          name: t('report.detail.api.misstatement'),
+          name: t('common.fakeError'),
           itemStyle: {
             color: '#FFC14E',
           },
         },
         {
           value: 0,
-          name: t('report.detail.api.error'),
+          name: t('common.fail'),
           itemStyle: {
             color: '#ED0303',
           },
         },
         {
           value: 0,
-          name: t('report.detail.api.pending'),
+          name: t('common.unExecute'),
           itemStyle: {
             color: '#D4D4D8',
           },
@@ -329,7 +329,7 @@
   function initOptionsData() {
     const tempArr = [
       {
-        label: 'report.detail.api.pass',
+        label: 'common.pass',
         value: 'successCount',
         color: '#00C261',
         class: 'bg-[rgb(var(--success-6))]',
@@ -337,7 +337,7 @@
         key: 'SUCCESS',
       },
       {
-        label: 'report.detail.api.misstatement',
+        label: 'common.fakeError',
         value: 'fakeErrorCount',
         color: '#FFC14E',
         class: 'bg-[rgb(var(--warning-6))]',
@@ -345,7 +345,7 @@
         key: 'FAKE_ERROR',
       },
       {
-        label: 'report.detail.api.error',
+        label: 'common.fail',
         value: 'errorCount',
         color: '#ED0303',
         class: 'bg-[rgb(var(--danger-6))]',
@@ -353,7 +353,7 @@
         key: 'ERROR',
       },
       {
-        label: 'report.detail.api.pending',
+        label: 'common.unExecute',
         value: 'pendingCount',
         color: '#D4D4D8',
         class: 'bg-[var(--color-text-input-border)]',

@@ -161,8 +161,6 @@ export default {
   'apiScenario.allStep': 'All Substeps',
   'apiScenario.saveAsApi': 'Save as New API',
   'apiScenario.scenarioLevel': 'Scenario Level',
-  'apiScenario.running': 'Running',
-  'apiScenario.unExecute': 'Not Executed',
   'apiScenario.response': 'Response Content',
   'apiScenario.quoteMode': 'Quote Mode',
   'apiScenario.fullQuote': 'Full Quote',
@@ -212,13 +210,7 @@ export default {
   'apiScenario.executeHistory.execution.operator': 'Operator',
   'apiScenario.executeHistory.execution.operatorTime': 'Operation Time',
   'apiScenario.executeHistory.execution.operation': 'Execution Result',
-  'apiScenario.executeHistory.status.pending': 'Unexecuted',
-  'apiScenario.executeHistory.status.running': 'Running',
   'apiScenario.executeHistory.status.rerunning': 'Rerunning',
-  'apiScenario.executeHistory.status.error': 'Failed',
-  'apiScenario.executeHistory.status.success': 'Successful',
-  'apiScenario.executeHistory.status.fake.error': 'False Positive',
-  'apiScenario.executeHistory.status.fake.stopped': 'Stopped',
   // Operation History
   'apiScenario.historyListTip':
     'View and compare historical modifications. According to administrator settings, change history data will be automatically deleted.',

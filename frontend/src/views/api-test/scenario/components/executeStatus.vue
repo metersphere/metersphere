@@ -20,12 +20,12 @@
     [ExecuteStatusFilters.PENDING]: {
       bgColor: 'var(--color-text-n8)',
       color: 'var(--color-text-4)',
-      text: 'apiScenario.executeHistory.status.pending',
+      text: 'common.unExecute',
     },
     [ExecuteStatusFilters.RUNNING]: {
       bgColor: 'rgb(var(--link-2))',
       color: 'rgb(var(--link-5))',
-      text: 'apiScenario.executeHistory.status.running',
+      text: 'ccommon.running',
     },
     // [ExecuteStatusFilters.RERUNNING]: {
     //   bgColor: 'rgb(var(--link-2))',
@@ -35,22 +35,22 @@
     [ExecuteStatusFilters.ERROR]: {
       bgColor: 'rgb(var(--danger-2))',
       color: 'rgb(var(--danger-5))',
-      text: 'apiScenario.executeHistory.status.error',
+      text: 'common.fail',
     },
     [ExecuteStatusFilters.SUCCESS]: {
       bgColor: 'rgb(var(--success-2))',
       color: 'rgb(var(--success-5))',
-      text: 'apiScenario.executeHistory.status.success',
+      text: 'common.success',
     },
     [ExecuteStatusFilters.FAKE_ERROR]: {
       bgColor: 'rgb(var(--warning-2))',
       color: 'rgb(var(--warning-5))',
-      text: 'apiScenario.executeHistory.status.fake.error',
+      text: 'common.fakeError',
     },
     [ExecuteStatusFilters.STOPPED]: {
       bgColor: 'rgb(var(--link-2))',
       color: 'rgb(var(--color-border-2))',
-      text: 'apiScenario.executeHistory.status.fake.stopped',
+      text: 'common.stop',
     },
   };
   const status = computed(() => {

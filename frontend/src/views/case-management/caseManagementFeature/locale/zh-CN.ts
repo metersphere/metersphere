@@ -109,9 +109,6 @@ export default {
   'caseManagement.featureCase.passed': '已通过',
   'caseManagement.featureCase.notPass': '不通过',
   'caseManagement.featureCase.retrial': '重新提审',
-  'caseManagement.featureCase.nonExecution': '未执行',
-  'caseManagement.featureCase.failure': '失败',
-  'caseManagement.featureCase.chokeUp': '阻塞',
   'caseManagement.featureCase.skip': '跳过',
   'caseManagement.featureCase.batchRecover': '恢复',
   'caseManagement.featureCase.batchCleanOut': '彻底删除',
@@ -271,7 +268,4 @@ export default {
   'caseManagement.featureCase.deleteFile': '确认删除文件 {name} 吗',
   'caseManagement.featureCase.deleteFileTip': '删除后，文件无法恢复，请谨慎操作!',
   'caseManagement.featureCase.nameNotNull': '用例名称不能为空!',
-  'caseManagement.featureCase.execute.success': '成功',
-  'caseManagement.featureCase.execute.failed': '失败',
-  'caseManagement.featureCase.execute.blocked': '阻塞',
 };

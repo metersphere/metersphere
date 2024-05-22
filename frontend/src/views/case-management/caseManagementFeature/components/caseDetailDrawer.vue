@@ -87,7 +87,7 @@
         </MsButton>
       </div>
     </template>
-    <template #default="{ loading }">
+    <template #default="{ detail, loading }">
       <div
         ref="wrapperRef"
         :class="[`${!commentInputIsActive ? 'h-[calc(100%-72px)]' : 'h-[calc(100%-286px)]'}`, 'bg-white']"
@@ -126,28 +126,28 @@
                   />
                 </template>
                 <template v-if="activeTab === 'requirement'">
-                  <TabDemand :case-id="props.detailId" />
+                  <TabDemand :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'case'">
-                  <TabCaseTable :case-id="props.detailId" />
+                  <TabCaseTable :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'bug'">
-                  <TabDefect :case-id="props.detailId" />
+                  <TabDefect :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'dependency'">
-                  <TabDependency :case-id="props.detailId" />
+                  <TabDependency :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'caseReview'">
-                  <TabCaseReview :case-id="props.detailId" />
+                  <TabCaseReview :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'testPlan'">
-                  <TabTestPlan :case-id="props.detailId" />
+                  <TabTestPlan :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'comments'">
-                  <TabComment ref="commentRef" :case-id="props.detailId" />
+                  <TabComment ref="commentRef" :case-id="detail.id" />
                 </template>
                 <template v-if="activeTab === 'changeHistory'">
-                  <TabChangeHistory :case-id="props.detailId" />
+                  <TabChangeHistory :case-id="detail.id" />
                 </template>
               </div>
             </div>
