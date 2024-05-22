@@ -69,11 +69,9 @@
           <MsButton v-permission="['ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">{{
             t('system.organization.addMember')
           }}</MsButton>
-          <MsButton
-            v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']"
-            @click="handleEnableOrDisableProject(record, false)"
-            >{{ t('common.end') }}</MsButton
-          >
+          <MsButton v-permission="['PROJECT_BASE_INFO:READ']" @click="enterProject(record.id)">{{
+            t('system.project.enterProject')
+          }}</MsButton>
           <MsTableMoreAction
             v-permission="['ORGANIZATION_PROJECT:READ+DELETE']"
             :list="tableActions"
@@ -129,6 +127,8 @@
   import { UserItem } from '@/models/setting/log';
   import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+
+  import { enterProject } from '@/views/setting/utils';
 
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -210,7 +210,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 230 : 50,
+      width: hasOperationPermission.value ? 250 : 50,
     },
   ];
 
@@ -250,6 +250,11 @@
   });
 
   const tableActions: ActionsItem[] = [
+    {
+      label: 'common.end',
+      eventTag: 'end',
+      permission: ['ORGANIZATION_PROJECT:READ+UPDATE'],
+    },
     {
       label: 'system.user.delete',
       eventTag: 'delete',
@@ -388,8 +393,16 @@
   };
 
   const handleMoreAction = (tag: ActionsItem, record: TableData) => {
-    if (tag.eventTag === 'delete') {
-      handleDelete(record);
+    const { eventTag } = tag;
+    switch (eventTag) {
+      case 'end':
+        handleEnableOrDisableProject(record, false);
+        break;
+      case 'delete':
+        handleDelete(record);
+        break;
+      default:
+        break;
     }
   };
 
