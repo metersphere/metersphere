@@ -16,14 +16,13 @@ import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
-import io.metersphere.api.dto.request.http.QueryParam;
-import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -49,7 +48,6 @@ import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -567,112 +565,148 @@ public class ApiDefinitionImportUtilService {
     }
 
     public boolean dataIsSame(MsHTTPElement dbRequest, MsHTTPElement importRequest) {
-        boolean same = true;
-        //判断请求头是否一样
-        List<MsHeader> dbHeaders = dbRequest.getHeaders();
-        List<MsHeader> importHeaders = importRequest.getHeaders();
-        if (CollectionUtils.isNotEmpty(dbHeaders) || CollectionUtils.isNotEmpty(importHeaders)) {
-            List<String> dbHeaderKeys = dbHeaders.stream().map(MsHeader::getKey).toList();
-            List<String> importHeaderKeys = importHeaders.stream().map(MsHeader::getKey).toList();
-            if (paramsIsSame(dbHeaderKeys, importHeaderKeys)) {
+        // 判断请求头是否一样
+        if (headersHasDifferent(dbRequest.getHeaders(), importRequest.getHeaders())) {
+            return false;
+        }
+
+        // 判断请求参数是否一样
+        if (paramsAreSame(dbRequest.getQuery(), importRequest.getQuery()) ||
+                paramsAreSame(dbRequest.getRest(), importRequest.getRest())) {
+            return false;
+        }
+
+        // 判断请求体是否一样
+        return bodyAreSame(dbRequest.getBody(), importRequest.getBody());
+    }
+
+    private boolean headersHasDifferent(List<MsHeader> dbHeaders, List<MsHeader> importHeaders) {
+        if (CollectionUtils.isEmpty(dbHeaders) && CollectionUtils.isEmpty(importHeaders)) {
+            return false;
+        }
+
+        List<String> dbHeaderKeys = dbHeaders.stream().map(MsHeader::getKey).toList();
+        List<String> importHeaderKeys = importHeaders.stream().map(MsHeader::getKey).toList();
+
+        return keysHasDifferent(dbHeaderKeys, importHeaderKeys);
+    }
+
+    private boolean paramsAreSame(List<? extends KeyValueEnableParam> dbParams, List<? extends KeyValueEnableParam> importParams) {
+        if (CollectionUtils.isEmpty(dbParams) && CollectionUtils.isEmpty(importParams)) {
+            return false;
+        }
+
+        List<String> dbParamKeys = dbParams.stream().map(KeyValueEnableParam::getKey).toList();
+        List<String> importParamKeys = importParams.stream().map(KeyValueEnableParam::getKey).toList();
+
+        return keysHasDifferent(dbParamKeys, importParamKeys);
+    }
+
+    private boolean bodyAreSame(Body dbBody, Body importBody) {
+        if (dbBody == null && importBody == null) {
+            return true;
+        }
+
+        if (dbBody != null && importBody != null) {
+            if (!StringUtils.equals(dbBody.getBodyType(), importBody.getBodyType())) {
                 return false;
             }
+
+            return switch (Body.BodyType.valueOf(dbBody.getBodyType())) {
+                case Body.BodyType.FORM_DATA ->
+                        !formBodyHaDifferent(dbBody.getFormDataBody(), importBody.getFormDataBody());
+                case Body.BodyType.WWW_FORM ->
+                        !wwwFormBodyHasDifferent(dbBody.getWwwFormBody(), importBody.getWwwFormBody());
+                case Body.BodyType.RAW -> rawBodyAreSame(dbBody.getRawBody(), importBody.getRawBody());
+                case Body.BodyType.JSON -> jsonBodyAreSame(dbBody.getJsonBody(), importBody.getJsonBody());
+                case Body.BodyType.XML -> xmlBodyAreSame(dbBody.getXmlBody(), importBody.getXmlBody());
+                default -> true;
+            };
         }
-        //判断请求参数是否一样 query rest body
-        List<QueryParam> dbQuery = dbRequest.getQuery();
-        List<QueryParam> importQuery = importRequest.getQuery();
-        if (CollectionUtils.isNotEmpty(dbQuery) || CollectionUtils.isNotEmpty(importQuery)) {
-            List<String> dbQueryKeys = dbQuery.stream().map(QueryParam::getKey).toList();
-            List<String> importQueryKeys = importQuery.stream().map(QueryParam::getKey).toList();
-            if (paramsIsSame(dbQueryKeys, importQueryKeys)) {
+
+        return true;
+    }
+
+    private boolean xmlBodyAreSame(XmlBody xmlBody, XmlBody importXmlBody) {
+        if (xmlBody == null && importXmlBody == null) {
+            return true;
+        }
+        return xmlBody != null && importXmlBody != null && StringUtils.equals(xmlBody.getValue(), importXmlBody.getValue());
+
+    }
+
+    private boolean formBodyHaDifferent(FormDataBody dbFormBody, FormDataBody importFormBody) {
+        if (dbFormBody == null && importFormBody == null) {
+            return false;
+        }
+
+        if (dbFormBody != null && importFormBody != null) {
+            List<FormDataKV> dbFormValues = dbFormBody.getFormValues();
+            List<FormDataKV> importFormValues = importFormBody.getFormValues();
+
+            return keysHasDifferent(
+                    dbFormValues.stream().map(FormDataKV::getKey).toList(),
+                    importFormValues.stream().map(FormDataKV::getKey).toList()
+            );
+        }
+
+        return false;
+    }
+
+    private boolean wwwFormBodyHasDifferent(WWWFormBody dbWwwBody, WWWFormBody importWwwBody) {
+        if (dbWwwBody == null && importWwwBody == null) {
+            return false;
+        }
+
+        if (dbWwwBody != null && importWwwBody != null) {
+            List<WWWFormKV> dbWwwValues = dbWwwBody.getFormValues();
+            List<WWWFormKV> importWwwValues = importWwwBody.getFormValues();
+
+            return keysHasDifferent(
+                    dbWwwValues.stream().map(WWWFormKV::getKey).toList(),
+                    importWwwValues.stream().map(WWWFormKV::getKey).toList()
+            );
+        }
+
+        return false;
+    }
+
+    private boolean rawBodyAreSame(RawBody dbRawBody, RawBody importRawBody) {
+        if (dbRawBody == null && importRawBody == null) {
+            return true;
+        }
+        return dbRawBody != null && importRawBody != null && StringUtils.equals(dbRawBody.getValue(), importRawBody.getValue());
+    }
+
+    private boolean jsonBodyAreSame(JsonBody dbJsonBody, JsonBody importJsonBody) {
+        if (dbJsonBody == null && importJsonBody == null) {
+            return true;
+        }
+
+        if (dbJsonBody != null && importJsonBody != null) {
+            if (!StringUtils.equals(dbJsonBody.getJsonValue(), importJsonBody.getJsonValue())) {
                 return false;
             }
-        }
-        List<RestParam> dbRest = dbRequest.getRest();
-        List<RestParam> importRest = importRequest.getRest();
-        if (CollectionUtils.isNotEmpty(dbRest) || CollectionUtils.isNotEmpty(importRest)) {
-            List<String> dbRestKeys = dbRest.stream().map(RestParam::getKey).toList();
-            List<String> importRestKeys = importRest.stream().map(RestParam::getKey).toList();
-            if (paramsIsSame(dbRestKeys, importRestKeys)) {
-                return false;
-            }
-        }
-        //判断请求体是否一样
-        if (dbRequest.getBody() != null || importRequest.getBody() != null) {
-            //判断请求体的参数
-            Body dbbody = dbRequest.getBody();
-            Body importBody = importRequest.getBody();
-            if (dbbody != null && importBody != null) {
-                if (!StringUtils.equals(dbbody.getBodyType(), importBody.getBodyType())) {
-                    return false;
-                }
-                //判断null类型
-                StringUtils.equals(String.valueOf(dbbody.getNoneBody()), String.valueOf(importBody.getNoneBody()));
-                //判断form类型
-                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.FORM_DATA.name())) {
-                    FormDataBody formDataBody = dbbody.getFormDataBody();
-                    FormDataBody importFormDataBody = importBody.getFormDataBody();
-                    if (ObjectUtils.isNotEmpty(formDataBody) || ObjectUtils.isNotEmpty(importFormDataBody)) {
-                        List<FormDataKV> formValues = formDataBody.getFormValues();
-                        List<FormDataKV> importFormValues = importFormDataBody.getFormValues();
-                        if (CollectionUtils.isNotEmpty(formValues) || CollectionUtils.isNotEmpty(importFormValues)) {
-                            List<String> dbFormKeys = formValues.stream().map(FormDataKV::getKey).toList();
-                            List<String> importFormKeys = importFormValues.stream().map(FormDataKV::getKey).toList();
-                            if (paramsIsSame(dbFormKeys, importFormKeys)) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.WWW_FORM.name())) {
-                    //判读www类型
-                    WWWFormBody wwwBody = dbbody.getWwwFormBody();
-                    WWWFormBody importWwwBody = importBody.getWwwFormBody();
-                    if (ObjectUtils.isNotEmpty(wwwBody) || ObjectUtils.isNotEmpty(importWwwBody)) {
-                        List<WWWFormKV> wwwValues = wwwBody.getFormValues();
-                        List<WWWFormKV> importWwwValues = importWwwBody.getFormValues();
-                        if (CollectionUtils.isNotEmpty(wwwValues) || CollectionUtils.isNotEmpty(importWwwValues)) {
-                            List<String> dbWwwKeys = wwwValues.stream().map(WWWFormKV::getKey).toList();
-                            List<String> importWwwKeys = importWwwValues.stream().map(WWWFormKV::getKey).toList();
-                            if (paramsIsSame(dbWwwKeys, importWwwKeys)) {
-                                return false;
-                            }
-                        }
-                    }
-                }
 
-                //TODO 判断binary类型
+            JsonSchemaItem dbJsonSchema = dbJsonBody.getJsonSchema();
+            JsonSchemaItem importJsonSchema = importJsonBody.getJsonSchema();
 
-                //判断raw类型
-                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.RAW.name())) {
-                    RawBody rawBody = dbbody.getRawBody();
-                    RawBody importRawBody = importBody.getRawBody();
-                    if (ObjectUtils.isNotEmpty(rawBody) || ObjectUtils.isNotEmpty(importRawBody)) {
-                        return false;
-                    }
-                }
-                //判断json类型
-                if (StringUtils.equals(dbbody.getBodyType(), Body.BodyType.JSON.name())) {
-                    //判断json类型
-                    JsonBody jsonBody = dbbody.getJsonBody();
-                    JsonBody importJsonBody = importBody.getJsonBody();
-                    if (ObjectUtils.isNotEmpty(jsonBody) || ObjectUtils.isNotEmpty(importJsonBody)) {
-                        if (!StringUtils.equals(jsonBody.getJsonValue(), importJsonBody.getJsonValue())) {
-                            return false;
-                        }
-                        //判断jsonschema
-                        JsonSchemaItem jsonSchema = jsonBody.getJsonSchema();
-                        JsonSchemaItem importJsonSchema = importJsonBody.getJsonSchema();
-                        if (jsonSchema != null && importJsonSchema != null) {
-                            return jsonSchemaIsSame(jsonSchema, importJsonSchema);
-                        }
-                    }
-                }
-            }
+            return jsonSchemasAreSame(dbJsonSchema, importJsonSchema);
         }
 
+        return true;
+    }
 
-        return same;
+    private boolean jsonSchemasAreSame(JsonSchemaItem dbJsonSchema, JsonSchemaItem importJsonSchema) {
+        if (dbJsonSchema == null && importJsonSchema == null) {
+            return true;
+        }
+
+        if (dbJsonSchema != null && importJsonSchema != null) {
+            return jsonSchemaIsSame(dbJsonSchema, importJsonSchema);
+        }
+
+        return true;
     }
 
     //判断jsonschema的参数是否一样
@@ -689,17 +723,16 @@ public class ApiDefinitionImportUtilService {
         if (jsonSchema == null && importJsonSchema == null) {
             return true;
         }
-        assert jsonSchema != null;
-        if (!StringUtils.equals(jsonSchema.getType(), importJsonSchema.getType())) {
+        if (jsonSchema != null && !StringUtils.equals(jsonSchema.getType(), importJsonSchema.getType())) {
             return false;
         }
-        if (StringUtils.equals(jsonSchema.getType(), PropertyConstant.OBJECT)) {
+        if (jsonSchema != null && StringUtils.equals(jsonSchema.getType(), PropertyConstant.OBJECT)) {
             Map<String, JsonSchemaItem> properties = jsonSchema.getProperties();
             Map<String, JsonSchemaItem> importProperties = importJsonSchema.getProperties();
             if (MapUtils.isNotEmpty(properties) || MapUtils.isNotEmpty(importProperties)) {
                 List<String> dbJsonKeys = properties.keySet().stream().toList();
                 List<String> importJsonKeys = importProperties.keySet().stream().toList();
-                if (paramsIsSame(dbJsonKeys, importJsonKeys)) {
+                if (keysHasDifferent(dbJsonKeys, importJsonKeys)) {
                     return false;
                 }
                 //遍历判断每个参数是否一样
@@ -713,7 +746,7 @@ public class ApiDefinitionImportUtilService {
                 }
             }
         }
-        if (StringUtils.equals(jsonSchema.getType(), PropertyConstant.ARRAY)) {
+        if (jsonSchema != null && StringUtils.equals(jsonSchema.getType(), PropertyConstant.ARRAY)) {
             JsonSchemaItem items = jsonSchema.getItems();
             JsonSchemaItem importItems = importJsonSchema.getItems();
             if (items != null && importItems != null) {
@@ -725,13 +758,16 @@ public class ApiDefinitionImportUtilService {
         return same;
     }
 
-    private static boolean paramsIsSame(List<String> dbRestKeys, List<String> importRestKeys) {
-        if (dbRestKeys.size() != importRestKeys.size()) {
+    private static boolean keysHasDifferent(List<String> dbKeys, List<String> importKeys) {
+        if (CollectionUtils.isEmpty(dbKeys) && CollectionUtils.isEmpty(importKeys)) {
+            return false;
+        }
+        if (dbKeys.size() != importKeys.size()) {
             return true;
         }
         //看看是否有差集
-        List<String> differenceRest = dbRestKeys.stream().filter(t -> !importRestKeys.contains(t)).toList();
-        return !CollectionUtils.isEmpty(differenceRest);
+        List<String> differenceRest = dbKeys.stream().filter(t -> !importKeys.contains(t)).toList();
+        return CollectionUtils.isNotEmpty(differenceRest);
     }
 
     private Boolean getFullCoverage(Boolean fullCoverage) {
