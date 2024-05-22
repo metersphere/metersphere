@@ -41,6 +41,7 @@
         LEFT JOIN api_test_case atc ON fct.source_id = atc.id
         LEFT JOIN api_scenario scenario ON fct.source_id = scenario.id
         WHERE fct.case_id = #{request.sourceId}
+          AND atc.deleted = false AND scenario.deleted = false
         <if test="request.sourceType != null and request.sourceType != ''">
             AND fct.source_type = #{request.sourceType}
         </if>
