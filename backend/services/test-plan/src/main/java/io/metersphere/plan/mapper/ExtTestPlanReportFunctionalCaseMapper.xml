@@ -43,7 +43,7 @@
         select distinct tprfc.function_case_id as id, tprfc.function_case_num as num, tprfc.function_case_name as name,
                         tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority,
                         tprfc.function_case_execute_result as executeResult, tprfc.function_case_execute_user as executeUser,
-                        tprfc.function_case_bug_count as bugCount
+                        ifnull(tprfc.function_case_bug_count, 0) as bugCount
         from test_plan_report_function_case tprfc
         where tprfc.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>

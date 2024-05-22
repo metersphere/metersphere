@@ -102,6 +102,9 @@ public class TestPlanReportService {
      * 报告重命名
      */
     public void rename(String id, String name) {
+		if (name.length() > 300) {
+			throw new MSException(Translator.get("test_plan_report_name_length_range"));
+		}
         TestPlanReport report = checkReport(id);
         report.setName(name);
         testPlanReportMapper.updateByPrimaryKeySelective(report);
