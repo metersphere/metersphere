@@ -13,6 +13,13 @@
         <div class="folder-name">{{ t('caseManagement.caseReview.allCases') }}</div>
         <div class="folder-count">({{ allCount }})</div>
       </div>
+      <a-tooltip
+        :content="isExpandAll ? t('testPlan.testPlanIndex.collapseAll') : t('testPlan.testPlanIndex.expandAll')"
+      >
+        <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" position="top" @click="expandHandler">
+          <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+        </MsButton>
+      </a-tooltip>
     </div>
     <a-divider class="my-[8px]" />
     <a-spin class="min-h-[200px] w-full" :loading="loading">
@@ -51,6 +58,7 @@
   import { useRoute } from 'vue-router';
   import { useVModel } from '@vueuse/core';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
@@ -63,7 +71,6 @@
 
   const props = defineProps<{
     modulesCount?: Record<string, number>; // 模块数量统计对象
-    isExpandAll?: boolean; // 是否展开所有节点
     selectedKeys: string[]; // 选中的节点 key
   }>();
   const emit = defineEmits<{
@@ -85,14 +92,10 @@
 
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
-  const isExpandAll = ref(props.isExpandAll);
-
-  watch(
-    () => props.isExpandAll,
-    (val) => {
-      isExpandAll.value = val;
-    }
-  );
+  const isExpandAll = ref(false);
+  function expandHandler() {
+    isExpandAll.value = !isExpandAll.value;
+  }
 
   function getFolderClass(id: string) {
     return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';

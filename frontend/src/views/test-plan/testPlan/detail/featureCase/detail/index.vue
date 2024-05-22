@@ -395,6 +395,7 @@
     if (activeId.value !== item.id) {
       activeCaseId.value = item.caseId;
       activeId.value = item.id;
+      activeTab.value = 'detail';
     }
   }
 

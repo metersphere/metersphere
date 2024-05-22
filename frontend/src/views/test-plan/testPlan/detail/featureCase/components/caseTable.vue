@@ -63,7 +63,7 @@
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
         <MsPopconfirm
-          :title="t('testPlan.featureCase.disassociateTip', { name: record.name })"
+          :title="t('testPlan.featureCase.disassociateTip', { name: characterLimit(record.name) })"
           :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
           :ok-text="t('common.confirm')"
           :loading="disassociateLoading"
@@ -191,6 +191,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewUserItem } from '@/models/caseManagement/caseReview';

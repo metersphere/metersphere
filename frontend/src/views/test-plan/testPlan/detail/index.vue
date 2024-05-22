@@ -99,7 +99,7 @@
       v-if="activeTab === 'featureCase'"
       ref="featureCaseRef"
       :repeat-case="detail.repeatCase"
-      @refresh="getStatistics"
+      @refresh="initDetail"
     />
     <!-- TODO 先不上 -->
     <!-- <BugManagement v-if="activeTab === 'defectList'" :plan-id="detail.id" /> -->
@@ -314,6 +314,7 @@
   // 生成报告
   async function handleGenerateReport() {
     try {
+      loading.value = true;
       await generateReport({
         projectId: appStore.currentProjectId,
         testPlanId: detail.value.id as string,
@@ -322,6 +323,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
