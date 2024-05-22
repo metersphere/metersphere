@@ -365,7 +365,7 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'testPlan.testPlanIndex.executionResult',
+      title: 'common.status',
       dataIndex: 'status',
       slotName: 'status',
       filterConfig: {
