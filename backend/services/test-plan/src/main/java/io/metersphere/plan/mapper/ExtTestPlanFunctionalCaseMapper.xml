@@ -202,7 +202,7 @@
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <!-- 执行结果 -->
-                        <when test="key=='lastExecuteResult'">
+                        <when test="key=='lastExecResult'">
                             and functional_case.last_execute_result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
