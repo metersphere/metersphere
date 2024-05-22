@@ -141,12 +141,15 @@ public class TestPlanModuleService extends ModuleTreeService {
             return;
         }
         extTestPlanModuleMapper.deleteByIds(deleteIds);
-
-        TestPlanBatchProcessRequest request = new TestPlanBatchProcessRequest();
-        request.setModuleIds(deleteIds);
-        request.setSelectAll(true);
-        request.setProjectId(projectId);
-        testPlanService.batchDelete(request, operator, requestUrl, requestMethod);
+        List<String> planDeleteIds = extTestPlanModuleMapper.selectPlanIdsByModuleIds(deleteIds);
+        if (CollectionUtils.isNotEmpty(planDeleteIds)) {
+            TestPlanBatchProcessRequest request = new TestPlanBatchProcessRequest();
+            request.setModuleIds(deleteIds);
+            request.setSelectAll(false);
+            request.setProjectId(projectId);
+            request.setSelectIds(planDeleteIds);
+            testPlanService.batchDelete(request, operator, requestUrl, requestMethod);
+        }
 
         List<String> childrenIds = extTestPlanModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {

@@ -16,6 +16,8 @@ public interface ExtTestPlanModuleMapper {
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> strings);
 
+    List<String> selectPlanIdsByModuleIds(@Param("ids") List<String> strings);
+
     void deleteByIds(@Param("ids") List<String> deleteId);
 
     BaseModule selectBaseModuleById(String dragNodeId);
