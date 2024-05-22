@@ -1,14 +1,13 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div class="review-history-list">
-      <div v-for="item of props.reviewCommentList" :key="item.id" class="review-history-list-item">
-        <div class="flex items-center">
-          <MSAvatar :avatar="item.userLogo" />
-          <div class="ml-[8px] flex items-center">
+    <div class="ms-comment-list">
+      <div v-for="item of props.reviewCommentList" :key="item.id" class="ms-comment-list-item">
+        <MSAvatar :avatar="item.userLogo" />
+        <div class="flex-1">
+          <div class="flex items-center gap-[8px]">
             <a-tooltip :content="item.userName" :mouse-enter-delay="300">
               <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
             </a-tooltip>
-            <a-divider direction="vertical" margin="8px"></a-divider>
             <div v-if="item.status === 'PASS'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
               {{ t('caseManagement.caseReview.pass') }}
@@ -38,39 +37,39 @@
               {{ t('common.fail') }}
             </div>
           </div>
-        </div>
-        <div class="markdown-body" style="margin-left: 48px" v-html="item.contentText"></div>
-        <div class="ml-[48px] mt-[8px] flex text-[var(--color-text-4)]">
-          {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
-          <div v-if="props.activeComment === 'reviewComment'">
-            <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
-              <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
-                {{ characterLimit(item.reviewName) }}
-              </span>
+          <div class="markdown-body" v-html="item.contentText"></div>
+          <div class="mt-[8px] flex text-[12px] leading-[16px] text-[var(--color-text-4)]">
+            {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+            <div v-if="props.activeComment === 'reviewComment'">
+              <a-tooltip :content="item.reviewName" :mouse-enter-delay="300">
+                <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
+                  {{ characterLimit(item.reviewName) }}
+                </span>
 
-              <span
-                v-else
-                class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
-                @click="review(item)"
-              >
-                {{ characterLimit(item.reviewName) }}
-              </span>
-            </a-tooltip>
-          </div>
-          <div v-if="props.activeComment === 'executiveComment'">
-            <a-tooltip :content="item.testPlanName" :mouse-enter-delay="300">
-              <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
-                {{ characterLimit(item.testPlanName) }}
-              </span>
+                <span
+                  v-else
+                  class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
+                  @click="review(item)"
+                >
+                  {{ characterLimit(item.reviewName) }}
+                </span>
+              </a-tooltip>
+            </div>
+            <div v-if="props.activeComment === 'executiveComment'">
+              <a-tooltip :content="item.testPlanName" :mouse-enter-delay="300">
+                <span v-if="item.deleted" class="one-line-text ml-[16px] max-w-[300px] break-words break-all">
+                  {{ characterLimit(item.testPlanName) }}
+                </span>
 
-              <span
-                v-else
-                class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
-                @click="toPlan(item)"
-              >
-                {{ characterLimit(item.testPlanName) }}
-              </span>
-            </a-tooltip>
+                <span
+                  v-else
+                  class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
+                  @click="toPlan(item)"
+                >
+                  {{ characterLimit(item.testPlanName) }}
+                </span>
+              </a-tooltip>
+            </div>
           </div>
         </div>
       </div>

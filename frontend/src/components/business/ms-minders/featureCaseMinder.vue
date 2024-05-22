@@ -61,7 +61,7 @@
           <a-button type="secondary" :disabled="saveLoading">{{ t('common.cancel') }}</a-button>
         </div>
       </div>
-      <div v-else-if="activeExtraKey === 'attachment'" class="pl-[16px]">
+      <div v-else-if="activeExtraKey === 'attachment'" class="h-full pl-[16px]">
         <a-spin :loading="attachmentLoading" class="h-full w-full">
           <MsAddAttachment
             v-model:file-list="fileList"
@@ -159,7 +159,7 @@
           </MsFileList>
         </a-spin>
       </div>
-      <div v-else-if="activeExtraKey === 'comments'" class="pl-[16px]">
+      <div v-else-if="activeExtraKey === 'comments'" class="h-full pl-[16px]">
         <div class="mb-[16px] flex items-center justify-between">
           <div class="text-[var(--color-text-4)]">
             {{
@@ -175,21 +175,23 @@
             @change="getAllCommentList"
           ></a-select>
         </div>
-        <ReviewCommentList
-          v-if="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
-          :review-comment-list="reviewCommentList"
-          :active-comment="activeComment"
-        />
-        <template v-else>
-          <MsComment
-            :upload-image="handleUploadImage"
-            :comment-list="commentList"
-            :preview-url="PreviewEditorImageUrl"
-            @delete="handleDelete"
-            @update-or-add="handleUpdateOrAdd"
+        <div class="comment-container">
+          <ReviewCommentList
+            v-if="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
+            :review-comment-list="reviewCommentList"
+            :active-comment="activeComment"
           />
-          <MsEmpty v-if="commentList.length === 0" />
-        </template>
+          <template v-else>
+            <MsComment
+              :upload-image="handleUploadImage"
+              :comment-list="commentList"
+              :preview-url="PreviewEditorImageUrl"
+              @delete="handleDelete"
+              @update-or-add="handleUpdateOrAdd"
+            />
+            <MsEmpty v-if="commentList.length === 0" />
+          </template>
+        </div>
         <inputComment
           ref="commentInputRef"
           v-model:content="content"
@@ -205,27 +207,40 @@
           @cancel="cancelPublish"
         />
       </div>
-      <div v-else class="pl-[16px]">
+      <div v-else class="h-full pl-[16px]">
         <a-button v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])" class="mr-3" type="primary" @click="linkBug">
           {{ t('caseManagement.featureCase.linkDefect') }}
         </a-button>
-        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug"
-          >{{ t('caseManagement.featureCase.createDefect') }}
+        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
+          {{ t('caseManagement.featureCase.createDefect') }}
         </a-button>
-        <div class="bug-list">
-          <div v-for="item of bugList" :key="item.id" class="bug-item">
-            <div class="mb-[4px] flex items-center justify-between">
-              <MsButton type="text" @click="goBug(item.id)">{{ item.num }}</MsButton>
-              <MsButton type="text" @click="disassociateBug(item.id)">
-                {{ t('ms.add.attachment.cancelAssociate') }}
-              </MsButton>
+        <MsList
+          v-model:data="bugList"
+          mode="remote"
+          item-key-field="id"
+          :item-border="false"
+          class="my-[16px] h-[calc(100%-64px)] w-full rounded-[var(--border-radius-small)]"
+          :no-more-data="noMoreData"
+          raggable
+          :virtual-list-props="{
+            height: '100%',
+          }"
+          @reach-bottom="handleReachBottom"
+        >
+          <template #item="{ item }">
+            <div class="bug-item">
+              <div class="mb-[4px] flex items-center justify-between">
+                <MsButton type="text" @click="goBug(item.id)">{{ item.num }}</MsButton>
+                <MsButton type="text" @click="disassociateBug(item.id)">
+                  {{ t('ms.add.attachment.cancelAssociate') }}
+                </MsButton>
+              </div>
+              <a-tooltip :content="item.name" position="tl">
+                <div class="one-line-text">{{ item.name }}</div>
+              </a-tooltip>
             </div>
-            <a-tooltip :content="item.name">
-              <div class="one-line-text">{{ item.name }}</div>
-            </a-tooltip>
-          </div>
-          <MsEmpty v-if="bugList.length === 0" />
-        </div>
+          </template>
+        </MsList>
       </div>
     </template>
   </MsMinderEditor>
@@ -243,7 +258,7 @@
     v-model:visible="showCreateBugDrawer"
     :case-id="activeCase.id"
     :extra-params="{ caseId: activeCase.id }"
-    @success="initBugList"
+    @success="loadBugList"
   />
   <LinkDefectDrawer
     v-if="activeCase.id"
@@ -262,6 +277,7 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
+  import MsList from '@/components/pure/ms-list/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -291,6 +307,7 @@
     getCaseMinder,
     getCaseModuleTree,
     getCommentList,
+    getLinkedCaseBugList,
     getReviewCommentList,
     getTestPlanExecuteCommentList,
     getTransferFileTree,
@@ -1031,70 +1048,6 @@
     }
   }
 
-  /**
-   * 处理脑图节点激活/点击
-   * @param node 被激活/点击的节点
-   */
-  async function handleNodeClick(node: MinderJsonNode) {
-    const { data } = node;
-    if (data?.resource && data.resource.includes(caseTag)) {
-      extraVisible.value = true;
-      activeExtraKey.value = 'baseInfo';
-      initCaseDetail(data);
-    } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
-      try {
-        loading.value = true;
-        const res = await getCaseMinder({
-          projectId: appStore.currentProjectId,
-          moduleId: data.id,
-        });
-        const fakeNode = node.children?.find((e) => e.data?.id === undefined); // 移除占位的虚拟节点
-        if (fakeNode) {
-          window.minder.removeNode(fakeNode);
-        }
-        if ((!res || res.length === 0) && node.children?.length) {
-          // 如果模块下没有用例且有别的模块节点，正常展开
-          node.expand();
-          node.renderTree();
-          window.minder.layout();
-          return;
-        }
-        // TODO:递归渲染存在的子节点
-        res.forEach((e) => {
-          // 用例节点
-          const child = window.minder.createNode(e.data, node);
-          child.render();
-          e.children?.forEach((item) => {
-            // 前置/步骤/备注节点
-            const grandChild = window.minder.createNode(item.data, child);
-            grandChild.render();
-            item.children?.forEach((subItem) => {
-              // 预期结果节点
-              const greatGrandChild = window.minder.createNode(subItem.data, grandChild);
-              greatGrandChild.render();
-            });
-          });
-          child.expand();
-          child.renderTree();
-        });
-        node.expand();
-        node.renderTree();
-        window.minder.layout();
-        if (node.data) {
-          node.data.isLoaded = true;
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        loading.value = false;
-      }
-    } else {
-      extraVisible.value = false;
-      activeCase.value = {};
-    }
-  }
-
   onBeforeMount(() => {
     initDefaultFields();
   });
@@ -1285,55 +1238,37 @@
   }
 
   const bugList = ref<any[]>([]);
+  const noMoreData = ref<boolean>(false);
+  const pageNation = ref({
+    total: 0,
+    pageSize: 10,
+    current: 1,
+  });
 
-  async function initBugList() {
-    bugList.value = [
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100001,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100002,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100003,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100004,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100005,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100006,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100007,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100008,
-      },
-      {
-        name: 'sdasd',
-        id: '3d23d23d',
-        num: 100009,
-      },
-    ];
+  async function loadBugList() {
+    try {
+      const res = await getLinkedCaseBugList({
+        keyword: '',
+        projectId: appStore.currentProjectId,
+        caseId: activeCase.value.id,
+        current: pageNation.value.current || 1,
+        pageSize: pageNation.value.pageSize,
+      });
+      res.list.forEach((item) => bugList.value.push(item));
+      pageNation.value.total = res.total;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 滚动翻页
+  function handleReachBottom() {
+    pageNation.value.current += 1;
+    if (pageNation.value.current > Math.ceil(pageNation.value.total / pageNation.value.pageSize)) {
+      return;
+    }
+    loadBugList();
   }
 
   const cancelLoading = ref<boolean>(false);
@@ -1378,7 +1313,7 @@
       drawerLoading.value = true;
       await associatedDebug(params);
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
-      initBugList();
+      loadBugList();
       showLinkBugDrawer.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -1388,11 +1323,88 @@
     }
   }
 
+  function resetExtractInfo() {
+    activeCase.value = {};
+    pageNation.value.current = 1;
+    bugList.value = [];
+    commentList.value = [];
+    reviewCommentList.value = [];
+    fileList.value = [];
+  }
+
+  /**
+   * 处理脑图节点激活/点击
+   * @param node 被激活/点击的节点
+   */
+  async function handleNodeClick(node: MinderJsonNode) {
+    const { data } = node;
+    if (data?.resource && data.resource.includes(caseTag)) {
+      extraVisible.value = true;
+      activeExtraKey.value = 'baseInfo';
+      resetExtractInfo();
+      initCaseDetail(data);
+    } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
+      try {
+        loading.value = true;
+        const res = await getCaseMinder({
+          projectId: appStore.currentProjectId,
+          moduleId: data.id,
+        });
+        const fakeNode = node.children?.find((e) => e.data?.id === undefined); // 移除占位的虚拟节点
+        if (fakeNode) {
+          window.minder.removeNode(fakeNode);
+        }
+        if ((!res || res.length === 0) && node.children?.length) {
+          // 如果模块下没有用例且有别的模块节点，正常展开
+          node.expand();
+          node.renderTree();
+          window.minder.layout();
+          return;
+        }
+        // TODO:递归渲染存在的子节点
+        res.forEach((e) => {
+          // 用例节点
+          const child = window.minder.createNode(e.data, node);
+          child.render();
+          e.children?.forEach((item) => {
+            // 前置/步骤/备注节点
+            const grandChild = window.minder.createNode(item.data, child);
+            grandChild.render();
+            item.children?.forEach((subItem) => {
+              // 预期结果节点
+              const greatGrandChild = window.minder.createNode(subItem.data, grandChild);
+              greatGrandChild.render();
+            });
+          });
+          child.expand();
+          child.renderTree();
+        });
+        node.expand();
+        node.renderTree();
+        window.minder.layout();
+        if (node.data) {
+          node.data.isLoaded = true;
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      extraVisible.value = false;
+      resetExtractInfo();
+    }
+  }
+
   watch(
     () => activeExtraKey.value,
     (val) => {
       if (val === 'comments') {
         getAllCommentList();
+      } else if (val === 'bug') {
+        pageNation.value.current = 1;
+        loadBugList();
       }
     }
   );
@@ -1408,29 +1420,27 @@
     overflow-y: auto;
     height: calc(100% - 64px);
   }
-  .bug-list {
+  .bug-item {
+    @apply cursor-pointer;
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+
+    padding: 8px;
+    border: 1px solid var(--color-text-n8);
+    border-radius: var(--border-radius-small);
+    background-color: white;
+    &:hover {
+      @apply relative;
+
+      background: var(--color-text-n9);
+      box-shadow: inset 0 0 0.5px 0.5px rgb(var(--primary-5));
+    }
+  }
+  .comment-container {
     .ms-scroll-bar();
 
     overflow-y: auto;
-    margin-bottom: 16px;
-    height: calc(100% - 46px);
-    border-radius: var(--border-radius-small);
-    .bug-item {
-      @apply cursor-pointer;
-      &:not(:last-child) {
-        margin-bottom: 8px;
-      }
-
-      padding: 8px;
-      border: 1px solid var(--color-text-n8);
-      border-radius: var(--border-radius-small);
-      background-color: white;
-      &:hover {
-        @apply relative;
-
-        background: var(--color-text-n9);
-        box-shadow: inset 0 0 0.5px 0.5px rgb(var(--primary-5));
-      }
-    }
+    height: calc(100% - 130px);
   }
 </style>

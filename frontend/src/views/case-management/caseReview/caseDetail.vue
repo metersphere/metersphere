@@ -194,15 +194,14 @@
               :show-empty="false"
             />
           </div>
-          <div v-else class="flex flex-1 flex-col overflow-hidden">
-            <div class="review-history-list">
+          <div v-else class="flex flex-1 flex-col overflow-hidden pl-[16px] pt-[16px]">
+            <div class="ms-comment-list">
               <a-spin :loading="reviewHistoryListLoading" class="h-full w-full">
-                <div v-for="item of reviewHistoryList" :key="item.id" class="review-history-list-item">
-                  <div class="flex items-center">
-                    <MSAvatar :avatar="item.userLogo" />
-                    <div class="ml-[8px] flex items-center">
+                <div v-for="item of reviewHistoryList" :key="item.id" class="ms-comment-list-item">
+                  <MSAvatar :avatar="item.userLogo" />
+                  <div class="flex-1">
+                    <div class="flex items-center gap-[8px]">
                       <div class="font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
-                      <a-divider direction="vertical" margin="8px"></a-divider>
                       <div v-if="item.status === 'PASS'" class="flex items-center">
                         <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
                         {{ t('caseManagement.caseReview.pass') }}
@@ -220,10 +219,10 @@
                         {{ t('caseManagement.caseReview.reReview') }}
                       </div>
                     </div>
-                  </div>
-                  <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
-                  <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
-                    {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                    <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
+                    <div class="mt-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                      {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                    </div>
                   </div>
                 </div>
                 <MsEmpty v-if="reviewHistoryList.length === 0" />
@@ -640,16 +639,6 @@
 
     padding: 16px;
     align-content: start;
-    .review-history-list {
-      @apply h-full;
-
-      padding: 16px 0 0 16px;
-      .review-history-list-item {
-        &:not(:last-child) {
-          margin-bottom: 16px;
-        }
-      }
-    }
   }
   .content-footer {
     padding: 16px;
