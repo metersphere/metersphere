@@ -165,6 +165,13 @@ public class TestPlanModuleService extends ModuleTreeService {
                 extTestPlanModuleMapper::selectModuleByParentIdAndPosOperator);
 
         TestPlanModuleExample example = new TestPlanModuleExample();
+        // 拖拽后, 父级模块下存在同名模块
+        example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andNameEqualTo(nodeSortDTO.getNode().getName())
+                .andIdNotEqualTo(nodeSortDTO.getNode().getId());
+        if (testPlanModuleMapper.countByExample(example) > 0) {
+            throw new MSException(Translator.get("test_plan_module_already_exists"));
+        }
+        example.clear();
         example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andIdEqualTo(request.getDragNodeId());
         //节点换到了别的节点下,要先更新parent节点再计算sort
         if (testPlanModuleMapper.countByExample(example) == 0) {
