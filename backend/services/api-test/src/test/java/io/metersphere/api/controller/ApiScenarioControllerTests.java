@@ -175,6 +175,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private UserMapper userMapper;
     @Resource
     private ApiScenarioReportService scenarioReportService;
+    @Resource
+    private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
 
     private static String fileMetadataId;
     private static String fileMetadataStepId;
@@ -1235,6 +1237,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(apiScenarioDetail.getCreateUserName(), userMapper.selectByPrimaryKey(apiScenarioDetail.getCreateUser()).getName());
         Assertions.assertEquals(apiScenarioDetail.getUpdateUserName(), userMapper.selectByPrimaryKey(apiScenarioDetail.getUpdateUser()).getName());
         Assertions.assertFalse(apiScenarioDetail.getFollow());
+
         // 验证数据
         assertGetApiScenarioSteps(this.addApiScenarioSteps, apiScenarioDetail.getSteps());
 
@@ -1327,6 +1330,13 @@ public class ApiScenarioControllerTests extends BaseTest {
         for (int i = 0; i < addApiScenarioSteps.size(); i++) {
             ApiScenarioStepRequest stepRequest = (ApiScenarioStepRequest) addApiScenarioSteps.get(i);
             ApiScenarioStepDTO stepDTO = (ApiScenarioStepDTO) steps.get(i);
+            ApiScenarioCsvStepExample example = new ApiScenarioCsvStepExample();
+            example.createCriteria().andStepIdEqualTo(stepDTO.getId());
+            List<String> csvIds = apiScenarioCsvStepMapper.selectByExample(example).stream().map(ApiScenarioCsvStep::getFileId).collect(Collectors.toList());
+            stepRequest.setCsvIds(csvIds);
+            if (stepDTO.getCsvIds() == null) {
+                stepDTO.setCsvIds(List.of());
+            }
             Assertions.assertEquals(BeanUtils.copyBean(new ApiScenarioStepCommonDTO(), stepRequest), BeanUtils.copyBean(new ApiScenarioStepCommonDTO(), stepDTO));
             assertGetApiScenarioSteps(stepRequest.getChildren(), stepDTO.getChildren());
         }

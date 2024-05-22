@@ -527,21 +527,44 @@ public class ApiScenarioService extends MoveNodeService {
             }
 
             csvSteps.forEach(step -> step.setScenarioId(scenario.getId()));
-            saveStepCsv(scenario.getId(), steps, csvSteps);
+
+            csvSteps = filterNotExistCsv(request.getScenarioConfig(), csvSteps);
+            saveStepCsv(scenario.getId(), csvSteps);
         }
     }
 
+    private List<ApiScenarioCsvStep> filterNotExistCsv(ScenarioConfig scenarioConfig, List<ApiScenarioCsvStep> csvSteps) {
+        Set<String> csvIdSet =
+                getCsvVariables(scenarioConfig)
+                        .stream()
+                        .map(CsvVariable::getId)
+                        .collect(Collectors.toSet());
+
+        csvSteps = csvSteps.stream()
+                .filter(step -> csvIdSet.contains(step.getFileId()))
+                .collect(Collectors.toList());
+        return csvSteps;
+    }
+
     private void handCsvFilesAdd(ApiScenarioAddRequest request, String creator, ApiScenario scenario) {
-        if (request.getScenarioConfig() == null || request.getScenarioConfig().getVariable() == null || request.getScenarioConfig().getVariable().getCsvVariables() == null) {
+        List<CsvVariable> csvVariables = getCsvVariables(request.getScenarioConfig());
+
+        if (CollectionUtils.isEmpty(csvVariables)) {
             return;
         }
-        List<CsvVariable> csvVariables = request.getScenarioConfig().getVariable().getCsvVariables();
 
         // 处理 csv 相关数据表
         handleCsvDataUpdate(csvVariables, scenario, List.of());
 
         // 处理文件的上传
         handleCsvFileUpdate(csvVariables, List.of(), scenario, creator);
+    }
+
+    private List<CsvVariable> getCsvVariables(ScenarioConfig scenarioConfig) {
+        if (scenarioConfig == null ||scenarioConfig.getVariable() == null || scenarioConfig.getVariable().getCsvVariables() == null) {
+            return List.of();
+        }
+        return scenarioConfig.getVariable().getCsvVariables();
     }
 
     private void handleStepFilesAdd(ApiScenarioAddRequest request, String creator, ApiScenario scenario) {
@@ -576,7 +599,7 @@ public class ApiScenarioService extends MoveNodeService {
         return resourceUpdateRequest;
     }
 
-    private void saveStepCsv(String scenarioId, List<ApiScenarioStep> steps, List<ApiScenarioCsvStep> csvSteps) {
+    private void saveStepCsv(String scenarioId, List<ApiScenarioCsvStep> csvSteps) {
         // 先删除
         ApiScenarioCsvStepExample csvStepExample = new ApiScenarioCsvStepExample();
         csvStepExample.createCriteria().andScenarioIdEqualTo(scenarioId);
@@ -589,10 +612,11 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private void handleCsvUpdate(ScenarioConfig scenarioConfig, ApiScenario scenario, String userId) {
-        if (scenarioConfig == null || scenarioConfig.getVariable() == null || scenarioConfig.getVariable().getCsvVariables() == null) {
+        if (scenarioConfig == null) {
             return;
         }
-        List<CsvVariable> csvVariables = scenarioConfig.getVariable().getCsvVariables();
+
+        List<CsvVariable> csvVariables = getCsvVariables(scenarioConfig);
         List<ApiScenarioCsv> dbCsv = getApiScenarioCsv(scenario.getId());
 
         // 更新 csv 相关数据表
@@ -782,7 +806,8 @@ public class ApiScenarioService extends MoveNodeService {
             apiScenarioSteps.forEach(step -> step.setScenarioId(scenario.getId()));
             scenarioCsvSteps.forEach(step -> step.setScenarioId(scenario.getId()));
 
-            saveStepCsv(scenario.getId(), apiScenarioSteps, scenarioCsvSteps);
+            scenarioCsvSteps = filterNotExistCsv(request.getScenarioConfig(), scenarioCsvSteps);
+            saveStepCsv(scenario.getId(), scenarioCsvSteps);
             // 获取待更新的步骤详情
             addSpecialStepDetails(steps, request.getStepDetails());
             List<ApiScenarioStepBlob> updateStepBlobs = getUpdateStepBlobs(apiScenarioSteps, request.getStepDetails());
@@ -960,11 +985,11 @@ public class ApiScenarioService extends MoveNodeService {
 
             if (CollectionUtils.isNotEmpty(step.getCsvIds())) {
                 //如果是csv文件  需要保存到apiScenarioCsvStep表中
-                step.getCsvIds().forEach(fileId -> {
+                step.getCsvIds().forEach(csvId -> {
                     ApiScenarioCsvStep csvStep = new ApiScenarioCsvStep();
                     csvStep.setId(IDGenerator.nextStr());
                     csvStep.setStepId(apiScenarioStep.getId());
-                    csvStep.setFileId(fileId);
+                    csvStep.setFileId(csvId);
                     csvSteps.add(csvStep);
                 });
             }

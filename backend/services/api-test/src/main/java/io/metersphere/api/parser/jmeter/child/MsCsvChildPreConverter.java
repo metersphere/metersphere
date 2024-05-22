@@ -67,9 +67,11 @@ public class MsCsvChildPreConverter extends AbstractJmeterElementConverter<Abstr
         csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JmeterAlias.TEST_BEAN_GUI));
         csvDataSet.setName(StringUtils.isEmpty(csvVariable.getName()) ? CSVDataSet.class.getSimpleName() : csvVariable.getName());
         csvDataSet.setProperty(JmeterProperty.FILE_ENCODING, StringUtils.isEmpty(csvVariable.getEncoding()) ? StandardCharsets.UTF_8.name() : csvVariable.getEncoding());
+        csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.IGNORE_FIRST_LINE, csvVariable.getIgnoreFirstLine());
+        csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.STOP_THREAD, csvVariable.getStopThreadOnEof());
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.FILE_NAME, path);
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.SHARE_MODE, shareMode);
-        csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.RECYCLE, true);
+        csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.RECYCLE, csvVariable.getRecycleOnEof());
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.VARIABLE_NAMES, csvVariable.getVariableNames());
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.DELIMITER, csvVariable.getDelimiter());
         csvDataSet.setProperty(JmeterProperty.CSVDataSetProperty.QUOTED_DATA, csvVariable.getAllowQuotedData());
