@@ -235,9 +235,10 @@
     <select id="countModuleIdByConditions"
             parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"
             resultType="io.metersphere.project.dto.ModuleCountDTO">
-        SELECT t.module_id AS moduleId, count(t.id) AS dataCount
+        SELECT t.module_id AS moduleId, count(distinct t.id) AS dataCount
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
+        INNER JOIN test_plan_module tpm on (tpm.id = t.module_id or t.module_id = 'root')
         <include refid="test_plan_page_request"/>
         GROUP BY t.module_id
     </select>
