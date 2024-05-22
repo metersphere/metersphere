@@ -14,6 +14,8 @@ public interface ExtFunctionalCaseTestMapper {
 
     List<String> getIds(@Param("request") DisassociateOtherCaseRequest request);
 
+    Integer getOtherCaseCount(@Param("caseId") String caseId);
+
     List<FunctionalCaseTestDTO> getList(@Param("request") FunctionalCaseTestRequest request);
 
     List<FunctionalCaseTestPlanDTO> getPlanList(@Param("request") AssociatePlanPageRequest request);

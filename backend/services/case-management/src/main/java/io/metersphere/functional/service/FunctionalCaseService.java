@@ -138,6 +138,8 @@ public class FunctionalCaseService {
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
     @Resource
+    private ExtFunctionalCaseTestMapper extFunctionalCaseTestMapper;
+    @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     private FunctionalCaseRelationshipEdgeMapper functionalCaseRelationshipEdgeMapper;
@@ -388,9 +390,8 @@ public class FunctionalCaseService {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
         functionalCaseDetailDTO.setDemandCount((int) functionalCaseDemandMapper.countByExample(functionalCaseDemandExample));
         //获取已关联用例数量
-        FunctionalCaseTestExample caseTestExample = new FunctionalCaseTestExample();
-        caseTestExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
-        functionalCaseDetailDTO.setCaseCount((int) functionalCaseTestMapper.countByExample(caseTestExample));
+        Integer otherCaseCount = extFunctionalCaseTestMapper.getOtherCaseCount(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setCaseCount(otherCaseCount);
         //获取已关联缺陷数量
         BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
         bugRelationCaseExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
