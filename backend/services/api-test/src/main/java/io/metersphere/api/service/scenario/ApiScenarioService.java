@@ -27,6 +27,8 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
+import io.metersphere.functional.domain.FunctionalCaseTestExample;
+import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.TimeWaitingProcessor;
@@ -41,7 +43,9 @@ import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.service.*;
+import io.metersphere.project.service.EnvironmentGroupService;
+import io.metersphere.project.service.EnvironmentService;
+import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
@@ -188,12 +192,15 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiScenarioNoticeService apiScenarioNoticeService;
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+    @Resource
+    private FunctionalCaseTestMapper functionalCaseTestMapper;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
     public static final String ENVIRONMENT = "Environment";
     private static final String SCENARIO_TABLE = "api_scenario";
+    private static final String SCENARIO = "SCENARIO";
 
 
     public List<ApiScenarioDTO> getScenarioPage(ApiScenarioPageRequest request) {
@@ -454,6 +461,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     /**
      * 处理复制场景时的文件复制
+     *
      * @param request
      * @param scenario
      */
@@ -1187,6 +1195,12 @@ public class ApiScenarioService extends MoveNodeService {
 
         //删除定时任务
         scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
+
+        //删除功能用例关联关系
+        FunctionalCaseTestExample functionalCaseTestExample = new FunctionalCaseTestExample();
+        functionalCaseTestExample.createCriteria().andSourceIdEqualTo(scenario.getId()).andSourceTypeEqualTo(SCENARIO);
+        functionalCaseTestMapper.deleteByExample(functionalCaseTestExample);
+
     }
 
     private void deleteCsvByScenarioId(String id) {
@@ -1236,6 +1250,11 @@ public class ApiScenarioService extends MoveNodeService {
             apiScenarioCsvStepMapper.deleteByExample(csvStepExample);
         }
         apiScenarioCsvMapper.deleteByExample(csvExample);
+
+        //删除功能用例关联关系
+        FunctionalCaseTestExample functionalCaseTestExample = new FunctionalCaseTestExample();
+        functionalCaseTestExample.createCriteria().andSourceIdIn(scenarioIdList).andSourceTypeEqualTo(SCENARIO);
+        functionalCaseTestMapper.deleteByExample(functionalCaseTestExample);
 
     }
 

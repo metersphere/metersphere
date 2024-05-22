@@ -1,6 +1,5 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
@@ -13,6 +12,8 @@ import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.functional.domain.FunctionalCaseTestExample;
+import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
@@ -104,6 +105,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private ApiTestCaseNoticeService apiTestCaseNoticeService;
     @Resource
     private ExtApiReportMapper extApiReportMapper;
+    @Resource
+    private FunctionalCaseTestMapper functionalCaseTestMapper;
 
     private static final String CASE_TABLE = "api_test_case";
     private static final int MAX_TAG_SIZE = 10;
@@ -380,7 +383,7 @@ public class ApiTestCaseService extends MoveNodeService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> deleteResourceByIds(subList, request.getProjectId(), userId));
+        SubListUtils.dealForSubList(ids, 200, subList -> deleteResourceByIds(subList, request.getProjectId(), userId));
     }
 
     public void deleteResourceByIds(List<String> ids, String projectId, String userId) {
@@ -400,6 +403,10 @@ public class ApiTestCaseService extends MoveNodeService {
         //记录删除日志
         apiTestCaseLogService.deleteBatchLog(caseLists, userId, projectId);
         //TODO 需要删除测试计划与用例的中间表 功能用例的关联表等
+        FunctionalCaseTestExample functionalCaseTestExample = new FunctionalCaseTestExample();
+        functionalCaseTestExample.createCriteria().andSourceIdIn(ids).andSourceTypeEqualTo("API");
+        functionalCaseTestMapper.deleteByExample(functionalCaseTestExample);
+
         //TODO 删除附件关系    不需要删除报告
         //extFileAssociationService.deleteByResourceIds(ids);
     }
@@ -836,6 +843,7 @@ public class ApiTestCaseService extends MoveNodeService {
 
     /**
      * 校验TAG长度
+     *
      * @param tags 标签集合
      */
     public void checkTagLength(List<String> tags) {
