@@ -146,6 +146,11 @@
                     </a-tooltip>
 
                     <MsButton v-else @click="handleNameClick(item)">
+                      <a-tooltip :content="item.content.split(':')[0]" :mouse-enter-delay="300">
+                        <div class="one-line-text max-w-[300px] text-[var(--color-text-2)]"
+                          >{{ item.content.split(':')[0] }}：</div
+                        >
+                      </a-tooltip>
                       <a-tooltip :content="item.resourceName" :mouse-enter-delay="300">
                         <div class="one-line-text max-w-[300px]">
                           {{ item.resourceName }}
