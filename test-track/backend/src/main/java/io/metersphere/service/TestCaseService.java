@@ -494,16 +494,28 @@ public class TestCaseService {
      * 如果启用重新提审，并且前置条件或步骤发生变化，则触发重新提审
      */
     private void reReviewTestReviewTestCase(TestCaseWithBLOBs originCase, TestCaseWithBLOBs testCase) {
-        ProjectConfig config = baseProjectApplicationService.getProjectConfig(testCase.getProjectId());
-        Boolean reReview = config.getReReview();
-        if (BooleanUtils.isTrue(reReview) && originCase != null) {
+        boolean enAbleReReview = isEnAbleReReview(testCase.getProjectId());
+        reReviewTestReviewTestCase(originCase, testCase, enAbleReReview);
+    }
+
+    private void reReviewTestReviewTestCase(TestCaseWithBLOBs originCase, TestCaseWithBLOBs testCase, boolean enAbleReReview) {
+        if (enAbleReReview && originCase != null) {
             if (!StringUtils.equals(originCase.getPrerequisite(), testCase.getPrerequisite())   // 前置条件添加发生变化
-                    || !StringUtils.equals(originCase.getSteps(), testCase.getSteps())                  // 步骤发生变化
-                    || !StringUtils.equals(originCase.getStepDescription(), testCase.getStepDescription())
-                    || !StringUtils.equals(originCase.getExpectedResult(), testCase.getExpectedResult())) {
+                    || (!StringUtils.equals(originCase.getSteps(), testCase.getSteps())
+                        && !StringUtils.isAllBlank(originCase.getSteps(), testCase.getSteps())) // 这里null和空字符看作相等
+                    || (!StringUtils.equals(originCase.getStepDescription(), testCase.getStepDescription())
+                        && !StringUtils.isAllBlank(originCase.getStepDescription(), testCase.getStepDescription()))
+                    || (!StringUtils.equals(originCase.getExpectedResult(), testCase.getExpectedResult())
+                        && !StringUtils.isAllBlank(originCase.getExpectedResult(), testCase.getExpectedResult()))) {
                 testReviewTestCaseService.reReviewByCaseId(testCase.getId());
             }
         }
+    }
+
+    private boolean isEnAbleReReview(String projectId) {
+        ProjectConfig config = baseProjectApplicationService.getProjectConfig(projectId);
+        Boolean reReview = config.getReReview();
+        return BooleanUtils.isTrue(reReview);
     }
 
     /**
@@ -1436,6 +1448,7 @@ public class TestCaseService {
 
         try {
             if (!testCases.isEmpty()) {
+                boolean enAbleReReview = isEnAbleReReview(request.getProjectId());
                 testCases.forEach(testCase -> {
                     testCase.setUpdateTime(System.currentTimeMillis());
                     testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
@@ -1447,6 +1460,7 @@ public class TestCaseService {
                     }
                     // 选了版本就更新到对应的版本
                     if (dbCase.getVersionId().equals(request.getVersionId())) {
+                        reReviewTestReviewTestCase(testCaseMapper.selectByPrimaryKey(testCase.getId()), testCase, enAbleReReview);
                         mapper.updateByPrimaryKeySelective(testCase);
 
                         // 先删除
