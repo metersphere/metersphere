@@ -1142,12 +1142,16 @@ public class TestCaseService {
         return extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
     }
 
-    private ExcelResponse getImportResponse(List<ExcelErrData<TestCaseExcelData>> errList, boolean isUpdated) {
+    private ExcelResponse getImportResponse(List<ExcelErrData<TestCaseExcelData>> errList, boolean isUpdated, boolean isIgnore) {
         ExcelResponse excelResponse = new ExcelResponse();
         excelResponse.setIsUpdated(isUpdated);
         //如果包含错误信息就导出错误信息
         if (!errList.isEmpty()) {
-            excelResponse.setSuccess(false);
+            if (isIgnore) {
+                excelResponse.setSuccess(true);
+            } else {
+                excelResponse.setSuccess(false);
+            }
             excelResponse.setErrList(errList);
         } else {
             excelResponse.setSuccess(true);
@@ -1243,7 +1247,7 @@ public class TestCaseService {
                 errData.setRowNum(errorNum++);
             }
         }
-        return getImportResponse(errList, true);
+        return getImportResponse(errList, true, request.isIgnore());
     }
 
     private ExcelResponse testCaseExcelImport(MultipartFile multipartFile, TestCaseImportRequest request,
@@ -1303,7 +1307,7 @@ public class TestCaseService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
         }
-        return getImportResponse(errList, isUpdated);
+        return getImportResponse(errList, isUpdated, request.isIgnore());
     }
 
     private static List<CustomFieldDao> getProjectCustomFields(String projectId) {
