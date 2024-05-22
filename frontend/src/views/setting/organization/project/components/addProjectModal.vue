@@ -139,6 +139,7 @@
 
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
 
+  import { showUpdateOrCreateMessage } from '@/views/setting/utils';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   defineOptions({
@@ -246,10 +247,8 @@
       }
       try {
         loading.value = true;
-        await createOrUpdateProjectByOrg({ id: isEdit.value ? props.currentProject?.id : '', ...form });
-        Message.success(
-          isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
-        );
+        const res = await createOrUpdateProjectByOrg({ id: isEdit.value ? props.currentProject?.id : '', ...form });
+        showUpdateOrCreateMessage(isEdit.value, res.id);
         appStore.initProjectList();
         handleCancel(true);
       } catch (error) {
