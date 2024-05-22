@@ -517,14 +517,14 @@
     }
     @apply relative overflow-hidden;
     :deep(.halo-rich-text-editor .ProseMirror) {
-      padding: 16px 24px !important;
+      padding: 16px !important;
       height: 130px;
       p:first-child {
         margin-top: 0;
       }
     }
     :deep(.halo-rich-text-editor) {
-      padding: 16px 24px !important;
+      padding: 16px !important;
       .editor-header {
         .ms-scroll-bar();
 

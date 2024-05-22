@@ -5,6 +5,7 @@ import CommentInput from './input.vue';
 
 import { useI18n } from '@/hooks/useI18n';
 
+import './style.less';
 import { CommentEvent, CommentItem, CommentParams, CommentType } from './types';
 import message from '@arco-design/web-vue/es/message';
 
@@ -190,6 +191,6 @@ export default defineComponent({
       ));
     };
 
-    return () => <div class="ms-comment gap[24px] flex flex-col">{renderParentList(commentList.value)}</div>;
+    return () => <div class="ms-comment flex flex-col gap-[16px]">{renderParentList(commentList.value)}</div>;
   },
 });

@@ -1,5 +1,4 @@
 import MSR from '@/api/http/index';
-import { associatedProjectOptionsUrl } from '@/api/requrls/case-management/featureCase';
 import { ProjectListUrl, ProjectSwitchUrl } from '@/api/requrls/project-management/project';
 
 import type { ProjectListItem } from '@/models/setting/project';

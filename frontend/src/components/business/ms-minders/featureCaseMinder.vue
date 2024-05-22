@@ -160,7 +160,7 @@
         </a-spin>
       </div>
       <div v-else-if="activeExtraKey === 'comments'" class="pl-[16px]">
-        <div class="flex items-center justify-between">
+        <div class="mb-[16px] flex items-center justify-between">
           <div class="text-[var(--color-text-4)]">
             {{
               t('ms.minders.commentTotal', {

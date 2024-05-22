@@ -733,12 +733,12 @@
   }
   .ms-base-table--hasQuickCreate {
     :deep(.arco-table-body:not(.arco-scrollbar-container)) {
-      padding-top: 54px;
+      padding-top: 50px;
     }
     :deep(.arco-table-element:not(.arco-table-header .arco-table-element)) {
-      padding-bottom: 54px;
+      padding-bottom: 50px;
       tbody {
-        transform: translateY(54px);
+        transform: translateY(50px);
       }
     }
     :deep(.arco-table-tr:first-child) {
@@ -749,9 +749,9 @@
     .ms-base-table-quickCreate {
       @apply absolute left-0 flex w-full items-center;
 
-      top: 55px;
+      top: 39px;
       z-index: 11;
-      padding: 16px;
+      padding: 14px 16px;
       background-color: var(--color-text-n9);
     }
   }
