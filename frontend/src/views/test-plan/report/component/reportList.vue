@@ -16,7 +16,7 @@
           @press-enter="searchList"
           @clear="searchList"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="initData">
+        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="initData()">
           <template #icon>
             <icon-refresh class="text-[var(--color-text-4)]" />
           </template>
@@ -30,6 +30,7 @@
       :action-config="tableBatchActions"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
+      @filter-change="filterChange"
     >
       <template #name="{ record, rowIndex }">
         <div
@@ -209,7 +210,6 @@
       title: 'report.result',
       dataIndex: 'resultStatus',
       slotName: 'resultStatus',
-      titleSlotName: 'statusFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -280,7 +280,7 @@
       return false;
     }
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     reportList,
     {
       tableKey: TableKeyEnum.TEST_PLAN_REPORT_TABLE,
@@ -300,11 +300,17 @@
     rename
   );
 
-  function initData() {
+  function initData(dataIndex?: string, value?: string[] | (string | number | boolean)[] | undefined) {
+    const filterParams = {
+      ...propsRes.value.filter,
+    };
+    if (dataIndex && value) {
+      filterParams[dataIndex] = value;
+    }
     setLoadListParams({
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      filter: { ...propsRes.value.filter, integrated: integratedFilters.value },
+      filter: { ...filterParams, integrated: integratedFilters.value },
     });
     loadList();
   }
@@ -368,6 +374,7 @@
     resetSelector();
     initData();
   }
+
   const handleDelete = async (id: string, currentName: string) => {
     openModal({
       type: 'error',
@@ -398,12 +405,16 @@
 
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
+    resetFilterParams();
     resetSelector();
-    console.log(propsRes.value);
     propsRes.value.filter = {
       integrated: integratedFilters.value,
     };
     initData();
+  }
+
+  function filterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
+    initData(dataIndex, value);
   }
 
   /**

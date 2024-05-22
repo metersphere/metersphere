@@ -74,8 +74,8 @@
           class="!mr-0"
           @click="handleCopyMock(record)"
         >
-          {{ t('common.copy') }} </MsButton
-        >x
+          {{ t('common.copy') }}
+        </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="tableMoreActionList" @select="handleTableMoreActionSelect($event, record)" />
       </template>
