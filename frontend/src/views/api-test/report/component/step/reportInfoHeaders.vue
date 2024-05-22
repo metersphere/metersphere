@@ -80,19 +80,19 @@
   const createChildOption = (key: string) => [
     {
       value: `${key}-SUCCESS`,
-      label: t(`report.detail.successCount`),
+      label: t(`common.pass`),
     },
     {
       value: `${key}-FAKE_ERROR`,
-      label: t(`report.detail.fakeErrorCount`),
+      label: t(`common.fakeError`),
     },
     {
       value: `${key}-ERROR`,
-      label: t(`report.detail.errorCount`),
+      label: t(`common.fail`),
     },
     {
       value: `${key}-PENDING`,
-      label: t(`report.detail.pendingCount`),
+      label: t(`common.unExecute`),
     },
     {
       value: `${key}-scriptIdentifier`,

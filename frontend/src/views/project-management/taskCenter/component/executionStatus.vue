@@ -42,15 +42,15 @@
     [TaskCenterEnum.API_CASE]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'project.taskCenter.successful',
+        label: 'common.success',
       },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'project.taskCenter.failure',
+        label: 'common.fail',
       },
       FAKE_ERROR: {
         icon: 'icon-icon_warning_colorful',
-        label: 'project.taskCenter.falseAlarm',
+        label: 'common.fakeError',
       },
       STOPPED: {
         icon: 'icon-icon_block_filled',
@@ -59,7 +59,7 @@
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'project.taskCenter.inExecution',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       // RERUNNING: {
@@ -69,22 +69,22 @@
       // },
       PENDING: {
         icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.queuing',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
     },
     [TaskCenterEnum.API_SCENARIO]: {
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'project.taskCenter.successful',
+        label: 'common.success',
       },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'project.taskCenter.failure',
+        label: 'common.fail',
       },
       FAKE_ERROR: {
         icon: 'icon-icon_warning_colorful',
-        label: 'project.taskCenter.falseAlarm',
+        label: 'common.fakeError',
       },
       STOPPED: {
         icon: 'icon-icon_block_filled',
@@ -93,7 +93,7 @@
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'project.taskCenter.inExecution',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       // RERUNNING: {
@@ -103,7 +103,7 @@
       // },
       PENDING: {
         icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.queuing',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
     },
@@ -115,16 +115,16 @@
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'project.taskCenter.inExecution',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'project.taskCenter.failure',
+        label: 'common.fail',
       },
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'project.taskCenter.successful',
+        label: 'common.success',
       },
       COMPLETED: {
         icon: 'icon-icon_succeed_colorful',
@@ -139,12 +139,12 @@
     [TaskCenterEnum.UI_TEST]: {
       PENDING: {
         icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.queuing',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
       RUNNING: {
         icon: 'icon-icon_testing',
-        label: 'project.taskCenter.inExecution',
+        label: 'common.running',
         color: '!text-[rgb(var(--link-6))]',
       },
       // RERUNNING: {
@@ -154,11 +154,11 @@
       // },
       ERROR: {
         icon: 'icon-icon_close_colorful',
-        label: 'project.taskCenter.failure',
+        label: 'common.fail',
       },
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'project.taskCenter.successful',
+        label: 'common.success',
       },
       STOPPED: {
         icon: 'icon-icon_block_filled',
@@ -169,12 +169,12 @@
     [TaskCenterEnum.TEST_PLAN]: {
       RUNNING: {
         icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.queuing',
+        label: 'common.unExecute',
         color: '!text-[var(--color-text-input-border)]',
       },
       SUCCESS: {
         icon: 'icon-icon_succeed_colorful',
-        label: 'project.taskCenter.successful',
+        label: 'common.success',
       },
       STARTING: {
         icon: 'icon-icon_restarting',

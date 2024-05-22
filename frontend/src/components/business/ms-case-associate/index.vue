@@ -212,7 +212,7 @@
       moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
       hideProjectSelect?: boolean; // 是否隐藏项目选择
       isHiddenCaseLevel?: boolean;
-      selectorAll: boolean;
+      selectorAll?: boolean;
     }>(),
     {
       isHiddenCaseLevel: false,

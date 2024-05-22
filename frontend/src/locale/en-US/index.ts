@@ -22,6 +22,7 @@ export default {
     'menu.workbench': 'Workbench',
     'menu.testPlan': 'Test Plan',
     'menu.testPlanShort': 'Plan',
+    'menu.testPlan.testPlanDetail': 'Test plan details',
     'menu.bugManagement': 'Bug',
     'menu.bugManagementShort': 'Bug',
     'menu.bugManagement.bugDetail': 'Bug',

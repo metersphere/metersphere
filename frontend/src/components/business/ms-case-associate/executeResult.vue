@@ -27,7 +27,7 @@
     PENDING: {
       label: 'PENDING',
       icon: StatusType.PENDING,
-      statusText: t('caseManagement.featureCase.nonExecution'),
+      statusText: t('common.unExecute'),
       color: 'var(--color-text-brand)',
     },
     SUCCESS: {
@@ -39,13 +39,13 @@
     BLOCKED: {
       label: 'BLOCKED',
       icon: StatusType.BLOCKED,
-      statusText: t('caseManagement.featureCase.chokeUp'),
+      statusText: t('common.block'),
       color: 'rgb(var(--primary-3))',
     },
     ERROR: {
       label: 'ERROR',
       icon: StatusType.ERROR,
-      statusText: t('caseManagement.featureCase.failure'),
+      statusText: t('common.fail'),
       color: '',
     },
   };

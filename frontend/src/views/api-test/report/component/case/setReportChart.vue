@@ -21,8 +21,8 @@
         <div> <MsChart :width="props.size || '110px'" :height="props.size || '110px'" :options="props.options" /></div>
         <template #content>
           <div class="min-w-[176px] max-w-[400px] p-4">
-            <div v-for="item of legendData" :key="item.value" class="mb-2 flex justify-between">
-              <div class="chart-flag flex items-center">
+            <div v-for="item of legendData" :key="item.value" class="mb-2 flex flex-nowrap justify-between">
+              <div class="chart-flag flex flex-nowrap items-center">
                 <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
                 <div class="mr-2 text-[var(--color-text-4)]">{{ item.label }}</div>
               </div>
@@ -40,7 +40,7 @@
           <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
           <div class="mr-2 text-[var(--color-text-4)]">{{ item.label }}</div>
         </div>
-        <div class="count font-medium">{{ item.count || 0 }}</div>
+        <div class="count text-center font-medium">{{ item.count || 0 }}</div>
         <div class="count text-right font-medium"
           >{{ item.rote || 0 }} <span v-if="String(item.rote) !== 'Calculating'"></span
         ></div>
@@ -82,7 +82,7 @@
       @apply grid grid-cols-3;
     }
     .chart-flag {
-      @apply flex items-center;
+      @apply flex flex-nowrap items-center;
       .count {
         color: var(--color-text-1);
       }

@@ -17,17 +17,17 @@
 
   const statusMap = {
     PENDING: {
-      label: 'report.status.pending',
+      label: 'common.unExecute',
       color: 'var(--color-text-n8)',
       class: '!text-[var(--color-text-1)]',
     },
     RUNNING: {
-      label: 'report.status.running',
+      label: 'common.running',
       color: 'rgb(var(--link-2))',
       class: '!text-[rgb(var(--link-6))]',
     },
     STOPPED: {
-      label: 'report.stopped',
+      label: 'common.stop',
       color: 'rgb(var(--warning-2))',
       class: '!text-[rgb(var(--warning-6))]',
     },

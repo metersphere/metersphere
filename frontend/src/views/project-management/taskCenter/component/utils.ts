@@ -17,15 +17,15 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
   [TaskCenterEnum.API_CASE]: {
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: t('project.taskCenter.successful'),
+      label: t('common.success'),
     },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: t('project.taskCenter.failure'),
+      label: t('common.fail'),
     },
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
-      label: t('project.taskCenter.falseAlarm'),
+      label: t('common.fakeError'),
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
@@ -34,7 +34,7 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: t('project.taskCenter.inExecution'),
+      label: t('common.running'),
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -44,22 +44,22 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     // },
     PENDING: {
       icon: 'icon-icon_wait',
-      label: t('project.taskCenter.queuing'),
+      label: t('common.unExecute'),
       color: '!text-[rgb(var(--link-6))]',
     },
   },
   [TaskCenterEnum.API_SCENARIO]: {
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: t('project.taskCenter.successful'),
+      label: t('common.success'),
     },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: t('project.taskCenter.failure'),
+      label: t('common.fail'),
     },
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
-      label: t('project.taskCenter.falseAlarm'),
+      label: t('common.fakeError'),
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
@@ -68,7 +68,7 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: t('project.taskCenter.inExecution'),
+      label: t('common.running'),
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -78,7 +78,7 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     // },
     PENDING: {
       icon: 'icon-icon_wait',
-      label: t('project.taskCenter.queuing'),
+      label: t('common.unExecute'),
       color: '!text-[rgb(var(--link-6))]',
     },
   },
@@ -90,16 +90,16 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: t('project.taskCenter.inExecution'),
+      label: t('common.running'),
       color: '!text-[rgb(var(--link-6))]',
     },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: t('project.taskCenter.failure'),
+      label: t('common.fail'),
     },
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: t('project.taskCenter.successful'),
+      label: t('common.success'),
     },
     COMPLETED: {
       icon: 'icon-icon_succeed_colorful',
@@ -114,12 +114,12 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
   [TaskCenterEnum.UI_TEST]: {
     PENDING: {
       icon: 'icon-icon_wait',
-      label: t('project.taskCenter.queuing'),
+      label: t('common.unExecute'),
       color: '!text-[rgb(var(--link-6))]',
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: t('project.taskCenter.inExecution'),
+      label: t('common.running'),
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -129,11 +129,11 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     // },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: t('project.taskCenter.failure'),
+      label: t('common.fail'),
     },
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: t('project.taskCenter.successful'),
+      label: t('common.success'),
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
@@ -144,12 +144,12 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
   [TaskCenterEnum.TEST_PLAN]: {
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: t('project.taskCenter.queuing'),
+      label: t('common.unExecute'),
       color: '!text-[rgb(var(--link-6))]',
     },
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: t('project.taskCenter.successful'),
+      label: t('common.success'),
     },
     STARTING: {
       icon: 'icon-icon_restarting',

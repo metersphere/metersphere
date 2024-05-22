@@ -29,24 +29,24 @@ export const ReportStatus: Record<ReportEnum, Record<string, { icon: string; lab
   [ReportEnum.API_REPORT]: {
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: 'report.successful',
+      label: 'common.success',
     },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: 'report.failure',
+      label: 'common.fail',
     },
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
-      label: 'report.fake.error',
+      label: 'common.fakeError',
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
-      label: 'report.stopped',
+      label: 'common.stop',
       color: '!var(--color-text-input-border)',
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: 'report.status.running',
+      label: 'common.running',
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -56,31 +56,31 @@ export const ReportStatus: Record<ReportEnum, Record<string, { icon: string; lab
     // },
     PENDING: {
       icon: 'icon-icon_wait',
-      label: 'report.status.pending',
+      label: 'common.unExecute',
       color: '!text-[rgb(var(--link-6))]',
     },
   },
   [ReportEnum.API_SCENARIO_REPORT]: {
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: 'report.successful',
+      label: 'common.success',
     },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: 'report.failure',
+      label: 'common.fail',
     },
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
-      label: 'report.fake.error',
+      label: 'common.fakeError',
     },
     STOPPED: {
       icon: 'icon-icon_block_filled',
-      label: 'report.stopped',
+      label: 'common.stop',
       color: 'var(--color-text-input-border)',
     },
     RUNNING: {
       icon: 'icon-icon_testing',
-      label: 'report.status.running',
+      label: 'common.running',
       color: '!text-[rgb(var(--link-6))]',
     },
     // RERUNNING: {
@@ -90,7 +90,7 @@ export const ReportStatus: Record<ReportEnum, Record<string, { icon: string; lab
     // },
     PENDING: {
       icon: 'icon-icon_wait',
-      label: 'report.status.pending',
+      label: 'common.unExecute',
       color: '!text-[rgb(var(--link-6))]',
     },
   },
@@ -101,21 +101,21 @@ export const PlanReportStatus: Record<string, any> = {
     STOPPED: {
       key: 'STOPPED',
       icon: 'icon-icon_block_filled',
-      statusText: t('report.stopped'),
+      statusText: t('common.stop'),
       label: 'report.stop',
       color: '!var(--color-text-input-border)',
     },
     RUNNING: {
       key: 'RUNNING',
       icon: 'icon-icon_testing',
-      statusText: t('report.status.running'),
+      statusText: t('common.running'),
       label: 'report.inExecution',
       color: '!text-[rgb(var(--link-6))]',
     },
     PENDING: {
       key: 'PENDING',
       icon: 'icon-icon_wait',
-      statusText: t('report.status.pending'),
+      statusText: t('common.unExecute'),
       label: 'report.queuing',
       color: '!text-[rgb(var(--link-6))]',
     },
@@ -123,17 +123,17 @@ export const PlanReportStatus: Record<string, any> = {
       key: 'COMPLETED',
       icon: 'icon-icon_succeed_colorful',
       statusText: t('report.completed'),
-      label: 'report.successful',
+      label: 'common.success',
     },
   },
   [ReportStatusEnum.REPORT_STATUS]: {
     SUCCESS: {
       icon: 'icon-icon_succeed_colorful',
-      label: 'report.successful',
+      label: 'common.success',
     },
     ERROR: {
       icon: 'icon-icon_close_colorful',
-      label: 'report.failure',
+      label: 'common.fail',
     },
   },
 };

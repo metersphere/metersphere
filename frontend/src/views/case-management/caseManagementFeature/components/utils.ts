@@ -59,7 +59,7 @@ export const executionResultMap: Record<string, any> = {
   PENDING: {
     key: 'PENDING',
     icon: StatusType.PENDING,
-    statusText: t('caseManagement.featureCase.nonExecution'),
+    statusText: t('common.unExecute'),
     color: 'text-[var(--color-text-brand)]',
   },
   SUCCESS: {
@@ -71,13 +71,13 @@ export const executionResultMap: Record<string, any> = {
   BLOCKED: {
     key: 'BLOCKED',
     icon: StatusType.BLOCKED,
-    statusText: t('caseManagement.featureCase.chokeUp'),
+    statusText: t('common.block'),
     color: 'text-[rgb(var(--primary-3))]',
   },
   ERROR: {
     key: 'ERROR',
     icon: StatusType.ERROR,
-    statusText: t('caseManagement.featureCase.failure'),
+    statusText: t('common.fail'),
     color: '',
   },
 };
