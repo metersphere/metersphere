@@ -31,3 +31,14 @@
     list-style: decimal !important;
   }
 }
+.ms-comment-list {
+  @apply h-full;
+  .ms-comment-list-item {
+    @apply flex;
+
+    gap: 8px;
+    &:not(:last-child) {
+      margin-bottom: 16px;
+    }
+  }
+}

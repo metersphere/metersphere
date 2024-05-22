@@ -1,12 +1,17 @@
 <template>
-  <a-spin class="z-[100] !block" :loading="props.loading" :size="28">
+  <a-spin
+    class="z-[100] !block"
+    :class="props.autoHeight ? '' : 'h-full min-h-[500px]'"
+    :loading="props.loading"
+    :size="28"
+  >
     <div
       ref="fullRef"
       :class="[
         'ms-card',
         'relative',
+        'h-full',
         props.isFullscreen || isFullScreen ? 'ms-card--fullScreen' : '',
-        props.autoHeight ? '' : 'h-full min-h-[500px]',
         props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[16px]',
         props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
         !props.hideFooter && !props.simple ? 'pb-[24px]' : '',
