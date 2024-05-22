@@ -35,5 +35,8 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_APPLICATION_TEST_PLAN:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_APPLICATION_TEST_PLAN:UPDATE');
 
+-- 已存在的项目都开启测试计划模块
+UPDATE project set module_setting = '["bugManagement","caseManagement","apiTest","testPlan"]';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
