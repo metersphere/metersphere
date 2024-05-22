@@ -41,7 +41,10 @@
         LEFT JOIN api_test_case atc ON fct.source_id = atc.id
         LEFT JOIN api_scenario scenario ON fct.source_id = scenario.id
         WHERE fct.case_id = #{request.sourceId}
-          AND atc.deleted = false AND scenario.deleted = false
+        AND (
+        atc.deleted = false
+        OR scenario.deleted = false
+        )
         <if test="request.sourceType != null and request.sourceType != ''">
             AND fct.source_type = #{request.sourceType}
         </if>
@@ -55,6 +58,22 @@
             )
         </if>
         order by fct.create_time desc
+    </select>
+
+    <select id="getOtherCaseCount" resultType="java.lang.Integer">
+        SELECT
+        count(fct.id)
+        FROM
+        functional_case_test fct
+        LEFT JOIN project p ON fct.project_id = p.id
+        LEFT JOIN project_version v ON fct.version_id = v.id
+        LEFT JOIN api_test_case atc ON fct.source_id = atc.id
+        LEFT JOIN api_scenario scenario ON fct.source_id = scenario.id
+        WHERE fct.case_id = #{caseId}
+        AND (
+        atc.deleted = false
+        OR scenario.deleted = false
+        )
     </select>
 
     <select id="getPlanList" parameterType="io.metersphere.functional.request.AssociatePlanPageRequest" resultType="io.metersphere.functional.dto.FunctionalCaseTestPlanDTO">
