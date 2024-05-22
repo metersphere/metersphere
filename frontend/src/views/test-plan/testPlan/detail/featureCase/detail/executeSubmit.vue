@@ -1,12 +1,6 @@
 <template>
   <ExecuteForm v-model:form="form" is-dblclick-placeholder class="execute-form" />
-  <a-button
-    type="primary"
-    class="mt-[12px]"
-    :disabled="submitDisabled"
-    :loading="submitLoading"
-    @click="() => submit()"
-  >
+  <a-button type="primary" class="mt-[12px]" :loading="submitLoading" @click="() => submit()">
     {{ t('caseManagement.caseReview.commitResult') }}
   </a-button>
   <a-modal
@@ -17,7 +11,6 @@
     body-class="p-0"
     :width="800"
     :cancel-button-props="{ disabled: submitLoading }"
-    :ok-button-props="{ disabled: submitDisabled }"
     :ok-loading="submitLoading"
     :ok-text="t('caseManagement.caseReview.commitResult')"
     @before-ok="submit"
@@ -27,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
@@ -60,11 +53,6 @@
 
   const modalVisible = ref(false);
   const submitLoading = ref(false);
-  const submitDisabled = computed(
-    () =>
-      form.value.lastExecResult !== 'SUCCESS' &&
-      (form.value.content === '' || form.value.content?.trim() === '<p style=""></p>')
-  );
 
   // 双击富文本内容打开弹窗
   onMounted(() => {

@@ -203,7 +203,7 @@
                   :name="item.slotName"
                   v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
                 >
-                  {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
+                  {{ getDisplayValue(record[item.dataIndex as string]) }}
                 </slot>
               </template>
             </div>
@@ -374,6 +374,15 @@
   const isEnter = ref<boolean>(false);
 
   const { rowKey }: Partial<MsTableProps<any>> = attrs;
+
+  // 显示值 （不处理0）
+  function getDisplayValue(value: any) {
+    if (value === '' || value === null || value === undefined || Number.isNaN(value)) {
+      return attrs.emptyDataShowLine ? '-' : '';
+    }
+    return value;
+  }
+
   // 第一行表格合并
   const currentSpanMethod = ({
     rowIndex,
