@@ -68,8 +68,6 @@ public class FunctionalTestCaseService {
     @Resource
     private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
 
-    private static final String UNPLANNED_API = "api_unplanned_request";
-
     @Resource
     private BaseAssociateBugProvider baseAssociateBugProvider;
 
@@ -202,12 +200,19 @@ public class FunctionalTestCaseService {
 
     public List<BaseTreeNode> getTree(AssociateCaseModuleRequest request) {
         List<BaseTreeNode> fileModuleList = new ArrayList<>();
+        String unplanned = "api_unplanned_request";
         switch (request.getSourceType()) {
-            case AssociateCaseType.API -> fileModuleList = extFunctionalCaseModuleMapper.selectApiCaseModuleByRequest(request);
-            case AssociateCaseType.SCENARIO -> fileModuleList = extFunctionalCaseModuleMapper.selectApiScenarioModuleByRequest(request);
+            case AssociateCaseType.API -> {
+                fileModuleList = extFunctionalCaseModuleMapper.selectApiCaseModuleByRequest(request);
+                unplanned = "api_unplanned_request";
+            }
+            case AssociateCaseType.SCENARIO ->{
+                fileModuleList = extFunctionalCaseModuleMapper.selectApiScenarioModuleByRequest(request);
+                unplanned = "api_unplanned_scenario";
+            }
             default -> new ArrayList<>();
         }
-        return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
+        return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, true, Translator.get(unplanned));
     }
 
     public List<FunctionalCaseTestDTO> hasAssociatePage(FunctionalCaseTestRequest request) {
