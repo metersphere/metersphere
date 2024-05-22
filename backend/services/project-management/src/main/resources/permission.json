@@ -140,6 +140,14 @@
         "license": true,
         "permissions": [
           {
+            "id": "PROJECT_APPLICATION_TEST_PLAN:READ",
+            "name": "permission.project_application_test_plan.read"
+          },
+          {
+            "id": "PROJECT_APPLICATION_TEST_PLAN:UPDATE",
+            "name": "permission.project_application_test_plan.update"
+          },
+          {
             "id": "PROJECT_APPLICATION_API:READ",
             "name": "permission.project_application_api.read"
           },

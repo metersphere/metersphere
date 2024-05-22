@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class TestPlanDTO {
+    private String id;
 
     @Schema(description = "message.domain.test_plan_num")
     private Long num;
