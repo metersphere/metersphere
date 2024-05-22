@@ -128,7 +128,7 @@ public class MockServerService {
         List<ApiDefinitionMockConfig> mockConfigs = apiDefinitionMockConfigMapper.selectByExampleWithBLOBs(mockConfigExample);
         // 寻找匹配的 ApiDefinitionMockConfig
         ApiDefinitionMockConfig apiDefinitionMockConfig = mockConfigs.stream()
-                .filter(mockConfig -> MockServerUtils.matchMockConfig(mockConfig.getMatching(), requestHeaderMap, param) && matchBinaryBody(mockConfig, param.getBinaryParamsObj(), apiId))
+                .filter(mockConfig -> MockServerUtils.matchMockConfig(mockConfig.getMatching(), requestHeaderMap, param) && matchBinaryBody(mockConfig, param.getBinaryParamsObj(), apiDefinitionMockList.getFirst().getProjectId()))
                 .findFirst()
                 .orElse(null);
 
