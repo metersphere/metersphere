@@ -178,7 +178,6 @@
           ...e,
           hideMoreAction: e.id === 'root' || props.isModal,
           draggable: e.id !== 'root' && !props.isModal,
-          disabled: e.id === props.activeFolder && props.isModal,
           count: props.modulesCount?.[e.id] || 0,
         };
       });

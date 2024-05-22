@@ -108,9 +108,6 @@ export default {
   'caseManagement.featureCase.passed': 'Have passed',
   'caseManagement.featureCase.notPass': 'Not pass',
   'caseManagement.featureCase.retrial': 'retrial',
-  'caseManagement.featureCase.nonExecution': 'non-execution',
-  'caseManagement.featureCase.failure': 'Failure',
-  'caseManagement.featureCase.chokeUp': 'Choke up',
   'caseManagement.featureCase.skip': 'skip',
   'caseManagement.featureCase.batchRecover': 'recover',
   'caseManagement.featureCase.batchCleanOut': 'Clean out',
@@ -276,7 +273,4 @@ export default {
   'caseManagement.featureCase.deleteFileTip':
     'After deletion, the file cannot be restored. Please operate with caution!',
   'caseManagement.featureCase.nameNotNull': 'The name can not be null!',
-  'caseManagement.featureCase.execute.success': 'SUCCESS',
-  'caseManagement.featureCase.execute.failed': 'ERROR',
-  'caseManagement.featureCase.execute.blocked': 'BLOCKED',
 };

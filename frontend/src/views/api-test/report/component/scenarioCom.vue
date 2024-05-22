@@ -16,25 +16,25 @@
           <!-- 通过 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.successCount') }}</div>
+            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.pass') }}</div>
             {{ detail.stepSuccessCount || 0 }}
           </div>
           <!-- 误报 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.fakeErrorCount') }}</div>
+            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.fakeError') }}</div>
             {{ detail.stepFakeErrorCount || 0 }}
           </div>
           <!-- 失败 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.errorCount') }}</div>
+            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.fail') }}</div>
             {{ detail.stepErrorCount || 0 }}
           </div>
           <!-- 未执行 -->
           <div class="countItem">
             <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('report.detail.pendingCount') }}</div>
+            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.unExecute') }}</div>
             {{ detail.stepPendingCount || 0 }}
           </div>
         </div>
@@ -283,28 +283,28 @@
       data: [
         {
           value: 0,
-          name: t('report.detail.api.pass'),
+          name: t('common.pass'),
           itemStyle: {
             color: '#00C261',
           },
         },
         {
           value: 0,
-          name: t('report.detail.api.misstatement'),
+          name: t('common.fakeError'),
           itemStyle: {
             color: '#FFC14E',
           },
         },
         {
           value: 0,
-          name: t('report.detail.api.error'),
+          name: t('common.fail'),
           itemStyle: {
             color: '#ED0303',
           },
         },
         {
           value: 0,
-          name: t('report.detail.api.pending'),
+          name: t('common.unExecute'),
           itemStyle: {
             color: '#D4D4D8',
           },
@@ -317,28 +317,28 @@
   function initOptionsData() {
     const tempArr = [
       {
-        label: 'report.detail.api.pass',
+        label: 'common.pass',
         value: 'successCount',
         color: '#00C261',
         class: 'bg-[rgb(var(--success-6))]',
         rateKey: 'requestPassRate',
       },
       {
-        label: 'report.detail.api.misstatement',
+        label: 'common.fakeError',
         value: 'fakeErrorCount',
         color: '#FFC14E',
         class: 'bg-[rgb(var(--warning-6))]',
         rateKey: 'requestFakeErrorRate',
       },
       {
-        label: 'report.detail.api.error',
+        label: 'common.fail',
         value: 'errorCount',
         color: '#ED0303',
         class: 'bg-[rgb(var(--danger-6))]',
         rateKey: 'requestErrorRate',
       },
       {
-        label: 'report.detail.api.pending',
+        label: 'common.unExecute',
         value: 'pendingCount',
         color: '#D4D4D8',
         class: 'bg-[var(--color-text-input-border)]',

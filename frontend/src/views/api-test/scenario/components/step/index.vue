@@ -61,7 +61,7 @@
                 <div class="text-[rgb(var(--danger-6))]">{{ scenario.executeFailCount }}</div>
               </div>
               <div class="flex items-center gap-[4px]">
-                <div class="text-[var(--color-text-1)]">{{ t('report.fake.error') }}</div>
+                <div class="text-[var(--color-text-1)]">{{ t('common.fakeError') }}</div>
                 <div class="text-[rgb(var(--warning-5))]">{{ scenario.executeFakeErrorCount }}</div>
               </div>
               <MsButton

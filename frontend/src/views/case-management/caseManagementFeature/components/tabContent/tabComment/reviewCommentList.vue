@@ -27,15 +27,15 @@
             </div>
             <div v-if="item.status === 'SUCCESS'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
-              {{ t('caseManagement.featureCase.execute.success') }}
+              {{ t('common.success') }}
             </div>
             <div v-if="item.status === 'BLOCKED'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--primary-3))]" />
-              {{ t('caseManagement.featureCase.execute.blocked') }}
+              {{ t('common.block') }}
             </div>
             <div v-if="item.status === 'ERROR'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
-              {{ t('caseManagement.featureCase.execute.failed') }}
+              {{ t('common.fail') }}
             </div>
           </div>
         </div>
