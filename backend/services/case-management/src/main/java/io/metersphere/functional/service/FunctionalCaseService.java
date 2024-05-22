@@ -287,7 +287,7 @@ public class FunctionalCaseService {
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setPos(getNextOrder(request.getProjectId()));
         functionalCase.setRefId(caseId);
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+        functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);
         functionalCase.setUpdateUser(userId);
@@ -817,7 +817,7 @@ public class FunctionalCaseService {
                     functional.setName(getCopyName(functionalCase.getName(), num, functional.getNum()));
                     functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
                     functional.setPos(nextOrder.get());
-                    functional.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+                    functional.setLastExecuteResult(ExecStatus.PENDING.name());
                     functional.setCreateUser(userId);
                     functional.setUpdateUser(userId);
                     functional.setCreateTime(System.currentTimeMillis());
@@ -986,8 +986,9 @@ public class FunctionalCaseService {
         List<ModuleCountDTO> moduleCountDTOList = extFunctionalCaseMapper.countModuleIdByRequest(request, delete);
         Map<String, Long> moduleCountMap = functionalCaseModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
         //查出全部用例数量
-        long allCount = extFunctionalCaseMapper.caseCount(request, delete);
-        moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        AtomicLong allCount = new AtomicLong(0);
+        moduleCountDTOList.forEach(item -> allCount.addAndGet(item.getDataCount()));
+        moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount.get());
         return moduleCountMap;
 
     }
@@ -1134,7 +1135,7 @@ public class FunctionalCaseService {
         functionalCase.setPos(nextOrder);
         functionalCase.setVersionId(request.getVersionId());
         functionalCase.setRefId(caseId);
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+        functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);
         functionalCase.setUpdateUser(userId);

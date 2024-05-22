@@ -11,7 +11,7 @@ import io.metersphere.functional.request.FunctionalCaseModuleUpdateRequest;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
@@ -763,7 +763,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         functionalCase.setPos(500L);
         functionalCase.setVersionId("12335");
         functionalCase.setRefId(functionalCase.getId());
-        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.PENDING.name());
+        functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
         functionalCase.setPublicCase(false);
         functionalCase.setLatest(true);
         functionalCase.setCreateUser("gyq");

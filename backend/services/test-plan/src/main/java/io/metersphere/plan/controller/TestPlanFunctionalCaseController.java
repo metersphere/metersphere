@@ -9,6 +9,7 @@ import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.service.TestPlanCaseLogService;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -40,6 +41,8 @@ import java.util.Map;
 @RequestMapping("/test-plan/functional/case")
 public class TestPlanFunctionalCaseController {
 
+    @Resource
+    private TestPlanService testPlanService;
     @Resource
     private TestPlanManagementService testPlanManagementService;
     @Resource
@@ -88,7 +91,9 @@ public class TestPlanFunctionalCaseController {
         BasePlanCaseBatchRequest batchRequest = new BasePlanCaseBatchRequest();
         batchRequest.setTestPlanId(request.getTestPlanId());
         batchRequest.setSelectIds(List.of(request.getId()));
-        return testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
+        return response;
     }
 
     @PostMapping("/batch/disassociate")
@@ -97,7 +102,9 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody BasePlanCaseBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
-        return testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
+        return response;
     }
 
     @PostMapping("/associate/bug/page")
@@ -130,7 +137,8 @@ public class TestPlanFunctionalCaseController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
-        testPlanFunctionalCaseService.run(request, SessionUtils.getCurrentOrganizationId(), new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+        testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
     @PostMapping("/batch/run")
@@ -138,7 +146,8 @@ public class TestPlanFunctionalCaseController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void batchRun(@Validated @RequestBody TestPlanCaseBatchRunRequest request) {
-        testPlanFunctionalCaseService.batchRun(request, SessionUtils.getCurrentOrganizationId(), new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/run", HttpMethodConstants.POST.name()));
+        testPlanFunctionalCaseService.batchRun(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/run", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
     @PostMapping("/has/associate/bug/page")

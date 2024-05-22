@@ -19,6 +19,7 @@ import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
+import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
@@ -29,7 +30,7 @@ import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
@@ -122,7 +123,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private static final String CHECK_OWNER_CASE = "check_owner_case";
 
     @Override
-    public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
+    public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andTestPlanIdIn(testPlanIdList);
         testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
@@ -132,7 +133,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         bugRelationCaseMapper.deleteByExample(example);
         // todo:song.tianyang 删除执行历史
 
-        return testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
+        testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
     }
 
 
@@ -146,6 +147,11 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         extTestPlanFunctionalCaseMapper.updatePos(id, pos);
     }
 
+    @Override
+    public Map<String, Long> caseExecResultCount(String testPlanId) {
+        List<TestPlanCaseRunResultCount> runResultCounts = extTestPlanFunctionalCaseMapper.selectCaseExecResultCount(testPlanId);
+        return runResultCounts.stream().collect(Collectors.toMap(TestPlanCaseRunResultCount::getResult, TestPlanCaseRunResultCount::getResultCount));
+    }
     @Override
     public void refreshPos(String testPlanId) {
         List<String> functionalCaseIdList = extTestPlanFunctionalCaseMapper.selectIdByTestPlanIdOrderByPos(testPlanId);
@@ -388,7 +394,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param request
      * @param logInsertModule
      */
-    public void run(TestPlanCaseRunRequest request, String organizationId, LogInsertModule logInsertModule) {
+    public void run(TestPlanCaseRunRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase functionalCase = new TestPlanFunctionalCase();
         functionalCase.setLastExecResult(request.getLastExecResult());
         functionalCase.setLastExecTime(System.currentTimeMillis());
@@ -397,8 +403,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
 
         //更新用例表执行状态
-        updateFunctionalCaseStatus(Arrays.asList(request.getCaseId()), request.getLastExecResult());
-
+        updateFunctionalCaseStatus(Collections.singletonList(request.getCaseId()), request.getLastExecResult());
 
         //执行记录
         TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
@@ -455,15 +460,15 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param request
      * @param logInsertModule
      */
-    public void batchRun(TestPlanCaseBatchRunRequest request, String organizationId, LogInsertModule logInsertModule) {
+    public void batchRun(TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule) {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
-            handleBatchRun(ids, organizationId, request, logInsertModule);
+            handleBatchRun(ids, request, logInsertModule);
         }
 
     }
 
-    private void handleBatchRun(List<String> ids, String organizationId, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule) {
+    private void handleBatchRun(List<String> ids, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule) {
         //更新状态
         extTestPlanFunctionalCaseMapper.batchUpdate(ids, request.getLastExecResult(), System.currentTimeMillis(), logInsertModule.getOperator());
 
@@ -514,12 +519,12 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             testPlanSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_AT, testPlanId);
         }
 
-        if (StringUtils.equalsIgnoreCase(lastExecResult, FunctionalCaseExecuteResult.SUCCESS.name())) {
+        if (StringUtils.equalsIgnoreCase(lastExecResult, ExecStatus.SUCCESS.name())) {
             //成功 发送通知
             testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.EXECUTE_PASSED, testPlanId);
         }
 
-        if (StringUtils.equalsIgnoreCase(lastExecResult, FunctionalCaseExecuteResult.ERROR.name())) {
+        if (StringUtils.equalsIgnoreCase(lastExecResult, ExecStatus.ERROR.name())) {
             //失败 发送通知
             testPlanSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.EXECUTE_FAIL, testPlanId);
         }

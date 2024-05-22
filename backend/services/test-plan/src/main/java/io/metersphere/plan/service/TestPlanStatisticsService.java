@@ -7,7 +7,7 @@ import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.utils.RateCalculateUtils;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.ExecStatus;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -86,12 +86,12 @@ public class TestPlanStatisticsService {
 			statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
 			// 根据执行结果分组(为空, 默认为未执行)
 			Map<String, List<TestPlanFunctionalCase>> functionalCaseResultMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
-					Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(FunctionalCaseExecuteResult.PENDING.name())));
-			success += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.SUCCESS.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.SUCCESS.name()).size() : 0;
-			error += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.ERROR.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.ERROR.name()).size() : 0;
-			fakeError += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.FAKE_ERROR.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.FAKE_ERROR.name()).size() : 0;
-			block += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.BLOCKED.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.BLOCKED.name()).size() : 0;
-			pending += functionalCaseResultMap.containsKey(FunctionalCaseExecuteResult.PENDING.name()) ? functionalCaseResultMap.get(FunctionalCaseExecuteResult.PENDING.name()).size() : 0;
+					Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name())));
+			success += functionalCaseResultMap.containsKey(ExecStatus.SUCCESS.name()) ? functionalCaseResultMap.get(ExecStatus.SUCCESS.name()).size() : 0;
+			error += functionalCaseResultMap.containsKey(ExecStatus.ERROR.name()) ? functionalCaseResultMap.get(ExecStatus.ERROR.name()).size() : 0;
+			fakeError += functionalCaseResultMap.containsKey(ExecStatus.FAKE_ERROR.name()) ? functionalCaseResultMap.get(ExecStatus.FAKE_ERROR.name()).size() : 0;
+			block += functionalCaseResultMap.containsKey(ExecStatus.BLOCKED.name()) ? functionalCaseResultMap.get(ExecStatus.BLOCKED.name()).size() : 0;
+			pending += functionalCaseResultMap.containsKey(ExecStatus.PENDING.name()) ? functionalCaseResultMap.get(ExecStatus.PENDING.name()).size() : 0;
 			// TODO: 接口用例统计开始
 
 
