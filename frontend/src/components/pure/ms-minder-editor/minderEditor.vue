@@ -164,8 +164,18 @@
       }
     }
     .ms-minder-editor-extra--visible {
-      width: 40%;
+      width: 35%;
+      min-width: 360px;
       transition: all 300ms ease-in-out;
+      animation: minWidth 300ms ease-in-out;
+    }
+    @keyframes minWidth {
+      from {
+        min-width: 0;
+      }
+      to {
+        min-width: 360px;
+      }
     }
   }
 </style>

@@ -384,7 +384,7 @@
       const copyCsvVariables = defaultScenarioInfo.scenarioConfig.variable.csvVariables.map((e) => ({
         ...e,
         copyId: e.id,
-        id: getGenerateId(),
+        id: isCopy ? getGenerateId() : e.id,
       }));
       if (isCopy) {
         // 场景被复制，递归处理节点，增加copyFromStepId

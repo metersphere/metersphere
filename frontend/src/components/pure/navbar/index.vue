@@ -217,7 +217,6 @@
   async function selectProject(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
-    appStore.setCurrentProjectId(value as string);
     try {
       appStore.showLoading();
       await switchProject({
@@ -228,13 +227,14 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
+      await userStore.checkIsLogin();
       appStore.hideLoading();
       router.replace({
         path: route.path,
         query: {
           ...route.query,
           orgId: appStore.currentOrgId,
-          pId: appStore.currentProjectId,
+          pId: value as string,
         },
       });
     }

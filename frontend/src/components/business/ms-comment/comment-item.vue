@@ -1,23 +1,19 @@
 <template>
   <div class="flex flex-row gap-[8px] break-words">
-    <div class="p-1"> <MsAvatar :avatar="creatorInfo.avatar" /></div>
-    <div class="flex w-full flex-col">
-      <div class="font-medium text-[var(--color-text-1)]">
+    <MsAvatar :avatar="creatorInfo.avatar" />
+    <div class="flex flex-1 flex-col">
+      <div class="font-medium leading-[22px] text-[var(--color-text-1)]">
         {{ creatorInfo.name }}
         <span v-if="props.element.replyUser">{{ t('ms.comment.reply') }} {{ replyUserName }}</span>
       </div>
       <div v-dompurify-html="props.element.content" class="markdown-body mt-[4px] break-words break-all"></div>
 
-      <div class="mb-4 mt-[16px] flex flex-row items-center">
-        <div class="text-[var(--color-text-4)]">{{
-          dayjs(props.element.updateTime).format('YYYY-MM-DD HH:mm:ss')
-        }}</div>
-        <div class="ml-[24px] flex flex-row gap-[16px]">
-          <div
-            v-if="props.mode === 'parent' && element.childComments?.length"
-            class="comment-btn"
-            @click="expendChange"
-          >
+      <div class="mt-[8px] flex items-center justify-between">
+        <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+          {{ dayjs(props.element.updateTime).format('YYYY-MM-DD HH:mm:ss') }}
+        </div>
+        <div class="flex gap-[8px]">
+          <div v-if="props.mode === 'parent'" class="comment-btn" @click="expendChange">
             <MsIconfont type="icon-icon_comment_outlined" />
             <span>{{ !expendComment ? t('ms.comment.expendComment') : t('ms.comment.collapseComment') }}</span>
             <span class="text-[var(--color-text-4)]">({{ element.childComments?.length }})</span>
@@ -29,26 +25,8 @@
             @click="replyClick"
           >
             <MsIconfont type="icon-icon_reply" />
-            <span>{{ t('ms.comment.reply') }}</span>
           </div>
-          <div
-            v-if="hasAuth"
-            class="comment-btn hover:bg-[var(--color-bg-3)]"
-            :class="{ 'bg-[var(--color-text-n8)]': status === 'edit' }"
-            @click="editClick"
-          >
-            <MsIconfont type="icon-icon_edit_outlined" />
-            <span>{{ t('ms.comment.edit') }}</span>
-          </div>
-          <div
-            v-if="hasAuth"
-            class="comment-btn hover:bg-[rgb(var(--danger-1))]"
-            :class="{ 'bg-[rgb(var(--danger-2))]': status === 'delete' }"
-            @click="deleteClick"
-          >
-            <MsIconfont type="icon-icon_delete-trash_outlined" />
-            <span>{{ t('ms.comment.delete') }}</span>
-          </div>
+          <MoreAction v-if="hasAuth" :list="actionsList" @select="handleMoreActionSelect"></MoreAction>
         </div>
       </div>
     </div>
@@ -61,6 +39,8 @@
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
+  import MoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user/index';
@@ -101,6 +81,9 @@
   const expendComment = ref(false);
 
   const expendChange = () => {
+    if (!props.element.childComments?.length) {
+      return;
+    }
     expendComment.value = !expendComment.value;
     emit('expend', expendComment.value);
   };
@@ -119,6 +102,30 @@
     status.value = 'delete';
   };
 
+  const actionsList: ActionsItem[] = [
+    {
+      label: t('ms.comment.edit'),
+      eventTag: 'edit',
+      permission: ['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'],
+      icon: 'icon-icon_edit_outlined',
+    },
+    {
+      label: t('ms.comment.delete'),
+      eventTag: 'delete',
+      permission: ['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'],
+      danger: true,
+      icon: 'icon-icon_delete-trash_outlined',
+    },
+  ];
+
+  function handleMoreActionSelect(item: ActionsItem) {
+    if (item.eventTag === 'edit') {
+      editClick();
+    } else if (item.eventTag === 'delete') {
+      deleteClick();
+    }
+  }
+
   const creatorInfo = computed(() => {
     return props.element.commentUserInfos.filter((item) => item != null && item.id === props.element.createUser)[0];
   });
@@ -133,13 +140,12 @@
 
 <style lang="less" scoped>
   .comment-btn {
-    display: flex;
-    align-items: center;
+    @apply flex cursor-pointer items-center;
+
     padding: 2px 8px;
+    font-size: 12px;
     border-radius: 4px;
-    color: var(--color-text-1);
-    flex-direction: row;
+    color: var(--color-text-4);
     gap: 4px;
-    cursor: pointer;
   }
 </style>

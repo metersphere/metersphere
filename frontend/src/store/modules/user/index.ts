@@ -1,5 +1,8 @@
+import { useRouter } from 'vue-router';
 import { defineStore } from 'pinia';
 
+import { getProjectInfo } from '@/api/modules/project-management/project';
+import { getUserHasProjectPermission } from '@/api/modules/system';
 import {
   getAuthenticationList,
   getLocalConfig,
@@ -8,10 +11,12 @@ import {
   logout as userLogout,
 } from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
+import useUser from '@/hooks/useUser';
+import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import useLicenseStore from '@/store/modules/setting/license';
 import { getHashParameters } from '@/utils';
 import { clearToken, setToken } from '@/utils/auth';
-import { composePermissions } from '@/utils/permission';
+import { composePermissions, getFirstRouteNameByPermission } from '@/utils/permission';
 import { removeRouteListener } from '@/utils/route-listener';
 
 import type { LoginData } from '@/models/user';
@@ -120,6 +125,7 @@ const useUserStore = defineStore('user', {
         const res = await getAuthenticationList();
         this.loginType = res;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },
@@ -199,6 +205,45 @@ const useUserStore = defineStore('user', {
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+      }
+    },
+    async checkIsLogin() {
+      const { isLoginPage } = useUser();
+      const router = useRouter();
+      const appStore = useAppStore();
+      const isLogin = await this.isLogin(true);
+      if (isLogin && appStore.currentProjectId !== 'no_such_project') {
+        // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
+        try {
+          const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);
+          if (!HasProjectPermission) {
+            // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
+            router.push({
+              name: NO_PROJECT_ROUTE_NAME,
+            });
+            return;
+          }
+          const res = await getProjectInfo(appStore.currentProjectId);
+          if (!res) {
+            // 如果项目被删除或者被禁用，跳转到无项目页面
+            router.push({
+              name: NO_PROJECT_ROUTE_NAME,
+            });
+          }
+
+          if (res) {
+            appStore.setCurrentMenuConfig(res?.moduleIds || []);
+          }
+        } catch (err) {
+          appStore.setCurrentMenuConfig([]);
+          // eslint-disable-next-line no-console
+          console.log(err);
+        }
+      }
+      if (isLoginPage() && isLogin) {
+        // 当前页面为登录页面，且已经登录，跳转到首页
+        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+        router.push({ name: currentRouteName });
       }
     },
   },

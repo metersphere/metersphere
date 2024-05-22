@@ -6,19 +6,16 @@
 </template>
 
 <script lang="ts" setup>
-  import { useRoute, useRouter } from 'vue-router';
   import { useEventListener, useWindowSize } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsSysUpgradeTip from '@/components/pure/ms-sys-upgrade-tip/index.vue';
 
-  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { saveBaseUrl } from '@/api/modules/setting/config';
-  import { getUserHasProjectPermission } from '@/api/modules/system';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   // import GlobalSetting from '@/components/pure/global-setting/index.vue';
   import useLocale from '@/locale/useLocale';
-  import { NO_PROJECT_ROUTE_NAME, WHITE_LIST } from '@/router/constants';
+  import { WHITE_LIST } from '@/router/constants';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
@@ -26,15 +23,12 @@
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
   import { getPublicKeyRequest } from './api/modules/user';
-  import { getFirstRouteNameByPermission } from './utils/permission';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
   const licenseStore = useLicenseStore();
-  const router = useRouter();
-  const route = useRoute();
 
   const { currentLocale } = useLocale();
   const locale = computed(() => {
@@ -74,43 +68,6 @@
     }
   });
 
-  const checkIsLogin = async () => {
-    const isLogin = await userStore.isLogin();
-    const isLoginPage = route.name === 'login';
-    if (isLogin && appStore.currentProjectId !== 'no_such_project') {
-      // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
-      try {
-        const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);
-        if (!HasProjectPermission) {
-          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
-          router.push({
-            name: NO_PROJECT_ROUTE_NAME,
-          });
-          return;
-        }
-        const res = await getProjectInfo(appStore.currentProjectId);
-        if (!res) {
-          // 如果项目被删除或者被禁用，跳转到无项目页面
-          router.push({
-            name: NO_PROJECT_ROUTE_NAME,
-          });
-        }
-
-        if (res) {
-          appStore.setCurrentMenuConfig(res?.moduleIds || []);
-        }
-      } catch (err) {
-        appStore.setCurrentMenuConfig([]);
-        // eslint-disable-next-line no-console
-        console.log(err);
-      }
-    }
-    if (isLoginPage && isLogin) {
-      // 当前页面为登录页面，且已经登录，跳转到首页
-      const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
-      router.push({ name: currentRouteName });
-    }
-  };
   // 获取公钥
   const getPublicKey = async () => {
     const publicKey = await getPublicKeyRequest();
@@ -120,7 +77,7 @@
   onBeforeMount(async () => {
     await getPublicKey();
     if (WHITE_LIST.find((el) => el.path === window.location.hash.split('#')[1]) === undefined) {
-      await checkIsLogin();
+      await userStore.checkIsLogin();
     }
     const { height } = useWindowSize();
     appStore.innerHeight = height.value;
