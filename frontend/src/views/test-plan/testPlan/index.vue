@@ -189,6 +189,7 @@
 
   const offspringIds = ref<string[]>([]);
   const nodeName = ref<string>('');
+  const planTableRef = ref<InstanceType<typeof PlanTable>>();
 
   // 处理计划树节点选中
   function planNodeSelect(keys: string[], _offspringIds: string[], moduleName: string) {
@@ -199,17 +200,6 @@
   }
 
   /**
-   * 设置根模块名称列表
-   * @param names 根模块名称列表
-   */
-  const rootModulesName = ref<string[]>([]);
-  const folderTree = ref<ModuleTreeNode[]>([]);
-  function setRootModules(treeNode: ModuleTreeNode[]) {
-    folderTree.value = treeNode;
-    rootModulesName.value = treeNode.map((e) => e.name);
-  }
-
-  /**
    * 刷新模块树的统计数量
    */
   async function initModulesCount(params: TableQueryParams) {
@@ -217,6 +207,20 @@
       modulesCount.value = await getPlanModulesCount(params);
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  /**
+   * 设置根模块名称列表
+   * @param names 根模块名称列表
+   */
+  const rootModulesName = ref<string[]>([]);
+  const folderTree = ref<ModuleTreeNode[]>([]);
+  function setRootModules(treeNode: ModuleTreeNode[], isSetDefaultKey: boolean) {
+    folderTree.value = treeNode;
+    rootModulesName.value = treeNode.map((e) => e.name);
+    if (isSetDefaultKey) {
+      activeFolder.value = 'all';
     }
   }
 
@@ -231,7 +235,6 @@
     }
   }
 
-  const planTableRef = ref<InstanceType<typeof PlanTable>>();
   const planId = ref('');
   const isCopy = ref<boolean>(false);
   function handleEditOrCopy(id: string, isCopyFlag: boolean) {

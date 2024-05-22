@@ -175,7 +175,7 @@
       if (isSetDefaultKey) {
         selectedNodeKeys.value = [testPlanTree.value[0].id];
       }
-      emits('init', testPlanTree.value);
+      emits('init', testPlanTree.value, isSetDefaultKey);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -199,7 +199,7 @@
         try {
           await deletePlanModuleTree(node.id);
           Message.success(t('common.deleteSuccess'));
-          initModules(selectedNodeKeys.value[0] === node.id);
+          initModules(true);
         } catch (error) {
           console.log(error);
         }
@@ -305,7 +305,7 @@
       if (cancel) {
         cancel();
       }
-      initModules();
+      initModules(true);
     } catch (error) {
       console.log(error);
     } finally {

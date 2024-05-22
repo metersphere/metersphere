@@ -331,11 +331,6 @@
   const commentInputRef = ref<InstanceType<typeof inputComment>>();
   const commentInputIsActive = computed(() => commentInputRef.value?.isActive);
 
-  // const tabSettingList = computed(() => {
-  //   return featureCaseStore.tabSettingList;
-  // });
-
-  // const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
   const tabSetting = ref<TabItemType[]>([]);
   const activeTab = ref<string>('detail');
 
@@ -706,15 +701,17 @@
     return [...tabDefaultSettingList, ...caseTab];
   });
 
-  featureCaseStore.initContentTabList([...newTabDefaultSettingList.value]);
-  tabSetting.value = ((await featureCaseStore.getContentTabList()) || []).filter((item) => item.isShow);
+  await featureCaseStore.initContentTabList([...newTabDefaultSettingList.value]);
 
-  async function handleUploadImage(file: File) {
-    const { data } = await editorUploadFile({
-      fileList: [file],
-    });
-    return data;
+  async function initTabConfig() {
+    const result = (await featureCaseStore.getContentTabList()) || [];
+    if (result.length) {
+      return result.filter((item) => item.isShow);
+    }
+    return newTabDefaultSettingList.value;
   }
+
+  tabSetting.value = await initTabConfig();
 
   const initTab = async () => {
     showSettingDrawer.value = false;
@@ -722,6 +719,13 @@
     tabSetting.value = tmpArr.filter((item) => item.isShow);
     activeTab.value = 'detail';
   };
+
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
 </script>
 
 <style scoped lang="less">
