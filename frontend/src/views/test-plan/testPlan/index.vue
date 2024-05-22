@@ -2,7 +2,7 @@
   <MsCard simple no-content-padding>
     <MsSplitBox>
       <template #first>
-        <div class="p-[16px] pb-0">
+        <div class="min-w-[300px] p-[16px]">
           <div class="mb-[16px] flex justify-between">
             <a-input-search
               v-model:model-value="groupKeyword"
@@ -255,7 +255,7 @@
 
 <style scoped lang="less">
   .case {
-    padding: 8px 4px;
+    padding: 8px 0;
     border-radius: var(--border-radius-small);
     @apply flex cursor-pointer  items-center justify-between;
     &:hover {

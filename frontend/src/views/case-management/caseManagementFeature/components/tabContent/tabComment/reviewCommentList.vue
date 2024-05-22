@@ -30,7 +30,7 @@
               {{ t('common.success') }}
             </div>
             <div v-if="item.status === 'BLOCKED'" class="flex items-center">
-              <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--primary-3))]" />
+              <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[var(--color-fill-p-3)]" />
               {{ t('common.block') }}
             </div>
             <div v-if="item.status === 'ERROR'" class="flex items-center">

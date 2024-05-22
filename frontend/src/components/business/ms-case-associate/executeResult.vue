@@ -40,7 +40,7 @@
       label: 'BLOCKED',
       icon: StatusType.BLOCKED,
       statusText: t('common.block'),
-      color: 'rgb(var(--primary-3))',
+      color: 'var(--color-fill-p-3)',
     },
     ERROR: {
       label: 'ERROR',
