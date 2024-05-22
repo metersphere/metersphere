@@ -282,6 +282,8 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         } else {
             String steps = getSteps(functionalCaseExcelData);
             functionalCaseExcelData.setSteps(steps);
+            functionalCaseExcelData.setTextDescription(StringUtils.EMPTY);
+            functionalCaseExcelData.setExpectedResult(StringUtils.EMPTY);
         }
 
     }
@@ -321,7 +323,8 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         for (int i = 0; i < index; i++) {
             // 保持插入顺序，判断用例是否有相同的steps
             Map<String, Object> step = new LinkedHashMap<>();
-            step.put("num", startStepIndex + i + 1);
+            step.put("id", UUID.randomUUID().toString());
+            step.put("num", startStepIndex + i );
             if (i < stepDescList.size()) {
                 step.put("desc", stepDescList.get(i));
             } else {
