@@ -240,7 +240,7 @@
     store.currentEnvDetailInfo.mock = true;
     await updateOrAddEnv({ fileList: [], request: getParameters() });
     setIsSave(true);
-
+    loading.value = false;
     Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));
     emit('ok', store.currentEnvDetailInfo.id);
   };

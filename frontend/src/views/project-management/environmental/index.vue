@@ -243,6 +243,7 @@
       systemTitle: t('project.environmental.env.systemTitle'),
       selectedTitle: t('project.environmental.env.selectedTitle'),
     }"
+    :export-loading="exportLoading"
     @confirm="(v) => handleEnvExport(v.map((item) => item.key))"
   />
 </template>
@@ -403,14 +404,18 @@
       console.log(error);
     }
   };
+  const exportLoading = ref<boolean>(false);
   // 处理环境变量导出
   const handleEnvExport = async (id: string | string[]) => {
+    exportLoading.value = true;
     try {
       const blob = await exportEnv(Array.isArray(id) ? id : [id]);
       downloadByteFile(blob, 'EnvParam.json');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      exportLoading.value = false;
     }
   };
   const globalEnvRef = ref();

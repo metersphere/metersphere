@@ -36,7 +36,7 @@
                 </a-select>
               </a-form-item>
             </div>
-            <div class="w-[100px]">
+            <div class="w-[110px]">
               <a-form-item
                 :field="`matchRules[${idx}].condition`"
                 hide-asterisk

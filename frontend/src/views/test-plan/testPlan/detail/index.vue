@@ -32,7 +32,7 @@
         {{ t('common.edit') }}
       </MsButton>
       <MsButton
-        v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && detail.status !== 'ARCHIVED'"
         type="button"
         status="default"
         @click="handleGenerateReport"
@@ -41,7 +41,7 @@
         {{ t('testPlan.testPlanDetail.generateReport') }}
       </MsButton>
       <MsButton
-        v-permission="['PROJECT_TEST_PLAN:READ+ADD']"
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && detail.status !== 'ARCHIVED'"
         type="button"
         status="default"
         @click="editorCopyHandler(true)"
@@ -49,13 +49,7 @@
         <MsIcon type="icon-icon_copy_outlined" class="mr-[8px]" />
         {{ t('common.copy') }}
       </MsButton>
-      <MsButton
-        v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
-        type="button"
-        status="default"
-        :loading="followLoading"
-        @click="followHandler"
-      >
+      <MsButton v-if="isEnableEdit" type="button" status="default" :loading="followLoading" @click="followHandler">
         <MsIcon
           :type="detail.followFlag ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
           :class="`mr-[8px] ${detail.followFlag ? 'text-[rgb(var(--warning-6))]' : ''}`"

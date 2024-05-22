@@ -25,10 +25,10 @@
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
-          <div v-if="!props.hideProjectSelect" class="flex w-full flex-1">
+          <div v-if="!props.hideProjectSelect" class="w-full max-w-[162px] flex-1">
             <a-select
               v-model="innerProject"
-              class="mb-[16px] flex-1"
+              class="mb-[16px] w-full"
               :default-value="innerProject"
               allow-search
               :placeholder="t('common.pleaseSelect')"
@@ -133,6 +133,23 @@
           <template #caseLevel="{ record }">
             <caseLevel v-if="getCaseLevel(record)" :case-level="getCaseLevel(record)" />
           </template>
+          <template #lastExecuteResult="{ record }">
+            <ExecuteStatusTag v-if="record.lastExecuteResult" :execute-result="record.lastExecuteResult" />
+            <span v-else>-</span>
+          </template>
+          <!-- 评审结果 -->
+          <template #reviewStatus="{ record }">
+            <MsIcon
+              :type="statusIconMap[record.reviewStatus]?.icon || ''"
+              class="mr-1"
+              :class="[statusIconMap[record.reviewStatus].color]"
+            ></MsIcon>
+            <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
+          </template>
+          <!-- 执行结果 -->
+          <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+            <ExecuteStatusTag :execute-result="filterContent.value" />
+          </template>
         </ms-base-table>
         <div class="footer">
           <div class="flex flex-1 items-center">
@@ -172,6 +189,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import ExecuteStatusTag from '@/components/business/ms-case-associate/executeResult.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
@@ -186,8 +204,10 @@
   import type { ProjectListItem } from '@/models/setting/project';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
+  import { executionResultMap, statusIconMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const router = useRouter();
   const appStore = useAppStore();
@@ -359,6 +379,55 @@
     return [];
   }
 
+  const reviewResultOptions = computed(() => {
+    return Object.keys(statusIconMap).map((key) => {
+      return {
+        value: key,
+        label: statusIconMap[key].statusText,
+      };
+    });
+  });
+  const executeResultOptions = computed(() => {
+    return Object.keys(executionResultMap).map((key) => {
+      return {
+        value: key,
+        label: executionResultMap[key].statusText,
+      };
+    });
+  });
+
+  function getReviewStatus() {
+    if (!props.isHiddenCaseLevel) {
+      return [
+        {
+          title: 'caseManagement.featureCase.tableColumnReviewResult',
+          dataIndex: 'reviewStatus',
+          slotName: 'reviewStatus',
+          filterConfig: {
+            options: reviewResultOptions.value,
+            filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT,
+          },
+          showInTable: true,
+          width: 150,
+          showDrag: true,
+        },
+        {
+          title: 'caseManagement.featureCase.tableColumnExecutionResult',
+          dataIndex: 'lastExecuteResult',
+          slotName: 'lastExecuteResult',
+          filterConfig: {
+            options: executeResultOptions.value,
+            filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+          },
+          showInTable: true,
+          width: 150,
+          showDrag: true,
+        },
+      ];
+    }
+    return [];
+  }
+
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -366,16 +435,18 @@
       slotName: 'num',
       sortIndex: 1,
       showTooltip: true,
+      // TODO 后台没有加
       // sortable: {
       //   sortDirections: ['ascend', 'descend'],
       //   sorter: true,
       // },
-      width: 150,
+      width: 120,
       fixed: 'left',
     },
     {
       title: 'ms.case.associate.caseName',
       dataIndex: 'name',
+      // TODO 后台没有加
       // sortable: {
       //   sortDirections: ['ascend', 'descend'],
       //   sorter: true,
@@ -384,6 +455,7 @@
       width: 250,
     },
     ...getCaseLevelColumn(),
+    ...getReviewStatus(),
     {
       title: 'ms.case.associate.tags',
       dataIndex: 'tags',

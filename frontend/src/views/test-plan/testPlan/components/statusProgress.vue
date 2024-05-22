@@ -111,7 +111,7 @@
       },
       {
         percentage: (blockCount / caseTotal) * 100,
-        color: 'rgb(var(--link-6))',
+        color: 'rgb(var(--primary-3))',
       },
       {
         percentage: (fakeErrorCount / caseTotal) * 100,

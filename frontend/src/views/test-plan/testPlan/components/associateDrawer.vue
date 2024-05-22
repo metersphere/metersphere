@@ -12,7 +12,7 @@
     :project-id="currentProjectId"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
     hide-project-select
-    is-hidden-case-level
+    :is-hidden-case-level="false"
     :selector-all="true"
     @save="saveHandler"
   >

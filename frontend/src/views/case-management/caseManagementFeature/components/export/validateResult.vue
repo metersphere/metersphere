@@ -71,7 +71,7 @@
           >{{ t('caseManagement.featureCase.backCaseList') }}</MsButton
         >
         <MsButton
-          v-if="!validateResultInfo.failCount"
+          v-if="validateResultInfo.successCount"
           type="text"
           class="ml-[8px]"
           :loading="props.importLoading"
@@ -227,8 +227,7 @@
   .moreBtn {
     color: rgb(var(--primary-5));
     box-shadow: 0 -1px 4px rgba(31 35 41/10%);
-    @apply mt-2 flex items-center justify-center;
-    cursor: pointer;
+    @apply mt-2 flex cursor-pointer items-center justify-center;
   }
   .spanBtn {
     cursor: pointer;
