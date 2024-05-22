@@ -153,6 +153,7 @@
     planId?: string;
     moduleTree?: ModuleTreeNode[];
     isCopy: boolean;
+    moduleId?: string;
   }>();
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
@@ -307,6 +308,9 @@
       if (val) {
         form.value = cloneDeep(initForm);
         getDetail();
+        if (!props.planId && props.moduleId) {
+          form.value.moduleId = props.moduleId === 'all' ? 'root' : props.moduleId;
+        }
       }
     }
   );

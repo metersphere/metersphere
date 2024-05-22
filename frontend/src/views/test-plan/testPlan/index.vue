@@ -62,6 +62,7 @@
             <TestPlanTree
               ref="planTreeRef"
               v-model:selected-keys="selectedKeys"
+              v-model:groupKeyword="groupKeyword"
               :all-names="rootModulesName"
               :active-folder="activeFolder"
               :is-expand-all="isExpandAll"
@@ -92,6 +93,7 @@
     <CreateAndEditPlanDrawer
       v-model:visible="showPlanDrawer"
       :plan-id="planId"
+      :module-id="selectedKeys[0]"
       :module-tree="folderTree"
       :is-copy="isCopy"
       @close="resetPlanId"

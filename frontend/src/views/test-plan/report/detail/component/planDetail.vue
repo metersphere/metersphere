@@ -160,7 +160,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
@@ -187,6 +187,7 @@
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultReportDetail, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import { NOT_FOUND_RESOURCE } from '@/router/constants';
   import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -214,7 +215,7 @@
   /**
    * 分享share
    */
-
+  const router = useRouter();
   const shareLink = ref<string>('');
   const shareId = ref<string>(route.query.shareId as string);
   const reportId = ref<string>(props.reportId);
@@ -395,7 +396,14 @@
   async function getDetail() {
     try {
       if (shareId.value) {
-        detail.value = await planReportShareDetail(shareId.value, reportId.value);
+        const result = await planReportShareDetail(shareId.value, reportId.value);
+        if (result.deleted) {
+          router.push({
+            name: NOT_FOUND_RESOURCE,
+          });
+        } else {
+          detail.value = result;
+        }
       } else {
         detail.value = await getReportDetail(reportId.value);
       }
@@ -445,16 +453,19 @@
   ]);
 
   watchEffect(async () => {
+    if (props.reportId) {
+      await getDetail();
+      initOptionsData();
+    }
+  });
+
+  onMounted(async () => {
     nextTick(() => {
       const editorContent = document.querySelector('.editor-content');
       useEventListener(editorContent, 'click', () => {
         showButton.value = true;
       });
     });
-    if (props.reportId) {
-      await getDetail();
-      initOptionsData();
-    }
   });
 </script>
 
@@ -496,5 +507,8 @@
         margin: auto;
       }
     }
+  }
+  :deep(.rich-wrapper) .halo-rich-text-editor .ProseMirror {
+    height: 58px;
   }
 </style>

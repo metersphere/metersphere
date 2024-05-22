@@ -4,7 +4,7 @@
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
       :data="testPlanTree"
-      :keyword="groupKeyword"
+      :keyword="moduleKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
       :empty-text="t('testPlan.testPlanIndex.planEmptyContent')"
@@ -70,6 +70,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -106,13 +107,21 @@
     isExpandAll: boolean; // 是否展开用例节点
     allNames?: string[]; // 所有的模块name列表
     modulesCount?: Record<string, number>; // 模块数量统计对象
+    groupKeyword: string;
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'planTreeNodeSelect', 'init', 'dragUpdate', 'getNodeName']);
+  const emits = defineEmits([
+    'update:selectedKeys',
+    'planTreeNodeSelect',
+    'init',
+    'dragUpdate',
+    'getNodeName',
+    'update:groupKeyword',
+  ]);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
-  const groupKeyword = ref<string>('');
+  const moduleKeyword = useVModel(props, 'groupKeyword', emits);
 
   const testPlanTree = ref<ModuleTreeNode[]>([]);
 
