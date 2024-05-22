@@ -44,8 +44,6 @@ import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.mapper.ExtCheckOwnerMapper;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
@@ -106,20 +104,11 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
     @Resource
     private TestPlanSendNoticeService testPlanSendNoticeService;
-    @Resource
-    private FunctionalCaseMapper functionalCaseMapper;
-    @Resource
-    private OperationLogService operationLogService;
-
-    @Resource
-    private ExtCheckOwnerMapper extCheckOwnerMapper;
 
     @Resource
     private ExtUserMapper extUserMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
-    private static final String FUNCTIONAL_CASE = "functional_case";
-    private static final String CHECK_OWNER_CASE = "check_owner_case";
 
     @Override
     public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -554,9 +543,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public TestPlanCaseDetailResponse getFunctionalCaseDetail(String id, String userId) {
         TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(id);
         String caseId = planFunctionalCase.getFunctionalCaseId();
-        if (!extCheckOwnerMapper.checkoutOwner(FUNCTIONAL_CASE, userId, List.of(caseId))) {
-            throw new MSException(Translator.get(CHECK_OWNER_CASE));
-        }
         FunctionalCaseDetailDTO functionalCaseDetail = functionalCaseService.getFunctionalCaseDetail(caseId, userId);
         String caseDetailSteps = functionalCaseDetail.getSteps();
         TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
