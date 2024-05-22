@@ -184,33 +184,27 @@
 
     <template #operation="{ record }">
       <div class="flex items-center">
-        <MsButton
+        <div
           v-if="record.functionalCaseCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
-          class="!mx-0"
-          @click="openDetail(record.id)"
-          >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
+          class="flex items-center"
         >
-        <a-divider
-          v-if="record.functionalCaseCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
-
-        <MsButton
-          v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
-          class="!mx-0"
-          @click="emit('editOrCopy', record.id, false)"
-          >{{ t('common.edit') }}</MsButton
+          <MsButton class="!mx-0" @click="openDetail(record.id)">{{ t('testPlan.testPlanIndex.execution') }}</MsButton>
+          <a-divider direction="vertical" :margin="8"></a-divider>
+        </div>
+        <div
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
+          class="flex items-center"
         >
-        <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsButton
-          v-if="record.functionalCaseCount < 1"
-          v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
-          class="!mx-0"
-          @click="emit('editOrCopy', record.id, true)"
-          >{{ t('common.copy') }}</MsButton
+          <MsButton class="!mx-0" @click="emit('editOrCopy', record.id, false)">{{ t('common.edit') }}</MsButton>
+          <a-divider direction="vertical" :margin="8"></a-divider>
+        </div>
+        <div
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && record.functionalCaseCount < 1"
+          class="flex items-center"
         >
-        <a-divider v-if="record.functionalCaseCount < 1" direction="vertical" :margin="8"></a-divider>
+          <MsButton class="!mx-0" @click="emit('editOrCopy', record.id, true)">{{ t('common.copy') }}</MsButton>
+          <a-divider v-if="record.functionalCaseCount < 1" direction="vertical" :margin="8"></a-divider>
+        </div>
 
         <MsTableMoreAction
           :list="getMoreActions(record.status, record.functionalCaseCount)"
@@ -566,7 +560,7 @@
 
   function getMoreActions(status: planStatusType, useCount: number) {
     // 有用例数量才可以执行 否则不展示执行
-    const copyAction = useCount > 0 ? copyActions : [];
+    const copyAction = useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) ? copyActions : [];
     // 单独操作已归档和已完成 不展示归档
     if (status === 'ARCHIVED' || status === 'PREPARED' || status === 'UNDERWAY') {
       return [

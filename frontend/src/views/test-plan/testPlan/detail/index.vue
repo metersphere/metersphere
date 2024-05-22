@@ -18,16 +18,16 @@
       </a-tooltip>
     </template>
     <template #headerRight>
-      <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="button" status="default" @click="linkCase">
+      <MsButton
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION']) && detail.status !== 'ARCHIVED'"
+        type="button"
+        status="default"
+        @click="linkCase"
+      >
         <MsIcon type="icon-icon_link-record_outlined1" class="mr-[8px]" />
         {{ t('ms.case.associate.title') }}
       </MsButton>
-      <MsButton
-        v-permission="['PROJECT_TEST_PLAN:READ+UPDATE']"
-        type="button"
-        status="default"
-        @click="editorCopyHandler(false)"
-      >
+      <MsButton v-if="isEnableEdit" type="button" status="default" @click="editorCopyHandler(false)">
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
@@ -162,6 +162,7 @@
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
   import type { PassRateCountDetail, TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
@@ -228,6 +229,10 @@
       return [...fullActions];
     }
     return fullActions.filter((e) => e.eventTag !== 'archive');
+  });
+
+  const isEnableEdit = computed(() => {
+    return hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && detail.value.status !== 'ARCHIVED';
   });
 
   function getTabBadge(tabKey: string) {
