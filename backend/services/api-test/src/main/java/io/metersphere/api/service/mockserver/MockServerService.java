@@ -242,7 +242,7 @@ public class MockServerService {
                 case "JSON" -> responseEntity(responseCode, responseBody.getJsonBody().getJsonWithSchema(), headers);
                 case "XML" -> responseEntity(responseCode, responseBody.getXmlBody().getValue(), headers);
                 case "RAW" -> responseEntity(responseCode, responseBody.getRawBody().getValue(), headers);
-                case "BINARY" -> handleBinaryBody(responseBody, projectId, resourceId, isMock);
+                case "BINARY" -> handleBinaryBody(responseCode, responseBody, projectId, resourceId, isMock);
                 default -> responseEntity(responseCode, StringUtils.EMPTY, headers);
             };
         }
@@ -250,7 +250,7 @@ public class MockServerService {
         return requestNotFound();
     }
 
-    private ResponseEntity<?> handleBinaryBody(ResponseBody responseBody, String projectId, String resourceId, boolean isMock) {
+    private ResponseEntity<?> handleBinaryBody(int responseCode, ResponseBody responseBody, String projectId, String resourceId, boolean isMock) {
         String fileId = responseBody.getBinaryBody().getFile().getFileId();
         String fileName = responseBody.getBinaryBody().getFile().getFileName();
         String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
@@ -291,7 +291,7 @@ public class MockServerService {
             }
         }
 
-        return ResponseEntity.ok()
+        return ResponseEntity.status(responseCode)
                 .contentType(mediaType)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(bytes);
