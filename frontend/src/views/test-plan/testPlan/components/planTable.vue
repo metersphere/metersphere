@@ -1,3 +1,4 @@
+<!-- eslint-disable prettier/prettier -->
 <template>
   <MsAdvanceFilter
     v-model:keyword="keyword"
@@ -620,15 +621,20 @@
     combine: {},
   });
 
-  async function initTableParams() {
+  async function initTableParams(isSetDefaultKey = false) {
     conditionParams.value = {
       keyword: keyword.value,
       filter: propsRes.value.filter,
       combine: batchParams.value.condition,
     };
+    let moduleIds =
+      props.activeFolder && props.activeFolder !== 'all' ? [props.activeFolder, ...props.offspringIds] : [];
+    if (isSetDefaultKey) {
+      moduleIds = [];
+    }
     return {
       type: showType.value,
-      moduleIds: props.activeFolder && props.activeFolder !== 'all' ? [props.activeFolder, ...props.offspringIds] : [],
+      moduleIds,
       projectId: appStore.currentProjectId,
       excludeIds: batchParams.value.excludeIds || [],
       selectAll: !!batchParams.value?.selectAll,
@@ -650,8 +656,8 @@
   }
 
   // 获取父组件模块数量
-  async function emitTableParams() {
-    const tableParams = await initTableParams();
+  async function emitTableParams(isInit = false) {
+    const tableParams = await initTableParams(isInit);
     emit('init', {
       ...tableParams,
       current: propsRes.value.msPagination?.current,
@@ -848,7 +854,6 @@
   }
 
   function successHandler() {
-    resetSelector();
     fetchData();
   }
 
