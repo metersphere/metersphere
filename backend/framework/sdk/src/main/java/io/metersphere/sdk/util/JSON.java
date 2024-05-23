@@ -27,7 +27,7 @@ public class JSON {
             .build();
     private static final TypeFactory typeFactory = objectMapper.getTypeFactory();
 
-    public static final int DEFAULT_MAX_STRING_LEN = 20_000_000_0;
+    public static final int DEFAULT_MAX_STRING_LEN = Integer.MAX_VALUE;
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
