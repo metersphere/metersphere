@@ -475,24 +475,23 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             }
 
             if (modelByRef != null) {
-                if (modelByRef instanceof ArraySchema arraySchema) {
-                    return parseArraySchema(arraySchema.getItems(), false);
-                } else if (modelByRef instanceof ObjectSchema objectSchema) {
-                    return parseObject(objectSchema, false);
-                } else {
-                    JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
-                    Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
-                    if (MapUtils.isNotEmpty(modelByRef.getProperties())) {
-                        modelByRef.getProperties().forEach((key, value) -> {
-                            JsonSchemaItem item = parseProperty(value, false);
-                            jsonSchemaProperties.put(key, item);
-                        });
+                return switch (modelByRef) {
+                    case ArraySchema arraySchema -> parseArraySchema(arraySchema.getItems(), false);
+                    case ObjectSchema objectSchema -> parseObject(objectSchema, false);
+                    default -> {
+                        JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
+                        Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
+                        if (MapUtils.isNotEmpty(modelByRef.getProperties())) {
+                            modelByRef.getProperties().forEach((key, value) -> {
+                                JsonSchemaItem item = parseProperty(value, false);
+                                jsonSchemaProperties.put(key, item);
+                            });
+                        }
+                        jsonSchemaItem.setProperties(jsonSchemaProperties);
+                        yield jsonSchemaItem;
                     }
-                    jsonSchemaItem.setProperties(jsonSchemaProperties);
-                    return jsonSchemaItem;
-                }
+                };
             }
-
         }
         return null;
     }
@@ -541,56 +540,49 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
     }
 
     private JsonSchemaItem parseProperty(Schema<?> value, boolean onlyOnce) {
-        if (value instanceof IntegerSchema integerSchema) {
-            return parseInteger(integerSchema);
-        }
-        if (value instanceof StringSchema stringSchema) {
-            return parseString(stringSchema);
-        }
-        if (value instanceof NumberSchema numberSchema) {
-            return parseNumber(numberSchema);
-        }
-        if (value instanceof BooleanSchema booleanSchema) {
-            return parseBoolean(booleanSchema);
-        }
-        if (value instanceof ArraySchema arraySchema) {
-            if (onlyOnce) {
-                JsonSchemaItem arrayItem = new JsonSchemaItem();
-                arrayItem.setId(IDGenerator.nextStr());
-                arrayItem.setType(PropertyConstant.ARRAY);
-                arrayItem.setItems(new JsonSchemaItem());
-                return arrayItem;
-            }
-            return isRef(arraySchema.getItems(), 0) ? parseArraySchema(arraySchema.getItems(), true) :
-                    parseArraySchema(arraySchema.getItems(), false);
-        }
-        if (value instanceof ObjectSchema objectSchema) {
-            if (onlyOnce) {
-                JsonSchemaItem objectItem = new JsonSchemaItem();
-                objectItem.setId(IDGenerator.nextStr());
-                objectItem.setType(PropertyConstant.OBJECT);
-                objectItem.setProperties(new LinkedHashMap<>());
-                return objectItem;
-            }
-            return isRef(objectSchema, 0) ? parseObject(objectSchema, true) :
-                    parseObject(objectSchema, false);
-        }
         if (StringUtils.equals(value.getType(), PropertyConstant.NULL)) {
             return parseNull();
         }
-        if (value instanceof MapSchema mapSchema) {
-            return parseMapObject(mapSchema);
-        }
-        if (value instanceof Schema<?> items) {
-            if (isRef(items, 0)) {
-                JsonSchemaItem arrayItem = new JsonSchemaItem();
-                arrayItem.setId(IDGenerator.nextStr());
-                arrayItem.setType(PropertyConstant.OBJECT);
-                return arrayItem;
+
+        return switch (value) {
+            case IntegerSchema integerSchema -> parseInteger(integerSchema);
+            case StringSchema stringSchema -> parseString(stringSchema);
+            case NumberSchema numberSchema -> parseNumber(numberSchema);
+            case BooleanSchema booleanSchema -> parseBoolean(booleanSchema);
+            case ArraySchema arraySchema -> {
+                if (onlyOnce) {
+                    JsonSchemaItem arrayItem = new JsonSchemaItem();
+                    arrayItem.setId(IDGenerator.nextStr());
+                    arrayItem.setType(PropertyConstant.ARRAY);
+                    arrayItem.setItems(new JsonSchemaItem());
+                    yield arrayItem;
+                }
+                yield isRef(arraySchema.getItems(), 0) ? parseArraySchema(arraySchema.getItems(), true) :
+                        parseArraySchema(arraySchema.getItems(), false);
             }
-            return parseSchema(items);
-        }
-        return new JsonSchemaItem();
+            case ObjectSchema objectSchema -> {
+                if (onlyOnce) {
+                    JsonSchemaItem objectItem = new JsonSchemaItem();
+                    objectItem.setId(IDGenerator.nextStr());
+                    objectItem.setType(PropertyConstant.OBJECT);
+                    objectItem.setProperties(new LinkedHashMap<>());
+                    yield objectItem;
+                }
+                yield isRef(objectSchema, 0) ? parseObject(objectSchema, true) :
+                        parseObject(objectSchema, false);
+            }
+            case MapSchema mapSchema -> parseMapObject(mapSchema);
+            case Schema<?> items -> {
+                if (isRef(items, 0)) {
+                    JsonSchemaItem arrayItem = new JsonSchemaItem();
+                    arrayItem.setId(IDGenerator.nextStr());
+                    arrayItem.setType(PropertyConstant.OBJECT);
+                    yield arrayItem;
+                }
+                yield parseSchema(items);
+            }
+        };
+
     }
 
 
