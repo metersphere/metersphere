@@ -9,7 +9,7 @@
         from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
         left join functional_case_module fcm on fcm.id = fc.module_id
         left join bug_relation_case brc on brc.test_plan_case_id = tpfc.id
-        where tpfc.test_plan_id = #{id}
+        where tpfc.test_plan_id = #{id} and fc.deleted = false
         group by tpfc.id
     </select>
 
