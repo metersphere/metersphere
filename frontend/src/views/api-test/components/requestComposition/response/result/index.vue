@@ -176,18 +176,14 @@
       label: t('apiTestDebug.console'),
       value: ResponseComposition.CONSOLE,
     },
-    ...(props.isDefinition
-      ? [
-          {
-            label: t('apiTestDebug.extract'),
-            value: ResponseComposition.EXTRACT,
-          },
-          {
-            label: t('apiTestDebug.assertion'),
-            value: ResponseComposition.ASSERTION,
-          },
-        ]
-      : []),
+    {
+      label: t('apiTestDebug.extract'),
+      value: ResponseComposition.EXTRACT,
+    },
+    {
+      label: t('apiTestDebug.assertion'),
+      value: ResponseComposition.ASSERTION,
+    },
   ];
 
   const activeTab = ref(ResponseComposition.BODY);

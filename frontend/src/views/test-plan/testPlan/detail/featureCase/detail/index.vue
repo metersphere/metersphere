@@ -130,10 +130,19 @@
                       <template #icon> <icon-plus class="text-[12px]" /> </template>
                     </a-button>
                     <template #content>
-                      <a-doption value="new">{{ t('common.newCreate') }}</a-doption>
-                      <a-doption v-if="createdBugCount > 0" value="link">{{ t('common.associated') }}</a-doption>
+                      <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new">{{
+                        t('common.newCreate')
+                      }}</a-doption>
+                      <a-doption v-if="createdBugCount > 0 && hasAnyPermission(['PROJECT_BUG:READ'])" value="link">{{
+                        t('common.associated')
+                      }}</a-doption>
                       <a-popover v-else title="" position="left">
-                        <a-doption :disabled="true" value="link">{{ t('common.associated') }}</a-doption>
+                        <a-doption
+                          v-if="createdBugCount < 1 && hasAnyPermission(['PROJECT_BUG:READ'])"
+                          :disabled="true"
+                          value="link"
+                          >{{ t('common.associated') }}</a-doption
+                        >
                         <template #content>
                           <div class="flex items-center text-[14px]">
                             <span class="text-[var(--color-text-4)]">{{

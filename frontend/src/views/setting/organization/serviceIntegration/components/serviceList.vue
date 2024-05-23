@@ -91,7 +91,6 @@
 
                   <a-button
                     v-if="hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+DELETE']) && item.config"
-                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+DELETE']"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
