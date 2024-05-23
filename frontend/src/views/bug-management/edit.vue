@@ -19,7 +19,7 @@
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
       <div class="flex flex-row">
-        <div class="left mt-[16px] min-w-[732px] grow">
+        <div class="left mt-[16px] w-[calc(100%-428px)] grow">
           <!-- 平台默认模板不展示缺陷名称, 描述 -->
           <a-form-item
             v-if="!isPlatformDefaultTemplate"
@@ -151,7 +151,7 @@
           </MsFileList>
         </div>
         <a-divider class="ml-[16px]" direction="vertical" />
-        <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
+        <div class="right mt-[16px] w-[428px] grow pr-[24px]">
           <div class="min-w-[250px] overflow-auto">
             <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
               <a-space direction="vertical" class="w-full" size="large">

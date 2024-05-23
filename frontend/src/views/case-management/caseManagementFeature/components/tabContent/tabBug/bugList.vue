@@ -42,7 +42,7 @@
         </MsButton>
         <span v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD'])">{{ t('caseManagement.featureCase.or') }}</span>
         <MsButton v-permission="['PROJECT_BUG:READ+ADD']" class="ml-[8px]" @click="createDefect">
-          {{ t('caseManagement.featureCase.createDefect') }}
+          {{ t('testPlan.featureCase.noBugDataNewBug') }}
         </MsButton>
       </div>
     </template>
