@@ -204,7 +204,7 @@ export const defaultCsvParamItem: CsvVariable = {
   ignoreFirstLine: false,
   delimiter: ',',
   allowQuotedData: false,
-  recycleOnEof: false,
+  recycleOnEof: true,
   stopThreadOnEof: false,
   settingVisible: false,
   file: {

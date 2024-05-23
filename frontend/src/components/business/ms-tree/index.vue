@@ -27,7 +27,7 @@
               class="cursor-pointer"
               @click.stop="handleExpand(_props)"
             >
-              <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
+              <icon-caret-down v-if="_props.expanded || props.expandAll" class="text-[var(--color-text-4)]" />
               <icon-caret-right v-else class="text-[var(--color-text-4)]" />
             </div>
             <div v-else class="h-full w-[16px]"></div>
@@ -98,6 +98,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import useContainerShadow from '@/hooks/useContainerShadow';
+  import { mapTree } from '@/utils';
 
   import type { MsTreeExpandedData, MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
   import { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
@@ -190,12 +191,17 @@
     overHeight: 32,
     containerClassName: 'ms-tree-container',
   });
+  const filterTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
 
   function init(isFirstInit = false) {
     nextTick(() => {
       if (isFirstInit) {
         if (props.defaultExpandAll) {
           treeRef.value?.expandAll(true);
+          filterTreeData.value = mapTree(filterTreeData.value, (node) => {
+            node.expanded = true;
+            return node;
+          });
         }
         if (!isInitListener.value && treeRef.value) {
           setContainer(
@@ -239,8 +245,6 @@
 
     return search(data.value);
   }
-
-  const filterTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
 
   // 防抖搜索
   const updateDebouncedSearch = debounce(() => {

@@ -18,8 +18,9 @@
       <a-trigger
         v-model:popup-visible="record.settingVisible"
         trigger="click"
-        position="br"
+        position="left"
         class="scenario-csv-trigger"
+        :popup-translate="[-2, 244]"
       >
         <MsButton type="text" class="!mr-0" @click="handleRecordConfig(record)">
           {{ t('apiScenario.params.config') }}

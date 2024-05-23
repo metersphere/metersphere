@@ -25,7 +25,7 @@
     </template>
     <template #typeTitle="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
-        {{ t('apiTestDebug.paramType') }}
+        {{ t((columnConfig.title as string) || 'apiTestDebug.paramType') }}
         <a-tooltip :disabled="!columnConfig.typeTitleTooltip" position="right">
           <template #content>
             <template v-if="Array.isArray(columnConfig.typeTitleTooltip)">
@@ -299,7 +299,6 @@
         input-size="small"
         tag-size="small"
         @change="(files, file) => handleFileChange(files, record, rowIndex, file)"
-        @delete-file="() => handleSingleFileDelete(record)"
       />
     </template>
     <!-- 长度范围 -->
@@ -1028,6 +1027,18 @@
           fileName: files[0].originalName || '',
           fileAlias: files[0].name || '',
         };
+      } else {
+        paramsData.value.forEach((e) => {
+          if (e.id === record.id) {
+            e.file = {
+              fileId: '',
+              fileName: '',
+              fileAlias: '',
+              local: false,
+              delete: false,
+            };
+          }
+        });
       }
       addTableLine(rowIndex);
       emitChange('handleFileChange');
@@ -1037,17 +1048,6 @@
     } finally {
       appStore.hideLoading();
     }
-  }
-
-  function handleSingleFileDelete(record: Record<string, any>) {
-    record.file = {
-      fileId: '',
-      fileName: '',
-      fileAlias: '',
-      local: false,
-      delete: false,
-    };
-    emitChange('deleteFile');
   }
 
   const showQuickInputParam = ref(false);

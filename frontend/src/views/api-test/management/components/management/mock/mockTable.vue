@@ -49,6 +49,9 @@
           :disabled="!hasAnyPermission(['PROJECT_API_DEFINITION_MOCK:READ+UPDATE'])"
         ></a-switch>
       </template>
+      <template #apiMethod="{ record }">
+        <apiMethodName :method="record.apiMethod" is-tag />
+      </template>
       <template #action="{ record }">
         <MsButton
           v-permission="['PROJECT_API_DEFINITION_MOCK:READ+UPDATE']"
@@ -205,6 +208,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import mockDetailDrawer from './mockDetailDrawer.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import {
@@ -274,10 +278,11 @@
       width: 200,
     },
     {
-      title: 'common.tag',
-      dataIndex: 'tags',
-      isTag: true,
-      isStringTag: true,
+      title: 'apiTestManagement.apiType',
+      dataIndex: 'apiMethod',
+      slotName: 'apiMethod',
+      width: 200,
+      showDrag: true,
     },
     {
       title: 'mockManagement.apiPath',
@@ -285,12 +290,21 @@
       slotName: 'apiPath',
       showTooltip: true,
       width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      isTag: true,
+      isStringTag: true,
+      showDrag: true,
     },
     {
       title: 'common.status',
       dataIndex: 'enable',
       slotName: 'enable',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'mockManagement.operationUser',
@@ -306,6 +320,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
       width: 180,
     },
     {

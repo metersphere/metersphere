@@ -173,6 +173,7 @@
 
   const props = defineProps<{
     id?: string;
+    formKey?: string;
     keyOptions: SelectOptionData[];
     disabled: boolean;
   }>();
@@ -202,6 +203,17 @@
     matchAll: matchAll.value,
     matchRules: matchRules.value,
   });
+
+  watch(
+    () => props.formKey,
+    () => {
+      formModel.value = {
+        matchAll: matchAll.value,
+        matchRules: matchRules.value,
+      };
+      formRef.value?.clearValidate();
+    }
+  );
 
   function handleDeleteItem(index: number) {
     matchRules.value.splice(index, 1);

@@ -45,15 +45,15 @@
         class="mb-[16px]"
       >
         <template #titleRight>
-          <div class="flex items-center gap-[16px]">
+          <div class="flex items-center gap-[16px] overflow-hidden">
             <div class="flex items-center gap-[8px]">
               <div class="whitespace-nowrap text-[var(--color-text-4)]">{{ t('apiTestManagement.apiType') }}</div>
               <apiMethodName :method="props.definitionDetail.method" tag-size="small" is-tag />
             </div>
-            <div class="flex items-center gap-[8px]">
+            <div class="flex items-center gap-[8px] overflow-hidden">
               <div class="whitespace-nowrap text-[var(--color-text-4)]">{{ t('apiTestManagement.path') }}</div>
-              <a-tooltip :content="props.definitionDetail.url">
-                <div class="one-line-text">{{ props.definitionDetail.url }}</div>
+              <a-tooltip :content="props.definitionDetail.url || props.definitionDetail.path" position="tl">
+                <div class="one-line-text">{{ props.definitionDetail.url || props.definitionDetail.path }}</div>
               </a-tooltip>
             </div>
           </div>
@@ -104,6 +104,7 @@
         v-model:matchRules="currentMatchRules"
         :key-options="currentKeyOptions"
         :disabled="isReadOnly"
+        :form-key="activeTab"
       />
       <template v-else>
         <div class="mb-[8px] flex items-center justify-between">
