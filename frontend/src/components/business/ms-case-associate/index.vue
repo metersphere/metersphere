@@ -308,8 +308,6 @@
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
    */
   async function initModules(isSetDefaultKey = false) {
-    console.log(111);
-
     try {
       moduleLoading.value = true;
       let params = {
@@ -760,8 +758,12 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     caseType.value = value as keyof typeof CaseLinkEnum;
+    if (!props.hideProjectSelect) {
+      initProjectList(true);
+    }
     initModules(true);
     searchCase();
+    initFilter();
   }
 
   watch(
@@ -795,18 +797,6 @@
           count: obj?.[node.id] || 0,
         };
       });
-    }
-  );
-
-  watch(
-    () => props.currentSelectCase,
-    () => {
-      if (!props.hideProjectSelect) {
-        initProjectList(true);
-      }
-      initModules(true);
-      searchCase();
-      initFilter();
     }
   );
 
