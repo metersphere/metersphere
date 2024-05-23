@@ -13,7 +13,14 @@
     <select id="getReportBatchIdsByParam" resultType="java.lang.String">
         select tpr.id from test_plan_report tpr
         join test_plan tp on tpr.test_plan_id = tp.id
-        <include refid="queryWhereCondition"/>
+        where tpr.deleted = 0
+        <if test="request.projectId != null and request.projectId != ''">
+            and tpr.project_id = #{request.projectId}
+        </if>
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and tpr.name like concat('%', #{request.keyword},'%')
+        </if>
+        <include refid="filterByCondition"/>
     </select>
 
     <select id="selectReportByIds" resultType="io.metersphere.plan.domain.TestPlanReport">
@@ -74,6 +81,42 @@
     <sql id="filter">
         <if test="request.filter != null and request.filter.size() > 0">
             <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='integrated'">
+                            and tpr.integrated in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                <choose>
+                                    <when test="value == 'true'">1</when>
+                                    <when test="value == 'false'">0</when>
+                                    <otherwise>0</otherwise>
+                                </choose>
+                            </foreach>
+                        </when>
+                        <!-- 触发方式 -->
+                        <when test="key == 'triggerMode'">
+                            and tpr.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 执行状态 -->
+                        <when test="key == 'execStatus'">
+                            and tpr.exec_status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 执行结果 -->
+                        <when test="key == 'resultStatus'">
+                            and tpr.result_status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="filterByCondition">
+        <if test="request.condition.filter != null and request.condition.filter.size() > 0">
+            <foreach collection="request.condition.filter.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='integrated'">
