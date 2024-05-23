@@ -813,7 +813,7 @@
 
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
-        crfc.case_id as id,
+        crfc.id as id,
         history.`status` as status,
         fc.module_id as moduleId,
         fc.name as name,
@@ -835,6 +835,34 @@
         <if test="userId != null and userId != ''">
             AND crfc.case_id in (select crfcu.case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
+        AND
+        fc.project_Id = #{request.projectId}
+        AND
+        fc.module_id = #{request.moduleId}
+        AND
+        cf.name = 'functional_priority'
+        AND cf.scene = 'FUNCTIONAL'
+        AND cf.internal= true
+    </select>
+
+    <select id="getMinderTestPlanList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
+        SELECT
+        tpfc.id as id,
+        history.`status` as status,
+        fc.module_id as moduleId,
+        fc.name as name,
+        fcb.steps, fcb.expected_result, fcb.prerequisite, fcb.description, fccf.value as priority
+        FROM
+        test_plan_functional_case tpfc
+        LEFT JOIN functional_case fc ON tpfc.functional_case_id = fc.id
+        LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
+        LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
+        LEFT JOIN custom_field cf ON cf.id = fccf.field_id
+        LEFT JOIN ( SELECT GROUP_CONCAT(DISTINCT tpceh.test_plan_case_id) AS test_plan_case_id, tpceh.`status` from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId}
+                    GROUP BY test_plan_case_id order by tpceh.create_time desc ) as history  ON history.test_plan_case_id = tpfc.id
+        WHERE
+        tpfc.test_plan_id = #{request.planId}
+        AND fc.deleted = #{deleted}
         AND
         fc.project_Id = #{request.projectId}
         AND

@@ -4,6 +4,7 @@ import com.alibaba.excel.util.StringUtils;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
+import io.metersphere.functional.request.FunctionalCasePlanMindRequest;
 import io.metersphere.functional.request.FunctionalCaseReviewMindRequest;
 import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -67,6 +68,14 @@ public class FunctionalCaseMinderController {
             viewStatusUserId = SessionUtils.getUserId();
         }
         return functionalCaseMinderService.getReviewMindFunctionalCase(request, false, userId, viewStatusUserId);
+    }
+
+    @PostMapping("/plan/list")
+    @Operation(summary = "测试计划-功能用例-脑图用例跟根据模块ID查询列表")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public List<FunctionalMinderTreeDTO> getPlanFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCasePlanMindRequest request) {
+        return functionalCaseMinderService.getPlanMindFunctionalCase(request, false);
     }
 
 }
