@@ -63,6 +63,8 @@
 </template>
 
 <script lang="ts" name="minderEditor" setup>
+  import { debounce } from 'lodash-es';
+
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import minderHeader from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
@@ -87,7 +89,7 @@
     (e: 'save', data: Record<string, any>): void;
     (e: 'afterMount'): void;
     (e: 'enterNode', data: any): void;
-    (e: 'nodeClick', data: any): void;
+    (e: 'nodeSelect', data: any): void;
   }>();
 
   const props = defineProps({
@@ -133,15 +135,15 @@
   onMounted(() => {
     nextTick(() => {
       if (window.minder.on) {
-        window.minder.on('mousedown', (e: any) => {
-          if (e.originEvent.button === 0) {
-            // 鼠标左键点击
+        window.minder.on(
+          'selectionchange',
+          debounce(() => {
             const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
             if (Object.keys(window.minder).length > 0 && selectedNode) {
-              emit('nodeClick', selectedNode);
+              emit('nodeSelect', selectedNode);
             }
-          }
-        });
+          }, 300)
+        );
       }
     });
   });

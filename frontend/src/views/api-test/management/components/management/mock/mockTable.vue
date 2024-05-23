@@ -35,6 +35,7 @@
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
+      @module-change="loadMockList()"
     >
       <template #expectNum="{ record }">
         <MsButton type="text" @click="handleOpenDetail(record)">
@@ -336,7 +337,7 @@
     {
       columns: props.readOnly ? columns : [],
       scroll: { x: '100%' },
-      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST,
+      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST_MANAGEMENT_MOCK,
       showSetting: !props.readOnly,
       selectable: true,
       showSelectAll: !props.readOnly,
@@ -384,7 +385,7 @@
     let moduleIds: string[] = [];
     if (props.activeModule !== 'all') {
       moduleIds = [props.activeModule];
-      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST_MANAGEMENT_CASE);
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST_MANAGEMENT_MOCK);
       if (getAllChildren) {
         moduleIds = [props.activeModule, ...props.offspringIds];
       }
@@ -705,7 +706,7 @@
   });
 
   if (!props.readOnly) {
-    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
+    await tableStore.initColumn(TableKeyEnum.API_TEST_MANAGEMENT_MOCK, columns, 'drawer');
   } else {
     columns = columns.filter(
       (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
