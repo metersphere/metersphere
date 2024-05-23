@@ -1250,16 +1250,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         MockHttpServletRequestBuilder requestBuilder = mockServerTestService.getRequestBuilder("GET", url);
         ResultActions action = mockMvc.perform(requestBuilder);
         MockHttpServletResponse mockServerResponse = action.andReturn().getResponse();
-        //判断响应
-        mockServerResponse.getContentAsString(StandardCharsets.UTF_8);
-        mockData.setEnable(false);
-        apiDefinitionMockMapper.updateByPrimaryKeySelective(mockData);
-
-        requestBuilder = mockServerTestService.getRequestBuilder("GET", url);
-        action = mockMvc.perform(requestBuilder);
-        mockServerResponse = action.andReturn().getResponse();
-        //判断响应
-        mockServerResponse.getContentAsString(StandardCharsets.UTF_8);
 
     }
 

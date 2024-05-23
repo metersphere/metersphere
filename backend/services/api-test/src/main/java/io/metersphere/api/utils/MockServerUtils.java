@@ -46,8 +46,8 @@ public class MockServerUtils {
 
         try {
             if (request instanceof ShiroHttpServletRequest shiroHttpServletRequest) {
-                InputStream inputStream = shiroHttpServletRequest.getRequest().getInputStream();
-                if (inputStream != null && inputStream.available() > 0 && StringUtils.equals(request.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
+                if (StringUtils.equals(request.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
+                    InputStream inputStream = shiroHttpServletRequest.getRequest().getInputStream();
                     byte[] binaryParams = inputStream.readAllBytes();
                     requestParam.setBinaryParamsObj(binaryParams);
                 } else if (StringUtils.equals(request.getContentType(), MediaType.APPLICATION_JSON_VALUE)) {
@@ -60,6 +60,22 @@ public class MockServerUtils {
                         }
                     }
                     requestPostString = receiveData.toString();
+                } else if (StringUtils.equals(request.getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+                    Map<String, String[]> parameterMap = request.getParameterMap();
+                    LinkedHashMap<String, String> bodyParams = new LinkedHashMap<>();
+                    if (parameterMap != null && !parameterMap.isEmpty()) {
+                        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+                            String key = entry.getKey();
+                            String[] value = entry.getValue();
+                            if (value != null && value.length > 0) {
+                                String valueStr = value[0];
+                                if (StringUtils.isNotEmpty(valueStr)) {
+                                    bodyParams.put(key, valueStr);
+                                }
+                            }
+                        }
+                        requestParam.setBodyParamsObj(bodyParams);
+                    }
                 }
             }
             String queryString = request.getQueryString();
