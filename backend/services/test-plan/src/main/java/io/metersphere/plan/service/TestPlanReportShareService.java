@@ -101,7 +101,7 @@ public class TestPlanReportShareService {
 		//检查报告ID是否存在
 		dto.setDeleted(false);
 		TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(dto.getReportId());
-		if (testPlanReport == null) {
+		if (testPlanReport == null || testPlanReport.getDeleted()) {
 			dto.setDeleted(true);
 		}
 		return dto;
