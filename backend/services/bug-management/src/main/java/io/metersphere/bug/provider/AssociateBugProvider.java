@@ -15,14 +15,17 @@ import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -40,6 +43,8 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
     private BugRelateCaseCommonService bugRelateCaseCommonService;
     @Resource
     private ExtBugRelateCaseMapper extBugRelateCaseMapper;
+    @Resource
+    private UserLoginService userLoginService;
 
 
     @Override
@@ -112,9 +117,12 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
     public List<BugProviderDTO> buildAssociateBugs(List<BugProviderDTO> associateBugs, String projectId) {
         List<SelectOption> headerHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
+        List<String> createUserList = associateBugs.stream().map(BugProviderDTO::getCreateUser).distinct().toList();
+        Map<String, String> userMap = userLoginService.getUserNameMap(createUserList.stream().filter(StringUtils::isNotBlank).distinct().toList());
         associateBugs.forEach(item -> {
             headerHandlerOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getHandleUser())).findFirst().ifPresent(option -> item.setHandleUserName(option.getText()));
             statusOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getStatus())).findFirst().ifPresent(option -> item.setStatusName(option.getText()));
+            item.setCreateUserName(MapUtils.isNotEmpty(userMap) && userMap.containsKey(item.getCreateUser()) ? userMap.get(item.getCreateUser()) : StringUtils.EMPTY);
         });
         return associateBugs;
     }
