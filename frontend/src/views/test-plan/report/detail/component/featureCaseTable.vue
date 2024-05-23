@@ -32,6 +32,7 @@
   const props = defineProps<{
     reportId: string;
     shareId?: string;
+    isDelete: boolean;
   }>();
 
   const tableStore = useTableStore();
@@ -114,8 +115,10 @@
     loadList();
   }
 
-  onBeforeMount(() => {
-    loadCaseList();
+  watchEffect(() => {
+    if (props.reportId && !props.isDelete) {
+      loadCaseList();
+    }
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_REPORT_DETAIL_FEATURE_CASE, columns, 'drawer');

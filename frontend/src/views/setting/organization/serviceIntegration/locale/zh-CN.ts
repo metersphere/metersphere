@@ -1,7 +1,7 @@
 export default {
   'organization.service.searchPlugin': '通过插件名称搜索',
-  'organization.service.statusEnableTip': '开启：项目可以与该平台集成并生成该平台的默认模板',
-  'organization.service.statusDisableTip': '关闭：项目无法与该平台集成且该平台默认模板不可用',
+  'organization.service.statusEnableTip': '开启：项目可以与该平台集成',
+  'organization.service.statusDisableTip': '关闭：项目无法与该平台集成',
   'organization.service.headerTip': '服务集成 使用指引',
   'organization.service.integrationList': '集成列表',
   'organization.service.packUp': '收起',

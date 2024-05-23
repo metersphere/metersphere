@@ -88,13 +88,12 @@
       <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
       <SetReportChart
         size="150px"
-        offset="top-[34%] right-0 bottom-0 left-0"
         :legend-data="legendData"
         :options="charOptions"
         :request-total="getIndicators(detail.caseTotal) || 0"
       />
     </div>
-    <div class="analysis min-w-[297px]">
+    <div class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.useCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
@@ -103,23 +102,25 @@
           <SingleStatusProgress :detail="detail" status="block" />
           <SingleStatusProgress :detail="detail" status="error" />
         </div>
-        <div class="relative w-[30%] min-w-[120px]">
+        <div class="relative w-[30%] min-w-[150px]">
           <div class="charts absolute w-full text-center">
-            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.detail.api.total') }}</div>
             <a-popover position="bottom" content-class="response-popover-content">
               <div class="flex justify-center text-[18px] font-medium">
-                <div class="one-line-text max-w-[60px] text-[var(--color-text-1)]">{{ detail.passRate }}% </div>
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCaseTotal }} </div>
               </div>
               <template #content>
                 <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
-                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
-                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ detail.passRate }} %</div>
+                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{
+                    t('report.detail.api.total')
+                  }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCaseTotal }}</div>
                 </div>
               </template>
             </a-popover>
           </div>
-          <div class="flex h-full w-full min-w-[120px] items-center justify-center">
-            <MsChart width="120px" height="120px" :options="functionCaseOptions"
+          <div class="flex h-full w-full min-w-[150px] items-center justify-center">
+            <MsChart width="150px" height="150px" :options="functionCaseOptions"
           /></div>
         </div>
       </div>
@@ -155,8 +156,13 @@
       no-content
       class="relative mb-[16px] border-b"
     />
-    <BugTable v-if="activeTab === 'bug'" :report-id="reportId" :share-id="shareId" />
-    <FeatureCaseTable v-if="activeTab === 'featureCase'" :report-id="reportId" :share-id="shareId" />
+    <BugTable v-if="activeTab === 'bug'" :report-id="reportId" :share-id="shareId" :is-delete="isDelete" />
+    <FeatureCaseTable
+      v-if="activeTab === 'featureCase'"
+      :report-id="reportId"
+      :is-delete="isDelete"
+      :share-id="shareId"
+    />
   </MsCard>
 </template>
 
@@ -222,6 +228,7 @@
   const shareId = ref<string>(route.query.shareId as string);
   const reportId = ref<string>(props.reportId);
   const shareLoading = ref<boolean>(false);
+  const isDelete = ref<boolean>(false);
   async function shareHandler() {
     try {
       const res = await planReportShare({
@@ -229,9 +236,7 @@
         projectId: appStore.currentProjectId,
       });
       const { origin } = window.location;
-      const hrefShareDetail = await planGetShareHref(res.id);
-      reportId.value = hrefShareDetail.reportId;
-      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_TEST_PLAN}${res.shareUrl}&id=${hrefShareDetail.reportId}`;
+      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_TEST_PLAN}${res.shareUrl}`;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareLink.value).then(
           () => {
@@ -397,15 +402,20 @@
 
   async function getDetail() {
     try {
+      // 如果分享id存在则为分享页面
       if (shareId.value) {
-        const result = await planReportShareDetail(shareId.value, reportId.value);
-        if (result.deleted) {
+        // 获取分享资源的详情
+        const hrefShareDetail = await planGetShareHref(shareId.value);
+        if (hrefShareDetail.deleted) {
+          isDelete.value = hrefShareDetail.deleted;
           router.push({
             name: NOT_FOUND_RESOURCE,
           });
-        } else {
-          detail.value = result;
+          return;
         }
+        reportId.value = hrefShareDetail.reportId;
+        const result = await planReportShareDetail(shareId.value, reportId.value);
+        detail.value = result;
       } else {
         detail.value = await getReportDetail(reportId.value);
       }
@@ -441,6 +451,12 @@
     richText.value = { summary: detail.value.summary };
     showButton.value = false;
   }
+
+  const functionCaseTotal = computed(() => {
+    const { functionalCount } = detail.value;
+    const { success, error, pending, block } = functionalCount;
+    return success + error + pending + block;
+  });
 
   const activeTab = ref('bug');
   const contentTabList = ref([
