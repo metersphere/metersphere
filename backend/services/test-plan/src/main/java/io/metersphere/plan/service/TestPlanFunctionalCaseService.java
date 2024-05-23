@@ -91,8 +91,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
-    private TestPlanModuleService testPlanModuleService;
-    @Resource
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
     @Resource
     private FunctionalCaseModuleService functionalCaseModuleService;
@@ -553,7 +551,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public TestPlanCaseDetailResponse getFunctionalCaseDetail(String id, String userId) {
         TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(id);
         String caseId = planFunctionalCase.getFunctionalCaseId();
-        FunctionalCaseDetailDTO functionalCaseDetail = functionalCaseService.getFunctionalCaseDetail(caseId, userId);
+        FunctionalCaseDetailDTO functionalCaseDetail = functionalCaseService.getFunctionalCaseDetail(caseId, userId, false);
         String caseDetailSteps = functionalCaseDetail.getSteps();
         List<TestPlanCaseExecuteHistory> testPlanCaseExecuteHistories = extTestPlanCaseExecuteHistoryMapper.selectSteps(id, caseId);
         Integer runListCount = 0;

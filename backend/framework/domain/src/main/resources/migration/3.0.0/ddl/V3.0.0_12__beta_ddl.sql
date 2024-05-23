@@ -173,6 +173,9 @@ ALTER TABLE test_plan DROP INDEX uq_name_project;
 CREATE INDEX idx_report_id ON api_scenario_report_step(report_id);
 
 
+CREATE INDEX idx_source_id ON operation_history(`source_id`);
+
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
