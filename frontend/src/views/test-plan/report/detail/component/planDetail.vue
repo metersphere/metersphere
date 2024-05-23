@@ -39,94 +39,88 @@
     </template>
   </MsCard>
   <div class="analysis-wrapper">
-    <div class="analysis">
-      <div>
-        <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
-        <ul class="report-analysis">
-          <li class="report-analysis-item">
-            <div class="report-analysis-item-icon">
-              <svg-icon class="mr-2" width="24px" height="24px" name="threshold" />
-              <span>{{ t('report.detail.threshold') }}</span>
-            </div>
-            <div>
-              <span class="report-analysis-item-number">{{ detail.passThreshold }}</span>
-              <span class="report-analysis-item-unit">(%)</span>
-            </div>
-          </li>
-          <li class="report-analysis-item">
-            <div class="report-analysis-item-icon">
-              <svg-icon class="mr-2" width="24px" height="24px" name="passRate" />
-              <span>{{ t('report.detail.reportPassRate') }}</span>
-            </div>
-            <div>
-              <span class="report-analysis-item-number">{{ detail.passRate }}</span>
-              <span class="report-analysis-item-unit">(%)</span>
-            </div>
-          </li>
-          <li class="report-analysis-item">
-            <div class="report-analysis-item-icon">
-              <svg-icon class="mr-2" width="24px" height="24px" name="passRate" />
-              <span>{{ t('report.detail.performCompletion') }}</span>
-            </div>
-            <div>
-              <span class="report-analysis-item-number">{{ detail.executeRate }}</span>
-              <span class="report-analysis-item-unit">(%)</span>
-            </div>
-          </li>
-          <li class="report-analysis-item">
-            <div class="report-analysis-item-icon">
-              <svg-icon class="mr-2" width="24px" height="24px" name="bugTotal" />
-              <span>{{ t('report.detail.totalDefects') }}</span>
-            </div>
-            <div>
-              <span class="report-analysis-item-number">{{ addCommasToNumber(detail.bugCount) }}</span>
-              <span class="report-analysis-item-unit">({{ t('report.detail.number') }})</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="analysis mx-4">
-      <div>
-        <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
-        <SetReportChart
-          size="160px"
-          offset="top-[34%] right-0 bottom-0 left-0"
-          :legend-data="legendData"
-          :options="charOptions"
-          :request-total="getIndicators(detail.caseTotal) || 0"
-        />
-      </div>
-    </div>
-    <div class="analysis">
-      <div>
-        <div class="block-title">{{ t('report.detail.useCaseAnalysis') }}</div>
-        <div class="flex">
-          <div class="w-[70%]">
-            <SingleStatusProgress :detail="detail" status="pending" />
-            <SingleStatusProgress :detail="detail" status="success" />
-            <SingleStatusProgress :detail="detail" status="block" />
-            <SingleStatusProgress :detail="detail" status="error" />
+    <div class="analysis min-w-[238px]">
+      <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
+      <ul class="report-analysis">
+        <li class="report-analysis-item">
+          <div class="report-analysis-item-icon">
+            <svg-icon class="mr-2" width="24px" height="24px" name="threshold" />
+            <span>{{ t('report.detail.threshold') }}</span>
           </div>
-          <div class="relative w-[30%]">
-            <div class="charts absolute w-full text-center">
-              <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
-              <a-popover position="bottom" content-class="response-popover-content">
-                <div class="flex justify-center text-[18px] font-medium">
-                  <div class="one-line-text max-w-[60px] text-[var(--color-text-1)]">{{ detail.passRate }}% </div>
+          <div>
+            <span class="report-analysis-item-number">{{ detail.passThreshold }}</span>
+            <span class="report-analysis-item-unit">(%)</span>
+          </div>
+        </li>
+        <li class="report-analysis-item">
+          <div class="report-analysis-item-icon">
+            <svg-icon class="mr-2" width="24px" height="24px" name="passRate" />
+            <span>{{ t('report.detail.reportPassRate') }}</span>
+          </div>
+          <div>
+            <span class="report-analysis-item-number">{{ detail.passRate }}</span>
+            <span class="report-analysis-item-unit">(%)</span>
+          </div>
+        </li>
+        <li class="report-analysis-item">
+          <div class="report-analysis-item-icon">
+            <svg-icon class="mr-2" width="24px" height="24px" name="passRate" />
+            <span>{{ t('report.detail.performCompletion') }}</span>
+          </div>
+          <div>
+            <span class="report-analysis-item-number">{{ detail.executeRate }}</span>
+            <span class="report-analysis-item-unit">(%)</span>
+          </div>
+        </li>
+        <li class="report-analysis-item">
+          <div class="report-analysis-item-icon">
+            <svg-icon class="mr-2" width="24px" height="24px" name="bugTotal" />
+            <span>{{ t('report.detail.totalDefects') }}</span>
+          </div>
+          <div>
+            <span class="report-analysis-item-number">{{ addCommasToNumber(detail.bugCount) }}</span>
+            <span class="report-analysis-item-unit">({{ t('report.detail.number') }})</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="analysis min-w-[410px]">
+      <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
+      <SetReportChart
+        size="150px"
+        offset="top-[34%] right-0 bottom-0 left-0"
+        :legend-data="legendData"
+        :options="charOptions"
+        :request-total="getIndicators(detail.caseTotal) || 0"
+      />
+    </div>
+    <div class="analysis min-w-[297px]">
+      <div class="block-title">{{ t('report.detail.useCaseAnalysis') }}</div>
+      <div class="flex">
+        <div class="w-[70%]">
+          <SingleStatusProgress :detail="detail" status="pending" />
+          <SingleStatusProgress :detail="detail" status="success" />
+          <SingleStatusProgress :detail="detail" status="block" />
+          <SingleStatusProgress :detail="detail" status="error" />
+        </div>
+        <div class="relative w-[30%] min-w-[120px]">
+          <div class="charts absolute w-full text-center">
+            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+            <a-popover position="bottom" content-class="response-popover-content">
+              <div class="flex justify-center text-[18px] font-medium">
+                <div class="one-line-text max-w-[60px] text-[var(--color-text-1)]">{{ detail.passRate }}% </div>
+              </div>
+              <template #content>
+                <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
+                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ detail.passRate }} %</div>
                 </div>
-                <template #content>
-                  <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
-                    <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
-                    <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ detail.passRate }} %</div>
-                  </div>
-                </template>
-              </a-popover>
-            </div>
-            <div class="flex h-full w-full items-center justify-center">
-              <MsChart width="120px" height="120px" :options="functionCaseOptions"
-            /></div>
+              </template>
+            </a-popover>
           </div>
+          <div class="flex h-full w-full min-w-[120px] items-center justify-center">
+            <MsChart width="120px" height="120px" :options="functionCaseOptions"
+          /></div>
         </div>
       </div>
     </div>
@@ -482,12 +476,12 @@
     @apply mb-4 font-medium;
   }
   .analysis-wrapper {
-    height: 250px;
-    @apply mb-4 flex items-center;
+    @apply mb-4 flex flex-wrap items-center gap-4;
     .analysis {
       padding: 24px;
+      height: 250px;
       box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-      @apply h-full flex-1 rounded-xl bg-white;
+      @apply flex-1 rounded-xl bg-white;
       .report-analysis {
         .report-analysis-item {
           padding: 4px 8px;
@@ -507,7 +501,7 @@
         }
       }
       .charts {
-        top: 34%;
+        top: 36%;
         right: 0;
         bottom: 0;
         left: 0;
