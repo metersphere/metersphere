@@ -400,6 +400,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
         //执行记录
         TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
+        handleFileAndNotice(request.getCaseId(), request.getProjectId(), request.getPlanCommentFileIds(), logInsertModule.getOperator(), CaseFileSourceType.PLAN_COMMENT.toString(), request.getNotifier(), request.getTestPlanId(), request.getLastExecResult());
         testPlanCaseExecuteHistoryMapper.insert(executeHistory);
 
     }
@@ -509,7 +510,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         //发通知
         if (StringUtils.isNotBlank(notifier)) {
             List<String> relatedUsers = Arrays.asList(notifier.split(";"));
-            testPlanSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_AT, testPlanId);
+            testPlanSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.EXECUTE_AT, testPlanId);
         }
 
         if (StringUtils.equalsIgnoreCase(lastExecResult, ExecStatus.SUCCESS.name())) {
