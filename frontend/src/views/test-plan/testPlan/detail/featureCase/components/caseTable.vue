@@ -22,7 +22,8 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
-      @filter-change="filterChange"
+      @selected-change="handleTableSelect"
+      @filter-change="getModuleCount"
     >
       <template #num="{ record }">
         <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
@@ -236,10 +237,6 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
-  const tableParams = ref<PlanDetailFeatureCaseListQueryParams>({
-    testPlanId: props.planId,
-    projectId: appStore.currentProjectId,
-  });
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION'])
@@ -393,18 +390,35 @@
     }
     return moduleIds;
   }
-  async function loadCaseList() {
+  async function getTableParams(isBatch: boolean) {
     const selectModules = await getModuleIds();
-    tableParams.value = {
+    const commonParams = {
       testPlanId: props.planId,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
-      keyword: keyword.value,
     };
-    setLoadListParams(tableParams.value);
+    if (isBatch) {
+      return {
+        condition: {
+          keyword: keyword.value,
+          filter: propsRes.value.filter,
+        },
+        ...commonParams,
+      };
+    }
+    return {
+      keyword: keyword.value,
+      filter: propsRes.value.filter,
+      ...commonParams,
+    };
+  }
+
+  async function loadCaseList() {
+    const tableParams = await getTableParams(false);
+    setLoadListParams(tableParams);
     loadList();
     emit('getModuleCount', {
-      ...tableParams.value,
+      ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
@@ -416,10 +430,10 @@
     }
   );
 
-  function filterChange() {
-    tableParams.value = { ...tableParams.value, filter: propsRes.value.filter };
+  async function getModuleCount() {
+    const tableParams = await getTableParams(false);
     emit('getModuleCount', {
-      ...tableParams.value,
+      ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
@@ -433,14 +447,13 @@
     condition: {},
     currentSelectCount: 0,
   });
+  function handleTableSelect(arr: (string | number)[]) {
+    tableSelected.value = arr;
+  }
 
   function resetCaseList() {
     resetSelector();
-    emit('getModuleCount', {
-      ...tableParams.value,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    });
+    getModuleCount();
     loadList();
   }
 
@@ -513,15 +526,20 @@
   function handleBatchDisassociateCase() {
     openModal({
       type: 'warning',
-      title: t('caseManagement.caseReview.disassociateConfirmTitle', { count: batchParams.value.currentSelectCount }),
+      title: t('caseManagement.caseReview.disassociateConfirmTitle', {
+        count: batchParams.value.currentSelectCount || tableSelected.value.length,
+      }),
       content: t('testPlan.featureCase.batchDisassociateTipContent'),
       okText: t('common.cancelLink'),
       cancelText: t('common.cancel'),
       onBeforeOk: async () => {
         try {
+          const tableParams = await getTableParams(true);
           await batchDisassociateCase({
-            ...batchParams.value,
-            ...tableParams.value,
+            selectIds: tableSelected.value as string[],
+            selectAll: batchParams.value.selectAll,
+            excludeIds: batchParams.value?.excludeIds || [],
+            ...tableParams,
           });
           Message.success(t('common.updateSuccess'));
           resetCaseList();
@@ -543,12 +561,14 @@
   async function handleBatchExecute() {
     try {
       batchLoading.value = true;
+      const tableParams = await getTableParams(true);
       await batchExecuteCase({
-        ...batchParams.value,
-        ...tableParams.value,
+        ...tableParams,
         ...batchExecuteForm.value,
         notifier: batchExecuteForm.value?.commentIds?.join(';'),
-        selectIds: batchParams.value.selectedIds,
+        selectIds: tableSelected.value as string[],
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
       });
       Message.success(t('common.updateSuccess'));
       resetSelector();
@@ -587,9 +607,12 @@
       if (!errors) {
         try {
           batchLoading.value = true;
+          const tableParams = await getTableParams(true);
           await batchUpdateCaseExecutor({
-            ...batchParams.value,
-            ...tableParams.value,
+            selectIds: tableSelected.value as string[],
+            selectAll: batchParams.value.selectAll,
+            excludeIds: batchParams.value?.excludeIds || [],
+            ...tableParams,
             ...batchUpdateExecutorForm.value,
           });
           Message.success(t('common.updateSuccess'));
