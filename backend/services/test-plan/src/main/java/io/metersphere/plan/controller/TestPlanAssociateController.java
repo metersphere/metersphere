@@ -38,9 +38,9 @@ public class TestPlanAssociateController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
-        Boolean isRepeat = false;
+        boolean isRepeat = false;
         if (StringUtils.isNotBlank(request.getTestPlanId())) {
-            isRepeat = testPlanConfigService.getConfigById(request.getTestPlanId());
+            isRepeat = testPlanConfigService.isRepeatCase(request.getTestPlanId());
         }
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");

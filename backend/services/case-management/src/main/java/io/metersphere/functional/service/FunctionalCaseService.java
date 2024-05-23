@@ -13,9 +13,11 @@ import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistoryExample;
+import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -55,6 +57,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -124,6 +127,9 @@ public class FunctionalCaseService {
 
     @Resource
     private UserLoginService userLoginService;
+
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
@@ -982,6 +988,9 @@ public class FunctionalCaseService {
     }
 
     public Map<String, Long> moduleCount(FunctionalCasePageRequest request, boolean delete) {
+        if (StringUtils.isNotEmpty(request.getTestPlanId())) {
+            this.checkTestPlanRepeatCase(request);
+        }
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         request.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extFunctionalCaseMapper.countModuleIdByRequest(request, delete);
@@ -992,6 +1001,14 @@ public class FunctionalCaseService {
         moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount.get());
         return moduleCountMap;
 
+    }
+
+    private void checkTestPlanRepeatCase(FunctionalCasePageRequest request) {
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
+        if (testPlanConfig != null && BooleanUtils.isTrue(testPlanConfig.getRepeatCase())) {
+            //测试计划允许重复用例，意思就是统计不受测试计划影响。去掉这个条件，
+            request.setTestPlanId(null);
+        }
     }
 
     public void editPos(PosRequest request) {

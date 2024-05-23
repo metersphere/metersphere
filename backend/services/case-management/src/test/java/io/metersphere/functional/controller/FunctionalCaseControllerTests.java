@@ -13,6 +13,8 @@ import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
@@ -439,6 +441,9 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(editResultHolder);
     }
 
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
+
     @Test
     @Order(5)
     public void testGetPageList() throws Exception {
@@ -494,6 +499,56 @@ public class FunctionalCaseControllerTests extends BaseTest {
         }
 
         Assertions.assertTrue(moduleCount.containsKey("all"));
+
+        {
+            //测试count接口的入参中包含不存在的测试计划、存在的开启/关闭了重复用例的测试计划
+            TestPlanConfig testPlanConfig = new TestPlanConfig();
+            testPlanConfig.setTestPlanId(IDGenerator.nextStr());
+            testPlanConfig.setRepeatCase(false);
+            testPlanConfig.setAutomaticStatusUpdate(false);
+            testPlanConfig.setTestPlanning(false);
+            testPlanConfig.setPassThreshold(100.00);
+
+            request.setTestPlanId(testPlanConfig.getTestPlanId());
+
+            mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_MODULE_COUNT, request);
+            returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+            Assertions.assertNotNull(resultHolder);
+            moduleCount = JSON.parseObject(JSON.toJSONString(
+                            JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                    Map.class);
+            Assertions.assertTrue(moduleCount.containsKey("all"));
+
+            //不开启用例重复的测试计划入库，再次调用
+            testPlanConfigMapper.insert(testPlanConfig);
+
+            mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_MODULE_COUNT, request);
+            returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+            Assertions.assertNotNull(resultHolder);
+            moduleCount = JSON.parseObject(JSON.toJSONString(
+                            JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                    Map.class);
+            Assertions.assertTrue(moduleCount.containsKey("all"));
+
+            //开启用例重复的测试计划，再次调用
+            testPlanConfig.setRepeatCase(true);
+            testPlanConfigMapper.updateByPrimaryKey(testPlanConfig);
+
+            mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_MODULE_COUNT, request);
+            returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+            Assertions.assertNotNull(resultHolder);
+            moduleCount = JSON.parseObject(JSON.toJSONString(
+                            JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                    Map.class);
+            Assertions.assertTrue(moduleCount.containsKey("all"));
+
+            //使用完后删除该数据
+            testPlanConfigMapper.deleteByPrimaryKey(testPlanConfig.getTestPlanId());
+
+        }
     }
 
 
