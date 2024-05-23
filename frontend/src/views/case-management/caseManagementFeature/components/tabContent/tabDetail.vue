@@ -600,6 +600,8 @@
           executeResult: item.executeResult,
         };
       });
+    } else {
+      stepData.value = [];
     }
     const fileIds = (attachments || []).map((item: any) => item.id);
     if (fileIds.length) {
