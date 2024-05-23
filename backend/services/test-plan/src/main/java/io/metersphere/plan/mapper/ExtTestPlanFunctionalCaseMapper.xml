@@ -202,7 +202,7 @@
                         </when>
                         <!-- 执行结果 -->
                         <when test="key=='lastExecResult'">
-                            and functional_case.last_execute_result in
+                            and test_plan_functional_case.last_exec_result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <!-- 版本 -->
