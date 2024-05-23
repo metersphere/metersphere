@@ -183,4 +183,5 @@ export default {
   'common.updateUserName': 'Update user name',
   'common.updateTime': 'Update time',
   'common.belongProject': 'Belong to Project',
+  'common.noMatchData': 'No matching data',
 };

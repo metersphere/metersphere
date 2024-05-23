@@ -7,7 +7,12 @@
       :indeterminate="indeterminate"
       @change="handleCheckChange"
     />
-    <a-dropdown v-if="props.showSelectAll" :disable="props.disabled" position="bl" @select="handleSelect">
+    <a-dropdown
+      v-if="props.showSelectAll"
+      :disable="props.disabled"
+      position="bl"
+      @select="(v) => handleSelect(v as SelectAllEnum)"
+    >
       <div>
         <MsIcon type="icon-icon_down_outlined" class="dropdown-icon" />
       </div>
@@ -67,17 +72,29 @@
     },
   });
   const indeterminate = computed(() => {
-    // 有无勾选的 key，或非全选所有页且已选中的数量大于 0 且小于总数时是半选状态
+    // 有无勾选的 key且是全选所有页，或非全选所有页且已选中的数量大于 0 且小于总数时是半选状态
     return (
-      selectAllStatus.value !== SelectAllEnum.ALL &&
-      props.selectedKeys.size > 0 &&
-      props.selectedKeys.size < props.total
+      (props.excludeKeys.length > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
+      (selectAllStatus.value !== SelectAllEnum.ALL &&
+        props.selectedKeys.size > 0 &&
+        props.selectedKeys.size < props.total)
     );
   });
 
-  const handleSelect = (v: string | number | Record<string, any> | undefined) => {
-    selectAllStatus.value = v as SelectAllEnum;
-    emit('change', v as SelectAllEnum);
+  const handleSelect = (v: SelectAllEnum) => {
+    if (
+      (selectAllStatus.value === SelectAllEnum.ALL &&
+        v === SelectAllEnum.NONE &&
+        props.excludeKeys.length < props.total) ||
+      (selectAllStatus.value === SelectAllEnum.ALL && v === SelectAllEnum.CURRENT)
+    ) {
+      // 如果当前是全选所有页状态，且是取消选中当前页操作，且排除项小于总数，则保持跨页全选状态
+      // 如果当前是全选所有页状态，且是选中当前页操作，则保持跨页全选状态
+      selectAllStatus.value = SelectAllEnum.ALL;
+    } else {
+      selectAllStatus.value = v;
+    }
+    emit('change', v);
   };
 
   function hasUnselectedChildren(
@@ -102,6 +119,13 @@
       handleSelect(SelectAllEnum.NONE);
     }
   };
+
+  watchEffect(() => {
+    // 表格清空已选时，判断排除项也为空则是重置全选状态
+    if (props.excludeKeys.length === 0 && props.selectedKeys.size === 0) {
+      selectAllStatus.value = SelectAllEnum.NONE;
+    }
+  });
 </script>
 
 <style lang="less" scoped>

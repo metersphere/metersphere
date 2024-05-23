@@ -83,7 +83,7 @@ export default {
   'caseManagement.caseReview.reviewResult': '评审结果',
   'caseManagement.caseReview.reviewResultTip': '“只看我的”开启时，可在列表上查看我的评审结果',
   'caseManagement.caseReview.disassociate': '取消关联',
-  'caseManagement.caseReview.disassociateConfirmTitle': '确认取消已选的 {count} 条用例吗？',
+  'caseManagement.caseReview.disassociateConfirmTitle': '确认取消关联 {count} 条用例吗？',
   'caseManagement.caseReview.version': '版本',
   'caseManagement.caseReview.unReview': '未评审',
   'caseManagement.caseReview.reviewPass': '已通过',

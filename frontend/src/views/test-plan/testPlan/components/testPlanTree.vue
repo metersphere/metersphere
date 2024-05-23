@@ -7,7 +7,7 @@
       :keyword="moduleKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
-      :empty-text="t('testPlan.testPlanIndex.planEmptyContent')"
+      :empty-text="t('common.noMatchData')"
       :draggable="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE'])"
       :virtual-list-props="virtualListProps"
       block-node
@@ -36,11 +36,12 @@
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
           :visible="addSubVisible"
           :is-delete="false"
-          :all-names="[]"
+          :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
           :title="t('testPlan.testPlanIndex.addSubModule')"
           :ok-text="t('common.confirm')"
           :field-config="{
             placeholder: t('testPlan.testPlanIndex.addGroupTip'),
+            nameExistTipText: t('project.fileManagement.nameExist'),
           }"
           :loading="confirmLoading"
           @confirm="addSubModule"
@@ -53,7 +54,7 @@
         <MsPopConfirm
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE'])"
           :title="t('testPlan.testPlanIndex.rename')"
-          :all-names="[]"
+          :all-names="(nodeData.parent? nodeData.parent.children || [] : testPlanTree).filter((e: ModuleTreeNode) => e.id !== nodeData.id).map((e: ModuleTreeNode) => e.name || '')"
           :is-delete="false"
           :ok-text="t('common.confirm')"
           :field-config="{ field: renameCaseName }"
