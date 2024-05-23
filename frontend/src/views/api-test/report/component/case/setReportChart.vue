@@ -1,12 +1,12 @@
 <template>
-  <div :class="`min-h-[${props.size || '110px'}] flex items-center`">
+  <div :class="`min-h-[${props.size || '120px'}] flex items-center`">
     <div class="relative mr-4">
-      <div :class="`${props.offset || defaultOffset} charts absolute text-center`">
+      <div class="charts">
         <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
         <a-popover position="bottom" content-class="response-popover-content">
-          <div class="flex justify-center text-[18px] font-medium">
-            <div class="one-line-text max-w-[60px]">{{ getIndicators(requestTotal) }}</div>
-          </div>
+          <div class="one-line-text w-full max-w-[90%] text-center text-[18px] font-medium">{{
+            getIndicators(requestTotal)
+          }}</div>
           <template #content>
             <div class="min-w-[176px] max-w-[400px] p-4 text-[14px]">
               <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.detail.api.total') }}</div>
@@ -18,7 +18,7 @@
         </a-popover>
       </div>
       <a-popover position="bottom" content-class="response-popover-content">
-        <div> <MsChart :width="props.size || '110px'" :height="props.size || '110px'" :options="props.options" /></div>
+        <div> <MsChart :width="props.size || '120px'" :height="props.size || '120px'" :options="props.options" /></div>
         <template #content>
           <div class="min-w-[176px] max-w-[400px] p-4">
             <div v-for="item of legendData" :key="item.value" class="mb-2 flex flex-nowrap justify-between">
@@ -68,10 +68,7 @@
     legendData: LegendData[];
     requestTotal: number;
     size?: string;
-    offset?: string;
   }>();
-
-  const defaultOffset = ref('top-[30%] right-0 bottom-0 left-0');
 </script>
 
 <style scoped lang="less">
@@ -91,5 +88,9 @@
   .charts {
     z-index: 99;
     margin: auto;
+    width: 66%;
+    height: 66%;
+    border-radius: 50%;
+    @apply absolute bottom-0 left-0 right-0 top-0 flex flex-col items-center justify-center;
   }
 </style>

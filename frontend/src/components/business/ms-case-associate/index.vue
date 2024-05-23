@@ -25,7 +25,10 @@
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
-          <div v-if="!props.hideProjectSelect" class="w-full max-w-[162px] flex-1">
+          <div
+            v-if="!props.hideProjectSelect"
+            :class="`${!props.hideProjectSelect && caseType !== 'API' ? 'max-w-[259px]' : 'max-w-[162px]'} flex-1`"
+          >
             <a-select
               v-model="innerProject"
               class="mb-[16px] w-full"
@@ -305,6 +308,8 @@
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
    */
   async function initModules(isSetDefaultKey = false) {
+    console.log(111);
+
     try {
       moduleLoading.value = true;
       let params = {
@@ -330,6 +335,7 @@
       });
       if (isSetDefaultKey) {
         selectedModuleKeys.value = [folderTree.value[0].id];
+        [activeFolder.value] = [folderTree.value[0].id];
         activeFolderName.value = folderTree.value[0].name;
         const offspringIds: string[] = [];
         mapTree(folderTree.value[0].children || [], (e) => {
@@ -754,7 +760,7 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     caseType.value = value as keyof typeof CaseLinkEnum;
-    initModules();
+    initModules(true);
     searchCase();
   }
 
@@ -763,7 +769,7 @@
     (val) => {
       if (val) {
         resetSelector();
-        initModules();
+        initModules(true);
         searchCase();
         initFilter();
       }
@@ -798,7 +804,7 @@
       if (!props.hideProjectSelect) {
         initProjectList(true);
       }
-      initModules();
+      initModules(true);
       searchCase();
       initFilter();
     }
