@@ -32,13 +32,14 @@
       @batch-action="handleTableBatch"
       @filter-change="filterChange"
     >
-      <template #name="{ record, rowIndex }">
+      <template #name="{ record }">
         <div
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
-          @click="showReportDetail(record.id, rowIndex)"
-          >{{ characterLimit(record.name) }}</div
+          @click="showReportDetail(record.id)"
         >
+          {{ characterLimit(record.name) }}
+        </div>
       </template>
 
       <!-- 通过率 -->
@@ -82,8 +83,9 @@
           v-permission="['PROJECT_TEST_PLAN_REPORT:READ+DELETE']"
           class="!mr-0"
           @click="handleDelete(record.id, record.name)"
-          >{{ t('ms.comment.delete') }}</MsButton
         >
+          {{ t('ms.comment.delete') }}
+        </MsButton>
       </template>
     </ms-base-table>
   </div>
@@ -280,25 +282,26 @@
       return false;
     }
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
-    reportList,
-    {
-      tableKey: TableKeyEnum.TEST_PLAN_REPORT_TABLE,
-      scroll: {
-        x: '100%',
+  const { propsRes, propsEvent, loadList, setLoadListParams, setPagination, resetSelector, resetFilterParams } =
+    useTable(
+      reportList,
+      {
+        tableKey: TableKeyEnum.TEST_PLAN_REPORT_TABLE,
+        scroll: {
+          x: '100%',
+        },
+        showSetting: true,
+        selectable: hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+DELETE']),
+        heightUsed: 242,
+        paginationSize: 'mini',
+        showSelectorAll: true,
       },
-      showSetting: true,
-      selectable: hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+DELETE']),
-      heightUsed: 242,
-      paginationSize: 'mini',
-      showSelectorAll: true,
-    },
-    (item) => ({
-      ...item,
-      startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
-    }),
-    rename
-  );
+      (item) => ({
+        ...item,
+        startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
+      }),
+      rename
+    );
 
   function initData(dataIndex?: string, value?: string[] | (string | number | boolean)[] | undefined) {
     const filterParams = {
@@ -406,11 +409,11 @@
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
     resetFilterParams();
-    resetSelector();
-    propsRes.value.filter = {
-      integrated: integratedFilters.value,
-    };
-    initData();
+    // 重置分页
+    setPagination({
+      current: 1,
+    });
+    searchList();
   }
 
   function filterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
@@ -420,7 +423,7 @@
   /**
    * 报告详情 showReportDetail
    */
-  function showReportDetail(id: string, rowIndex: number) {
+  function showReportDetail(id: string) {
     router.push({
       name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
       query: {

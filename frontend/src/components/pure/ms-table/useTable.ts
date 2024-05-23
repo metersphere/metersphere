@@ -308,7 +308,11 @@ export default function useTableProps<T>(
       // 取消当前页的选中项
       propsRes.value.data.forEach((item) => {
         propsRes.value.selectedKeys.delete(item[rowKey]);
-        propsRes.value.excludeKeys.delete(item[rowKey]);
+        if (propsRes.value.selectorStatus === SelectAllEnum.ALL) {
+          propsRes.value.excludeKeys.add(item[rowKey]);
+        } else {
+          propsRes.value.excludeKeys.delete(item[rowKey]);
+        }
       });
     }
   };
@@ -334,6 +338,7 @@ export default function useTableProps<T>(
     data.forEach((item: MsTableDataItem<T>) => {
       if (item[rowKey] && !propsRes.value.selectedKeys.has(item[rowKey])) {
         propsRes.value.selectedKeys.add(item[rowKey]);
+        propsRes.value.excludeKeys.delete(item[rowKey]);
       }
       if (item.children) {
         collectIds(item.children, rowKey);
@@ -426,7 +431,19 @@ export default function useTableProps<T>(
         propsRes.value.excludeKeys.clear();
         collectIds(data as MsTableDataItem<T>[], rowKey);
       }
-      propsRes.value.selectorStatus = v;
+      if (
+        (propsRes.value.selectorStatus === SelectAllEnum.ALL &&
+          v === SelectAllEnum.NONE &&
+          propsRes.value.msPagination &&
+          propsRes.value.excludeKeys.size < propsRes.value.msPagination.total) ||
+        (propsRes.value.selectorStatus === SelectAllEnum.ALL && v === SelectAllEnum.CURRENT)
+      ) {
+        // 如果当前是全选所有页状态，且是取消选中当前页操作，且排除项小于总数，则保持跨页全选状态
+        // 如果当前是全选所有页状态，且是选中当前页操作，则保持跨页全选状态
+        propsRes.value.selectorStatus = SelectAllEnum.ALL;
+      } else {
+        propsRes.value.selectorStatus = v;
+      }
     },
 
     // 表格行的选中/取消事件

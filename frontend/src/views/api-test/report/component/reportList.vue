@@ -254,25 +254,26 @@
       return false;
     }
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
-    reportList,
-    {
-      tableKey: TableKeyEnum.API_TEST_REPORT,
-      scroll: {
-        x: '100%',
+  const { propsRes, propsEvent, loadList, setLoadListParams, setPagination, resetSelector, resetFilterParams } =
+    useTable(
+      reportList,
+      {
+        tableKey: TableKeyEnum.API_TEST_REPORT,
+        scroll: {
+          x: '100%',
+        },
+        showSetting: true,
+        selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']),
+        heightUsed: 256,
+        paginationSize: 'mini',
+        showSelectorAll: true,
       },
-      showSetting: true,
-      selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']),
-      heightUsed: 256,
-      paginationSize: 'mini',
-      showSelectorAll: true,
-    },
-    (item) => ({
-      ...item,
-      startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
-    }),
-    rename
-  );
+      (item) => ({
+        ...item,
+        startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
+      }),
+      rename
+    );
 
   const typeFilter = computed(() => {
     if (showType.value === 'All') {
@@ -394,6 +395,10 @@
     showType.value = val as ReportShowType;
     resetFilterParams();
     resetSelector();
+    // 重置分页
+    setPagination({
+      current: 1,
+    });
     initData();
   }
 
@@ -436,6 +441,7 @@
         shareTime.value = value + (translations[type] || translations.D);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }

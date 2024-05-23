@@ -29,25 +29,27 @@
       <div v-if="record.type === 'TEST_PLAN_CLEAN_REPORT'">
         <!-- 测试计划 报告保留时间范围 -->
         <MsTimeSelectorVue
-          v-model="allValueMap['TEST_PLAN_CLEAN_REPORT']"
+          v-model:model-value="allValueMap.TEST_PLAN_CLEAN_REPORT"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:UPDATE'])"
+          :default-value="defaultValueMap.TEST_PLAN_CLEAN_REPORT"
           @change="(v: string) => handleMenuStatusChange('TEST_PLAN_CLEAN_REPORT',v,MenuEnum.testPlan)"
         />
       </div>
       <div v-if="record.type === 'TEST_PLAN_SHARE_REPORT'">
         <!-- 测试计划 报告链接有效期 -->
         <MsTimeSelectorVue
-          v-model="allValueMap['TEST_PLAN_SHARE_REPORT']"
+          v-model:model-value="allValueMap.TEST_PLAN_SHARE_REPORT"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:UPDATE'])"
+          :default-value="defaultValueMap.TEST_PLAN_SHARE_REPORT"
           @change="(v: string) => handleMenuStatusChange('TEST_PLAN_SHARE_REPORT',v,MenuEnum.testPlan)"
         />
       </div>
       <template v-if="record.type === 'BUG_SYNC'">
         <!-- 同步缺陷 -->
         <span>{{ t('project.menu.row2') }}</span>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
-          t('project.menu.BUG_SYNC')
-        }}</div>
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">
+          {{ t('project.menu.BUG_SYNC') }}
+        </div>
       </template>
       <div v-if="record.type === 'CASE_PUBLIC'">
         <!-- 用例 公共用例库 -->
@@ -56,9 +58,9 @@
       <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
         <!-- 用例 关联需求 -->
         <div>{{ t('project.menu.row4') }}</div>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showRelatedCaseDrawer">{{
-          t('project.menu.CASE_RELATED')
-        }}</div>
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showRelatedCaseDrawer">
+          {{ t('project.menu.CASE_RELATED') }}
+        </div>
       </div>
       <div v-if="record.type === 'CASE_RE_REVIEW'">
         <!-- 用例 重新提审 -->
@@ -72,6 +74,7 @@
         <MsTimeSelectorVue
           v-model="allValueMap['API_CLEAN_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:UPDATE'])"
+          :default-value="defaultValueMap.API_CLEAN_REPORT"
           @change="(v: string) => handleMenuStatusChange('API_CLEAN_REPORT',v,MenuEnum.apiTest)"
         />
       </div>
@@ -80,6 +83,7 @@
         <MsTimeSelectorVue
           v-model="allValueMap['API_SHARE_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:UPDATE'])"
+          :default-value="defaultValueMap.API_SHARE_REPORT"
           @change="(v: string) => handleMenuStatusChange('API_SHARE_REPORT',v,MenuEnum.apiTest)"
         />
       </div>
@@ -142,9 +146,9 @@
             </template>
           </a-input-number>
         </div>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">{{
-          t('project.menu.API_ERROR_REPORT_RULE')
-        }}</div>
+        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">
+          {{ t('project.menu.API_ERROR_REPORT_RULE') }}
+        </div>
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
             <MsIcon
@@ -160,6 +164,7 @@
         <MsTimeSelectorVue
           v-model="allValueMap['UI_CLEAN_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_UI:UPDATE'])"
+          :default-value="defaultValueMap.UI_CLEAN_REPORT"
           @change="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
           @blur="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
         />
@@ -169,6 +174,7 @@
         <MsTimeSelectorVue
           v-model="allValueMap['UI_SHARE_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_UI:UPDATE'])"
+          :default-value="defaultValueMap.UI_SHARE_REPORT"
           @change="(v: string) => handleMenuStatusChange('UI_SHARE_REPORT',v,MenuEnum.uiTest)"
         />
       </div>
@@ -203,6 +209,7 @@
         <MsTimeSelectorVue
           v-model="allValueMap['PERFORMANCE_TEST_CLEAN_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:UPDATE'])"
+          :default-value="defaultValueMap.PERFORMANCE_TEST_CLEAN_REPORT"
           @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_CLEAN_REPORT',v,MenuEnum.loadTest)"
         />
       </div>
@@ -211,6 +218,7 @@
         <MsTimeSelectorVue
           v-model="allValueMap['PERFORMANCE_TEST_SHARE_REPORT']"
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:UPDATE'])"
+          :default-value="defaultValueMap.PERFORMANCE_TEST_SHARE_REPORT"
           @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_SHARE_REPORT',v,MenuEnum.loadTest)"
         />
       </div>
@@ -241,9 +249,9 @@
           <template #content>
             <span>
               {{ t('project.menu.notConfig') }}
-              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
-                t(`project.menu.${record.type}`)
-              }}</span>
+              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">
+                {{ t(`project.menu.${record.type}`) }}
+              </span>
               {{ t('project.menu.configure') }}
             </span>
           </template>
@@ -389,6 +397,7 @@
    */
   import { useRouter } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -445,7 +454,7 @@
     CASE_RELATED_CASE_ENABLE: false,
   };
 
-  const allValueMap = ref<MenuTableConfigItem>(defaultValueMap);
+  const allValueMap = ref<MenuTableConfigItem>(cloneDeep(defaultValueMap));
 
   const hasTitleColumns = [
     {

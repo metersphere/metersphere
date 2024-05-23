@@ -6,7 +6,7 @@ export default {
   'caseManagement.featureCase.importSuccess': '导入成功',
   'caseManagement.featureCase.publicCase': '公共用例库',
   'caseManagement.featureCase.allCase': '全部用例',
-  'caseManagement.featureCase.searchTip': '请输入分组名称',
+  'caseManagement.featureCase.searchTip': '请输入模块名称',
   'caseManagement.featureCase.caseEmptyContent': '暂无用例数据，请点击上方按钮创建或导入',
   'caseManagement.featureCase.caseEmptyRecycle': '暂无用例数据',
   'caseManagement.featureCase.addSubModule': '添加子模块',

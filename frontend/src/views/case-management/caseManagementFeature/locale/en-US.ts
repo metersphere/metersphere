@@ -6,7 +6,7 @@ export default {
   'caseManagement.featureCase.importSuccess': 'Import successfully',
   'caseManagement.featureCase.publicCase': 'Public of Cases',
   'caseManagement.featureCase.allCase': 'All of Cases',
-  'caseManagement.featureCase.searchTip': 'Please enter a group name',
+  'caseManagement.featureCase.searchTip': 'Please enter a module name',
   'caseManagement.featureCase.caseEmptyContent':
     'No use case data yet, please click the button above to create or import',
   'caseManagement.featureCase.addSubModule': 'Add submodules',

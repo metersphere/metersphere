@@ -90,8 +90,7 @@ export default {
   'caseManagement.caseReview.reviewResultTip':
     'When "See only mine" is turned on, you can view my review results on the list',
   'caseManagement.caseReview.disassociate': 'Disassociate',
-  'caseManagement.caseReview.disassociateConfirmTitle':
-    'Are you sure you want to cancel the selected {count} test cases?',
+  'caseManagement.caseReview.disassociateConfirmTitle': 'Are you sure to disassociate {count} use cases?',
   'caseManagement.caseReview.version': 'Version',
   'caseManagement.caseReview.unReview': 'Unreviewed',
   'caseManagement.caseReview.reviewPass': 'Review passed',
