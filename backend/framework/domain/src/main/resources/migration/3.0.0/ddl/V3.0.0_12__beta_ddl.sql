@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS test_plan_report_summary(
     `api_scenario_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '场景用例数量' ,
     `bug_count` BIGINT(255) NOT NULL   COMMENT '缺陷数量' ,
     `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
-    `summary` VARCHAR(1000)    COMMENT '总结' ,
+    `summary` LONGTEXT    COMMENT '总结' ,
     `report_count` BLOB    COMMENT '报告统计内容' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容统计';
