@@ -66,7 +66,7 @@
         />
       </a-form-item>
       <a-form-item field="tags" :label="t('common.tag')" class="w-[436px]">
-        <MsTagsInput v-model:model-value="form.tags" :max-tag-count="10" :max-length="50" />
+        <MsTagsInput v-model:model-value="form.tags" :max-tag-count="10" />
       </a-form-item>
       <a-form-item v-if="!props.planId?.length">
         <template #label>

@@ -57,9 +57,9 @@
         </a-spin>
       </div>
       <!-- 右侧 -->
-      <a-spin :loading="caseDetailLoading" class="relative flex h-full flex-1 flex-col">
+      <a-spin :loading="caseDetailLoading" class="relative flex h-full flex-1 flex-col overflow-hidden">
         <div class="flex px-[16px] pt-[16px]">
-          <div class="mr-[24px] flex flex-1 items-center">
+          <div class="mr-[24px] flex flex-1 items-center overflow-hidden">
             <MsStatusTag :status="caseDetail.status || 'PREPARED'" />
             <div class="ml-[8px] mr-[2px] cursor-pointer font-medium text-[rgb(var(--primary-5))]" @click="goCaseDetail"
               >[{{ caseDetail.num }}]</div

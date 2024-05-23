@@ -22,6 +22,7 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
+      @filter-change="filterChange"
     >
       <template #num="{ record }">
         <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
@@ -414,6 +415,15 @@
       loadCaseList();
     }
   );
+
+  function filterChange() {
+    tableParams.value = { ...tableParams.value, filter: propsRes.value.filter };
+    emit('getModuleCount', {
+      ...tableParams.value,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+    });
+  }
 
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
   const batchParams = ref<BatchActionQueryParams>({
