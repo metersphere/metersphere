@@ -47,14 +47,12 @@ public class TestPlanReportShareController {
 
 	@GetMapping("/get/{id}")
 	@Operation(summary = "测试计划-报告-获取分享链接")
-	@RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_SHARE)
 	public TestPlanShareResponse get(@PathVariable String id) {
 		return testPlanReportShareService.get(id);
 	}
 
 	@GetMapping("/get-share-time/{id}")
 	@Operation(summary = "测试计划-报告-获取分享链接的有效时间")
-	@RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_SHARE)
 	public String getShareTime(@PathVariable String id) {
 		return testPlanReportShareService.getShareTime(id);
 	}
@@ -63,7 +61,6 @@ public class TestPlanReportShareController {
 
 	@GetMapping("/get/detail/{shareId}/{reportId}")
 	@Operation(summary = "测试计划-报告分享-详情查看")
-	@CheckOwner(resourceId = "#id", resourceType = "test_plan_report")
 	public TestPlanReportDetailResponse getDetail(@PathVariable String shareId, @PathVariable String reportId) {
 		ShareInfo shareInfo = testPlanReportShareService.checkResource(shareId);
 		testPlanReportShareService.validateExpired(shareInfo);
@@ -72,7 +69,6 @@ public class TestPlanReportShareController {
 
 	@PostMapping("/detail/bug/page")
 	@Operation(summary = "测试计划-报告-详情-缺陷分页查询")
-	@CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
 	public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
 		ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
 		testPlanReportShareService.validateExpired(shareInfo);
@@ -83,7 +79,6 @@ public class TestPlanReportShareController {
 
 	@PostMapping("/detail/functional/case/page")
 	@Operation(summary = "测试计划-报告-详情-功能用例分页查询")
-	@CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
 	public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
 		ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
 		testPlanReportShareService.validateExpired(shareInfo);
