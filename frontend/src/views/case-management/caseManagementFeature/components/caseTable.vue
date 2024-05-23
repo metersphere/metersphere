@@ -30,14 +30,14 @@
           </a-popover>
         </template>
         <template #right>
-          <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
+          <!-- <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
             <a-radio value="list" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_view-list_outlined" />
             </a-radio>
             <a-radio value="xMind" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
             </a-radio>
-          </a-radio-group>
+          </a-radio-group> -->
         </template>
       </MsAdvanceFilter>
       <ms-base-table

@@ -60,7 +60,6 @@
             :item-border="false"
             class="w-full rounded-[var(--border-radius-small)]"
             :no-more-data="noMoreData"
-            raggable
             :virtual-list-props="{
               height: 'calc(100vh - 136px)',
             }"

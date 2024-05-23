@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-  import FeatureCaseMinder from '@/components/business/ms-minders/featureCaseMinder.vue';
+  import FeatureCaseMinder from './featureCaseMinder/index.vue';
 
   const props = defineProps<{
     minderType: 'FeatureCase';
