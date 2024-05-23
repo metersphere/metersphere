@@ -4,7 +4,10 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
-import io.metersphere.api.dto.mockserver.*;
+import io.metersphere.api.dto.mockserver.BodyParamMatchRule;
+import io.metersphere.api.dto.mockserver.HttpRequestParam;
+import io.metersphere.api.dto.mockserver.MockMatchRule;
+import io.metersphere.api.dto.mockserver.MockResponse;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.BinaryBody;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -18,7 +21,10 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.TempFileUtils;
+import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -90,11 +96,7 @@ public class MockServerService {
         HttpRequestParam requestMockParams = MockServerUtils.getHttpRequestParam(request, requestUrlSuffix, apiDefinition.getPath(), !isUrlParamMethod(method));
         LogUtils.info("Mock [" + url + "] Header:{}", requestHeaderMap);
         LogUtils.info("Mock [" + url + "] request:{}", JSON.toJSONString(requestMockParams));
-        ApiMockConfigDTO compareMockConfig = findMatchingMockConfig(apiDefinition.getId(), requestHeaderMap, requestMockParams);
-
-        if (compareMockConfig != null && !compareMockConfig.isEnable()) {
-            return requestNotFound();
-        }
+        ApiDefinitionMockConfig compareMockConfig = findMatchingMockConfig(apiDefinition.getId(), requestHeaderMap, requestMockParams);
 
         // Get and return the response body
         try {
@@ -113,10 +115,10 @@ public class MockServerService {
                 .orElse(null);
     }
 
-    private ApiMockConfigDTO findMatchingMockConfig(String apiId, Map<String, String> requestHeaderMap, HttpRequestParam param) {
+    private ApiDefinitionMockConfig findMatchingMockConfig(String apiId, Map<String, String> requestHeaderMap, HttpRequestParam param) {
         // 查询符合条件的 ApiDefinitionMockConfig 列表
         ApiDefinitionMockExample mockExample = new ApiDefinitionMockExample();
-        mockExample.createCriteria().andApiDefinitionIdEqualTo(apiId);
+        mockExample.createCriteria().andApiDefinitionIdEqualTo(apiId).andEnableEqualTo(true);
         List<ApiDefinitionMock> apiDefinitionMockList = apiDefinitionMockMapper.selectByExample(mockExample);
 
         if (CollectionUtils.isEmpty(apiDefinitionMockList)) {
@@ -127,20 +129,10 @@ public class MockServerService {
         mockConfigExample.createCriteria().andIdIn(apiDefinitionMockList.stream().map(ApiDefinitionMock::getId).collect(Collectors.toList()));
         List<ApiDefinitionMockConfig> mockConfigs = apiDefinitionMockConfigMapper.selectByExampleWithBLOBs(mockConfigExample);
         // 寻找匹配的 ApiDefinitionMockConfig
-        ApiDefinitionMockConfig apiDefinitionMockConfig = mockConfigs.stream()
+        return mockConfigs.stream()
                 .filter(mockConfig -> MockServerUtils.matchMockConfig(mockConfig.getMatching(), requestHeaderMap, param) && matchBinaryBody(mockConfig, param.getBinaryParamsObj(), apiDefinitionMockList.getFirst().getProjectId()))
                 .findFirst()
                 .orElse(null);
-
-        if (apiDefinitionMockConfig != null) {
-            ApiMockConfigDTO apiMockConfigDTO = new ApiMockConfigDTO();
-            BeanUtils.copyBean(apiMockConfigDTO, apiDefinitionMockConfig);
-            apiDefinitionMockList.stream().filter(mock -> StringUtils.equals(mock.getId(), apiDefinitionMockConfig.getId()))
-                    .findFirst()
-                    .ifPresent(mock -> apiMockConfigDTO.setEnable(mock.getEnable()));
-            return apiMockConfigDTO;
-        }
-        return null;
     }
 
     private boolean matchBinaryBody(ApiDefinitionMockConfig mockConfig, byte[] binaryFile, String projectId) {
