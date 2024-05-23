@@ -225,6 +225,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                         testPlanIdList.add(testPlan.getId());
                     }
                 }
+                testPlanSendNoticeService.batchSendNotice(request.getProjectId(), deleteIdList, userMapper.selectByPrimaryKey(operator), NoticeConstants.Event.DELETE);
                 this.deleteByList(testPlanIdList);
                 // 计划组的删除暂时预留
                 this.deleteGroupByList(testPlanGroupList);
