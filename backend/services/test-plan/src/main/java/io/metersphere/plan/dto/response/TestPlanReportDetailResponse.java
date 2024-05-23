@@ -1,5 +1,7 @@
 package io.metersphere.plan.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.metersphere.plan.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -23,10 +25,13 @@ public class TestPlanReportDetailResponse {
 	 * 报告分析
 	 */
 	@Schema(description = "通过阈值")
+	@JsonSerialize(using = CustomRateSerializer.class)
 	private Double passThreshold;
 	@Schema(description = "通过率")
+	@JsonSerialize(using = CustomRateSerializer.class)
 	private Double passRate;
 	@Schema(description = "执行完成率")
+	@JsonSerialize(using = CustomRateSerializer.class)
 	private Double executeRate;
 	@Schema(description = "缺陷总数")
 	private Integer bugCount;

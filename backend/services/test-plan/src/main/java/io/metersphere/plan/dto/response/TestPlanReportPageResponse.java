@@ -1,5 +1,7 @@
 package io.metersphere.plan.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.metersphere.plan.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,6 +25,7 @@ public class TestPlanReportPageResponse {
     @Schema(description = "执行结果")
     private String resultStatus;
     @Schema(description = "通过率")
+    @JsonSerialize(using = CustomRateSerializer.class)
     private Double passRate;
     @Schema(description = "创建人")
     private String createUser;
