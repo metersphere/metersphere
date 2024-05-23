@@ -101,7 +101,7 @@
       skipTitle: [
         {
           name: 'organization.service.developmentDoc',
-          src: 'https://github.com/metersphere/metersphere-platform-plugin/wiki/%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97',
+          src: 'https://github.com/metersphere/metersphere-platform-plugin/wiki/%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E2%80%90V3',
           active: false,
           disabled: false,
         },
