@@ -136,7 +136,7 @@ public class ApiCommonService {
                     linkFile.setFileAlias(fileAssociations.get(0).getDeletedFileName());
                 }
             } else {
-                String fileName = fileMetadata.getName() + fileMetadata.getType();
+                String fileName = fileMetadata.getName();
                 if (StringUtils.isNotBlank(fileMetadata.getType())) {
                     // 前端展示别名加后缀
                     fileName += "." + fileMetadata.getType();

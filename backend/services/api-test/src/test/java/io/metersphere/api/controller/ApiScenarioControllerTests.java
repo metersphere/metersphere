@@ -29,6 +29,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -497,7 +498,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         csvVariable.setName("csv-关联的");
         file = new ApiFile();
         file.setFileId(fileMetadataId);
-        file.setFileName("test.jbc");
+        FileMetadata fileMetadata = fileMetadataService.selectById(fileMetadataId);
+        file.setFileName(fileMetadata.getOriginalName());
         file.setLocal(false);
         csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
         csvVariable.setFile(file);
@@ -1241,6 +1243,9 @@ public class ApiScenarioControllerTests extends BaseTest {
         // 验证数据
         assertGetApiScenarioSteps(this.addApiScenarioSteps, apiScenarioDetail.getSteps());
 
+        // 校验csv数据
+        assertCsvFiles(apiScenarioDetail);
+
         apiScenarioService.follow(anOtherAddApiScenario.getId(), "admin");
         mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, anOtherAddApiScenario.getId());
         apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetailDTO.class);
@@ -1250,6 +1255,21 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(this.anOtherAddApiScenarioSteps.size(), apiScenarioDetail.getSteps().size());
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, DEFAULT_GET, addApiScenario.getId());
+    }
+
+    private void assertCsvFiles(ApiScenarioDetailDTO apiScenarioDetail) {
+        List<CsvVariable> csvVariables = apiScenarioDetail.getScenarioConfig().getVariable().getCsvVariables();
+        ApiScenarioCsvExample example = new ApiScenarioCsvExample();
+        example.createCriteria().andScenarioIdEqualTo(this.addApiScenario.getId());
+        List<ApiScenarioCsv> csvList = apiScenarioCsvMapper.selectByExample(example);
+        Assertions.assertEquals(csvVariables.size(), csvList.size());
+        for (CsvVariable csvVariable : csvVariables) {
+            if (!csvVariable.getFile().getLocal()) {
+                FileMetadata fileMetadata = fileMetadataService.selectById(csvVariable.getFile().getFileId());
+                Assertions.assertEquals(fileMetadata.getName() + "." + fileMetadata.getType(), csvVariable.getFile().getFileAlias());
+                Assertions.assertEquals(fileMetadata.getOriginalName(), csvVariable.getFile().getFileName());
+            }
+        }
     }
 
     @Test
