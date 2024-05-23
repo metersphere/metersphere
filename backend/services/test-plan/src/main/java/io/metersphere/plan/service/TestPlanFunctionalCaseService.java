@@ -16,7 +16,10 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
-import io.metersphere.plan.domain.*;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
+import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
@@ -141,6 +144,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<TestPlanCaseRunResultCount> runResultCounts = extTestPlanFunctionalCaseMapper.selectCaseExecResultCount(testPlanId);
         return runResultCounts.stream().collect(Collectors.toMap(TestPlanCaseRunResultCount::getResult, TestPlanCaseRunResultCount::getResultCount));
     }
+
     @Override
     public void refreshPos(String testPlanId) {
         List<String> functionalCaseIdList = extTestPlanFunctionalCaseMapper.selectIdByTestPlanIdOrderByPos(testPlanId);
@@ -550,10 +554,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         String caseId = planFunctionalCase.getFunctionalCaseId();
         FunctionalCaseDetailDTO functionalCaseDetail = functionalCaseService.getFunctionalCaseDetail(caseId, userId);
         String caseDetailSteps = functionalCaseDetail.getSteps();
-        TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
-        testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(caseId).andTestPlanCaseIdEqualTo(id);
-        testPlanCaseExecuteHistoryExample.setOrderByClause("create_time DESC");
-        List<TestPlanCaseExecuteHistory> testPlanCaseExecuteHistories = testPlanCaseExecuteHistoryMapper.selectByExampleWithBLOBs(testPlanCaseExecuteHistoryExample);
+        List<TestPlanCaseExecuteHistory> testPlanCaseExecuteHistories = extTestPlanCaseExecuteHistoryMapper.selectSteps(id, caseId);
         Integer runListCount = 0;
         List<FunctionalCaseStepDTO> functionalCaseStepDTOS = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(testPlanCaseExecuteHistories)) {

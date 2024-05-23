@@ -37,4 +37,24 @@
             tpceh.create_time DESC
     </select>
 
+    <select id="selectSteps" resultType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+        SELECT
+            test_plan_case_execute_history.id,
+            test_plan_case_execute_history.test_plan_case_id as testPlanCaseId,
+            test_plan_case_execute_history.test_plan_id as testPlanId,
+            test_plan_case_execute_history.case_id as caseId,
+            test_plan_case_execute_history.steps
+        FROM
+            test_plan_case_execute_history
+        WHERE
+            test_plan_case_id = #{testPlanCaseId}
+          AND case_id = #{caseId}
+          AND DELETED = FALSE
+          AND steps IS NOT NULL
+        ORDER BY
+            create_time DESC
+            LIMIT 1
+    </select>
+
+
 </mapper>
