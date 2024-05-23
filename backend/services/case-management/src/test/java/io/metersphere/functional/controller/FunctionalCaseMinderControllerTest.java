@@ -41,6 +41,10 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     //评审
     public static final String FUNCTIONAL_CASE_REVIEW_LIST_URL = "/functional/mind/case/review/list";
 
+    //测试计划
+    public static final String FUNCTIONAL_CASE_PLAN_LIST_URL = "/functional/mind/case/plan/list";
+
+
 
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
@@ -259,6 +263,22 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
         Assertions.assertEquals(1, baseTreeNodes.size());
+    }
+
+    @Test
+    @Order(4)
+    public void testGetCasePlanList() throws Exception {
+        FunctionalCasePlanMindRequest request = new FunctionalCasePlanMindRequest();
+        request.setProjectId("project-case-minder-test");
+        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
+        request.setPlanId("TEST_MINDER_PLAN_ID_1");
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_PLAN_LIST_URL, request);
+        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
+        Assertions.assertNotNull(baseTreeNodes);
+        Assertions.assertEquals(2, baseTreeNodes.size());
+        System.out.println(baseTreeNodes);
     }
 
 }

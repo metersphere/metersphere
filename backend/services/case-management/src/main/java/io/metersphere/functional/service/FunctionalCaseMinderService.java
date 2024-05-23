@@ -782,4 +782,14 @@ public class FunctionalCaseMinderService {
     }
 
 
+    public List<FunctionalMinderTreeDTO> getPlanMindFunctionalCase(FunctionalCasePlanMindRequest request, boolean deleted) {
+        List<FunctionalMinderTreeDTO> list = new ArrayList<>();
+        //查出当前模块下的所有用例
+        List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderTestPlanList(request, deleted);
+        //构造父子级数据
+        buildList(functionalCaseMindDTOList, list);
+        return list;
+    }
+
+
 }

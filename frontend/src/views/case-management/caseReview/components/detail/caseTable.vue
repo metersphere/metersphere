@@ -627,7 +627,13 @@
           dialogLoading.value = false;
           resetSelector();
           loadList();
-          emit('refresh', tableParams.value);
+          emit('refresh', {
+            ...tableParams.value,
+            current: propsRes.value.msPagination?.current,
+            pageSize: propsRes.value.msPagination?.pageSize,
+            total: propsRes.value.msPagination?.total,
+            moduleIds: [],
+          });
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -680,7 +686,13 @@
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
       resetSelector();
-      emit('refresh', tableParams.value);
+      emit('refresh', {
+        ...tableParams.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        total: propsRes.value.msPagination?.total,
+        moduleIds: [],
+      });
       loadList();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -741,7 +753,13 @@
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
           resetSelector();
-          emit('refresh', tableParams.value);
+          emit('refresh', {
+            ...tableParams.value,
+            current: propsRes.value.msPagination?.current,
+            pageSize: propsRes.value.msPagination?.pageSize,
+            total: propsRes.value.msPagination?.total,
+            moduleIds: [],
+          });
           loadList();
         } catch (error) {
           // eslint-disable-next-line no-console
