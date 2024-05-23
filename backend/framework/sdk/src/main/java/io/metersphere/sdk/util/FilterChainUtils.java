@@ -84,8 +84,8 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/api/report/scenario/share/**", "anon");
         filterChainDefinitionMap.put("/api/report/share/get/**", "anon");
         // 测试计划报告分享接口
-        filterChainDefinitionMap.put("/test-plan/report/share/get/detail/**", "anon");
         filterChainDefinitionMap.put("/test-plan/report/share/detail/**", "anon");
+        filterChainDefinitionMap.put("/test-plan/report/share/get/**", "anon");
 
         return filterChainDefinitionMap;
     }
