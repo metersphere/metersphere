@@ -2,7 +2,7 @@
   <div>
     <div class="mb-4 flex items-center justify-between">
       <a-dropdown-button
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && total"
+        v-if="hasAnyPermission(['PROJECT_BUG:READ']) && total"
         type="primary"
         @click="handleSelect('associated')"
       >
@@ -11,13 +11,13 @@
           <icon-down />
         </template>
         <template #content>
-          <a-doption value="new" @click="handleSelect('new')">
+          <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new" @click="handleSelect('new')">
             {{ t('common.newCreate') }}
           </a-doption>
         </template>
       </a-dropdown-button>
       <a-dropdown-button
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && !total"
+        v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD']) && !total"
         type="primary"
         @click="handleSelect('new')"
       >

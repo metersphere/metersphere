@@ -42,7 +42,7 @@
               <ResValueScript :active-tab="item.value" :request-result="props.requestResult" />
             </div>
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.EXTRACT">
-              <ResValueScript :active-tab="item.value" :request-result="props.requestResult" />
+              <ExtractTable :request-result="props.requestResult" :scroll="{ x: '100%' }" />
             </div>
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.ASSERTION">
               <ResAssertion :request-result="props.requestResult" />
@@ -65,6 +65,7 @@
   import ResBody from './body.vue';
   import ResConsole from './console.vue';
   import ResValueScript from './resValueScript.vue';
+  import ExtractTable from '@/views/api-test/components/requestComposition/response/result/extractTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -109,7 +110,7 @@
   const showRealRequest = computed(
     () => props.requestResult?.responseResult?.headers.trim() || props.requestResult?.url || props.requestResult?.body
   );
-  const showExtract = computed(() => props.requestResult?.responseResult?.vars?.trim());
+  const showExtract = computed(() => (props.requestResult?.responseResult?.extractResults || []).length);
 
   function isShowContent(key: keyof typeof ResponseComposition) {
     switch (key) {

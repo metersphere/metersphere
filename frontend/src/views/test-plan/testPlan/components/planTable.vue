@@ -200,7 +200,11 @@
           <a-divider direction="vertical" :margin="8"></a-divider>
         </div>
         <div
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && record.functionalCaseCount < 1"
+          v-if="
+            hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
+            record.functionalCaseCount < 1 &&
+            record.status !== 'ARCHIVED'
+          "
           class="flex items-center"
         >
           <MsButton class="!mx-0" @click="emit('editOrCopy', record.id, true)">{{ t('common.copy') }}</MsButton>
