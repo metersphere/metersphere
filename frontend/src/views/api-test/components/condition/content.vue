@@ -608,15 +608,64 @@
     });
   }
 
-  const scriptEx = ref(`// 这里可以输入脚本注释
+  const beanShellJsr233 = ref(`// 这里可以输入脚本注释
 value = vars.get("variable_name");
-result = "variable_name".equals(value);
+expectedValue = "expected_value";
+result = expectedValue.equals(value);
 if (!result){
-  msg = "assertion [" + value + " == 'variable_name']: false;";
+  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
   AssertionResult.setFailureMessage(msg);
   AssertionResult.setFailure(true);
 }`);
+
+  const beanshell = ref(`// 这里可以输入脚本注释
+value = vars.get("variable_name");
+expectedValue = "expected_value";
+result = expectedValue.equals(value);
+if (!result){
+  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
+  FailureMessage = msg;
+  Failure = true;
+}`);
+
+  const python3 = ref(`# 这里可以输入脚本注释
+value = vars.get("variable_name");
+expectedValue = "expected_value";
+result = expectedValue == value;
+if not result :
+  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
+  AssertionResult.setFailureMessage(msg);
+  AssertionResult.setFailure(True);`);
+
+  const javaScript = ref(`// 这里可以输入脚本注释
+value = vars.get("variable_name");
+expectedValue = "expected_value"
+result = expectedValue === value;
+if (!result){
+  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
+  AssertionResult.setFailureMessage(msg);
+  AssertionResult.setFailure(true);
+}`);
+
+  let scriptEx = beanShellJsr233;
+
   const { copy, isSupported } = useClipboard({ legacy: true });
+
+  watch(
+    () => condition.value.scriptLanguage,
+    (scriptLanguage) => {
+      if (scriptLanguage === LanguageEnum.BEANSHELL) {
+        scriptEx = beanshell;
+      } else if (scriptLanguage === LanguageEnum.PYTHON) {
+        scriptEx = python3;
+      } else if (scriptLanguage === LanguageEnum.JAVASCRIPT) {
+        scriptEx = javaScript;
+      } else {
+        scriptEx = beanShellJsr233;
+      }
+    },
+    { deep: true, immediate: true }
+  );
 
   function copyScriptEx() {
     if (isSupported) {
@@ -1027,6 +1076,7 @@ if (!result){
     },
     { deep: true, immediate: true }
   );
+
   const hasPreAndPost = computed(() => {
     if (props.showPrePostRequest) {
       return (
