@@ -1,15 +1,15 @@
 <template>
   <div class="ms-detail-card">
-    <div class="ms-detail-card-title flex items-center justify-between">
-      <div class="flex items-center gap-[8px]">
+    <div class="ms-detail-card-title">
+      <div class="flex flex-1 items-center gap-[8px]">
         <a-tooltip :content="t(props.title)">
-          <div class="one-line-text flex-1 font-medium text-[var(--color-text-1)]">
+          <div class="one-line-text max-w-[300px] flex-1 font-medium text-[var(--color-text-1)]">
             {{ t(props.title) }}
           </div>
         </a-tooltip>
         <slot name="titleAppend"></slot>
       </div>
-      <div v-if="$slots.titleRight" class="flex items-center">
+      <div v-if="$slots.titleRight" class="flex items-center overflow-hidden">
         <slot name="titleRight"></slot>
       </div>
     </div>
@@ -104,8 +104,10 @@
     border-radius: var(--border-radius-small);
     background-color: var(--color-text-n9);
     gap: 8px;
-    .one-line-text {
-      max-width: 300px;
+    .ms-detail-card-title {
+      @apply flex items-center justify-between overflow-hidden;
+
+      gap: 16px;
     }
     .ms-detail-card-desc {
       @apply flex flex-wrap overflow-hidden; // TODO:过渡动画

@@ -546,8 +546,7 @@
               ).validParams,
               csvVariables: filterKeyValParams(
                 activeScenarioTab.value.scenarioConfig.variable.csvVariables,
-                defaultCsvParamItem,
-                true
+                defaultCsvParamItem
               ).validParams,
             },
           },
@@ -610,8 +609,7 @@
               ).validParams,
               csvVariables: filterKeyValParams(
                 activeScenarioTab.value.scenarioConfig.variable.csvVariables,
-                defaultCsvParamItem,
-                true
+                defaultCsvParamItem
               ).validParams,
             },
           },

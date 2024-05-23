@@ -10,7 +10,7 @@
   >
     <MsBaseTable v-bind="propsRes" v-model:selected-key="selectedKey" v-on="propsEvent">
       <template #scope="{ record }">
-        {{ record.scope === 'scenario' ? t('apiScenario.scenario') : t('apiScenario.step') }}
+        {{ record.scope === 'SCENARIO' ? t('apiScenario.scenario') : t('apiScenario.step') }}
       </template>
       <template #file="{ record }">
         <a-tooltip :content="record.file?.name">
