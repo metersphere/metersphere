@@ -165,6 +165,7 @@
     {
       title: 'system.organization.subordinateOrg',
       dataIndex: 'organizationName',
+      showTooltip: true,
       width: 200,
     },
     {

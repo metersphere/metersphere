@@ -230,7 +230,7 @@
       try {
         loading.value = true;
         const res = await createOrUpdateProject({ id: isEdit.value ? props.currentProject?.id : '', ...form });
-        showUpdateOrCreateMessage(isEdit.value, res.id);
+        showUpdateOrCreateMessage(isEdit.value, res.id, res.organizationId);
         appStore.initProjectList();
         handleCancel(true);
       } catch (error) {
