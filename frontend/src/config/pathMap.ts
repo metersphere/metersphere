@@ -965,20 +965,6 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
-      {
-        key: 'TEST_PLAN_INDEX_DETAIL', // 测试计划-测试计划-测试计划详情
-        locale: 'menu.testPlan.testPlanDetail',
-        route: RouteEnum.TEST_PLAN_INDEX_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'TEST_PLAN_INDEX_DETAIL_FEATURE_CASE_DETAIL', // 测试计划-测试计划-测试计划详情-功能用例详情
-        locale: 'menu.caseManagement.caseManagementCaseDetail',
-        route: RouteEnum.TEST_PLAN_INDEX_DETAIL_FEATURE_CASE_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
     ],
   },
   {
