@@ -6,7 +6,7 @@
           <template #content>
             {{ t('caseManagement.featureCase.noAssociatedDefect') }}
             <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
-              t('caseManagement.featureCase.createDefect')
+              t('testPlan.featureCase.noBugDataNewBug')
             }}</span>
           </template>
           <a-button
@@ -29,7 +29,7 @@
           {{ t('caseManagement.featureCase.linkDefect') }}
         </a-button>
         <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createDefect"
-          >{{ t('caseManagement.featureCase.createDefect') }}
+          >{{ t('testPlan.featureCase.noBugDataNewBug') }}
         </a-button>
       </div>
       <div v-else v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="font-medium">{{

@@ -78,9 +78,9 @@
         </div>
         <MsTab
           v-model:active-key="activeTab"
-          :show-badge="false"
           :content-tab-list="contentTabList"
           no-content
+          :get-text-func="getTotal"
           class="relative mx-[16px] border-b"
         />
         <div :class="[' flex-1', activeTab !== 'detail' ? 'tab-content' : 'overflow-hidden']">
@@ -123,7 +123,7 @@
                   <MsTag type="danger" theme="light" size="medium" class="ml-4">
                     <MsIcon type="icon-icon_defect" class="!text-[14px] text-[rgb(var(--danger-6))]" size="16" />
                     <span class="ml-1 text-[rgb(var(--danger-6))]"> {{ t('testPlan.featureCase.bug') }}</span>
-                    <span class="ml-1 text-[rgb(var(--danger-6))]">{{ bugCount }}</span>
+                    <span class="ml-1 text-[rgb(var(--danger-6))]">{{ caseDetail.bugListCount }}</span>
                   </MsTag>
                   <a-dropdown @select="handleSelect">
                     <a-button type="outline" size="mini" class="ml-1">
@@ -174,6 +174,7 @@
             :test-plan-case-id="activeId"
             @link="linkDefect"
             @new="addBug"
+            @update-count="loadCaseDetail()"
           />
           <ExecutionHistory
             v-if="activeTab === 'executionHistory'"
@@ -199,7 +200,7 @@
         caseId: activeCaseId,
         testPlanId:route.query.id as string,
       }"
-    @success="addSuccess"
+    @success="loadCaseDetail()"
   />
 </template>
 
@@ -455,8 +456,6 @@
     }
   }
 
-  const bugCount = ref<number>(0);
-
   const showLinkDrawer = ref<boolean>(false);
   const drawerLoading = ref<boolean>(false);
 
@@ -482,27 +481,21 @@
   }
   const bugRef = ref();
 
-  async function getBugTotal() {
-    try {
-      const params = {
-        testPlanCaseId: activeId.value,
-        caseId: activeCaseId.value,
-        projectId: appStore.currentProjectId,
-        current: 1,
-        pageSize: 10,
-      };
-      const res = await associatedBugPage(params);
-      bugCount.value = res.total;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   function addSuccess() {
     if (activeTab.value === 'defectList') {
       bugRef.value?.initData();
-    } else {
-      getBugTotal();
+    }
+  }
+
+  function getTotal(key: string) {
+    const { bugListCount, historyCount } = caseDetail.value;
+    switch (key) {
+      case 'defectList':
+        return bugListCount > 99 ? `99+` : `${bugListCount}`;
+      case 'executionHistory':
+        return historyCount > 99 ? `99+` : `${historyCount}`;
+      default:
+        return '';
     }
   }
 
@@ -518,6 +511,7 @@
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       showLinkDrawer.value = false;
       addSuccess();
+      loadCaseDetail();
     } catch (error) {
       console.log(error);
     } finally {
@@ -559,9 +553,9 @@
         moduleIds,
       };
     }
-    if (activeTab.value === 'detail') {
-      getBugTotal();
-    }
+    // if (activeTab.value === 'detail') {
+    //   getBugTotal();
+    // }
     getPlanDetail();
     initBugList();
     await loadCase();
@@ -571,16 +565,6 @@
     () => {
       loadCaseDetail();
       initBugList();
-      getBugTotal();
-    }
-  );
-
-  watch(
-    () => activeTab.value,
-    (val) => {
-      if (val === 'detail') {
-        getBugTotal();
-      }
     }
   );
 </script>

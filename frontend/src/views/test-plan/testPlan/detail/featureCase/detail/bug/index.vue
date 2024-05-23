@@ -102,6 +102,7 @@
     (e: 'link'): void;
     (e: 'new'): void;
     (e: 'save', params: TableQueryParams): void;
+    (e: 'updateCount'): void;
   }>();
 
   const columns = ref<MsTableColumn>([
@@ -136,6 +137,14 @@
       width: 150,
       ellipsis: true,
       showDrag: false,
+    },
+    {
+      title: 'common.creator',
+      slotName: 'createUser',
+      dataIndex: 'createUser',
+      showInTable: true,
+      width: 200,
+      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.updateUser',
@@ -218,6 +227,7 @@
       await testPlanCancelBug(id);
       Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
       initData();
+      emit('updateCount');
     } catch (error) {
       console.log(error);
     } finally {
