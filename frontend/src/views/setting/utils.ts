@@ -9,6 +9,7 @@ import router from '@/router';
 import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { useUserStore } from '@/store';
 import useAppStore from '@/store/modules/app';
+import useLicenseStore from '@/store/modules/setting/license';
 import { hasAnyPermission } from '@/utils/permission';
 
 import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
@@ -16,12 +17,19 @@ import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 const { t } = useI18n();
 const userStore = useUserStore();
 const appStore = useAppStore();
+const licenseStore = useLicenseStore();
 
 export async function enterProject(projectId: string, organizationId?: string) {
   try {
     appStore.showLoading();
     // 切换组织
-    if (organizationId) {
+    if (organizationId && appStore.currentOrgId !== organizationId) {
+      if (!licenseStore.hasLicense()) {
+        router.push({
+          name: NO_PROJECT_ROUTE_NAME,
+        });
+        return;
+      }
       await switchUserOrg(organizationId, userStore.id || '');
     }
     await userStore.isLogin(true);
