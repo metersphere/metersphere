@@ -170,9 +170,9 @@
         </if>
         <if test="request.condition.keyword != null">
             and (
-            functional_case.name like concat('%', #{request.keyword},'%')
-            or functional_case.num like concat('%', #{request.keyword},'%')
-            or functional_case.tags like concat('%', #{request.keyword},'%')
+            functional_case.name like concat('%', #{request.condition.keyword},'%')
+            or functional_case.num like concat('%', #{request.condition.keyword},'%')
+            or functional_case.tags like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <include refid="filters">
