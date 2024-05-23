@@ -27,7 +27,7 @@ public class TestPlanConfigService {
         testPlanConfigMapper.deleteByExample(example);
     }
 
-    public boolean getConfigById(String testPlanId) {
+    public boolean isRepeatCase(String testPlanId) {
         TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlanId);
         return testPlanConfig.getRepeatCase();
     }
