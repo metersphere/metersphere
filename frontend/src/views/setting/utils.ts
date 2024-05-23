@@ -24,12 +24,13 @@ export async function enterProject(projectId: string, organizationId?: string) {
     if (organizationId) {
       await switchUserOrg(organizationId, userStore.id || '');
     }
+    await userStore.isLogin(true);
     // 切换项目
     await switchProject({
       projectId,
       userId: userStore.id || '',
     });
-    await userStore.isLogin(true);
+    appStore.setCurrentProjectId(projectId);
     if (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') {
       // 没有项目权限(组织没有项目, 或项目全被禁用)，则重定向到无项目权限页面
       router.push({
@@ -53,7 +54,7 @@ export async function enterProject(projectId: string, organizationId?: string) {
   }
 }
 
-export function showUpdateOrCreateMessage(isEdit: boolean, id: string) {
+export function showUpdateOrCreateMessage(isEdit: boolean, id: string, organizationId?: string) {
   if (isEdit) {
     Message.success(t('system.project.updateProjectSuccess'));
   } else if (!hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
@@ -68,7 +69,7 @@ export function showUpdateOrCreateMessage(isEdit: boolean, id: string) {
             {
               type: 'text',
               onClick() {
-                enterProject(id);
+                enterProject(id, organizationId);
               },
             },
             { default: () => t('system.project.enterProject') }
