@@ -339,7 +339,7 @@ public class FunctionalCaseService {
      * @param functionalCaseId functionalCaseId
      * @return FunctionalCaseDetailDTO
      */
-    public FunctionalCaseDetailDTO getFunctionalCaseDetail(String functionalCaseId, String userId) {
+    public FunctionalCaseDetailDTO getFunctionalCaseDetail(String functionalCaseId, String userId, boolean checkDetailCount) {
         FunctionalCase functionalCase = checkFunctionalCase(functionalCaseId);
         FunctionalCaseDetailDTO functionalCaseDetailDTO = new FunctionalCaseDetailDTO();
         BeanUtils.copyBean(functionalCaseDetailDTO, functionalCase);
@@ -369,9 +369,10 @@ public class FunctionalCaseService {
         //模块名称
         handDTO(functionalCaseDetailDTO);
 
-
-        //处理已关联需求数量/缺陷数量/用例数量
-        handleCount(functionalCaseDetailDTO);
+        if (checkDetailCount) {
+            //处理已关联需求数量/缺陷数量/用例数量
+            handleCount(functionalCaseDetailDTO);
+        }
 
         return functionalCaseDetailDTO;
 
@@ -442,8 +443,7 @@ public class FunctionalCaseService {
         //获取变更历史数量数量
         OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
         List<String> types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());
-        List<String> modules = List.of(OperationLogModule.FUNCTIONAL_CASE);
-        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andTypeIn(types).andModuleIn(modules);
+        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andModuleEqualTo(OperationLogModule.FUNCTIONAL_CASE).andTypeIn(types);
         functionalCaseDetailDTO.setHistoryCount((int) operationHistoryMapper.countByExample(operationHistoryExample));
 
     }
@@ -482,12 +482,17 @@ public class FunctionalCaseService {
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(functionalCase.getTemplateId(), functionalCase.getProjectId(), TemplateScene.FUNCTIONAL.name());
         if (CollectionUtils.isNotEmpty(templateDTO.getCustomFields())) {
             List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
+            List<String> fieldIds = customFields.stream().map(TemplateCustomFieldDTO::getFieldId).distinct().toList();
+            FunctionalCaseCustomFieldExample example = new FunctionalCaseCustomFieldExample();
+            example.createCriteria().andCaseIdEqualTo(functionalCase.getId()).andFieldIdIn(fieldIds);
+            List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(example);
+            Map<String, FunctionalCaseCustomField> customFieldMap = functionalCaseCustomFields.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, t -> t));
             List<CustomFieldOption> memberCustomOption = getMemberOptions(functionalCase.getProjectId());
             customFields.forEach(item -> {
                 if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                     item.setOptions(memberCustomOption);
                 }
-                FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
+                FunctionalCaseCustomField caseCustomField =  customFieldMap.get(item.getFieldId());
                 Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
                     item.setDefaultValue(customField.getValue());
                     if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {

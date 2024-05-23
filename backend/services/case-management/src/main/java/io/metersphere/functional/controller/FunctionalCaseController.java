@@ -90,7 +90,7 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
         String userId = SessionUtils.getUserId();
-        return functionalCaseService.getFunctionalCaseDetail(id, userId);
+        return functionalCaseService.getFunctionalCaseDetail(id, userId, true);
     }
 
 
