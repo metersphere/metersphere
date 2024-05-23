@@ -186,7 +186,11 @@
     <template #operation="{ record }">
       <div class="flex items-center">
         <div
-          v-if="record.functionalCaseCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          v-if="
+            record.functionalCaseCount > 0 &&
+            hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
+            record.status !== 'ARCHIVED'
+          "
           class="flex items-center"
         >
           <MsButton class="!mx-0" @click="openDetail(record.id)">{{ t('testPlan.testPlanIndex.execution') }}</MsButton>
@@ -269,7 +273,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -321,6 +325,7 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const router = useRouter();
+  const route = useRoute();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -565,7 +570,8 @@
 
   function getMoreActions(status: planStatusType, useCount: number) {
     // 有用例数量才可以执行 否则不展示执行
-    const copyAction = useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) ? copyActions : [];
+    const copyAction =
+      useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && status !== 'ARCHIVED' ? copyActions : [];
     // 单独操作已归档和已完成 不展示归档
     if (status === 'ARCHIVED' || status === 'PREPARED' || status === 'UNDERWAY') {
       return [
@@ -996,6 +1002,9 @@
   );
 
   onBeforeMount(() => {
+    if (route.query.id) {
+      openDetail(route.query.id as string);
+    }
     fetchData();
   });
 

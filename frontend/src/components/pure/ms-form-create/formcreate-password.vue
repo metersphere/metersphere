@@ -1,23 +1,12 @@
 <template>
-  <a-input
+  <a-input-password
     v-model="inputValue"
-    :max-length="255"
-    :type="isShowPassword ? 'password' : 'text'"
     :placeholder="placeholder"
-    style="width: 100%"
-    autocomplete="username"
+    :default-visibility="false"
     allow-clear
     @clear="clearHandler"
-  >
-    <template #suffix>
-      <span v-if="!isShowPassword" @click="togglePasswordVisibility">
-        <icon-eye />
-      </span>
-      <span v-else>
-        <icon-eye-invisible @click="togglePasswordVisibility" />
-      </span>
-    </template>
-  </a-input>
+    @input="inputHandler"
+  />
 </template>
 
 <script setup lang="ts">
@@ -44,10 +33,10 @@
     emits('update:modelValue', inputValue.value);
   }
 
-  const isShowPassword = ref<boolean>(true);
-  const togglePasswordVisibility = () => {
-    isShowPassword.value = !isShowPassword.value;
-  };
+  function inputHandler(value: string) {
+    inputValue.value = value;
+    emits('update:modelValue', inputValue.value);
+  }
 </script>
 
 <style scoped></style>

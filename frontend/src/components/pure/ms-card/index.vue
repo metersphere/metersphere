@@ -56,11 +56,18 @@
         </div>
         <slot name="footerRight">
           <div class="flex justify-end gap-[16px]">
-            <a-button type="secondary" @click="back">{{ t('mscard.defaultCancelText') }}</a-button>
-            <a-button v-if="!props.hideContinue && !props.isEdit" type="secondary" @click="emit('saveAndContinue')">
+            <a-button :disabled="props.loading" type="secondary" @click="back">{{
+              t('mscard.defaultCancelText')
+            }}</a-button>
+            <a-button
+              v-if="!props.hideContinue && !props.isEdit"
+              :loading="props.loading"
+              type="secondary"
+              @click="emit('saveAndContinue')"
+            >
               {{ props.saveAndContinueText || t('mscard.defaultSaveAndContinueText') }}
             </a-button>
-            <a-button type="primary" @click="emit('save')">
+            <a-button :loading="props.loading" type="primary" @click="emit('save')">
               {{ props.saveText || t(props.isEdit ? 'mscard.defaultUpdate' : 'mscard.defaultConfirm') }}
             </a-button>
           </div>
