@@ -38,13 +38,17 @@
         v-on="propsEvent"
       >
         <template #name="{ record }">
-          <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
-          <a-popover title="" position="right" style="width: 480px">
-            <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-            <template #content>
-              <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
-            </template>
-          </a-popover>
+          <div class="flex flex-nowrap items-center">
+            <div class="one-line-text max-w-[200px] flex-auto items-center"> {{ characterLimit(record.name) }}</div>
+            <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
+              <div class="ml-1 flex-auto text-[rgb(var(--primary-5))]">{{
+                t('caseManagement.featureCase.preview')
+              }}</div>
+              <template #content>
+                <div v-dompurify-html="record.content" class="markdown-body"> </div>
+              </template>
+            </a-popover>
+          </div>
         </template>
       </ms-base-table>
     </div>
@@ -62,6 +66,7 @@
   import { getDrawerDebugPage } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -77,7 +82,7 @@
       visible: boolean;
       caseId: string;
       drawerLoading: boolean;
-      showSelectorAll: boolean;
+      showSelectorAll?: boolean;
     }>(),
     {
       showSelectorAll: true,
@@ -101,7 +106,7 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
-      width: 200,
+      width: 300,
       ellipsis: true,
       showDrag: false,
     },
@@ -157,6 +162,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getDrawerDebugPage,
     {
+      scroll: { x: 'auto' },
       columns,
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
       selectable: true,
@@ -229,4 +235,12 @@
   );
 </script>
 
-<style scoped></style>
+<style lang="less">
+  .bug-content-popover {
+    .arco-popover-content {
+      overflow: auto;
+      max-height: 400px;
+      .ms-scroll-bar();
+    }
+  }
+</style>

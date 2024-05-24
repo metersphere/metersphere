@@ -1,51 +1,62 @@
 <template>
   <div>
-    <div class="mb-4 flex items-center justify-between">
-      <a-dropdown-button
-        v-if="hasAnyPermission(['PROJECT_BUG:READ']) && total"
-        type="primary"
-        @click="handleSelect('associated')"
-      >
-        {{ t('common.associated') }}
-        <template #icon>
-          <icon-down />
-        </template>
-        <template #content>
-          <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new" @click="handleSelect('new')">
-            {{ t('common.newCreate') }}
-          </a-doption>
-        </template>
-      </a-dropdown-button>
-      <a-dropdown-button
-        v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD']) && !total"
-        type="primary"
-        @click="handleSelect('new')"
-      >
-        {{ t('common.newCreate') }}
-        <template #icon>
-          <icon-down />
-        </template>
-        <template #content>
-          <a-popover title="" position="right">
-            <a-doption value="associated" :disabled="!total" @click="handleSelect('associated')">
-              {{ t('common.associated') }}
+    <div class="mb-4 grid grid-cols-3">
+      <div>
+        <a-dropdown-button
+          v-if="hasAnyPermission(['PROJECT_BUG:READ']) && total"
+          type="primary"
+          @click="handleSelect('associated')"
+        >
+          {{ t('common.associated') }}
+          <template #icon>
+            <icon-down />
+          </template>
+          <template #content>
+            <a-doption :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])" value="new" @click="handleSelect('new')">
+              {{ t('common.newCreate') }}
             </a-doption>
-            <template #content>
-              <div class="flex items-center text-[14px]">
-                <span class="text-[var(--color-text-4)]">{{ t('testPlan.featureCase.noBugDataTooltip') }}</span>
-                <MsButton type="text" @click="handleSelect('new')">
-                  {{ t('testPlan.featureCase.noBugDataNewBug') }}
-                </MsButton>
-              </div>
-            </template>
-          </a-popover>
-        </template>
-      </a-dropdown-button>
+          </template>
+        </a-dropdown-button>
+        <a-dropdown-button
+          v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD']) && !total"
+          type="primary"
+          @click="handleSelect('new')"
+        >
+          {{ t('common.newCreate') }}
+          <template #icon>
+            <icon-down />
+          </template>
+          <template #content>
+            <a-popover title="" position="right">
+              <a-doption
+                value="associated"
+                :disabled="!total && !hasAnyPermission(['PROJECT_BUG:READ'])"
+                @click="handleSelect('associated')"
+              >
+                {{ t('common.associated') }}
+              </a-doption>
+              <template #content>
+                <div class="flex items-center text-[14px]">
+                  <span class="text-[var(--color-text-4)]">{{ t('testPlan.featureCase.noBugDataTooltip') }}</span>
+                  <MsButton
+                    :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
+                    type="text"
+                    @click="handleSelect('new')"
+                  >
+                    {{ t('testPlan.featureCase.noBugDataNewBug') }}
+                  </MsButton>
+                </div>
+              </template>
+            </a-popover>
+          </template>
+        </a-dropdown-button>
+      </div>
+
       <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('caseManagement.featureCase.searchByName')"
         allow-clear
-        class="mx-[8px] w-[240px]"
+        class="col-span-2 col-end-7 mx-[8px] w-[240px]"
         @search="initData"
         @press-enter="initData"
         @clear="resetHandler"

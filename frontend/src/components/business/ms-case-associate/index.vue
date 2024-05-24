@@ -134,6 +134,7 @@
           no-disable
           class="mt-[16px]"
           v-on="propsEvent"
+          @filter-change="filterChange"
         >
           <template #num="{ record }">
             <a-tooltip :content="`${record.num}`">
@@ -148,6 +149,10 @@
           <template #lastExecuteResult="{ record }">
             <ExecuteStatusTag v-if="record.lastExecuteResult" :execute-result="record.lastExecuteResult" />
             <span v-else>-</span>
+          </template>
+          <!-- 用例等级 -->
+          <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+            <caseLevel :case-level="filterContent.value" />
           </template>
           <!-- 评审结果 -->
           <template #reviewStatus="{ record }">
@@ -219,6 +224,7 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
+  import { casePriorityOptions } from '@/views/api-test/components/config';
   import { executionResultMap, statusIconMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const router = useRouter();
@@ -385,7 +391,11 @@
           title: 'ms.case.associate.caseLevel',
           dataIndex: 'caseLevel',
           slotName: 'caseLevel',
-          width: 90,
+          width: 150,
+          filterConfig: {
+            options: casePriorityOptions,
+            filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+          },
         },
       ];
     }
@@ -676,6 +686,7 @@
         sourceType: caseType.value,
         ...props.tableParams,
         ...props.moduleCountParams,
+        filter: propsRes.value.filter,
       };
       modulesCount.value = await initGetModuleCountFunc(props.type, params);
     } catch (error) {
@@ -813,6 +824,10 @@
       });
     }
   );
+
+  function filterChange() {
+    initModuleCount();
+  }
 
   defineExpose({
     initModules,

@@ -260,6 +260,7 @@ export default {
   'caseManagement.featureCase.sortSuccess': '排序成功',
   'caseManagement.featureCase.zentao': '禅道',
   'caseManagement.featureCase.jira': 'JIRA',
+  'caseManagement.featureCase.tapd': 'TAPD',
   'caseManagement.featureCase.searchPlaceholder': '通过ID、名称或标签搜索',
   'caseManagement.featureCase.ModuleOwned': '所属模块',
   'caseManagement.featureCase.excelImportTip': '仅支持 xls/xlsx 格式的文件',

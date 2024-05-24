@@ -14,7 +14,7 @@
   >
     <div class="flex items-center justify-between">
       <div
-        ><span class="font-medium">{{ getPlatName() }}</span
+        ><span class="font-medium">{{ platName }}</span
         ><span class="ml-1 text-[var(--color-text-4)]">({{ propsRes?.msPagination?.total || 0 }})</span></div
       >
       <a-input-search
@@ -57,6 +57,8 @@
 
   import type { CreateOrUpdateDemand, DemandItem } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { getPlatName } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -138,16 +140,9 @@
     return filteredData;
   });
 
-  function getPlatName() {
-    switch (props.platformInfo.platform_key) {
-      case 'zentao':
-        return t('caseManagement.featureCase.zentao');
-      case 'jira':
-        return t('caseManagement.featureCase.jira');
-      default:
-        break;
-    }
-  }
+  const platName = computed(() => {
+    return getPlatName(props.platformInfo.value.platform_key);
+  });
 
   async function handleDrawerConfirm() {
     const demandList = tableSelected.value.map((item) => {

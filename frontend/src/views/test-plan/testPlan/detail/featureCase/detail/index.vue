@@ -127,20 +127,26 @@
                     <span class="ml-1 text-[rgb(var(--danger-6))]">{{ caseDetail.bugListCount }}</span>
                   </MsTag>
                   <a-dropdown @select="handleSelect">
-                    <a-button type="outline" size="mini" class="ml-1">
+                    <a-button v-if="hasAnyPermission(['PROJECT_BUG:READ'])" type="outline" size="mini" class="ml-1">
                       <template #icon> <icon-plus class="text-[12px]" /> </template>
                     </a-button>
                     <template #content>
-                      <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new">{{
-                        t('common.newCreate')
-                      }}</a-doption>
-                      <a-doption v-if="createdBugCount > 0 && hasAnyPermission(['PROJECT_BUG:READ'])" value="link">{{
-                        t('common.associated')
-                      }}</a-doption>
+                      <a-doption
+                        v-permission="['PROJECT_BUG:READ+ADD']"
+                        :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
+                        value="new"
+                        >{{ t('common.newCreate') }}</a-doption
+                      >
+                      <a-doption
+                        v-if="createdBugCount > 0 && hasAnyPermission(['PROJECT_BUG:READ'])"
+                        :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
+                        value="link"
+                        >{{ t('common.associated') }}</a-doption
+                      >
                       <a-popover v-else title="" position="left">
                         <a-doption
                           v-if="createdBugCount < 1 && hasAnyPermission(['PROJECT_BUG:READ'])"
-                          :disabled="true"
+                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
                           value="link"
                           >{{ t('common.associated') }}</a-doption
                         >
@@ -149,7 +155,11 @@
                             <span class="text-[var(--color-text-4)]">{{
                               t('testPlan.featureCase.noBugDataTooltip')
                             }}</span>
-                            <MsButton type="text" @click="handleSelect('new')">
+                            <MsButton
+                              :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
+                              type="text"
+                              @click="handleSelect('new')"
+                            >
                               {{ t('testPlan.featureCase.noBugDataNewBug') }}
                             </MsButton>
                           </div>
@@ -238,7 +248,7 @@
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
   import type { PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';

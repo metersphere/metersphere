@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { FormInstance } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
@@ -168,6 +168,7 @@
           { ...form, DEMAND_PLATFORM_CONFIG: JSON.stringify(formData) },
           currentProjectId.value
         );
+        Message.success(t('common.linkSuccess'));
         handleCancel(true);
         emit('ok');
       } catch (error) {

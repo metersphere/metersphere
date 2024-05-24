@@ -280,10 +280,6 @@ export function initFormCreate(customFields: CustomAttributes[], permission: str
 }
 
 export function makeColumns(optionsMap: Record<string, any>, columnData: MsTableColumn) {
-  // const optionsMap: Record<string, any> = {
-  //   status: statusFilterOptions.value,
-  //   handleUser: handleUserFilterOptions.value,
-  // };
   return columnData.map((e) => {
     if (Object.prototype.hasOwnProperty.call(optionsMap, e.dataIndex as string)) {
       return {
@@ -296,4 +292,15 @@ export function makeColumns(optionsMap: Record<string, any>, columnData: MsTable
     }
     return { ...e };
   });
+}
+
+export function getPlatName(platformKey: string) {
+  switch (platformKey) {
+    case 'zentao':
+      return t('caseManagement.featureCase.zentao');
+    case 'jira':
+      return t('caseManagement.featureCase.jira');
+    default:
+      break;
+  }
 }

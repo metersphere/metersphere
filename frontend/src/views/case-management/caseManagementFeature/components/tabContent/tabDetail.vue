@@ -449,6 +449,7 @@
   function getParams() {
     const steps = stepData.value.map((item, index) => {
       return {
+        id: item.id,
         num: index,
         desc: item.step,
         result: item.expected,
