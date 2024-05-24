@@ -28,7 +28,15 @@
       </div>
     </div>
     <div>
-      <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
+      <ms-base-table
+        ref="tableRef"
+        v-bind="propsRes"
+        :action-config="{
+          baseAction: [],
+          moreAction: [],
+        }"
+        v-on="propsEvent"
+      >
         <template #name="{ record }">
           <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
           <a-popover title="" position="right" style="width: 480px">

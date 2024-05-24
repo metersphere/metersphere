@@ -336,6 +336,7 @@
     apiDetail?: RequestParam;
     offspringIds: string[];
     memberOptions: { label: string; value: string }[];
+    heightUsed?: number;
   }>();
 
   const caseExecute = ref(false);
@@ -540,7 +541,7 @@
     draggable: hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
       ? { type: 'handle', width: 32 }
       : undefined,
-    heightUsed: 282,
+    heightUsed: (props.heightUsed || 0) + 282,
     showSubdirectory: true,
     paginationSize: 'mini',
   });

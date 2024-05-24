@@ -90,7 +90,7 @@ export default function useTableProps<T>(
   const sortItem = ref<object>({});
 
   // 筛选
-  const filterItem = ref<object>({});
+  const filterItem = ref<Record<string, any>>({});
 
   // keyword
   const keyword = ref('');
@@ -377,6 +377,7 @@ export default function useTableProps<T>(
         filterItem.value = { ...getTableQueryParams().filter, [dataIndex]: filteredValues };
       }
       propsRes.value.filter = cloneDeep(filterItem.value);
+      propsRes.value.draggable = (filterItem.value[dataIndex] || []).length > 0 ? undefined : props?.draggable;
       loadList();
     },
     // 分页触发

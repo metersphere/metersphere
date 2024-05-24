@@ -18,27 +18,41 @@
       <div class="ms-description-item-label" :style="{ width: props.labelWidth || '120px' }">
         <slot name="item-label">{{ item.label }}</slot>
       </div>
-      <div :class="item.isTag ? 'ms-description-item-value--tagline' : 'ms-description-item-value'">
+      <div :class="getValueClass(item)">
         <slot name="item-value" :item="item">
           <template v-if="item.isTag">
             <slot name="tag" :item="item">
-              <a-tooltip
-                v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
-                :key="`${tag}`"
-                :content="(tag as string)"
-              >
-                <MsTag
-                  :theme="item.tagTheme || 'outline'"
-                  :type="item.tagType || 'primary'"
-                  :max-width="item.tagMaxWidth"
-                  color="var(--color-text-n8)"
-                  :class="`mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
-                  :closable="item.closable"
-                  @close="emit('tagClose', tag, item)"
-                >
-                  {{ tag }}
-                </MsTag>
-              </a-tooltip>
+              <div class="w-[280px] overflow-hidden">
+                <a-overflow-list>
+                  <MsTag
+                    v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
+                    :key="`${tag}`"
+                    :theme="item.tagTheme || 'outline'"
+                    :type="item.tagType || 'primary'"
+                    :max-width="item.tagMaxWidth"
+                    color="var(--color-text-n8)"
+                    :class="`mr-[8px] font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
+                    :closable="item.closable"
+                    @close="emit('tagClose', tag, item)"
+                  >
+                    {{ tag }}
+                  </MsTag>
+                  <template #overflow="{ number }">
+                    <a-tooltip :content="(Array.isArray(item.value) ? item.value : [item.value]).join('，')">
+                      <MsTag
+                        :theme="item.tagTheme || 'outline'"
+                        :type="item.tagType || 'primary'"
+                        :max-width="item.tagMaxWidth"
+                        color="var(--color-text-n8)"
+                        :class="`font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
+                        tooltip-disabled
+                      >
+                        +{{ number }}
+                      </MsTag>
+                    </a-tooltip>
+                  </template>
+                </a-overflow-list>
+              </div>
               <span v-if="!item.showTagAdd" v-show="Array.isArray(item.value) && item.value.length === 0">-</span>
               <div v-else>
                 <template v-if="showTagInput">
@@ -81,7 +95,16 @@
           </MsButton>
           <template v-else>
             <slot name="value" :item="item">
-              {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+              <a-tooltip
+                :content="`${item.value}`"
+                :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
+              >
+                <div>
+                  {{
+                    item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value
+                  }}
+                </div>
+              </a-tooltip>
             </slot>
             <template v-if="item.showCopy">
               <MsButton
@@ -144,6 +167,7 @@
       column?: number;
       descriptions: Description[];
       labelWidth?: string;
+      oneLineValue?: boolean;
       addTagFunc?: (val: string, item: Description) => Promise<void>;
     }>(),
     {
@@ -157,6 +181,16 @@
 
   const { t } = useI18n();
   const { copy } = useClipboard();
+
+  function getValueClass(item: Description) {
+    if (item.isTag) {
+      return 'ms-description-item-value--tagline';
+    }
+    if (props.oneLineValue) {
+      return 'ms-description-item-value ms-description-item-value--one-line';
+    }
+    return 'ms-description-item-value';
+  }
 
   async function copyValue(item: Description) {
     try {
@@ -255,6 +289,9 @@
       text-overflow: ellipsis;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
+    }
+    .ms-description-item-value--one-line {
+      -webkit-line-clamp: 1;
     }
   }
 </style>

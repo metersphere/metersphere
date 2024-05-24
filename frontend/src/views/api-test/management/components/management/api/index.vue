@@ -103,6 +103,7 @@
             :api-detail="activeApiTab"
             :offspring-ids="props.offspringIds"
             :member-options="memberOptions"
+            :height-used="48"
           />
         </a-tab-pane>
         <a-tab-pane
@@ -116,6 +117,7 @@
             :offspring-ids="props.offspringIds"
             :definition-detail="activeApiTab"
             :protocol="activeApiTab.protocol"
+            :height-used="48"
             is-api
             @debug="openApiTabAndDebugMock"
           />

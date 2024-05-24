@@ -239,9 +239,9 @@
       showInTable: true,
       width: 150,
       showDrag: true,
-      filterConfig: {
-        options: triggerModeOptions.value,
-      },
+      // filterConfig: {
+      //   options: triggerModeOptions.value,
+      // },
     },
     {
       title: 'report.operator',
