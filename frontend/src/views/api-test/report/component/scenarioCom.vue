@@ -264,11 +264,23 @@
     series: {
       name: '',
       type: 'pie',
-      radius: ['65%', '80%'],
+      radius: ['62%', '80%'],
       avoidLabelOverlap: false,
       label: {
         show: false,
         position: 'center',
+      },
+      itemStyle: {
+        normal: {
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
+        emphasis: {
+          borderWidth: 0,
+          shadowBlur: 0,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
       },
       emphasis: {
         label: {

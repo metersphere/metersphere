@@ -19,7 +19,7 @@
               {{ props.detail.caseTotal || 0 }}
             </td>
           </tr>
-          <tr class="popover-tr">
+          <tr v-if="props.status === 'pending'" class="popover-tr">
             <td class="popover-label-td">
               <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
               <div>{{ t('common.unExecute') }}</div>
@@ -31,7 +31,7 @@
               {{ statusExecuteRate.pendingRateResult }}
             </td>
           </tr>
-          <tr class="popover-tr">
+          <tr v-if="props.status === 'success'" class="popover-tr">
             <td class="popover-label-td">
               <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
               <div>{{ t('common.success') }}</div>
@@ -53,7 +53,7 @@
               {{ detailCount.fakeErrorCount }}
             </td>
           </tr> -->
-          <tr class="popover-tr">
+          <tr v-if="props.status === 'block'" class="popover-tr">
             <td class="popover-label-td">
               <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-fill-p-3)]"></div>
               <div>{{ t('common.block') }}</div>
@@ -65,7 +65,7 @@
               {{ statusExecuteRate.blockRateResult }}
             </td>
           </tr>
-          <tr class="popover-tr">
+          <tr v-if="props.status === 'error'" class="popover-tr">
             <td class="popover-label-td">
               <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
               <div>{{ t('common.fail') }}</div>

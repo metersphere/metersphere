@@ -489,12 +489,12 @@
   }
 
   function getTotal(key: string) {
-    const { bugListCount, historyCount } = caseDetail.value;
+    const { bugListCount, runListCount } = caseDetail.value;
     switch (key) {
       case 'defectList':
-        return bugListCount > 99 ? `99+` : `${bugListCount}`;
+        return bugListCount > 99 ? `99+` : `${bugListCount || 0}`;
       case 'executionHistory':
-        return historyCount > 99 ? `99+` : `${historyCount}`;
+        return runListCount > 99 ? `99+` : `${runListCount || 0}`;
       default:
         return '';
     }
@@ -554,9 +554,6 @@
         moduleIds,
       };
     }
-    // if (activeTab.value === 'detail') {
-    //   getBugTotal();
-    // }
     getPlanDetail();
     initBugList();
     await loadCase();

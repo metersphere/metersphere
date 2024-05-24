@@ -18,8 +18,16 @@
           <a-switch v-model="isEnable" :disabled="isDisabled" size="small" type="line" />
           <a-tooltip>
             <template #content>
-              <div class="text-sm">{{ t('organization.service.statusEnableTip') }}</div>
-              <div class="text-sm">{{ t('organization.service.statusDisableTip') }}</div>
+              <div class="text-sm">{{
+                pluginId === 'jira'
+                  ? t('organization.service.statusJiraEnableTip')
+                  : t('organization.service.statusEnableTip')
+              }}</div>
+              <div class="text-sm">{{
+                pluginId === 'jira'
+                  ? t('organization.service.statusJiraDisableTip')
+                  : t('organization.service.statusDisableTip')
+              }}</div>
             </template>
             <icon-question-circle class="ml-2 text-[--color-text-4]" />
           </a-tooltip>

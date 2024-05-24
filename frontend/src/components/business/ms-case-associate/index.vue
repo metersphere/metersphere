@@ -490,29 +490,30 @@
     getCaseLevelColumn();
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setTableSelected } = useTable(
-    props.getTableFunc,
-    {
-      columns,
-      scroll: { x: '100%' },
-      showSetting: false,
-      selectable: true,
-      showSelectAll: true,
-      heightUsed: 310,
-      showSelectorAll: !props.selectorAll,
-    },
-    (record) => {
-      return {
-        ...record,
-        tags: (record.tags || []).map((item: string, i: number) => {
-          return {
-            id: `${record.id}-${i}`,
-            name: item,
-          };
-        }),
-      };
-    }
-  );
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setTableSelected, resetFilterParams } =
+    useTable(
+      props.getTableFunc,
+      {
+        columns,
+        scroll: { x: '100%' },
+        showSetting: false,
+        selectable: true,
+        showSelectAll: true,
+        heightUsed: 310,
+        showSelectorAll: !props.selectorAll,
+      },
+      (record) => {
+        return {
+          ...record,
+          tags: (record.tags || []).map((item: string, i: number) => {
+            return {
+              id: `${record.id}-${i}`,
+              name: item,
+            };
+          }),
+        };
+      }
+    );
 
   // 用例等级
   // TODO: 这个版本用例和接口以及场景不存在用例等级 不展示等级内容
@@ -740,6 +741,7 @@
     () => props.visible,
     (val) => {
       if (val) {
+        resetFilterParams();
         if (!props.hideProjectSelect) {
           initProjectList(true);
         } else {
@@ -761,6 +763,7 @@
     if (!props.hideProjectSelect) {
       initProjectList(true);
     }
+    resetFilterParams();
     initModules(true);
     searchCase();
     initFilter();
@@ -771,6 +774,7 @@
     (val) => {
       if (val) {
         resetSelector();
+        resetFilterParams();
         initModules(true);
         searchCase();
         initFilter();

@@ -1,7 +1,11 @@
 export default {
   'organization.service.searchPlugin': 'Search by plug-in name',
   'system.service.statusEnableTip': 'Open: Projects can be integrated with the platform',
-  'system.service.statusDisableTip': 'Shutdown: Projects cannot integrate with the platform',
+  'organization.service.statusJiraEnableTip':
+    'Open: can integrate with the platform and generate default templates for the platform',
+  'system.service.statusDisableTip': 'Off: Projects cannot integrate with the platform',
+  'organization.service.statusJiraDisableTip':
+    'Off: The project cannot be integrated with the platform and the platform default template is not available',
   'organization.service.headerTip': 'Service integration usage guidelines',
   'organization.service.integrationList': 'Integration of List',
   'organization.service.packUp': 'Pack Up',

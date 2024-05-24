@@ -223,6 +223,15 @@
       showDrag: false,
     },
     {
+      title: 'common.creator',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
+      showInTable: true,
+      showTooltip: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
       title: 'caseManagement.featureCase.updateUser',
       slotName: 'handleUserName',
       dataIndex: 'handleUser',

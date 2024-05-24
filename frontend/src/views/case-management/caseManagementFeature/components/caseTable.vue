@@ -850,10 +850,12 @@
     currentSelectCount: 0,
   });
 
-  const conditionParams = ref({
-    keyword: '',
-    filter: {},
-    combine: {},
+  const conditionParams = computed(() => {
+    return {
+      keyword: keyword.value,
+      filter: propsRes.value.filter,
+      combine: batchParams.value.condition,
+    };
   });
 
   async function initTableParams() {
@@ -865,11 +867,6 @@
         moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
       }
     }
-    conditionParams.value = {
-      keyword: keyword.value,
-      filter: propsRes.value.filter,
-      combine: batchParams.value.condition,
-    };
 
     return {
       moduleIds,

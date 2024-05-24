@@ -1,8 +1,7 @@
 <template>
   <MsCard class="mb-[16px]" hide-back hide-footer auto-height no-content-padding hide-divider>
     <template #headerLeft>
-      <div class="flex items-center font-medium"
-        >{{ t('report.name') }}
+      <div class="flex items-center font-medium">
         <a-tooltip :content="detail.name" :mouse-enter-delay="300"
           ><div class="one-line-text max-w-[300px]">{{ detail.name }}</div>
         </a-tooltip>
@@ -87,7 +86,7 @@
     <div class="analysis min-w-[410px]">
       <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
       <SetReportChart
-        size="150px"
+        size="160px"
         :legend-data="legendData"
         :options="charOptions"
         :request-total="getIndicators(detail.caseTotal) || 0"
@@ -104,17 +103,15 @@
         </div>
         <div class="relative w-[30%] min-w-[150px]">
           <div class="charts absolute w-full text-center">
-            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.detail.api.total') }}</div>
+            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
             <a-popover position="bottom" content-class="response-popover-content">
               <div class="flex justify-center text-[18px] font-medium">
-                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCaseTotal }} </div>
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCasePassRate }} </div>
               </div>
               <template #content>
                 <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
-                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{
-                    t('report.detail.api.total')
-                  }}</div>
-                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCaseTotal }}</div>
+                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCasePassRate }}</div>
                 </div>
               </template>
             </a-popover>
@@ -273,8 +270,9 @@
     series: {
       name: '',
       type: 'pie',
-      radius: ['65%', '80%'],
+      radius: ['62%', '80%'],
       avoidLabelOverlap: false,
+      padAngle: 10,
       label: {
         show: false,
         position: 'center',
@@ -288,6 +286,18 @@
       },
       labelLine: {
         show: false,
+      },
+      itemStyle: {
+        normal: {
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
+        emphasis: {
+          borderWidth: 0,
+          shadowBlur: 0,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
       },
       data: [
         {
@@ -340,7 +350,7 @@
     series: {
       name: '',
       type: 'pie',
-      radius: ['65%', '80%'],
+      radius: ['62%', '80%'],
       avoidLabelOverlap: false,
       label: {
         show: false,
@@ -355,6 +365,18 @@
       },
       labelLine: {
         show: false,
+      },
+      itemStyle: {
+        normal: {
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
+        emphasis: {
+          borderWidth: 0,
+          shadowBlur: 0,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
       },
       data: [
         {
@@ -389,12 +411,17 @@
       };
     }) as unknown as LegendData[];
 
-    functionCaseOptions.value.series.data = statusConfig.map((item: StatusListType) => {
+    const passRateData = statusConfig.filter((item) => ['success'].includes(item.value));
+    const { functionalCount } = detail.value;
+    const { success } = functionalCount;
+    const valueList = success ? statusConfig : passRateData;
+
+    functionCaseOptions.value.series.data = valueList.map((item: StatusListType) => {
       return {
         value: detail.value.functionalCount[item.value] || 0,
         name: t(item.label),
         itemStyle: {
-          color: item.color,
+          color: success ? item.color : '#D4D4D8',
         },
       };
     });
@@ -452,10 +479,11 @@
     showButton.value = false;
   }
 
-  const functionCaseTotal = computed(() => {
+  const functionCasePassRate = computed(() => {
     const { functionalCount } = detail.value;
     const { success, error, pending, block } = functionalCount;
-    return success + error + pending + block;
+    const successRate = (success / (success + error + pending + block)) * 100;
+    return `${Number.isNaN(successRate) ? 0 : successRate.toFixed(2)}%`;
   });
 
   const activeTab = ref('bug');
@@ -508,11 +536,13 @@
             @apply flex items-center;
           }
           .report-analysis-item-number {
+            font-size: 16px;
             @apply font-medium;
           }
           .report-analysis-item-unit {
+            font-size: 12px;
             color: var(--color-text-4);
-            @apply ml-1;
+            @apply ml-1 font-medium;
           }
         }
       }
