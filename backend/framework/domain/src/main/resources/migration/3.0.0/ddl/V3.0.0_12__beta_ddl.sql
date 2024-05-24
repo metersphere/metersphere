@@ -181,4 +181,22 @@ ALTER TABLE bug_custom_field MODIFY `value` longtext;
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
+-- 场景报告步骤结果内容
+CREATE TABLE IF NOT EXISTS api_scenario_report_detail_blob(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `report_id` VARCHAR(50) NOT NULL   COMMENT '报告fk' ,
+    `content` LONGBLOB    COMMENT '执行结果' ,
+    PRIMARY KEY (id)
+)   ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '场景报告步骤结果内容';
+
+ALTER TABLE `api_scenario_report_detail_blob`
+    ADD INDEX `idx_report_id`(`report_id`) USING BTREE;
+
+-- 重构场景报告步骤结果内容，原则上是不会有大数据量的场景报告步骤结果内容
+INSERT INTO api_scenario_report_detail_blob (id, report_id, content)
+SELECT id, report_id, content FROM api_scenario_report_detail;
+-- 删除原有的内容字段
+ALTER TABLE api_scenario_report_detail DROP COLUMN content;
 
