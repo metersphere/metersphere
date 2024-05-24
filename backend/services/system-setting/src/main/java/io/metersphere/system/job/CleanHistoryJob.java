@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.ParamConstants;
 import io.metersphere.sdk.domain.OperationLogBlobExample;
 import io.metersphere.sdk.mapper.OperationLogBlobMapper;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.mapper.BaseOperationHistoryMapper;
 import io.metersphere.system.mapper.BaseOperationLogMapper;
@@ -14,7 +15,6 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,29 +58,21 @@ public class CleanHistoryJob {
     private void doCleanupHistory(int limit) {
         try {
             //变更历史处理
-            List<String> sourceIds = baseOperationHistoryMapper.selectSourceIds();
-            int size = 100;
-            List<List<String>> batchList = splitList(sourceIds, size);
-            batchList.forEach(batch -> cleanupHistory(batch, limit));
+            List<String> sourceIds = baseOperationHistoryMapper.selectSourceIds(limit);
+            SubListUtils.dealForSubList(sourceIds, 100, subList -> {
+                cleanupHistory(subList, limit);
+            });
         } catch (Exception e) {
             LogUtils.error(e);
         }
 
     }
 
-    private List<List<String>> splitList(List<String> list, int size) {
-        List<List<String>> batchList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i += size) {
-            batchList.add(list.subList(i, Math.min(i + size, list.size())));
-        }
-        return batchList;
-    }
-
     public void cleanupHistory(List<String> batch, int limit) {
         batch.forEach(sourceId -> {
             List<Long> ids = baseOperationHistoryMapper.selectIdsBySourceId(sourceId, limit);
             if (CollectionUtils.isNotEmpty(ids)) {
-                baseOperationHistoryMapper.deleteByIds(sourceId, ids);
+                baseOperationHistoryMapper.deleteBySourceId(sourceId, ids);
                 List<Long> logIds = baseOperationLogMapper.selectIdByHistoryIds(ids);
                 ids.removeAll(logIds);
                 if (CollectionUtils.isNotEmpty(ids)) {

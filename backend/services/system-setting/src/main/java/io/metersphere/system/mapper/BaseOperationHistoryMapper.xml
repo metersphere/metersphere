@@ -4,7 +4,7 @@
 
 
     <select id="selectSourceIds" resultType="java.lang.String">
-        select source_id from operation_history GROUP BY source_id
+        select source_id from operation_history GROUP BY source_id having count(source_id) > #{limit}
     </select>
 
 
@@ -12,7 +12,7 @@
         select id from operation_history where source_id = #{sourceId} ORDER BY create_time DESC LIMIT #{limit}
     </select>
 
-    <delete id="deleteByIds">
+    <delete id="deleteBySourceId">
         DELETE FROM operation_history WHERE source_id = #{sourceId} and id not in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
