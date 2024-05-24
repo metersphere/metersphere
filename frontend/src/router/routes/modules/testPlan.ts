@@ -52,7 +52,7 @@ const TestPlan: AppRouteRecordRaw = {
           },
           {
             name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
-            locale: 'menu.testPlan.testPlanDetail',
+            locale: 'menu.apiTest.reportDetail',
           },
         ],
       },

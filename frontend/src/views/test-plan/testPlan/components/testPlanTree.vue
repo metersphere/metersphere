@@ -47,7 +47,13 @@
           @confirm="addSubModule"
           @cancel="resetFocusNodeKey"
         >
-          <MsButton type="icon" size="mini" class="ms-tree-node-extra__btn !mr-0" @click="setFocusKey(nodeData)">
+          <MsButton
+            v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
+            type="icon"
+            size="mini"
+            class="ms-tree-node-extra__btn !mr-0"
+            @click="setFocusKey(nodeData)"
+          >
             <MsIcon type="icon-icon_add_outlined" size="14" class="text-[var(--color-text-4)]" />
           </MsButton>
         </MsPopConfirm>
@@ -134,11 +140,13 @@
     {
       label: 'caseManagement.featureCase.rename',
       eventTag: 'rename',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
     },
     {
       label: 'caseManagement.featureCase.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['PROJECT_TEST_PLAN:READ+DELETE'],
     },
   ];
 

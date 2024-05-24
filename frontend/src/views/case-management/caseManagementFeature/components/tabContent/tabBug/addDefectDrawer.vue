@@ -16,6 +16,7 @@
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item
         field="title"
+        asterisk-position="end"
         :label="t('bugManagement.bugName')"
         :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
         :placeholder="t('bugManagement.edit.pleaseInputBugName')"

@@ -264,6 +264,7 @@ export default {
   'caseManagement.featureCase.sortSuccess': 'Sort successfully',
   'caseManagement.featureCase.zentao': 'ZenTao',
   'caseManagement.featureCase.jira': 'JIRA',
+  'caseManagement.featureCase.tapd': 'TAPD',
   'caseManagement.featureCase.searchPlaceholder': 'Search by ID, name, or tag',
   'caseManagement.featureCase.ModuleOwned': 'Module owned',
   'caseManagement.featureCase.excelImportTip': 'Only xls/xlsx files are supported',

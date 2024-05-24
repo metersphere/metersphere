@@ -47,6 +47,7 @@
     :selectable="hasOperationPermission"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
+    @filter-change="filterChange"
   >
     <!-- :expanded-keys="expandedKeys" -->
     <template #num="{ record }">
@@ -624,18 +625,15 @@
     currentSelectCount: 0,
   });
 
-  const conditionParams = ref({
-    keyword: '',
-    filter: {},
-    combine: {},
-  });
-
-  async function initTableParams(isSetDefaultKey = false) {
-    conditionParams.value = {
+  const conditionParams = computed(() => {
+    return {
       keyword: keyword.value,
       filter: propsRes.value.filter,
       combine: batchParams.value.condition,
     };
+  });
+
+  async function initTableParams(isSetDefaultKey = false) {
     let moduleIds =
       props.activeFolder && props.activeFolder !== 'all' ? [props.activeFolder, ...props.offspringIds] : [];
     if (isSetDefaultKey) {
@@ -671,6 +669,7 @@
       ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
+      filter: propsRes.value.filter,
     });
   }
 
@@ -1025,6 +1024,10 @@
       immediate: true,
     }
   );
+
+  function filterChange() {
+    emitTableParams();
+  }
 
   defineExpose({
     fetchData,

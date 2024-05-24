@@ -4,13 +4,15 @@
       <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ record.num }}</span>
     </template>
     <template #name="{ record }">
-      <div class="one-line-text flex max-w-[150px] flex-nowrap items-center"> {{ characterLimit(record.name) }}</div>
-      <a-popover title="" position="right" style="width: 480px">
-        <div class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</div>
-        <template #content>
-          <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
-        </template>
-      </a-popover>
+      <div class="flex flex-nowrap items-center">
+        <div class="one-line-text max-w-[200px] flex-auto items-center"> {{ characterLimit(record.name) }}</div>
+        <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
+          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+          <template #content>
+            <div v-dompurify-html="record.content" class="markdown-body bug-content"> </div>
+          </template>
+        </a-popover>
+      </div>
     </template>
     <template #statusName="{ record }">
       <div class="one-line-text">{{ record.statusName || '-' }}</div>
@@ -149,4 +151,12 @@
   });
 </script>
 
-<style scoped></style>
+<style lang="less">
+  .bug-content-popover {
+    .arco-popover-content {
+      overflow: auto;
+      max-height: 400px;
+      .ms-scroll-bar();
+    }
+  }
+</style>

@@ -52,6 +52,7 @@
         @change="changeHandler"
         @module-change="initData"
         @cell-click="handleCellClick"
+        @filter-change="filterChange"
       >
         <template #num="{ record }">
           <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
@@ -885,6 +886,7 @@
       ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
+      filter: propsRes.value.filter,
     });
   }
 
@@ -1465,6 +1467,10 @@
       console.log(error);
     }
   });
+
+  function filterChange() {
+    emitTableParams();
+  }
 
   onMounted(async () => {
     if (route.query.id) {

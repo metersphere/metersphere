@@ -50,7 +50,7 @@
                   }"
                   @confirm="confirmHandler"
                 >
-                  <MsButton type="icon" class="!mr-0 p-[2px]">
+                  <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" type="icon" class="!mr-0 p-[2px]">
                     <MsIcon
                       type="icon-icon_create_planarity"
                       size="18"
@@ -119,6 +119,7 @@
   import { createPlanModuleTree, getPlanModulesCount } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode, TableQueryParams } from '@/models/common';
