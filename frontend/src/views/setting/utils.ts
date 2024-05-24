@@ -32,20 +32,13 @@ export async function enterProject(projectId: string, organizationId?: string) {
       }
       await switchUserOrg(organizationId, userStore.id || '');
     }
-    await userStore.isLogin(true);
+    await userStore.isLogin();
     // 切换项目
     await switchProject({
       projectId,
       userId: userStore.id || '',
     });
-    appStore.setCurrentProjectId(projectId);
-    if (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') {
-      // 没有项目权限(组织没有项目, 或项目全被禁用)，则重定向到无项目权限页面
-      router.push({
-        name: NO_PROJECT_ROUTE_NAME,
-      });
-      return;
-    }
+    await userStore.checkIsLogin();
     // 跳转到项目页面
     router.replace({
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION,

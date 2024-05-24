@@ -159,16 +159,6 @@
       ellipsis: true,
     },
     {
-      title: 'caseManagement.featureCase.defectSource',
-      slotName: 'source',
-      dataIndex: 'source',
-      showInTable: true,
-      showTooltip: true,
-      width: 100,
-      ellipsis: true,
-      showDrag: false,
-    },
-    {
       title: 'caseManagement.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
