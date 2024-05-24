@@ -16,21 +16,15 @@ public interface ApiScenarioReportDetailMapper {
 
     int insertSelective(ApiScenarioReportDetail record);
 
-    List<ApiScenarioReportDetail> selectByExampleWithBLOBs(ApiScenarioReportDetailExample example);
-
     List<ApiScenarioReportDetail> selectByExample(ApiScenarioReportDetailExample example);
 
     ApiScenarioReportDetail selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ApiScenarioReportDetail record, @Param("example") ApiScenarioReportDetailExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ApiScenarioReportDetail record, @Param("example") ApiScenarioReportDetailExample example);
-
     int updateByExample(@Param("record") ApiScenarioReportDetail record, @Param("example") ApiScenarioReportDetailExample example);
 
     int updateByPrimaryKeySelective(ApiScenarioReportDetail record);
-
-    int updateByPrimaryKeyWithBLOBs(ApiScenarioReportDetail record);
 
     int updateByPrimaryKey(ApiScenarioReportDetail record);
 

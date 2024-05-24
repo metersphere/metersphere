@@ -9,63 +9,26 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class ApiScenarioReportDetail implements Serializable {
+public class ApiScenarioReportDetailBlob implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_scenario_report_detail_blob.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report_detail_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "报告fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.report_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.report_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_scenario_report_detail_blob.report_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report_detail_blob.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
-    @Schema(description = "场景中各个步骤请求唯一标识", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.step_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.step_id.length_range}", groups = {Created.class, Updated.class})
-    private String stepId;
-
-    @Schema(description = "结果状态")
-    private String status;
-
-    @Schema(description = "误报编号/误报状态独有")
-    private String fakeCode;
-
-    @Schema(description = "请求名称")
-    private String requestName;
-
-    @Schema(description = "请求耗时", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report_detail.request_time.not_blank}", groups = {Created.class})
-    private Long requestTime;
-
-    @Schema(description = "请求响应码")
-    private String code;
-
-    @Schema(description = "响应内容大小", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report_detail.response_size.not_blank}", groups = {Created.class})
-    private Long responseSize;
-
-    @Schema(description = "脚本标识")
-    private String scriptIdentifier;
-
-    @Schema(description = "用于循环请求排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report_detail.sort.not_blank}", groups = {Created.class})
-    private Long sort;
+    @Schema(description = "执行结果")
+    private byte[] content;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         reportId("report_id", "reportId", "VARCHAR", false),
-        stepId("step_id", "stepId", "VARCHAR", false),
-        status("status", "status", "VARCHAR", true),
-        fakeCode("fake_code", "fakeCode", "VARCHAR", false),
-        requestName("request_name", "requestName", "VARCHAR", false),
-        requestTime("request_time", "requestTime", "BIGINT", false),
-        code("code", "code", "VARCHAR", false),
-        responseSize("response_size", "responseSize", "BIGINT", false),
-        scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
-        sort("sort", "sort", "BIGINT", false);
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
