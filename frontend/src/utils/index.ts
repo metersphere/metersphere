@@ -8,6 +8,8 @@ import { BugEditCustomField, CustomFieldItem } from '@/models/bug-management';
 import { isObject } from './is';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
+const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
+const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
 
 /**
  * 打开新窗口
@@ -807,13 +809,26 @@ export function formatPhoneNumber(phoneNumber = '') {
   }
   return phoneNumber;
 }
+
+// 获取表头自定义字段过滤索引
+export function getCustomFieldIndex(field: CustomFieldItem) {
+  const { fieldId } = field;
+  if (selectExcludes.includes(field.type)) {
+    return `custom_single_${fieldId}`;
+  }
+  if (multipleExcludes.includes(field.type)) {
+    return `custom_multiple_${fieldId}`;
+  }
+  return fieldId;
+}
+
 // 表格自定义字段转column
 export function customFieldToColumns(customFields: CustomFieldItem[]) {
   return customFields.map((field) => {
     const { fieldName, fieldKey, fieldId } = field;
     const column: MsTableColumnData = {
       title: fieldName,
-      dataIndex: ['handleUser', 'status'].includes(fieldId) ? fieldKey : fieldId,
+      dataIndex: ['handleUser', 'status'].includes(fieldId) ? fieldKey : getCustomFieldIndex(field),
       showTooltip: true,
       showDrag: true,
       showInTable: true,
@@ -822,6 +837,7 @@ export function customFieldToColumns(customFields: CustomFieldItem[]) {
     return column;
   });
 }
+
 // 表格查询参数转请求参数
 export function tableParamsToRequestParams(params: BatchActionQueryParams) {
   const { selectedIds, selectAll, excludeIds, condition } = params;
@@ -862,8 +878,6 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
   if (!customFieldData || !customFields) return {};
 
   const tableData: Record<string, any> = {};
-  const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
-  const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
 
   customFieldData.forEach((field) => {
     const customField = customFields.find((item) => item.fieldId === field.id);

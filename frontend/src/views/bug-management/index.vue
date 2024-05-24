@@ -793,7 +793,6 @@
         if (item.title === '严重程度' || item.title === 'Bug Degree') {
           item.showInTable = true;
           item.slotName = 'severity';
-          item.dataIndex = `custom_single_${item.dataIndex}`;
           item.filterConfig = {
             options: cloneDeep(unref(severityFilterOptions.value)) || [],
             labelKey: 'text',
