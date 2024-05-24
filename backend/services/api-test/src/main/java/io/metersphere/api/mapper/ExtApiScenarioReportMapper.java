@@ -51,7 +51,7 @@ public interface ExtApiScenarioReportMapper {
 
     void updateApiScenario(List<String> ids);
 
-    List<ApiScenarioReportStepDTO> selectStepDetailByReportId(@Param("id") String id, @Param("limit") int limit, @Param("offset") int offset);
+    List<ApiScenarioReportStepDTO> selectStepDetailByReportId(@Param("id") String id);
 
     List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> ids);
 

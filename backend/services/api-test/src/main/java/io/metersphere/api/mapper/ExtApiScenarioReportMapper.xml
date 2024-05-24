@@ -222,7 +222,6 @@
                api_scenario_report_detail.sort as loopIndex
         from api_scenario_report_detail
         where api_scenario_report_detail.report_id = #{id}
-        limit #{limit} offset #{offset}
     </select>
     <select id="getNoticeList" resultType="io.metersphere.system.dto.sdk.ApiReportMessageDTO">
         select id ,name from api_scenario_report

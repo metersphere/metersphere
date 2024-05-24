@@ -369,7 +369,7 @@
       eventTag: 'copyMock',
       label: t('mockManagement.copyMock'),
       danger: false,
-      permission: ['PROJECT_API_DEFINITION_MOCK:READ+ADD'],
+      permission: ['PROJECT_API_DEFINITION_MOCK:READ'],
     },
     {
       eventTag: 'delete',
