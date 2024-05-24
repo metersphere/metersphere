@@ -55,12 +55,12 @@
 
     <select id="getIds"  resultType="java.lang.String">
         SELECT
-        tpfc.id as id
+        test_plan_functional_case.id as id
         FROM
-        test_plan_functional_case tpfc
-        LEFT JOIN functional_case ON tpfc.functional_case_id = functional_case.id
+        test_plan_functional_case
+        LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
         WHERE
-        tpfc.test_plan_id = #{request.testPlanId}
+        test_plan_functional_case.test_plan_id = #{request.testPlanId}
         AND functional_case.deleted = #{deleted}
         <include refid="queryWhereConditionByBatchQueryRequest"/>
     </select>
@@ -458,10 +458,10 @@
 
     <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
         SELECT functional_case.module_id AS moduleId, count(functional_case.id) AS dataCount, functional_case.project_id AS projectId, project.name AS projectName
-        FROM test_plan_functional_case tpfc
-        LEFT JOIN functional_case ON tpfc.functional_case_id = functional_case.id
+        FROM test_plan_functional_case
+        LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
         LEFT JOIN project ON functional_case.project_id = project.id
-        WHERE tpfc.test_plan_id = #{request.testPlanId}
+        WHERE test_plan_functional_case.test_plan_id = #{request.testPlanId}
         AND functional_case.deleted = #{deleted}
         <include refid="queryWhereCondition"/>
         GROUP BY module_id
@@ -470,8 +470,8 @@
     <select id="caseCount"
             resultType="java.lang.Long">
         SELECT count(functional_case.id)
-        FROM test_plan_functional_case tpfc LEFT JOIN functional_case ON tpfc.functional_case_id = functional_case.id
-        WHERE tpfc.test_plan_id = #{request.testPlanId}
+        FROM test_plan_functional_case LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
+        WHERE test_plan_functional_case.test_plan_id = #{request.testPlanId}
         AND functional_case.deleted = #{deleted}
         <include refid="queryWhereCondition"/>
     </select>
