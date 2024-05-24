@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -126,6 +126,7 @@
   const { t } = useI18n();
   const keyword = ref<string>('');
   const router = useRouter();
+  const route = useRoute();
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
@@ -402,10 +403,6 @@
     });
   };
 
-  onBeforeMount(() => {
-    initData();
-  });
-
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
     resetFilterParams();
@@ -431,6 +428,13 @@
       },
     });
   }
+
+  onBeforeMount(() => {
+    if (route.query.id) {
+      showReportDetail(route.query.id as string);
+    }
+    initData();
+  });
 </script>
 
 <style lang="less" scoped>

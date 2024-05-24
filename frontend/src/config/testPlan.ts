@@ -77,6 +77,14 @@ export const defaultReportDetail: PlanReportDetail = {
 
 export const statusConfig: StatusListType[] = [
   {
+    label: 'common.unExecute',
+    value: 'pending',
+    color: '#D4D4D8',
+    class: 'bg-[var(--color-text-input-border)]',
+    rateKey: 'requestPendingRate',
+    key: 'PENDING',
+  },
+  {
     label: 'common.success',
     value: 'success',
     color: '#00C261',
@@ -93,22 +101,7 @@ export const statusConfig: StatusListType[] = [
   //   rateKey: 'requestFakeErrorRate',
   //   key: 'FAKE_ERROR',
   // },
-  {
-    label: 'common.fail',
-    value: 'error',
-    color: '#ED0303',
-    class: 'bg-[rgb(var(--danger-6))]',
-    rateKey: 'requestErrorRate',
-    key: 'ERROR',
-  },
-  {
-    label: 'common.unExecute',
-    value: 'pending',
-    color: '#D4D4D8',
-    class: 'bg-[var(--color-text-input-border)]',
-    rateKey: 'requestPendingRate',
-    key: 'PENDING',
-  },
+
   {
     label: 'common.block',
     value: 'block',
@@ -116,6 +109,14 @@ export const statusConfig: StatusListType[] = [
     class: 'bg-[var(--color-fill-p-3)]',
     rateKey: 'requestPendingRate',
     key: 'BLOCK',
+  },
+  {
+    label: 'common.fail',
+    value: 'error',
+    color: '#ED0303',
+    class: 'bg-[rgb(var(--danger-6))]',
+    rateKey: 'requestErrorRate',
+    key: 'ERROR',
   },
 ];
 

@@ -2,7 +2,7 @@
   <a-input-password
     v-model="inputValue"
     :placeholder="placeholder"
-    :default-visibility="false"
+    :default-visibility="true"
     allow-clear
     @clear="clearHandler"
     @input="inputHandler"

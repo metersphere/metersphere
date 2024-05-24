@@ -140,9 +140,10 @@
     },
     {
       title: 'common.creator',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
       showInTable: true,
+      showTooltip: true,
       width: 200,
       ellipsis: true,
     },
