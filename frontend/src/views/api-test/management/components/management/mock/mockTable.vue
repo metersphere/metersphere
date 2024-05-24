@@ -651,6 +651,7 @@
           id: res.id,
           type: 'mock',
           isNew: false,
+          isCopy: false,
           protocol: res.protocol,
           activeTab: RequestComposition.BODY,
           executeLoading: false,
