@@ -175,10 +175,10 @@
       } else {
         // 关联文件
         innerParams.value.binaryBody.file = {
-          ...fileList.value[0],
-          fileId: fileList.value[0]?.uid,
-          fileName: fileList.value[0]?.originalName || '',
-          fileAlias: fileList.value[0]?.name || '',
+          ...files[0],
+          fileId: files[0]?.uid,
+          fileName: files[0]?.originalName || '',
+          fileAlias: files[0]?.name || '',
           local: false,
         };
       }

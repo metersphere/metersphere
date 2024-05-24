@@ -57,7 +57,7 @@
           :all-names="(nodeData.parent? nodeData.parent.children || [] : testPlanTree).filter((e: ModuleTreeNode) => e.id !== nodeData.id).map((e: ModuleTreeNode) => e.name || '')"
           :is-delete="false"
           :ok-text="t('common.confirm')"
-          :field-config="{ field: renameCaseName }"
+          :field-config="{ field: renameCaseName, nameExistTipText: t('project.fileManagement.nameExist') }"
           :loading="confirmLoading"
           @confirm="updateNameModule"
           @cancel="resetFocusNodeKey"

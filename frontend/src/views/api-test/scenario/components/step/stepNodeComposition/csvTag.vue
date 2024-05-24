@@ -2,19 +2,12 @@
   <a-popover
     v-model:popup-visible="popoverVisible"
     position="bl"
-    :disabled="!props.step.csvIds || props.step.csvIds.length === 0"
+    :disabled="!props.step.csvIds || props.step.csvIds.length === 0 || props.step.isRefScenarioStep"
     content-class="csv-popover"
     arrow-class="hidden"
     :popup-offset="0"
   >
-    <div
-      v-if="
-        !props.step.isRefScenarioStep &&
-        props.step.stepType === ScenarioStepType.LOOP_CONTROLLER &&
-        props.step.csvIds?.length
-      "
-      class="csv-tag"
-    >
+    <div v-if="props.step.stepType === ScenarioStepType.LOOP_CONTROLLER && props.step.csvIds?.length" class="csv-tag">
       {{ `CSV ${props.step.csvIds?.length}` }}
     </div>
     <template #content>

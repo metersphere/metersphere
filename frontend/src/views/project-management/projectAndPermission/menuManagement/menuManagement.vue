@@ -821,7 +821,7 @@
         suffix
       );
 
-      if (type.includes('REPORT')) {
+      if (type.includes('REPORT') && !type.includes('CLEAN')) {
         Message.success(t('project.application.report.tips'));
       } else {
         Message.success(t('common.operationSuccess'));

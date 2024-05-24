@@ -1,7 +1,5 @@
 import { RouteLocationNormalized, RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
-import { includes } from 'lodash-es';
 
-import { firstLevelMenu } from '@/config/permission';
 import { INDEX_ROUTE } from '@/router/routes/base';
 import appRoutes from '@/router/routes/index';
 import { useAppStore, useUserStore } from '@/store';
@@ -106,11 +104,23 @@ export function topLevelMenuHasPermission(route: RouteLocationNormalized | Route
 // 有权限的第一个路由名，如果没有找到则返回IndexRoute
 export function getFirstRouteNameByPermission(routerList: RouteRecordNormalized[]) {
   const currentRoute = routerList
-    .filter((item) => includes(firstLevelMenu, item.name))
+    .filter((item) => hasAnyPermission(item.meta.roles || [])) // 排除没有权限的路由
     .sort((a, b) => {
-      return (a.meta.order || 0) - (b.meta.order || 0);
-    })
-    .find((item) => hasAnyPermission(item.meta.roles || []));
+      // 如果 a 和 b 都有 order，按照 order 的值进行升序排序
+      if (a.meta.order !== undefined && b.meta.order !== undefined) {
+        return a.meta.order - b.meta.order;
+      }
+      // 如果 a 有 order 但是 b 没有 order，a 排前面
+      if (a.meta.order !== undefined && b.meta.order === undefined) {
+        return -1;
+      }
+      // 如果 a 没有 order 但是 b 有 order，b 排前面
+      if (a.meta.order === undefined && b.meta.order !== undefined) {
+        return 1;
+      }
+      // 如果 a 和 b 都没有 order，它们的位置不变
+      return 0;
+    })[0];
   return currentRoute?.name || INDEX_ROUTE.name;
 }
 

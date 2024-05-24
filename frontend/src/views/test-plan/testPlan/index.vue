@@ -46,6 +46,7 @@
                   :ok-text="t('common.confirm')"
                   :field-config="{
                     placeholder: t('testPlan.testPlanIndex.addGroupTip'),
+                    nameExistTipText: t('project.fileManagement.nameExist'),
                   }"
                   @confirm="confirmHandler"
                 >

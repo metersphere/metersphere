@@ -29,7 +29,7 @@
         :keyword="moduleKeyword"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
-        :empty-text="t('caseManagement.caseReview.noCases')"
+        :empty-text="t('common.noMatchData')"
         :draggable="false"
         :virtual-list-props="virtualListProps"
         :field-names="{

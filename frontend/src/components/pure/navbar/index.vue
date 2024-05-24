@@ -167,6 +167,7 @@
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { getFirstRouteNameByPermission } from '@/utils/permission';
 
   import { IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
 
@@ -230,9 +231,8 @@
       await userStore.checkIsLogin();
       appStore.hideLoading();
       router.replace({
-        path: route.path,
+        name: getFirstRouteNameByPermission(router.getRoutes()),
         query: {
-          ...route.query,
           orgId: appStore.currentOrgId,
           pId: value as string,
         },

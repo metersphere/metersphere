@@ -608,10 +608,10 @@
       } else {
         // 关联文件
         mockDetail.value.mockMatchRule.body.binaryBody.file = {
-          ...file,
-          fileId: file?.uid || '',
-          fileName: file?.originalName || '',
-          fileAlias: file?.name || '',
+          ...files[0],
+          fileId: files[0]?.uid || files[0]?.id || '',
+          fileName: files[0]?.originalName || '',
+          fileAlias: files[0]?.name || '',
           local: false,
         };
       }
