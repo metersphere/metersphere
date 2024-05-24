@@ -119,8 +119,7 @@
         test_plan_case_execute_history tpceh
         left join user u on  tpceh.create_user = u.id
         left join user_extend ux on  tpceh.create_user = ux.id
-        left join test_plan_functional_case tpfc on  tpceh.test_plan_case_id = tpfc.id
-        left join test_plan tp on  tpfc.test_plan_id = tp.id
+        left join test_plan tp on  tpceh.test_plan_id = tp.id
         where tpceh.case_id = #{caseId}
         <if test="planId != null and planId != ''">
             and tpceh.test_plan_case_id = #{planId}
