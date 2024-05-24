@@ -190,6 +190,7 @@
     v-model:visible="showLinkDrawer"
     :case-id="activeCaseId"
     :drawer-loading="drawerLoading"
+    :show-selector-all="false"
     @save="associateSuccessHandler"
   />
   <AddDefectDrawer

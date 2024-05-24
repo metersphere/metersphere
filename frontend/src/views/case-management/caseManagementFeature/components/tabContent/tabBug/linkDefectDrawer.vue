@@ -64,11 +64,17 @@
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
-  const props = defineProps<{
-    visible: boolean;
-    caseId: string;
-    drawerLoading: boolean;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      visible: boolean;
+      caseId: string;
+      drawerLoading: boolean;
+      showSelectorAll: boolean;
+    }>(),
+    {
+      showSelectorAll: true,
+    }
+  );
 
   const emit = defineEmits(['update:visible', 'save']);
   const columns: MsTableColumn = [
@@ -146,6 +152,7 @@
       columns,
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
       selectable: true,
+      showSelectorAll: props.showSelectorAll,
       heightUsed: 340,
       enableDrag: false,
     },
