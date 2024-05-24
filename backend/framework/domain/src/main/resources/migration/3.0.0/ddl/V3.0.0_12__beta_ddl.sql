@@ -178,9 +178,6 @@ CREATE INDEX idx_source_id ON operation_history(`source_id`);
 -- 修改缺陷自定义字段值长度(由于要支持三方平台富文本存储)
 ALTER TABLE bug_custom_field MODIFY `value` longtext;
 
--- set innodb lock wait timeout to default
-SET SESSION innodb_lock_wait_timeout = DEFAULT;
-
 -- 场景报告步骤结果内容
 CREATE TABLE IF NOT EXISTS api_scenario_report_detail_blob(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
@@ -199,4 +196,10 @@ INSERT INTO api_scenario_report_detail_blob (id, report_id, content)
 SELECT id, report_id, content FROM api_scenario_report_detail;
 -- 删除原有的内容字段
 ALTER TABLE api_scenario_report_detail DROP COLUMN content;
+
+
+-- set innodb lock wait timeout to default
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
+
+
 
