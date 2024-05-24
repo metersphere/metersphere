@@ -73,12 +73,6 @@
                     <a-radio :value="true">True</a-radio>
                   </a-radio-group>
                 </a-form-item>
-                <a-form-item field="random" :label="t('apiScenario.params.csvIsRandom')" class="mb-[16px]">
-                  <a-radio-group v-model:model-value="paramForm.random">
-                    <a-radio :value="false">False</a-radio>
-                    <a-radio :value="true">True</a-radio>
-                  </a-radio-group>
-                </a-form-item>
                 <a-form-item field="allowQuotedData" :label="t('apiScenario.params.csvQuoteAllow')" class="mb-[16px]">
                   <a-radio-group v-model:model-value="paramForm.allowQuotedData">
                     <a-radio :value="false">False</a-radio>
