@@ -50,7 +50,8 @@
             v-model:current="pageNation.current"
             :total="pageNation.total"
             size="mini"
-            simple
+            show-jumper
+            simple-only-jumper
             @change="loadCaseList"
             @page-size-change="loadCaseList"
           />
@@ -84,7 +85,7 @@
           class="relative mx-[16px] border-b"
         />
         <div :class="[' flex-1', activeTab !== 'detail' ? 'tab-content' : 'overflow-hidden']">
-          <MsDescription v-if="activeTab === 'baseInfo'" :descriptions="descriptions" :column="2">
+          <MsDescription v-if="activeTab === 'baseInfo'" :descriptions="descriptions" :column="2" one-line-value>
             <template #value="{ item }">
               <template v-if="item.key === 'reviewStatus'">
                 <MsIcon
@@ -230,7 +231,6 @@
   import { getBugList } from '@/api/modules/bug-management';
   import {
     associateBugToPlan,
-    associatedBugPage,
     getCaseDetail,
     getPlanDetailFeatureCaseList,
     getTestPlanDetail,

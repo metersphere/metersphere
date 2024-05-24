@@ -125,7 +125,16 @@
             </div>
           </template>
         </MsAdvanceFilter>
-        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
+        <ms-base-table
+          v-bind="propsRes"
+          :action-config="{
+            baseAction: [],
+            moreAction: [],
+          }"
+          no-disable
+          class="mt-[16px]"
+          v-on="propsEvent"
+        >
           <template #num="{ record }">
             <a-tooltip :content="`${record.num}`">
               <a-button type="text" class="px-0" @click="openDetail(record.id)">
@@ -682,6 +691,7 @@
         innerProject.value = projectList.value[0].id;
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }

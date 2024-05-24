@@ -280,6 +280,7 @@ export default {
   'apiScenario.confirmChange': 'Confirm changes',
   'apiScenario.changeScopeSuccess': 'Change successful',
   'apiScenario.quoteCsv': 'Quote CSV',
+  'apiScenario.replaceCsv': 'Replace CSV',
   'apiScenario.csvQuote': 'CSV quote',
   'apiScenario.csvNameNotNull': 'CSV name cannot be empty',
   'apiScenario.csvFileNotNull': 'CSV file cannot be empty',

@@ -78,7 +78,8 @@
             v-model:current="pageNation.current"
             :total="pageNation.total"
             size="mini"
-            simple
+            show-jumper
+            simple-only-jumper
             @change="loadCaseList"
             @page-size-change="loadCaseList"
           />

@@ -63,6 +63,8 @@
           :time-picker-props="{
             defaultValue: ['00:00:00', '00:00:00'],
           }"
+          :disabled-time="disabledTime"
+          @select="handleTimeSelect"
         />
       </a-form-item>
       <a-form-item field="tags" :label="t('common.tag')" class="w-[436px]">
@@ -134,6 +136,7 @@
   import { ref } from 'vue';
   import { FormInstance, Message, TreeNodeData, ValidatedError } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
+  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -148,6 +151,8 @@
   import { ModuleTreeNode } from '@/models/common';
   import type { AddTestPlanParams, AssociateCaseRequest, SwitchListModel } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
+
+  import { DisabledTimeProps } from '@arco-design/web-vue/es/date-picker/interface';
 
   const props = defineProps<{
     planId?: string;
@@ -188,6 +193,53 @@
 
   function filterTreeNode(searchValue: string, nodeData: TreeNodeData) {
     return (nodeData as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
+  }
+
+  const tempRange = ref<(Date | string | number | undefined)[]>([]);
+
+  function makeLessNumbers(value: number) {
+    const res = [];
+    for (let i = 0; i < value; i++) {
+      res.push(i);
+    }
+    return res;
+  }
+
+  function disabledTime(current: Date, type: 'start' | 'end'): DisabledTimeProps {
+    if (type === 'end') {
+      const currentDate = dayjs(current);
+      const startDate = dayjs(tempRange.value[0]);
+      // 结束时间至少比开始时间多一秒
+      return {
+        disabledHours: () => {
+          if (currentDate.isSame(startDate, 'D')) {
+            return makeLessNumbers(startDate.get('h'));
+          }
+          return [];
+        },
+        disabledMinutes: () => {
+          if (currentDate.isSame(startDate, 'D') && currentDate.isSame(startDate, 'h')) {
+            return makeLessNumbers(startDate.get('m'));
+          }
+          return [];
+        },
+        disabledSeconds: () => {
+          if (
+            currentDate.isSame(startDate, 'D') &&
+            currentDate.isSame(startDate, 'h') &&
+            currentDate.isSame(startDate, 'm')
+          ) {
+            return makeLessNumbers(startDate.get('s'));
+          }
+          return [];
+        },
+      };
+    }
+    return {};
+  }
+
+  function handleTimeSelect(value: (Date | string | number | undefined)[]) {
+    tempRange.value = value;
   }
 
   const switchList: SwitchListModel[] = [

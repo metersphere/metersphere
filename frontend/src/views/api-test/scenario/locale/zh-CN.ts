@@ -274,6 +274,7 @@ export default {
   'apiScenario.confirmChange': '确认更改',
   'apiScenario.changeScopeSuccess': '已更改',
   'apiScenario.quoteCsv': '引用 CSV',
+  'apiScenario.replaceCsv': '替换 CSV',
   'apiScenario.csvQuote': 'CSV 引用',
   'apiScenario.csvNameNotNull': 'CSV 名称不能为空',
   'apiScenario.csvFileNotNull': 'CSV 文件不能为空',

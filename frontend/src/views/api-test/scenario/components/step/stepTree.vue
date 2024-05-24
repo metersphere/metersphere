@@ -899,6 +899,7 @@
       } else if (realStep !== null) {
         realStep.csvIds = [...(realStep.csvIds || []), ...keys];
       }
+      scenario.value.unSaved = true;
     }
   }
 

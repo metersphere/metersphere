@@ -68,7 +68,16 @@
         >
           <template #value="{ item }">
             <slot name="descValue" :item="item">
-              {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+              <a-tooltip
+                :content="`${item.value}`"
+                :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
+              >
+                <div>
+                  {{
+                    item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value
+                  }}
+                </div>
+              </a-tooltip>
             </slot>
           </template>
         </MsDescription>
@@ -312,7 +321,7 @@
       @apply h-full w-full overflow-auto;
       .ms-scroll-bar();
 
-      min-width: 650px;
+      min-width: 448px; // 480 - 左右边距 32
       min-height: 500px;
     }
     .arco-scrollbar-track-direction-vertical {

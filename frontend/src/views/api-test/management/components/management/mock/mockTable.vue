@@ -199,7 +199,6 @@
 <script setup lang="ts">
   import { useClipboard } from '@vueuse/core';
   import { FormInstance, Message } from '@arco-design/web-vue';
-  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -241,6 +240,7 @@
     definitionDetail: RequestParam;
     readOnly?: boolean; // 是否是只读模式
     protocol: string; // 查看的协议类型
+    heightUsed?: number;
   }>();
   const emit = defineEmits<{
     (e: 'init', params: any): void;
@@ -332,23 +332,18 @@
       width: 200,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getDefinitionMockPage,
-    {
-      columns: props.readOnly ? columns : [],
-      scroll: { x: '100%' },
-      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST_MANAGEMENT_MOCK,
-      showSetting: !props.readOnly,
-      selectable: true,
-      showSelectAll: !props.readOnly,
-      draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
-      showSubdirectory: true,
-    },
-    (item) => ({
-      ...item,
-      updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
-    })
-  );
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDefinitionMockPage, {
+    columns: props.readOnly ? columns : [],
+    scroll: { x: '100%' },
+    tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST_MANAGEMENT_MOCK,
+    showSetting: !props.readOnly,
+    selectable: true,
+    heightUsed: (props.heightUsed || 0) + 282,
+    showSelectAll: !props.readOnly,
+    draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
+    showSubdirectory: true,
+    paginationSize: 'mini',
+  });
   const batchActions = {
     baseAction: [
       {

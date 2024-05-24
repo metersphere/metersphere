@@ -2,8 +2,8 @@
   <MsDrawer
     v-model:visible="visible"
     :width="680"
-    :title="t('apiScenario.quoteCsv')"
-    :ok-text="t('common.quote')"
+    :title="props.isSingle ? t('apiScenario.replaceCsv') : t('apiScenario.quoteCsv')"
+    :ok-text="props.isSingle ? t('common.replace') : t('common.quote')"
     :ok-disabled="propsRes.selectedKeys.size === 0 && !selectedKey"
     @confirm="handleConfirm"
     @close="handleClose"
@@ -13,8 +13,8 @@
         {{ record.scope === 'SCENARIO' ? t('apiScenario.scenario') : t('apiScenario.step') }}
       </template>
       <template #file="{ record }">
-        <a-tooltip :content="record.file?.name">
-          <div>{{ record.file?.name || '-' }}</div>
+        <a-tooltip :content="record.file?.fileAlias">
+          <div>{{ record.file?.fileAlias || '-' }}</div>
         </a-tooltip>
       </template>
     </MsBaseTable>

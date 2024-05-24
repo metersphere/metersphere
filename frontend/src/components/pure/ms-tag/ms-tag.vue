@@ -14,9 +14,14 @@
     @close="emit('close')"
   >
     <slot name="icon"></slot>
-    <div class="one-line-text">
-      <slot></slot>
-    </div>
+    <a-tooltip :disabled="props.tooltipDisabled">
+      <div class="one-line-text">
+        <slot></slot>
+      </div>
+      <template #content>
+        <slot></slot>
+      </template>
+    </a-tooltip>
   </a-tag>
 </template>
 
@@ -39,6 +44,7 @@
       maxWidth?: string;
       noMargin?: boolean; // tag之间是否有间距
       closable?: boolean; // 是否可关闭
+      tooltipDisabled?: boolean; // 是否禁用tooltip
     }>(),
     {
       type: 'default',
