@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface BaseOperationHistoryMapper {
 
-    List<String> selectSourceIds();
+    List<String> selectSourceIds(@Param("limit") int limit);
 
     List<Long> selectIdsBySourceId(@Param("sourceId") String sourceId, @Param("limit") int limit);
 
-    void deleteByIds(@Param("sourceId") String sourceId, @Param("ids") List<Long> ids);
+    void deleteBySourceId(@Param("sourceId") String sourceId, @Param("ids") List<Long> ids);
 
     List<OperationHistoryDTO> list(@Param("request") OperationHistoryRequest request);
 
