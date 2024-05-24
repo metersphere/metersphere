@@ -175,6 +175,8 @@ CREATE INDEX idx_report_id ON api_scenario_report_step(report_id);
 
 CREATE INDEX idx_source_id ON operation_history(`source_id`);
 
+-- 修改缺陷自定义字段值长度(由于要支持三方平台富文本存储)
+ALTER TABLE bug_custom_field MODIFY `value` longtext;
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
