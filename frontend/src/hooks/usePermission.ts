@@ -1,6 +1,5 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
-import { firstLevelMenu } from '@/config/permission';
 import { useUserStore } from '@/store';
 import { hasAnyPermission, topLevelMenuHasPermission } from '@/utils/permission';
 
@@ -9,6 +8,8 @@ import { hasAnyPermission, topLevelMenuHasPermission } from '@/utils/permission'
  * @returns 调用方法
  */
 export default function usePermission() {
+  const firstLevelMenu = ['testPlan', 'bugManagement', 'caseManagement', 'apiTest'];
+
   return {
     /**
      * 是否为允许访问的路由

@@ -99,9 +99,15 @@
     });
   }
 
-  onBeforeMount(() => {
-    initNumberAndType();
-  });
+  watch(
+    () => modelValue.value,
+    () => {
+      initNumberAndType();
+    },
+    {
+      immediate: true,
+    }
+  );
 </script>
 
 <style lang="less" scoped>

@@ -1,4 +1,3 @@
-<!-- eslint-disable prettier/prettier -->
 <template>
   <MsAdvanceFilter
     v-model:keyword="keyword"

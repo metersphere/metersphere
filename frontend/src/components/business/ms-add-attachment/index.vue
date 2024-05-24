@@ -376,7 +376,10 @@
       fileList.value = [{ ...file, fileId: file.uid || '', fileName: file.name || '' }];
       inputFileName.value = file.name || '';
     }
-    emit('change', fileList.value);
+    nextTick(() => {
+      // fileList赋值以后需要 nextTick 才能获取到更新后的值
+      emit('change', fileList.value);
+    });
   }
 
   const inputFilesPopoverVisible = ref(false);
