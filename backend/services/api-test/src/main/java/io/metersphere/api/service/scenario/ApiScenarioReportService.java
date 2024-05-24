@@ -192,20 +192,7 @@ public class ApiScenarioReportService {
         //需要查询出所有的步骤
         List<ApiScenarioReportStepDTO> scenarioReportSteps = extApiScenarioReportMapper.selectStepByReportId(id);
         //查询所有步骤的detail
-        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
-        detailExample.createCriteria().andReportIdEqualTo(id);
-        long detailCount = apiScenarioReportDetailMapper.countByExample(detailExample);
-        // 分批查询 一次性查询1000个  超过50000个也只查询50000条
-        if (detailCount > MAX) {
-            detailCount = MAX;
-        }
-        int remainingCount = (int) detailCount;
-        List<ApiScenarioReportStepDTO> deatilList = new ArrayList<>();
-        for (int i = 0; i < detailCount; i += BATCH_SIZE) {
-            int currentBatchSize = Math.min(BATCH_SIZE, remainingCount);
-            deatilList.addAll(extApiScenarioReportMapper.selectStepDetailByReportId(id, currentBatchSize, i));
-            remainingCount -= currentBatchSize;
-        }
+        List<ApiScenarioReportStepDTO> deatilList = extApiScenarioReportMapper.selectStepDetailByReportId(id);
 
         //根据stepId进行分组
         Map<String, List<ApiScenarioReportStepDTO>> detailMap = deatilList.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
