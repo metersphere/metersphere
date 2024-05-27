@@ -52,7 +52,7 @@ public class TestPlanModuleController {
     @PostMapping("/update")
     @Operation(summary = "测试计划管理-模块树-修改模块")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
-    @CheckOwner(resourceId = "#request.getId()", resourceType = "file_module")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_module")
     public boolean list(@RequestBody @Validated TestPlanModuleUpdateRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN_MODULE, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));
         testPlanModuleService.update(request, SessionUtils.getUserId(),"/test-plan/module/update", HttpMethodConstants.POST.name());
@@ -62,7 +62,7 @@ public class TestPlanModuleController {
     @GetMapping("/delete/{deleteId}")
     @Operation(summary = "测试计划管理-模块树-删除模块")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
-    @CheckOwner(resourceId = "#deleteId", resourceType = "file_module")
+    @CheckOwner(resourceId = "#deleteId", resourceType = "test_plan_module")
     public void deleteNode(@PathVariable String deleteId) {
         testPlanManagementService.checkModuleIsOpen(deleteId, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN_MODULE, Collections.singletonList(TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN));
         testPlanModuleService.deleteModule(deleteId, SessionUtils.getUserId(),"/test-plan/module/delete",HttpMethodConstants.GET.name());
