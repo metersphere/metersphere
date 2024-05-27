@@ -39,7 +39,6 @@
           count: 'count',
         }"
         block-node
-        title-tooltip-position="left"
         @select="folderNodeSelect"
       >
         <template #title="nodeData">
@@ -74,7 +73,7 @@
     selectedKeys: string[]; // 选中的节点 key
   }>();
   const emit = defineEmits<{
-    (e: 'folderNodeSelect', ids: string[], _offspringIds: string[]): void;
+    (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], nodeName?: string): void;
     (e: 'init', params: ModuleTreeNode[]): void;
   }>();
 
@@ -144,7 +143,7 @@
       return e;
     });
     activeFolder.value = node.id;
-    emit('folderNodeSelect', _selectedKeys as string[], offspringIds);
+    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name);
   }
 
   onBeforeMount(() => {

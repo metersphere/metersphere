@@ -1,23 +1,20 @@
 <template>
   <div class="p-[16px]">
-    <div class="mb-[16px] flex justify-end">
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('ms.case.associate.searchPlaceholder')"
-        allow-clear
-        class="mr-[8px] w-[240px]"
-        @search="loadCaseList"
-        @press-enter="loadCaseList"
-        @clear="loadCaseList"
-      />
-      <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadCaseList">
-        <template #icon>
-          <icon-refresh class="text-[var(--color-text-4)]" />
-        </template>
-      </a-button>
-    </div>
+    <MsAdvanceFilter
+      v-model:keyword="keyword"
+      :filter-config-list="[]"
+      :custom-fields-config-list="[]"
+      :row-count="0"
+      :count="props.modulesCount[props.activeModule] || 0"
+      :name="moduleNamePath"
+      :search-placeholder="t('ms.case.associate.searchPlaceholder')"
+      @keyword-search="loadCaseList"
+      @adv-search="loadCaseList"
+      @refresh="loadCaseList"
+    />
     <MsBaseTable
       ref="tableRef"
+      class="mt-[16px]"
       v-bind="propsRes"
       :action-config="batchActions"
       :selectable="hasOperationPermission"
@@ -172,6 +169,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
 
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -221,6 +219,8 @@
   } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
+    modulesCount: Record<string, number>; // 模块数量统计对象
+    moduleName: string;
     activeModule: string;
     offspringIds: string[];
     planId: string;
@@ -243,6 +243,9 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
+  const moduleNamePath = computed(() => {
+    return props.activeModule === 'all' ? t('caseManagement.featureCase.allCase') : props.moduleName;
+  });
 
   const hasOperationPermission = computed(
     () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit

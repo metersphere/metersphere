@@ -15,6 +15,8 @@
       <CaseTable
         ref="caseTableRef"
         :plan-id="planId"
+        :modules-count="modulesCount"
+        :module-name="moduleName"
         :repeat-case="props.repeatCase"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
@@ -65,14 +67,16 @@
 
   const caseTableRef = ref<InstanceType<typeof CaseTable>>();
   const activeFolderId = ref<string>('all');
+  const moduleName = ref<string>('');
   const offspringIds = ref<string[]>([]);
   const selectedKeys = computed({
     get: () => [activeFolderId.value],
     set: (val) => val,
   });
-  function handleFolderNodeSelect(ids: string[], _offspringIds: string[]) {
+  function handleFolderNodeSelect(ids: string[], _offspringIds: string[], name?: string) {
     [activeFolderId.value] = ids;
     offspringIds.value = [..._offspringIds];
+    moduleName.value = name ?? '';
     caseTableRef.value?.resetSelector();
   }
 

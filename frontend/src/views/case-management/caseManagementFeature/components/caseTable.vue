@@ -9,26 +9,12 @@
         :custom-fields-config-list="searchCustomFields"
         :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
         :row-count="filterRowCount"
+        :count="props.modulesCount[props.activeFolder] || 0"
+        :name="moduleNamePath"
         @keyword-search="fetchData"
         @adv-search="handleAdvSearch"
         @refresh="fetchData()"
       >
-        <template #left>
-          <a-popover title="" position="bottom">
-            <div class="show-table-top-title">
-              <div class="one-line-text max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
-                {{ moduleNamePath }}
-              </div>
-              <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
-            </div>
-            <template #content>
-              <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
-                {{ moduleNamePath }}
-                <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
-              </div>
-            </template>
-          </a-popover>
-        </template>
         <template #right>
           <!-- <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
             <a-radio value="list" class="show-type-icon !m-[2px]">

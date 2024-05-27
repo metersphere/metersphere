@@ -69,28 +69,13 @@
             :filter-config-list="filterConfigList"
             :custom-fields-config-list="searchCustomFields"
             :row-count="filterRowCount"
+            :count="recycleModulesCount[activeFolder] || 0"
+            :name="moduleNamePath"
             :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
             @keyword-search="fetchData"
             @adv-search="handleAdvSearch"
             @refresh="fetchData()"
-          >
-            <template #left>
-              <a-popover title="" position="bottom">
-                <div class="show-table-top-title">
-                  <div class="one-line-text max-h-[32px] max-w-[116px] text-[var(--color-text-1)]">
-                    {{ moduleNamePath }}
-                  </div>
-                  <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span>
-                </div>
-                <template #content>
-                  <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
-                    {{ moduleNamePath }}
-                    <span class="text-[var(--color-text-4)]">({{ recycleModulesCount[activeFolder] || 0 }})</span>
-                  </div>
-                </template>
-              </a-popover>
-            </template>
-          </MsAdvanceFilter>
+          />
           <ms-base-table
             class="my-4"
             v-bind="propsRes"
