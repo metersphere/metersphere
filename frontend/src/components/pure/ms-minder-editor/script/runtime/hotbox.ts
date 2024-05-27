@@ -1,9 +1,7 @@
 import useMinderStore from '@/store/modules/components/minder-editor';
+import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
 
-interface Position {
-  x: number;
-  y: number;
-}
+import { MinderEventName } from '@/enums/minderEnum';
 
 function HotboxRuntime(this: any) {
   const { fsm } = this;
@@ -18,14 +16,14 @@ function HotboxRuntime(this: any) {
 
   function handleHotBoxShow() {
     const node = minder.getSelectedNode();
-    let position: Position | undefined;
+    let position: MinderNodePosition | undefined;
     if (node) {
       const box = node.getRenderBox();
       position = {
         x: box.cx,
         y: box.cy,
       };
-      minderStore.dispatchEvent('hotbox', position, node.rc.node);
+      minderStore.dispatchEvent(MinderEventName.HOTBOX, position, node.rc.node);
     }
   }
 
@@ -48,14 +46,14 @@ function HotboxRuntime(this: any) {
       e.preventDefault(); // 阻止默认行为
       // 执行进入模块方法
       const node = minder.getSelectedNode();
-      let position: Position | undefined;
+      let position: MinderNodePosition | undefined;
       if (node) {
         const box = node.getRenderBox();
         position = {
           x: box.cx,
           y: box.cy,
         };
-        minderStore.dispatchEvent('enterNode', position, node.rc.node, node.data);
+        minderStore.dispatchEvent(MinderEventName.ENTER_NODE, position, node.rc.node, node.data);
         return;
       }
     }

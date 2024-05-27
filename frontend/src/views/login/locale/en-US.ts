@@ -1,5 +1,5 @@
 export default {
-  'login.form.title': 'One-stop open source continuous testing platform',
+  'login.form.title': 'Modern, open-source test management and interface testing tools',
   'login.form.userName.errMsg': 'Username cannot be empty',
   'login.form.password.errMsg': 'Password cannot be empty',
   'login.form.login.errMsg': 'Login error, refresh and try again',

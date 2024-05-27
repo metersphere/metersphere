@@ -162,7 +162,7 @@
       setLoading(true);
       try {
         try {
-          await userStore.logout(); // 登录之前先注销，防止未登出就继续登录导致报错
+          await userStore.logout(true); // 登录之前先注销，防止未登出就继续登录导致报错
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log('logout error', error);

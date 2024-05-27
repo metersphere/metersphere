@@ -17,7 +17,12 @@
     @save="handleMinderSave"
   >
     <template #extractTabContent>
-      <baseInfo v-if="activeExtraKey === 'baseInfo'" :loading="baseInfoLoading" :active-case="activeCase" />
+      <baseInfo
+        v-if="activeExtraKey === 'baseInfo'"
+        :loading="baseInfoLoading"
+        :active-case="activeCase"
+        @cancel="handleBaseInfoCancel"
+      />
       <attachment
         v-else-if="activeExtraKey === 'attachment'"
         v-model:model-value="fileList"
@@ -69,7 +74,7 @@
   const topTags = [moduleTag, caseTag];
   const descTags = [t('ms.minders.stepDesc'), t('ms.minders.textDesc')];
   const importJson = ref<MinderJson>({
-    root: {},
+    root: {} as MinderJsonNode,
     template: 'default',
     treePath: [],
   });
@@ -550,6 +555,11 @@
   function resetExtractInfo() {
     activeCase.value = {};
     fileList.value = [];
+  }
+
+  function handleBaseInfoCancel() {
+    extraVisible.value = false;
+    resetExtractInfo();
   }
 
   /**

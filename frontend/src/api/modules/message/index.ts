@@ -1,5 +1,4 @@
 import MSR from '@/api/http/index';
-import * as bugURL from '@/api/requrls/bug-management';
 
 import { CommonList, TableQueryParams } from '@/models/common';
 
@@ -91,5 +90,5 @@ export function getMessageReadAll(resourceType?: string) {
 }
 
 export function getMessageUnReadCount(projectId: string) {
-  return MSR.get<number>({ url: '/notification/un-read', params: projectId });
+  return MSR.get<number>({ url: '/notification/un-read', params: projectId }, { ignoreCancelToken: true });
 }

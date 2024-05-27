@@ -92,6 +92,8 @@
   import useMinderStore from '@/store/modules/components/minder-editor';
   import { findNodePathByKey } from '@/utils';
 
+  import { MinderEventName } from '@/enums/minderEnum';
+
   import { editMenuProps, insertProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
   import Editor from '../script/editor';
   import { markChangeNode, markDeleteNode } from '../script/tool/utils';
@@ -222,8 +224,12 @@
   const menuVisible = ref(false);
   const menuPopupOffset = ref([0, 0]);
 
-  function switchNode(node: any) {
-    innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.id, 'data', 'id'));
+  /**
+   * 切换脑图展示的节点层级
+   * @param node 切换的节点
+   */
+  function switchNode(node: MinderJsonNode) {
+    innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.data?.id, 'data', 'id'));
     innerImportJson.value.data.expandState = 'expand';
     window.minder.importJson(innerImportJson.value);
     window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[minderStore.mold]);
@@ -232,7 +238,7 @@
   watch(
     () => minderStore.event.timestamp,
     () => {
-      if (minderStore.event.name === 'hotbox') {
+      if (minderStore.event.name === MinderEventName.HOTBOX && minderStore.event.nodePosition) {
         const nodeDomWidth = minderStore.event.nodeDom?.getBoundingClientRect().width || 0;
         menuPopupOffset.value = [
           minderStore.event.nodePosition.x + nodeDomWidth / 2,
@@ -240,12 +246,16 @@
         ];
         menuVisible.value = true;
       }
-      if (minderStore.event.name === 'enterNode') {
-        switchNode(minderStore.event.nodeData);
+      if (minderStore.event.name === MinderEventName.ENTER_NODE && minderStore.event.node) {
+        switchNode(minderStore.event.node);
       }
     }
   );
 
+  /**
+   * 执行插入
+   * @param command 插入命令
+   */
   function execInsertCommand(command: string) {
     const node: MinderJsonNode = window.minder.getSelectedNode();
     if (props.insertNode) {
@@ -257,6 +267,10 @@
     }
   }
 
+  /**
+   * 处理快捷菜单选择
+   * @param val 选择的菜单项
+   */
   function handleMinderMenuSelect(val: string | number | Record<string, any> | undefined) {
     const selectedNode = window.minder.getSelectedNode();
     switch (val) {
