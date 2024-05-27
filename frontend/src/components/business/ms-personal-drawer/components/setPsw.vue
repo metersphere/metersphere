@@ -42,6 +42,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user';
   import { encrypted } from '@/utils';
+  import { clearToken } from '@/utils/auth';
   import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
 
   const router = useRouter();
@@ -111,6 +112,7 @@
           }, 1000);
           setTimeout(() => {
             clearInterval(timer);
+            clearToken();
             router.push({
               name: 'login',
               query: {

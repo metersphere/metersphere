@@ -36,7 +36,7 @@
       >
         {{ t('common.save') }}
       </a-button>
-      <a-button type="secondary" :disabled="saveLoading">{{ t('common.cancel') }}</a-button>
+      <a-button type="secondary" :disabled="saveLoading" @click="handleCancel">{{ t('common.cancel') }}</a-button>
     </div>
   </div>
 </template>
@@ -47,6 +47,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
   import { getCaseDefaultFields, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
@@ -60,6 +61,9 @@
   const props = defineProps<{
     activeCase: Record<string, any>;
     loading: boolean;
+  }>();
+  const emit = defineEmits<{
+    (e: 'cancel'): void;
   }>();
 
   const appStore = useAppStore();
@@ -149,7 +153,7 @@
                 fileList: [],
               });
               const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
-              if (selectedNode.data) {
+              if (selectedNode?.data) {
                 selectedNode.data.text = baseInfoForm.value.name;
               }
               Message.success(t('common.saveSuccess'));
@@ -163,6 +167,9 @@
         });
       }
     });
+  }
+  function handleCancel() {
+    emit('cancel');
   }
 
   watch(

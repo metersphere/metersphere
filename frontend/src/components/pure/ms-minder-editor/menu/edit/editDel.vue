@@ -19,10 +19,15 @@
   import { nextTick, onMounted, reactive, ref } from 'vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useMinderStore from '@/store/modules/components/minder-editor';
+  import { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
+
+  import { MinderEventName } from '@/enums/minderEnum';
 
   import { delProps } from '../../props';
   import { isDeleteDisableNode } from '../../script/tool/utils';
 
+  const minderStore = useMinderStore();
   const { t } = useI18n();
 
   const props = defineProps(delProps);
@@ -54,9 +59,19 @@
     if (removeNodeDisabled.value || !minder.queryCommandState || !minder.execCommand) {
       return;
     }
-    if (props.delConfirm) {
-      props.delConfirm();
-      return;
+    const node = minder.getSelectedNode();
+    let position: MinderNodePosition | undefined;
+    if (node) {
+      if (props.delConfirm) {
+        props.delConfirm(node);
+        return;
+      }
+      const box = node.getRenderBox();
+      position = {
+        x: box.cx,
+        y: box.cy,
+      };
+      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, position, node.rc.node, node.data);
     }
     minder.forceRemoveNode();
   }

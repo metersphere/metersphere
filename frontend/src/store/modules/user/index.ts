@@ -142,11 +142,13 @@ const useUserStore = defineStore('user', {
       appStore.resetSystemPackageType();
     },
     // 登出
-    async logout() {
+    async logout(silence = false) {
       try {
         const { t } = useI18n();
-        const appStore = useAppStore();
-        appStore.showLoading(t('message.logouting'));
+        if (!silence) {
+          const appStore = useAppStore();
+          appStore.showLoading(t('message.logouting'));
+        }
         await userLogout();
       } finally {
         this.logoutCallBack();

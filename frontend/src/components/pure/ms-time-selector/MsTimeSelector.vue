@@ -68,8 +68,8 @@
     modelValue.value = result;
     nextTick(() => {
       initNumberAndType();
+      emit('change', modelValue.value);
     });
-    emit('change', modelValue.value);
   }
 
   const option = [

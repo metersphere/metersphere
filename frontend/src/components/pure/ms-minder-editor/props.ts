@@ -19,8 +19,8 @@ export interface MinderJsonNodeData {
   [key: string]: any;
 }
 export interface MinderJsonNode {
+  data: MinderJsonNodeData;
   parent?: MinderJsonNode;
-  data?: MinderJsonNodeData;
   children?: MinderJsonNode[];
   [key: string]: any; // minder 内置字段
 }
@@ -148,8 +148,9 @@ export const moleProps = {
 };
 
 export const delProps = {
+  // 节点删除确认
   delConfirm: {
-    type: Function,
+    type: Function as PropType<(node: MinderJsonNode) => void>,
     default: null,
   },
 };

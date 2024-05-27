@@ -1,5 +1,5 @@
 export default {
-  'login.form.title': '一站式开源持续测试平台',
+  'login.form.title': '现代化、开源的测试管理和接口测试工具',
   'login.form.userName.errMsg': '邮箱不能为空',
   'login.form.password.errMsg': '密码不能为空',
   'login.form.login.errMsg': '登录出错，请刷新重试',

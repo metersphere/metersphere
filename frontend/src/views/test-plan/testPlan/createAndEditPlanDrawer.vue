@@ -61,7 +61,7 @@
           value-format="timestamp"
           :separator="t('common.to')"
           :time-picker-props="{
-            defaultValue: ['00:00:00', '00:00:00'],
+            defaultValue: tempRange,
           }"
           :disabled-time="disabledTime"
           @select="handleTimeSelect"
@@ -196,14 +196,14 @@
     return (nodeData as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
-  const tempRange = ref<(Date | string | number | undefined)[]>([]);
+  const tempRange = ref<(Date | string | number)[]>(['00:00:00', '00:00:00']);
 
-  function makeLessNumbers(value: number) {
+  function makeLessNumbers(value: number, isSecond = false) {
     const res = [];
     for (let i = 0; i < value; i++) {
       res.push(i);
     }
-    return res;
+    return isSecond && res.length === 0 ? [0] : res; // 秒至少相差 1 秒
   }
 
   function disabledTime(current: Date, type: 'start' | 'end'): DisabledTimeProps {
@@ -230,7 +230,7 @@
             currentDate.isSame(startDate, 'h') &&
             currentDate.isSame(startDate, 'm')
           ) {
-            return makeLessNumbers(startDate.get('s'));
+            return makeLessNumbers(startDate.get('s'), true);
           }
           return [];
         },
@@ -240,7 +240,15 @@
   }
 
   function handleTimeSelect(value: (Date | string | number | undefined)[]) {
-    tempRange.value = value;
+    if (value) {
+      // const start = dayjs(value[0]);
+      // const end = dayjs(value[1]);
+      // if (start.isSame(end, 'D') && end.hour() === 0 && end.minute() === 0 && end.second() === 0) {
+      //   const newEnd = end.hour(23).minute(59).second(59);
+      //   value[1] = newEnd.valueOf();
+      // }
+      tempRange.value = value as number[];
+    }
   }
 
   const switchList: SwitchListModel[] = [
