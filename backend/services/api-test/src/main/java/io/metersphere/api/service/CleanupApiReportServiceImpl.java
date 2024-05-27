@@ -38,6 +38,8 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
     @Resource
     private ApiScenarioReportLogMapper apiScenarioReportLogMapper;
+    @Resource
+    private ApiScenarioReportDetailBlobMapper apiScenarioReportDetailBlobMapper;
 
     @Override
     public void cleanReport(Map<String, String> map, String projectId) {
@@ -87,6 +89,9 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
         ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
         detailExample.createCriteria().andReportIdIn(ids);
         apiScenarioReportDetailMapper.deleteByExample(detailExample);
+        ApiScenarioReportDetailBlobExample blobExample = new ApiScenarioReportDetailBlobExample();
+        blobExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportDetailBlobMapper.deleteByExample(blobExample);
         ApiScenarioReportLogExample logExample = new ApiScenarioReportLogExample();
         logExample.createCriteria().andReportIdIn(ids);
         apiScenarioReportLogMapper.deleteByExample(logExample);

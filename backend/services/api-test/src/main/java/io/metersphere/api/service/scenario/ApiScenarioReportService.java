@@ -201,7 +201,7 @@ public class ApiScenarioReportService {
 
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
-        // TODO 查询修改
+        
         List<ApiScenarioReportStepDTO> steps = Optional.ofNullable(scenarioReportStepMap.get("NONE")).orElse(new ArrayList<>(0));
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
 
@@ -365,7 +365,7 @@ public class ApiScenarioReportService {
     }
 
     private List<ApiScenarioReportDetailBlobDTO> checkResourceStep(String stepId, String reportId) {
-        List<ApiScenarioReportDetailBlobDTO> apiReportDetails = extApiScenarioReportDetailBlobMapper.selectByExampleWithBLOBs(stepId,reportId);
+        List<ApiScenarioReportDetailBlobDTO> apiReportDetails = extApiScenarioReportDetailBlobMapper.selectByExampleWithBLOBs(stepId, reportId);
         if (CollectionUtils.isEmpty(apiReportDetails)) {
             return new ArrayList<>();
         }
