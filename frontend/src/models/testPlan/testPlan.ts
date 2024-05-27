@@ -160,10 +160,6 @@ export interface DisassociateCaseParams {
   id: string;
 }
 
-export interface EditLastExecResultParams extends DisassociateCaseParams {
-  lastExecResult: string;
-}
-
 export interface BatchFeatureCaseParams extends BatchActionQueryParams {
   testPlanId: string;
   moduleIds?: string[];

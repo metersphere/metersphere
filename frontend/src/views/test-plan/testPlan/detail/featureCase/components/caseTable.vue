@@ -186,9 +186,9 @@
     batchExecuteCase,
     batchUpdateCaseExecutor,
     disassociateCase,
-    editLastExecResult,
     getPlanDetailFeatureCaseList,
     GetTestPlanUsers,
+    runFeatureCase,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
   import { defaultExecuteForm } from '@/config/testPlan';
@@ -502,9 +502,11 @@
   // 更新执行结果
   async function handleEditLastExecResult(record: PlanDetailFeatureCaseItem) {
     try {
-      await editLastExecResult({
+      await runFeatureCase({
         id: record.id,
+        projectId: appStore.currentProjectId,
         testPlanId: props.planId,
+        caseId: record.caseId,
         lastExecResult: record.lastExecResult,
       });
       Message.success(t('common.updateSuccess'));

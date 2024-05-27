@@ -238,7 +238,7 @@
         if (titleMatches || filteredChildren.length > 0) {
           result.push({
             ...item,
-            expanded: titleMatches || filteredChildren.length > 0,
+            expanded: true,
             [props.fieldNames.children]: filteredChildren,
           });
         }
