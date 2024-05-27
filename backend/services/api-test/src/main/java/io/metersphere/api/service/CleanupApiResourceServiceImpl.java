@@ -99,6 +99,8 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
     private ApiScenarioCsvMapper apiScenarioCsvMapper;
     @Resource
     private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
+    @Resource
+    private ApiScenarioReportDetailBlobMapper apiScenarioReportDetailBlobMapper;
 
 
     @Async
@@ -312,6 +314,9 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         ApiScenarioReportLogExample logExample = new ApiScenarioReportLogExample();
         logExample.createCriteria().andReportIdIn(ids);
         apiScenarioReportLogMapper.deleteByExample(logExample);
+        ApiScenarioReportDetailBlobExample blobExample = new ApiScenarioReportDetailBlobExample();
+        blobExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportDetailBlobMapper.deleteByExample(blobExample);
     }
 
     private void deleteSchedule(String projectId) {
