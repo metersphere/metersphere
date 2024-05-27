@@ -89,6 +89,7 @@
       placeholder?: string;
       draggable?: boolean;
       previewUrl?: string;
+      editable?: boolean;
     }>(),
     {
       raw: '',
@@ -340,6 +341,7 @@
         }) as Extension<any, any>,
       ],
       autofocus: false,
+      editable: !props.editable,
       onUpdate: () => {
         debounceOnUpdate();
       },

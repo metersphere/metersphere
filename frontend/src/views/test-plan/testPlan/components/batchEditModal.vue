@@ -29,6 +29,7 @@
         :label="t('apiTestManagement.batchUpdate')"
         :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
         asterisk-position="end"
+        :validate-trigger="['blur', 'input']"
         class="mb-0"
         required
       >
@@ -138,7 +139,12 @@
   function closeHandler() {
     isVisible.value = false;
     formRef.value?.resetFields();
-    form.value = { ...initForm };
+    form.value = {
+      selectedAttrsId: '',
+      append: false,
+      tags: [],
+      value: '',
+    };
   }
 
   const batchEditLoading = ref(false);

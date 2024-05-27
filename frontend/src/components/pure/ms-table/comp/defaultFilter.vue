@@ -40,7 +40,7 @@
               :placeholder="props.placeholderText"
               multiple
               :value-key="props.valueKey || 'id'"
-              :label-key="props.labelKey"
+              :label-key="props.labelKey || 'name'"
               :filter-option="false"
               allow-clear
               :search-keys="['name']"
@@ -136,6 +136,9 @@
         list.forEach((item: any) => {
           if (props.valueKey) {
             item.id = item[props.valueKey || 'id'] as string;
+          }
+          if (props.labelKey) {
+            item.name = (item[props.labelKey] as string) || '';
           }
         });
         return list;

@@ -255,7 +255,6 @@
               {{ t('project.menu.configure') }}
             </span>
           </template>
-
           <a-switch
             v-model="allValueMap['BUG_SYNC_SYNC_ENABLE']"
             checked-value="true"
@@ -383,7 +382,11 @@
       />
     </template>
   </MsBaseTable>
-  <DefectSync v-model:visible="defectDrawerVisible" @cancel="defectDrawerVisible = false" @ok="initMenuData()" />
+  <DefectSync
+    v-model:visible="defectDrawerVisible"
+    @cancel="defectDrawerVisible = false"
+    @ok="getMenuConfig(MenuEnum.bugManagement)"
+  />
   <RelatedCase
     v-model:visible="relatedCaseDrawerVisible"
     @cancel="relatedCaseDrawerVisible = false"
