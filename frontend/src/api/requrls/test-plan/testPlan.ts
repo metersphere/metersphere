@@ -56,8 +56,6 @@ export const GetFeatureCaseModuleCountUrl = '/test-plan/functional/case/module/c
 export const GetFeatureCaseModuleUrl = '/test-plan/functional/case/tree';
 // 计划详情-功能用例列表-拖拽排序
 export const SortFeatureCaseUrl = '/test-plan/functional/case/sort';
-// 计划详情-功能用例列表-编辑执行结果
-export const EditCaseLastExecResultUrl = '/test-plan/functional/case/edit';
 // 计划详情-功能用例-取消关联用例
 export const DisassociateCaseUrl = '/test-plan/functional/case/disassociate';
 // 计划详情-功能用例-批量取消关联用例

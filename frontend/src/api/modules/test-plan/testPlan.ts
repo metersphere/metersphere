@@ -16,7 +16,6 @@ import {
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
-  EditCaseLastExecResultUrl,
   ExecuteHistoryUrl,
   followPlanUrl,
   GenerateReportUrl,
@@ -54,7 +53,6 @@ import type {
   BatchFeatureCaseParams,
   BatchUpdateCaseExecutorParams,
   DisassociateCaseParams,
-  EditLastExecResultParams,
   ExecuteHistoryItem,
   ExecuteHistoryType,
   FollowPlanParams,
@@ -195,10 +193,6 @@ export function getFeatureCaseModule(planId: string) {
 // 计划详情-功能用例列表-取消关联用例
 export function disassociateCase(data: DisassociateCaseParams) {
   return MSR.post({ url: DisassociateCaseUrl, data });
-}
-// 计划详情-功能用例列表-编辑执行结果
-export function editLastExecResult(data: EditLastExecResultParams) {
-  return MSR.post({ url: EditCaseLastExecResultUrl, data });
 }
 // 计划详情-功能用例列表-拖拽排序
 export const sortFeatureCase = (data: SortFeatureCaseParams) => {
