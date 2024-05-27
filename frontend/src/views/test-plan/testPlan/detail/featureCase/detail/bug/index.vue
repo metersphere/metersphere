@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-4 grid grid-cols-3">
-      <div>
+      <div v-if="props.canEdit">
         <a-dropdown-button
           v-if="hasAnyPermission(['PROJECT_BUG:READ']) && total"
           type="primary"
@@ -68,6 +68,7 @@
       :case-id="props.caseId"
       :bug-total="total"
       :bug-columns="columns"
+      :can-edit="props.canEdit"
       :load-bug-list-api="associatedBugPage"
       :load-params="{
         caseId: props.caseId,
@@ -105,6 +106,7 @@
   const props = defineProps<{
     caseId: string;
     testPlanCaseId: string;
+    canEdit: boolean;
   }>();
 
   const keyword = ref<string>('');
@@ -240,6 +242,9 @@
   const statusFilterOptions = ref<BugOptionItem[]>([]);
 
   async function initFilterOptions() {
+    if (!props.canEdit) {
+      columns.value = columns.value.filter((item) => item.dataIndex !== 'operation');
+    }
     if (hasAnyPermission(['PROJECT_BUG:READ'])) {
       const res = await getCustomOptionHeader(appStore.currentProjectId);
       handleUserFilterOptions.value = res.handleUserOption;

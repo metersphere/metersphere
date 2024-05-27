@@ -19,6 +19,7 @@
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
+        :can-edit="props.canEdit"
         @get-module-count="getModuleCount"
         @refresh="emit('refresh')"
         @init-modules="initModules"
@@ -42,6 +43,7 @@
 
   const props = defineProps<{
     repeatCase: boolean;
+    canEdit: boolean;
   }>();
 
   const emit = defineEmits<{
