@@ -21,6 +21,7 @@
             :class="beforeDividerHasAction && afterDividerHasAction ? '' : 'hidden'"
             margin="4px"
           />
+
           <a-doption
             v-else
             :key="item.label"
@@ -93,7 +94,12 @@
 
   // 判断是否有所有权限
   const isHasAllPermission = computed(() => {
-    return props.list.some((item: ActionsItem) => hasAnyPermission(item.permission || []));
+    return props.list.some((item: ActionsItem) => {
+      if (item.permission) {
+        return hasAnyPermission(item.permission);
+      }
+      return false;
+    });
   });
 
   function selectHandler(value: SelectedValue) {
