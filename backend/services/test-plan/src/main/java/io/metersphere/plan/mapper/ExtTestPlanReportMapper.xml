@@ -18,7 +18,7 @@
             and tpr.project_id = #{request.projectId}
         </if>
         <if test="request.condition.keyword != null and request.condition.keyword != ''">
-            and tpr.name like concat('%', #{request.keyword},'%')
+            and tpr.name like concat('%', #{request.condition.keyword},'%')
         </if>
         <include refid="filterByCondition"/>
     </select>
