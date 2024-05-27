@@ -1,6 +1,5 @@
 package io.metersphere.api.service.debug;
 
-import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
@@ -24,6 +23,7 @@ import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
@@ -265,7 +265,7 @@ public class ApiDebugService extends MoveNodeService {
     }
 
     public void moveNode(PosRequest posRequest) {
-        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest, true);
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 posRequest.getProjectId(),
                 request,

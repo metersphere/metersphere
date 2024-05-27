@@ -16,9 +16,11 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -432,5 +434,17 @@ public class TestPlanTestService {
 
 
         });
+    }
+
+    public void checkTestPlanPage(String returnData, long current, long pageSize, long allData) {
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Pager<Object> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(result.getCurrent(), current);
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= pageSize);
+        if (allData > 0) {
+            Assertions.assertEquals(result.getTotal(), allData);
+        }
     }
 }

@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
+import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
@@ -13,6 +14,8 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
@@ -49,6 +52,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
+    private TestPlanGroupService testPlanGroupService;
+    @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private TestPlanLogService testPlanLogService;
@@ -82,12 +87,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 创建测试计划
-     *
-     * @param testPlanCreateRequest
-     * @param operator
-     * @param requestUrl
-     * @param requestMethod
-     * @return
      */
     public TestPlan add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator, null);
@@ -108,8 +107,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         checkModule(createOrCopyRequest.getModuleId());
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
-        //        5.21，查询需求文档、测试用例：测试计划名称允许重复
-        //        validateTestPlan(createTestPlan);
+        initTestPlanPos(createTestPlan);
 
         createTestPlan.setId(IDGenerator.nextStr());
         long operateTime = System.currentTimeMillis();
@@ -136,6 +134,22 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insert(testPlanConfig);
         return createTestPlan;
+    }
+
+    //校验测试计划
+    private void initTestPlanPos(TestPlan createTestPlan) {
+        if (!StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            //如果测试计划组不为NONE，判断是否真实存在并未归档
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andIdEqualTo(createTestPlan.getGroupId()).andStatusNotEqualTo(TEST_PLAN_STATUS_ARCHIVED);
+            if (testPlanMapper.countByExample(example) == 0) {
+                throw new MSException(Translator.get("test_plan.group.error"));
+            } else {
+                createTestPlan.setPos(testPlanGroupService.getNextOrder(createTestPlan.getGroupId()));
+            }
+        } else {
+            createTestPlan.setPos(0L);
+        }
     }
 
 
@@ -179,6 +193,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private void deleteGroupByList(List<String> testPlanGroupIds) {
         if (CollectionUtils.isNotEmpty(testPlanGroupIds)) {
             TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+            assert testPlanReportService != null;
             BatchProcessUtils.consumerByString(testPlanGroupIds, (deleteGroupIds) -> {
                 /*
                  * 计划组删除逻辑{第一版需求: 删除组, 组下的子计划Group置为None}:
@@ -189,12 +204,13 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 testPlanExample.createCriteria().andGroupIdIn(deleteGroupIds);
                 List<TestPlan> deleteGroupPlans = testPlanMapper.selectByExample(testPlanExample);
                 List<String> deleteGroupPlanIds = deleteGroupPlans.stream().map(TestPlan::getId).toList();
-                if (CollectionUtils.isNotEmpty(deleteGroupPlanIds)) {
-                    // 级联删除子计划关联的资源(计划组不存在关联的资源)
+                List<String> allDeleteIds = ListUtils.union(deleteGroupIds, deleteGroupPlanIds);
+                if (CollectionUtils.isNotEmpty(allDeleteIds)) {
+                    // 级联删除子计划关联的资源(计划组不存在关联的资源,但是存在报告)
                     this.cascadeDeleteTestPlanIds(deleteGroupPlanIds, testPlanReportService);
                 }
                 testPlanExample.clear();
-                testPlanExample.createCriteria().andIdIn(ListUtils.union(deleteGroupIds, deleteGroupPlanIds));
+                testPlanExample.createCriteria().andIdIn(allDeleteIds);
                 testPlanMapper.deleteByExample(testPlanExample);
             });
         }
@@ -275,12 +291,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 更新测试计划
-     *
-     * @param request
-     * @param userId
-     * @param requestUrl
-     * @param requestMethod
-     * @return
      */
     public TestPlan update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         this.checkTestPlanNotArchived(request.getId());
@@ -296,8 +306,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             if (StringUtils.isNotBlank(request.getName())) {
                 updateTestPlan.setName(request.getName());
                 updateTestPlan.setProjectId(testPlan.getProjectId());
-                //        5.21，查询需求文档、测试用例：测试计划名称允许重复
-                //                validateTestPlan(updateTestPlan);
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateTestPlan.setTags(new ArrayList<>(request.getTags()));
@@ -706,4 +714,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlan.setStatus(testPlanFinalStatus);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
+
+    public TestPlanResourceSortResponse sortInGroup(PosRequest request, LogInsertModule logInsertModule) {
+        testPlanGroupService.sort(request);
+        testPlanLogService.saveMoveLog(testPlanMapper.selectByPrimaryKey(request.getMoveId()), request.getMoveId(), logInsertModule);
+        return new TestPlanResourceSortResponse(1);
+    }
+
 }

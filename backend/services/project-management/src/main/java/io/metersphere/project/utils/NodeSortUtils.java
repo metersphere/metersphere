@@ -5,7 +5,7 @@ import io.metersphere.project.dto.ModuleSortCountResultDTO;
 public class NodeSortUtils {
 
     //默认节点间隔
-    public static final long DEFAULT_NODE_INTERVAL_POS = 64;
+    public static final long DEFAULT_NODE_INTERVAL_POS = 4096;
 
     /**
      * 计算模块排序

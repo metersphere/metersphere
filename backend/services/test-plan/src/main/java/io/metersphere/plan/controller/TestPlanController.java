@@ -4,11 +4,14 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
+import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -192,5 +195,14 @@ public class TestPlanController {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.filterArchivedIds(request);
         testPlanService.batchEdit(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping(value = "/sort")
+    @Operation(summary = "测试计划移动（测试计划拖进、拖出到测试计划组、测试计划在测试计划组内的排序")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getMoveId()", resourceType = "test_plan")
+    public TestPlanResourceSortResponse sortTestPlan(@Validated @RequestBody PosRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getMoveId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        return testPlanService.sortInGroup(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/move", HttpMethodConstants.POST.name()));
     }
 }

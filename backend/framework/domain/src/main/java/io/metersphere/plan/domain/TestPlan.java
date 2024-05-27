@@ -4,13 +4,13 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @Data
 public class TestPlan implements Serializable {
@@ -53,7 +53,7 @@ public class TestPlan implements Serializable {
     private String type;
 
     @Schema(description = "标签")
-    private List<String> tags;
+    private java.util.List<String> tags;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -79,8 +79,12 @@ public class TestPlan implements Serializable {
     @Schema(description = "实际结束时间")
     private Long actualEndTime;
 
-    @Schema(description = "描述;描述")
+    @Schema(description = "描述")
     private String description;
+
+    @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan.pos.not_blank}", groups = {Created.class})
+    private Long pos;
 
     private static final long serialVersionUID = 1L;
 
@@ -102,7 +106,8 @@ public class TestPlan implements Serializable {
         plannedEndTime("planned_end_time", "plannedEndTime", "BIGINT", false),
         actualStartTime("actual_start_time", "actualStartTime", "BIGINT", false),
         actualEndTime("actual_end_time", "actualEndTime", "BIGINT", false),
-        description("description", "description", "VARCHAR", false);
+        description("description", "description", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
