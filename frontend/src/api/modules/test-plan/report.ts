@@ -56,7 +56,10 @@ export function updateReportDetail(data: UpdateReportDetailParams) {
 }
 
 // 测试计划-报告-详情
-export function getReportDetail(id: string) {
+export function getReportDetail(id: string, shareId?: string) {
+  if (shareId) {
+    return MSR.get({ url: `${reportUrl.PlanReportShareDetailUrl}/${shareId}/${id}` });
+  }
   return MSR.get({ url: `${reportUrl.PlanReportDetailUrl}/${id}` });
 }
 

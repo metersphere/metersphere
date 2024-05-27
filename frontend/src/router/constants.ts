@@ -16,6 +16,11 @@ export const WHITE_LIST = [
         path: '/shareReportCase',
         children: [],
       },
+      {
+        name: 'shareReportTestPlan',
+        path: '/shareReportTestPlan',
+        children: [],
+      },
     ],
   },
   {

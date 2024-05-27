@@ -17,7 +17,6 @@
   const props = defineProps<{
     reportId: string;
     shareId?: string;
-    isDelete: boolean;
   }>();
 
   const tableStore = useTableStore();
@@ -81,7 +80,7 @@
   }
 
   watchEffect(() => {
-    if (props.reportId && !props.isDelete) {
+    if (props.reportId) {
       loadCaseList();
     }
   });
