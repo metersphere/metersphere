@@ -92,7 +92,7 @@
 <script setup lang="ts">
   import { nextTick, onBeforeMount, Ref, ref, watch } from 'vue';
   import { TreeInstance } from '@arco-design/web-vue';
-  import { debounce } from 'lodash-es';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -227,17 +227,20 @@
     const search = (_data: MsTreeNodeData[]) => {
       const result: MsTreeNodeData[] = [];
       _data.forEach((item) => {
-        if (item[props.fieldNames.title].toLowerCase().includes(keyword.toLowerCase())) {
-          result.push({ ...item, expanded: true });
-        } else if (item[props.fieldNames.children]) {
-          const filterData = search(item[props.fieldNames.children]);
-          if (filterData.length) {
-            result.push({
-              ...item,
-              expanded: true,
-              [props.fieldNames.children]: filterData,
-            });
-          }
+        // 判断当前节点是否符合搜索关键字
+        const titleMatches = item[props.fieldNames.title].toLowerCase().includes(keyword.toLowerCase());
+        // 递归搜索子节点
+        let filteredChildren: MsTreeNodeData[] = [];
+        if (item[props.fieldNames.children]) {
+          filteredChildren = search(item[props.fieldNames.children]);
+        }
+        // 当前节点符合关键字，或有符合关键字的子节点
+        if (titleMatches || filteredChildren.length > 0) {
+          result.push({
+            ...item,
+            expanded: titleMatches || filteredChildren.length > 0,
+            [props.fieldNames.children]: filteredChildren,
+          });
         }
       });
       return result;
@@ -356,7 +359,11 @@
    * 处理树节点选中（非复选框）
    */
   function select(_selectedKeys: Array<string | number>, _data: MsTreeSelectedData) {
-    emit('select', _selectedKeys, _data.selectedNodes[0]);
+    const selectNode: MsTreeNodeData = cloneDeep(_data.selectedNodes[0]);
+    loop(data.value, selectNode[props.fieldNames.key], (item) => {
+      selectNode.children = item.children;
+    });
+    emit('select', _selectedKeys, selectNode);
   }
 
   function checked(_checkedKeys: Array<string | number>) {
