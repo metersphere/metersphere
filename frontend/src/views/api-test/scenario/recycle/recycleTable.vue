@@ -229,6 +229,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { operationWidth } from '@/utils';
 
   import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
@@ -407,7 +408,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 180,
+      width: operationWidth(225, 160),
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(

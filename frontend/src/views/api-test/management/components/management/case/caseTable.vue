@@ -315,7 +315,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiCaseDetail } from '@/models/apiTest/management';
@@ -525,7 +525,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 200 : 50,
+      width: operationWidth(230, hasOperationPermission.value ? 200 : 50),
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCasePage, {
