@@ -2224,15 +2224,8 @@ public class ApiScenarioService extends MoveNodeService {
                 .distinct() // 这里可能存在多次引用相同场景，步骤可能会重复，去重
                 .collect(Collectors.toList());
 
-        //获取所有步骤的csv的关联关系
-        List<ApiScenarioCsvStep> csvSteps = extApiScenarioStepMapper.getCsvStepByScenarioId(scenarioId);
-        // 构造 map，key 为步骤ID，value 为csv文件ID列表
-        Map<String, List<String>> stepsCsvMap = csvSteps.stream()
-                .collect(Collectors.groupingBy(ApiScenarioCsvStep::getStepId, Collectors.mapping(ApiScenarioCsvStep::getFileId, Collectors.toList())));
-        //将stepsCsvMap根据步骤id放入到allSteps中
-        if (CollectionUtils.isNotEmpty(allSteps)) {
-            allSteps.forEach(step -> step.setCsvIds(stepsCsvMap.get(step.getId())));
-        }
+        // 设置步骤的 csvIds
+        setStepCsvIds(scenarioId, allSteps);
 
         // 构造 map，key 为场景ID，value 为步骤列表
         Map<String, List<ApiScenarioStepDTO>> scenarioStepMap = allSteps.stream()
@@ -2263,6 +2256,25 @@ public class ApiScenarioService extends MoveNodeService {
         apiScenarioDetail.setSteps(steps);
 
         return apiScenarioDetail;
+    }
+
+    private void setStepCsvIds(String scenarioId, List<ApiScenarioStepDTO> allSteps) {
+        List<String> refScenarioIds = allSteps.stream()
+                .filter(step -> isRefOrPartialScenario(step))
+                .map(ApiScenarioStepCommonDTO::getResourceId)
+                .collect(Collectors.toList());
+        refScenarioIds.add(scenarioId);
+
+        //获取所有步骤的csv的关联关系
+        List<ApiScenarioCsvStep> csvSteps = extApiScenarioStepMapper.getCsvStepByScenarioIds(refScenarioIds);
+        // 构造 map，key 为步骤ID，value 为csv文件ID列表
+        Map<String, List<String>> stepsCsvMap = csvSteps.stream()
+                .collect(Collectors.groupingBy(ApiScenarioCsvStep::getStepId, Collectors.mapping(ApiScenarioCsvStep::getFileId, Collectors.toList())));
+
+        //将stepsCsvMap根据步骤id放入到allSteps中
+        if (CollectionUtils.isNotEmpty(allSteps)) {
+            allSteps.forEach(step -> step.setCsvIds(stepsCsvMap.get(step.getId())));
+        }
     }
 
     private List<CsvVariable> getCsvVariables(String scenarioId) {
