@@ -114,10 +114,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andTestPlanIdIn(testPlanIdList);
         testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
-        // 取消关联用例需同步删除计划-用例缺陷关系表
-        BugRelationCaseExample example = new BugRelationCaseExample();
-        example.createCriteria().andTestPlanIdIn(testPlanIdList);
-        bugRelationCaseMapper.deleteByExample(example);
         // todo:song.tianyang 删除执行历史
 
         testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
