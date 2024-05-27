@@ -57,6 +57,13 @@ export default {
         return true;
       }
     },
+    showHeaderTooltip: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    headerTips: String,
     // 开启排序，后端mapper添加ExtBaseMapper.orders
     sortable: {
       type: [Boolean, String],
@@ -98,6 +105,26 @@ export default {
   },
   methods: {
     renderHeader(h, data) {
+      if (this.showHeaderTooltip) {
+        // 如果表头提示开启, 则显示表头提示
+        return h(
+            'div',[
+              h('span', data.column.label),
+              h('el-tooltip',{
+                props:{
+                  effect:'dark',
+                  content: this.$t(this.field.tips),
+                  placement:'top'
+                },
+              },[
+                h('i', {
+                  class:'el-icon-info',
+                  style:'margin-left:5px;'
+                })
+              ])
+            ]
+        );
+      }
       if (data.column.label.length > 7) {
         return h("span", [
           h("el-tooltip", {

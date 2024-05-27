@@ -134,7 +134,7 @@ const TRACK_HEADER = {
     {id: 'title', key: '2', label: 'test_track.issue.title'},
     {id: 'platformStatus', key: '3', label: 'test_track.issue.platform_status', width: 120},
     {id: 'platform', key: '4', label: 'test_track.issue.issue_platform'},
-    {id: 'creatorName', key: '5', label: 'custom_field.issue_creator'},
+    {id: 'creatorName', key: '5', label: 'custom_field.issue_creator', tips: 'test_track.issue.creator_header_tips'},
     {id: 'resourceName', key: '6', label: 'test_track.issue.issue_resource'},
     {id: 'description', key: '7', label: 'test_track.issue.description'},
     {id: 'caseCount', key: '9', label: 'api_test.definition.api_case_number'},

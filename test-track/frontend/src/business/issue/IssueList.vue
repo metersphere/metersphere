@@ -64,6 +64,7 @@
             :width="item.width"
             :fields-width="fieldsWidth"
             :filters="item.filters"
+            :show-header-tooltip="item.id === 'creatorName'"
           >
             <template v-slot="scope">
 
@@ -161,36 +162,36 @@ import IssueSyncSelect from "@/business/issue/IssueSyncSelect";
 import IssueImport from "@/business/issue/components/import/IssueImport";
 import IssueExport from "@/business/issue/components/export/IssueExport";
 import {
+  batchDeleteIssue,
   checkSyncIssues,
+  deleteIssue,
   getIssuePartTemplateWithProject,
   getIssues,
-  syncIssues,
-  deleteIssue,
-  getIssuesById, batchDeleteIssue, getPlatformOption, syncAllIssues, getPlatformStatus
+  getIssuesById,
+  getPlatformOption,
+  getPlatformStatus,
+  syncAllIssues,
+  syncIssues
 } from "@/api/issue";
 import {
+  getCustomFieldFilter,
   getCustomFieldValue,
   getCustomTableWidth,
+  getLastTableSortField,
   getPageInfo,
   getTableHeaderWithCustomFields,
-  getLastTableSortField,
-  getCustomFieldFilter,
-  parseCustomFilesForList,
-  parseCustomFilesForItem
+  parseCustomFilesForItem,
+  parseCustomFilesForList
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import {LOCAL} from "metersphere-frontend/src/utils/constants";
 import {TEST_TRACK_ISSUE_LIST} from "metersphere-frontend/src/components/search/search-components";
-import {
-  generateColumnKey,
-  getAdvSearchCustomField
-} from "metersphere-frontend/src/components/search/custom-component";
+import {generateColumnKey, getAdvSearchCustomField} from "metersphere-frontend/src/components/search/custom-component";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsReviewTableItem from "@/business/issue/MsReviewTableItem";
 import {setIssuePlatformComponent} from "@/business/issue/issue";
 
