@@ -678,6 +678,7 @@
 
   function editMock(record: ApiDefinitionMockDetail) {
     isEdit.value = true;
+    isCopy.value = false;
     openMockDetailDrawer(record);
   }
 
