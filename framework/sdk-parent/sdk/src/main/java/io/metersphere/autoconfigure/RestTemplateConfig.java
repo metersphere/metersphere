@@ -25,11 +25,14 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -43,13 +46,13 @@ public class RestTemplateConfig {
     private final static int SOCKET_TIMEOUT = 200 * 1000;
 
     @Bean
-    public RestTemplate restTemplate() {
-        return setTemplate();
+    public RestTemplate restTemplate(ObjectMapper objectMapper, HttpClient httpClient) {
+        return setTemplate(objectMapper, httpClient);
     }
 
     @Bean
-    public RestTemplate restTemplateWithTimeOut() {
-        return setTemplate();
+    public RestTemplate restTemplateWithTimeOut(ObjectMapper objectMapper, HttpClient httpClient) {
+        return setTemplate(objectMapper, httpClient);
     }
 
     @Bean
@@ -89,9 +92,23 @@ public class RestTemplateConfig {
         return mapper;
     }
 
-    private RestTemplate setTemplate() {
+    public RestTemplate setTemplate(ObjectMapper objectMapper, HttpClient httpClient) {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient()));
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+
+        List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
+        for (int i = 0; i < messageConverters.size(); i++) {
+            if (messageConverters.get(i) instanceof MappingJackson2HttpMessageConverter) {
+                // 使用自定义ObjectMapper创建HttpMessageConverter
+                MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+                converter.setObjectMapper(objectMapper);
+                messageConverters.set(i, converter);
+            }
+        }
+
+        // 将HttpMessageConverter加入到RestTemplate中
+        restTemplate.setMessageConverters(messageConverters);
+
         return restTemplate;
     }
 
