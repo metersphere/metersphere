@@ -11,6 +11,7 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -245,4 +246,22 @@ public class TestPlanLogService {
         }
         return dtoList;
     }
+
+    public void saveMoveLog(TestPlan testPlan, String moveId, LogInsertModule logInsertModule) {
+
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(testPlan.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.UPDATE.name())
+                .module(logModule)
+                .method(logInsertModule.getRequestMethod())
+                .path(logInsertModule.getRequestUrl())
+                .sourceId(moveId)
+                .content(Translator.get("log.test_plan.move.test_plan") + ":" + testPlan.getName() + StringUtils.SPACE)
+                .createUser(logInsertModule.getOperator())
+                .build().getLogDTO();
+        operationLogService.add(dto);
+    }
+
 }

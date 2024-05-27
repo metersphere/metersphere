@@ -55,9 +55,6 @@ public class TestPlanManagementService {
 
     /**
      * 测试计划列表查询
-     *
-     * @param request
-     * @return
      */
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -73,8 +70,6 @@ public class TestPlanManagementService {
 
     /**
      * 计划组子节点
-     *
-     * @param testPlanResponses
      */
     private void handChildren(List<TestPlanResponse> testPlanResponses,String projectId) {
         List<String> groupIds = testPlanResponses.stream().filter(item -> StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)).map(TestPlanResponse::getId).toList();

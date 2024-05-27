@@ -5,7 +5,9 @@ import io.metersphere.plan.dto.TestPlanQueryConditions;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -40,4 +42,10 @@ public interface ExtTestPlanMapper {
     List<String> selectIdByProjectId(String projectId);
 
     List<String> selectNotArchivedIds(@Param("ids") List<String> selectIds);
+
+    DropNode selectDragInfoById(String s);
+
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    long selectMaxPosByGroupId(String groupId);
 }

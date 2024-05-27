@@ -20,6 +20,7 @@
     <result column="actual_start_time" jdbcType="BIGINT" property="actualStartTime" />
     <result column="actual_end_time" jdbcType="BIGINT" property="actualEndTime" />
     <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -120,7 +121,7 @@
   <sql id="Base_Column_List">
     id, num, project_id, group_id, module_id, `name`, `status`, `type`, tags, create_time, 
     create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, 
-    actual_end_time, description
+    actual_end_time, description, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanExample" resultMap="BaseResultMap">
     select
@@ -158,15 +159,15 @@
       `status`, `type`, tags, 
       create_time, create_user, update_time, 
       update_user, planned_start_time, planned_end_time, 
-      actual_start_time, actual_end_time, description
-      )
+      actual_start_time, actual_end_time, description, 
+      pos)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
       #{groupId,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
       #{updateUser,jdbcType=VARCHAR}, #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, 
-      #{actualStartTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR}
-      )
+      #{actualStartTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlan">
     insert into test_plan
@@ -225,6 +226,9 @@
       <if test="description != null">
         description,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -280,6 +284,9 @@
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -346,6 +353,9 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -370,7 +380,8 @@
       planned_end_time = #{record.plannedEndTime,jdbcType=BIGINT},
       actual_start_time = #{record.actualStartTime,jdbcType=BIGINT},
       actual_end_time = #{record.actualEndTime,jdbcType=BIGINT},
-      description = #{record.description,jdbcType=VARCHAR}
+      description = #{record.description,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -429,6 +440,9 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -450,14 +464,15 @@
       planned_end_time = #{plannedEndTime,jdbcType=BIGINT},
       actual_start_time = #{actualStartTime,jdbcType=BIGINT},
       actual_end_time = #{actualEndTime,jdbcType=BIGINT},
-      description = #{description,jdbcType=VARCHAR}
+      description = #{description,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan
     (id, num, project_id, group_id, module_id, `name`, `status`, `type`, tags, create_time, 
       create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, 
-      actual_end_time, description)
+      actual_end_time, description, pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
@@ -466,7 +481,8 @@
         #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.updateUser,jdbcType=VARCHAR}, #{item.plannedStartTime,jdbcType=BIGINT}, 
         #{item.plannedEndTime,jdbcType=BIGINT}, #{item.actualStartTime,jdbcType=BIGINT}, 
-        #{item.actualEndTime,jdbcType=BIGINT}, #{item.description,jdbcType=VARCHAR})
+        #{item.actualEndTime,jdbcType=BIGINT}, #{item.description,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -532,6 +548,9 @@
         </if>
         <if test="'description'.toString() == column.value">
           #{item.description,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

@@ -11,6 +11,10 @@ CREATE TABLE IF NOT EXISTS platform_source(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '平台对接保存参数';
 
+-- 测试计划增加排序字段
+alter table test_plan
+    ADD COLUMN `pos` BIGINT NOT NULL DEFAULT 0 COMMENT '自定义排序';
+
 -- 修改计划配置表
 ALTER TABLE test_plan_config DROP `test_planning`;
 

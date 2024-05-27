@@ -25,7 +25,10 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApiFileResourceType;
+import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.domain.OperationLogBlob;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
@@ -1062,7 +1065,7 @@ public class ApiDefinitionService extends MoveNodeService {
     }
 
     public void moveNode(PosRequest posRequest) {
-        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest, true);
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 posRequest.getProjectId(),
                 request,
