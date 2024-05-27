@@ -13,9 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -80,12 +80,13 @@ public class MockServerUtils {
                 }
             }
             String queryString = request.getQueryString();
+
             if (StringUtils.isNotEmpty(queryString)) {
                 String[] queryParamArr = queryString.split("&");
                 for (String queryParam : queryParamArr) {
                     String[] queryParamKV = queryParam.split("=");
                     if (queryParamKV.length == 2) {
-                        queryParamsMap.put(queryParamKV[0], queryParamKV[1]);
+                        queryParamsMap.put(queryParamKV[0], URLDecoder.decode(queryParamKV[1], StandardCharsets.UTF_8));
                     }
                 }
             }
@@ -159,26 +160,11 @@ public class MockServerUtils {
                     if (sendParamArr.length > i) {
                         value = sendParamArr[i];
                     }
-                    restParams.put(param, value);
+                    restParams.put(param, URLDecoder.decode(value, StandardCharsets.UTF_8));
                 }
             }
         }
         return restParams;
-    }
-
-    private static String getRequestStr(HttpServletRequest request) {
-        String inputLine;
-        // 接收到的数据
-        StringBuilder receiveData = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(
-                request.getInputStream(), StandardCharsets.UTF_8))) {
-            while ((inputLine = in.readLine()) != null) {
-                receiveData.append(inputLine);
-            }
-        } catch (IOException ignored) {
-        }
-
-        return receiveData.toString();
     }
 
     public static String getUrlSuffix(String mockUrlInfo, HttpServletRequest request) {
