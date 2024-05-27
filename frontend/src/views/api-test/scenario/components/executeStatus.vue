@@ -25,7 +25,7 @@
     [ExecuteStatusFilters.RUNNING]: {
       bgColor: 'rgb(var(--link-2))',
       color: 'rgb(var(--link-5))',
-      text: 'ccommon.running',
+      text: 'common.running',
     },
     // [ExecuteStatusFilters.RERUNNING]: {
     //   bgColor: 'rgb(var(--link-2))',

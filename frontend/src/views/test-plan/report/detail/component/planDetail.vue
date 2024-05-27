@@ -134,7 +134,7 @@
         :upload-image="handleUploadImage"
         :preview-url="PreviewEditorImageUrl"
         class="mt-[8px] w-full"
-        :disabled="true"
+        :editable="!!shareId"
     /></div>
 
     <div
@@ -443,8 +443,8 @@
 
   watchEffect(() => {
     if (props.detailInfo) {
-      // await getDetail();
       detail.value = cloneDeep(props.detailInfo);
+      richText.value.summary = detail.value.summary;
       initOptionsData();
     }
   });
