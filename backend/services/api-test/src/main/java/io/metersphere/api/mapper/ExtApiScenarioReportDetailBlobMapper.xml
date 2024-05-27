@@ -2,7 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.api.mapper.ExtApiScenarioReportDetailBlobMapper">
 
-  <select id="selectByExampleWithBLOBs" resultType="io.metersphere.api.dto.scenario.ApiScenarioReportDetailBlobDTO">
+  <resultMap id="apiScenarioReportDetailDTO" type="io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO">
+    <result column="content" javaType="byte[]" jdbcType="BLOB" property="content" typeHandler="io.metersphere.api.handler.ResultTypeHandler" />
+  </resultMap>
+
+  <select id="selectByExampleWithBLOBs" resultMap="apiScenarioReportDetailDTO">
     SELECT
       detail.*,
       detail_blob.content
@@ -11,5 +15,5 @@
         INNER JOIN api_scenario_report_detail_blob detail_blob ON detail.id = detail_blob.id
     WHERE
       detail.step_id = #{stepId} AND detail.report_id = #{reportId}
-    </select>
+  </select>
 </mapper>

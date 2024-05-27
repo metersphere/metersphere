@@ -67,6 +67,8 @@ public class ApiScenarioReportDetailDTO {
     @Schema(description = "脚本标识")
     private String scriptIdentifier;
 
+    private Long sort;
+
     /**
      * 结果内容详情
      */
