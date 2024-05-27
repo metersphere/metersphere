@@ -5,7 +5,9 @@
     </template>
     <template #name="{ record }">
       <div class="flex flex-nowrap items-center">
-        <div class="one-line-text max-w-[200px] flex-auto items-center"> {{ characterLimit(record.name) }}</div>
+        <a-tooltip :content="record.name">
+          <div class="one-line-text max-w-[200px] flex-auto items-center"> {{ characterLimit(record.name) }}</div>
+        </a-tooltip>
         <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
           <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
           <template #content>
@@ -28,7 +30,7 @@
         t('caseManagement.featureCase.cancelLink')
       }}</MsButton>
     </template>
-    <template v-if="(keyword || '').trim() === ''" #empty>
+    <template v-if="(keyword || '').trim() === '' && props.canEdit" #empty>
       <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
         {{ t('caseManagement.featureCase.tableNoDataWidthComma') }}
         <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'PROJECT_BUG:READ+ADD'])">{{
@@ -69,14 +71,20 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
-  const props = defineProps<{
-    caseId: string;
-    keyword: string;
-    bugColumns: MsTableColumn;
-    bugTotal: number; // 平台缺陷总数决定是否新建还是关联
-    loadParams?: Record<string, any>;
-    loadBugListApi: (params: TableQueryParams) => Promise<CommonList<Record<string, any>>>; // 获取列表请求函数
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      caseId: string;
+      keyword: string;
+      bugColumns: MsTableColumn;
+      bugTotal: number; // 平台缺陷总数决定是否新建还是关联
+      loadParams?: Record<string, any>;
+      loadBugListApi: (params: TableQueryParams) => Promise<CommonList<Record<string, any>>>; // 获取列表请求函数
+      canEdit: boolean;
+    }>(),
+    {
+      canEdit: true,
+    }
+  );
 
   const emit = defineEmits<{
     (e: 'link'): void;
@@ -93,7 +101,7 @@
     setLoadListParams: setLinkListParams,
   } = useTable(props.loadBugListApi, {
     columns: props.bugColumns,
-    scroll: { x: 'auto' },
+    scroll: { x: '100%' },
     heightUsed: 340,
     enableDrag: false,
   });

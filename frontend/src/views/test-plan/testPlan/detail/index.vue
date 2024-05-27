@@ -7,11 +7,12 @@
     hide-footer
     no-content-padding
     hide-divider
+    hide-back
   >
     <template #headerLeft>
       <MsStatusTag :status="detail.status || 'PREPARED'" />
       <a-tooltip :content="`[${detail.num}]${detail.name}`">
-        <div class="one-line-text ml-[4px] max-w-[360px] gap-[4px] font-medium text-[var(--color-text-1)]">
+        <div class="one-line-text ml-[8px] max-w-[360px] gap-[4px] font-medium text-[var(--color-text-1)]">
           <span>[{{ detail.num }}]</span>
           {{ detail.name }}
         </div>
@@ -103,6 +104,7 @@
       v-if="activeTab === 'featureCase'"
       ref="featureCaseRef"
       :repeat-case="detail.repeatCase"
+      :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <!-- TODO 先不上 -->

@@ -17,8 +17,13 @@
       </a-button>
     </div>
     <MsBaseTable
+      ref="tableRef"
       v-bind="propsRes"
       :action-config="batchActions"
+      :selectable="hasOperationPermission"
+      :draggable="
+        hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && props.canEdit ? { type: 'handle', width: 32 } : undefined
+      "
       v-on="propsEvent"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
@@ -39,7 +44,7 @@
       </template>
       <template #lastExecResult="{ record }">
         <a-select
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && props.canEdit"
           v-model:model-value="record.lastExecResult"
           :placeholder="t('common.pleaseSelect')"
           class="param-input w-full"
@@ -54,7 +59,7 @@
         </a-select>
         <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
       </template>
-      <template #operation="{ record }">
+      <template v-if="props.canEdit" #operation="{ record }">
         <MsButton
           v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
           type="text"
@@ -221,6 +226,7 @@
     planId: string;
     moduleTree: ModuleTreeNode[];
     repeatCase: boolean;
+    canEdit: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -238,10 +244,10 @@
 
   const keyword = ref('');
 
-  const hasOperationPermission = computed(() =>
-    hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION'])
+  const hasOperationPermission = computed(
+    () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit
   );
-  const columns: MsTableColumn = [
+  const columns = computed<MsTableColumn>(() => [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -335,16 +341,13 @@
       fixed: 'right',
       width: hasOperationPermission.value ? 200 : 50,
     },
-  ];
+  ]);
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
     getPlanDetailFeatureCaseList,
     {
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
       showSetting: true,
-      selectable: hasOperationPermission.value,
-      showSelectAll: true,
-      draggable: hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
       heightUsed: 460,
       showSubdirectory: true,
     },
@@ -378,6 +381,14 @@
       },
     ],
   };
+
+  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
+  watch(
+    () => hasOperationPermission.value,
+    () => {
+      tableRef.value?.initColumn(columns.value);
+    }
+  );
 
   async function getModuleIds() {
     let moduleIds: string[] = [];
@@ -660,6 +671,7 @@
         ...route.query,
         caseId: record.caseId,
         testPlanCaseId: record.id,
+        canEdit: String(props.canEdit),
       },
       state: {
         params: JSON.stringify(getTableQueryParams()),
@@ -677,7 +689,7 @@
     loadCaseList,
   });
 
-  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE, columns, 'drawer', true);
+  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE, columns.value, 'drawer', true);
 </script>
 
 <style lang="less" scoped>

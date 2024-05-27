@@ -73,9 +73,12 @@
               </a-tooltip>
             </div>
           </div>
-          <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="outline" @click="editCaseVisible = true">{{
-            t('common.edit')
-          }}</a-button>
+          <a-button
+            v-if="canEdit && hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+            type="outline"
+            @click="editCaseVisible = true"
+            >{{ t('common.edit') }}</a-button
+          >
         </div>
         <MsTab
           v-model:active-key="activeTab"
@@ -101,7 +104,7 @@
             <CaseTabDetail ref="caseTabDetailRef" is-test-plan :form="caseDetail" />
             <!-- 开始执行 -->
             <div
-              v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+              v-if="canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
               class="px-[16px] py-[8px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
             >
               <div class="mb-[12px] flex items-center justify-between">
@@ -127,7 +130,7 @@
                     <span class="ml-1 text-[rgb(var(--danger-6))]">{{ caseDetail.bugListCount }}</span>
                   </MsTag>
                   <a-dropdown @select="handleSelect">
-                    <a-button v-if="hasAnyPermission(['PROJECT_BUG:READ'])" type="outline" size="mini" class="ml-1">
+                    <a-button v-if="hasAnyPermission(['PROJECT_BUG:READ'])" type="outline" size="small" class="ml-1">
                       <template #icon> <icon-plus class="text-[12px]" /> </template>
                     </a-button>
                     <template #content>
@@ -183,6 +186,7 @@
             ref="bugRef"
             :case-id="activeCaseId"
             :test-plan-case-id="activeId"
+            :can-edit="canEdit"
             @link="linkDefect"
             @new="addBug"
             @update-count="loadCaseDetail()"
@@ -212,7 +216,7 @@
         caseId: activeCaseId,
         testPlanId:route.query.id as string,
       }"
-    @success="loadCaseDetail()"
+    @success="loadBugListAndCaseDetail"
   />
 </template>
 
@@ -248,7 +252,7 @@
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
   import type { PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
@@ -280,6 +284,7 @@
 
   const activeCaseId = ref(route.query.caseId as string);
   const activeId = ref(route.query.testPlanCaseId as string);
+  const canEdit = ref(route.query.canEdit === 'true');
   const keyword = ref('');
   const lastExecResult = ref('');
   const executeResultOptions = computed(() => {
@@ -499,15 +504,18 @@
   }
 
   function getTotal(key: string) {
-    const { bugListCount, runListCount } = caseDetail.value;
+    const { bugListCount } = caseDetail.value;
     switch (key) {
       case 'defectList':
-        return bugListCount > 99 ? `99+` : `${bugListCount || 0}`;
-      case 'executionHistory':
-        return runListCount > 99 ? `99+` : `${runListCount || 0}`;
+        return bugListCount > 99 ? `99+` : `${bugListCount}`;
       default:
         return '';
     }
+  }
+
+  function loadBugListAndCaseDetail() {
+    addSuccess();
+    loadCaseDetail();
   }
 
   async function associateSuccessHandler(params: TableQueryParams) {
@@ -521,8 +529,7 @@
       });
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       showLinkDrawer.value = false;
-      addSuccess();
-      loadCaseDetail();
+      loadBugListAndCaseDetail();
     } catch (error) {
       console.log(error);
     } finally {

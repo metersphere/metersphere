@@ -330,7 +330,7 @@
         if (!isContinue) {
           handleCancel();
         }
-        form.value.name = '';
+        form.value = { ...cloneDeep(initForm), moduleId: form.value.moduleId };
       }
     });
   }
