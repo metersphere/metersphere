@@ -15,7 +15,7 @@ public interface ExtApiScenarioStepMapper {
 
     List<ApiScenarioStepDTO> getStepDTOByScenarioIds(@Param("scenarioIds") List<String> scenarioIds);
 
-    List<ApiScenarioCsvStep> getCsvStepByScenarioId(@Param("scenarioId") String scenarioId);
+    List<ApiScenarioCsvStep> getCsvStepByScenarioIds(@Param("scenarioIds") List<String> scenarioId);
 
     /**
      * 查询有步骤详情的请求类型的步骤
