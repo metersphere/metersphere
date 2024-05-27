@@ -57,7 +57,6 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
 
     public static final String FUNCTIONAL_CASE_EXEC_HISTORY_URL = "/test-plan/functional/case/exec/history";
-    public static final String FUNCTIONAL_CASE_EDIT_URL = "/test-plan/functional/case/edit";
     public static final String USER_URL = "/test-plan/functional/case/user-option/";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
@@ -257,17 +256,6 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setTestPlanId("plan_1");
         request.setCaseId("fc_1");
         this.requestPostWithOk(FUNCTIONAL_CASE_EXEC_HISTORY_URL, request);
-    }
-
-
-    @Test
-    @Order(15)
-    public void testFunctionalCaseEdit() throws Exception {
-        TestPlanCaseEditRequest request = new TestPlanCaseEditRequest();
-        request.setId("relate_case_1");
-        request.setTestPlanId("plan_1");
-        request.setLastExecResult("SUCCESS");
-        this.requestPostWithOk(FUNCTIONAL_CASE_EDIT_URL, request);
     }
 
     @Test

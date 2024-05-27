@@ -600,33 +600,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
     }
 
-    public void editFunctionalCase(TestPlanCaseEditRequest request, String userId) {
-        TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getId());
-        TestPlanFunctionalCase functionalCase = new TestPlanFunctionalCase();
-        functionalCase.setId(request.getId());
-        functionalCase.setLastExecResult(request.getLastExecResult());
-        functionalCase.setLastExecTime(System.currentTimeMillis());
-        testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
-
-        updateFunctionalCaseStatus(Arrays.asList(planFunctionalCase.getFunctionalCaseId()), request.getLastExecResult());
-
-        //执行历史
-        TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
-        executeHistory.setId(IDGenerator.nextStr());
-        executeHistory.setTestPlanCaseId(planFunctionalCase.getId());
-        executeHistory.setTestPlanId(planFunctionalCase.getTestPlanId());
-        executeHistory.setCaseId(planFunctionalCase.getFunctionalCaseId());
-        executeHistory.setStatus(request.getLastExecResult());
-        executeHistory.setDeleted(false);
-        executeHistory.setCreateUser(userId);
-        executeHistory.setCreateTime(System.currentTimeMillis());
-        testPlanCaseExecuteHistoryMapper.insert(executeHistory);
-
-        //通知
-        handleFileAndNotice(planFunctionalCase.getFunctionalCaseId(), null, null, userId, null, null, request.getTestPlanId(), request.getLastExecResult());
-
-    }
-
     /**
      * 获取项目下的所有用户
      *
