@@ -223,8 +223,8 @@ export default {
   'api_scenario.recycle.recover': 'Recover',
   'api_scenario.recycle.recoveredSuccessfully': 'Recover Successful',
   'api_scenario.recycle.list': 'Recycle Bin List',
-  'api_scenario.recycle.batchCleanOut': 'Permanently Delete',
-  'api_scenario.recycle.completedDeleteCaseTitle': 'Confirm Permanently Delete {name}?',
+  'api_scenario.recycle.batchCleanOut': 'Delete Permanently',
+  'api_scenario.recycle.completedDeleteCaseTitle': 'Confirm Delete Permanently {name}?',
   'api_scenario.recycle.cleanOutDeleteOnRecycleTip':
     'Deleting will permanently remove the scenario. Proceed with caution!',
   'apiScenario.quoteTreeNoData': 'No quotable data available, switch projects to retrieve data',
@@ -252,9 +252,9 @@ export default {
   'apiScenario.setting.waitTime.tip':
     'When running a scenario, each step of the scenario will wait for the specified time before triggering the next step',
   // Scheduled Task
-  'apiScenario.schedule.create': 'Create Scheduled Task',
-  'apiScenario.schedule.update': 'Update Scheduled Task',
-  'apiScenario.schedule.delete': 'Delete Scheduled Task',
+  'apiScenario.schedule.create': 'Create cron job',
+  'apiScenario.schedule.update': 'Edit cron job',
+  'apiScenario.schedule.delete': 'Delete cron job',
   'apiScenario.schedule.config.resource_pool': 'Run Resource Pool',
   'apiScenario.schedule.task.status': 'Task Status',
   'apiScenario.schedule.task.schedule': 'Task Trigger Time',

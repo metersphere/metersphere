@@ -525,7 +525,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, operationWidth } from '@/utils';
   import { translateTextToPX } from '@/utils/css';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -652,7 +652,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 140,
+      width: operationWidth(160, 140),
       showTooltip: false,
       columnSelectorDisabled: true,
     },
@@ -809,7 +809,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: operationWidth(215, 200),
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(

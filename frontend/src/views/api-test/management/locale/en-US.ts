@@ -23,7 +23,7 @@ export default {
   'apiTestManagement.executeMethod': 'Execute Method',
   'apiTestManagement.recycle.batchRecover': 'Recover',
   'apiTestManagement.recycle.recoveredSuccessfully': 'Recovered Successfully',
-  'apiTestManagement.recycle.batchCleanOut': 'Clean Out',
+  'apiTestManagement.recycle.batchCleanOut': 'Delete permanently',
   'apiTestManagement.recycle.completedDeleteCaseTitle': 'Confirm to completely delete {name}?',
   'apiTestManagement.recycle.cleanOutDeleteOnRecycleTip':
     'After deletion, the API cannot be recovered. Please proceed with caution!',

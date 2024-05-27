@@ -1006,3 +1006,6 @@ export function formatDuration(ms: number) {
   // 返回小时
   return `${hours.toFixed(1)}-hr`;
 }
+
+export const operationWidth = (enWidth: number, zhWidth: number) =>
+  localStorage.getItem('MS-locale') === 'en-US' ? enWidth : zhWidth;

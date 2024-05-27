@@ -225,6 +225,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import { operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
@@ -329,7 +330,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: operationWidth(230, 200),
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDefinitionMockPage, {

@@ -159,7 +159,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, operationWidth } from '@/utils';
 
   import {
     ApiDefinitionDetail,
@@ -267,7 +267,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 150,
+      width: operationWidth(230, 150),
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
