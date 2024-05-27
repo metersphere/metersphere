@@ -300,6 +300,8 @@ export function getPlatName(platformKey: string) {
       return t('caseManagement.featureCase.zentao');
     case 'jira':
       return t('caseManagement.featureCase.jira');
+    case 'tapd':
+      return t('caseManagement.featureCase.tapd');
     default:
       break;
   }
