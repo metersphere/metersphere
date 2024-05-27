@@ -1,7 +1,7 @@
 <template>
   <a-form ref="viewFormRef" class="rounded-[4px]" :model="viewForm" layout="vertical">
     <a-form-item
-      field="caseName"
+      field="name"
       :label="t('system.orgTemplate.caseName')"
       :rules="[{ required: true, message: t('system.orgTemplate.caseNamePlaceholder') }]"
       required

@@ -1,10 +1,9 @@
 <template>
   <a-form ref="viewFormRef" class="rounded-[4px]" :model="viewForm" layout="vertical">
     <a-form-item
-      field="defectName"
+      field="name"
       :label="t('system.orgTemplate.defectName')"
       :rules="[{ required: true, message: t('system.orgTemplate.defectNamePlaceholder') }]"
-      required
       asterisk-position="end"
     >
       <a-input
