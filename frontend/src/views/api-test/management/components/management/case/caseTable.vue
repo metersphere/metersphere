@@ -98,7 +98,7 @@
         </a-tooltip>
       </template>
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
-        <apiStatus :status="filterContent.value" />
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #lastReportStatus="{ record }">
         <ExecutionStatus
