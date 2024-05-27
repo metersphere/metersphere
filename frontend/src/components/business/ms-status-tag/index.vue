@@ -37,6 +37,31 @@
       color: 'var(--color-text-n8)',
       class: '!text-[var(--color-text-4)]',
     },
+    SUCCESS: {
+      label: 'common.success',
+      color: 'rgb(var(--success-2))',
+      class: '!text-[rgb(var(--success-6))]',
+    },
+    ERROR: {
+      label: 'common.fail',
+      color: 'rgb(var(--danger-2))',
+      class: '!text-[rgb(var(--danger-6))]',
+    },
+    PENDING: {
+      label: 'common.unExecute',
+      color: 'var(--color-text-n8)',
+      class: '!text-[var(--color-text-1)]',
+    },
+    BLOCKED: {
+      label: 'common.block',
+      color: 'var(--color-bg-6)',
+      class: '!text-[rgb(var(--primary-6))]',
+    },
+    UN_EXECUTED: {
+      label: 'common.unExecute',
+      color: 'var(--color-text-n8)',
+      class: '!text-[var(--color-text-1)]',
+    },
   } as const;
 </script>
 
