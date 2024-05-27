@@ -18,7 +18,6 @@ import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.AssociationNodeSortDTO;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
@@ -28,6 +27,7 @@ import io.metersphere.plan.mapper.*;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
@@ -171,9 +171,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
         TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
-        AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(
-                super.getNodeMoveRequest(request),
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 request.getTestPlanId(),
+                super.getNodeMoveRequest(request, true),
                 extTestPlanFunctionalCaseMapper::selectDragInfoById,
                 extTestPlanFunctionalCaseMapper::selectNodeByPosOperator
         );

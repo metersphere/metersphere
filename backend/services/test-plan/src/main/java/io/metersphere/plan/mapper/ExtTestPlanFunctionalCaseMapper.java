@@ -4,12 +4,12 @@ import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
-import io.metersphere.plan.dto.AssociationNode;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
+import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,9 +27,9 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<String> getIdByParam(ResourceSelectParam resourceSelectParam);
 
-    AssociationNode selectDragInfoById(String id);
+    DropNode selectDragInfoById(String id);
 
-    AssociationNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
+    DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
     List<TestPlanCasePageResponse> getCasePage(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 

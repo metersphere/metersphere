@@ -2997,7 +2997,7 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     public void moveNode(PosRequest posRequest) {
-        NodeMoveRequest request = super.getNodeMoveRequest(posRequest);
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest, true);
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 posRequest.getProjectId(),
                 request,

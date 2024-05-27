@@ -51,14 +51,14 @@
         </if>
     </select>
 
-    <select id="selectDragInfoById" resultType="io.metersphere.plan.dto.AssociationNode">
+    <select id="selectDragInfoById" resultType="io.metersphere.project.dto.DropNode">
         SELECT id, pos
         FROM test_plan_api_case
         WHERE id = #{0}
     </select>
     <select id="selectNodeByPosOperator"
             parameterType="io.metersphere.project.dto.NodeSortQueryParam"
-            resultType="io.metersphere.plan.dto.AssociationNode">
+            resultType="io.metersphere.project.dto.DropNode">
         SELECT id, pos
         FROM test_plan_api_case
         WHERE test_plan_id = #{parentId}

@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MoveNodeSortDTO {
-    @Schema(description = "项目ID")
-    private String projectId;
+    @Schema(description = "排序范围ID")
+    private String sortRangeId;
 
     @Schema(description = "要排序的节点")
     private DropNode sortNode;
@@ -18,6 +18,4 @@ public class MoveNodeSortDTO {
 
     @Schema(description = "后一个节点")
     private DropNode nextNode;
-
 }
-

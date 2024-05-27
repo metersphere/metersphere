@@ -16,6 +16,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -26,6 +27,7 @@ import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
@@ -106,6 +108,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_STATISTICS = "/test-plan/statistics";
     private static final String URL_POST_TEST_PLAN_MODULE_COUNT = "/test-plan/module/count";
     private static final String URL_POST_TEST_PLAN_ADD = "/test-plan/add";
+    private static final String URL_POST_TEST_PLAN_SORT = "/test-plan/sort";
     private static final String URL_POST_TEST_PLAN_UPDATE = "/test-plan/update";
     private static final String URL_POST_TEST_PLAN_BATCH_DELETE = "/test-plan/batch-delete";
 
@@ -136,7 +139,7 @@ public class TestPlanTests extends BaseTest {
 
     @BeforeEach
     public void initTestData() {
-        //文件管理专用项目
+        //测试计划专用项目
         if (project == null) {
             AddProjectRequest initProject = new AddProjectRequest();
             initProject.setOrganizationId("100001");
@@ -607,7 +610,6 @@ public class TestPlanTests extends BaseTest {
             request.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
         }
 
-
         /*
         抽查：
             testPlan_13没有设置计划开始时间、没有设置重复添加用例和自动更新状态、阈值为100、描述为空；
@@ -681,25 +683,133 @@ public class TestPlanTests extends BaseTest {
         request.setPassThreshold(100);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ADD, URL_POST_TEST_PLAN_ADD, request);
 
+
+        this.checkTestPlanSortInGroup(groupTestPlanId7);
     }
 
+    protected void checkTestPlanSortInGroup(String groupTestPlanId7) throws Exception {
+        /*
+         排序校验用例设计：
+         1.第一个移动到最后一个。
+         2.最后一个移动到第一个（还原为原来的顺序）
+         3.第三个移动到第二个
+         4.修改第一个和第二个之间的pos差小于2，将第三个移动到第二个（还原为原来的顺序），并检查pos有没有初始化
+         */
+
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andGroupIdEqualTo(groupTestPlanId7);
+        example.setOrderByClause("pos asc");
+        List<TestPlan> defaultTestPlanInGroup = testPlanMapper.selectByExample(example);
+        List<TestPlan> lastTestPlanInGroup = defaultTestPlanInGroup;
+        TestPlan movePlan, targetPlan = null;
+        PosRequest posRequest = null;
+        TestPlanResourceSortResponse response = null;
+
+        // 第一个移动到最后一个
+        movePlan = lastTestPlanInGroup.getFirst();
+        targetPlan = lastTestPlanInGroup.getLast();
+        posRequest = new PosRequest(project.getId(), movePlan.getId(), targetPlan.getId(), MoveTypeEnum.AFTER.name());
+        response = JSON.parseObject(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanResourceSortResponse.class);
+        //位置校验
+        List<TestPlan> newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
+        for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
+            int oldListIndex = newListIndex == newTestPlanInGroup.size() - 1 ? 0 : newListIndex + 1;
+            Assertions.assertEquals(newTestPlanInGroup.get(newListIndex).getId(), lastTestPlanInGroup.get(oldListIndex).getId());
+        }
+        lastTestPlanInGroup = newTestPlanInGroup;
+
+        // 最后一个移动到第一个 (还原为原来的顺序）
+        movePlan = lastTestPlanInGroup.getLast();
+        targetPlan = lastTestPlanInGroup.getFirst();
+        posRequest = new PosRequest(project.getId(), movePlan.getId(), targetPlan.getId(), MoveTypeEnum.BEFORE.name());
+        response = JSON.parseObject(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanResourceSortResponse.class);
+        //位置校验
+        newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
+        for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
+            Assertions.assertEquals(newTestPlanInGroup.get(newListIndex).getId(), defaultTestPlanInGroup.get(newListIndex).getId());
+        }
+        lastTestPlanInGroup = newTestPlanInGroup;
+
+        // 第三个移动到第二个
+        movePlan = lastTestPlanInGroup.get(2);
+        targetPlan = lastTestPlanInGroup.get(1);
+        posRequest = new PosRequest(project.getId(), movePlan.getId(), targetPlan.getId(), MoveTypeEnum.BEFORE.name());
+        response = JSON.parseObject(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanResourceSortResponse.class);
+        //位置校验
+        newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
+        for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
+            int oldListIndex = newListIndex;
+            if (oldListIndex == 1) {
+                oldListIndex = 2;
+            } else if (oldListIndex == 2) {
+                oldListIndex = 1;
+            }
+            Assertions.assertEquals(newTestPlanInGroup.get(newListIndex).getId(), lastTestPlanInGroup.get(oldListIndex).getId());
+        }
+        lastTestPlanInGroup = newTestPlanInGroup;
+
+        // 修改第一个和第二个之间的pos差为2(拖拽的最小pos差），将第三个移动到第二个（换回来），然后检查pos有没有变化
+        movePlan = lastTestPlanInGroup.get(2);
+        targetPlan = lastTestPlanInGroup.get(1);
+        targetPlan.setPos(lastTestPlanInGroup.get(0).getPos() + 2);
+        testPlanMapper.updateByPrimaryKey(targetPlan);
+
+        posRequest = new PosRequest(project.getId(), movePlan.getId(), targetPlan.getId(), MoveTypeEnum.BEFORE.name());
+        response = JSON.parseObject(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanResourceSortResponse.class);
+        //位置校验
+        newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
+        long lastPos = 0;
+        for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
+            Assertions.assertEquals(newTestPlanInGroup.get(newListIndex).getId(), defaultTestPlanInGroup.get(newListIndex).getId());
+            Assertions.assertTrue(newTestPlanInGroup.get(newListIndex).getPos() > (lastPos + 1));
+            lastPos = newTestPlanInGroup.get(newListIndex).getPos();
+        }
+    }
     @Test
     @Order(12)
     public void testPlanPageCountTest() throws Exception {
-        TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
-        testPlanTableRequest.setProjectId(project.getId());
-        testPlanTableRequest.setType("ALL");
-        testPlanTableRequest.setPageSize(10);
-        testPlanTableRequest.setCurrent(1);
+        TestPlanTableRequest dataRequest = new TestPlanTableRequest();
+        dataRequest.setProjectId(project.getId());
+        dataRequest.setType("ALL");
+        dataRequest.setPageSize(10);
+        dataRequest.setCurrent(1);
 
         //测试项目没有开启测试计划模块时能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
-        this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest).andExpect(status().is5xxServerError());
-        this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest).andExpect(status().is5xxServerError());
+        this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest).andExpect(status().is5xxServerError());
+        this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest).andExpect(status().is5xxServerError());
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
 
-        MvcResult moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
+        MvcResult moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest);
         String moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         Map<String, Object> moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
         AtomicBoolean testPlanIsEmpty = new AtomicBoolean(true);
@@ -711,11 +821,19 @@ public class TestPlanTests extends BaseTest {
         }
 
         if (testPlanIsEmpty.get()) {
-            //如果没有数据，先创建999条再调用这个方法
+            //如果没有数据，先创建再调用这个方法
             this.testPlanAddTest();
             this.testPlanPageCountTest();
         } else {
-            //this.checkModuleCount(moduleCountMap, a1NodeCount, a2NodeCount, a3NodeCount, a1a1NodeCount, a1b1NodeCount);
+            //只查询组
+            TestPlanTableRequest groupRequest = new TestPlanTableRequest();
+            //查询游离态测试计划
+            TestPlanTableRequest onlyPlanRequest = new TestPlanTableRequest();
+            BeanUtils.copyBean(groupRequest, dataRequest);
+            BeanUtils.copyBean(onlyPlanRequest, dataRequest);
+            groupRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+            onlyPlanRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+
 
             BaseTreeNode a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1");
             BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
@@ -724,96 +842,82 @@ public class TestPlanTests extends BaseTest {
             BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-b1");
             assert a1Node != null & a2Node != null & a3Node != null & a1a1Node != null & a1b1Node != null;
 
-            //查询测试计划列表
-            MvcResult pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
-            String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-            Pager<Object> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-            //返回值的页码和当前页码相同
-            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
-            //返回的数据量不超过规定要返回的数据量相同
-            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
-            Assertions.assertEquals(result.getTotal(), 1010);
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    1010);
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, groupRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    2);
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, onlyPlanRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    1008);
 
             //按照名称倒叙
-            testPlanTableRequest.setSort(new HashMap<>() {{
+            dataRequest.setSort(new HashMap<>() {{
                 this.put("name", "desc");
             }});
-            pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
-            returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-            result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-            //返回值的页码和当前页码相同
-            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
-            //返回的数据量不超过规定要返回的数据量相同
-            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
-            Assertions.assertEquals(result.getTotal(), 1010);
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    1010);
 
 
             //指定模块ID查询 (查询count时，不会因为选择了模块而更改了总量
-            testPlanTableRequest.setModuleIds(Arrays.asList(a1Node.getId(), a1a1Node.getId(), a1b1Node.getId()));
-            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
+            dataRequest.setModuleIds(Arrays.asList(a1Node.getId(), a1a1Node.getId(), a1b1Node.getId()));
+            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest);
             moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
 
-
-            pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
-            returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-            result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-            //返回值的页码和当前页码相同
-            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
-            //返回的数据量不超过规定要返回的数据量相同
-            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
-
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    910);
 
             //测试根据名称模糊查询： Plan_2  预期结果： a1Node下有11条（testPlan_2,testPlan_20~testPlan_29), a1b1Node下有100条（testPlan_200~testPlan_299）
-            testPlanTableRequest.setModuleIds(null);
-            testPlanTableRequest.initKeyword("Plan_2");
-            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
+            dataRequest.setModuleIds(null);
+            dataRequest.initKeyword("Plan_2");
+            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest);
             moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
-
-
-            pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
-            returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-            result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-            //返回值的页码和当前页码相同
-            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
-            //返回的数据量不超过规定要返回的数据量相同
-            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
-
+            long allSize = Long.parseLong(String.valueOf(moduleCountMap.get("all")));
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    allSize);
 
             //测试根据名称模糊查询（包含测试组的）： Plan_7  预期结果： a1Node下有1条（testPlan_7), a2Node下有10条（testPlan_70~testPlan_79）,a1b1Node下有100条（testPlan_700~testPlan_799）
-            testPlanTableRequest.initKeyword("Plan_7");
-            testPlanTableRequest.setSort(new HashMap<>() {{
+            dataRequest.initKeyword("Plan_7");
+            dataRequest.setSort(new HashMap<>() {{
                 this.put("num", "asc");
             }});
-            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
+            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest);
             moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
-
-
-            pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
-            returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-            result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-            //返回值的页码和当前页码相同
-            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
-            //返回的数据量不超过规定要返回的数据量相同
-            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
-
+            allSize = Long.parseLong(String.valueOf(moduleCountMap.get("all")));
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    allSize);
 
             //反例：参数校验（项目ID不存在）
-            testPlanTableRequest.setProjectId(null);
-            this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest).andExpect(status().isBadRequest());
-            this.requestPost(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest).andExpect(status().isBadRequest());
+            dataRequest.setProjectId(null);
+            this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest).andExpect(status().isBadRequest());
+            this.requestPost(URL_POST_TEST_PLAN_PAGE, dataRequest).andExpect(status().isBadRequest());
 
             //测试权限
-            testPlanTableRequest.setProjectId(DEFAULT_PROJECT_ID);
-            this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
-            this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
+            dataRequest.setProjectId(DEFAULT_PROJECT_ID);
+            this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_MODULE_COUNT, dataRequest);
+            this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_PAGE, dataRequest);
         }
 
     }
