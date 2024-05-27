@@ -18,6 +18,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +62,7 @@ public class TestPlanManagementService {
      */
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "t.update_time desc");
+                MapUtils.isEmpty(request.getSort()) ? "t.num desc" : request.getSortString());
         return PageUtils.setPageInfo(page, this.getTableList(request));
     }
 
