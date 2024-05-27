@@ -6,7 +6,6 @@ import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
-import io.metersphere.api.dto.scenario.ApiScenarioReportDetailBlobDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
@@ -56,7 +55,7 @@ public class ApiScenarioReportService {
     @Resource
     private ApiScenarioReportLogService apiScenarioReportLogService;
     @Resource
-    private ExtApiScenarioReportDetailBlobMapper extApiScenarioReportDetailBlobMapper;
+    private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
     @Resource
     private ApiScenarioReportLogMapper apiScenarioReportLogMapper;
     @Resource
@@ -192,8 +191,9 @@ public class ApiScenarioReportService {
         BeanUtils.copyBean(scenarioReportDTO, scenarioReport);
         //需要查询出所有的步骤
         List<ApiScenarioReportStepDTO> scenarioReportSteps = extApiScenarioReportMapper.selectStepByReportId(id);
-
+        //查询所有步骤的detail
         List<ApiScenarioReportStepDTO> deatilList = extApiScenarioReportMapper.selectStepDetailByReportId(id);
+
         //根据stepId进行分组
         Map<String, List<ApiScenarioReportStepDTO>> detailMap = deatilList.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getStepId));
         //只处理请求的
@@ -347,11 +347,11 @@ public class ApiScenarioReportService {
             index = StringUtils.substringAfter(stepId, SPLITTER);
             stepId = StringUtils.substringBefore(stepId, SPLITTER);
         }
-        List<ApiScenarioReportDetailBlobDTO> apiReportDetails = checkResourceStep(stepId, reportId);
-        apiReportDetails.sort(Comparator.comparingLong(ApiScenarioReportDetailBlobDTO::getSort));
+        List<ApiScenarioReportDetail> apiReportDetails = checkResourceStep(stepId, reportId);
+        apiReportDetails.sort(Comparator.comparingLong(ApiScenarioReportDetail::getSort));
 
         if (StringUtils.isNotBlank(index)) {
-            ApiScenarioReportDetailBlobDTO apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) - 1);
+            ApiScenarioReportDetail apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) - 1);
             apiReportDetails = Collections.singletonList(apiScenarioReportDetail);
         }
         List<ApiScenarioReportDetailDTO> results = new ArrayList<>();
@@ -364,8 +364,10 @@ public class ApiScenarioReportService {
         return results;
     }
 
-    private List<ApiScenarioReportDetailBlobDTO> checkResourceStep(String stepId, String reportId) {
-        List<ApiScenarioReportDetailBlobDTO> apiReportDetails = extApiScenarioReportDetailBlobMapper.selectByExampleWithBLOBs(stepId,reportId);
+    private List<ApiScenarioReportDetail> checkResourceStep(String stepId, String reportId) {
+        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+        detailExample.createCriteria().andStepIdEqualTo(stepId).andReportIdEqualTo(reportId);
+        List<ApiScenarioReportDetail> apiReportDetails = apiScenarioReportDetailMapper.selectByExampleWithBLOBs(detailExample);
         if (CollectionUtils.isEmpty(apiReportDetails)) {
             return new ArrayList<>();
         }

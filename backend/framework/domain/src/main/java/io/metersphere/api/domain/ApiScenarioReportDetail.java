@@ -52,6 +52,9 @@ public class ApiScenarioReportDetail implements Serializable {
     @NotNull(message = "{api_scenario_report_detail.sort.not_blank}", groups = {Created.class})
     private Long sort;
 
+    @Schema(description = "执行结果")
+    private byte[] content;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -65,7 +68,8 @@ public class ApiScenarioReportDetail implements Serializable {
         code("code", "code", "VARCHAR", false),
         responseSize("response_size", "responseSize", "BIGINT", false),
         scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
-        sort("sort", "sort", "BIGINT", false);
+        sort("sort", "sort", "BIGINT", false),
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
