@@ -56,7 +56,7 @@
       </template>
       <template #passRate="{ record }">
         <div class="text-[var(--color-text-1)]">
-          {{ `${record.passRate | 0}%` }}
+          {{ `${record.passRate}%` }}
         </div>
       </template>
       <!-- 执行状态筛选 -->
@@ -239,9 +239,9 @@
       showInTable: true,
       width: 150,
       showDrag: true,
-      // filterConfig: {
-      //   options: triggerModeOptions.value,
-      // },
+      filterConfig: {
+        options: triggerModeOptions.value,
+      },
     },
     {
       title: 'report.operator',

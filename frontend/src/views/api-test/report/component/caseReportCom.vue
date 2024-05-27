@@ -264,18 +264,6 @@
         show: false,
         position: 'center',
       },
-      itemStyle: {
-        normal: {
-          borderWidth: 2,
-          borderColor: '#ffffff',
-        },
-        emphasis: {
-          borderWidth: 0,
-          shadowBlur: 0,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)',
-        },
-      },
       emphasis: {
         label: {
           show: false,
@@ -386,6 +374,8 @@
         name: t(item.label),
         itemStyle: {
           color: item.color,
+          borderWidth: 2,
+          borderColor: '#ffffff',
         },
       };
     });
