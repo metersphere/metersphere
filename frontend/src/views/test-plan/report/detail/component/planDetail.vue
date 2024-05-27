@@ -153,19 +153,14 @@
       no-content
       class="relative mb-[16px] border-b"
     />
-    <BugTable v-if="activeTab === 'bug'" :report-id="reportId" :share-id="shareId" :is-delete="isDelete" />
-    <FeatureCaseTable
-      v-if="activeTab === 'featureCase'"
-      :report-id="reportId"
-      :is-delete="isDelete"
-      :share-id="shareId"
-    />
+    <BugTable v-if="activeTab === 'bug'" :report-id="detail.id" :share-id="shareId" />
+    <FeatureCaseTable v-if="activeTab === 'featureCase'" :report-id="detail.id" :share-id="shareId" />
   </MsCard>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRoute } from 'vue-router';
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
@@ -181,18 +176,10 @@
   import BugTable from '@/views/test-plan/report/detail/component/bugTable.vue';
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/featureCaseTable.vue';
 
-  import {
-    editorUploadFile,
-    getReportDetail,
-    planGetShareHref,
-    planReportShare,
-    planReportShareDetail,
-    updateReportDetail,
-  } from '@/api/modules/test-plan/report';
+  import { editorUploadFile, planReportShare, updateReportDetail } from '@/api/modules/test-plan/report';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultReportDetail, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
-  import { NOT_FOUND_RESOURCE } from '@/router/constants';
   import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -208,7 +195,11 @@
   const route = useRoute();
   const appStore = useAppStore();
   const props = defineProps<{
-    reportId: string;
+    detailInfo: PlanReportDetail;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'updateSuccess'): void;
   }>();
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
@@ -220,16 +211,13 @@
   /**
    * 分享share
    */
-  const router = useRouter();
   const shareLink = ref<string>('');
   const shareId = ref<string>(route.query.shareId as string);
-  const reportId = ref<string>(props.reportId);
   const shareLoading = ref<boolean>(false);
-  const isDelete = ref<boolean>(false);
   async function shareHandler() {
     try {
       const res = await planReportShare({
-        reportId: reportId.value,
+        reportId: detail.value.id,
         projectId: appStore.currentProjectId,
       });
       const { origin } = window.location;
@@ -271,8 +259,8 @@
       name: '',
       type: 'pie',
       radius: ['62%', '80%'],
+      center: ['50%', '50%'],
       avoidLabelOverlap: false,
-      padAngle: 10,
       label: {
         show: false,
         position: 'center',
@@ -286,18 +274,6 @@
       },
       labelLine: {
         show: false,
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 2,
-          borderColor: '#ffffff',
-        },
-        emphasis: {
-          borderWidth: 0,
-          shadowBlur: 0,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)',
-        },
       },
       data: [
         {
@@ -366,18 +342,6 @@
       labelLine: {
         show: false,
       },
-      itemStyle: {
-        normal: {
-          borderWidth: 2,
-          borderColor: '#ffffff',
-        },
-        emphasis: {
-          borderWidth: 0,
-          shadowBlur: 0,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)',
-        },
-      },
       data: [
         {
           value: 0,
@@ -398,6 +362,8 @@
         name: t(item.label),
         itemStyle: {
           color: item.color,
+          borderWidth: 2,
+          borderColor: '#ffffff',
         },
       };
     });
@@ -422,34 +388,11 @@
         name: t(item.label),
         itemStyle: {
           color: success ? item.color : '#D4D4D8',
+          borderWidth: 2,
+          borderColor: '#ffffff',
         },
       };
     });
-  }
-
-  async function getDetail() {
-    try {
-      // 如果分享id存在则为分享页面
-      if (shareId.value) {
-        // 获取分享资源的详情
-        const hrefShareDetail = await planGetShareHref(shareId.value);
-        if (hrefShareDetail.deleted) {
-          isDelete.value = hrefShareDetail.deleted;
-          router.push({
-            name: NOT_FOUND_RESOURCE,
-          });
-          return;
-        }
-        reportId.value = hrefShareDetail.reportId;
-        const result = await planReportShareDetail(shareId.value, reportId.value);
-        detail.value = result;
-      } else {
-        detail.value = await getReportDetail(reportId.value);
-      }
-      richText.value = { summary: detail.value.summary };
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   async function handleUploadImage(file: File) {
@@ -468,7 +411,7 @@
       });
       Message.success(t('common.updateSuccess'));
       showButton.value = false;
-      getDetail();
+      emit('updateSuccess');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -498,9 +441,10 @@
     },
   ]);
 
-  watchEffect(async () => {
-    if (props.reportId) {
-      await getDetail();
+  watchEffect(() => {
+    if (props.detailInfo) {
+      // await getDetail();
+      detail.value = cloneDeep(props.detailInfo);
       initOptionsData();
     }
   });
