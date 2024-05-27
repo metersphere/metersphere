@@ -429,6 +429,7 @@
     {
       title: 'testPlan.testPlanIndex.createTime',
       slotName: 'createTime',
+      dataIndex: 'createTime',
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
