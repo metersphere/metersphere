@@ -1,6 +1,5 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.service.BugCommonService;
@@ -13,7 +12,6 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,24 +46,7 @@ public class TestPlanBugService extends TestPlanResourceService {
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         BugRelationCaseExample example = new BugRelationCaseExample();
         example.createCriteria().andTestPlanIdIn(testPlanIdList);
-        List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(example);
-        List<String> relateIdsByDirect = bugRelationCases.stream().filter(relatedCase -> StringUtils.isNotEmpty(relatedCase.getCaseId())).map(BugRelationCase::getId).toList();
-        List<String> relateIdsByPlan = bugRelationCases.stream().filter(relatedCase -> StringUtils.isEmpty(relatedCase.getCaseId())).map(BugRelationCase::getId).toList();
-        if (CollectionUtils.isNotEmpty(relateIdsByDirect)) {
-            // 缺陷-用例, 存在直接关联
-            BugRelationCaseExample updateExample = new BugRelationCaseExample();
-            updateExample.createCriteria().andIdIn(relateIdsByDirect);
-            BugRelationCase record = new BugRelationCase();
-            record.setTestPlanId(StringUtils.EMPTY);
-            record.setTestPlanCaseId(StringUtils.EMPTY);
-            bugRelationCaseMapper.updateByExampleSelective(record, updateExample);
-        }
-        if (CollectionUtils.isNotEmpty(relateIdsByPlan)) {
-            // 缺陷-用例, 计划关联
-            BugRelationCaseExample deleteExample = new BugRelationCaseExample();
-            deleteExample.createCriteria().andIdIn(relateIdsByPlan);
-            bugRelationCaseMapper.deleteByExample(deleteExample);
-        }
+        bugRelationCaseMapper.deleteByExample(example);
     }
 
     @Override
