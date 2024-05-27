@@ -118,6 +118,7 @@
               class="w-[120px]"
               :min="1"
               :max="100"
+              :precision="2"
               :default-value="100"
             />
           </a-form-item>
@@ -347,6 +348,7 @@
         }
 
         form.value.cycle = [result.plannedStartTime as number, result.plannedEndTime as number];
+        form.value.passThreshold = parseFloat(result.passThreshold.toString());
       }
     } catch (error) {
       // eslint-disable-next-line no-console
