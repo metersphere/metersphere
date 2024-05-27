@@ -6,15 +6,12 @@ import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
-import io.metersphere.api.dto.scenario.ApiScenarioReportDetailBlobDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
-import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
-import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
@@ -201,7 +198,7 @@ public class ApiScenarioReportService {
 
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
-        
+
         List<ApiScenarioReportStepDTO> steps = Optional.ofNullable(scenarioReportStepMap.get("NONE")).orElse(new ArrayList<>(0));
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
 
@@ -347,25 +344,18 @@ public class ApiScenarioReportService {
             index = StringUtils.substringAfter(stepId, SPLITTER);
             stepId = StringUtils.substringBefore(stepId, SPLITTER);
         }
-        List<ApiScenarioReportDetailBlobDTO> apiReportDetails = checkResourceStep(stepId, reportId);
-        apiReportDetails.sort(Comparator.comparingLong(ApiScenarioReportDetailBlobDTO::getSort));
+        List<ApiScenarioReportDetailDTO> apiReportDetails = checkResourceStep(stepId, reportId);
+        apiReportDetails.sort(Comparator.comparingLong(ApiScenarioReportDetailDTO::getSort));
 
         if (StringUtils.isNotBlank(index)) {
-            ApiScenarioReportDetailBlobDTO apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) - 1);
+            ApiScenarioReportDetailDTO apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) - 1);
             apiReportDetails = Collections.singletonList(apiScenarioReportDetail);
         }
-        List<ApiScenarioReportDetailDTO> results = new ArrayList<>();
-        apiReportDetails.forEach(apiReportDetail -> {
-            ApiScenarioReportDetailDTO apiReportDetailDTO = new ApiScenarioReportDetailDTO();
-            BeanUtils.copyBean(apiReportDetailDTO, apiReportDetail);
-            apiReportDetailDTO.setContent(apiReportDetail.getContent() != null ? ApiDataUtils.parseObject(new String(apiReportDetail.getContent()), RequestResult.class) : null);
-            results.add(apiReportDetailDTO);
-        });
-        return results;
+         return apiReportDetails;
     }
 
-    private List<ApiScenarioReportDetailBlobDTO> checkResourceStep(String stepId, String reportId) {
-        List<ApiScenarioReportDetailBlobDTO> apiReportDetails = extApiScenarioReportDetailBlobMapper.selectByExampleWithBLOBs(stepId, reportId);
+    private List<ApiScenarioReportDetailDTO> checkResourceStep(String stepId, String reportId) {
+        List<ApiScenarioReportDetailDTO> apiReportDetails = extApiScenarioReportDetailBlobMapper.selectByExampleWithBLOBs(stepId, reportId);
         if (CollectionUtils.isEmpty(apiReportDetails)) {
             return new ArrayList<>();
         }
