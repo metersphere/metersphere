@@ -68,9 +68,11 @@
         LIMIT 1
     </select>
     <select id="selectCaseExecResultCount" resultType="io.metersphere.plan.dto.TestPlanCaseRunResultCount">
-        select last_exec_result as result, count(id) as resultCount
+        select test_plan_api_scenario.last_exec_result as result, count(test_plan_api_scenario.id) as resultCount
         from test_plan_api_scenario
+                 inner join api_scenario on test_plan_api_scenario.api_scenario_id = api_scenario.id
         where test_plan_id = #{0}
-        group by last_exec_result;
+          AND api_scenario.deleted = false
+        group by last_exec_result
     </select>
 </mapper>

@@ -184,14 +184,6 @@ public class TestPlanFunctionalCaseController {
         return testPlanFunctionalCaseService.getCaseExecHistory(request);
     }
 
-    @PostMapping("/edit")
-    @Operation(summary = "测试计划-计划详情-功能用例-编辑执行结果")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public void editFunctionalCase(@Validated @RequestBody TestPlanCaseEditRequest request) {
-        testPlanFunctionalCaseService.editFunctionalCase(request, SessionUtils.getUserId());
-    }
-
     @GetMapping("/user-option/{projectId}")
     @Operation(summary = "测试计划-计划详情-功能用例-获取用户列表")
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_READ_UPDATE, PermissionConstants.TEST_PLAN_READ_ADD}, logical = Logical.OR)

@@ -490,10 +490,12 @@
         </where>
     </select>
     <select id="selectCaseExecResultCount" resultType="io.metersphere.plan.dto.TestPlanCaseRunResultCount">
-        select last_exec_result as result, count(id) as resultCount
+        select test_plan_functional_case.last_exec_result as result, count(test_plan_functional_case.id) as resultCount
         from test_plan_functional_case
+                 INNER JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
         where test_plan_id = #{0}
-        group by last_exec_result;
+          AND functional_case.deleted = false
+        group by last_exec_result
     </select>
 
 
