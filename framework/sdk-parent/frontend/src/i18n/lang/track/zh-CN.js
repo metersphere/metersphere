@@ -576,6 +576,7 @@ export default {
       "覆盖模式:<br>1.缺陷ID已存在,则覆盖系统原缺陷;<br>2.缺陷ID不存在或为空缺失,则新增缺陷;<br>不覆盖模式:<br>1.缺陷ID已存在,则不作变更;<br>2.缺陷ID不存在或为空缺失,则新增缺陷;",
     status_suspended: "挂起",
     status_verified: "已验证",
+    creator_header_tips: "MS平台的缺陷创建人或者同步人",
   },
   report: {
     name: "测试计划报告",
