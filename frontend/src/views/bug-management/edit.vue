@@ -607,6 +607,7 @@
               };
               if (isCopy.value) {
                 delete tmpObj.id;
+                delete tmpObj.richTextTmpFileIds;
               }
               // 过滤出本地保存的文件
               const localFiles = fileList.value.filter((item) => item.local && item.status === 'init');
