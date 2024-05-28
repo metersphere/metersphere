@@ -179,7 +179,7 @@ public class TestPlanController {
     public void association(@Validated @RequestBody TestPlanAssociationRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
-        testPlanService.association(request);
+        testPlanService.association(request, SessionUtils.getUserId());
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 

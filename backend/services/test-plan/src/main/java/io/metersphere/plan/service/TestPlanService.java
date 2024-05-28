@@ -128,7 +128,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanConfig.setTestPlanning(createOrCopyRequest.isTestPlanning());
 
         if (StringUtils.isBlank(id)) {
-            handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), createTestPlan);
+            handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
         } else {
             //复制
             handleCopy(createTestPlan, id);
