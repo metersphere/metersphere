@@ -6,6 +6,7 @@ import io.metersphere.bug.domain.BugCommentExample;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
 import io.metersphere.bug.dto.response.BugCommentDTO;
 import io.metersphere.bug.dto.response.BugCommentNoticeDTO;
+import io.metersphere.bug.enums.BugAttachmentSourceType;
 import io.metersphere.bug.mapper.BugCommentMapper;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.sdk.exception.MSException;
@@ -37,6 +38,8 @@ public class BugCommentService {
     private BugCommentMapper bugCommentMapper;
     @Resource
     private BugCommentNoticeService bugCommentNoticeService;
+    @Resource
+    private BugAttachmentService bugAttachmentService;
 
     /**
      * 获取缺陷评论
@@ -112,8 +115,10 @@ public class BugCommentService {
      * @return 缺陷评论
      */
     public BugComment addComment(BugCommentEditRequest request, String currentUser) {
-        checkBug(request.getBugId());
+        Bug bug = checkBug(request.getBugId());
         BugComment bugComment = getBugComment(request, currentUser, false);
+        // 评论富文本附件处理
+        bugAttachmentService.transferTmpFile(bug.getId(), bug.getProjectId(), request.getRichTextTmpFileIds(), currentUser, BugAttachmentSourceType.COMMENT.name());
         if (StringUtils.equals(request.getEvent(), NoticeConstants.Event.REPLY)) {
             return addBugCommentAndReplyNotice(request, bugComment, currentUser);
         } else {
@@ -128,8 +133,11 @@ public class BugCommentService {
      * @return 缺陷评论
      */
     public BugComment updateComment(BugCommentEditRequest request, String currentUser) {
+        Bug bug = checkBug(request.getBugId());
         checkComment(request.getId(), currentUser);
         BugComment bugComment = getBugComment(request, currentUser, true);
+        // 评论富文本附件处理
+        bugAttachmentService.transferTmpFile(bug.getId(), bug.getProjectId(), request.getRichTextTmpFileIds(), currentUser, BugAttachmentSourceType.COMMENT.name());
         return updateBugCommentAndNotice(request, bugComment, currentUser);
     }
 
@@ -262,11 +270,12 @@ public class BugCommentService {
      * 校验缺陷是否存在
      * @param bugId 缺陷ID
      */
-    private void checkBug(String bugId) {
+    private Bug checkBug(String bugId) {
         Bug bug = bugMapper.selectByPrimaryKey(bugId);
         if (bug == null) {
             throw new IllegalArgumentException(Translator.get("bug_not_exist"));
         }
+        return bug;
     }
 
     /**

@@ -9,5 +9,9 @@ public enum BugAttachmentSourceType {
     /**
      * 富文本
      */
-    RICH_TEXT
+    RICH_TEXT,
+    /**
+     * 评论
+     */
+    COMMENT
 }
