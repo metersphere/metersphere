@@ -3,15 +3,13 @@ package io.metersphere.plan.service;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.CaseStatusCountMap;
-import io.metersphere.plan.dto.ReportDetailCasePageDTO;
-import io.metersphere.plan.dto.TestPlanReportGenPreParam;
-import io.metersphere.plan.dto.TestPlanReportPostParam;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.utils.ModuleTreeUtils;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.sdk.constants.*;
@@ -244,12 +242,19 @@ public class TestPlanReportService {
 		// 功能用例
 		List<TestPlanReportFunctionCase> reportFunctionCases = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCases(genParam.getTestPlanId());
 		if (CollectionUtils.isNotEmpty(reportFunctionCases)) {
+			// 模块树
+			List<TestPlanBaseModule> functionalModules = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCaseModules(genParam.getProjectId());
+			Map<String, String> functionalModuleMap = new HashMap<>(functionalModules.size());
+			ModuleTreeUtils.genPathMap(functionalModules, functionalModuleMap, new ArrayList<>());
+			// 用例等级
 			List<String> ids = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseId).distinct().toList();
 			List<SelectOption> options = extTestPlanReportFunctionalCaseMapper.getCasePriorityByIds(ids);
 			Map<String, String> casePriorityMap = options.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
 			reportFunctionCases.forEach(reportFunctionalCase -> {
 				reportFunctionalCase.setId(IDGenerator.nextStr());
 				reportFunctionalCase.setTestPlanReportId(reportId);
+				reportFunctionalCase.setFunctionCaseModule(functionalModuleMap.getOrDefault(reportFunctionalCase.getFunctionCaseModule(),
+						ModuleTreeUtils.MODULE_PATH_PREFIX + reportFunctionalCase.getFunctionCaseModule()));
 				reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
 			});
 			// 插入计划功能用例关联数据 -> 报告内容

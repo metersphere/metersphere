@@ -15,7 +15,7 @@ INSERT INTO `test_plan_functional_case` (`id`, `test_plan_id`, `functional_case_
 ('plan_id_for_gen_report_case_5', 'plan_id_for_gen_report', 'f5_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'FAKE_ERROR', 5);
 
 -- 计划关联缺陷的测试数据
-INSERT INTO `bug_relation_case`(`id`, `case_id`, `bug_id`, `case_type`, `test_plan_id`, `test_plan_case_id`, `create_user`, `create_time`, `update_time`) VALUES
+INSERT INTO `bug_relation_case` (`id`, `case_id`, `bug_id`, `case_type`, `test_plan_id`, `test_plan_case_id`, `create_user`, `create_time`, `update_time`) VALUES
 ('test-plan-bug-relate-case-1', 'f1', 'test-plan-bug-for-gen', 'FUNCTIONAL', 'plan_id_for_gen_report', 'f1', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 缺陷的测试数据
@@ -23,5 +23,10 @@ INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_
 ('test-plan-bug-for-gen', 100000, 'default-bug-gen', 'oasis', 'admin', 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, '100001100001', 'bug-template-id', 'Local', 'new', '["default-tag"]', null, 0, 5000);
 
 -- 用例的测试数据
-INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+INSERT INTO functional_case (id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('f1_gen', 100001, 'TEST_MODULE_ID', '100001100001', '100001', 'functional_case_gen', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'PENDING', b'0', b'0', b'1', 'admin', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO functional_case_module (id, project_id, name, parent_id, pos, create_user, create_time, update_user, update_time) VALUES
+('TEST_MODULE_ID', '100001100001', 'test_module_gen_1', 'NONE', 0, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP),
+('TEST_MODULE_ID_1', '100001100001', 'test_module_gen_2', 'TEST_MODULE_ID', 0, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP),
+('TEST_MODULE_ID_2', '100001100001', 'test_module_gen_3', '', 0, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP);

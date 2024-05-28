@@ -3,6 +3,7 @@ package io.metersphere.plan.mapper;
 import io.metersphere.plan.domain.TestPlanReportFunctionCase;
 import io.metersphere.plan.dto.CaseStatusCountMap;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
+import io.metersphere.plan.dto.TestPlanBaseModule;
 import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import org.apache.ibatis.annotations.Param;
@@ -18,6 +19,18 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 	 */
 	List<TestPlanReportFunctionCase> getPlanExecuteCases(@Param("id") String planId);
 
+	/**
+	 * 获取项目下功能用例所属模块集合
+	 * @param projectId 计划ID
+	 * @return 模块集合
+	 */
+	List<TestPlanBaseModule> getPlanExecuteCaseModules(@Param("id") String projectId);
+
+	/**
+	 * 获取用例等级
+	 * @param caseIds 用例集合
+	 * @return 等级集合
+	 */
 	List<SelectOption> getCasePriorityByIds(@Param("ids") List<String> caseIds);
 
 	/**
