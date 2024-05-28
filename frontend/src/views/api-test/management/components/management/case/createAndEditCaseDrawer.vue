@@ -1,6 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="innerVisible"
+    class="createAndEditCaseDrawer"
     :title="isEdit ? t('case.updateCase') : t('case.createCase')"
     :width="894"
     no-content-padding
@@ -80,6 +81,7 @@
           :file-save-as-api="transferFileCase"
           is-definition
           @execute="handleExecute"
+          @request-tab-click="requestTabClick"
         />
       </div>
     </div>
@@ -182,6 +184,16 @@
   });
   const detailForm = ref(cloneDeep(defaultDetail.value));
   const isEdit = ref(false);
+
+  function requestTabClick() {
+    const element = document
+      .querySelector('.createAndEditCaseDrawer')
+      ?.querySelectorAll('.request-tab-and-response')[0];
+    element?.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }
 
   async function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean) {
     appStore.showLoading();

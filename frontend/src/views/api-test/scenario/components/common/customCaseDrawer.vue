@@ -1,6 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="visible"
+    class="customCaseDrawer"
     :width="900"
     :footer="false"
     show-full-screen
@@ -122,6 +123,7 @@
           :get-text-func="getTabBadge"
           no-content
           class="sticky-content relative top-0 mx-[16px] border-b"
+          @tab-click="requestTabClick"
         />
         <div :class="`request-content-and-response ${activeLayout}`">
           <a-spin class="request block h-full w-full" :loading="requestVModel.executeLoading || loading">
@@ -442,6 +444,14 @@
       deep: true,
     }
   );
+
+  function requestTabClick() {
+    const element = document.querySelector('.customCaseDrawer')?.querySelectorAll('.request-tab-and-response')[0];
+    element?.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }
 
   // 非引用场景下的复制 case 可更改
   const isEditableApi = computed(() => !activeStep.value?.isQuoteScenarioStep && _stepType.value.isCopyCase);
@@ -1087,8 +1097,8 @@
       .response :deep(.response-head) {
         @apply sticky bg-white;
 
-        top: 0;
-        z-index: 102; // 覆盖请求参数tab
+        top: 46px; // 请求参数tab高度(不算border-bottom)
+        z-index: 11;
       }
       .request-tab-pane {
         min-height: 400px;
