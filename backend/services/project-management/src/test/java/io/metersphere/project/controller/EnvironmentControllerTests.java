@@ -934,7 +934,7 @@ public class EnvironmentControllerTests extends BaseTest {
 
         NodeSortQueryParam sortParam = new NodeSortQueryParam();
         sortParam.setPos(environmentId1.getPos());
-        sortParam.setOperator("lessThan");
+        sortParam.setOperator("moreThan");
         sortParam.setParentId(DEFAULT_PROJECT_ID);
 
         DropNode dropNode = extEnvironmentMapper.selectNodeByPosOperator(sortParam);
