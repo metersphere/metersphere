@@ -514,6 +514,9 @@ public class ApiDefinitionImportUtilService {
                     //不相同的数据需要覆盖  所以这里记录id就可以
                     if (!isSame) {
                         importDTO.setId(apiDefinitionDTO.getId());
+                        if (StringUtils.equals(request.getPlatform(), ApiImportPlatform.Swagger3.name())) {
+                            importDTO.getRequest().setChildren(dbRequest.getChildren());
+                        }
                         updateRequestData.add(importDTO);
                         logMap.put(apiDefinitionDTO.getId(), importDTO);
                     }
