@@ -18,6 +18,11 @@
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
 
+    <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlan">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
+
     <update id="updateDefaultGroupId">
         UPDATE test_plan
         SET group_id = 'NONE'
@@ -385,7 +390,7 @@
         </foreach>
     </update>
 
-    <select id="getTagsByIds" resultType="io.metersphere.plan.domain.TestPlan">
+    <select id="getTagsByIds" resultMap="BaseResultMap">
         select id, tags from test_plan
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
