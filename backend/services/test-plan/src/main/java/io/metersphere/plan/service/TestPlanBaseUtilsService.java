@@ -16,7 +16,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,9 +79,9 @@ public class TestPlanBaseUtilsService {
      * @param request
      * @return
      */
-    public void association(TestPlanAssociationRequest request) {
+    public void association(TestPlanAssociationRequest request, String operator) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
-        handleAssociateCase(request, testPlan);
+        handleAssociateCase(request, operator, testPlan);
     }
 
 
@@ -92,9 +91,9 @@ public class TestPlanBaseUtilsService {
      * @param request
      * @return
      */
-    public void handleAssociateCase(BaseAssociateCaseRequest request, TestPlan testPlan) {
+    public void handleAssociateCase(BaseAssociateCaseRequest request, String operator, TestPlan testPlan) {
         //关联的功能用例
-        handleFunctionalCase(request.getFunctionalSelectIds(), testPlan);
+        handleFunctionalCase(request.getFunctionalSelectIds(), operator, testPlan);
         //TODO 关联接口用例/接口场景用例 handleApi(request.getApiSelectIds(),request.getApiCaseSelectIds())
 
     }
@@ -104,11 +103,11 @@ public class TestPlanBaseUtilsService {
      *
      * @param functionalSelectIds
      */
-    private void handleFunctionalCase(List<String> functionalSelectIds, TestPlan testPlan) {
+    private void handleFunctionalCase(List<String> functionalSelectIds, String operator, TestPlan testPlan) {
         if (CollectionUtils.isNotEmpty(functionalSelectIds)) {
             TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(functionalSelectIds, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), testPlan.getCreateUser());
             testPlanCaseService.saveTestPlanResource(associationParam);
-            testPlanResourceLogService.saveAddLog(testPlan, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/association", HttpMethodConstants.POST.name())));
+            testPlanResourceLogService.saveAddLog(testPlan, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, new LogInsertModule(operator, "/test-plan/association", HttpMethodConstants.POST.name())));
         }
     }
 }
