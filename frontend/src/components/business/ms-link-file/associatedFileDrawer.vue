@@ -242,6 +242,15 @@
   function handleDrawerCancel() {
     showDrawer.value = false;
   }
+
+  watch(
+    () => showDrawer.value,
+    (val) => {
+      if (!val) {
+        selectFile.value = [];
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

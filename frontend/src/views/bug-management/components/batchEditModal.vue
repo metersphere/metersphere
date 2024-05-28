@@ -56,7 +56,7 @@
           field="value"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
-          validate-trigger="blur"
+          :validate-trigger="['blur', 'input']"
           :rules="[{ required: true, message: t('bugManagement.batchUpdate.required.value') }]"
         >
           <template v-if="valueMode === 'tags'">

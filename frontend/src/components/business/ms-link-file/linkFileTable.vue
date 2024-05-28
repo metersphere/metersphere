@@ -28,7 +28,17 @@
           @clear="searchList"
       /></div>
     </div>
-    <ms-base-table v-bind="propsRes" ref="tableRef" v-model:selected-key="selectedKey" no-disable v-on="propsEvent">
+    <ms-base-table
+      v-bind="propsRes"
+      ref="tableRef"
+      v-model:selected-key="selectedKey"
+      :action-config="{
+        baseAction: [],
+        moreAction: [],
+      }"
+      no-disable
+      v-on="propsEvent"
+    >
       <template #name="{ record }">
         <MsTag
           v-if="record.fileType.toLowerCase() === 'jar'"

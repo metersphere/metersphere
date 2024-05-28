@@ -32,6 +32,7 @@
         <a-form-item
           v-if="form.selectedAttrsId === 'systemTags'"
           field="tags"
+          :validate-trigger="['blur', 'input']"
           :label="t('caseManagement.featureCase.batchUpdate')"
           asterisk-position="end"
           :rules="[{ required: true, message: t('caseManagement.featureCase.PleaseInputTags') }]"

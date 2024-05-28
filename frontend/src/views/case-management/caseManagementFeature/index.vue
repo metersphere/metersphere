@@ -264,8 +264,11 @@
    * 设置根模块名称列表
    * @param names 根模块名称列表
    */
-  function setRootModules(names: string[]) {
+  function setRootModules(names: string[], isSetDefaultKey: boolean) {
     rootModulesName.value = names;
+    if (isSetDefaultKey) {
+      activeFolder.value = 'all';
+    }
   }
 
   // 表格搜索参数

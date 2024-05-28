@@ -188,7 +188,8 @@
       }
       emits(
         'init',
-        caseTree.value.map((e) => e.name)
+        caseTree.value.map((e) => e.name),
+        isSetDefaultKey
       );
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -213,7 +214,7 @@
         try {
           await deleteCaseModuleTree(node.id);
           Message.success(t('caseManagement.featureCase.deleteSuccess'));
-          initModules(selectedNodeKeys.value[0] === node.id);
+          initModules(true);
         } catch (error) {
           console.log(error);
         }

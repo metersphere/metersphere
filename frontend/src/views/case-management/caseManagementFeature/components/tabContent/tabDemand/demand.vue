@@ -339,6 +339,7 @@
 
   function handleDrawerCancel() {
     linkDemandDrawer.value = false;
+    platformKeyword.value = '';
   }
   // 取消关联
   async function cancelLink(record: DemandItem) {
