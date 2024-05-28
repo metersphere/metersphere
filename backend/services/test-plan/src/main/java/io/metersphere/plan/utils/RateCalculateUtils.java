@@ -1,11 +1,13 @@
 package io.metersphere.plan.utils;
 
+import lombok.experimental.UtilityClass;
+
 import java.text.DecimalFormat;
 
 /**
  * 计划模块百分比计算工具类
  */
-
+@UtilityClass
 public class RateCalculateUtils {
 
 	public static final int MAX_BOUNDARY = 100;

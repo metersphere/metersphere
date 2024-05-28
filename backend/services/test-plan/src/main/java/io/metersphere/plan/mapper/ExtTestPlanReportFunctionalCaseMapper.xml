@@ -4,13 +4,18 @@
 
     <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
         select tpfc.id as testPlanFunctionCaseId, fc.id as functionCaseId, fc.num as functionCaseNum, fc.name as functionCaseName,
-               if(fc.module_id = 'root','未规划用例', fcm.name) as functionCaseModule, tpfc.execute_user as functionCaseExecuteUser,
+               if(fc.module_id = 'root','未规划用例', fc.module_id) as functionCaseModule, tpfc.execute_user as functionCaseExecuteUser,
                count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult
         from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
         left join functional_case_module fcm on fcm.id = fc.module_id
         left join bug_relation_case brc on brc.test_plan_case_id = tpfc.id
         where tpfc.test_plan_id = #{id} and fc.deleted = false
         group by tpfc.id
+    </select>
+
+    <select id="getPlanExecuteCaseModules" resultType="io.metersphere.plan.dto.TestPlanBaseModule">
+        select fcm.id, fcm.name, fcm.parent_id as parentId from functional_case_module fcm
+        where fcm.project_id = #{id}
     </select>
 
     <select id="getCasePriorityByIds" resultType="io.metersphere.plugin.platform.dto.SelectOption">
