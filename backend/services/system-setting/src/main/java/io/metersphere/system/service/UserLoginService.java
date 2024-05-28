@@ -237,35 +237,27 @@ public class UserLoginService {
                 organizationExample.createCriteria().andIdEqualTo(user.getLastOrganizationId()).andEnableEqualTo(true);
                 List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
                 if (CollectionUtils.isNotEmpty(organizations)) {
-                    Organization organization = organizations.get(0);
+                    Organization organization = organizations.getFirst();
                     ProjectExample projectExample = new ProjectExample();
                     projectExample.createCriteria().andOrganizationIdEqualTo(organization.getId()).andEnableEqualTo(true);
                     List<Project> projectList = projectMapper.selectByExample(projectExample);
                     if (CollectionUtils.isNotEmpty(projectList)) {
-                        Project project = projectList.get(0);
+                        Project project = projectList.getFirst();
                         user.setLastProjectId(project.getId());
                         updateUser(user);
+                        return true;
                     }
-                    return true;
                 }
             }
             //项目和组织都没有权限
-            OrganizationExample organizationExample = new OrganizationExample();
-            organizationExample.createCriteria().andEnableEqualTo(true);
-            List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
-            if (CollectionUtils.isNotEmpty(organizations)) {
-                Organization organization = organizations.get(0);
-                ProjectExample projectExample = new ProjectExample();
-                projectExample.createCriteria().andOrganizationIdEqualTo(organization.getId()).andEnableEqualTo(true);
-                List<Project> projectList = projectMapper.selectByExample(projectExample);
-                if (CollectionUtils.isNotEmpty(projectList)) {
-                    Project project = projectList.get(0);
-                    user.setLastProjectId(project.getId());
-                    user.setLastOrganizationId(organization.getId());
-                    updateUser(user);
-                    return true;
-                }
+            Project project = baseUserMapper.getEnableProjectAndOrganization();
+            if (project != null) {
+                user.setLastProjectId(project.getId());
+                user.setLastOrganizationId(project.getOrganizationId());
+                updateUser(user);
+                return true;
             }
+            return true;
 
         }
         return false;

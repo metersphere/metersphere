@@ -132,4 +132,11 @@
             #{id}
         </foreach>
     </select>
+    <select id="getEnableProjectAndOrganization" resultType="io.metersphere.project.domain.Project">
+        SELECT p.*
+        FROM project p
+                 LEFT JOIN organization o ON p.organization_id = o.id
+        WHERE p.enable = 1
+          AND o.enable = 1 limit 1
+    </select>
 </mapper>
