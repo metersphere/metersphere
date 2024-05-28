@@ -1117,6 +1117,7 @@
       return;
     }
     emit('addStep', cloneDeep(makeRequestParams()) as RequestParam);
+    requestVModel.value.stepId = getGenerateId(); // 保存后需要重新生成 id
   }
 
   function handleSave() {
