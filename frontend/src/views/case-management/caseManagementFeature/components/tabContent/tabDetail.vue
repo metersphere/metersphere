@@ -67,6 +67,7 @@
             v-model:step-list="stepData"
             :is-scroll-y="false"
             :is-test-plan="props.isTestPlan"
+            :is-disabled-test-plan="props.isDisabledTestPlan"
             :is-disabled="!isEditPreposition"
           />
         </div>
@@ -304,6 +305,7 @@
       formRules?: FormRuleItem[]; // 编辑表单
       formApi?: any;
       isTestPlan?: boolean; // 测试计划页面的
+      isDisabledTestPlan?: boolean; // 测试计划页面-已归档
     }>(),
     {
       allowEdit: true, // 是否允许编辑
