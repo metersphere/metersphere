@@ -3,44 +3,46 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 
 ALTER TABLE user_key MODIFY COLUMN description VARCHAR(1000);
 
+-- add mock table column
 ALTER TABLE api_definition_mock ADD COLUMN status_code INT(50) ;
+ALTER TABLE api_definition_mock ADD COLUMN update_user VARCHAR(50) COMMENT '更新人';
+ALTER TABLE api_definition_mock ADD COLUMN version_id VARCHAR(50) COMMENT '版本id';
 
 CREATE INDEX idx_scene ON custom_field (scene);
 CREATE INDEX idx_internal ON custom_field (internal);
 
-CREATE INDEX idx_num ON test_plan(num);
+-- edit test_plan_config column
 ALTER TABLE test_plan_config DROP COLUMN run_mode_config;
-
 ALTER TABLE test_plan_config ADD COLUMN test_planning BIT NOT NULL  DEFAULT 0 COMMENT '是否开启测试规划';
+ALTER TABLE test_plan_config MODIFY pass_threshold DECIMAL(10, 2) NOT NULL;
 
-ALTER TABLE api_definition_mock ADD COLUMN update_user VARCHAR(50) COMMENT '更新人';
-ALTER TABLE api_definition_mock ADD COLUMN version_id VARCHAR(50) COMMENT '版本id';
 
 ALTER TABLE operation_history MODIFY COLUMN module VARCHAR(100);
+CREATE INDEX idx_source_id ON operation_history(`source_id`);
 
 ALTER TABLE operation_log MODIFY COLUMN module VARCHAR(100);
 
-CREATE INDEX idx_num ON test_plan_functional_case(num);
-
+-- drop test_resource_pool column
+ALTER TABLE test_plan_functional_case DROP COLUMN num;
 ALTER TABLE test_resource_pool DROP COLUMN api_test;
 ALTER TABLE test_resource_pool DROP COLUMN load_test;
 ALTER TABLE test_resource_pool DROP COLUMN ui_test;
+
+-- drop test_resource_pool column
 DROP TABLE test_plan_bug;
 
 
-CREATE TABLE IF NOT EXISTS test_plan_allocation
-(
+CREATE TABLE IF NOT EXISTS test_plan_allocation(
     `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
     `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID',
     `run_mode_config` LONGBLOB NOT NULL COMMENT '运行配置',
     PRIMARY KEY (id)
-    ) ENGINE = InnoDB
+) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '测试计划配置';
 
 CREATE INDEX idx_test_plan_id ON test_plan_allocation(test_plan_id);
 
-ALTER TABLE test_plan_functional_case DROP COLUMN num;
 
 CREATE TABLE IF NOT EXISTS test_plan_case_execute_history(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
@@ -55,7 +57,7 @@ CREATE TABLE IF NOT EXISTS test_plan_case_execute_history(
     `create_user` VARCHAR(50) NOT NULL   COMMENT '操作人' ,
     `create_time` BIGINT NOT NULL   COMMENT '操作时间' ,
     PRIMARY KEY (id)
-    )ENGINE = InnoDB
+)   ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '功能用例执行历史表';
 
@@ -110,7 +112,8 @@ CREATE TABLE IF NOT EXISTS test_plan_report_summary(
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容统计';
 
-CREATE UNIQUE INDEX idx_test_plan_report_id ON test_plan_report_summary(test_plan_report_id);
+-- 为测试计划报告内容统计表添加唯一索引
+CREATE UNIQUE INDEX un_idx_test_plan_report_id ON test_plan_report_summary(test_plan_report_id);
 
 CREATE TABLE IF NOT EXISTS test_plan_report_function_case(
      `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
@@ -162,18 +165,15 @@ CREATE INDEX idx_source ON test_plan_report_attachment(source);
 -- 场景步骤 csv 表增加场景ID字段
 ALTER TABLE api_scenario_csv_step ADD scenario_id varchar(50) NOT NULL COMMENT '场景ID';
 CREATE INDEX idx_scenario_id USING BTREE ON api_scenario_csv_step (scenario_id);
+CREATE INDEX idx_report_id ON api_scenario_report_step(report_id);
 
-ALTER TABLE test_plan_config MODIFY pass_threshold DECIMAL(10, 2) NOT NULL;
 
 -- 修改测试计划模块名称长度
 ALTER TABLE test_plan_module  MODIFY COLUMN `name` varchar(255);
 
+CREATE INDEX idx_num ON test_plan(num);
 ALTER TABLE test_plan DROP INDEX uq_name_project;
 
-CREATE INDEX idx_report_id ON api_scenario_report_step(report_id);
-
-
-CREATE INDEX idx_source_id ON operation_history(`source_id`);
 
 -- 修改缺陷自定义字段值长度(由于要支持三方平台富文本存储)
 ALTER TABLE bug_custom_field MODIFY `value` longtext;
@@ -191,9 +191,10 @@ CREATE TABLE IF NOT EXISTS api_scenario_report_detail_blob(
 ALTER TABLE `api_scenario_report_detail_blob`
     ADD INDEX `idx_report_id`(`report_id`) USING BTREE;
 
--- 重构场景报告步骤结果内容，原则上是不会有大数据量的场景报告步骤结果内容
+-- 兼容处理历史数据
 INSERT INTO api_scenario_report_detail_blob (id, report_id, content)
 SELECT id, report_id, content FROM api_scenario_report_detail;
+
 -- 删除原有的内容字段
 ALTER TABLE api_scenario_report_detail DROP COLUMN content;
 
