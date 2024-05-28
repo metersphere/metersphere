@@ -28,7 +28,10 @@
         @blur="blurHandler(record, 'expected')"
       />
     </template>
-    <template #actualResult="{ record }">
+    <template
+      v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && !props.isDisabledTestPlan"
+      #actualResult="{ record }"
+    >
       <a-textarea
         v-model="record.actualResult"
         :max-length="1000"
@@ -40,7 +43,7 @@
     </template>
     <template #lastExecResult="{ record }">
       <a-select
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && !props.isDisabledTestPlan"
         v-model:model-value="record.executeResult"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
@@ -101,6 +104,7 @@
       isDisabled?: boolean;
       isScrollY?: boolean;
       isTestPlan?: boolean;
+      isDisabledTestPlan?: boolean;
     }>(),
     {
       isDisabled: false,

@@ -101,7 +101,7 @@
             </template>
           </MsDescription>
           <div v-else-if="activeTab === 'detail'" class="align-content-start flex h-full flex-col">
-            <CaseTabDetail ref="caseTabDetailRef" is-test-plan :form="caseDetail" />
+            <CaseTabDetail ref="caseTabDetailRef" is-test-plan :form="caseDetail" :is-disabled-test-plan="!canEdit" />
             <!-- 开始执行 -->
             <div
               v-if="canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
