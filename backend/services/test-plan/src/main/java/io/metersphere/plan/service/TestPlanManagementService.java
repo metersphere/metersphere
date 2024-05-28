@@ -3,7 +3,6 @@ package io.metersphere.plan.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.dto.TestPlanQueryConditions;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
@@ -43,8 +42,8 @@ public class TestPlanManagementService {
 
     public Map<String, Long> moduleCount(TestPlanTableRequest request) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
-        TestPlanQueryConditions testPlanQueryConditions = new TestPlanQueryConditions(null, request.getProjectId(), request);
-        List<ModuleCountDTO> moduleCountDTOList = extTestPlanMapper.countModuleIdByConditions(testPlanQueryConditions);
+        request.setModuleIds(null);
+        List<ModuleCountDTO> moduleCountDTOList = extTestPlanMapper.countModuleIdByConditions(request);
         Map<String, Long> moduleCountMap = testPlanModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
         long allCount = 0;
         for (ModuleCountDTO item : moduleCountDTOList) {

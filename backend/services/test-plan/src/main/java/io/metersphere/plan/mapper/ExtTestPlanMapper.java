@@ -21,7 +21,7 @@ public interface ExtTestPlanMapper {
 
     List<String> selectGroupIdByConditions(TestPlanQueryConditions testPlanQueryConditions);
 
-    List<ModuleCountDTO> countModuleIdByConditions(TestPlanQueryConditions testPlanQueryConditions);
+    List<ModuleCountDTO> countModuleIdByConditions(@Param("request") TestPlanTableRequest testPlanQueryConditions);
 
     List<TestPlan> selectBaseInfoByIds(@Param("list") List<String> deleteIdList);
 
