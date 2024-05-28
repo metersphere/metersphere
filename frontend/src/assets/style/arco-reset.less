@@ -45,6 +45,13 @@
 .arco-tabs-nav-button-right {
   @apply mr-0 !shadow-none;
 }
+.arco-tabs-tab-title {
+  padding: 0 !important;
+  line-height: 22px;
+  & > div {
+    line-height: 22px;
+  }
+}
 
 /** Modal对话框 **/
 .arco-modal-wrapper {
@@ -850,10 +857,11 @@
 
 /*** 徽标 ****/
 .arco-badge-text {
+  min-width: 16px;
   height: 16px !important;
-  line-height: 16px;
   text-align: center;
   background: var(--color-text-brand);
+  line-height: 16px;
 }
 .filter-button {
   display: flex;

@@ -2,6 +2,7 @@
   <MsDrawer
     v-model:visible="visible"
     :width="960"
+    class="customApiDrawer"
     no-content-padding
     :show-continue="true"
     :footer="requestVModel.isNew === true"
@@ -202,6 +203,7 @@
           :content-tab-list="contentTabList"
           :get-text-func="getTabBadge"
           class="sticky-content no-content relative top-0 mx-[16px] border-b"
+          @tab-click="requestTabClick"
         />
         <div :class="`request-content-and-response ${activeLayout}`">
           <a-spin class="request block h-full w-full" :loading="requestVModel.executeLoading || loading">
@@ -585,6 +587,14 @@
       deep: true,
     }
   );
+
+  function requestTabClick() {
+    const element = document.querySelector('.customApiDrawer')?.querySelectorAll('.request-tab-and-response')[0];
+    element?.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }
 
   // 复制 api 只要加载过一次后就会保存，所以 props.request 是不为空的
   const isCopyApiNeedInit = computed(() => _stepType.value.isCopyApi && props.request === undefined);
@@ -1340,8 +1350,8 @@
       .response :deep(.response-head) {
         @apply sticky bg-white;
 
-        top: 0;
-        z-index: 102; // 覆盖请求参数tab
+        top: 46px; // 请求参数tab高度(不算border-bottom)
+        z-index: 11;
       }
       .request-tab-pane {
         min-height: 400px;

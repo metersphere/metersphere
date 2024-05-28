@@ -193,6 +193,7 @@
         :content-tab-list="contentTabList"
         :get-text-func="getTabBadge"
         class="sticky-content no-content relative top-0 border-b px-[16px]"
+        @tab-click="requestTabClick"
       />
       <div :class="`request-content-and-response ${activeLayout}`">
         <a-spin class="request" :loading="requestVModel.executeLoading || loading">
@@ -544,7 +545,11 @@
       saveASApi?: string;
     };
   }>();
-  const emit = defineEmits(['addDone', 'execute']);
+  const emit = defineEmits<{
+    (e: 'execute', executeType: 'localExec' | 'serverExec'): void;
+    (e: 'addDone'): void;
+    (e: 'requestTabClick'): void;
+  }>();
 
   const appStore = useAppStore();
   const userStore = useUserStore();
@@ -705,6 +710,17 @@
         return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
       default:
         return '';
+    }
+  }
+  function requestTabClick() {
+    if (!props.isCase) {
+      const element = document.querySelector('.request-tab-and-response');
+      element?.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    } else {
+      emit('requestTabClick');
     }
   }
 
@@ -1647,8 +1663,8 @@
       .response :deep(.response-head) {
         @apply sticky bg-white;
 
-        top: 0;
-        z-index: 102; // 覆盖请求参数tab
+        top: 46px; // 请求参数tab高度(不算border-bottom)
+        z-index: 11;
       }
       .request-tab-pane {
         min-height: 400px;
