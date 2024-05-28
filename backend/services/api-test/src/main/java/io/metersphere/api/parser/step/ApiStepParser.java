@@ -91,6 +91,10 @@ public class ApiStepParser extends StepParser {
                 valueBody.getWwwFormBody() != null && refBody.getWwwFormBody() != null) {
             replaceKvParam(valueBody.getWwwFormBody().getFormValues(), valueBody.getWwwFormBody().getFormValues());
         }
+        if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.BINARY.name()) &&
+                valueBody.getBinaryBody() != null && refBody.getBinaryBody() != null) {
+            refBody.getBinaryBody().setFile(valueBody.getBinaryBody().getFile());
+        }
         // todo JsonSchema body
     }
 

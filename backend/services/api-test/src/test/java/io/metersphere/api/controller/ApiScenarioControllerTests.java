@@ -639,8 +639,9 @@ public class ApiScenarioControllerTests extends BaseTest {
         Map<String, Object> steptDetailMap = new HashMap<>();
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         msHttpElement.setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
-        steptDetailMap.put(steps.get(0).getId(), getMsHttpElementStr(msHttpElement));
-        steptDetailMap.put(steps.get(1).getId(), getMsHttpElementStr(msHttpElement));
+        for (ApiScenarioStepRequest step : steps) {
+            steptDetailMap.put(step.getId(), getMsHttpElementStr(msHttpElement));
+        }
         fileMetadataStepId = steps.get(0).getId();
 
         request.setSteps(steps);
