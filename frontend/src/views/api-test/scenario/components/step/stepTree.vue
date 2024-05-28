@@ -1234,29 +1234,33 @@
       scenario.value.unSaved = true;
     }
     if (activeStep.value) {
-      const _stepType = getStepType(activeStep.value);
-      if (_stepType.isQuoteCase && !activeStep.value.isQuoteScenarioStep) {
-        activeStep.value.name = request.stepName || request.name;
-        stepDetails.value[activeStep.value.id] = request; // 为了设置一次正确的polymorphicName
-        return;
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, activeStep.value.uniqueId, 'uniqueId');
+      if (realStep) {
+        const _stepType = getStepType(realStep as ScenarioStepItem);
+        if (_stepType.isQuoteCase && !realStep.isQuoteScenarioStep) {
+          realStep.name = request.stepName || request.name;
+          stepDetails.value[realStep.id] = request; // 为了设置一次正确的polymorphicName
+          return;
+        }
       }
+      if (realStep && !realStep.isQuoteScenarioStep) {
+        request.isNew = false;
+        stepDetails.value[realStep.id] = request;
+        scenario.value.stepFileParam[realStep?.id] = {
+          linkFileIds: request.linkFileIds,
+          uploadFileIds: request.uploadFileIds,
+          deleteFileIds: request.deleteFileIds,
+          unLinkFileIds: request.unLinkFileIds,
+        };
+        realStep.config = {
+          ...realStep.config,
+          method: request.method,
+        };
+        realStep.name = request.stepName || request.name;
+        emit('updateResource', request.uploadFileIds, request.linkFileIds);
+      }
+      activeStep.value = undefined;
     }
-    if (activeStep.value && !activeStep.value.isQuoteScenarioStep) {
-      request.isNew = false;
-      stepDetails.value[activeStep.value.id] = request;
-      scenario.value.stepFileParam[activeStep.value?.id] = {
-        linkFileIds: request.linkFileIds,
-        uploadFileIds: request.uploadFileIds,
-        deleteFileIds: request.deleteFileIds,
-        unLinkFileIds: request.unLinkFileIds,
-      };
-      activeStep.value.config = {
-        ...activeStep.value.config,
-        method: request.method,
-      };
-      emit('updateResource', request.uploadFileIds, request.linkFileIds);
-    }
-    activeStep.value = undefined;
   }
 
   /**
