@@ -1460,7 +1460,7 @@
 
   onMounted(async () => {
     if (route.query.id) {
-      showCaseDetail(route.query.id as string, 0);
+      showCaseDetail(route.query.id as string, -1);
     }
     await initFilter();
     initData();

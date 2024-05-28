@@ -818,7 +818,7 @@
     fetchData();
     if (route.query.id) {
       // 分享或成功进来的页面
-      handleShowDetail(route.query.id as string, 0);
+      handleShowDetail(route.query.id as string, -1);
     }
   });
 

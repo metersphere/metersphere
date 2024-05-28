@@ -681,6 +681,8 @@
           await batchDeleteRecycleCase(getBatchParams());
           Message.success(t('common.deleteSuccess'));
           resetSelector();
+          getRecycleModules();
+          activeFolder.value = 'all';
           initRecycleList();
         } catch (error) {
           console.log(error);
@@ -741,6 +743,8 @@
           await deleteRecycleCaseList(record.id);
           Message.success(t('common.deleteSuccess'));
           resetSelector();
+          getRecycleModules();
+          activeFolder.value = 'all';
           initRecycleList();
         } catch (error) {
           console.log(error);
