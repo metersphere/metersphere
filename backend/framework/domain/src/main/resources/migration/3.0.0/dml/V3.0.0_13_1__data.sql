@@ -9,5 +9,14 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_CASE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_BUG:READ');
 
+
+UPDATE api_report SET exec_status='COMPLETED' WHERE status IN ('ERROR','SUCCESS','FAKE_ERROR');
+UPDATE api_report SET exec_status='STOPPED', status='-' WHERE status IN ('STOPPED');
+UPDATE api_report SET exec_status='RUNNING', status='-' WHERE status IN ('RUNNING', 'PENDING');
+
+UPDATE api_scenario_report SET exec_status='COMPLETED' WHERE status IN ('ERROR','SUCCESS','FAKE_ERROR');
+UPDATE api_scenario_report SET exec_status='STOPPED', status='-' WHERE status IN ('STOPPED');
+UPDATE api_scenario_report SET exec_status='RUNNING', status='-' WHERE status IN ('RUNNING', 'PENDING');
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

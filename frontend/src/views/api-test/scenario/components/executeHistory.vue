@@ -4,14 +4,21 @@
       <template #num="{ record }">
         <span type="text" class="px-0">{{ record.num }}</span>
       </template>
-      <template #[FilterSlotNameEnum.API_TEST_SCENARIO_EXECUTE_RESULT]="{ filterContent }">
-        <executeStatus :status="filterContent.value" />
-      </template>
+
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #status="{ record }">
-        <executeStatus :status="record.status" />
+        <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_SCENARIO_REPORT" />
+      </template>
+      <template #execStatus="{ record }">
+        <ExecStatus :status="record.execStatus" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_SCENARIO_EXECUTE_RESULT]="{ filterContent }">
+        <ExecutionStatus :status="filterContent.value" :module-type="ReportEnum.API_SCENARIO_REPORT" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecStatus :status="filterContent.value" />
       </template>
       <template #operation="{ record }">
         <div v-if="record.historyDeleted">
@@ -54,15 +61,16 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
-  import ExecuteStatus from '@/views/api-test/scenario/components/executeStatus.vue';
+  import ExecStatus from '@/views/api-test/report/component/execStatus.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getExecuteHistory } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ExecuteHistoryItem } from '@/models/apiTest/scenario';
-  import { ExecuteStatusFilters } from '@/enums/apiEnum';
-  import { TriggerModeLabel } from '@/enums/reportEnum';
+  import { ReportExecStatus } from '@/enums/apiEnum';
+  import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
@@ -76,11 +84,20 @@
     readOnly?: boolean;
   }>();
 
-  const executeStatusFilters = computed(() => {
-    return Object.values(ExecuteStatusFilters).map((key) => {
+  const statusList = computed(() => {
+    return Object.keys(ReportStatus).map((key) => {
       return {
         value: key,
-        label: key,
+        label: t(ReportStatus[key].label),
+      };
+    });
+  });
+
+  const ExecStatusList = computed(() => {
+    return Object.values(ReportExecStatus).map((e) => {
+      return {
+        value: e,
+        key: e,
       };
     });
   });
@@ -104,14 +121,30 @@
       width: 100,
     },
     {
-      title: 'apiScenario.executeHistory.execution.status',
+      title: 'report.result',
       dataIndex: 'status',
       slotName: 'status',
       filterConfig: {
-        options: executeStatusFilters.value,
+        options: statusList.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_SCENARIO_EXECUTE_RESULT,
       },
       width: 100,
+    },
+    {
+      title: 'report.status',
+      dataIndex: 'execStatus',
+      slotName: 'execStatus',
+      filterConfig: {
+        options: ExecStatusList.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      width: 150,
+      showDrag: true,
     },
     {
       title: 'apiScenario.executeHistory.execution.operator',
@@ -172,6 +205,7 @@
 
   const showScenarioReportVisible = ref(false);
   const reportId = ref('');
+
   function showResult(record: ExecuteHistoryItem) {
     reportId.value = record.id;
     showScenarioReportVisible.value = true;

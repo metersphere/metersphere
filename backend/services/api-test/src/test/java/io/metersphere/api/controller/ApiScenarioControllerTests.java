@@ -278,7 +278,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         scenarioReport.setStartTime(System.currentTimeMillis());
         scenarioReport.setCreateUser("admin");
         scenarioReport.setUpdateUser("admin");
-        scenarioReport.setStatus(ApiReportStatus.SUCCESS.name());
+        scenarioReport.setStatus(ReportStatus.SUCCESS.name());
         scenarioReport.setUpdateTime(System.currentTimeMillis());
         scenarioReport.setPoolId("api-pool-id");
         scenarioReport.setEnvironmentId("api-environment-id");
@@ -1978,7 +1978,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         resultResponse = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ApiScenarioBatchOperationResponse.class);
         Assertions.assertEquals(resultResponse.getSuccess(), 0);
-       // Assertions.assertEquals(resultResponse.getError(), 250);
+        // Assertions.assertEquals(resultResponse.getError(), 250);
 
         //指定具体id移动回_251,  再指定moduleId为_default移动回_200
         request = new ApiScenarioBatchCopyMoveRequest();
@@ -2644,9 +2644,9 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiReport.setEnvironmentId("api-environment-id" + i);
             apiReport.setRunMode("api-run-mode" + i);
             if (i % 2 == 0) {
-                apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+                apiReport.setStatus(ReportStatus.SUCCESS.name());
             } else {
-                apiReport.setStatus(ApiReportStatus.ERROR.name());
+                apiReport.setStatus(ReportStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
             reports.add(apiReport);
@@ -2665,7 +2665,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         //返回值不为空
         Assertions.assertNotNull(returnPager);
         request.setFilter(new HashMap<>() {{
-            put("status", List.of(ApiReportStatus.SUCCESS.name()));
+            put("status", List.of(ReportStatus.SUCCESS.name()));
         }});
         request.setSort(new HashMap<>() {{
             put("startTime", "desc");
@@ -2677,7 +2677,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
         List<ExecuteReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ExecuteReportDTO.class);
         reportDTOS.forEach(apiReport -> {
-            Assertions.assertEquals(apiReport.getStatus(), ApiReportStatus.SUCCESS.name());
+            Assertions.assertEquals(apiReport.getStatus(), ReportStatus.SUCCESS.name());
         });
         request.setId("data-is-null");
         responsePost(BASE_PATH + "execute/page", request);

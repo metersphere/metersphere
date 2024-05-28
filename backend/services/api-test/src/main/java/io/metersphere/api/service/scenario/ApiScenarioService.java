@@ -1586,7 +1586,7 @@ public class ApiScenarioService extends MoveNodeService {
         scenarioReport.setId(IDGenerator.nextStr());
         scenarioReport.setDeleted(false);
         scenarioReport.setIntegrated(false);
-        scenarioReport.setStatus(ApiReportStatus.PENDING.name());
+        scenarioReport.setExecStatus(ExecStatus.PENDING.name());
         scenarioReport.setStartTime(System.currentTimeMillis());
         scenarioReport.setUpdateTime(System.currentTimeMillis());
         scenarioReport.setUpdateUser(userId);

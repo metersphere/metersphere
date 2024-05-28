@@ -100,9 +100,9 @@ public class ApiReportControllerTests extends BaseTest {
             apiReport.setEnvironmentId("api-environment-id" + i);
             apiReport.setRunMode("api-run-mode" + i);
             if (i % 50 == 0) {
-                apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+                apiReport.setStatus(ReportStatus.SUCCESS.name());
             } else if (i % 39 == 0) {
-                apiReport.setStatus(ApiReportStatus.ERROR.name());
+                apiReport.setStatus(ReportStatus.ERROR.name());
                 apiReport.setIntegrated(true);
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
@@ -166,7 +166,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiScenarioDTO>) returnPager.getList()).size() <= request.getPageSize());
         //过滤
         request.setFilter(new HashMap<>() {{
-            put("status", List.of(ApiReportStatus.SUCCESS.name(), ApiReportStatus.ERROR.name()));
+            put("status", List.of(ReportStatus.SUCCESS.name(), ReportStatus.ERROR.name()));
         }});
         mvcResult = responsePost(PAGE, request);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
@@ -175,7 +175,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
         List<ApiReport> list = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiReport.class);
         list.forEach(apiReport -> {
-            Assertions.assertTrue(apiReport.getStatus().equals(ApiReportStatus.SUCCESS.name()) || apiReport.getStatus().equals(ApiReportStatus.ERROR.name()));
+            Assertions.assertTrue(apiReport.getStatus().equals(ReportStatus.SUCCESS.name()) || apiReport.getStatus().equals(ReportStatus.ERROR.name()));
         });
         request.setFilter(new HashMap<>() {{
             put("integrated", List.of("true"));
@@ -198,15 +198,15 @@ public class ApiReportControllerTests extends BaseTest {
     public void testRename() throws Exception {
         // @@请求成功
         String newName = "api-report-new-name";
-        requestPost(RENAME + "api-report-id0" , newName);
+        requestPost(RENAME + "api-report-id0", newName);
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey("api-report-id0");
         Assertions.assertNotNull(apiReport);
         Assertions.assertEquals(apiReport.getName(), newName);
-        mockMvc.perform(getPostRequestBuilder(RENAME + "api-report" , newName))
+        mockMvc.perform(getPostRequestBuilder(RENAME + "api-report", newName))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_UPDATE, RENAME + "api-report-id0" , newName);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_UPDATE, RENAME + "api-report-id0", newName);
     }
 
     @Test
@@ -267,7 +267,7 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setPoolId(testResourcePools.getFirst().getId());
         apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
-        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+        apiReport.setStatus(ReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
         apiReport.setIntegrated(true);
         reports.add(apiReport);
@@ -334,7 +334,7 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setPoolId(testResourcePools.getFirst().getId());
         apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
-        apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+        apiReport.setStatus(ReportStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
         apiReport.setIntegrated(true);
         reports.add(apiReport);
@@ -402,7 +402,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertNotNull(shareInfoDTO.getShareUrl());
         Assertions.assertNotNull(shareInfoDTO.getId());
         String shareId = shareInfoDTO.getId();
-        MvcResult mvcResult1 = this.requestGetWithOk(BASIC+ "/share/" + shareId + "/" + "test-report-id")
+        MvcResult mvcResult1 = this.requestGetWithOk(BASIC + "/share/" + shareId + "/" + "test-report-id")
                 .andReturn();
         ApiReportDTO apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult1).get("data")), ApiReportDTO.class);
         Assertions.assertNotNull(apiReportDTO);
@@ -423,7 +423,7 @@ public class ApiReportControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        mvcResult = this.requestGetWithOk(BASIC+ "/share/detail/" + shareId + "/" + "test-report-id" + "/" + "test-report-step-id1")
+        mvcResult = this.requestGetWithOk(BASIC + "/share/detail/" + shareId + "/" + "test-report-id" + "/" + "test-report-step-id1")
                 .andReturn();
         List<ApiReportDetailDTO> data = ApiDataUtils.parseArray(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiReportDetailDTO.class);
         Assertions.assertNotNull(data);
@@ -432,7 +432,7 @@ public class ApiReportControllerTests extends BaseTest {
         shareInfo1.setUpdateTime(1702950953000L);
         shareInfoMapper.updateByPrimaryKey(shareInfo1);
 
-        mockMvc.perform(getRequestBuilder(BASIC+ "/share/" + shareId + "/" + "test-report-id"))
+        mockMvc.perform(getRequestBuilder(BASIC + "/share/" + shareId + "/" + "test-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
@@ -461,7 +461,7 @@ public class ApiReportControllerTests extends BaseTest {
             projectApplicationMapper.insert(projectApplication);
         }
 
-        mvcResult1 = this.requestGetWithOk(BASIC+ "/share/" + shareId + "/" + "test-report-id")
+        mvcResult1 = this.requestGetWithOk(BASIC + "/share/" + shareId + "/" + "test-report-id")
                 .andReturn();
         apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult1).get("data")), ApiReportDTO.class);
         Assertions.assertNotNull(apiReportDTO);
@@ -472,7 +472,7 @@ public class ApiReportControllerTests extends BaseTest {
         shareInfo1.setUpdateTime(1702950953000L);
         shareInfoMapper.updateByPrimaryKey(shareInfo1);
 
-        mockMvc.perform(getRequestBuilder(BASIC+ "/share/" + shareId + "/" + "test-report-id"))
+        mockMvc.perform(getRequestBuilder(BASIC + "/share/" + shareId + "/" + "test-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
     }

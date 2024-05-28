@@ -27,26 +27,6 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
       icon: 'icon-icon_warning_colorful',
       label: t('common.fakeError'),
     },
-    STOPPED: {
-      icon: 'icon-icon_block_filled',
-      label: t('project.taskCenter.stop'),
-      color: '!var(--color-text-input-border)',
-    },
-    RUNNING: {
-      icon: 'icon-icon_testing',
-      label: t('common.running'),
-      color: '!text-[rgb(var(--link-6))]',
-    },
-    // RERUNNING: {
-    //   icon: 'icon-icon_testing',
-    //   label: t('project.taskCenter.rerun',
-    //   color: '!text-[rgb(var(--link-6))]',
-    // },
-    PENDING: {
-      icon: 'icon-icon_wait',
-      label: t('common.unExecute'),
-      color: '!text-[rgb(var(--link-6))]',
-    },
   },
   [TaskCenterEnum.API_SCENARIO]: {
     SUCCESS: {
@@ -60,26 +40,6 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
     FAKE_ERROR: {
       icon: 'icon-icon_warning_colorful',
       label: t('common.fakeError'),
-    },
-    STOPPED: {
-      icon: 'icon-icon_block_filled',
-      label: t('project.taskCenter.stop'),
-      color: 'var(--color-text-input-border)',
-    },
-    RUNNING: {
-      icon: 'icon-icon_testing',
-      label: t('common.running'),
-      color: '!text-[rgb(var(--link-6))]',
-    },
-    // RERUNNING: {
-    //   icon: 'icon-icon_testing',
-    //   label: t('project.taskCenter.rerun',
-    //   color: '!text-[rgb(var(--link-6))]',
-    // },
-    PENDING: {
-      icon: 'icon-icon_wait',
-      label: t('common.unExecute'),
-      color: '!text-[rgb(var(--link-6))]',
     },
   },
   [TaskCenterEnum.LOAD_TEST]: {

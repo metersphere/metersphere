@@ -1,7 +1,7 @@
 <template>
   <div :class="['p-[16px]', props.class]">
     <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center"> </div>
+      <div class="flex items-center"></div>
       <div class="items-right flex gap-[8px]">
         <a-input-search
           v-model:model-value="keyword"
@@ -55,8 +55,8 @@
                 style="border-color: #00c261; color: #00c261; background-color: transparent"
                 bordered
                 @click="openScheduleModal(record)"
-                >{{ t('apiScenario.schedule.abbreviation') }}</a-tag
-              >
+                >{{ t('apiScenario.schedule.abbreviation') }}
+              </a-tag>
             </a-tooltip>
           </div>
           <div v-if="record.scheduleConfig && !record.scheduleConfig.enable" class="float-right">
@@ -65,8 +65,8 @@
                 style="border-color: #d4d4d8; color: #323233; background-color: transparent"
                 bordered
                 @click="openScheduleModal(record)"
-                >{{ t('apiScenario.schedule.abbreviation') }}</a-tag
-              >
+                >{{ t('apiScenario.schedule.abbreviation') }}
+              </a-tag>
             </a-tooltip>
           </div>
         </div>
@@ -124,7 +124,7 @@
         </a-tooltip>
       </template>
       <!-- 报告结果筛选 -->
-      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
         <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #lastReportStatus="{ record }">
@@ -558,16 +558,12 @@
     (e: 'createScenario'): void;
   }>();
 
-  const lastReportStatusListFilters = ref<string[]>([]);
-  const createUserFilters = ref<string[]>([]);
-  const updateUserFilters = ref<string[]>([]);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
   const tableRecord = ref<ApiScenarioTableItem>();
   const scheduleModalTitle = ref('');
-  const priorityFilters = ref<string[]>([]);
   const scheduleConfig = ref<ApiScenarioScheduleConfig>({
     scenarioId: '',
     enable: true,
@@ -588,6 +584,7 @@
   async function initEnvList() {
     environmentList.value = await getEnvList(appStore.currentProjectId);
   }
+
   // 初始化资源池
   async function initResourcePool() {
     try {
@@ -633,10 +630,10 @@
   });
 
   const statusList = computed(() => {
-    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+    return Object.keys(ReportStatus).map((key) => {
       return {
         value: key,
-        label: t(ReportStatus[ReportEnum.API_REPORT][key].label),
+        label: t(ReportStatus[key].label),
       };
     });
   });
@@ -707,7 +704,7 @@
       showDrag: true,
       filterConfig: {
         options: statusList.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,
       },
       width: 200,
     },
@@ -908,7 +905,7 @@
       },
     ];
   }
-  const statusFilters = ref<string[]>([]);
+
   const tableStore = useTableStore();
 
   async function loadScenarioList(refreshTreeCount?: boolean) {
@@ -1110,6 +1107,7 @@
   function cancelScheduleModal() {
     showScheduleModal.value = false;
   }
+
   function saveScheduleModal() {
     scheduleConfigRef.value?.validate(async (errors) => {
       if (!errors) {
@@ -1347,18 +1345,11 @@
     }
     batchParams.value = { ...params, moduleIds: [] };
     batchParams.value.moduleIds = moduleIds;
-    const filterParams = {
-      lastReportStatus: lastReportStatusListFilters.value,
-      status: statusFilters.value,
-      priority: priorityFilters.value,
-      createUser: createUserFilters.value,
-      updateUser: updateUserFilters.value,
-    };
     if (batchParams.value.condition) {
-      batchParams.value.condition.filter = { ...filterParams };
+      batchParams.value.condition.filter = { ...propsRes.value.filter };
       batchParams.value.condition.keyword = keyword.value;
     } else {
-      batchParams.value.condition = { filter: { ...filterParams }, keyword: keyword.value };
+      batchParams.value.condition = { filter: { ...propsRes.value.filter }, keyword: keyword.value };
     }
     switch (event.eventTag) {
       case 'delete':
@@ -1389,7 +1380,10 @@
           projectId: appStore.currentProjectId,
           selectIds: [],
           selectAll: false,
-          condition: {},
+          condition: {
+            keyword: keyword.value,
+            filter: propsRes.value.filter,
+          },
         };
 
         // 构建执行的参数
@@ -1456,12 +1450,15 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
+
       .arco-input::placeholder {
         @apply invisible;
       }
+
       .arco-select-view-icon {
         @apply invisible;
       }
+
       .arco-select-view-value {
         color: var(--color-text-brand);
       }

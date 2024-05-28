@@ -12,14 +12,20 @@
       />-->
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
-        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
-      </template>
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #status="{ record }">
         <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />
+      </template>
+      <template #execStatus="{ record }">
+        <ExecStatus :status="record.execStatus" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecStatus :status="filterContent.value" />
       </template>
       <template #operation="{ record, rowIndex }">
         <div v-if="record.historyDeleted">
@@ -60,6 +66,7 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
+  import ExecStatus from '@/views/api-test/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
@@ -68,6 +75,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
+  import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -76,10 +84,19 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const statusList = computed(() => {
-    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+    return Object.keys(ReportStatus).map((key) => {
       return {
         value: key,
-        label: t(ReportStatus[ReportEnum.API_REPORT][key].label),
+        label: t(ReportStatus[key].label),
+      };
+    });
+  });
+
+  const ExecStatusList = computed(() => {
+    return Object.values(ReportExecStatus).map((e) => {
+      return {
+        value: e,
+        key: e,
       };
     });
   });
@@ -117,7 +134,7 @@
       width: 150,
     },
     {
-      title: 'apiTestManagement.executeResult',
+      title: 'report.result',
       dataIndex: 'status',
       slotName: 'status',
       sortable: {
@@ -126,9 +143,25 @@
       },
       filterConfig: {
         options: statusList.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,
       },
       width: 150,
+    },
+    {
+      title: 'report.status',
+      dataIndex: 'execStatus',
+      slotName: 'execStatus',
+      filterConfig: {
+        options: ExecStatusList.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      width: 150,
+      showDrag: true,
     },
     {
       title: 'apiTestManagement.taskOperator',
@@ -181,6 +214,7 @@
 
   const activeReportIndex = ref<number>(0);
   const activeReportId = ref('');
+
   async function showResult(record: ApiCaseExecuteHistoryItem, rowIndex: number) {
     activeReportId.value = record.id;
     activeReportIndex.value = rowIndex;
@@ -202,6 +236,7 @@
 
     .ms-scroll-bar();
   }
+
   .history-table-before {
     display: flex;
     justify-content: space-between;

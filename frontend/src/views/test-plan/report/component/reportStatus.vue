@@ -13,7 +13,6 @@
   const { t } = useI18n();
   const props = defineProps<{
     status: string;
-    moduleType: keyof typeof ReportStatusEnum;
   }>();
 
   export interface IconType {
@@ -23,47 +22,22 @@
   }
 
   const iconTypeStatus: Record<string, any> = {
-    [ReportStatusEnum.REPORT_STATUS]: {
-      SUCCESS: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'common.success',
-      },
-      ERROR: {
-        icon: 'icon-icon_close_colorful',
-        label: 'common.fail',
-      },
-      DEFAULT: {
-        label: '-',
-        color: '!text-[var(--color-text-input-border)]',
-      },
+    SUCCESS: {
+      icon: 'icon-icon_succeed_colorful',
+      label: 'common.success',
     },
-    [ReportStatusEnum.EXEC_STATUS]: {
-      STOPPED: {
-        icon: 'icon-icon_block_filled',
-        label: 'common.stop',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-      RUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'common.running',
-        color: '!text-[rgb(var(--link-6))]',
-      },
-      PENDING: {
-        icon: 'icon-icon_wait',
-        label: 'common.unExecute',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-      COMPLETED: {
-        icon: 'icon-icon_wait',
-        label: 'report.completed',
-        color: '!text-[var(--color-text-input-border)]',
-      },
+    ERROR: {
+      icon: 'icon-icon_close_colorful',
+      label: 'common.fail',
+    },
+    DEFAULT: {
+      label: '-',
+      color: '!text-[var(--color-text-input-border)]',
     },
   };
 
   function getExecutionResult(): IconType {
-    const moduleConfig = iconTypeStatus[props.moduleType];
-    return moduleConfig?.[props.status] ?? moduleConfig?.DEFAULT;
+    return iconTypeStatus[props.status] ?? iconTypeStatus[props.status]?.DEFAULT;
   }
 </script>
 

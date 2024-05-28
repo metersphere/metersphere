@@ -24,8 +24,11 @@ public class ExecuteReportDTO implements Serializable {
     @Schema(description = "操作时间")
     private Long startTime;
 
-    @Schema(description = "报告状态/SUCCESS/ERROR")
+    @Schema(description = "报告结果/SUCCESS/ERROR")
     private String status;
+    
+    @Schema(description = "报告状态")
+    private String execStatus;
 
     @Schema(description = "执行方式")
     private String triggerMode;

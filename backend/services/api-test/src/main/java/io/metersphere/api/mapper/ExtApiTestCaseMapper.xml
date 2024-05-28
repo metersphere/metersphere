@@ -246,6 +246,7 @@
         distinct api_report.id,
         api_report.name,
         api_report.status,
+        api_report.exec_status,
         api_report.start_time,
         api_report.create_user,
         api_report.trigger_mode,

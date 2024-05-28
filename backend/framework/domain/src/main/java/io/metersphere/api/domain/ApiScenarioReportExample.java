@@ -2203,6 +2203,76 @@ public class ApiScenarioReportExample {
             addCriterion("waiting_time not between", value1, value2, "waitingTime");
             return (Criteria) this;
         }
+
+        public Criteria andExecStatusIsNull() {
+            addCriterion("exec_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusIsNotNull() {
+            addCriterion("exec_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusEqualTo(String value) {
+            addCriterion("exec_status =", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusNotEqualTo(String value) {
+            addCriterion("exec_status <>", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusGreaterThan(String value) {
+            addCriterion("exec_status >", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("exec_status >=", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusLessThan(String value) {
+            addCriterion("exec_status <", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusLessThanOrEqualTo(String value) {
+            addCriterion("exec_status <=", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusLike(String value) {
+            addCriterion("exec_status like", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusNotLike(String value) {
+            addCriterion("exec_status not like", value, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusIn(List<String> values) {
+            addCriterion("exec_status in", values, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusNotIn(List<String> values) {
+            addCriterion("exec_status not in", values, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusBetween(String value1, String value2) {
+            addCriterion("exec_status between", value1, value2, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecStatusNotBetween(String value1, String value2) {
+            addCriterion("exec_status not between", value1, value2, "execStatus");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

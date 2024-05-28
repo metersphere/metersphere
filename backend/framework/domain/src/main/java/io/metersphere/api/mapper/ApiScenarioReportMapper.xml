@@ -34,6 +34,7 @@
     <result column="assertion_pass_rate" jdbcType="VARCHAR" property="assertionPassRate" />
     <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
     <result column="waiting_time" jdbcType="BIGINT" property="waitingTime" />
+    <result column="exec_status" jdbcType="VARCHAR" property="execStatus" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -99,7 +100,7 @@
     pool_id, integrated, project_id, environment_id, error_count, fake_error_count, pending_count, 
     success_count, assertion_count, assertion_success_count, request_error_rate, request_pending_rate, 
     request_fake_error_rate, request_pass_rate, assertion_pass_rate, script_identifier, 
-    waiting_time
+    waiting_time, exec_status
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -143,7 +144,7 @@
       assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, 
       request_pass_rate, assertion_pass_rate, script_identifier, 
-      waiting_time)
+      waiting_time, exec_status)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
       #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
@@ -155,7 +156,7 @@
       #{assertionSuccessCount,jdbcType=BIGINT}, #{requestErrorRate,jdbcType=VARCHAR}, 
       #{requestPendingRate,jdbcType=VARCHAR}, #{requestFakeErrorRate,jdbcType=VARCHAR}, 
       #{requestPassRate,jdbcType=VARCHAR}, #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR}, 
-      #{waitingTime,jdbcType=BIGINT})
+      #{waitingTime,jdbcType=BIGINT}, #{execStatus,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -256,6 +257,9 @@
       <if test="waitingTime != null">
         waiting_time,
       </if>
+      <if test="execStatus != null">
+        exec_status,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -353,6 +357,9 @@
       </if>
       <if test="waitingTime != null">
         #{waitingTime,jdbcType=BIGINT},
+      </if>
+      <if test="execStatus != null">
+        #{execStatus,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -461,6 +468,9 @@
       <if test="record.waitingTime != null">
         waiting_time = #{record.waitingTime,jdbcType=BIGINT},
       </if>
+      <if test="record.execStatus != null">
+        exec_status = #{record.execStatus,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -499,7 +509,8 @@
       request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       assertion_pass_rate = #{record.assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
-      waiting_time = #{record.waitingTime,jdbcType=BIGINT}
+      waiting_time = #{record.waitingTime,jdbcType=BIGINT},
+      exec_status = #{record.execStatus,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -600,6 +611,9 @@
       <if test="waitingTime != null">
         waiting_time = #{waitingTime,jdbcType=BIGINT},
       </if>
+      <if test="execStatus != null">
+        exec_status = #{execStatus,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -635,7 +649,8 @@
       request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
       assertion_pass_rate = #{assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
-      waiting_time = #{waitingTime,jdbcType=BIGINT}
+      waiting_time = #{waitingTime,jdbcType=BIGINT},
+      exec_status = #{execStatus,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
@@ -645,7 +660,7 @@
       pool_id, integrated, project_id, environment_id, error_count, fake_error_count, 
       pending_count, success_count, assertion_count, assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, request_pass_rate, assertion_pass_rate, 
-      script_identifier, waiting_time)
+      script_identifier, waiting_time, exec_status)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, 
@@ -659,7 +674,8 @@
         #{item.assertionSuccessCount,jdbcType=BIGINT}, #{item.requestErrorRate,jdbcType=VARCHAR}, 
         #{item.requestPendingRate,jdbcType=VARCHAR}, #{item.requestFakeErrorRate,jdbcType=VARCHAR}, 
         #{item.requestPassRate,jdbcType=VARCHAR}, #{item.assertionPassRate,jdbcType=VARCHAR}, 
-        #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.waitingTime,jdbcType=BIGINT})
+        #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.waitingTime,jdbcType=BIGINT}, 
+        #{item.execStatus,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -767,6 +783,9 @@
         </if>
         <if test="'waiting_time'.toString() == column.value">
           #{item.waitingTime,jdbcType=BIGINT}
+        </if>
+        <if test="'exec_status'.toString() == column.value">
+          #{item.execStatus,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

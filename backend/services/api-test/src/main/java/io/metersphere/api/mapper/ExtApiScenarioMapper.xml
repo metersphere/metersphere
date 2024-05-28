@@ -491,6 +491,7 @@
         api_scenario_report.id,
         api_scenario_report.name,
         api_scenario_report.status,
+        api_scenario_report.exec_status,
         api_scenario_report.start_time,
         api_scenario_report.create_user,
         api_scenario_report.trigger_mode,

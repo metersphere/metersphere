@@ -7,6 +7,7 @@ export default {
   'project.taskCenter.resourceID': '资源 ID',
   'project.taskCenter.resourceName': '资源名称',
   'project.taskCenter.executionResult': '执行结果',
+  'project.taskCenter.status': '执行状态',
   'project.taskCenter.executionMode': '执行方式',
   'project.taskCenter.resourcePool': '资源池',
   'project.taskCenter.operator': '操作人',

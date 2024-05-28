@@ -3,7 +3,8 @@
 <mapper namespace="io.metersphere.api.mapper.ExtApiScenarioReportMapper">
     <update id="updateReportStatus">
         update api_scenario_report
-        set status = 'STOPPED',
+        set status = '-',
+            exec_status = 'STOPPED',
             update_time = #{time},
             update_user = #{userId}
         where id in
@@ -13,7 +14,7 @@
     </update>
     <update id="updateApiScenario">
         update api_scenario
-        set last_report_status = 'STOPPED'
+        set last_report_status = '-'
         where id in (
         select api_scenario_id from api_scenario_record where api_scenario_report_id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -112,7 +113,7 @@
         asr.deleted = false
         and asr.test_plan_id = 'NONE'
         and asr.start_time BETWEEN #{startTime} AND #{endTime}
-        and asr.status in ('PENDING', 'RUNNING', 'RERUNNING')
+        and asr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
             and asr.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -144,6 +145,7 @@
         asr.project_id,
         asr.integrated,
         asr.status,
+        asr.exec_status,
         asr.start_time as operationTime,
         asr.create_user as operationName,
         asr.trigger_mode,
@@ -260,6 +262,10 @@
                         </when>
                         <when test="key=='status'">
                             and asr.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='execStatus'">
+                            and asr.exec_status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='triggerMode'">

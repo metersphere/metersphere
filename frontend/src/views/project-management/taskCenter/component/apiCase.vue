@@ -51,6 +51,12 @@
           :script-identifier="record.scriptIdentifier"
         />
       </template>
+      <template #execStatus="{ record }">
+        <ExecStatus :status="record.execStatus" />
+      </template>
+      <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS]="{ filterContent }">
+        <ExecStatus :status="filterContent.value" />
+      </template>
       <template #projectName="{ record }">
         <a-tooltip :content="`${record.projectName}`" position="tl">
           <div class="one-line-text">{{ characterLimit(record.projectName) }}</div>
@@ -89,10 +95,10 @@
           </MsButton>
         </div>
 
-        <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
+        <a-divider v-if="['RUNNING', 'RERUNNING'].includes(record.execStatus)" direction="vertical" />
         <MsButton
           v-if="
-            ['RUNNING', 'RERUNNING'].includes(record.status) &&
+            ['RUNNING', 'RERUNNING'].includes(record.execStatus) &&
             hasAnyPermission(permissionsMap[props.group][props.moduleType].stop)
           "
           class="!mr-0"
@@ -125,6 +131,7 @@
   import ExecutionStatus from './executionStatus.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
+  import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
 
   import {
     batchStopRealOrdApi,
@@ -145,6 +152,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { ReportExecStatus } from '@/enums/apiEnum';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -232,6 +240,14 @@
       };
     });
   });
+  const ExecStatusList = computed(() => {
+    return Object.values(ReportExecStatus).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+  });
 
   const triggerModeList = [
     {
@@ -286,6 +302,22 @@
       filterConfig: {
         options: statusFilters.value,
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_API_CASE_STATUS,
+      },
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'project.taskCenter.status',
+      dataIndex: 'execStatus',
+      slotName: 'execStatus',
+      filterConfig: {
+        options: ExecStatusList.value,
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showInTable: true,
       width: 200,

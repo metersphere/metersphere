@@ -3,7 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
-import io.metersphere.sdk.constants.ApiReportStatus;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,8 +48,8 @@ public class ApiExecuteResourceController {
         LogUtils.info("获取执行脚本: {}", key);
         String script = stringRedisTemplate.opsForValue().get(key);
         stringRedisTemplate.delete(key);
-        apiReportService.updateReportStatus(reportId, ApiReportStatus.RUNNING.name());
-        apiScenarioReportService.updateReportStatus(reportId, ApiReportStatus.RUNNING.name());
+        apiReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
+        apiScenarioReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
         return Optional.ofNullable(script).orElse(StringUtils.EMPTY);
     }
 

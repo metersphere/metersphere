@@ -14,7 +14,7 @@ import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.ApiReportStatus;
+import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -83,16 +83,15 @@ public class ApiReportSendNoticeService {
             noticeType = NoticeConstants.TaskType.API_SCENARIO_TASK;
             report = apiScenarioReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
             reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_SCENARIO, report.getId());
-            if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.SUCCESS.name())) {
+            if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_SUCCESSFUL;
-            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.FAKE_ERROR.name())) {
+            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.FAKE_ERROR.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAKE_ERROR;
-            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.ERROR.name())) {
+            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.ERROR.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAILED;
             }
             shareUrl = String.format(shareUrl, "shareReportScenario");
-        }
-        else {
+        } else {
             ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
             beanMap = new BeanMap(testCase);
 
@@ -101,11 +100,11 @@ public class ApiReportSendNoticeService {
             ApiReport apiReport = apiReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
             reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_CASE, apiReport.getId());
             BeanUtils.copyBean(report, apiReport);
-            if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.SUCCESS.name())) {
+            if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_SUCCESSFUL;
-            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.FAKE_ERROR.name())) {
+            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.FAKE_ERROR.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_FAKE_ERROR;
-            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ApiReportStatus.ERROR.name())){
+            } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.ERROR.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_FAILED;
             }
             shareUrl = String.format(shareUrl, "shareReportCase");
@@ -122,20 +121,20 @@ public class ApiReportSendNoticeService {
         if (StringUtils.isNotBlank(status)) {
             if (List.of(ApiScenarioStatus.UNDERWAY.name(), ApiDefinitionStatus.PROCESSING.name()).contains(status)) {
                 status = Translator.get("api_definition.status.ongoing");
-            } else if (List.of(ApiScenarioStatus.COMPLETED.name(), ApiDefinitionStatus.DONE.name()).contains(status)){
+            } else if (List.of(ApiScenarioStatus.COMPLETED.name(), ApiDefinitionStatus.DONE.name()).contains(status)) {
                 status = Translator.get("api_definition.status.completed");
-            } else if (StringUtils.equals(ApiScenarioStatus.DEPRECATED.name(), status)){
+            } else if (StringUtils.equals(ApiScenarioStatus.DEPRECATED.name(), status)) {
                 status = Translator.get("api_definition.status.abandoned");
-            } else if (StringUtils.equals(ApiDefinitionStatus.DEBUGGING.name(), status)){
+            } else if (StringUtils.equals(ApiDefinitionStatus.DEBUGGING.name(), status)) {
                 status = Translator.get("api_definition.status.continuous");
             }
         }
 
 
         String reportStatus = report.getStatus();
-        if (StringUtils.endsWithIgnoreCase(reportStatus, ApiReportStatus.SUCCESS.name())) {
+        if (StringUtils.endsWithIgnoreCase(reportStatus, ReportStatus.SUCCESS.name())) {
             reportStatus = Translator.get("report.status.success");
-        } else if (StringUtils.endsWithIgnoreCase(reportStatus, ApiReportStatus.FAKE_ERROR.name())) {
+        } else if (StringUtils.endsWithIgnoreCase(reportStatus, ReportStatus.FAKE_ERROR.name())) {
             reportStatus = Translator.get("report.status.fake_error");
         } else {
             reportStatus = Translator.get("report.status.error");

@@ -70,7 +70,7 @@
         <ExecStatus :status="filterContent.value" />
       </template>
       <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
-        <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="filterContent.value" />
+        <ExecutionStatus :status="filterContent.value" />
       </template>
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
@@ -113,7 +113,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
-  import { TestPlanExecStatus } from '@/enums/apiEnum';
+  import { ReportExecStatus } from '@/enums/apiEnum';
   import { PlanReportStatus, ReportStatusEnum, TriggerModeLabel } from '@/enums/reportEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -132,7 +132,7 @@
   const showType = ref<ReportShowType>('All');
 
   const executeResultOptions = computed(() => {
-    return Object.values(TestPlanExecStatus).map((e) => {
+    return Object.values(ReportExecStatus).map((e) => {
       return {
         value: e,
         key: e,
@@ -141,10 +141,10 @@
   });
 
   const statusResultOptions = computed(() => {
-    return Object.keys(PlanReportStatus[ReportStatusEnum.REPORT_STATUS]).map((key) => {
+    return Object.keys(PlanReportStatus).map((key) => {
       return {
         value: key,
-        label: PlanReportStatus[ReportStatusEnum.REPORT_STATUS][key].statusText,
+        label: PlanReportStatus[key].statusText,
       };
     });
   });

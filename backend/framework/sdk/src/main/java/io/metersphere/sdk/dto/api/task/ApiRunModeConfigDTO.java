@@ -28,7 +28,7 @@ public class ApiRunModeConfigDTO implements Serializable {
     /**
      * 集合报告配置
      */
-    private CollectionReportDTO collectionReport;
+    private CollectionReportDTO collectionReport = new CollectionReportDTO();
 
     /**
      * 失败停止
