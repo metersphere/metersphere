@@ -1,5 +1,6 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.project.domain.Project;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.CommentUserInfo;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -41,8 +42,15 @@ public interface BaseUserMapper {
 
     /**
      * 获取评论用户信息
+     *
      * @param ids 用户ID集合
      * @return 评论用户信息集合
      */
     List<CommentUserInfo> getCommentUserInfoByIds(List<String> ids);
+
+    /**
+     * 获取开启的项目和组织
+     */
+    Project getEnableProjectAndOrganization();
+
 }
