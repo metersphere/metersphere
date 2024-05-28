@@ -632,7 +632,6 @@
   // 预览
   async function handlePreview(item: MsFileItem) {
     try {
-      previewVisible.value = true;
       const res = await previewFile({
         projectId: currentProjectId.value,
         caseId: detailForm.value.id,
@@ -641,6 +640,7 @@
       });
       const blob = new Blob([res], { type: 'image/jpeg' });
       imageUrl.value = URL.createObjectURL(blob);
+      previewVisible.value = true;
     } catch (error) {
       console.log(error);
     }
