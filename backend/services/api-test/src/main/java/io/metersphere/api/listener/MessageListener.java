@@ -4,15 +4,10 @@ import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiReportSendNoticeService;
-import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
-import io.metersphere.api.service.scenario.ApiScenarioReportService;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
-import io.metersphere.sdk.constants.ApiReportStatus;
-import io.metersphere.sdk.constants.ApplicationScope;
-import io.metersphere.sdk.constants.KafkaTopicConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
@@ -60,13 +55,15 @@ public class MessageListener {
                     // TODO 通知测试计划处理后续
                     LogUtils.info("发送通知给测试计划：{}", record.key());
                     apiEventSource.fireEvent(ApplicationScope.API_TEST, record.value());
-                }else {
+                } else {
                     ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, dto.getResourceType());
                     boolean isStop = switch (resourceType) {
-                        case API_CASE -> StringUtils.equals(apiReportMapper.selectByPrimaryKey(dto.getReportId()).getStatus(), ApiReportStatus.STOPPED.name())
-                                && deleteQueue(dto.getQueueId());
-                        case API_SCENARIO -> StringUtils.equals(apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId()).getStatus(), ApiReportStatus.STOPPED.name())
-                                && deleteQueue(dto.getQueueId());
+                        case API_CASE ->
+                                StringUtils.equals(apiReportMapper.selectByPrimaryKey(dto.getReportId()).getExecStatus(), ExecStatus.STOPPED.name())
+                                        && deleteQueue(dto.getQueueId());
+                        case API_SCENARIO ->
+                                StringUtils.equals(apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId()).getExecStatus(), ExecStatus.STOPPED.name())
+                                        && deleteQueue(dto.getQueueId());
                         default -> false;
                     };
 
@@ -86,6 +83,7 @@ public class MessageListener {
         apiExecutionQueueService.deleteQueue(queueId);
         return true;
     }
+
     /**
      * 执行批量的下一个任务
      *
@@ -122,13 +120,14 @@ public class MessageListener {
 
     /**
      * 处理失败停止后的报告处理
+     *
      * @param dto
      * @param queue
      * @param resourceType
      * @return
      */
     private boolean isStopOnFailure(ApiNoticeDTO dto, ExecutionQueue queue, ApiExecuteResourceType resourceType) {
-        if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ApiReportStatus.ERROR.name())) {
+        if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ReportStatus.ERROR.name())) {
             switch (resourceType) {
                 case API_CASE -> apiTestCaseBatchRunService.updateStopOnFailureApiReport(queue);
                 case API_SCENARIO -> apiScenarioBatchRunService.updateStopOnFailureReport(queue);

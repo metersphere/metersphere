@@ -5,7 +5,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.sdk.constants.ApiReportStatus;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.dto.api.result.RequestResult;
@@ -218,7 +218,7 @@ public class ApiReportService {
         apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
         apiReportDTO.setChildren(apiReportSteps);
         apiReportDTO.setTotal((long) apiReportSteps.size());
-        apiReportDTO.setPendingCount(apiReportSteps.stream().filter(step -> StringUtils.equals(ApiReportStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
+        apiReportDTO.setPendingCount(apiReportSteps.stream().filter(step -> StringUtils.equals(ExecStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
         return apiReportDTO;
     }
 
@@ -252,7 +252,7 @@ public class ApiReportService {
     public void updateReportStatus(String reportId, String status) {
         ApiReport apiReport = new ApiReport();
         apiReport.setId(reportId);
-        apiReport.setStatus(status);
+        apiReport.setExecStatus(status);
         apiReport.setUpdateTime(System.currentTimeMillis());
         apiReportMapper.updateByPrimaryKeySelective(apiReport);
     }

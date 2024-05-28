@@ -18,8 +18,8 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
-import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.ShareInfoType;
 import io.metersphere.sdk.domain.Environment;
@@ -102,9 +102,9 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 50 == 0) {
-                scenarioReport.setStatus(ApiReportStatus.SUCCESS.name());
+                scenarioReport.setStatus(ReportStatus.SUCCESS.name());
             } else if (i % 39 == 0) {
-                scenarioReport.setStatus(ApiReportStatus.ERROR.name());
+                scenarioReport.setStatus(ReportStatus.ERROR.name());
             }
             scenarioReport.setUpdateTime(System.currentTimeMillis());
             scenarioReport.setPoolId("api-pool-id" + i);
@@ -171,7 +171,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiScenarioDTO>) returnPager.getList()).size() <= request.getPageSize());
         //过滤
         request.setFilter(new HashMap<>() {{
-            put("status", List.of(ApiReportStatus.SUCCESS.name(), ApiReportStatus.ERROR.name()));
+            put("status", List.of(ReportStatus.SUCCESS.name(), ReportStatus.ERROR.name()));
         }});
         mvcResult = responsePost(PAGE, request);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
@@ -180,7 +180,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
         List<ApiReport> list = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiReport.class);
         list.forEach(apiReport -> {
-            Assertions.assertTrue(apiReport.getStatus().equals(ApiReportStatus.SUCCESS.name()) || apiReport.getStatus().equals(ApiReportStatus.ERROR.name()));
+            Assertions.assertTrue(apiReport.getStatus().equals(ReportStatus.SUCCESS.name()) || apiReport.getStatus().equals(ReportStatus.ERROR.name()));
         });
 
         //校验权限
@@ -302,7 +302,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             apiReportDetail.setStepId("test-scenario-report-step-id" + i);
             apiReportDetail.setSort((long) i);
             if (i % 2 == 0) {
-                apiReportDetail.setStatus(ApiReportStatus.SUCCESS.name());
+                apiReportDetail.setStatus(ReportStatus.SUCCESS.name());
                 apiReportDetail.setResponseSize(1L);
                 apiReportDetail.setRequestTime(2L);
             } else if (i % 3 == 0) {
@@ -310,7 +310,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
                 apiReportDetail.setResponseSize(0L);
                 apiReportDetail.setRequestTime(2L);
             } else {
-                apiReportDetail.setStatus(ApiReportStatus.FAKE_ERROR.name());
+                apiReportDetail.setStatus(ReportStatus.FAKE_ERROR.name());
                 apiReportDetail.setResponseSize(1L);
                 apiReportDetail.setRequestTime(2L);
             }

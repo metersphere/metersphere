@@ -2,7 +2,7 @@
   <div class="flex items-center justify-start">
     <MsIcon :type="getExecutionResult().icon" :class="getExecutionResult()?.color" size="14" />
     <span class="ml-1">{{ t(getExecutionResult().label) }}</span>
-    <a-tooltip v-if="props.scriptIdentifier" :content="t('report.detail.scenario.errorTip')">
+    <a-tooltip v-if="props.scriptIdentifier" :content="getMsg()">
       <MsTag
         class="ml-2"
         :self-style="{
@@ -22,6 +22,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ReportEnum } from '@/enums/reportEnum';
   import type { ResourceTypeMapKey } from '@/enums/taskCenter';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
@@ -38,156 +39,36 @@
     color?: string;
   }
 
-  const iconTypeStatus: Record<ResourceTypeMapKey, any> = {
-    [TaskCenterEnum.API_CASE]: {
-      SUCCESS: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'common.success',
-      },
-      ERROR: {
-        icon: 'icon-icon_close_colorful',
-        label: 'common.fail',
-      },
-      FAKE_ERROR: {
-        icon: 'icon-icon_warning_colorful',
-        label: 'common.fakeError',
-      },
-      STOPPED: {
-        icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.stop',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-      RUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'common.running',
-        color: '!text-[rgb(var(--link-6))]',
-      },
-      // RERUNNING: {
-      //   icon: 'icon-icon_testing',
-      //   label: 'project.taskCenter.rerun',
-      //   color: '!text-[rgb(var(--link-6))]',
-      // },
-      PENDING: {
-        icon: 'icon-icon_block_filled',
-        label: 'common.unExecute',
-        color: '!text-[var(--color-text-input-border)]',
-      },
+  const iconTypeStatus: Record<string, any> = {
+    SUCCESS: {
+      icon: 'icon-icon_succeed_colorful',
+      label: 'common.success',
     },
-    [TaskCenterEnum.API_SCENARIO]: {
-      SUCCESS: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'common.success',
-      },
-      ERROR: {
-        icon: 'icon-icon_close_colorful',
-        label: 'common.fail',
-      },
-      FAKE_ERROR: {
-        icon: 'icon-icon_warning_colorful',
-        label: 'common.fakeError',
-      },
-      STOPPED: {
-        icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.stop',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-      RUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'common.running',
-        color: '!text-[rgb(var(--link-6))]',
-      },
-      // RERUNNING: {
-      //   icon: 'icon-icon_testing',
-      //   label: 'project.taskCenter.rerun',
-      //   color: '!text-[rgb(var(--link-6))]',
-      // },
-      PENDING: {
-        icon: 'icon-icon_block_filled',
-        label: 'common.unExecute',
-        color: '!text-[var(--color-text-input-border)]',
-      },
+    ERROR: {
+      icon: 'icon-icon_close_colorful',
+      label: 'common.fail',
     },
-    [TaskCenterEnum.LOAD_TEST]: {
-      STARTING: {
-        icon: 'icon-icon_restarting',
-        label: 'project.taskCenter.starting',
-        color: '!text-[rgb(var(--link-6))]',
-      },
-      RUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'common.running',
-        color: '!text-[rgb(var(--link-6))]',
-      },
-      ERROR: {
-        icon: 'icon-icon_close_colorful',
-        label: 'common.fail',
-      },
-      SUCCESS: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'common.success',
-      },
-      COMPLETED: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'project.taskCenter.complete',
-      },
-      STOPPED: {
-        icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.stop',
-        color: '!text-[var(--color-text-input-border)]',
-      },
+    FAKE_ERROR: {
+      icon: 'icon-icon_warning_colorful',
+      label: 'common.fakeError',
     },
-    [TaskCenterEnum.UI_TEST]: {
-      PENDING: {
-        icon: 'icon-icon_block_filled',
-        label: 'common.unExecute',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-      RUNNING: {
-        icon: 'icon-icon_testing',
-        label: 'common.running',
-        color: '!text-[rgb(var(--link-6))]',
-      },
-      // RERUNNING: {
-      //   icon: 'icon-icon_testing',
-      //   label: 'project.taskCenter.rerun',
-      //   color: '!text-[rgb(var(--link-6))]',
-      // },
-      ERROR: {
-        icon: 'icon-icon_close_colorful',
-        label: 'common.fail',
-      },
-      SUCCESS: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'common.success',
-      },
-      STOPPED: {
-        icon: 'icon-icon_block_filled',
-        label: 'project.taskCenter.stop',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-    },
-    [TaskCenterEnum.TEST_PLAN]: {
-      RUNNING: {
-        icon: 'icon-icon_block_filled',
-        label: 'common.unExecute',
-        color: '!text-[var(--color-text-input-border)]',
-      },
-      SUCCESS: {
-        icon: 'icon-icon_succeed_colorful',
-        label: 'common.success',
-      },
-      STARTING: {
-        icon: 'icon-icon_restarting',
-        label: 'project.taskCenter.starting',
-        color: '!text-[rgb(var(--link-6))]',
-      },
+    DEFAULT: {
+      label: '-',
+      color: '!text-[var(--color-text-input-border)]',
     },
   };
 
   function getExecutionResult(): IconType {
-    return iconTypeStatus[props.moduleType][props.status];
+    return iconTypeStatus[props.status] ? iconTypeStatus[props.status] : iconTypeStatus.DEFAULT;
   }
   const methodColor = 'rgb(var(--warning-7))';
+
+  function getMsg() {
+    if (props.moduleType === TaskCenterEnum.API_SCENARIO && props.scriptIdentifier) {
+      return t('report.detail.scenario.errorTip');
+    }
+    return t('report.detail.api.errorTip');
+  }
 </script>
 
 <style scoped></style>

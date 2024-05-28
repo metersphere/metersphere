@@ -79,6 +79,15 @@ CREATE INDEX idx_collection_type_id ON test_plan_collection(test_collection_type
 CREATE INDEX idx_env_id ON test_plan_collection(environment_id);
 CREATE INDEX idx_create_user ON test_plan_collection(create_user);
 
+
+ALTER TABLE api_report ADD COLUMN exec_status VARCHAR(20) NOT NULL  DEFAULT 'PENDING' COMMENT '执行状态';
+ALTER TABLE api_report ALTER COLUMN status set DEFAULT '-';
+CREATE INDEX idx_exec_status ON api_report(exec_status);
+
+ALTER TABLE api_scenario_report ADD COLUMN exec_status VARCHAR(20) NOT NULL  DEFAULT 'PENDING' COMMENT '执行状态';
+ALTER TABLE api_scenario_report ALTER COLUMN status set DEFAULT '-';
+CREATE INDEX idx_exec_status ON api_scenario_report(exec_status);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

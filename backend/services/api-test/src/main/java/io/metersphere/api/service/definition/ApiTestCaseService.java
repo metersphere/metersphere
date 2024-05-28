@@ -794,7 +794,6 @@ public class ApiTestCaseService extends MoveNodeService {
         apiReport.setId(IDGenerator.nextStr());
         apiReport.setDeleted(false);
         apiReport.setIntegrated(false);
-        apiReport.setStatus(ApiReportStatus.PENDING.name());
         apiReport.setStartTime(System.currentTimeMillis());
         apiReport.setUpdateTime(System.currentTimeMillis());
         apiReport.setUpdateUser(userId);

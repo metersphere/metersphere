@@ -53,8 +53,14 @@
           :script-identifier="props.moduleType === ReportEnum.API_SCENARIO_REPORT ? record.scriptIdentifier : null"
         />
       </template>
-      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
         <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
+      </template>
+      <template #execStatus="{ record }">
+        <ExecStatus :status="record.execStatus" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecStatus :status="filterContent.value" />
       </template>
       <template #[FilterSlotNameEnum.API_TEST_REPORT_TYPE]="{ filterContent }">
         <MsTag theme="light" :type="filterContent.value ? 'primary' : undefined">
@@ -112,6 +118,7 @@
   import CaseReportDrawer from './caseReportDrawer.vue';
   import ReportDetailDrawer from './reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
 
   import {
     getShareTime,
@@ -128,6 +135,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -151,14 +159,22 @@
   const showType = ref<ReportShowType>('All');
 
   const statusList = computed(() => {
-    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+    return Object.keys(ReportStatus).map((key) => {
       return {
         value: key,
-        label: t(ReportStatus[ReportEnum.API_REPORT][key].label),
+        label: t(ReportStatus[key].label),
       };
     });
   });
 
+  const ExecStatusList = computed(() => {
+    return Object.values(ReportExecStatus).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+  });
   const columns: MsTableColumn = [
     {
       title: 'report.name',
@@ -184,11 +200,27 @@
       showDrag: true,
     },
     {
-      title: 'report.result',
+      title: 'report.status',
       dataIndex: 'status',
       slotName: 'status',
       filterConfig: {
         options: statusList.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'report.result',
+      dataIndex: 'execStatus',
+      slotName: 'execStatus',
+      filterConfig: {
+        options: ExecStatusList.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
       },
       sortable: {

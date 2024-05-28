@@ -7,6 +7,7 @@ export default {
   'project.taskCenter.resourceID': 'Resource ID',
   'project.taskCenter.resourceName': 'resourceName',
   'project.taskCenter.executionResult': 'Execution result',
+  'project.taskCenter.status': 'Execution status',
   'project.taskCenter.executionMode': 'Execution mode',
   'project.taskCenter.resourcePool': 'Resource pool',
   'project.taskCenter.operator': 'operator',

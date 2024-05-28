@@ -7,6 +7,7 @@ export default {
   'report.name': '报告名称',
   'report.type': '报告类型',
   'report.result': '执行结果',
+  'report.status': '执行状态',
   'report.trigger.mode': '触发方式',
   'report.operator': '创建人',
   'report.operating': '创建时间',

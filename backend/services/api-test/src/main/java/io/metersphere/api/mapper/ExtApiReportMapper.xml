@@ -3,7 +3,8 @@
 <mapper namespace="io.metersphere.api.mapper.ExtApiReportMapper">
     <update id="updateReportStatus">
         update api_report
-        set status = 'STOPPED',
+        set exec_status = 'STOPPED',
+            status = '-',
          update_time = #{time},
          update_user = #{userId}
         where id in
@@ -13,7 +14,7 @@
     </update>
     <update id="updateApiCaseStatus">
         update api_test_case
-        set last_report_status = 'STOPPED'
+        set last_report_status = '-'
         where id in
         (select api_test_case_id from api_test_case_record where api_report_id
         in
@@ -130,6 +131,10 @@
                             and ar.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key=='execStatus'">
+                            and ar.exec_status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                         <when test="key=='triggerMode'">
                             and ar.trigger_mode in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
@@ -167,6 +172,7 @@
         ar.project_id,
         ar.integrated,
         ar.STATUS,
+        ar.exec_status,
         ar.start_time AS operationTime,
         ar.create_user AS operationName,
         ar.trigger_mode,
@@ -212,7 +218,7 @@
         ar.deleted = false
         and ar.test_plan_id = 'NONE'
         and ar.start_time BETWEEN #{startTime} AND #{endTime}
-        and ar.status in ('PENDING', 'RUNNING', 'RERUNNING')
+        and ar.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
             and ar.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">

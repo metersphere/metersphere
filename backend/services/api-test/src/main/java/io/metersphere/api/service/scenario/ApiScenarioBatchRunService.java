@@ -232,7 +232,7 @@ public class ApiScenarioBatchRunService {
      */
     private void setRunningIntegrateReport(ApiRunModeConfigDTO runModeConfig) {
         if (runModeConfig.isIntegratedReport()) {
-            apiScenarioReportService.updateReportStatus(runModeConfig.getCollectionReport().getReportId(), ApiReportStatus.RUNNING.name());
+            apiScenarioReportService.updateReportStatus(runModeConfig.getCollectionReport().getReportId(), ExecStatus.RUNNING.name());
         }
     }
 
@@ -450,7 +450,8 @@ public class ApiScenarioBatchRunService {
                 // 计算各种通过率
                 long total = apiScenarioReportService.getRequestTotal(report);
                 report = apiBatchRunBaseService.computeRequestRate(report, total);
-                report.setStatus(ApiReportStatus.ERROR.name());
+                report.setStatus(ReportStatus.ERROR.name());
+                report.setExecStatus(ExecStatus.COMPLETED.name());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
             }
         } catch (Exception e) {

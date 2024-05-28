@@ -31,32 +31,15 @@
       <template #caseLevel="{ record }">
         <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.priority" /></span>
       </template>
-      <template #caseLevelFilter="{ columnConfig }">
-        <a-trigger v-model:popup-visible="caseFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="caseFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="caseFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="caseFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="item of casePriorityOptions" :key="item.value" :value="item.value">
-                    <caseLevel :case-level="item.label as CaseLevel" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetCaseFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <!-- 用例等级 -->
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+        <caseLevel :case-level="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_STATUS]="{ filterContent }">
+        <apiStatus :status="filterContent.value" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #deleteTime="{ record }">
         {{ dayjs(record.deleteTime).format('YYYY-MM-DD HH:mm:ss') || '-' }}
@@ -64,107 +47,7 @@
       <template #status="{ record }">
         <apiStatus :status="record.status" />
       </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of Object.values(RequestCaseStatus)" :key="val" :value="val">
-                    <apiStatus :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
-      <template #createUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="createUserFilterVisible"
-          v-model:status-filters="createUserFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          @search="loadCaseList"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
-      </template>
-      <template #updateUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="updateUserFilterVisible"
-          v-model:status-filters="updateUserFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          @search="loadCaseList"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
-      </template>
-      <template #deleteUserFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="deleteUserFilterVisible"
-          v-model:status-filters="deleteUserFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          @search="loadCaseList"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
-      </template>
-      <template #lastReportStatusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="lastReportStatusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary" @click="lastReportStatusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="lastReportStatusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="lastReportStatusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of lastReportStatusList" :key="val" :value="val">
-                    <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetLastReportStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
-      </template>
+
       <template #lastReportStatus="{ record }">
         <ExecutionStatus
           :module-type="ReportEnum.API_REPORT"
@@ -219,10 +102,8 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchDeleteRecycleCase,
@@ -231,7 +112,6 @@
     getRecycleCasePage,
     recoverCase,
   } from '@/api/modules/api-test/management';
-  import { getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -241,6 +121,7 @@
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
 
@@ -257,6 +138,23 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
+
+  const requestCaseStatusOptions = computed(() => {
+    return Object.values(RequestCaseStatus).map((key) => {
+      return {
+        value: key,
+        label: key,
+      };
+    });
+  });
+  const lastReportStatusListOptions = computed(() => {
+    return Object.keys(ReportStatus).map((key) => {
+      return {
+        value: key,
+        ...Object.keys(ReportStatus[key]),
+      };
+    });
+  });
 
   const columns: MsTableColumn = [
     {
@@ -292,6 +190,10 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      filterConfig: {
+        options: casePriorityOptions,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
       width: 150,
       showDrag: true,
     },
@@ -306,6 +208,10 @@
       },
       width: 150,
       showDrag: true,
+      filterConfig: {
+        options: requestCaseStatusOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
+      },
     },
     {
       title: 'apiTestManagement.path',
@@ -330,6 +236,10 @@
       showInTable: false,
       width: 150,
       showDrag: true,
+      filterConfig: {
+        options: lastReportStatusListOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
+      },
     },
     {
       title: 'case.passRate',
@@ -397,6 +307,14 @@
       showTooltip: true,
       width: 180,
       showDrag: true,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
     },
     {
       title: 'apiTestManagement.deleteTime',
@@ -446,21 +364,6 @@
     ],
   };
 
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>([]);
-  const caseLevelFields = ref<Record<string, any>>({});
-  const caseFilterVisible = ref(false);
-  const caseFilters = ref<string[]>([]);
-  const lastReportStatusFilterVisible = ref(false);
-  const lastReportStatusList = ref<string[]>(Object.keys(ReportStatus[ReportEnum.API_REPORT]));
-  const lastReportStatusFilters = ref<string[]>([]);
-  const createUserFilterVisible = ref(false);
-  const createUserFilters = ref<string[]>([]);
-  const updateUserFilterVisible = ref(false);
-  const updateUserFilters = ref<string[]>([]);
-  const deleteUserFilterVisible = ref(false);
-  const deleteUserFilters = ref<string[]>([]);
-
   const moduleIds = computed(() => {
     return props.activeModule === 'all' ? [] : [props.activeModule];
   });
@@ -471,58 +374,12 @@
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
       protocol: props.protocol,
-      filter: {
-        status: statusFilters.value,
-        priority: caseFilters.value,
-        lastReportStatus: lastReportStatusFilters.value,
-        createUser: createUserFilters.value,
-        updateUser: updateUserFilters.value,
-        deleteUser: deleteUserFilters.value,
-      },
     };
     setLoadListParams(params);
     loadList();
   }
   function loadCaseListAndResetSelector() {
     resetSelector();
-    loadCaseList();
-  }
-
-  // 获取用例等级数据
-  async function getCaseLevelFields() {
-    const result = await getCaseDefaultFields(appStore.currentProjectId);
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
-  }
-
-  onBeforeMount(() => {
-    getCaseLevelFields();
-    loadCaseList();
-  });
-
-  function handleFilterHidden(val: boolean) {
-    if (!val) {
-      caseFilterVisible.value = false;
-      statusFilterVisible.value = false;
-      lastReportStatusFilterVisible.value = false;
-      loadCaseList();
-    }
-  }
-
-  function resetCaseFilter() {
-    caseFilters.value = [];
-    caseFilterVisible.value = false;
-    loadCaseList();
-  }
-
-  function resetStatusFilter() {
-    statusFilterVisible.value = false;
-    statusFilters.value = [];
-    loadCaseList();
-  }
-
-  function resetLastReportStatusFilter() {
-    lastReportStatusFilterVisible.value = false;
-    lastReportStatusFilters.value = [];
     loadCaseList();
   }
 
@@ -565,6 +422,7 @@
           Message.success(t('common.deleteSuccess'));
           loadCaseListAndResetSelector();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -588,6 +446,7 @@
           Message.success(t('apiTestManagement.recycle.recoveredSuccessfully'));
           loadCaseListAndResetSelector();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -606,14 +465,7 @@
       protocol: props.protocol,
       condition: {
         keyword: keyword.value,
-        filter: {
-          status: statusFilters.value,
-          priority: caseFilters.value,
-          lastReportStatus: lastReportStatusFilters.value,
-          createUser: createUserFilters.value,
-          updateUser: updateUserFilters.value,
-          deleteUser: deleteUserFilters.value,
-        },
+        filter: propsRes.value.filter,
         combine: batchParams.value.condition,
       },
     };
@@ -638,6 +490,7 @@
           Message.success(t('apiTestManagement.recycle.recoveredSuccessfully'));
           loadCaseListAndResetSelector();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -665,6 +518,7 @@
           Message.success(t('common.deleteSuccess'));
           loadCaseListAndResetSelector();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },

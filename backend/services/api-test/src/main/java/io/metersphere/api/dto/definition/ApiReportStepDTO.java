@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.sdk.constants.ApiReportStatus;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -22,7 +22,7 @@ public class ApiReportStepDTO {
     private String stepType;
 
     @Schema(description = "结果状态")
-    private String status = ApiReportStatus.PENDING.name();
+    private String status = ExecStatus.PENDING.name();
 
     @Schema(description = "误报编号/误报状态独有")
     private String fakeCode;

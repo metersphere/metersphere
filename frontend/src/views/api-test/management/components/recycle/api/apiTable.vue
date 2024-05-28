@@ -28,67 +28,11 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template #methodFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="methodFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="methodFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="methodFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="methodFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="key of RequestMethods" :key="key" :value="key">
-                    <apiMethodName :method="key" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetMethodFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template v-if="props.protocol === 'HTTP'" #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
+        <apiMethodName :method="filterContent.value" />
       </template>
-      <template #statusFilter="{ columnConfig }">
-        <a-trigger
-          v-model:popup-visible="statusFilterVisible"
-          trigger="click"
-          @popup-visible-change="handleFilterHidden"
-        >
-          <MsButton type="text" class="arco-btn-text--secondary ml-[10px]" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
-            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
-          </MsButton>
-          <template #content>
-            <div class="arco-table-filters-content">
-              <div class="ml-[6px] flex items-center justify-start px-[6px] py-[2px]">
-                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
-                  <a-checkbox v-for="val of Object.values(RequestDefinitionStatus)" :key="val" :value="val">
-                    <apiStatus :status="val" />
-                  </a-checkbox>
-                </a-checkbox-group>
-              </div>
-              <div class="filter-button">
-                <a-button size="mini" class="mr-[8px]" @click="resetStatusFilter">
-                  {{ t('common.reset') }}
-                </a-button>
-                <a-button type="primary" size="mini" @click="handleFilterHidden(false)">
-                  {{ t('system.orgTemplate.confirm') }}
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </a-trigger>
+      <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_API_STATUS]="{ filterContent }">
+        <apiStatus :status="filterContent.value" />
       </template>
       <template #deleteUserFilter="{ columnConfig }">
         <TableFilter
@@ -168,6 +112,7 @@
   } from '@/models/apiTest/management';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import {FilterSlotNameEnum} from "@/enums/tableFilterEnum";
 
   const props = defineProps<{
     class?: string;
@@ -187,6 +132,22 @@
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const refreshModuleTreeCount: ((data: ApiDefinitionGetModuleParams) => Promise<any>) | undefined =
     inject('refreshModuleTreeCount');
+  const requestMethodsOptions = computed(() => {
+    return Object.values(RequestMethods).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+  });
+  const requestApiStatus = computed(() => {
+    return Object.values(RequestDefinitionStatus).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+  });
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -219,6 +180,10 @@
       titleSlotName: 'methodFilter',
       width: 140,
       showDrag: true,
+      filterConfig: {
+        options: requestMethodsOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS,
+      },
     },
     {
       title: 'apiTestManagement.path',
@@ -234,6 +199,10 @@
       titleSlotName: 'statusFilter',
       width: 130,
       showDrag: true,
+      filterConfig: {
+        options: requestApiStatus.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_API_STATUS,
+      },
     },
     {
       title: 'common.tag',

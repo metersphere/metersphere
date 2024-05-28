@@ -367,10 +367,10 @@
     });
   });
   const lastReportStatusListOptions = computed(() => {
-    return Object.keys(ReportStatus[ReportEnum.API_REPORT]).map((key) => {
+    return Object.keys(ReportStatus).map((key) => {
       return {
         value: key,
-        ...Object.keys(ReportStatus[ReportEnum.API_REPORT][key]),
+        ...Object.keys(ReportStatus[key]),
       };
     });
   });

@@ -142,6 +142,11 @@ public class ApiScenarioReport implements Serializable {
     @Schema(description = "等待时间")
     private Long waitingTime;
 
+    @Schema(description = "执行状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_report.exec_status.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_scenario_report.exec_status.length_range}", groups = {Created.class, Updated.class})
+    private String execStatus;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -176,7 +181,8 @@ public class ApiScenarioReport implements Serializable {
         requestPassRate("request_pass_rate", "requestPassRate", "VARCHAR", false),
         assertionPassRate("assertion_pass_rate", "assertionPassRate", "VARCHAR", false),
         scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
-        waitingTime("waiting_time", "waitingTime", "BIGINT", false);
+        waitingTime("waiting_time", "waitingTime", "BIGINT", false),
+        execStatus("exec_status", "execStatus", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

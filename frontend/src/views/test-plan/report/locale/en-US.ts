@@ -7,6 +7,7 @@ export default {
   'report.name': 'Name',
   'report.type': 'Type',
   'report.result': 'Result',
+  'report.status': 'Status',
   'report.trigger.mode': 'Trigger mode',
   'report.operator': 'Create User',
   'report.operating': 'Create time',

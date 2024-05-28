@@ -220,7 +220,7 @@ public class ApiTestCaseBatchRunService {
      */
     private void setRunningIntegrateReport(ApiRunModeConfigDTO runModeConfig) {
         if (runModeConfig.isIntegratedReport()) {
-            apiReportService.updateReportStatus(runModeConfig.getCollectionReport().getReportId(), ApiReportStatus.RUNNING.name());
+            apiReportService.updateReportStatus(runModeConfig.getCollectionReport().getReportId(), ExecStatus.RUNNING.name());
         }
     }
 
@@ -433,7 +433,8 @@ public class ApiTestCaseBatchRunService {
             BeanUtils.copyBean(apiScenarioReport, report);
             apiScenarioReport = apiBatchRunBaseService.computeRequestRate(apiScenarioReport, total);
             BeanUtils.copyBean(report, apiScenarioReport);
-            report.setStatus(ApiReportStatus.ERROR.name());
+            report.setStatus(ReportStatus.ERROR.name());
+            report.setExecStatus(ExecStatus.COMPLETED.name());
             apiReportMapper.updateByPrimaryKeySelective(report);
         }
     }

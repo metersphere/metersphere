@@ -21,6 +21,8 @@ public class ReportDTO implements Serializable {
     private String projectId;
     @Schema(description = "组织id")
     private String organizationId;
+    @Schema(description = "是否是集成报告")
+    private Boolean integrated;
 
 
 }

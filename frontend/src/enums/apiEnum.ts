@@ -336,7 +336,7 @@ export enum FullResponseAssertionType {
   REGEX = 'REGEX',
 }
 
-export enum TestPlanExecStatus {
+export enum ReportExecStatus {
   PENDING = 'PENDING',
   RUNNING = 'RUNNING',
   STOPPED = 'STOPPED',
