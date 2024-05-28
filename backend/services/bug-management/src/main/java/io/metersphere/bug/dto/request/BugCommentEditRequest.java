@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class BugCommentEditRequest implements Serializable {
@@ -33,4 +34,7 @@ public class BugCommentEditRequest implements Serializable {
     @Schema(description =  "任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLY‘;)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug_comment.event.not_blank}", groups = {Created.class})
     private String event;
+
+    @Schema(description = "富文本临时文件ID")
+    private List<String> richTextTmpFileIds;
 }
