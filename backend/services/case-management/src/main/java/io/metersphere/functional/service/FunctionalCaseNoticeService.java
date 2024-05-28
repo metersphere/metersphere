@@ -157,6 +157,7 @@ public class FunctionalCaseNoticeService {
             FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getId());
             BeanUtils.copyBean(functionalCaseDTO, functionalCase);
             setReviewName(request.getId(), functionalCaseDTO);
+            setPlanName(request.getId(), functionalCaseDTO);
         } else {
             BeanUtils.copyBean(functionalCaseDTO, request);
             functionalCaseDTO.setCreateUser(null);
@@ -176,7 +177,6 @@ public class FunctionalCaseNoticeService {
             }
         }
         functionalCaseDTO.setFields(fields);
-        setPlanName(request.getId(), functionalCaseDTO);
         return functionalCaseDTO;
     }
 
