@@ -40,6 +40,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -383,7 +384,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         Assertions.assertEquals(defaultTemplateDTO.getId(), template.getId());
 
         // @@校验日志
-        checkLog(addTemplate.getId(), OperationLogType.UPDATE);
+        checkLog(addTemplate.getId(), OperationLogType.UPDATE, MessageFormat.format(BASE_PATH + SET_DEFAULT, DEFAULT_PROJECT_ID, addTemplate.getId()));
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, SET_DEFAULT, DEFAULT_PROJECT_ID, addTemplate.getId());
     }

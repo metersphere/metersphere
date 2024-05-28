@@ -10,6 +10,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -73,8 +74,8 @@ public class ProjectTemplateLogService {
         return dto;
     }
 
-    public LogDTO setDefaultTemplateLog(TemplateUpdateRequest request) {
-        Template template = projectTemplateService.getWithCheck(request.getId());
+    public LogDTO setDefaultTemplateLog(String id) {
+        Template template = projectTemplateService.getWithCheck(id);
         LogDTO dto = null;
         if (template != null) {
             dto = new LogDTO(
@@ -82,9 +83,10 @@ public class ProjectTemplateLogService {
                     null,
                     template.getId(),
                     null,
-                    String.join(Translator.get("set_default_template"), ":", OperationLogType.UPDATE.name()),
+                    OperationLogType.UPDATE.name(),
                     getOperationLogModule(template.getScene()),
-                    template.getName());
+                    StringUtils.join(Translator.get("set_default_template"), ":",
+                            template.getInternal() ? projectTemplateService.translateInternalTemplate() : template.getName()));
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
         return dto;
