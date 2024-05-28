@@ -185,35 +185,57 @@
 
     <template #operation="{ record }">
       <div class="flex items-center">
-        <div
+        <MsButton
           v-if="
             record.functionalCaseCount > 0 &&
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
             record.status !== 'ARCHIVED'
           "
-          class="flex items-center"
+          class="!mx-0"
+          @click="openDetail(record.id)"
+          >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
         >
-          <MsButton class="!mx-0" @click="openDetail(record.id)">{{ t('testPlan.testPlanIndex.execution') }}</MsButton>
-        </div>
-        <div
+        <a-divider
+          v-if="
+            record.functionalCaseCount > 0 &&
+            hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
+            record.status !== 'ARCHIVED'
+          "
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
+
+        <MsButton
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
-          class="flex items-center"
+          class="!mx-0"
+          @click="emit('editOrCopy', record.id, false)"
+          >{{ t('common.edit') }}</MsButton
         >
-          <a-divider direction="vertical" :margin="8"></a-divider>
-          <MsButton class="!mx-0" @click="emit('editOrCopy', record.id, false)">{{ t('common.edit') }}</MsButton>
-          <a-divider direction="vertical" :margin="8"></a-divider>
-        </div>
-        <div
+        <a-divider
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
+
+        <MsButton
           v-if="
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
             record.functionalCaseCount < 1 &&
             record.status !== 'ARCHIVED'
           "
-          class="flex items-center"
+          class="!mx-0"
+          @click="emit('editOrCopy', record.id, true)"
+          >{{ t('common.copy') }}</MsButton
         >
-          <MsButton class="!mx-0" @click="emit('editOrCopy', record.id, true)">{{ t('common.copy') }}</MsButton>
-          <a-divider direction="vertical" :margin="8"></a-divider>
-        </div>
+        <a-divider
+          v-if="
+            hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
+            record.functionalCaseCount < 1 &&
+            record.status !== 'ARCHIVED'
+          "
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
         <MsTableMoreAction
           :list="getMoreActions(record.status, record.functionalCaseCount)"
           @select="handleMoreActionSelect($event, record)"

@@ -139,6 +139,7 @@
       label: t('system.orgTemplate.enable'),
       eventTag: 'enable',
       danger: true,
+      permission: ['ORGANIZATION_TEMPLATE:READ+ENABLE'],
     },
   ]);
   const showEnableVisible = ref<boolean>(false);
