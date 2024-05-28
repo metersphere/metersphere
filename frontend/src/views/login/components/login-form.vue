@@ -179,7 +179,7 @@
         loginConfig.value.password = rememberPassword ? password : '';
         if (
           (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') &&
-          !(router.currentRoute.value as unknown as string).startsWith(SettingRouteEnum.SETTING)
+          !router.currentRoute.value.path.startsWith(SettingRouteEnum.SETTING)
         ) {
           // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目/白板用户没有项目）且访问的页面非系统菜单模块，则重定向到无项目权限页面
           router.push({

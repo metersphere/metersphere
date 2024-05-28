@@ -3,7 +3,7 @@
     <a-button type="primary" :disabled="props.disabled" class="save-btn bottom-[30px] right-[30px]" @click="save">
       {{ t('minder.main.main.save') }}
     </a-button>
-    <navigator />
+    <Navigator />
     <a-dropdown
       v-model:popup-visible="menuVisible"
       class="minder-dropdown"

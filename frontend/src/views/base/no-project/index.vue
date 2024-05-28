@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
   import { onBeforeMount, Ref, ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRouter } from 'vue-router';
 
   import NoPermissionLayoutVue from '@/layout/no-permission-layout.vue';
 
@@ -43,7 +43,6 @@
 
   const userStore = useUserStore();
 
-  const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
 
@@ -72,12 +71,13 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
+      await userStore.checkIsLogin();
+      appStore.hideLoading();
       router.replace({
         name: getFirstRouteNameByPermission(router.getRoutes()),
         query: {
-          ...route.query,
           orgId: appStore.currentOrgId,
-          pId: appStore.currentProjectId,
+          pId: value as string,
         },
       });
     }

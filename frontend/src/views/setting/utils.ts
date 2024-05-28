@@ -10,9 +10,7 @@ import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { useUserStore } from '@/store';
 import useAppStore from '@/store/modules/app';
 import useLicenseStore from '@/store/modules/setting/license';
-import { hasAnyPermission } from '@/utils/permission';
-
-import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
+import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -41,10 +39,10 @@ export async function enterProject(projectId: string, organizationId?: string) {
     await userStore.checkIsLogin();
     // 跳转到项目页面
     router.replace({
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION,
+      name: getFirstRouteNameByPermission(router.getRoutes()),
       query: {
         orgId: appStore.currentOrgId,
-        pId: appStore.currentProjectId,
+        pId: projectId,
       },
     });
   } catch (error) {

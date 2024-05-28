@@ -1,4 +1,4 @@
-import { TableQueryParams } from '@/models/common';
+import { type MoveMode, TableQueryParams } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
 
 import { ReviewResult } from './caseReview';
@@ -369,14 +369,18 @@ export interface FeatureCaseMinderDeleteResourceList {
   id: string;
   type: string;
 }
+// 脑图用例操作类型（新增(ADD)/更新(UPDATE)）
+export type FeatureCaseMinderActionType = 'ADD' | 'UPDATE';
+// 脑图用例编辑模式
+export type FeatureCaseMinderEditType = 'STEP' | 'TEXT';
 // 脑图新增/修改的模块集合（只记录操作的节点，节点下的子节点不需要记录）
 export interface FeatureCaseMinderUpdateModuleList {
   id: string;
   name: string;
   parentId: string;
-  type: 'ADD' | 'UPDATE'; // 操作类型（新增(ADD)/更新(UPDATE)）
-  moveMode: string;
-  targetId: string;
+  type: FeatureCaseMinderActionType;
+  moveMode?: MoveMode;
+  targetId?: string;
 }
 
 export interface CustomField {
@@ -389,23 +393,21 @@ export interface FeatureCaseMinderStepItem {
   num: number;
   desc: string;
   result?: string;
-  actualResult?: string;
-  executeResult?: string;
 }
 // 脑图新增/修改的用例对象集合
 export interface FeatureCaseMinderUpdateCaseList {
-  id: string;
+  id: string; // 用例id(新增的时候前端传UUid，更新的时候必填)
   templateId: string; // 模板id
-  type: string;
+  type: FeatureCaseMinderActionType;
   name: string;
   moduleId: string;
-  moveMode?: string;
+  moveMode?: MoveMode; // 移动方式（节点移动或新增时需要）
   targetId?: string;
   prerequisite: string;
-  caseEditType: 'STEP' | 'TEXT'; // 编辑模式
-  steps: string;
-  textDescription: string;
-  expectedResult: string;
+  caseEditType: FeatureCaseMinderEditType;
+  steps: FeatureCaseMinderStepItem[];
+  textDescription: string; // 文本描述
+  expectedResult: string; // 期望结果
   description: string;
   tags: string[];
   customFields: CustomField[];
