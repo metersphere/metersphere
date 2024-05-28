@@ -92,14 +92,13 @@
     return result;
   });
 
-  // 判断是否有所有权限
+  // 判断是否有任一权限
   const isHasAllPermission = computed(() => {
-    return props.list.some((item: ActionsItem) => {
-      if (item.permission) {
-        return hasAnyPermission(item.permission);
-      }
-      return false;
+    const permissionList = props.list.map((item) => {
+      return item.permission || [];
     });
+    const permissionResult = permissionList.flat();
+    return hasAnyPermission(permissionResult);
   });
 
   function selectHandler(value: SelectedValue) {
