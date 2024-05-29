@@ -10,6 +10,8 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.util.Optional;
 
+import static io.metersphere.api.constants.ApiConstants.ASSOCIATE_RESULT_PROCESSOR_PREFIX;
+
 /**
  * 环境场景级前置处理器处理
  *
@@ -40,7 +42,7 @@ public class ScenarioScriptProcessorConverter extends ScriptProcessorConverter {
                 .ifPresent(hashTree::add);
 
         // 标记当前处理器是否关联场景结果
-        processor.setName("ASSOCIATE_RESULT_PROCESSOR_" + associateScenarioResult);
+        processor.setName(ASSOCIATE_RESULT_PROCESSOR_PREFIX + associateScenarioResult);
         hashTree.add(processor);
     }
 }

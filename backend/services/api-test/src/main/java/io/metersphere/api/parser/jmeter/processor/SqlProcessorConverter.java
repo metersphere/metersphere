@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
-import org.apache.jmeter.protocol.jdbc.processor.AbstractJDBCProcessor;
 import org.apache.jmeter.protocol.jdbc.processor.JDBCPreProcessor;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -32,7 +31,7 @@ import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.TEST_BEAN_G
  */
 public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProcessor> {
 
-    public <T extends AbstractJDBCProcessor> void parse(HashTree hashTree,
+    public <T extends TestElement> void parse(HashTree hashTree,
                                                         SQLProcessor sqlProcessor,
                                                         ParameterConfig config,
                                                         Class<T> jdbcProcessorClass) {
@@ -52,8 +51,8 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
 
         try {
             // 添加前后置处理器
-            T jdbcProcessor = jdbcProcessorClass.getDeclaredConstructor().newInstance();
-            getJdbcProcessor(sqlProcessor, jdbcProcessor, dataSource);
+            TestElement jdbcProcessor = jdbcProcessorClass.getDeclaredConstructor().newInstance();
+            jdbcProcessor = getJdbcProcessor(sqlProcessor, jdbcProcessor, dataSource);
             hashTree.add(jdbcProcessor);
             List<KeyValueParam> extractParams = sqlProcessor.getExtractParams()
                     .stream()
@@ -62,9 +61,9 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
             // 添加提取的变量
             TestElement jdbcPostProcessor;
             if (jdbcProcessor instanceof JDBCPreProcessor) {
-                jdbcPostProcessor = getJdbcProcessor(sqlProcessor.getName(), extractParams, JSR223PreProcessor.class);
+                jdbcPostProcessor = getExtractParamProcessor(sqlProcessor.getName(), extractParams, JSR223PreProcessor.class);
             } else {
-                jdbcPostProcessor = getJdbcProcessor(sqlProcessor.getName(), extractParams, JSR223PostProcessor.class);
+                jdbcPostProcessor = getExtractParamProcessor(sqlProcessor.getName(), extractParams, JSR223PostProcessor.class);
             }
             if (jdbcPostProcessor != null) {
                 hashTree.add(jdbcPostProcessor);
@@ -75,7 +74,7 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
         }
     }
 
-    public <T extends TestElement> T getJdbcProcessor(String name, List<KeyValueParam> extractParams, Class<T> elementType) {
+    public <T extends TestElement> T getExtractParamProcessor(String name, List<KeyValueParam> extractParams, Class<T> elementType) {
         if (CollectionUtils.isNotEmpty(extractParams)) {
             T processor;
             try {
@@ -124,12 +123,11 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
         return CollectionUtils.isEmpty(dataSourceResults) ? null : dataSourceResults.get(0);
     }
 
-    protected AbstractJDBCProcessor getJdbcProcessor(SQLProcessor sqlProcessor, AbstractJDBCProcessor jdbcProcessor, DataSource dataSource) {
+    protected TestElement getJdbcProcessor(SQLProcessor sqlProcessor, TestElement jdbcProcessor, DataSource dataSource) {
         jdbcProcessor.setEnabled(sqlProcessor.getEnable());
         jdbcProcessor.setName(sqlProcessor.getName() == null ? jdbcProcessor.getClass().getSimpleName() : sqlProcessor.getName());
         jdbcProcessor.setProperty(TestElement.TEST_CLASS, jdbcProcessor.getClass().getSimpleName());
         jdbcProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
-        jdbcProcessor.setDataSource(sqlProcessor.getName());
         jdbcProcessor.setProperty("dataSource", dataSource.getDataSource());
         jdbcProcessor.setProperty("query", sqlProcessor.getScript());
         jdbcProcessor.setProperty("queryTimeout", String.valueOf(sqlProcessor.getQueryTimeout()));
