@@ -36,7 +36,7 @@
   const { t } = useI18n();
 
   const emit = defineEmits<{
-    (e: 'change', value: SelectAllEnum): void;
+    (e: 'change', value: SelectAllEnum, onlyCurrent: boolean): void;
   }>();
 
   const props = withDefaults(
@@ -81,20 +81,20 @@
     );
   });
 
-  const handleSelect = (v: SelectAllEnum) => {
+  const handleSelect = (v: SelectAllEnum, onlyCurrent = true) => {
     if (
       (selectAllStatus.value === SelectAllEnum.ALL &&
         v === SelectAllEnum.NONE &&
         props.excludeKeys.length < props.total) ||
-      (selectAllStatus.value === SelectAllEnum.ALL && v === SelectAllEnum.CURRENT)
+      (selectAllStatus.value === SelectAllEnum.ALL && v === SelectAllEnum.CURRENT && !onlyCurrent)
     ) {
       // 如果当前是全选所有页状态，且是取消选中当前页操作，且排除项小于总数，则保持跨页全选状态
-      // 如果当前是全选所有页状态，且是选中当前页操作，则保持跨页全选状态
+      // 如果当前是全选所有页状态，且是选中当前页操作(是点击全选的多选框，非下拉菜单全选当前页)，则保持跨页全选状态
       selectAllStatus.value = SelectAllEnum.ALL;
     } else {
       selectAllStatus.value = v;
     }
-    emit('change', v);
+    emit('change', v, onlyCurrent);
   };
 
   function hasUnselectedChildren(
@@ -113,7 +113,7 @@
   const handleCheckChange = () => {
     if (hasUnselectedChildren(props.currentData, props.selectedKeys, props.rowKey)) {
       // 当前页有数据没有勾选上，此时点击全选按钮代表全部选中
-      handleSelect(SelectAllEnum.CURRENT);
+      handleSelect(SelectAllEnum.CURRENT, false);
     } else {
       // 否则是当前页全部数据已勾选，此时点击全选按钮代表取消当前页面数据勾选
       handleSelect(SelectAllEnum.NONE);

@@ -42,7 +42,7 @@
           <a-form-item :label="t('apiTestManagement.belongModule')">
             <a-tree-select
               v-model:modelValue="importForm.moduleId"
-              :data="props.moduleTree"
+              :data="innerModuleTree"
               class="w-[436px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               :draggable="false"
@@ -248,7 +248,7 @@
           <a-form-item :label="t('apiTestManagement.belongModule')">
             <a-tree-select
               v-model:modelValue="importForm.moduleId"
-              :data="props.moduleTree"
+              :data="innerModuleTree"
               class="w-[500px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
@@ -361,6 +361,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { filterTree, TreeNode } from '@/utils';
 
   import type { ImportApiDefinitionParams, ImportApiDefinitionRequest } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
@@ -381,6 +382,7 @@
   const userStore = useUserStore();
 
   const visible = useVModel(props, 'visible', emit);
+  const innerModuleTree = ref<TreeNode<ModuleTreeNode>[]>([]);
   const importType = ref<'file' | 'time'>('file');
   const platformList = [
     {
@@ -415,6 +417,7 @@
     (val) => {
       if (val) {
         importForm.value.moduleId = props.activeModule !== 'all' ? props.activeModule : '';
+        innerModuleTree.value = filterTree(props.moduleTree, (node) => node.type === 'MODULE');
       }
     },
     {

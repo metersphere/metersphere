@@ -236,17 +236,17 @@
         width: 140,
       },
       {
+        title: 'apiTestManagement.path',
+        dataIndex: 'path',
+        showTooltip: true,
+        width: 200,
+      },
+      {
         title: 'apiTestManagement.apiStatus',
         dataIndex: 'status',
         slotName: 'status',
         titleSlotName: 'statusFilter',
         width: 130,
-      },
-      {
-        title: 'apiTestManagement.path',
-        dataIndex: 'path',
-        showTooltip: true,
-        width: 200,
       },
       {
         title: 'common.tag',

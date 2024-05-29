@@ -419,7 +419,7 @@ export default function useTableProps<T>(
     },
 
     // 表格SelectAll change
-    selectAllChange: (v: SelectAllEnum) => {
+    selectAllChange: (v: SelectAllEnum, onlyCurrent: boolean) => {
       const { data, rowKey } = propsRes.value;
       if (v === SelectAllEnum.NONE) {
         // 清空选中项
@@ -437,10 +437,10 @@ export default function useTableProps<T>(
           v === SelectAllEnum.NONE &&
           propsRes.value.msPagination &&
           propsRes.value.excludeKeys.size < propsRes.value.msPagination.total) ||
-        (propsRes.value.selectorStatus === SelectAllEnum.ALL && v === SelectAllEnum.CURRENT)
+        (propsRes.value.selectorStatus === SelectAllEnum.ALL && v === SelectAllEnum.CURRENT && !onlyCurrent)
       ) {
         // 如果当前是全选所有页状态，且是取消选中当前页操作，且排除项小于总数，则保持跨页全选状态
-        // 如果当前是全选所有页状态，且是选中当前页操作，则保持跨页全选状态
+        // 如果当前是全选所有页状态，且是选中当前页操作(是点击全选的多选框，非下拉菜单全选当前页)，则保持跨页全选状态
         propsRes.value.selectorStatus = SelectAllEnum.ALL;
       } else {
         propsRes.value.selectorStatus = v;

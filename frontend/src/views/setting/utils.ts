@@ -36,7 +36,7 @@ export async function enterProject(projectId: string, organizationId?: string) {
       projectId,
       userId: userStore.id || '',
     });
-    await userStore.checkIsLogin();
+    await userStore.checkIsLogin(true);
     // 跳转到项目页面
     router.replace({
       name: getFirstRouteNameByPermission(router.getRoutes()),

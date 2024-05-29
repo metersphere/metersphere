@@ -345,7 +345,7 @@
     (e: 'pageSizeChange', value: number): void;
     (e: 'rowNameChange', value: TableData, cb: (v: boolean) => void): void;
     (e: 'rowSelectChange', key: string): void;
-    (e: 'selectAllChange', value: SelectAllEnum): void;
+    (e: 'selectAllChange', value: SelectAllEnum, onlyCurrent: boolean): void;
     (e: 'dragChange', value: DragSortParams): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'expand', record: TableData): void | Promise<any>;
@@ -485,8 +485,8 @@
   }
 
   // 全选change事件
-  const handleSelectAllChange = (v: SelectAllEnum) => {
-    emit('selectAllChange', v);
+  const handleSelectAllChange = (v: SelectAllEnum, onlyCurrent: boolean) => {
+    emit('selectAllChange', v, onlyCurrent);
   };
   // 行选择器change事件
   const rowSelectChange = (key: string) => {

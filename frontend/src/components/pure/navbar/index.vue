@@ -228,7 +228,7 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
-      await userStore.checkIsLogin();
+      await userStore.checkIsLogin(true);
       appStore.hideLoading();
       router.replace({
         name: getFirstRouteNameByPermission(router.getRoutes()),

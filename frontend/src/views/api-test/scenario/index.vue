@@ -26,8 +26,10 @@
           @stop-debug="handleStopExecute"
         />
         <a-button
-          v-permission="
-            activeScenarioTab.isNew ? ['PROJECT_API_SCENARIO:READ+ADD'] : ['PROJECT_API_SCENARIO:READ+UPDATE']
+          v-if="
+            activeScenarioTab.isNew
+              ? hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])
+              : hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])
           "
           type="primary"
           :loading="saveLoading"
@@ -132,6 +134,7 @@
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { RequestResult } from '@/models/apiTest/common';
   import {

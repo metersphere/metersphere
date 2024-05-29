@@ -209,11 +209,11 @@ const useUserStore = defineStore('user', {
         console.log(error);
       }
     },
-    async checkIsLogin() {
+    async checkIsLogin(forceSet = false) {
       const { isLoginPage } = useUser();
       const router = useRouter();
       const appStore = useAppStore();
-      const isLogin = await this.isLogin(true);
+      const isLogin = await this.isLogin(forceSet);
       if (isLogin && appStore.currentProjectId !== 'no_such_project') {
         // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
         try {

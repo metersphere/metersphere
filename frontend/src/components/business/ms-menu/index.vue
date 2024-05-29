@@ -147,7 +147,7 @@
           Message.success(t('personal.switchOrgSuccess'));
           personalMenusVisible.value = false;
           orgKeyword.value = '';
-          await userStore.checkIsLogin();
+          await userStore.checkIsLogin(true);
           appStore.hideLoading();
           router.replace({
             name: getFirstRouteNameByPermission(router.getRoutes()),
