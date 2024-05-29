@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS test_plan_api_case;
+
 CREATE TABLE test_plan_api_case(
                                    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                    `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,

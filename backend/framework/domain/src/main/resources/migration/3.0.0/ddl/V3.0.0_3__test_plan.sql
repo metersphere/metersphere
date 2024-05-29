@@ -143,26 +143,6 @@ CREATE TABLE IF NOT EXISTS test_plan_follower
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '测试计划关注人';
 
-CREATE TABLE IF NOT EXISTS test_plan_bug
-(
-    `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
-    `num` BIGINT NOT NULL COMMENT 'num',
-    `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID;测试计划ID',
-    `case_id`      VARCHAR(50) NOT NULL COMMENT '接口用例ID;测试用例ID（包含功能、接口、场景等）',
-    `case_type`    VARCHAR(50) NOT NULL COMMENT '用例类型;用例类型（FUNCTIONAL_CASE/API_TEST_CASE/API_SCENARIO)',
-    `bug_id`       VARCHAR(50) NOT NULL COMMENT '缺陷id;缺陷ID',
-    `create_time`  BIGINT      NOT NULL COMMENT '创建时间',
-    `create_user`  VARCHAR(50) NOT NULL COMMENT '创建人',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关联接口用例';
-
-CREATE INDEX idx_case_id ON test_plan_bug (case_id);
-CREATE INDEX idx_test_plan_id ON test_plan_bug (test_plan_id);
-CREATE INDEX idx_create_user ON test_plan_bug (create_user);
-CREATE INDEX idx_bug_id ON test_plan_bug (bug_id);
-
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
