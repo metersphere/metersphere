@@ -456,7 +456,7 @@ export default function useTableProps<T>(
         propsRes.value.selectorStatus = v;
       }
     },
-
+    // TODO: 待优化逻辑
     // 表格行的选中/取消事件
     rowSelectChange: (record: MsTableDataItem<T>) => {
       const { rowKey } = propsRes.value;
@@ -503,15 +503,12 @@ export default function useTableProps<T>(
         const includeCurrentIds = [key, ...childrenIds];
         // 当前父节点已选中，取消选择父节点和父节点下所有子节点
         if (isSelectAllChildren) {
-          // childrenIds.push(key);
           includeCurrentIds.forEach((id) => {
             selectedKeys.delete(id);
           });
           includeCurrentIds.forEach((id) => {
             excludeKeys.add(id);
           });
-          // selectedKeys.delete(key);
-          // excludeKeys.add(key);
           //  未选中则全选父节点和下边所有子节点
         } else {
           selectedKeys.add(key);
