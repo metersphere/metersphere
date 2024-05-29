@@ -609,7 +609,6 @@ CREATE INDEX idx_name ON api_scenario_csv(name);
 CREATE INDEX idx_file_name ON api_scenario_csv(file_name);
 CREATE INDEX idx_project_id ON api_scenario_csv(project_id);
 
-DROP TABLE IF EXISTS api_scenario_csv_step;
 CREATE TABLE api_scenario_csv_step
 (
     `id`      VARCHAR(50) NOT NULL COMMENT 'id',

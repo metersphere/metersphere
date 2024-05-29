@@ -28,9 +28,6 @@ ALTER TABLE test_resource_pool DROP COLUMN api_test;
 ALTER TABLE test_resource_pool DROP COLUMN load_test;
 ALTER TABLE test_resource_pool DROP COLUMN ui_test;
 
--- drop test_resource_pool column
-DROP TABLE test_plan_bug;
-
 
 CREATE TABLE IF NOT EXISTS test_plan_allocation(
     `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
