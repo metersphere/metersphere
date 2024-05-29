@@ -22,7 +22,7 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 # 密码: metersphere
 ```
 
-你也可以通过 [1Panel 应用商店](https://1panel.cn/) 快速部署 MeterSphere。
+你也可以通过 [1Panel 应用商店](https://1panel.cn/) 快速部署 MeterSphere。如果是内网环境，推荐使用 [离线安装包方式](https://community.fit2cloud.com/#/products/metersphere/downloads) 进行安装部署。
 
 如你有更多问题，可以通过论坛和技术交流群与我们交流。
 
