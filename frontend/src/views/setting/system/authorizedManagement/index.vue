@@ -91,6 +91,7 @@
             :show-sub-text="false"
             :show-file-list="false"
             :auto-upload="false"
+            class="w-full"
           />
           <a-textarea
             v-model="authorizedForm.licenseCode"
