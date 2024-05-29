@@ -8,13 +8,15 @@ import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
+import io.metersphere.sdk.dto.api.result.ProcessResultDTO;
+import io.metersphere.sdk.dto.api.result.TaskResultDTO;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.DateUtils;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
@@ -39,6 +41,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +84,8 @@ public class ApiTaskCenterService {
     TestResourcePoolService testResourcePoolService;
     @Resource
     OperationLogService operationLogService;
+    @Resource
+    private KafkaTemplate<String, String> kafkaTemplate;
     private static final String DEFAULT_SORT = "start_time desc";
     private final static String PROJECT_STOP = "/task/center/api/project/stop";
     private final static String ORG_STOP = "/task/center/api/org/stop";
@@ -136,7 +141,7 @@ public class ApiTaskCenterService {
                 list = extApiReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
                 //执行历史列表
                 List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
-                if (CollectionUtils.isNotEmpty(reportIds)){
+                if (CollectionUtils.isNotEmpty(reportIds)) {
                     List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
                     historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
                 }
@@ -270,22 +275,33 @@ public class ApiTaskCenterService {
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 reportList.removeAll(request.getExcludeIds());
             }
-            SubListUtils.dealForSubList(reportList, 500, (subList) -> {
+            SubListUtils.dealForSubList(reportList, 100, (subList) -> {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
                     TaskRunnerClient.stopApi(endpoint, subList);
                 } catch (Exception e) {
                     LogUtils.error(e);
                 } finally {
+                    TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
+                    TaskResultDTO result = new TaskResultDTO();
+                    result.setRequestResults(List.of());
+                    result.setHasEnded(true);
+                    ProcessResultDTO processResultDTO = new ProcessResultDTO();
+                    processResultDTO.setStatus(ApiReportStatus.STOPPED.name());
+                    result.setProcessResultDTO(processResultDTO);
+                    result.setConsole("任务已终止");
+                    subList.forEach(reportId -> {
+                        taskRequestDTO.setReportId(reportId);
+                        taskRequestDTO.setResourceType(request.getModuleType());
+                        result.setRequest(taskRequestDTO);
+                        kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
+                    });
+
                     if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
-                        extApiReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
-                        extApiReportMapper.updateApiCaseStatus(subList);
                         //记录日志
                         saveLog(subList, userId, path, method, StringUtils.join(module, "_REAL_TIME_API_CASE"), TaskCenterResourceType.API_CASE.toString());
                     } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
-                        extApiScenarioReportMapper.updateReportStatus(subList, System.currentTimeMillis(), userId);
-                        extApiScenarioReportMapper.updateApiScenario(subList);
-                        saveLog(subList, userId, path, method, StringUtils.join(module,"_REAL_TIME_API_SCENARIO"), TaskCenterResourceType.API_SCENARIO.toString());
+                        saveLog(subList, userId, path, method, StringUtils.join(module, "_REAL_TIME_API_SCENARIO"), TaskCenterResourceType.API_SCENARIO.toString());
                     }
                 }
             });
