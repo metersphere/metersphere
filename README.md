@@ -39,8 +39,8 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
     <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/5121e81b-65e3-4ab6-b2be-47c501064195" alt="MeterSphere Demo2" /></td>
   </tr>
   <tr>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/0aacf71b-8057-4180-a5d8-b5997f4e7225" alt="MeterSphere Demo3" /></td>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/e17c6528-2565-4966-80f0-6a27381929df" alt="MeterSphere Demo4" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/34df2cfc-0698-4ab2-b7e0-5022dc5b1eaa" alt="MeterSphere Demo3" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/5c5781aa-ad1b-42e0-b32a-1e08d591d092" alt="MeterSphere Demo4" /></td>
   </tr>
   <tr>
     <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/c6308825-9484-4f84-a725-b88a26cbf35c" alt="MeterSphere Demo5" /></td>
