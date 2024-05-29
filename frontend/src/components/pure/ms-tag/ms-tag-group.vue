@@ -1,14 +1,20 @@
 <template>
-  <a-tooltip :content="tagsTooltip" :position="props.tagPosition" :mouse-enter-delay="300">
-    <div class="flex max-w-[440px] flex-row" @click="emit('click')">
-      <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
-        {{ props.isStringTag ? tag : tag[props.nameKey] }}
+  <div class="flex max-w-[440px] flex-row" @click="emit('click')">
+    <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
+      {{ props.isStringTag ? tag : tag[props.nameKey] }}
+    </MsTag>
+    <a-tooltip
+      v-if="props.tagList.length > props.showNum"
+      :content="tagsTooltip"
+      :position="props.tagPosition"
+      :mouse-enter-delay="300"
+    >
+      <MsTag :width="numberTagWidth" :size="props.size" tooltip-disabled v-bind="attrs">
+        +
+        {{ props.tagList.length - props.showNum }}
       </MsTag>
-      <MsTag v-if="props.tagList.length > props.showNum" :width="numberTagWidth" :size="props.size" v-bind="attrs">
-        +{{ props.tagList.length - props.showNum }}</MsTag
-      >
-    </div>
-  </a-tooltip>
+    </a-tooltip>
+  </div>
 </template>
 
 <script setup lang="ts">
