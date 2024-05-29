@@ -254,8 +254,8 @@
     },
     {
       title: 'report.operating',
-      dataIndex: 'startTime',
-      slotName: 'startTime',
+      dataIndex: 'createTime',
+      slotName: 'createTime',
       width: 180,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -299,7 +299,7 @@
       },
       (item) => ({
         ...item,
-        startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
+        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
       }),
       rename
     );

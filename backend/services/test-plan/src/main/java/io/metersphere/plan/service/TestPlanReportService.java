@@ -375,7 +375,7 @@ public class TestPlanReportService {
 	public TestPlanReportDetailResponse edit(TestPlanReportDetailEditRequest request, String currentUser) {
 		TestPlanReport planReport = checkReport(request.getId());
 		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
-		reportSummary.setSummary(request.getSummary());
+		reportSummary.setSummary(StringUtils.isBlank(request.getSummary()) ? StringUtils.EMPTY : request.getSummary());
 		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
 		example.createCriteria().andTestPlanReportIdEqualTo(planReport.getId());
 		testPlanReportSummaryMapper.updateByExampleSelective(reportSummary, example);
