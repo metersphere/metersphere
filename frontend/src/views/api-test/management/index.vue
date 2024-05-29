@@ -38,7 +38,7 @@
         <div class="relative flex h-full flex-col">
           <div
             id="managementContainer"
-            :class="['absolute z-[101] h-full w-full', importDrawerVisible ? '' : 'invisible']"
+            :class="['absolute z-[102] h-full w-full', importDrawerVisible ? '' : 'invisible']"
             style="transition: all 0.3s"
           >
             <importApi
@@ -105,6 +105,7 @@
   }
 
   function newApi() {
+    importDrawerVisible.value = false;
     managementRef.value?.newTab();
   }
 

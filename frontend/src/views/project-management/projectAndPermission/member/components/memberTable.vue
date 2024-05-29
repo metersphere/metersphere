@@ -135,6 +135,13 @@
   const hasOperationPermission = computed(() => hasAnyPermission(['PROJECT_USER:READ+DELETE']));
   const columns: MsTableColumn = [
     {
+      title: 'system.user.userName',
+      dataIndex: 'email',
+      showTooltip: true,
+      sortIndex: 0,
+      showDrag: false,
+    },
+    {
       title: 'project.member.tableColumnName',
       slotName: 'name',
       dataIndex: 'name',
@@ -146,7 +153,7 @@
       slotName: 'email',
       dataIndex: 'email',
       showTooltip: true,
-      showDrag: true,
+      showDrag: false,
     },
     {
       title: 'project.member.tableColumnPhone',
@@ -166,6 +173,7 @@
       title: 'project.member.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
+      showDrag: true,
       width: 150,
     },
     {

@@ -1,10 +1,10 @@
 export default {
   'login.form.title': '现代化、开源的测试管理和接口测试工具',
-  'login.form.userName.errMsg': '邮箱不能为空',
+  'login.form.userName.errMsg': '用户名不能为空',
   'login.form.password.errMsg': '密码不能为空',
   'login.form.login.errMsg': '登录出错，请刷新重试',
   'login.form.login.success': '欢迎使用',
-  'login.form.userName.placeholder': '请输入邮箱',
+  'login.form.userName.placeholder': '请输入用户名',
   'login.form.userName.placeholderOther': '请输入账号',
   'login.form.password.placeholder': '请输入密码',
   'login.form.rememberPassword': '记住密码',

@@ -3,7 +3,7 @@
     <div class="ms-detail-card-title">
       <div class="flex flex-1 items-center gap-[8px]">
         <a-tooltip :content="t(props.title)">
-          <div class="one-line-text max-w-[300px] flex-1 font-medium text-[var(--color-text-1)]">
+          <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">
             {{ t(props.title) }}
           </div>
         </a-tooltip>

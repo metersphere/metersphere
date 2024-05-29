@@ -346,7 +346,7 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'system.user.tableColumnEmail',
+      title: 'system.user.userName',
       dataIndex: 'email',
       showTooltip: true,
       sortIndex: 0,
@@ -358,25 +358,35 @@
       sortIndex: 1,
     },
     {
+      title: 'system.user.tableColumnEmail',
+      dataIndex: 'email',
+      showTooltip: true,
+      sortIndex: 2,
+    },
+    {
       title: 'system.user.tableColumnPhone',
       dataIndex: 'phone',
+      showDrag: true,
     },
     {
       title: 'system.user.tableColumnOrg',
       dataIndex: 'organizationList',
       isTag: true,
+      showDrag: true,
       width: 300,
     },
     {
       title: 'system.user.tableColumnUserGroup',
       dataIndex: 'userRoleList',
       slotName: 'userGroup',
+      showDrag: true,
       width: 300,
     },
     {
       title: 'system.user.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
+      showDrag: true,
     },
     {
       title: hasOperationSysUserPermission.value ? 'system.user.tableColumnActions' : '',

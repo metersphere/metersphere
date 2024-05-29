@@ -1450,6 +1450,7 @@
           if (requestVModel.value.isNew) {
             // 未保存过的接口保存为用例，先保存接口定义，再保存为用例
             await realSave(definitionParams, true);
+            done(true);
           }
           if (!requestVModel.value.isNew) {
             const params: AddApiCaseParams = {
@@ -1463,7 +1464,6 @@
             };
             await addCase(params);
             emit('addDone');
-            done(true);
             Message.success(t('common.saveSuccess'));
             handleSaveCaseCancel();
             saveCaseLoading.value = false;

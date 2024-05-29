@@ -57,7 +57,7 @@ export const GetMockUrlUrl = '/api/definition/mock/get-url'; // 获取mock url
  * api回收站
  */
 export const RecoverDefinitionUrl = '/api/definition/recover'; // 回收站-接口定义-恢复
-export const DeleteRecycleApiUrl = '/api/definition/delete/'; // 回收站-接口定义-彻底删除
+export const DeleteRecycleApiUrl = '/api/definition/delete'; // 回收站-接口定义-彻底删除
 export const BatchRecoverApiUrl = '/api/definition/batch-recover'; // 回收站-接口定义-批量恢复
 export const BatchCleanOutApiUrl = '/api/definition/batch/delete'; // 回收站-接口定义-批量彻底删除
 export const GetTrashModuleTreeUrl = '/api/definition/module/trash/tree'; // 回收站查找模块

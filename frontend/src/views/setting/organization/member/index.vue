@@ -162,14 +162,10 @@
   );
   const columns: MsTableColumn = [
     {
-      title: 'organization.member.tableColunmEmail',
+      title: 'system.user.userName',
       dataIndex: 'email',
-      width: 200,
-      showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       sortIndex: 0,
-      showDrag: false,
     },
     {
       title: 'organization.member.tableColunmName',
@@ -177,6 +173,17 @@
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
+      showDrag: false,
+      sortIndex: 1,
+    },
+    {
+      title: 'organization.member.tableColunmEmail',
+      dataIndex: 'email',
+      width: 200,
+      showInTable: true,
+      showTooltip: true,
+      ellipsis: true,
+      sortIndex: 2,
       showDrag: false,
     },
     {

@@ -117,4 +117,5 @@ export default {
   'system.user.num': 'Line',
   'system.user.line': '', // 英文没有后面的单位
   'system.user.closeTip': 'Your changes have not been saved. Do you want to continue closing the window?',
+  'system.user.userName': 'Username',
 };
