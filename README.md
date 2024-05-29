@@ -29,25 +29,26 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
 -   技术交流群     
     <image height="150px" width="150px" src="https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png"/>
+    
 
 ## UI 展示
 
 <table style="border-collapse: collapse; border: 1px solid black;">
   <tr>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/7bcdd73e-7010-4468-8510-00b45cd06a50" alt="MeterSphere Demo1" /></td>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/bc06bf43-169e-414a-8a1d-a52888025179" alt="MeterSphere Demo2" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/decee1a8-65d3-41ae-bab4-fdd8364c54ce" alt="MeterSphere Demo1" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/5121e81b-65e3-4ab6-b2be-47c501064195" alt="MeterSphere Demo2" /></td>
   </tr>
   <tr>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/5fd7a3cd-5689-42fa-9efa-b5303a488933" alt="MeterSphere Demo3" /></td>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/ca30824e-3315-4823-ae6f-e7e68c89df34" alt="MeterSphere Demo4" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/0aacf71b-8057-4180-a5d8-b5997f4e7225" alt="MeterSphere Demo3" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/e17c6528-2565-4966-80f0-6a27381929df" alt="MeterSphere Demo4" /></td>
   </tr>
   <tr>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/ad9f5dab-3d60-434c-b335-78ecfe8ec5c4" alt="MeterSphere Demo5" /></td>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/f2523565-228d-4691-890e-eda5add7a46b" alt="MeterSphere Demo6" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/c6308825-9484-4f84-a725-b88a26cbf35c" alt="MeterSphere Demo5" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/d05f9bb7-f814-4f42-889e-e5709d8b7390" alt="MeterSphere Demo6" /></td>
   </tr>
   <tr>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/7c68c936-e411-488e-ac6b-d90533d2f52a" alt="MeterSphere Demo7" /></td>
-    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/maninhill/metersphere/assets/23045261/9d7ba30e-b461-4918-9fb6-d16a650e71be" alt="MeterSphere Demo8" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/d02de0a6-fb30-4169-8aaf-815bcf379214" alt="MeterSphere Demo7" /></td>
+    <td style="padding: 5px;background-color:#fff;"><img src= "https://github.com/metersphere/metersphere/assets/23045261/3753ff34-4783-498d-a0a0-e2605b219d39" alt="MeterSphere Demo8" /></td>
   </tr>
 </table>
 
