@@ -116,4 +116,5 @@ export default {
   'system.user.num': '第',
   'system.user.line': '行',
   'system.user.closeTip': '您的更改尚未保存，是否要继续关闭窗口？',
+  'system.user.userName': '用户名',
 };

@@ -33,13 +33,15 @@
                   :model-value="record.perChecked"
                   @change="(v, e) => handleCellAuthChange(v, rowIndex, record, e)"
                 >
-                  <a-checkbox
-                    v-for="item in record.permissions"
-                    :key="item.id"
-                    :disabled="item.license || systemAdminDisabled || disabled"
-                    :value="item.id"
-                    >{{ t(item.name) }}</a-checkbox
-                  >
+                  <template v-for="item in record.permissions" :key="item.id">
+                    <a-checkbox
+                      v-if="(item.license && licenseStore.hasLicense()) || !item.license"
+                      :disabled="item.license || systemAdminDisabled || disabled"
+                      :value="item.id"
+                    >
+                      {{ t(item.name) }}
+                    </a-checkbox>
+                  </template>
                 </a-checkbox-group>
                 <a-checkbox
                   class="mr-[7px]"
@@ -77,6 +79,7 @@
     saveOrgUSetting,
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   import {
     type AuthScopeType,
@@ -121,6 +124,9 @@
       },
     }
   );
+
+  const licenseStore = useLicenseStore();
+
   const systemType = inject<AuthScopeEnum>('systemType');
 
   const loading = ref(false);
