@@ -1,7 +1,7 @@
 <template>
   <div class="resContent">
     <!-- 展开折叠列表 -->
-    <div class="tiledList">
+    <div v-if="props.requestResult?.responseResult.responseCode" class="tiledList">
       <div v-for="item of props.menuList" :key="item.value" class="menu-list-wrapper">
         <div v-if="isShowContent(item.value)" class="menu-list">
           <div class="flex items-center">
@@ -52,6 +52,14 @@
         <a-divider v-if="isShowContent(item.value)" type="dashed" :margin="0"></a-divider>
       </div>
     </div>
+    <a-empty v-else class="flex h-[150px] items-center gap-[16px] p-[16px]">
+      <template #image>
+        <img :src="noDataSvg" class="!h-[60px] w-[78px]" />
+      </template>
+      <div class="flex items-center">
+        {{ t('report.detail.api.noResponseContent') }}
+      </div>
+    </a-empty>
   </div>
 </template>
 
@@ -83,6 +91,7 @@
     reportId?: string;
   }>();
 
+  const noDataSvg = `${import.meta.env.BASE_URL}images/noResponse.svg`;
   const expandIds = ref<string[]>([]);
   function changeExpand(value: string) {
     const isExpand = expandIds.value.indexOf(value) > -1;
@@ -121,7 +130,7 @@
       case ResponseComposition.REAL_REQUEST:
         return showRealRequest.value;
       case ResponseComposition.CONSOLE:
-        return props?.console?.trim();
+        return props?.console?.trim() && props.requestResult?.responseResult.responseCode;
       case ResponseComposition.EXTRACT:
         return showExtract.value;
       case ResponseComposition.ASSERTION:

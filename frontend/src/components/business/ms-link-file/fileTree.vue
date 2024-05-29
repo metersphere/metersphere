@@ -1,11 +1,4 @@
 <template>
-  <a-input
-    v-model:model-value="moduleKeyword"
-    :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
-    allow-clear
-    :max-length="255"
-    class="mb-[16px]"
-  ></a-input>
   <a-spin class="min-h-[400px] w-full" :loading="loading">
     <MsTree
       v-model:focus-node-key="focusNodeKey"
@@ -41,6 +34,7 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
@@ -63,14 +57,20 @@
     showType?: string; // 显示类型
     getTreeRequest: (params: any) => Promise<ModuleTreeNode[]>; // 获取模块树接口
     activeFolder: string | number;
+    groupKeyword: string; // 搜索关键字
   }>();
 
-  const emit = defineEmits(['update:selectedKeys', 'init', 'folderNodeSelect', 'update:activeFolder']);
+  const emit = defineEmits([
+    'update:selectedKeys',
+    'init',
+    'folderNodeSelect',
+    'update:activeFolder',
+    'update:groupKeyword',
+  ]);
 
-  const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
-
+  const moduleKeyword = useVModel(props, 'groupKeyword', emit);
   const loading = ref(false);
 
   const virtualListProps = computed(() => {
