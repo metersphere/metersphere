@@ -218,7 +218,7 @@
             otherConfig: apiDetailInfo.value.otherConfig ?? apiDetailInfo.value.request.otherConfig,
             url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
           }
-        : {}),
+        : apiDetailInfo.value),
       children: apiDetailInfo.value.children ?? apiDetailInfo.value.request.children,
     };
     // 复制
