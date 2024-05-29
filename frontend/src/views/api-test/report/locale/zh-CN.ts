@@ -66,4 +66,5 @@ export default {
   'report.detail.api.defaultEnv': '默认环境',
   'report.detail.api.caseSaveEnv': '用例保存的环境',
   'report.detail.api.scenarioSavedEnv': '场景保存的环境',
+  'report.detail.api.noResponseContent': '暂无响应内容',
 };

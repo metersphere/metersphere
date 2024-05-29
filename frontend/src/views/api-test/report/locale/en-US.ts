@@ -67,4 +67,5 @@ export default {
   'report.detail.api.defaultEnv': 'Default environment',
   'report.detail.api.caseSaveEnv': 'Case saved environment',
   'report.detail.api.scenarioSavedEnv': 'Scenario saved environment',
+  'report.detail.api.noResponseContent': 'There is no response',
 };

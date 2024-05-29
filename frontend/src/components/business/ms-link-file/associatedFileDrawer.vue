@@ -20,26 +20,36 @@
               <div class="folder-name">{{ t('project.fileManagement.allFile') }}</div>
               <div class="folder-count">({{ allFileCount }})</div>
             </div>
-            <div class="ml-auto flex items-center">
-              <a-tooltip
-                :content="isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')"
-              >
-                <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
-                  <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-                </MsButton>
-              </a-tooltip>
-            </div>
           </div>
           <a-divider class="my-[8px]" />
           <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
             <a-radio value="Module">{{ t('project.fileManagement.module') }}</a-radio>
             <a-radio value="Storage">{{ t('project.fileManagement.storage') }}</a-radio>
           </a-radio-group>
+          <div class="mb-[8px] flex items-center gap-[8px]">
+            <a-input
+              v-model:model-value="moduleKeyword"
+              :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
+              allow-clear
+              :max-length="255"
+            ></a-input>
+            <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('apiScenario.expandAllStep')">
+              <a-button
+                type="outline"
+                class="expand-btn arco-btn-outline--secondary"
+                @click="() => (isExpandAll = !isExpandAll)"
+              >
+                <MsIcon v-if="isExpandAll" type="icon-icon_comment_collapse_text_input" />
+                <MsIcon v-else type="icon-icon_comment_expand_text_input" />
+              </a-button>
+            </a-tooltip>
+          </div>
           <div v-show="showType === 'Module'">
             <FileTree
               ref="folderTreeRef"
               v-model:selected-keys="selectedKeys"
               v-model:active-folder="activeFolder"
+              v-model:group-keyword="moduleKeyword"
               :is-expand-all="isExpandAll"
               :modules-count="modulesCount"
               :show-type="showType"
@@ -83,6 +93,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -129,7 +140,7 @@
   }
 
   const activeFolderType = ref<'folder' | 'module' | 'storage'>('module');
-
+  const moduleKeyword = ref<string>('');
   const selectedKeys = computed({
     get: () => [activeFolder.value],
     set: (val) => val,
@@ -294,5 +305,19 @@
   }
   :deep(.arco-drawer-body) {
     padding: 0 16px !important;
+  }
+  // TODO 这个后边可以提取一个全局样式
+  .expand-btn {
+    padding: 8px;
+    .arco-icon {
+      color: var(--color-text-4);
+    }
+    &:hover {
+      border-color: rgb(var(--primary-5)) !important;
+      background-color: rgb(var(--primary-1)) !important;
+      .arco-icon {
+        color: rgb(var(--primary-5));
+      }
+    }
   }
 </style>

@@ -50,20 +50,32 @@
             <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
           </a-select>
         </div>
-        <a-input
-          v-model:model-value="moduleKeyword"
-          :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
-          allow-clear
-          class="mb-[16px]"
-          :max-length="255"
-        />
+        <div class="mb-[8px] flex items-center gap-[8px]">
+          <a-input
+            v-model:model-value="moduleKeyword"
+            :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
+            allow-clear
+            :max-length="255"
+          />
+          <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('apiScenario.expandAllStep')">
+            <a-button
+              type="outline"
+              class="expand-btn arco-btn-outline--secondary"
+              @click="() => (isExpandAll = !isExpandAll)"
+            >
+              <MsIcon v-if="isExpandAll" type="icon-icon_comment_collapse_text_input" />
+              <MsIcon v-else type="icon-icon_comment_expand_text_input" />
+            </a-button>
+          </a-tooltip>
+        </div>
+
         <div class="folder">
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
             <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
             <div class="folder-count">({{ modulesCount.total || modulesCount.all || 0 }})</div>
           </div>
-          <div class="ml-auto flex items-center">
+          <!-- <div class="ml-auto flex items-center">
             <a-tooltip
               :content="isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')"
             >
@@ -71,7 +83,7 @@
                 <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
               </MsButton>
             </a-tooltip>
-          </div>
+          </div> -->
         </div>
         <a-divider class="my-[8px]" />
         <a-spin class="w-full" :loading="moduleLoading">
@@ -869,5 +881,18 @@
     margin: auto -16px -16px;
     padding: 12px 16px;
     box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%);
+  }
+  .expand-btn {
+    padding: 8px;
+    .arco-icon {
+      color: var(--color-text-4);
+    }
+    &:hover {
+      border-color: rgb(var(--primary-5)) !important;
+      background-color: rgb(var(--primary-1)) !important;
+      .arco-icon {
+        color: rgb(var(--primary-5));
+      }
+    }
   }
 </style>
