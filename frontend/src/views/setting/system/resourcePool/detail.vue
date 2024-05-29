@@ -157,11 +157,7 @@
         </a-radio-group>
       </a-form-item>
       <template v-if="isShowNodeResources">
-        <a-form-item
-          field="addType"
-          class="form-item"
-          :content-class="licenseStore.hasLicense() ? `min-h-[16px] mb-0` : ''"
-        >
+        <a-form-item field="addType" :class="`${licenseStore.hasLicense() ? '' : 'has-license-class'} form-item`">
           <template #label>
             <div class="flex items-center">
               {{ t('system.resourcePool.addResource') }}
@@ -198,7 +194,7 @@
               </a-radio-group>
             </div>
           </a-popconfirm>
-          <a-radio-group v-model:model-value="form.addType" v-xpack type="button" @change="handleTypeChange">
+          <a-radio-group v-else v-model:model-value="form.addType" v-xpack type="button" @change="handleTypeChange">
             <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
             <a-radio v-xpack value="multiple">
               <a-tooltip :content="t('system.resourcePool.changeAddTypeTip')" position="tl" mini
@@ -883,6 +879,18 @@
     }
     .arco-form-item-label-col {
       @apply mb-0;
+    }
+  }
+  .has-license-class {
+    @apply mb-2;
+    :deep(.arco-form-item-content-wrapper) {
+      min-height: 0;
+    }
+    :deep(.arco-form-item-wrapper-col) {
+      min-height: 0;
+    }
+    :deep(.arco-form-item-content) {
+      min-height: 0;
     }
   }
 </style>
