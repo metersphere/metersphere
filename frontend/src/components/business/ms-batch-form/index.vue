@@ -66,17 +66,27 @@
                 allow-clear
                 @change="emit('change')"
               />
-              <a-input-number
-                v-else-if="model.type === 'inputNumber'"
-                v-model:model-value="element[model.filed]"
-                class="flex-1"
-                :placeholder="t(model.placeholder || '')"
-                :min="model.min"
-                :max="model.max || 9999999"
-                model-event="input"
-                allow-clear
-                @change="emit('change')"
-              />
+              <a-tooltip v-else-if="model.type === 'inputNumber'" position="tl" mini :disabled="!model.tooltip">
+                <a-input-number
+                  v-if="model.type === 'inputNumber'"
+                  v-model:model-value="element[model.filed]"
+                  class="flex-1"
+                  :placeholder="t(model.placeholder || '')"
+                  :min="model.min"
+                  :max="model.max || 9999999"
+                  model-event="input"
+                  allow-clear
+                  @change="emit('change')"
+                />
+                <template #content>
+                  <div>
+                    {{ model?.tooltip }}
+                    <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
+                      {{ t('system.authorized.applyTrial') }}
+                    </span>
+                  </div>
+                </template>
+              </a-tooltip>
               <MsTagsInput
                 v-else-if="model.type === 'tagInput'"
                 v-model:model-value="element[model.filed]"
@@ -163,12 +173,22 @@
         </VueDraggable>
       </a-scrollbar>
       <div v-if="props.formMode === 'create' && !props.hideAdd" class="w-full">
-        <a-button class="px-0" type="text" @click="addField">
-          <template #icon>
-            <icon-plus class="text-[14px]" />
+        <a-tooltip position="tl" mini :disabled="!props.addToolTip">
+          <a-button class="px-0" type="text" @click="addField">
+            <template #icon>
+              <icon-plus class="text-[14px]" />
+            </template>
+            {{ t(props.addText) }}
+          </a-button>
+          <template #content>
+            <div>
+              {{ props.addToolTip }}
+              <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
+                {{ t('system.authorized.applyTrial') }}
+              </span>
+            </div>
           </template>
-          {{ t(props.addText) }}
-        </a-button>
+        </a-tooltip>
       </div>
     </div>
   </a-form>
@@ -200,6 +220,7 @@
       formWidth?: string; // 自定义表单区域宽度
       showEnable?: boolean; // 是否显示启用禁用switch状态
       hideAdd?: boolean; // 是否隐藏添加按钮
+      addToolTip?: string;
     }>(),
     {
       maxHeight: '30vh',
@@ -316,6 +337,10 @@
 
   function setFields(data: Record<string, FieldData>) {
     formRef.value?.setFields(data);
+  }
+
+  function goTry() {
+    window.open('https://jinshuju.net/f/CzzAOe', '_blank');
   }
 
   defineExpose({

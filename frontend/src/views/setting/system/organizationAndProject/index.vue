@@ -1,5 +1,6 @@
 <template>
   <MsCard simple>
+    <MsTrialAlert :tip-content="t('system.authorized.orgAndProTipContent')" />
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
@@ -48,6 +49,7 @@
   import { nextTick, onBeforeMount, ref, watch } from 'vue';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsTrialAlert from '@/components/business/ms-trial-alert/index.vue';
   import AddOrganizationModal from './components/addOrganizationModal.vue';
   import AddProjectModal from './components/addProjectModal.vue';
   import SystemOrganization from './components/systemOrganization.vue';

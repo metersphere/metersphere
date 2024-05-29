@@ -157,17 +157,19 @@
         </a-radio-group>
       </a-form-item>
       <template v-if="isShowNodeResources">
-        <a-form-item field="addType" class="form-item">
+        <a-form-item
+          field="addType"
+          class="form-item"
+          :content-class="licenseStore.hasLicense() ? `min-h-[16px] mb-0` : ''"
+        >
           <template #label>
             <div class="flex items-center">
               {{ t('system.resourcePool.addResource') }}
-              <a-tooltip :content="t('system.resourcePool.changeAddTypeTip')" position="tl" mini>
-                <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
-              </a-tooltip>
             </div>
           </template>
           <a-popconfirm
             v-if="!getIsVisited()"
+            v-xpack
             class="ms-pop-confirm--hidden-cancel"
             position="bl"
             popup-container="#typeRadioGroupRef"
@@ -185,16 +187,26 @@
                 {{ t('system.resourcePool.changeAddTypeTip') }}
               </div>
             </template>
-            <div id="typeRadioGroupRef" class="relative">
+            <div id="typeRadioGroupRef" v-xpack class="relative">
               <a-radio-group v-model:model-value="form.addType" type="button" @change="handleTypeChange">
                 <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
-                <a-radio v-xpack value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
+                <a-radio v-xpack value="multiple">
+                  <a-tooltip :content="t('system.resourcePool.changeAddTypeTip')" position="tl" mini
+                    ><div>{{ t('system.resourcePool.batchAdd') }}</div></a-tooltip
+                  ></a-radio
+                >
               </a-radio-group>
             </div>
           </a-popconfirm>
-          <a-radio-group v-else v-model:model-value="form.addType" type="button" @change="handleTypeChange">
+          <a-radio-group v-model:model-value="form.addType" v-xpack type="button" @change="handleTypeChange">
             <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
-            <a-radio v-xpack value="multiple">{{ t('system.resourcePool.batchAdd') }}</a-radio>
+            <a-radio v-xpack value="multiple">
+              <a-tooltip :content="t('system.resourcePool.changeAddTypeTip')" position="tl" mini
+                ><span>
+                  {{ t('system.resourcePool.batchAdd') }}
+                </span></a-tooltip
+              ></a-radio
+            >
           </a-radio-group>
         </a-form-item>
         <MsBatchForm
@@ -206,6 +218,7 @@
           :default-vals="defaultVals"
           :hide-add="!isXpack"
           max-height="250px"
+          :add-tool-tip="licenseStore.hasLicense() ? '' : t('system.resourcePool.supportMultiResource')"
           @change="() => setIsSave(false)"
         ></MsBatchForm>
         <!-- TODO:代码编辑器懒加载 -->
@@ -595,6 +608,7 @@
       placeholder: 'system.resourcePool.concurrentNumberPlaceholder',
       min: 1,
       max: maxConcurrentNumber.value,
+      tooltip: licenseStore.hasLicense() ? '' : t('system.resourcePool.concurrentNumberMinToolTip'),
     },
   ]);
 

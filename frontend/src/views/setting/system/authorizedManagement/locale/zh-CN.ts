@@ -18,4 +18,7 @@ export default {
   'system.authorized.LicenseExpirationPromptLessThanThirty':
     '系统授权剩余 {day} 天到期，为了不影响您的使用，请尽快联系工作人员',
   'system.authorized.LicenseExpirationPromptGreaterThanThirty': '系统授权已过期，如需帮助，请联系工作人员',
+  'system.authorized.resourcePoolTipContent': '社区版仅支持 1 个资源池，如需添加更多资源池，可申请',
+  'system.authorized.orgAndProTipContent': '社区版仅支持 1 个组织，如需添加更多组织，可申请',
+  'system.authorized.applyTrial': '企业版试用',
 };
