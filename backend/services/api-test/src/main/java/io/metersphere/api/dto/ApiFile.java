@@ -1,6 +1,5 @@
 package io.metersphere.api.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,12 +12,10 @@ public class ApiFile {
      * 记录文件的ID，防止重名
      * 生成脚本时，通过 fileId + fileName(文件名) 获取文件路径
      */
-    @NotBlank
     private String fileId;
     /**
      * 文件名
      */
-    @NotBlank
     private String fileName;
     /**
      * 是否是本地上传的文件
