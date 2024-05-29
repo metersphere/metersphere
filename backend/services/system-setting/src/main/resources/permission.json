@@ -84,7 +84,8 @@
             "id": "SYSTEM_TEST_RESOURCE_POOL:READ"
           },
           {
-            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+ADD"
+            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+ADD",
+            "license": true
           },
           {
             "id": "SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE"
@@ -126,27 +127,33 @@
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_DISPLAY:READ",
-            "name": "permission.system_parameter_setting_display.read"
+            "name": "permission.system_parameter_setting_display.read",
+            "license": true
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE",
-            "name": "permission.system_parameter_setting_display.update"
+            "name": "permission.system_parameter_setting_display.update",
+            "license": true
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ",
-            "name": "permission.system_parameter_setting_auth.read"
+            "name": "permission.system_parameter_setting_auth.read",
+            "license": true
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+ADD",
-            "name": "permission.system_parameter_setting_auth.add"
+            "name": "permission.system_parameter_setting_auth.add",
+            "license": true
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE",
-            "name": "permission.system_parameter_setting_auth.update"
+            "name": "permission.system_parameter_setting_auth.update",
+            "license": true
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE",
-            "name": "permission.system_parameter_setting_auth.delete"
+            "name": "permission.system_parameter_setting_auth.delete",
+            "license": true
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ",
@@ -168,7 +175,8 @@
           {
             "id": "SYSTEM_AUTH:READ+UPDATE"
           }
-        ]
+        ],
+        "license": true
       },
       {
         "id": "SYSTEM_LOG",
