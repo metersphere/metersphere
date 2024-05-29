@@ -2,11 +2,8 @@ package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
 import io.metersphere.api.dto.definition.request.ApiScheduleRequest;
-import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
@@ -29,7 +26,6 @@ public class ApiDefinitionScheduleController {
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-定时同步-创建")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.scheduleLog(#request)", msClass = ApiDefinitionLogService.class)
     public String createSchedule(@RequestBody @Validated({Created.class}) ApiScheduleRequest request) {
         return apiDefinitionScheduleService.createSchedule(request, SessionUtils.getUserId());
     }
