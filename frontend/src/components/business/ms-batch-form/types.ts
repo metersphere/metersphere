@@ -25,4 +25,5 @@ export interface FormItemModel {
   className?: string; // 自定义样式
   defaultValue?: string | string[] | number | number[] | boolean; // 默认值
   hasRedStar?: boolean; // 是否有红星
+  tooltip?: string;
 }

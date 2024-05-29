@@ -1,5 +1,6 @@
 <template>
   <MsCard :loading="loading" simple>
+    <MsTrialAlert :tip-content="t('system.authorized.resourcePoolTipContent')" />
     <div class="mb-4 flex items-center justify-between">
       <a-button v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+ADD']" v-xpack type="primary" @click="addPool">
         {{ t('system.resourcePool.createPool') }}
@@ -89,6 +90,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTrialAlert from '@/components/business/ms-trial-alert/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
   import { delPoolInfo, getPoolInfo, getPoolList, togglePoolStatus } from '@/api/modules/setting/resourcePool';
