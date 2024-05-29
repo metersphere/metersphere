@@ -210,8 +210,9 @@ public class FunctionalCaseDemandService {
      * @param id 需求关系ID
      */
     public void deleteDemand(String id) {
+        FunctionalCaseDemand functionalCaseDemandInDb= functionalCaseDemandMapper.selectByPrimaryKey(id);
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        functionalCaseDemandExample.createCriteria().andParentEqualTo(id);
+        functionalCaseDemandExample.createCriteria().andParentEqualTo(functionalCaseDemandInDb.getDemandId());
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         if (CollectionUtils.isNotEmpty(functionalCaseDemands)) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
