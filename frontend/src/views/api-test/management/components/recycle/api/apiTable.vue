@@ -221,18 +221,18 @@
       showDrag: true,
     },
     {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'apiTestManagement.apiStatus',
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
       width: 130,
-      showDrag: true,
-    },
-    {
-      title: 'apiTestManagement.path',
-      dataIndex: 'path',
-      showTooltip: true,
-      width: 200,
       showDrag: true,
     },
     {

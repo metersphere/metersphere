@@ -395,6 +395,13 @@
       },
     },
     {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'apiTestManagement.apiStatus',
       dataIndex: 'status',
       slotName: 'status',
@@ -403,13 +410,6 @@
         filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_API_STATUS,
       },
       width: 130,
-      showDrag: true,
-    },
-    {
-      title: 'apiTestManagement.path',
-      dataIndex: 'path',
-      showTooltip: true,
-      width: 200,
       showDrag: true,
     },
     {

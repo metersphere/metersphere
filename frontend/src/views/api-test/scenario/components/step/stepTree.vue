@@ -878,6 +878,7 @@
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
     if (id && realStep) {
       realStep.csvIds = realStep.csvIds.filter((item: string) => item !== id);
+      scenario.value.unSaved = true;
     }
   }
 

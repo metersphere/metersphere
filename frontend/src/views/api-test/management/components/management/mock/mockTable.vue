@@ -225,7 +225,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { operationWidth } from '@/utils';
+  import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
@@ -441,7 +441,7 @@
    * 删除接口
    */
   function removeMock(record?: ApiDefinitionMockDetail, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('apiTestManagement.confirmDelete', { name: record?.name });
+    let title = t('apiTestManagement.confirmDelete', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('mockManagement.batchDeleteMockTip', {
