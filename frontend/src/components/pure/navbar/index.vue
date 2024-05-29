@@ -101,7 +101,7 @@
           </a-tooltip>
           <template #content>
             <a-doption v-if="appStore.pageConfig.helpDoc" value="doc">
-              <component :is="IconQuestionCircle"></component>
+              <MsIcon type="icon-icon-maybe_outlined" />
               {{ t('settings.help.doc') }}
             </a-doption>
             <a-popover position="left">
@@ -119,6 +119,18 @@
                 </div>
               </template>
             </a-popover>
+            <a-doption value="forumHelp">
+              <MsIcon type="icon-icon_forum" />
+              {{ t('settings.help.forumHelp') }}
+            </a-doption>
+            <a-doption value="github">
+              <MsIcon type="icon-icon_github" />
+              {{ t('settings.help.gitHubProject') }}
+            </a-doption>
+            <a-doption value="enterprise">
+              <MsIcon type="icon-icon_vip" />
+              {{ t('settings.help.enterpriseVersionTrial') }}
+            </a-doption>
           </template>
         </a-dropdown>
       </li>
@@ -169,7 +181,7 @@
   import useUserStore from '@/store/modules/user';
   import { getFirstRouteNameByPermission } from '@/utils/permission';
 
-  import { IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
+  import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -265,8 +277,21 @@
   }
 
   function handleHelpSelect(val: string | number | Record<string, any> | undefined) {
-    if (val === 'doc') {
-      window.open(appStore.pageConfig.helpDoc, '_blank');
+    switch (val) {
+      case 'doc':
+        window.open(appStore.pageConfig.helpDoc, '_blank');
+        break;
+      case 'forumHelp':
+        window.open('https://bbs.fit2cloud.com/c/ms/8', '_blank');
+        break;
+      case 'github':
+        window.open('https://github.com/metersphere/metersphere', '_blank');
+        break;
+      case 'enterprise':
+        window.open('https://jinshuju.net/f/CzzAOe', '_blank');
+        break;
+      default:
+        break;
     }
   }
 
