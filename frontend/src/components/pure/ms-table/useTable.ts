@@ -366,8 +366,6 @@ export default function useTableProps<T>(
     propsRes.value.filter = cloneDeep(filterItem.value);
   };
 
-  const setChildren = () => {};
-
   // 事件触发组
   const propsEvent = ref({
     // 排序触发
