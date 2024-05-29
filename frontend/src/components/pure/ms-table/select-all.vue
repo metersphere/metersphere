@@ -63,7 +63,7 @@
 
   // 获取数据第一层级的ids，用来判断全选或者半选
   const firstLevelAllIds = computed(() => {
-    if (isHasChildren) {
+    if (isHasChildren.value) {
       return props.currentData.map((item) => item[props.rowKey]);
     }
     return [];
