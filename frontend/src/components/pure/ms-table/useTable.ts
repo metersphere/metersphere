@@ -19,6 +19,7 @@ import type {
   MsTableProps,
   SetPaginationPrams,
 } from './type';
+import { getCurrentRecordChildrenIds } from './utils';
 import type { TableData } from '@arco-design/web-vue';
 
 export interface Pagination {
@@ -295,6 +296,22 @@ export default function useTableProps<T>(
       propsRes.value.msPagination.pageSize = appStore.pageSize;
     }
   };
+  // 非全选级取消包含或者不包含子级别
+  const processChildren = (data: MsTableDataItem<T>[], rowKey: string) => {
+    data.forEach((item: MsTableDataItem<T>) => {
+      propsRes.value.selectedKeys.delete(item[rowKey]);
+
+      if (propsRes.value.selectorStatus === SelectAllEnum.ALL) {
+        propsRes.value.excludeKeys.add(item[rowKey]);
+      } else {
+        propsRes.value.excludeKeys.delete(item[rowKey]);
+      }
+
+      if (item.children && item.children.length > 0) {
+        processChildren(item.children as MsTableDataItem<T>[], rowKey);
+      }
+    });
+  };
 
   // 重置选择器
   const resetSelector = (isNone = true) => {
@@ -306,14 +323,7 @@ export default function useTableProps<T>(
       propsRes.value.excludeKeys.clear();
     } else {
       // 取消当前页的选中项
-      propsRes.value.data.forEach((item) => {
-        propsRes.value.selectedKeys.delete(item[rowKey]);
-        if (propsRes.value.selectorStatus === SelectAllEnum.ALL) {
-          propsRes.value.excludeKeys.add(item[rowKey]);
-        } else {
-          propsRes.value.excludeKeys.delete(item[rowKey]);
-        }
-      });
+      processChildren(propsRes.value.data as MsTableDataItem<T>[], rowKey);
     }
   };
 
@@ -355,6 +365,8 @@ export default function useTableProps<T>(
     filterItem.value = {};
     propsRes.value.filter = cloneDeep(filterItem.value);
   };
+
+  const setChildren = () => {};
 
   // 事件触发组
   const propsEvent = ref({
@@ -448,17 +460,70 @@ export default function useTableProps<T>(
     },
 
     // 表格行的选中/取消事件
-    rowSelectChange: (key: string) => {
-      const { selectedKeys, excludeKeys } = propsRes.value;
-      if (selectedKeys.has(key)) {
-        // 当前已选中，取消选中
-        selectedKeys.delete(key);
-        excludeKeys.add(key);
-      } else {
-        // 当前未选中，选中
-        selectedKeys.add(key);
-        if (excludeKeys.has(key)) {
-          excludeKeys.delete(key);
+    rowSelectChange: (record: MsTableDataItem<T>) => {
+      const { rowKey } = propsRes.value;
+      const key = record[rowKey || 'id'];
+      const { selectedKeys, excludeKeys, data } = propsRes.value;
+      // 是否包含子级
+      const isHasChildrenData = data.some((item) => item.children);
+      let isSelectChildren;
+      let currentALlParentChildrenIds: string[] = [];
+      // @desc: 如果存在子级获取当前同一级别所有的ids用来判断是否子级全部选择将父节点id也添加进来
+      if (isHasChildrenData) {
+        const parentItemChildren: any = data.find((item) => item[rowKey] === record.parent)?.children || [];
+        currentALlParentChildrenIds = getCurrentRecordChildrenIds(parentItemChildren, rowKey || 'id');
+      }
+      // 非子级
+      if (!record.children) {
+        if (selectedKeys.has(key)) {
+          // 当前已选中，取消选中
+          selectedKeys.delete(key);
+          excludeKeys.add(key);
+          // @desc: 只要取消一个子级则取消他的父节点选择
+          if (record.parent) {
+            selectedKeys.delete(record.parent);
+            excludeKeys.add(record.parent);
+          }
+        } else {
+          // 当前未选中，选中
+          selectedKeys.add(key);
+          if (excludeKeys.has(key)) {
+            excludeKeys.delete(key);
+          }
+          // @desc: 判断当前子级是否已经全选,全选则将上层父级也选择
+          isSelectChildren = currentALlParentChildrenIds.every((id) => selectedKeys.has(id));
+          if (isSelectChildren && record.parent) {
+            selectedKeys.add(record.parent);
+            excludeKeys.delete(record.parent);
+          }
+        }
+
+        // 包含子级
+      } else if (record.children) {
+        const childrenIds = getCurrentRecordChildrenIds(record.children, rowKey || 'id');
+        const isSelectAllChildren = childrenIds.every((id) => selectedKeys.has(id));
+        const includeCurrentIds = [key, ...childrenIds];
+        // 当前父节点已选中，取消选择父节点和父节点下所有子节点
+        if (isSelectAllChildren) {
+          // childrenIds.push(key);
+          includeCurrentIds.forEach((id) => {
+            selectedKeys.delete(id);
+          });
+          includeCurrentIds.forEach((id) => {
+            excludeKeys.add(id);
+          });
+          // selectedKeys.delete(key);
+          // excludeKeys.add(key);
+          //  未选中则全选父节点和下边所有子节点
+        } else {
+          selectedKeys.add(key);
+          collectIds(record.children, rowKey);
+          childrenIds.forEach((id) => {
+            excludeKeys.delete(id);
+          });
+          if (excludeKeys.has(key)) {
+            excludeKeys.delete(key);
+          }
         }
       }
       if (selectedKeys.size === 0 && propsRes.value.selectorStatus === SelectAllEnum.CURRENT) {

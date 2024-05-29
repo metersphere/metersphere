@@ -58,14 +58,30 @@
     }
   );
 
+  // 是否具备子级children
+  const isHasChildren = computed(() => props.currentData.some((item) => item.children));
+
+  // 获取数据第一层级的ids，用来判断全选或者半选
+  const firstLevelAllIds = computed(() => {
+    if (isHasChildren) {
+      return props.currentData.map((item) => item[props.rowKey]);
+    }
+    return [];
+  });
+
   const selectAllStatus = ref<SelectAllEnum>(SelectAllEnum.NONE);
   const checked = computed({
     get: () => {
       // 如果是选中所有页则是全选状态（选中所有页分两种情况：一是直接通过下拉选项选中所有页；二是当前已选的数量等于表格总数）
-      return (
-        (props.selectedKeys.size > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
-        (props.selectedKeys.size > 0 && props.selectedKeys.size === props.total)
-      );
+      // 非子级全选条件
+      if (!isHasChildren.value) {
+        return (
+          (props.selectedKeys.size > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
+          (props.selectedKeys.size > 0 && props.selectedKeys.size === props.total)
+        );
+      }
+      // 含有子级 children全选条件
+      return firstLevelAllIds.value.every((item) => props.selectedKeys.has(item));
     },
     set: (value) => {
       return value;
@@ -73,12 +89,23 @@
   });
   const indeterminate = computed(() => {
     // 有无勾选的 key且是全选所有页，或非全选所有页且已选中的数量大于 0 且小于总数时是半选状态
-    return (
-      (props.excludeKeys.length > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
-      (selectAllStatus.value !== SelectAllEnum.ALL &&
-        props.selectedKeys.size > 0 &&
-        props.selectedKeys.size < props.total)
-    );
+    // 非子级半选条件
+    if (!isHasChildren.value) {
+      return (
+        (props.excludeKeys.length > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
+        (selectAllStatus.value !== SelectAllEnum.ALL &&
+          props.selectedKeys.size > 0 &&
+          props.selectedKeys.size < props.total)
+      );
+    }
+    // 包含子级半选条件
+    const isSomeSelected = firstLevelAllIds.value.some((key) => props.selectedKeys.has(key));
+    const isEverySelected = firstLevelAllIds.value.every((key) => props.selectedKeys.has(key));
+
+    if (isSomeSelected && !isEverySelected) {
+      return true;
+    }
+    return false;
   });
 
   const handleSelect = (v: SelectAllEnum, onlyCurrent = true) => {

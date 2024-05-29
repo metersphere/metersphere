@@ -44,9 +44,10 @@
           <template #cell="{ record }">
             <MsCheckbox
               v-if="attrs.selectorType === 'checkbox'"
-              :value="props.selectedKeys.has(record[rowKey || 'id'])"
+              :value="getChecked(record)"
+              :indeterminate="getIndeterminate(record)"
               @click.stop
-              @change="rowSelectChange(record[rowKey || 'id'])"
+              @change="rowSelectChange(record)"
             />
             <a-radio
               v-else-if="attrs.selectorType === 'radio'"
@@ -221,9 +222,16 @@
         </div>
       </template>
       <template #expand-icon="{ expanded, record }">
-        <slot name="expand-icon" v-bind="{ expanded, record }">
-          <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
-          <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
+        <!-- @desc: 这里为了树级别展开折叠如果子级别children不存在不展示展开折叠，所以原本组件的隐藏掉，改成自定义便于控制展示隐藏 -->
+        <slot v-if="record.children && record.children.length" name="expand-icon" v-bind="{ expanded, record }">
+          <div
+            :class="`${
+              expanded ? 'bg-[rgb(var(--primary-1))]' : 'bg-[var(--color-text-n8)]'
+            } expand-btn-wrapper flex items-center justify-center`"
+          >
+            <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
+            <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
+          </div>
         </slot>
       </template>
     </a-table>
@@ -305,6 +313,7 @@
     MsTableDataItem,
     MsTableProps,
   } from './type';
+  import { getCurrentRecordChildrenIds } from './utils';
   import type { TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
   import type { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
 
@@ -344,7 +353,7 @@
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
     (e: 'rowNameChange', value: TableData, cb: (v: boolean) => void): void;
-    (e: 'rowSelectChange', key: string): void;
+    (e: 'rowSelectChange', record: TableData): void;
     (e: 'selectAllChange', value: SelectAllEnum, onlyCurrent: boolean): void;
     (e: 'dragChange', value: DragSortParams): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
@@ -489,8 +498,8 @@
     emit('selectAllChange', v, onlyCurrent);
   };
   // 行选择器change事件
-  const rowSelectChange = (key: string) => {
-    emit('rowSelectChange', key);
+  const rowSelectChange = (record: TableData) => {
+    emit('rowSelectChange', record);
   };
 
   // 分页change事件
@@ -660,6 +669,31 @@
   ) => {
     emit('filterChange', dataIndex, value, isCustomParam);
   };
+
+  function getChecked(record: TableData) {
+    if (!record.children) {
+      return props.selectedKeys.has(record[rowKey || 'id']);
+    }
+
+    const childKeyIds = getCurrentRecordChildrenIds(record.children, rowKey || 'id');
+    return childKeyIds.every((key) => props.selectedKeys.has(key));
+  }
+
+  function getIndeterminate(record: TableData) {
+    if (!record.children) {
+      return false;
+    }
+    const childKeyIds = getCurrentRecordChildrenIds(record.children, rowKey || 'id');
+    // 判断是否有被选中的元素
+    const isSomeSelected = childKeyIds.some((key) => props.selectedKeys.has(key));
+    // 判断是否所有元素都被选中
+    const isEverySelected = childKeyIds.every((key) => props.selectedKeys.has(key));
+
+    if (isSomeSelected && !isEverySelected) {
+      return true;
+    }
+    return false;
+  }
 
   onMounted(async () => {
     await initColumn();
@@ -832,10 +866,18 @@
     height: 16px;
     border: none;
     border-radius: 50%;
-    background: var(--color-text-n8);
+    background: transparent;
+    .expand-btn-wrapper {
+      width: 16px;
+      height: 16px;
+      border: none;
+      border-radius: 50%;
+      // background: var(--color-text-n8);
+    }
   }
   :deep(.arco-table .arco-table-expand-btn:hover) {
     border-color: transparent;
+    background: transparent;
   }
   :deep(.arco-table-drag-handle) {
     .arco-icon-drag-dot-vertical {
