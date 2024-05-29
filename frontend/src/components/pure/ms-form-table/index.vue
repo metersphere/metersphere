@@ -260,9 +260,9 @@
   });
 
   const selectedKeys = computed(() => propsRes.value.data.filter((e) => e.enable).map((e) => e.id));
-  propsEvent.value.rowSelectChange = (key: string) => {
+  propsEvent.value.rowSelectChange = (record: Record<string, any>) => {
     propsRes.value.data = propsRes.value.data.map((e) => {
-      if (e.id === key) {
+      if (e.id === record.id) {
         e.enable = !e.enable;
       }
       return e;

@@ -1,5 +1,5 @@
 <template>
-  <a-checkbox :model-value="checked" @change="handleChange"></a-checkbox>
+  <a-checkbox :model-value="checked" :indeterminate="props.indeterminate" @change="handleChange"></a-checkbox>
 </template>
 
 <script setup lang="ts">
@@ -7,6 +7,7 @@
 
   const props = defineProps<{
     value: boolean;
+    indeterminate: boolean; // 半选用于树形子级别选择状态
   }>();
   const emit = defineEmits<{
     (e: 'change', value: boolean): void;

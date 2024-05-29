@@ -424,11 +424,11 @@
   /**
    * 表格单行选中事件处理
    */
-  function handleRowSelectChange(key: string) {
-    const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === key);
-    if (tableSelectedKeys.value.includes(key)) {
+  function handleRowSelectChange(record: ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem) {
+    const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === record.id);
+    if (tableSelectedKeys.value.includes(record.id)) {
       // 取消选中
-      tableSelectedData.value = tableSelectedData.value.filter((e) => e.id !== key);
+      tableSelectedData.value = tableSelectedData.value.filter((e) => e.id !== record.id);
     } else if (selectedData) {
       tableSelectedData.value.push(selectedData);
     }
