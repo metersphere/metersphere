@@ -89,7 +89,6 @@ export default {
   'testPlan.bugManagement.bug': 'Defect list',
   'testPlan.bugManagement.bugName': 'name',
   'testPlan.bugManagement.defectState': 'Defect state',
-  'testPlan.bugManagement.caseClassification': 'Classification',
   'testPlan.featureCase.bugCount': 'Bug count',
   'testPlan.featureCase.executor': 'Executor',
   'testPlan.featureCase.changeExecutor': 'Change executor',

@@ -4,7 +4,7 @@
     :filter-config-list="filterConfigList"
     :custom-fields-config-list="searchCustomFields"
     :row-count="filterRowCount"
-    :search-placeholder="t('common.searchByNameAndId')"
+    :search-placeholder="t('common.searchByIDNameTag')"
     @keyword-search="fetchData"
     @adv-search="fetchData"
     @refresh="fetchData"

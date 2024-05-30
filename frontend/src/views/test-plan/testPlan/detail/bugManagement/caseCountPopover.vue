@@ -1,48 +1,52 @@
 <template>
-  <a-popover position="bottom" content-class="case-count-popover" @popup-visible-change="popupChange">
+  <a-popover position="br" content-class="case-count-popover" @popup-visible-change="popupChange">
     <div class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{
-      props.record.relateCase.length
+      props.bugItem.relateCase?.length ?? 0
     }}</div>
     <template #content>
       <div class="w-[500px]">
-        <MsBaseTable v-bind="propsRes" v-on="propsEvent"></MsBaseTable>
+        <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+          <template #num="{ record }">
+            <MsButton type="text" @click="goCaseDetail(record.id)">{{ record.num }}</MsButton>
+          </template>
+        </MsBaseTable>
       </div>
     </template>
   </a-popover>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import type { PlanDetailBugItem } from '@/models/testPlan/testPlan';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  const { t } = useI18n();
-
   const props = defineProps<{
-    record: PlanDetailBugItem;
+    bugItem: PlanDetailBugItem;
   }>();
+
+  const router = useRouter();
+  const appStore = useAppStore();
 
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'num',
+      slotName: 'num',
       width: 100,
-      showInTable: true,
       showTooltip: true,
-      showDrag: false,
     },
     {
       title: 'case.caseName',
-      slotName: 'name',
       dataIndex: 'name',
-      showInTable: true,
       showTooltip: true,
       width: 200,
     },
@@ -59,7 +63,15 @@
   });
 
   function popupChange() {
-    propsRes.value.data = props.record.relateCase;
+    propsRes.value.data = props.bugItem.relateCase;
+  }
+
+  function goCaseDetail(id: string) {
+    window.open(
+      `${window.location.origin}#${
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
+      }?id=${id}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
+    );
   }
 </script>
 

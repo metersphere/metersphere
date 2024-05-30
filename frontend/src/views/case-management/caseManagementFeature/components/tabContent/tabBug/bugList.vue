@@ -4,17 +4,15 @@
       <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ record.num }}</span>
     </template>
     <template #name="{ record }">
-      <div class="flex flex-nowrap items-center">
-        <a-tooltip :content="record.name">
-          <div class="one-line-text max-w-[200px] flex-auto items-center"> {{ characterLimit(record.name) }}</div>
-        </a-tooltip>
-        <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
-          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-          <template #content>
-            <div v-dompurify-html="record.content" class="markdown-body bug-content"> </div>
-          </template>
-        </a-popover>
-      </div>
+      <a-tooltip :content="record.name">
+        <div class="one-line-text max-w-[calc(100%-32px)]"> {{ record.name }}</div>
+      </a-tooltip>
+      <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
+        <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+        <template #content>
+          <div v-dompurify-html="record.content" class="markdown-body bug-content"> </div>
+        </template>
+      </a-popover>
     </template>
     <template #statusName="{ record }">
       <div class="one-line-text">{{ record.statusName || '-' }}</div>

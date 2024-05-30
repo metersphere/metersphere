@@ -84,7 +84,6 @@ export default {
   'testPlan.bugManagement.bug': '缺陷列表',
   'testPlan.bugManagement.bugName': '名称',
   'testPlan.bugManagement.defectState': '缺陷状态',
-  'testPlan.bugManagement.caseClassification': '用例分类',
   'testPlan.featureCase.bugCount': '缺陷数',
   'testPlan.featureCase.bug': '缺陷',
   'testPlan.featureCase.executor': '执行人',
