@@ -121,6 +121,14 @@
               :precision="2"
               :default-value="100"
             />
+            <template #label>
+              {{ t('testPlan.planForm.passThreshold') }}
+              <a-tooltip position="tl" :content="t('testPlan.planForm.passThresholdTip')">
+                <IconQuestionCircle
+                  class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+                />
+              </a-tooltip>
+            </template>
           </a-form-item>
         </template>
       </MsMoreSettingCollapse>
