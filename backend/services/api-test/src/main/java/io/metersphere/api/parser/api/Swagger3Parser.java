@@ -144,7 +144,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             Content content = requestBody.getContent();
             if (content != null) {
                 content.forEach((key, value) -> {
-                    setResponseBodyData(key, value, body);
+                    setRequestBodyData(key, value, body);
                 });
             } else {
                 body.setBodyType(Body.BodyType.NONE.name());
@@ -181,6 +181,31 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         body.setWwwFormBody(wwwFormBody);
     }
 
+    private void parseFormBody(JsonSchemaItem item, Body body) {
+        FormDataBody formDataBody = new FormDataBody();
+        if (item == null) {
+            body.setFormDataBody(formDataBody);
+            return;
+        }
+        List<String> required = item.getRequired();
+        List<FormDataKV> formDataKVS = new ArrayList<>();
+        item.getProperties().forEach((key, value) -> {
+            if (value != null && !StringUtils.equals(PropertyConstant.OBJECT, value.getType())) {
+                FormDataKV formDataKV = new FormDataKV();
+                formDataKV.setKey(key);
+                formDataKV.setValue(String.valueOf(value.getExample()));
+                formDataKV.setRequired(CollectionUtils.isNotEmpty(required) && required.contains(key));
+                formDataKV.setDescription(value.getDescription());
+                formDataKV.setParamType(value.getType());
+                formDataKV.setMinLength(value.getMinLength());
+                formDataKV.setMaxLength(value.getMaxLength());
+                formDataKVS.add(formDataKV);
+            }
+        });
+        formDataBody.setFormValues(formDataKVS);
+        body.setFormDataBody(formDataBody);
+    }
+
     private void parseResponse(ApiResponses responseBody, List<HttpResponse> response) {
         if (responseBody != null) {
             responseBody.forEach((key, value) -> {
@@ -202,7 +227,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 }
                 if (value.getContent() != null) {
                     value.getContent().forEach((k, v) -> {
-                        setResponseBodyData(k, v, body);
+                        setRequestBodyData(k, v, body);
                     });
                 } else {
                     body.setBodyType(Body.BodyType.NONE.name());
@@ -225,7 +250,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
 
     }
 
-    private void setResponseBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
+    private void setRequestBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
         //TODO body  默认如果json格式
         JsonSchemaItem jsonSchemaItem = parseSchema(value.getSchema());
         switch (k) {
@@ -272,7 +297,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         }
     }
 
-    private void setResponseBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, Body body) {
+    private void setRequestBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, Body body) {
         //TODO body  默认如果json格式
         JsonSchemaItem jsonSchemaItem = parseSchema(value.getSchema());
         switch (k) {
@@ -308,6 +333,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 if (StringUtils.isBlank(body.getBodyType())) {
                     body.setBodyType(Body.BodyType.FORM_DATA.name());
                 }
+                parseFormBody(jsonSchemaItem, body);
             }
             case MediaType.APPLICATION_OCTET_STREAM_VALUE -> {
                 if (StringUtils.isBlank(body.getBodyType())) {
