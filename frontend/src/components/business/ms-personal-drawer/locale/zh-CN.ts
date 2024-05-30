@@ -26,7 +26,7 @@ export default {
   'ms.personal.newPsw': '新密码',
   'ms.personal.changePswTip': '修改密码后，需要使用新的密码登录系统',
   'ms.personal.updatePswSuccess': '密码修改成功，将在 {count} 秒后自动退出，请使用新密码登录',
-  'ms.personal.apiKeyTip': '新增后，可访问 MeterSphere',
+  'ms.personal.apiKeyTip': '可通过 APIKEY 访问 MeterSphere API',
   'ms.personal.expireTime': '过期时间',
   'ms.personal.expired': '已到期',
   'ms.personal.expiredTip': '可在【设置】内更改到期时间',

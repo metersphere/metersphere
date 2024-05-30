@@ -21,7 +21,7 @@ export default {
   'project.menu.API_CLEAN_REPORT': '报告保留时间范围',
   'project.menu.API_SHARE_REPORT': '报告链接有效期',
   'project.menu.API_RESOURCE_POOL': '执行资源池',
-  'project.menu.API_RESOURCE_POOL_TIP': '当前使用资源池为：{name}；可切换资源池',
+  'project.menu.API_RESOURCE_POOL_TIP': '接口测试的执行机',
   'project.menu.API_SCRIPT_REVIEWER': '脚本审核',
   'project.menu.API_SCRIPT_REVIEWER_TIP': '接口用例中包含脚本步骤需要指定用户审核；可更改审核人',
   'project.menu.API_ERROR_REPORT_RULE': '误报规则',

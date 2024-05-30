@@ -28,7 +28,7 @@ export default {
   'ms.personal.changePswTip': 'After changing the password, you need to use the new password to log in to the system',
   'ms.personal.updatePswSuccess':
     'The password has been modified successfully and will automatically log out in {count} seconds. Please log in with the new password.',
-  'ms.personal.apiKeyTip': 'After adding, you can access MeterSphere',
+  'ms.personal.apiKeyTip': 'The MeterSphere API is accessible through the APIKEY',
   'ms.personal.expireTime': 'Expiration',
   'ms.personal.expired': 'Expired',
   'ms.personal.expiredTip': 'The expiration time can be changed in [Settings]',

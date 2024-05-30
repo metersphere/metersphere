@@ -77,6 +77,7 @@ export default {
   'testPlan.planForm.passThreshold': '通过阀值',
   'testPlan.planForm.repeatCaseTip1': '开启：可重复关联同一个用例',
   'testPlan.planForm.repeatCaseTip2': '关闭：不可重复关联同一用例',
+  'testPlan.planForm.passThresholdTip': '通过率达到设置的通过阈值时，报告结果为通过',
   'testPlan.planForm.pickCases': '选择用例',
   'testPlan.testPlanDetail.executed': '已执行',
   'testPlan.testPlanDetail.generateReport': '生成报告',

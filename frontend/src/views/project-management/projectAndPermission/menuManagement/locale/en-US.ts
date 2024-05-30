@@ -22,7 +22,7 @@ export default {
   'project.menu.API_CLEAN_REPORT': 'Report Retention Time Range',
   'project.menu.API_SHARE_REPORT': 'Report Link Validity Period',
   'project.menu.API_RESOURCE_POOL': 'Execution Resource Pool',
-  'project.menu.API_RESOURCE_POOL_TIP': 'The current resource pool is: {name}; you can switch resource pools',
+  'project.menu.API_RESOURCE_POOL_TIP': 'Execution machine for interface testing',
   'project.menu.API_SCRIPT_REVIEWER': 'Script Review',
   'project.menu.API_SCRIPT_REVIEWER_TIP':
     'The interface case contains script steps that need to be reviewed by a designated user; the reviewer can be changed',

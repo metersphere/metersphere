@@ -97,14 +97,7 @@
           :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:UPDATE'])"
           @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL_ID',v as string,MenuEnum.apiTest)"
         />
-        <a-tooltip
-          :content="
-            t('project.menu.API_RESOURCE_POOL_TIP', {
-              name: getPoolTipName(allValueMap['API_RESOURCE_POOL_ID'], MenuEnum.apiTest),
-            })
-          "
-          position="right"
-        >
+        <a-tooltip :content="t('project.menu.API_RESOURCE_POOL_TIP')" position="right">
           <div>
             <MsIcon
               class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
