@@ -42,13 +42,13 @@
       <template v-if="!props.isModal" #extra="nodeData">
         <MsPopConfirm
           v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])"
-          :visible="addSubVisible"
           :is-delete="false"
-          :all-names="[]"
+          :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
           :title="t('caseManagement.featureCase.addSubModule')"
           :ok-text="t('common.confirm')"
           :field-config="{
             placeholder: t('caseManagement.featureCase.addGroupTip'),
+            nameExistTipText: t('project.fileManagement.nameExist'),
           }"
           :loading="confirmLoading"
           @confirm="addSubModule"
@@ -61,11 +61,11 @@
         <MsPopConfirm
           v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
           :title="t('caseManagement.featureCase.rename')"
-          :all-names="[]"
+          :all-names="(nodeData.parent? nodeData.parent.children || [] : caseTree).filter((e: ModuleTreeNode) => e.id !== nodeData.id).map((e: ModuleTreeNode) => e.name || '')"
           :is-delete="false"
           :node-id="nodeData.id"
           :ok-text="t('common.confirm')"
-          :field-config="{ field: renameCaseName }"
+          :field-config="{ field: renameCaseName, nameExistTipText: t('project.fileManagement.nameExist') }"
           :loading="confirmLoading"
           @confirm="updateNameModule"
           @cancel="resetFocusNodeKey"
@@ -83,7 +83,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsPopConfirm, { ConfirmValue } from '@/components/pure/ms-popconfirm/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
@@ -303,11 +303,10 @@
     }
   };
 
-  const addSubVisible = ref(false);
   const confirmLoading = ref(false);
 
   // 添加子模块
-  async function addSubModule(formValue?: { field: string }, cancel?: () => void) {
+  async function addSubModule(formValue: ConfirmValue, cancel?: () => void) {
     try {
       confirmLoading.value = true;
       const params: CreateOrUpdateModule = {
@@ -322,6 +321,7 @@
       }
       initModules();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;
@@ -329,7 +329,7 @@
   }
 
   // 更新子模块
-  async function updateNameModule(formValue?: { field: string; id?: string }, cancel?: () => void) {
+  async function updateNameModule(formValue: ConfirmValue, cancel?: () => void) {
     try {
       confirmLoading.value = true;
       if (formValue && formValue.id) {
@@ -345,6 +345,7 @@
         initModules();
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;

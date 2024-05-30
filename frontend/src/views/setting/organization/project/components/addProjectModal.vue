@@ -222,7 +222,12 @@
     pause();
   };
   const handleModuleChange = (value: (string | number | boolean)[]) => {
-    if (props.currentProject?.id && timer.value === 5 && props.currentProject.moduleIds?.length) {
+    if (
+      value.length < (props.currentProject?.moduleIds || []).length &&
+      props.currentProject?.id &&
+      timer.value === 5 &&
+      props.currentProject.moduleIds?.length
+    ) {
       if (props.currentProject.moduleIds.some((item) => value.includes(item))) {
         resume();
         Message.warning({

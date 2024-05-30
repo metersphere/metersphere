@@ -70,7 +70,6 @@
           allow-search
           :multiple="true"
           :placeholder="t('project.messageManagement.receiverPlaceholder')"
-          @click.stop="record.showModuleTree = true"
           @change="() => changeReviewer(record)"
         >
         </MsSelect>
@@ -278,7 +277,6 @@
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import MsSelect from '@/components/business/ms-select';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import {
     batchChangeReviewer,
@@ -333,9 +331,6 @@
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
   const tableParams = ref<Record<string, any>>({});
-
-  const statusFilterVisible = ref(false);
-  const statusFilters = ref<string[]>([]);
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])

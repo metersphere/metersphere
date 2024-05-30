@@ -78,10 +78,10 @@
               v-if="!record.internal && hasAnyPermission(props.updatePermission)"
               :disabled="record.internal"
               class="!mr-0"
-              >{{ t('system.orgTemplate.edit') }}</MsButton
-            ></MsPopConfirm
-          >
-
+            >
+              {{ t('system.orgTemplate.edit') }}
+            </MsButton>
+          </MsPopConfirm>
           <a-divider
             v-if="
               !record.internal && hasAnyPermission(props.updatePermission) && hasAnyPermission(props.deletePermission)

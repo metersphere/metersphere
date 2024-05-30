@@ -233,6 +233,7 @@
   import type { ProjectListItem } from '@/models/setting/project';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
@@ -524,6 +525,7 @@
       props.getTableFunc,
       {
         columns,
+        tableKey: TableKeyEnum.CASE_MANAGEMENT_ASSOCIATED_TABLE,
         scroll: { x: '100%' },
         showSetting: false,
         selectable: true,

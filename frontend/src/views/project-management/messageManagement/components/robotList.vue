@@ -23,8 +23,10 @@
                 :type="IconMap[robot.platform]"
                 class="mr-[8px] h-[40px] w-[40px] bg-[var(--color-text-n9)] p-[8px] text-[rgb(var(--primary-5))]"
               />
-              <div class="flex flex-1 flex-col">
-                <div class="break-all font-medium text-[var(--color-text-1)]">{{ robot.name }}</div>
+              <div class="flex flex-1 flex-col overflow-hidden">
+                <a-tooltip position="tl" :content="robot.name">
+                  <div class="one-line-text font-medium text-[var(--color-text-1)]">{{ robot.name }}</div>
+                </a-tooltip>
                 <div
                   v-if="['IN_SITE', 'MAIL'].includes(robot.platform)"
                   class="text-[12px] leading-[16px] text-[var(--color-text-4)]"

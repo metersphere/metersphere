@@ -37,7 +37,6 @@
                   </MsButton>
                 </a-tooltip>
                 <MsPopConfirm
-                  ref="confirmRef"
                   v-model:visible="addSubVisible"
                   :is-delete="false"
                   :title="t('testPlan.testPlanIndex.addSubModule')"
@@ -110,7 +109,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsPopConfirm, { ConfirmValue } from '@/components/pure/ms-popconfirm/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import PlanTable from './components/planTable.vue';
   import TestPlanTree from './components/testPlanTree.vue';
@@ -159,17 +158,12 @@
   const addSubVisible = ref(false);
   const planTreeRef = ref();
   const confirmLoading = ref(false);
-  const confirmRef = ref();
-  async function confirmHandler() {
+  async function confirmHandler(formValue: ConfirmValue) {
     try {
       confirmLoading.value = true;
-      const { field } = confirmRef.value.form;
-      if (!confirmRef.value.isPass) {
-        return;
-      }
       const params: CreateOrUpdateModule = {
         projectId: currentProjectId.value,
-        name: field,
+        name: formValue.field,
         parentId: 'NONE',
       };
       await createPlanModuleTree(params);
@@ -177,6 +171,7 @@
       planTreeRef.value.initModules();
       addSubVisible.value = false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;

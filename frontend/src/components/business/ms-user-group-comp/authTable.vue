@@ -36,7 +36,7 @@
                   <template v-for="item in record.permissions" :key="item.id">
                     <a-checkbox
                       v-if="(item.license && licenseStore.hasLicense()) || !item.license"
-                      :disabled="item.license || systemAdminDisabled || disabled"
+                      :disabled="systemAdminDisabled || disabled"
                       :value="item.id"
                     >
                       {{ t(item.name) }}
@@ -239,39 +239,41 @@
   const makeData = (item: UserGroupAuthSetting, type: AuthScopeType) => {
     const result: AuthTableItem[] = [];
     item.children?.forEach((child, index) => {
-      const perChecked =
-        child?.permissions?.reduce((acc: string[], cur) => {
-          if (cur.enable) {
-            acc.push(cur.id);
-          }
-          return acc;
-        }, []) || [];
-      const perCheckedLength = perChecked.length;
-      let indeterminate = false;
-      if (child?.permissions) {
-        indeterminate = perCheckedLength > 0 && perCheckedLength < child?.permissions?.length;
+      if (!child.license || (child.license && licenseStore.hasLicense())) {
+        const perChecked =
+          child?.permissions?.reduce((acc: string[], cur) => {
+            if (cur.enable) {
+              acc.push(cur.id);
+            }
+            return acc;
+          }, []) || [];
+        const perCheckedLength = perChecked.length;
+        let indeterminate = false;
+        if (child?.permissions) {
+          indeterminate = perCheckedLength > 0 && perCheckedLength < child?.permissions?.length;
+        }
+        result.push({
+          id: child?.id,
+          license: child?.license,
+          enable: child?.enable,
+          permissions: child?.permissions,
+          indeterminate,
+          perChecked,
+          ability: index === 0 ? item.name : undefined,
+          operationObject: t(child.name),
+          isSystem: index === 0 && type === 'SYSTEM',
+          isOrganization: index === 0 && type === 'ORGANIZATION',
+          isProject: index === 0 && type === 'PROJECT',
+          isWorkstation: index === 0 && type === 'WORKSTATION',
+          isTestPlan: index === 0 && type === 'TEST_PLAN',
+          isBugManagement: index === 0 && type === 'BUG_MANAGEMENT',
+          isCaseManagement: index === 0 && type === 'CASE_MANAGEMENT',
+          isUiTest: index === 0 && type === 'UI_TEST',
+          isLoadTest: index === 0 && type === 'LOAD_TEST',
+          isApiTest: index === 0 && type === 'API_TEST',
+          isPersonal: index === 0 && type === 'PERSONAL',
+        });
       }
-      result.push({
-        id: child?.id,
-        license: child?.license,
-        enable: child?.enable,
-        permissions: child?.permissions,
-        indeterminate,
-        perChecked,
-        ability: index === 0 ? item.name : undefined,
-        operationObject: t(child.name),
-        isSystem: index === 0 && type === 'SYSTEM',
-        isOrganization: index === 0 && type === 'ORGANIZATION',
-        isProject: index === 0 && type === 'PROJECT',
-        isWorkstation: index === 0 && type === 'WORKSTATION',
-        isTestPlan: index === 0 && type === 'TEST_PLAN',
-        isBugManagement: index === 0 && type === 'BUG_MANAGEMENT',
-        isCaseManagement: index === 0 && type === 'CASE_MANAGEMENT',
-        isUiTest: index === 0 && type === 'UI_TEST',
-        isLoadTest: index === 0 && type === 'LOAD_TEST',
-        isApiTest: index === 0 && type === 'API_TEST',
-        isPersonal: index === 0 && type === 'PERSONAL',
-      });
     });
     return result;
   };
