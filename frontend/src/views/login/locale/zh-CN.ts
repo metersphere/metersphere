@@ -16,4 +16,6 @@ export default {
   'login.form.modeLoginMethods': '更多登录方式',
   'login.form.accountLogin': '账号登录',
   'login.form.LDAPLogin': 'LDAP登录',
+  'login.form.username': '用户名',
+  'login.form.password': '密码',
 };
