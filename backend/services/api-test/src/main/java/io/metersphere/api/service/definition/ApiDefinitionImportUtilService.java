@@ -57,6 +57,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,6 +114,9 @@ public class ApiDefinitionImportUtilService {
         if (StringUtils.equals(request.getType(), "SCHEDULE")) {
             request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
         }
+        if (StringUtils.equals(request.getPlatform(), ApiImportPlatform.Swagger3.name()) && StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            testUrlTimeout(request.getSwaggerUrl(), 30000);
+        }
         try {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
             //TODO  处理mock数据
@@ -128,6 +133,23 @@ public class ApiDefinitionImportUtilService {
         }
     }
 
+    public static void testUrlTimeout(String address, int timeOutMillSeconds) {
+        HttpURLConnection connection = null;
+        try {
+            URI uriObj = new URI(address);
+            connection = (HttpURLConnection) uriObj.toURL().openConnection();
+            connection.setUseCaches(false);
+            connection.setConnectTimeout(timeOutMillSeconds); // 设置超时时间
+            connection.connect(); // 建立连接
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(Translator.get("url_format_error"));
+        } finally {
+            if (connection != null) {
+                connection.disconnect(); // 关闭连接
+            }
+        }
+    }
 
     public void checkFileSuffixName(ImportRequest request, String suffixName) {
         if (FILE_JMX.equalsIgnoreCase(suffixName)) {
