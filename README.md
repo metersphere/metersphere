@@ -66,7 +66,7 @@ MeterSphere 按年发布 LTS（Long Term Support）版本。
 MeterSphere v3.x 的版本发布计划：
 
 - 2024 年 5 月 30 日：发布 v3.0 beta 版本；
-- 2024 年 6 月 27 日: 发布 v3.0 正式版本
+- 2024 年 6 月 27 日：发布 v3.0 正式版本；
 - 2024 年 12 月 26 日：发布 v3.6-lts LTS 版本。
 
 ## 技术栈
