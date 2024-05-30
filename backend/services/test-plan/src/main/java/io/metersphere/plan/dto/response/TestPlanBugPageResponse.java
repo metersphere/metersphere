@@ -17,8 +17,10 @@ public class TestPlanBugPageResponse {
 	private String num;
 	@Schema(description = "缺陷标题")
 	private String title;
+	@Schema(description = "缺陷内容(预览)")
+	private String content;
 	@Schema(description = "关联用例集合")
-	private List<TestPlanBugCaseDTO> relateCase;
+	private List<TestPlanBugCaseDTO> relateCases;
 	@Schema(description = "处理人")
 	private String handleUser;
 	@Schema(description = "状态")

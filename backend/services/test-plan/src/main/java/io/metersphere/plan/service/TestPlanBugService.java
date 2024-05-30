@@ -105,7 +105,7 @@ public class TestPlanBugService extends TestPlanResourceService {
         List<TestPlanBugCaseDTO> bugRelatedCases = extTestPlanBugMapper.getBugRelatedCase(bugIds, planId);
         Map<String, List<TestPlanBugCaseDTO>> bugRelateCaseMap = bugRelatedCases.stream().collect(Collectors.groupingBy(TestPlanBugCaseDTO::getBugId));
         bugList.forEach(bug -> {
-            bug.setRelateCase(bugRelateCaseMap.get(bug.getId()));
+            bug.setRelateCases(bugRelateCaseMap.get(bug.getId()));
             bug.setCreateUser(userMap.get(bug.getCreateUser()));
         });
         return bugList;
