@@ -1,6 +1,9 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.constants.*;
+import io.metersphere.api.constants.ApiConstants;
+import io.metersphere.api.constants.ApiDefinitionDocType;
+import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.api.constants.ApiImportPlatform;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -1258,7 +1261,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals("admin", apiDefinitionInfo.getDeleteUser());
         Assertions.assertNotNull(apiDefinitionInfo.getDeleteTime());
 
-        this.requestGetWithOk(SINGLE_DELETE_TO_GC+"/"+apiDefinition.getId());
+        this.requestGetWithOk(SINGLE_DELETE_TO_GC + "/" + apiDefinition.getId());
 
         // @存在多个版本
         String id = "1004";
@@ -1597,6 +1600,16 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 this.getClass().getClassLoader().getResource("file/openapi3.json")
                         .getPath()));
         file = new MockMultipartFile("file", "openapi3.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        request.setCoverModule(false);
+        request.setCoverData(false);
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+        paramMap.clear();
+        inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/openapi4.json")
+                        .getPath()));
+        file = new MockMultipartFile("file", "openapi4.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
         request.setCoverModule(false);
         request.setCoverData(false);

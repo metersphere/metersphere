@@ -1,0 +1,46 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "1.0",
+    "title": "ms-chengtest",
+    "description": "",
+    "termsOfService": ""
+  },
+  "externalDocs": {},
+  "servers": [],
+  "tags": [],
+  "paths": {
+    "/swagger3": {
+      "post": {
+        "summary": "swagger3.0参数值",
+        "responses": {},
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "a": {
+                    "type": "string",
+                    "description": "",
+                    "example": "b"
+                  },
+                  "test1": {
+                    "type": "string",
+                    "description": "",
+                    "example": "1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "未规划接口"
+        ]
+      }
+    }
+  },
+  "components": {}
+}
