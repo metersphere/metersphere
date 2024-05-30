@@ -13,6 +13,7 @@
         :auto-size="true"
         class="w-max-[267px] param-input"
         :placeholder="t('system.orgTemplate.stepTip')"
+        :disabled="props.isDisabled"
         @blur="blurHandler(record, 'step')"
       />
     </template>
@@ -25,6 +26,7 @@
         :auto-size="true"
         class="w-max-[267px] param-input"
         :placeholder="t('system.orgTemplate.expectationTip')"
+        :disabled="props.isDisabled"
         @blur="blurHandler(record, 'expected')"
       />
     </template>
@@ -393,5 +395,8 @@
         color: var(--color-text-brand);
       }
     }
+  }
+  :deep(.arco-textarea-wrapper.arco-textarea-disabled) {
+    background: transparent;
   }
 </style>
