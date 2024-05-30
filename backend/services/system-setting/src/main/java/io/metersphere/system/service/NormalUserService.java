@@ -2,9 +2,9 @@ package io.metersphere.system.service;
 
 import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.sdk.constants.ParamConstants;
-import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.controller.result.SystemResultCode;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
@@ -32,7 +32,6 @@ import io.metersphere.system.dto.user.response.UserTableResponse;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.notice.sender.impl.MailNoticeSender;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
@@ -63,7 +62,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UserService {
+public class NormalUserService {
     @Resource
     private BaseUserMapper baseUserMapper;
     @Resource
@@ -131,29 +130,17 @@ public class UserService {
     }
 
     private List<UserCreateInfo> saveUserAndRole(UserBatchCreateRequest userCreateDTO, String source, String operator, String requestPath) {
-        List<UserCreateInfo> insertList = new ArrayList<>();
-        long createTime = System.currentTimeMillis();
-        List<User> saveUserList = new ArrayList<>();
-        //添加用户
-        for (UserCreateInfo userInfo : userCreateDTO.getUserInfoList()) {
-            userInfo.setId(IDGenerator.nextStr());
-            User user = new User();
-            BeanUtils.copyBean(user, userInfo);
-            user.setCreateUser(operator);
-            user.setCreateTime(createTime);
-            user.setUpdateUser(operator);
-            user.setUpdateTime(createTime);
-            user.setPassword(CodingUtils.md5(user.getEmail()));
-            user.setSource(source);
-            user.setDeleted(false);
-            userMapper.insertSelective(user);
-            saveUserList.add(user);
-            insertList.add(userInfo);
+        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).guessWhatHowToAddUser(userCreateDTO, source, operator);
+        if (responseCode == 0) {
+            operationLogService.batchAdd(userLogService.getBatchAddLogs(userCreateDTO.getUserInfoList(), operator, requestPath));
+        } else {
+            if (responseCode == -1) {
+                throw new MSException(SystemResultCode.USER_TOO_MANY, Translator.getWithArgs("user_open_source_max", 30));
+            } else {
+                throw new MSException(SystemResultCode.DEPT_USER_TOO_MANY, Translator.getWithArgs("user_dept_max", responseCode));
+            }
         }
-        userRoleRelationService.batchSave(userCreateDTO.getUserRoleIdList(), saveUserList);
-        //写入操作日志
-        operationLogService.batchAdd(userLogService.getBatchAddLogs(saveUserList, requestPath));
-        return insertList;
+        return userCreateDTO.getUserInfoList();
     }
 
     public UserDTO getUserDTOByKeyword(String email) {
@@ -277,15 +264,16 @@ public class UserService {
         }
 
         UserImportResponse importResponse = new UserImportResponse();
+        ExcelParseDTO<UserExcelRowDTO> excelParseDTO = new ExcelParseDTO<>();
         try {
-            ExcelParseDTO<UserExcelRowDTO> excelParseDTO = this.getUserExcelParseDTO(excelFile);
-            if (CollectionUtils.isNotEmpty(excelParseDTO.getDataList())) {
-                this.saveUserByExcelData(excelParseDTO.getDataList(), source, sessionId);
-            }
-            importResponse.generateResponse(excelParseDTO);
+            excelParseDTO = this.getUserExcelParseDTO(excelFile);
         } catch (Exception e) {
             LogUtils.info("import user  error", e);
         }
+        if (CollectionUtils.isNotEmpty(excelParseDTO.getDataList())) {
+            this.saveUserByExcelData(excelParseDTO.getDataList(), source, sessionId);
+        }
+        importResponse.generateResponse(excelParseDTO);
         return importResponse;
     }
 
@@ -297,7 +285,6 @@ public class UserService {
 
     /**
      * 校验excel导入的数据是否与数据库中的数据冲突
-     *
      */
     private ExcelParseDTO<UserExcelRowDTO> validateExcelUserInfo(@Valid @NotNull ExcelParseDTO<UserExcelRowDTO> excelParseDTO) {
         List<UserExcelRowDTO> prepareSaveList = excelParseDTO.getDataList();
@@ -540,28 +527,23 @@ public class UserService {
             this.add(userInvite.getEmail());
         }});
 
-        //创建用户
-        long createTime = System.currentTimeMillis();
-        User user = new User();
-        user.setId(IDGenerator.nextStr());
-        user.setEmail(userInvite.getEmail());
-        user.setPassword(CodingUtils.md5(RsaUtils.privateDecrypt(request.getPassword(), RsaUtils.getRsaKey().getPrivateKey())));
-        user.setName(request.getName());
-        user.setPhone(request.getPhone());
-        user.setCreateUser(userInvite.getInviteUser());
-        user.setUpdateUser(userInvite.getInviteUser());
-        user.setCreateTime(createTime);
-        user.setUpdateTime(createTime);
-        user.setSource(UserSource.LOCAL.name());
-        user.setDeleted(false);
-        userMapper.insertSelective(user);
+        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).guessWhatHowToAddUser(request, userInvite);
+        if (responseCode == 0) {
+            //删除本次邀请记录
+            userInviteService.deleteInviteById(userInvite.getId());
+            //写入操作日志
+            UserExample userExample = new UserExample();
+            userExample.createCriteria().andEmailEqualTo(userInvite.getEmail());
+            userLogService.addRegisterLog(userMapper.selectByExample(userExample).getFirst(), userInvite);
+            return userInvite.getEmail();
+        } else {
+            if (responseCode > 30) {
+                throw new MSException(SystemResultCode.DEPT_USER_TOO_MANY, Translator.getWithArgs("user_dept_max", responseCode));
+            } else {
+                throw new MSException(SystemResultCode.USER_TOO_MANY, Translator.getWithArgs("user_open_source_max", responseCode));
 
-        userRoleRelationService.batchSave(JSON.parseArray(userInvite.getRoles(), String.class), user);
-        //删除本次邀请记录
-        userInviteService.deleteInviteById(userInvite.getId());
-        //写入操作日志
-        userLogService.addRegisterLog(user, userInvite);
-        return user.getId();
+            }
+        }
     }
 
     public boolean updateAccount(PersonalUpdateRequest request, String operator) {

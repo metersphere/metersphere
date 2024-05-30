@@ -15,7 +15,7 @@ import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
-import io.metersphere.system.service.UserService;
+import io.metersphere.system.service.NormalUserService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.user.PersonalRequestUtils;
 import jakarta.annotation.Resource;
@@ -39,7 +39,7 @@ public class PersonalControllerTests extends BaseTest {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private UserService userService;
+    private NormalUserService normalUserService;
 
     @Test
     @Order(0)
@@ -63,7 +63,7 @@ public class PersonalControllerTests extends BaseTest {
     @Order(1)
     void testPersonalUpdateInfo() throws Exception {
         //方法测试
-        userService.checkUserEmail(IDGenerator.nextStr(), "admin_update@metersphere.io");
+        normalUserService.checkUserEmail(IDGenerator.nextStr(), "admin_update@metersphere.io");
 
         PersonalUpdateRequest request = new PersonalUpdateRequest();
         request.setId(loginUser);
@@ -76,7 +76,7 @@ public class PersonalControllerTests extends BaseTest {
 
         boolean methodCheck = false;
         try {
-            userService.checkUserEmail(IDGenerator.nextStr(), "admin_update@metersphere.io");
+            normalUserService.checkUserEmail(IDGenerator.nextStr(), "admin_update@metersphere.io");
         } catch (Exception e) {
             methodCheck = true;
         }
