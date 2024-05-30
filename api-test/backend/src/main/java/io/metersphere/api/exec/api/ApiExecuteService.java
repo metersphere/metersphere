@@ -184,7 +184,7 @@ public class ApiExecuteService {
         return new MsExecResponseDTO(runRequest.getTestId(), runRequest.getReportId(), runRequest.getRunMode());
     }
 
-    public HashTree getHashTree(MsJSR223Processor request) {
+    public HashTree getHashTree(MsJSR223Processor request, Map<String, List<ProjectJarConfig>> loadJar) {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setName(request.getId());
         testPlan.setHashTree(new LinkedList<>());
@@ -192,9 +192,7 @@ public class ApiExecuteService {
         threadGroup.setName(request.getId());
         threadGroup.setHashTree(new LinkedList<>());
         testPlan.getHashTree().add(threadGroup);
-        testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
-            this.add(request.getProjectId());
-        }}, new BooleanPool()).keySet().stream().toList());
+        testPlan.setProjectJarIds(loadJar.keySet().stream().toList());
         threadGroup.getHashTree().add(request);
         ParameterConfig config = new ParameterConfig(request.getProjectId(), true);
         config.setCurrentProjectId(request.getProjectId());
