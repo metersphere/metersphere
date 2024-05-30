@@ -10,7 +10,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.log.vo.OperationLogResponse;
 import io.metersphere.system.log.vo.ProOperationLogRequest;
 import io.metersphere.system.log.vo.SystemOperationLogRequest;
-import io.metersphere.system.service.UserService;
+import io.metersphere.system.service.NormalUserService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -37,7 +37,7 @@ import java.util.List;
 public class ProjectLogController {
 
     @Autowired
-    private UserService userService;
+    private NormalUserService normalUserService;
 
     @Autowired
     private OperationLogService operationLogService;
@@ -48,7 +48,7 @@ public class ProjectLogController {
     public List<User> getUserList(@PathVariable(value = "projectId") String projectId,
                                   @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                   @RequestParam(value = "keyword", required = false) String keyword) {
-        return userService.getUserListByOrgId(StringUtils.defaultIfBlank(projectId, SessionUtils.getCurrentProjectId()), keyword);
+        return normalUserService.getUserListByOrgId(StringUtils.defaultIfBlank(projectId, SessionUtils.getCurrentProjectId()), keyword);
     }
 
 

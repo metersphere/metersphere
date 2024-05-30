@@ -11,6 +11,7 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.request.user.*;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.user.UserCreateInfo;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -45,7 +46,7 @@ public class UserLogService {
     private UserRoleMapper userRoleMapper;
 
     //批量添加用户记录日志
-    public List<LogDTO> getBatchAddLogs(@Valid List<User> userList, String requestPath) {
+    public List<LogDTO> getBatchAddLogs(@Valid List<UserCreateInfo> userList, String operator, String requestPath) {
         List<LogDTO> logs = new ArrayList<>();
         userList.forEach(user -> {
             LogDTO log = LogDTOBuilder.builder()
@@ -58,7 +59,7 @@ public class UserLogService {
                     .sourceId(user.getId())
                     .content(user.getName() + "(" + user.getEmail() + ")")
                     .originalValue(JSON.toJSONBytes(user))
-                    .createUser(user.getCreateUser())
+                    .createUser(operator)
                     .build().getLogDTO();
             logs.add(log);
         });

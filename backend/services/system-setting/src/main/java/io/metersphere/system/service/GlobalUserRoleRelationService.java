@@ -1,20 +1,20 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleScope;
-import io.metersphere.system.dto.table.TableBatchProcessResponse;
-import io.metersphere.system.dto.user.UserExcludeOptionDTO;
-import io.metersphere.system.dto.user.UserRoleRelationUserDTO;
-import io.metersphere.system.dto.sdk.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
-import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
+import io.metersphere.system.dto.sdk.request.GlobalUserRoleRelationUpdateRequest;
+import io.metersphere.system.dto.table.TableBatchProcessResponse;
+import io.metersphere.system.dto.user.UserExcludeOptionDTO;
+import io.metersphere.system.dto.user.UserRoleRelationUserDTO;
+import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
@@ -41,7 +41,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     @Resource
     private GlobalUserRoleService globalUserRoleService;
     @Resource
-    private UserService userService;
+    private NormalUserService normalUserService;
     @Resource
     private UserToolService userToolService;
     @Resource
@@ -71,7 +71,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         this.checkGlobalSystemUserRoleLegality(
                 Collections.singletonList(request.getRoleId()));
         //检查用户的合法性
-        userService.checkUserLegality(request.getUserIds());
+        normalUserService.checkUserLegality(request.getUserIds());
         List<UserRoleRelation> userRoleRelations = new ArrayList<>();
         request.getUserIds().forEach(userId -> {
             UserRoleRelation userRoleRelation = new UserRoleRelation();
@@ -100,7 +100,7 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         //获取本次处理的用户
         request.setSelectIds(userToolService.getBatchUserIds(request));
         //检查用户的合法性
-        userService.checkUserLegality(request.getSelectIds());
+        normalUserService.checkUserLegality(request.getSelectIds());
         List<UserRoleRelation> savedUserRoleRelation = this.selectByUserIdAndRuleId(request.getSelectIds(), request.getRoleIds());
         //过滤已经存储过的用户关系
         Map<String, List<String>> userRoleIdMap = savedUserRoleRelation.stream()
