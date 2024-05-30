@@ -16,4 +16,6 @@ export default {
   'login.form.modeLoginMethods': 'More',
   'login.form.accountLogin': 'Account login',
   'login.form.LDAPLogin': 'LDAP',
+  'login.form.username': 'Username',
+  'login.form.password': 'Password',
 };

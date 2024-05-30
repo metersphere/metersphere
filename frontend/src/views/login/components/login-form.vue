@@ -61,6 +61,16 @@
           <a-button type="primary" size="large" html-type="submit" long :loading="loading">
             {{ t('login.form.login') }}
           </a-button>
+          <div v-if="showDemo" class="mb-[-16px] mt-[16px] flex items-center gap-[16px]">
+            <div class="flex items-center">
+              <div>{{ t('login.form.username') }}：</div>
+              <div>demo</div>
+            </div>
+            <div class="flex items-center">
+              <div>{{ t('login.form.password') }}：</div>
+              <div>demo</div>
+            </div>
+          </div>
         </div>
         <a-divider v-if="isShowLDAP || isShowOIDC || isShowOAUTH" orientation="center" type="dashed" class="m-0 mb-2">
           <span class="text-[12px] font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
@@ -126,6 +136,8 @@
   const innerSlogan = computed(() => {
     return props.isPreview ? props.slogan : appStore.pageConfig.slogan;
   });
+
+  const showDemo = window.location.hostname === 'demo.metersphere.com';
 
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
