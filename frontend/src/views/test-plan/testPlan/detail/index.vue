@@ -107,8 +107,7 @@
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
-    <!-- TODO 先不上 -->
-    <!-- <BugManagement v-if="activeTab === 'defectList'" :plan-id="detail.id" /> -->
+    <BugManagement v-if="activeTab === 'defectList'" />
   </MsCard>
   <AssociateDrawer
     v-model:visible="caseAssociateVisible"
@@ -303,11 +302,10 @@
       value: 'featureCase',
       label: t('menu.caseManagement.featureCase'),
     },
-    // TODO 先不上
-    // {
-    //   key: 'defectList',
-    //   title: t('caseManagement.featureCase.defectList'),
-    // },
+    {
+      value: 'defectList',
+      label: t('caseManagement.featureCase.defectList'),
+    },
   ]);
   const hasSelectedIds = ref<string[]>([]);
   const caseAssociateVisible = ref(false);
