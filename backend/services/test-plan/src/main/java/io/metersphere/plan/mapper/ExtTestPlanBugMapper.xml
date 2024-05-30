@@ -2,8 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanBugMapper">
     <select id="list" parameterType="io.metersphere.plan.dto.request.TestPlanBugPageRequest" resultType="io.metersphere.plan.dto.response.TestPlanBugPageResponse">
-        select b.id as id, b.num as num, b.title as title, b.handle_user handleUser, b.status as status, b.create_user createUser, b.create_time createTime
+        select b.id as id, b.num as num, b.title as title, bc.description content, b.handle_user handleUser, b.status as status, b.create_user createUser, b.create_time createTime
         from bug_relation_case brc join bug b on brc.bug_id = b.id
+        left join bug_content bc on b.id = bc.bug_id
         where brc.test_plan_id = #{request.planId}
         <if test="request.keyword != null and request.keyword != ''">
             and (
@@ -26,8 +27,8 @@
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
         select brc.test_plan_case_id as id, fc.num as num, brc.bug_id as bugId, fc.name as name
         from bug_relation_case brc
-            join functional_case fc on brc.test_plan_case_id = fc.id
-        # 后续会有其他用例, 根据关联用例类型, 取不同用例表
+            join functional_case fc on brc.case_id = fc.id
+        <!-- 后续会有其他用例, 根据关联用例类型, 取不同用例表 -->
         where brc.test_plan_id = #{planId}
         and brc.bug_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
