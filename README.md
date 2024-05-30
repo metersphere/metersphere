@@ -29,7 +29,8 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
 -   技术交流群     
-    <image height="150px" width="150px" src="https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png"/>
+    <image height="150px" width="150px" src="https://github.com/metersphere/metersphere/assets/23045261/57314d2c-ea97-4a7d-b20c-0eb577c0ebbf"/>    
+
     
 
 ## UI 展示
