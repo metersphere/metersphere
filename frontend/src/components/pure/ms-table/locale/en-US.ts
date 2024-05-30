@@ -18,6 +18,7 @@ export default {
       clear: 'clear',
     },
     columnSetting: {
+      default: 'Default',
       display: 'Table Settings',
       mode: 'Mode Settings',
       drawer: 'Drawer',

@@ -67,7 +67,9 @@
       <a-divider class="!mt-[24px]" />
       <div class="mb-[4px] flex items-center justify-between">
         <div class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
-        <MsButton v-if="hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
+        <a-tooltip :content="t('msTable.columnSetting.default')" :disabled="hasChange">
+          <MsButton :disabled="!hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
+        </a-tooltip>
       </div>
       <div class="flex flex-col gap-[4px]">
         <div
