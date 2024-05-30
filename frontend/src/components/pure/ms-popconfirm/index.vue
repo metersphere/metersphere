@@ -95,6 +95,11 @@
     nameExistTipText?: string; // 添加重复提示文本
   }
 
+  export interface ConfirmValue {
+    field: string;
+    id?: string;
+  }
+
   const props = withDefaults(
     defineProps<{
       title: string; // 文本提示标题
@@ -117,7 +122,7 @@
     }
   );
   const emits = defineEmits<{
-    (e: 'confirm', formValue?: { field: string; id?: string }, cancel?: () => void): void;
+    (e: 'confirm', formValue: ConfirmValue, cancel?: () => void): void;
     (e: 'cancel'): void;
     (e: 'update:visible', visible: boolean): void;
   }>();
@@ -126,27 +131,11 @@
 
   const attrs = useAttrs();
   const formRef = ref<FormInstance>();
-  const isPass = ref(false);
-
-  const setValidateResult = (isValidatePass: boolean) => {
-    isPass.value = isValidatePass;
-  };
 
   // 表单
   const form = ref({
     field: props.fieldConfig?.field || '',
   });
-
-  // 校验表单
-  const validateForm = async () => {
-    await formRef.value?.validate((errors) => {
-      if (!errors) {
-        setValidateResult(true);
-      } else {
-        setValidateResult(false);
-      }
-    });
-  };
 
   // 重置
   const reset = () => {
@@ -160,13 +149,12 @@
     reset();
   };
 
-  const handleConfirm = async () => {
-    await validateForm();
-    if (props.isDelete) {
-      emits('confirm', undefined, handleCancel);
-    } else {
-      emits('confirm', { ...form.value, id: props.nodeId }, handleCancel);
-    }
+  const handleConfirm = () => {
+    formRef.value?.validate((errors) => {
+      if (!errors) {
+        emits('confirm', { ...form.value, id: props.nodeId }, handleCancel);
+      }
+    });
   };
   // 获取当前标题的样式
   const titleClass = computed(() => {
@@ -209,11 +197,6 @@
       }
     }
   };
-
-  defineExpose({
-    form,
-    isPass,
-  });
 </script>
 
 <style scoped lang="less">

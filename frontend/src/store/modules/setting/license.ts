@@ -18,7 +18,7 @@ const useLicenseStore = defineStore('license', {
       this.status = null;
     },
     hasLicense() {
-      return this.status && this.status === 'valid';
+      return this.status === 'valid';
     },
     getExpirationTime(resTime: string) {
       const today = Date.now();

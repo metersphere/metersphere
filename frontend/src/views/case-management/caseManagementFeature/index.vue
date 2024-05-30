@@ -51,7 +51,6 @@
                 </a-tooltip>
                 <MsPopConfirm
                   v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])"
-                  ref="confirmRef"
                   v-model:visible="addSubVisible"
                   :is-delete="false"
                   :title="t('caseManagement.featureCase.addSubModule')"
@@ -60,6 +59,7 @@
                   :ok-text="t('common.confirm')"
                   :field-config="{
                     placeholder: t('caseManagement.featureCase.addGroupTip'),
+                    nameExistTipText: t('project.fileManagement.nameExist'),
                   }"
                   @confirm="confirmHandler"
                 >
@@ -154,7 +154,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsPopConfirm, { ConfirmValue } from '@/components/pure/ms-popconfirm/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import CaseTable from './components/caseTable.vue';
@@ -231,22 +231,17 @@
   }
 
   const confirmLoading = ref(false);
-  const confirmRef = ref();
   const addSubVisible = ref(false);
   const caseTreeRef = ref();
   const caseTableRef = ref();
 
   // 添加子模块
-  const confirmHandler = async () => {
+  async function confirmHandler(formValue: ConfirmValue) {
     try {
       confirmLoading.value = true;
-      const { field } = confirmRef.value.form;
-      if (!confirmRef.value.isPass) {
-        return;
-      }
       const params: CreateOrUpdateModule = {
         projectId: currentProjectId.value,
-        name: field,
+        name: formValue.field,
         parentId: 'NONE',
       };
       await createCaseModuleTree(params);
@@ -254,11 +249,12 @@
       caseTreeRef.value.initModules();
       addSubVisible.value = false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;
     }
-  };
+  }
 
   /**
    * 设置根模块名称列表

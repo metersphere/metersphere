@@ -18,9 +18,6 @@
       v-bind="propsRes"
       :action-config="batchActions"
       :selectable="hasOperationPermission"
-      :draggable="
-        hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && props.canEdit ? { type: 'handle', width: 32 } : undefined
-      "
       v-on="propsEvent"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
@@ -173,7 +170,12 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type {
+    BatchActionParams,
+    BatchActionQueryParams,
+    MsTableColumn,
+    MsTableProps,
+  } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
@@ -345,15 +347,20 @@
       width: hasOperationPermission.value ? 200 : 50,
     },
   ]);
+
+  const tableProps = ref<Partial<MsTableProps<PlanDetailFeatureCaseItem>>>({
+    scroll: { x: '100%' },
+    tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
+    showSetting: true,
+    heightUsed: 460,
+    showSubdirectory: true,
+    draggable: { type: 'handle' },
+    draggableCondition: true,
+  });
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
     getPlanDetailFeatureCaseList,
-    {
-      scroll: { x: '100%' },
-      tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
-      showSetting: true,
-      heightUsed: 460,
-      showSubdirectory: true,
-    },
+    tableProps.value,
     (record) => {
       return {
         ...record,
@@ -363,6 +370,17 @@
       };
     }
   );
+
+  watch(
+    () => props.canEdit,
+    (val) => {
+      tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val;
+    },
+    {
+      immediate: true,
+    }
+  );
+
   const batchActions = {
     baseAction: [
       {

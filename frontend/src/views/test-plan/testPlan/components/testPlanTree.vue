@@ -34,7 +34,6 @@
       <template #extra="nodeData">
         <MsPopConfirm
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
-          :visible="addSubVisible"
           :is-delete="false"
           :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
           :title="t('testPlan.testPlanIndex.addSubModule')"
@@ -81,7 +80,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsPopConfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsPopConfirm, { ConfirmValue } from '@/components/pure/ms-popconfirm/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
@@ -297,16 +296,15 @@
     }
   };
 
-  const addSubVisible = ref(false);
   const confirmLoading = ref(false);
 
   // 添加子模块
-  async function addSubModule(formValue?: { field: string }, cancel?: () => void) {
+  async function addSubModule(formValue: ConfirmValue, cancel?: () => void) {
     try {
       confirmLoading.value = true;
       const params: CreateOrUpdateModule = {
         projectId: currentProjectId.value,
-        name: formValue?.field as string,
+        name: formValue.field,
         parentId: focusNodeKey.value,
       };
       await createPlanModuleTree(params);
@@ -316,6 +314,7 @@
       }
       initModules(true);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;
@@ -323,12 +322,12 @@
   }
 
   // 更新子模块
-  async function updateNameModule(formValue?: { field: string }, cancel?: () => void) {
+  async function updateNameModule(formValue: ConfirmValue, cancel?: () => void) {
     try {
       confirmLoading.value = true;
       const params: UpdateModule = {
         id: focusNodeKey.value,
-        name: formValue?.field as string,
+        name: formValue.field,
       };
       await updatePlanModuleTree(params);
       Message.success(t('common.updateSuccess'));
@@ -337,6 +336,7 @@
       }
       initModules();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;

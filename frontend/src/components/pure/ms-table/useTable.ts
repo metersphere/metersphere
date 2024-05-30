@@ -85,7 +85,7 @@ export default function useTableProps<T>(
   };
 
   // 属性组
-  const propsRes = ref<MsTableProps<T>>(defaultProps);
+  const propsRes = ref<MsTableProps<T>>(cloneDeep(defaultProps));
 
   // 排序
   const sortItem = ref<object>({});
@@ -366,11 +366,34 @@ export default function useTableProps<T>(
     propsRes.value.filter = cloneDeep(filterItem.value);
   };
 
+  /**
+   * 设置表格是否可拖拽
+   * @param otherCondition 其他条件，如果为false，则不设置
+   */
+  const setTableDraggable = (otherCondition?: boolean) => {
+    if (otherCondition === false || props?.draggableCondition === false) {
+      propsRes.value.draggable = undefined;
+    } else {
+      propsRes.value.draggable = props?.draggable;
+    }
+  };
+
+  watch(
+    () => props?.draggableCondition,
+    () => {
+      setTableDraggable();
+    },
+    {
+      immediate: true,
+    }
+  );
+
   // 事件触发组
   const propsEvent = ref({
     // 排序触发
     sorterChange: (sortObj: { [key: string]: string }) => {
       sortItem.value = sortObj;
+      setTableDraggable(Object.keys(sortItem.value).length === 0);
       loadList();
     },
 
@@ -387,7 +410,7 @@ export default function useTableProps<T>(
         filterItem.value = { ...getTableQueryParams().filter, [dataIndex]: filteredValues };
       }
       propsRes.value.filter = cloneDeep(filterItem.value);
-      propsRes.value.draggable = (filterItem.value[dataIndex] || []).length > 0 ? undefined : props?.draggable;
+      setTableDraggable((filterItem.value[dataIndex] || []).length === 0);
       loadList();
     },
     // 分页触发

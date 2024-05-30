@@ -87,6 +87,7 @@ export interface MsTableProps<T> {
   heightUsed?: number; // 已经使用的高度
   enableDrag?: boolean; // 表格是否可拖拽
   draggable?: TableDraggable;
+  draggableCondition?: boolean; // 允许拖拽的条件
   /** 选择器相关 */
   selectable?: boolean; // 是否显示选择器
   selectorType: 'none' | 'checkbox' | 'radio'; // 选择器类型
