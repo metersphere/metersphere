@@ -1,7 +1,10 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import jakarta.annotation.Resource;
@@ -22,6 +25,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -60,5 +65,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         //        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
+    public List<ApiDefinitionDTO> getApiPage(TestPlanApiRequest request, boolean isRepeat) {
+        List<ApiDefinitionDTO> list = extTestPlanApiCaseMapper.list(request, isRepeat);
+        apiDefinitionService.processApiDefinitions(list);
+        return list;
+    }
 
 }

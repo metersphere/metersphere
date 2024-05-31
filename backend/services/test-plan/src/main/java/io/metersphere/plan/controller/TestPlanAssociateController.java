@@ -2,9 +2,12 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.functional.service.FunctionalCaseService;
+import io.metersphere.plan.dto.request.TestPlanApiRequest;
+import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.plan.service.TestPlanConfigService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.security.CheckOwner;
@@ -32,6 +35,8 @@ public class TestPlanAssociateController {
     private TestPlanConfigService testPlanConfigService;
     @Resource
     private FunctionalCaseService functionalCaseService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-关联用例弹窗-功能用例列表查询(项目)")
@@ -45,6 +50,17 @@ public class TestPlanAssociateController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false, isRepeat));
+    }
+
+    @PostMapping("/api/page")
+    @Operation(summary = "测试计划-关联用例弹窗-接口列表查询(项目)")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public Pager<List<ApiDefinitionDTO>> getApiPage(@Validated @RequestBody TestPlanApiRequest request) {
+        boolean isRepeat = testPlanConfigService.isRepeatCase(request.getTestPlanId());
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
+        return PageUtils.setPageInfo(page, testPlanApiCaseService.getApiPage(request, isRepeat));
     }
 
 }

@@ -1,6 +1,7 @@
 package io.metersphere.plan.controller;
 
 import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 @AutoConfigureMockMvc
 public class TestPlanAssociateControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_ASSOCIATION_URL = "/test-plan/association/page";
+    public static final String API_ASSOCIATION_URL = "/test-plan/association/api/page";
 
     @Test
     @Order(1)
@@ -38,5 +40,23 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
+    }
+
+    @Test
+    @Order(2)
+    public void testApiPageList() throws Exception {
+        TestPlanApiRequest request = new TestPlanApiRequest();
+        request.setProjectId("123");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setTestPlanId("wxx_1");
+        this.requestPost(API_ASSOCIATION_URL, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_ASSOCIATION_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
     }
 }
