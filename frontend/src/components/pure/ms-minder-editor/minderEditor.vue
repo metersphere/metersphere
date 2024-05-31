@@ -63,14 +63,14 @@
 </template>
 
 <script lang="ts" name="minderEditor" setup>
-  import { debounce } from 'lodash-es';
-
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import minderHeader from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { MinderEvent } from '@/store/modules/components/minder-editor/types';
 
+  import useEventListener from './hooks/useEventListener';
   import {
     delProps,
     editMenuProps,
@@ -88,8 +88,10 @@
     (e: 'moldChange', data: number): void;
     (e: 'save', data: Record<string, any>): void;
     (e: 'afterMount'): void;
-    (e: 'enterNode', data: any): void;
-    (e: 'nodeSelect', data: any): void;
+    (e: 'enterNode', data: MinderJsonNode): void;
+    (e: 'nodeSelect', data: MinderJsonNode): void;
+    (e: 'contentChange', data: MinderJsonNode): void;
+    (e: 'action', event: MinderEvent): void;
   }>();
 
   const props = defineProps({
@@ -133,18 +135,19 @@
   }
 
   onMounted(() => {
-    nextTick(() => {
-      if (window.minder.on) {
-        window.minder.on(
-          'selectionchange',
-          debounce(() => {
-            const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
-            if (Object.keys(window.minder).length > 0 && selectedNode) {
-              emit('nodeSelect', selectedNode);
-            }
-          }, 300)
-        );
-      }
+    useEventListener({
+      handleSelectionChange: () => {
+        const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+        if (Object.keys(window.minder).length > 0 && selectedNode) {
+          emit('nodeSelect', selectedNode);
+        }
+      },
+      handleContentChange: (node: MinderJsonNode) => {
+        emit('contentChange', node);
+      },
+      handleMinderEvent: (event) => {
+        emit('action', event);
+      },
     });
   });
 </script>

@@ -19,12 +19,6 @@
             <div class="ml-[4px] text-[var(--color-text-4)]">( / )</div>
           </div>
         </a-doption>
-        <a-doption value="insetParent">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.insetParent') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Shift + Tab)</div>
-          </div>
-        </a-doption>
         <a-doption value="insetSon">
           <div class="flex items-center">
             <div>{{ t('minder.hotboxMenu.insetSon') }}</div>
@@ -94,7 +88,15 @@
 
   import { MinderEventName } from '@/enums/minderEnum';
 
-  import { editMenuProps, insertProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
+  import {
+    editMenuProps,
+    insertProps,
+    mainEditorProps,
+    MinderJson,
+    MinderJsonNode,
+    priorityProps,
+    tagProps,
+  } from '../props';
   import Editor from '../script/editor';
   import { markChangeNode, markDeleteNode } from '../script/tool/utils';
   import type { Ref } from 'vue';
@@ -102,11 +104,10 @@
   const { t } = useI18n();
   const props = defineProps({ ...editMenuProps, ...insertProps, ...mainEditorProps, ...tagProps, ...priorityProps });
 
-  const emit = defineEmits({
-    afterMount: () => ({}),
-    save: (json) => json,
-    enterNode: (data) => data,
-  });
+  const emit = defineEmits<{
+    (e: 'afterMount'): void;
+    (e: 'save', json: MinderJson): void;
+  }>();
 
   const minderStore = useMinderStore();
   const mec: Ref<HTMLDivElement | null> = ref(null);
@@ -192,7 +193,7 @@
         'appendsiblingnode',
       ]);
       if (selectNodes && !notChangeCommands.has(env.commandName.toLocaleLowerCase())) {
-        selectNodes.forEach((node: any) => {
+        selectNodes.forEach((node: MinderJsonNode) => {
           markChangeNode(node);
         });
       }
@@ -233,6 +234,7 @@
     innerImportJson.value.data.expandState = 'expand';
     window.minder.importJson(innerImportJson.value);
     window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[minderStore.mold]);
+    minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, node);
   }
 
   watch(
@@ -280,27 +282,35 @@
         } else {
           window.minder.execCommand('Collapse');
         }
+        minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, selectedNode);
         break;
       case 'insetParent':
         execInsertCommand('AppendParentNode');
+        minderStore.dispatchEvent(MinderEventName.INSERT_PARENT, undefined, undefined, selectedNode);
         break;
       case 'insetSon':
         execInsertCommand('AppendChildNode');
+        minderStore.dispatchEvent(MinderEventName.INSERT_CHILD, undefined, undefined, selectedNode);
         break;
       case 'insetBrother':
         execInsertCommand('AppendSiblingNode');
+        minderStore.dispatchEvent(MinderEventName.INSERT_SIBLING, undefined, undefined, selectedNode);
         break;
       case 'copy':
         window.minder.execCommand('Copy');
+        minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, selectedNode);
         break;
       case 'cut':
         window.minder.execCommand('Cut');
+        minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, selectedNode);
         break;
       case 'paste':
         window.minder.execCommand('Paste');
+        minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, selectedNode);
         break;
       case 'delete':
         window.minder.execCommand('RemoveNode');
+        minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, selectedNode);
         break;
       case 'enterNode':
         switchNode(selectedNode.data);

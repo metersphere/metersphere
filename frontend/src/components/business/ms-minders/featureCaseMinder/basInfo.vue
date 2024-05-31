@@ -63,6 +63,7 @@
     loading: boolean;
   }>();
   const emit = defineEmits<{
+    (e: 'initTemplate', id: string): void;
     (e: 'cancel'): void;
   }>();
 
@@ -118,6 +119,7 @@
       });
       formRules.value = result.filter((e: any) => e);
       baseInfoLoading.value = false;
+      emit('initTemplate', id);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -129,6 +131,22 @@
   });
 
   const saveLoading = ref(false);
+
+  function makeParams() {
+    return {
+      ...baseInfoForm.value,
+      id: props.activeCase.id,
+      projectId: appStore.currentProjectId,
+      caseEditType: props.activeCase.caseEditType,
+      customFields: formItem.value.map((item: any) => {
+        return {
+          fieldId: item.field,
+          value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+        };
+      }),
+    };
+  }
+
   function handleSave() {
     baseInfoFormRef.value?.validate((errors) => {
       if (!errors) {
@@ -136,20 +154,8 @@
           if (valid === true) {
             try {
               saveLoading.value = true;
-              const data = {
-                ...baseInfoForm.value,
-                id: props.activeCase.id,
-                projectId: appStore.currentProjectId,
-                caseEditType: props.activeCase.caseEditType,
-                customFields: formItem.value.map((item: any) => {
-                  return {
-                    fieldId: item.field,
-                    value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
-                  };
-                }),
-              };
               await updateCaseRequest({
-                request: data,
+                request: makeParams(),
                 fileList: [],
               });
               const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
@@ -181,6 +187,10 @@
       immediate: true,
     }
   );
+
+  defineExpose({
+    makeParams,
+  });
 </script>
 
 <style lang="less" scoped>

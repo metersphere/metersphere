@@ -64,31 +64,29 @@
     width: 400px;
     height: 40px;
   }
-
   .login-qrcode {
-    min-width: 480px;
     display: flex;
     align-items: center;
-    flex-direction: column;
     margin-top: 24px;
+    min-width: 480px;
+    flex-direction: column;
     .qrcode {
       display: flex;
-      overflow: hidden;
       justify-content: center;
       align-items: center;
+      overflow: hidden;
       border-radius: 8px;
-      background: #fff;
+      background: #ffffff;
     }
-
     .title {
       display: flex;
-      align-items: center;
       justify-content: center;
-      margin: 0px 0 16px 0;
+      align-items: center;
       overflow: hidden;
+      margin: 0 0 16px;
       font-size: 18px;
-      font-style: normal;
       font-weight: 500;
+      font-style: normal;
       line-height: 26px;
       .ed-icon {
         margin-right: 8px;

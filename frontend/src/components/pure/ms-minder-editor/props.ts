@@ -16,6 +16,8 @@ export interface MinderJsonNodeData {
   expandState?: 'collapse' | 'expand';
   priority?: number;
   // 前端渲染字段
+  isNew?: boolean; // 是否脑图新增节点，需要在初始化脑图数据时标记已存在节点为 false 以区分是否新增节点
+  changed?: boolean; // 脑图节点是否发生过变化
   [key: string]: any;
 }
 export interface MinderJsonNode {

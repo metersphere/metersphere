@@ -13,14 +13,18 @@
     single-tag
     tag-enable
     sequence-enable
+    @content-change="handleContentChange"
     @node-select="handleNodeSelect"
+    @action="handleAction"
     @save="handleMinderSave"
   >
     <template #extractTabContent>
       <baseInfo
         v-if="activeExtraKey === 'baseInfo'"
+        ref="baseInfoRef"
         :loading="baseInfoLoading"
         :active-case="activeCase"
+        @init-template="(id) => (templateId = id)"
         @cancel="handleBaseInfoCancel"
       />
       <attachment
@@ -54,9 +58,16 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { getGenerateId, mapTree } from '@/utils';
+  import { MinderEvent } from '@/store/modules/components/minder-editor/types';
+  import { filterTree, getGenerateId, mapTree } from '@/utils';
 
+  import {
+    FeatureCaseMinderEditType,
+    FeatureCaseMinderStepItem,
+    FeatureCaseMinderUpdateParams,
+  } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
+  import { MinderEventName } from '@/enums/minderEnum';
 
   import { convertToFile, initFormCreate } from '@/views/case-management/caseManagementFeature/components/utils';
 
@@ -72,7 +83,12 @@
   const caseTag = t('common.case');
   const moduleTag = t('common.module');
   const topTags = [moduleTag, caseTag];
-  const descTags = [t('ms.minders.stepDesc'), t('ms.minders.textDesc')];
+  const stepTag = t('ms.minders.stepDesc');
+  const textTag = t('ms.minders.textDesc');
+  const prerequisiteTag = t('ms.minders.precondition');
+  const remarkTag = t('common.remark');
+  const descTags = [stepTag, textTag];
+  const caseChildTags = [prerequisiteTag, stepTag, textTag, remarkTag];
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
     template: 'default',
@@ -80,6 +96,14 @@
   });
   const caseTree = ref<MinderJsonNode[]>([]);
   const loading = ref(false);
+  const tempMinderParams = ref<FeatureCaseMinderUpdateParams>({
+    projectId: appStore.currentProjectId,
+    versionId: '',
+    updateCaseList: [],
+    updateModuleList: [],
+    deleteResourceList: [],
+  });
+  const templateId = ref('');
 
   /**
    * 初始化用例模块树
@@ -99,6 +123,7 @@
           resource: e.data?.id === 'fakeNode' ? [] : [moduleTag],
           expandState: e.level === 1 ? 'expand' : 'collapse',
           count: props.modulesCount[e.id],
+          isNew: false,
         },
         children:
           props.modulesCount[e.id] > 0 && !e.children?.length
@@ -108,6 +133,7 @@
                     id: 'fakeNode',
                     text: 'fakeNode',
                     resource: ['fakeNode'],
+                    isNew: false,
                   },
                 },
               ]
@@ -140,11 +166,19 @@
         projectId: appStore.currentProjectId,
         moduleId: props.moduleId === 'all' ? '' : props.moduleId,
       });
-      importJson.value.root.children = res;
+      importJson.value.root.children = mapTree(res, (node) => {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            isNew: false,
+          },
+        };
+      });
       importJson.value.root.data = {
         id: props.moduleId === 'all' ? '' : props.moduleId,
         text: props.moduleName,
-        resource: [t('common.module')],
+        resource: [moduleTag],
       };
       window.minder.importJson(importJson.value);
     } catch (error) {
@@ -163,15 +197,83 @@
     }
   });
 
-  async function handleMinderSave(data: any) {
+  const baseInfoRef = ref<InstanceType<typeof baseInfo>>();
+
+  /**
+   * 解析用例节点信息
+   * @param node 用例节点
+   */
+  function getCaseNodeInfo(node: MinderJsonNode) {
+    let textStep: MinderJsonNode | undefined;
+    let prerequisiteNode: MinderJsonNode | undefined;
+    let remarkNode: MinderJsonNode | undefined;
+    const stepNodes: MinderJsonNode[] = [];
+    node.children?.forEach((item) => {
+      if (item.data.resource?.includes(textTag)) {
+        textStep = item;
+      } else if (item.data.resource?.includes(stepTag)) {
+        stepNodes.push(item);
+      } else if (item.data.resource?.includes(prerequisiteTag)) {
+        prerequisiteNode = item;
+      } else if (item.data.resource?.includes(remarkTag)) {
+        remarkNode = item;
+      }
+    });
+    const steps: FeatureCaseMinderStepItem[] = stepNodes.map((child, i) => {
+      return {
+        id: child.data.id,
+        num: i,
+        desc: child.data.text,
+        result: child.children?.[0].data.text || '',
+      };
+    });
+    return {
+      prerequisite: prerequisiteNode?.data.text || '',
+      caseEditType: steps.length > 0 ? 'STEP' : ('TEXT' as FeatureCaseMinderEditType),
+      steps,
+      textDescription: textStep?.data.text || '',
+      expectedResult: textStep?.children?.[0]?.data.text || '',
+      description: remarkNode?.data.text || '',
+    };
+  }
+
+  /**
+   * 生成脑图保存的入参
+   */
+  function makeMinderParams(): FeatureCaseMinderUpdateParams {
+    const fullJson: MinderJson = window.minder.exportJson();
+    filterTree(fullJson.root.children, (node) => {
+      if (node.data.isNew !== false || node.data.changed === true) {
+        if (node.data.resource?.includes(moduleTag)) {
+          tempMinderParams.value.updateModuleList.push({
+            id: node.data.id,
+            name: node.data.text,
+            parentId: node.parent?.data.id || '',
+            type: node.data.isNew ? 'ADD' : 'UPDATE',
+          });
+        } else if (node.data.resource?.includes(caseTag)) {
+          const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
+          tempMinderParams.value.updateCaseList.push({
+            id: node.data.id,
+            name: node.data.text,
+            moduleId: node.parent?.data.id || '',
+            type: node.data.isNew ? 'ADD' : 'UPDATE',
+            templateId: templateId.value,
+            tags: node.data.resource || [],
+            customFields: baseInfoRef.value?.makeParams().customFields || [],
+            ...caseNodeInfo,
+          });
+          return false; // 用例的子孙节点已经处理过，跳过
+        }
+      }
+      return true;
+    });
+    return tempMinderParams.value;
+  }
+
+  async function handleMinderSave() {
     try {
-      await saveCaseMinder({
-        projectId: appStore.currentProjectId,
-        versionId: '',
-        updateCaseList: data,
-        updateModuleList: [],
-        deleteResourceList: [],
-      });
+      await saveCaseMinder(makeMinderParams());
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -196,13 +298,17 @@
     if (node.data?.resource?.some((e) => descTags.includes(e))) {
       // 选中节点属于描述节点，可替换为除自身外的描述标签
       if (
-        node.data.resource.includes(t('ms.minders.stepDesc')) &&
-        (node.parent?.children?.filter((e) => e.data?.resource?.includes(t('ms.minders.stepDesc'))) || []).length > 1
+        node.data.resource.includes(stepTag) &&
+        (node.parent?.children?.filter((e) => e.data?.resource?.includes(stepTag)) || []).length > 1
       ) {
         // 如果当前节点是步骤描述，则需要判断是否有其他步骤描述节点，如果有，则不可替换为文本描述
         return [];
       }
       return descTags.filter((tag) => !node.data?.resource?.includes(tag));
+    }
+    if ((!node.data?.resource || node.data.resource.length === 0) && node.parent?.data?.resource?.includes(caseTag)) {
+      // 选中节点无标签，且父节点为用例节点，可替换用例下级标签
+      return caseChildTags;
     }
     if (
       (!node.data?.resource || node.data.resource.length === 0) &&
@@ -210,7 +316,6 @@
         node.parent?.data?.resource.length === 0 ||
         node.parent?.data?.resource?.some((e) => topTags.includes(e)))
     ) {
-      // 选中节点无标签，且父节点为顶级节点，可替换为顶级标签
       // 如果选中节点子级含有用例节点或模块节点，则不可将选中节点标记为用例
       return node.children &&
         (node.children.some((e) => e.data?.resource?.includes(caseTag)) ||
@@ -242,24 +347,14 @@
       parent: node,
       data: {
         id: getGenerateId(),
-        text: t('ms.minders.precondition'),
-        resource: [t('ms.minders.precondition')],
+        text: prerequisiteTag,
+        resource: [prerequisiteTag],
         expandState: 'expand',
+        isNew: true,
       },
       children: [],
     };
-    const sibling = {
-      parent: child,
-      data: {
-        id: getGenerateId(),
-        text: '',
-        resource: [],
-      },
-    };
     execInert(type, child.data);
-    nextTick(() => {
-      execInert('AppendChildNode', sibling.data);
-    });
   }
 
   /**
@@ -272,37 +367,14 @@
       parent: node,
       data: {
         id: getGenerateId(),
-        text: t('common.remark'),
-        resource: [t('common.remark')],
+        text: remarkTag,
+        resource: [remarkTag],
+        isNew: true,
       },
       children: [],
     };
     execInert(type, child.data);
   }
-
-  // function insertTextDesc(node: MinderJsonNode, type: string) {
-  //   const child = {
-  //     parent: node,
-  //     data: {
-  //       id: getGenerateId(),
-  //       text: t('ms.minders.textDesc'),
-  //       resource: [t('ms.minders.textDesc')],
-  //     },
-  //     children: [],
-  //   };
-  //   const sibling = {
-  //     parent: child,
-  //     data: {
-  //       id: getGenerateId(),
-  //       text: t('ms.minders.stepExpect'),
-  //       resource: [t('ms.minders.stepExpect')],
-  //     },
-  //   };
-  //   execInert(type, {
-  //     ...child,
-  //     children: [sibling],
-  //   });
-  // }
 
   /**
    * 插入步骤描述
@@ -316,6 +388,7 @@
         id: getGenerateId(),
         text: t('ms.minders.stepDesc'),
         resource: [t('ms.minders.stepDesc')],
+        isNew: true,
       },
       children: [],
     };
@@ -325,6 +398,7 @@
         id: getGenerateId(),
         text: t('ms.minders.stepExpect'),
         resource: [t('ms.minders.stepExpect')],
+        isNew: true,
       },
     };
     execInert(type, child.data);
@@ -345,6 +419,7 @@
         id: getGenerateId(),
         text: t('ms.minders.stepExpect'),
         resource: [t('ms.minders.stepExpect')],
+        isNew: true,
       },
       children: [],
     };
@@ -373,11 +448,11 @@
             let hasRemark = false;
             for (let i = 0; i < node.children.length; i++) {
               const child = node.children[i];
-              if (child.data?.resource?.includes(t('ms.minders.precondition'))) {
+              if (child.data?.resource?.includes(prerequisiteTag)) {
                 hasPreCondition = true;
-              } else if (child.data?.resource?.includes(t('ms.minders.textDesc'))) {
+              } else if (child.data?.resource?.includes(textTag)) {
                 hasTextDesc = true;
-              } else if (child.data?.resource?.includes(t('common.remark'))) {
+              } else if (child.data?.resource?.includes(remarkTag)) {
                 hasRemark = true;
               }
             }
@@ -393,19 +468,15 @@
             }
           }
         } else if (
-          (node.data?.resource?.includes(t('ms.minders.stepDesc')) ||
-            node.data?.resource?.includes(t('ms.minders.textDesc'))) &&
+          (node.data?.resource?.includes(stepTag) || node.data?.resource?.includes(textTag)) &&
           (!node.children || node.children.length === 0)
         ) {
           // 当前节点是步骤描述或文本描述，且没有子节点，则默认添加一个预期结果
           insertExpect(node, 'AppendChildNode');
-        } else if (node.data?.resource?.includes(t('ms.minders.precondition'))) {
+        } else if (node.data?.resource?.includes(prerequisiteTag) && (!node.children || node.children.length === 0)) {
           // 当前节点是前置条件，则默认添加一个文本节点
           execInert('AppendChildNode');
         }
-        break;
-      case 'AppendParentNode':
-        execInert('AppendParentNode');
         break;
       case 'AppendSiblingNode':
         if (node.parent?.data?.resource?.includes(caseTag) && node.parent?.children) {
@@ -415,11 +486,11 @@
           let hasRemark = false;
           for (let i = 0; i < node.parent.children.length; i++) {
             const sibling = node.parent.children[i];
-            if (sibling.data?.resource?.includes(t('ms.minders.precondition'))) {
+            if (sibling.data?.resource?.includes(prerequisiteTag)) {
               hasPreCondition = true;
-            } else if (sibling.data?.resource?.includes(t('common.remark'))) {
+            } else if (sibling.data?.resource?.includes(remarkTag)) {
               hasRemark = true;
-            } else if (sibling.data?.resource?.includes(t('ms.minders.textDesc'))) {
+            } else if (sibling.data?.resource?.includes(textTag)) {
               hasTextDesc = true;
             }
           }
@@ -460,10 +531,39 @@
    */
   function afterTagEdit(node: MinderJsonNode, tag: string) {
     if (tag === moduleTag && node.data) {
+      // 排除是从用例节点切换到模块节点的数据
+      tempMinderParams.value.updateCaseList = tempMinderParams.value.updateCaseList.filter(
+        (e) => e.id !== node.data.id
+      );
+      // tempMinderParams.value.updateModuleList.push({
+      //   id: node.data.id,
+      //   name: node.data.text,
+      //   type: 'ADD',
+      //   parentId: node.parent?.data.id || '',
+      // });
       window.minder.execCommand('priority');
+    } else if (node.data.resource?.includes(caseTag)) {
+      // 排除是从模块节点切换到用例节点的数据
+      tempMinderParams.value.updateModuleList = tempMinderParams.value.updateModuleList.filter(
+        (e) => e.id !== node.data.id
+      );
+      // tempMinderParams.value.updateCaseList.push({
+      //   id: node.data.id,
+      //   name: node.data.text,
+      //   moduleId: node.parent?.data.id || '',
+      //   type: 'ADD',
+      //   templateId: templateId.value,
+      //   prerequisite: '',
+      //   caseEditType: 'STEP',
+      //   steps: [],
+      //   textDescription: '',
+      //   expectedResult: '',
+      //   description: '',
+      //   tags: [],
+      //   customFields: [],
+      // });
     }
   }
-
   const baseInfoLoading = ref(false);
 
   const formRules = ref<FormItem[]>([]);
@@ -562,6 +662,24 @@
     resetExtractInfo();
   }
 
+  function handleContentChange(node: MinderJsonNode) {
+    const { resource } = node.data;
+    // 用例下的子节点更改，触发用例更改
+    if (
+      resource?.includes(prerequisiteTag) ||
+      resource?.includes(stepTag) ||
+      resource?.includes(textTag) ||
+      resource?.includes(remarkTag)
+    ) {
+      if (node.parent) {
+        node.parent.data.changed = true;
+      }
+    } else if (node.parent?.parent?.data.resource?.includes(caseTag)) {
+      // 用例下子节点的子节点更改，触发用例更改
+      node.parent.parent.data.changed = true;
+    }
+  }
+
   /**
    * 处理脑图节点激活/点击
    * @param node 被激活/点击的节点
@@ -594,15 +712,33 @@
         // TODO:递归渲染存在的子节点
         res.forEach((e) => {
           // 用例节点
-          const child = window.minder.createNode(e.data, node);
+          const child = window.minder.createNode(
+            {
+              ...e.data,
+              isNew: false,
+            },
+            node
+          );
           child.render();
           e.children?.forEach((item) => {
             // 前置/步骤/备注节点
-            const grandChild = window.minder.createNode(item.data, child);
+            const grandChild = window.minder.createNode(
+              {
+                ...item.data,
+                isNew: false,
+              },
+              child
+            );
             grandChild.render();
             item.children?.forEach((subItem) => {
               // 预期结果节点
-              const greatGrandChild = window.minder.createNode(subItem.data, grandChild);
+              const greatGrandChild = window.minder.createNode(
+                {
+                  ...subItem.data,
+                  isNew: false,
+                },
+                grandChild
+              );
               greatGrandChild.render();
             });
           });
@@ -624,6 +760,37 @@
     } else {
       extraVisible.value = false;
       resetExtractInfo();
+    }
+  }
+
+  /**
+   * 处理脑图节点操作
+   * @param event 脑图事件对象
+   */
+  function handleAction(event: MinderEvent) {
+    const { node, name } = event;
+    if (node) {
+      switch (name) {
+        case MinderEventName.DELETE_NODE:
+          tempMinderParams.value.deleteResourceList.push({
+            id: node.data.id,
+            type: node.data?.resource?.[0] || moduleTag,
+          });
+          if (node.data?.resource?.includes(caseTag)) {
+            // 删除用例节点
+            tempMinderParams.value.updateCaseList = tempMinderParams.value.updateCaseList.filter(
+              (e) => e.id !== node.data.id
+            );
+          } else if (node.data?.resource?.includes(moduleTag)) {
+            // 删除模块节点
+            tempMinderParams.value.updateModuleList = tempMinderParams.value.updateModuleList.filter(
+              (e) => e.id !== node.data.id
+            );
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 </script>

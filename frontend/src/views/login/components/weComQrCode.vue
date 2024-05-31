@@ -39,10 +39,10 @@
         state: 'fit2cloud-wecom-qr',
         redirect_type: WWLoginRedirectType.callback,
       },
-      onCheckWeComLogin({ isWeComLogin }) {
+      onCheckWeComLogin({ isWeComLogin }: any) {
         console.log(isWeComLogin);
       },
-      async onLoginSuccess({ code }) {
+      async onLoginSuccess({ code }: any) {
         const weComCallback = getWeComCallback(code);
         userStore.qrCodeLogin(await weComCallback);
         Message.success(t('login.form.login.success'));
@@ -71,7 +71,7 @@
           },
         });
       },
-      onLoginFail(err) {
+      onLoginFail(err: any) {
         console.log(err);
       },
     });

@@ -1,3 +1,5 @@
+import type { MinderJsonNode } from '../../props';
+
 export function isDisableNode(minder: any) {
   let node;
   if (minder && minder.getSelectedNode) {
@@ -20,7 +22,7 @@ export function isDeleteDisableNode(minder: any) {
   return false;
 }
 
-export function isTagEnableNode(node: any) {
+export function isTagEnableNode(node: MinderJsonNode) {
   if (node && (node.data.tagEnable === true || node.data.allowDisabledTag === true)) {
     return true;
   }
@@ -38,19 +40,13 @@ export function isTagEnable(minder: any) {
   return false;
 }
 
-export function markChangeNode(node: any) {
-  if (node && node.data) {
-    // 修改的该节点标记为 contextChanged
-    node.data.contextChanged = true;
-    while (node) {
-      // 该路径上的节点都标记为 changed
-      node.data.changed = true;
-      node = node.parent;
-    }
+export function markChangeNode(node: MinderJsonNode) {
+  if (node.data) {
+    node.data.changed = true;
   }
 }
 
-function markDelNode(node: any, deleteChild: any) {
+function markDelNode(node: MinderJsonNode, deleteChild: any) {
   deleteChild.push(node.data);
   if (node.children) {
     node.children.forEach((child: any) => {
@@ -63,7 +59,7 @@ function markDelNode(node: any, deleteChild: any) {
 export function markDeleteNode(minder: any) {
   if (minder) {
     const nodes = minder.getSelectedNodes();
-    nodes.forEach((node: any) => {
+    nodes.forEach((node: MinderJsonNode) => {
       if (node && node.parent) {
         const pData = node.parent.data;
         if (!pData.deleteChild) {
@@ -118,7 +114,7 @@ export function resetNodes(nodes: any) {
   }
 }
 
-export function isDisableForNode(node: any) {
+export function isDisableForNode(node: MinderJsonNode) {
   if (node && node.data.disable === true) {
     return true;
   }
