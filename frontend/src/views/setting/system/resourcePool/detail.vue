@@ -782,7 +782,7 @@
         }
       : {};
 
-    const jobDTO = isShowK8SResources ? { jobDefinition } : {};
+    const jobDTO = isShowK8SResources.value ? { jobDefinition } : {};
     return {
       ...form.value,
       type: isShowTypeItem.value ? form.value.type : 'Node', // 默认给 Node，后台需要
