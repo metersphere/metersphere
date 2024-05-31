@@ -9,7 +9,7 @@ import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.schedule.BaseScheduleJob;
-import io.metersphere.system.service.NormalUserService;
+import io.metersphere.system.service.SimpleUserService;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -18,12 +18,12 @@ import org.quartz.TriggerKey;
 public class SwaggerUrlImportJob extends BaseScheduleJob {
     private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
     private ApiDefinitionScheduleService apiDefinitionScheduleService;
-    private NormalUserService normalUserService;
+    private SimpleUserService simpleUserService;
 
     public SwaggerUrlImportJob() {
         apiDefinitionImportUtilService = CommonBeanFactory.getBean(ApiDefinitionImportUtilService.class);
         apiDefinitionScheduleService = CommonBeanFactory.getBean(ApiDefinitionScheduleService.class);
-        normalUserService = CommonBeanFactory.getBean(NormalUserService.class);
+        simpleUserService = CommonBeanFactory.getBean(SimpleUserService.class);
     }
 
     @Override
