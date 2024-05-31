@@ -53,6 +53,9 @@
         </a-select>
         <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
       </template>
+      <template #bugCount="{ record }">
+        <BugCountPopover :case-item="record" :can-edit="props.canEdit" @load-list="loadList" />
+      </template>
       <template v-if="props.canEdit" #operation="{ record }">
         <MsButton
           v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
@@ -180,6 +183,7 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import MsSelect from '@/components/business/ms-select';
+  import BugCountPopover from './bugCountPopover.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
   import {
@@ -322,6 +326,7 @@
     {
       title: 'testPlan.featureCase.bugCount',
       dataIndex: 'bugCount',
+      slotName: 'bugCount',
       width: 100,
       showDrag: true,
     },

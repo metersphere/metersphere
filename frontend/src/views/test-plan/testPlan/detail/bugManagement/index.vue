@@ -182,3 +182,13 @@
     getFetch();
   });
 </script>
+
+<style lang="less">
+  .bug-content-popover {
+    .arco-popover-content {
+      overflow: auto;
+      max-height: 400px;
+      .ms-scroll-bar();
+    }
+  }
+</style>

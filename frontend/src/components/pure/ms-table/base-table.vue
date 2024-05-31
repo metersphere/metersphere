@@ -736,6 +736,11 @@
       line-height: normal;
       height: 48px;
     }
+    :deep(.arco-table-size-mini) {
+      .arco-table-td {
+        height: 36px;
+      }
+    }
     :deep(.arco-table-cell-align-left) {
       .arco-table-td-content {
         @apply flex items-center;

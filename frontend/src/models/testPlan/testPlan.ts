@@ -114,7 +114,7 @@ export interface PlanDetailBugItem {
   id: string;
   num: string;
   title: string;
-  relateCase: {
+  relateCases: {
     id: string;
     bugId: string;
     name: string;
@@ -152,6 +152,13 @@ export interface PlanDetailFeatureCaseItem {
   customFields: customFieldsItem[]; // 自定义字段集合
   caseId: string;
   testPlanId: string;
+  bugList: {
+    bugId: string;
+    id: string;
+    title: string;
+    type: string;
+    caseId: string;
+  }[];
 }
 
 export interface PlanDetailFeatureCaseListQueryParams extends TableQueryParams, TestPlanBaseParams {}
