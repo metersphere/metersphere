@@ -242,6 +242,7 @@
     }
   };
   const handleCancel = (shouldSearch: boolean) => {
+    formRef.value?.resetFields();
     emit('cancel', shouldSearch);
   };
 

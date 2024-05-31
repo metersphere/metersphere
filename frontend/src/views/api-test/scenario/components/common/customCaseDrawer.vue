@@ -965,8 +965,14 @@
     return true;
   }
 
+  const isReplace = ref(false);
+
   function handleClose() {
-    emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
+    if (isReplace.value) {
+      isReplace.value = false;
+    } else {
+      emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
+    }
   }
 
   // const showAddDependencyDrawer = ref(false);
@@ -1019,8 +1025,9 @@
    * @param newStep 替换的新步骤
    */
   function handleReplace(newStep: ScenarioStepItem) {
+    isReplace.value = true;
     emit('replace', {
-      ...newStep,
+      ...cloneDeep(newStep),
       name: activeStep.value?.name || newStep.name,
     });
   }

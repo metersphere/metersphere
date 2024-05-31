@@ -3,22 +3,26 @@ import dayjs from 'dayjs';
 
 import { getLicenseInfo } from '@/api/modules/setting/authorizedManagement';
 
+import type { LicenseInfo } from '@/models/setting/authorizedManagement';
+
 const useLicenseStore = defineStore('license', {
   persist: true,
-  state: (): { status: string | null; expiredDuring: boolean; expiredDays: number } => ({
-    status: '',
+  state: (): { licenseInfo: LicenseInfo | null; expiredDuring: boolean; expiredDays: number } => ({
+    licenseInfo: null,
     expiredDuring: false,
     expiredDays: 0,
   }),
   actions: {
-    setLicenseStatus(status: string) {
-      this.status = status;
+    setLicenseInfo(info: LicenseInfo) {
+      this.licenseInfo = info;
     },
     removeLicenseStatus() {
-      this.status = null;
+      if (this.licenseInfo) {
+        this.licenseInfo.status = null;
+      }
     },
     hasLicense() {
-      return this.status === 'valid';
+      return this.licenseInfo?.status === 'valid';
     },
     getExpirationTime(resTime: string) {
       const today = Date.now();
@@ -42,10 +46,11 @@ const useLicenseStore = defineStore('license', {
         if (!result || !result.status || !result.license || !result.license.count) {
           return;
         }
-        this.setLicenseStatus(result.status);
+        this.setLicenseInfo(result);
         // 计算license时间
         this.getExpirationTime(result.license.expired);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },

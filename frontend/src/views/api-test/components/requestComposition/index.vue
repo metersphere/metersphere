@@ -1254,14 +1254,15 @@
         saveLoading.value = true;
       }
       let params;
+      const requestParams = makeRequestParams();
       if (props.isDefinition) {
         params = {
-          ...(fullParams || makeRequestParams()),
+          ...(fullParams || requestParams),
           ...props.otherParams,
         };
       } else {
         params = {
-          ...(fullParams || makeRequestParams()),
+          ...(fullParams || requestParams),
           ...saveModalForm.value,
           path: isHttpProtocol.value ? saveModalForm.value.path : undefined,
           ...props.otherParams,
@@ -1280,6 +1281,17 @@
       requestVModel.value.url = res.path;
       requestVModel.value.path = res.path;
       requestVModel.value.moduleId = res.moduleId;
+      if (!isHttpProtocol.value) {
+        requestVModel.value = {
+          ...requestVModel.value,
+          ...fApi.value?.formData(), // 存储插件表单数据
+          uploadFileIds: requestParams.uploadFileIds,
+          linkFileIds: requestParams.linkFileIds,
+        };
+      } else {
+        requestVModel.value.uploadFileIds = requestParams.uploadFileIds;
+        requestVModel.value.linkFileIds = requestParams.linkFileIds;
+      }
       if (!props.isDefinition) {
         saveModalVisible.value = false;
       }

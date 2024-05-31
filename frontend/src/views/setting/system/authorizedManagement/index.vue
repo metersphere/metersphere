@@ -143,9 +143,10 @@
     try {
       const result = await getLicenseInfo();
       licenseInfo.value = result;
-      licenseStore.setLicenseStatus(licenseInfo.value?.status);
+      licenseStore.setLicenseInfo(licenseInfo.value);
       licenseStore.getExpirationTime(licenseInfo.value.license.expired);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -174,6 +175,7 @@
           getLicenseDetail();
           cancelHandler();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           drawerLoading.value = false;
