@@ -1,6 +1,9 @@
 package io.metersphere.api.service.scenario;
 
-import io.metersphere.api.domain.*;
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiScenarioRecord;
+import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.domain.ApiScenarioReportStep;
 import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.ApiScenarioParseTmpParam;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
@@ -9,11 +12,14 @@ import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioParseParam;
 import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
-import io.metersphere.api.mapper.*;
+import io.metersphere.api.mapper.ApiScenarioReportMapper;
+import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
+import io.metersphere.api.utils.ExecTask;
+import io.metersphere.api.utils.TaskRunnerUtils;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.CollectionReportDTO;
@@ -24,11 +30,13 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +68,9 @@ public class ApiScenarioBatchRunService {
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+
+    @Value("${spring.datasource.hikari.maximum-pool-size}")
+    private int maximumPoolSize;
 
     /**
      * 异步批量执行
@@ -137,39 +148,29 @@ public class ApiScenarioBatchRunService {
         // 集成报告，执行前先设置成 RUNNING
         setRunningIntegrateReport(runModeConfig);
 
-        AtomicInteger errorCount = new AtomicInteger();
-        // 这里ID顺序和队列的ID顺序保持一致
-        for (String id : ids) {
+        TestResourcePoolReturnDTO testResourcePoolDTO = apiExecuteService.getGetResourcePoolNodeDTO(runModeConfig, request.getProjectId());
+        List<ApiScenarioDetail> apiScenarioDetails = apiScenarioService.getForRuns(ids);
 
-            String reportId = null;
-            try {
-                ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(id);
-                if (apiScenarioDetail == null) {
-                    if (runModeConfig.isIntegratedReport()) {
-                        // 用例不存在，则在执行集合中删除
-                        apiExecutionSetService.removeItem(runModeConfig.getCollectionReport().getReportId(), id);
-                    }
-                    LogUtils.info("当前执行任务的用例已删除 {}", id);
-                    continue;
-                }
+        if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
+            // 独立部署执行专属服务,线程池执行
+            TaskRunnerUtils.setThreadPoolSize(maximumPoolSize / 2 - 10);
+            apiScenarioDetails.forEach(apiScenarioDetail -> {
+                ExecTask execTask = new ExecTask(this, apiScenarioDetail, scenarioReportMap, runModeConfig);
+                TaskRunnerUtils.executeThreadPool(execTask);
+            });
+        } else {
+            // 未独立部署执行专属引用则使用默认循环分发任务
+            apiScenarioDetails.forEach(apiScenarioDetail -> execute(apiScenarioDetail, scenarioReportMap, runModeConfig));
+        }
+    }
 
-                if (runModeConfig.isIntegratedReport()) {
-                    // 集成报告生成虚拟的报告ID
-                    reportId = IDGenerator.nextStr();
-                } else {
-                    reportId = scenarioReportMap.get(id);
-                }
-
-                TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiScenarioDetail, runModeConfig);
-                execute(taskRequest, apiScenarioDetail);
-            } catch (Exception e) {
-                LogUtils.error("执行用例失败 {}-{}", reportId, id);
-                LogUtils.error(e);
-                if (errorCount.getAndIncrement() > 10) {
-                    LogUtils.error("批量执行用例失败，错误次数超过10次，停止执行");
-                    return;
-                }
-            }
+    public void execute(ApiScenarioDetail apiScenarioDetail, Map<String, String> scenarioReportMap, ApiRunModeConfigDTO runModeConfig) {
+        try {
+            String reportId = runModeConfig.isIntegratedReport() ? IDGenerator.nextStr() : scenarioReportMap.get(apiScenarioDetail.getId());
+            TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiScenarioDetail, runModeConfig);
+            execute(taskRequest, apiScenarioDetail);
+        } catch (Exception e) {
+            LogUtils.error("执行用例失败 {}", apiScenarioDetail.getId(), e);
         }
     }
 
@@ -422,7 +423,7 @@ public class ApiScenarioBatchRunService {
             if (queueDetail == null) {
                 return;
             }
-            Long requestCount = 0L;
+            long requestCount = 0L;
             while (queueDetail != null) {
                 ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(queueDetail.getResourceId());
                 if (apiScenarioDetail == null) {

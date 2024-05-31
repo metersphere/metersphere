@@ -561,7 +561,7 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private List<CsvVariable> getCsvVariables(ScenarioConfig scenarioConfig) {
-        if (scenarioConfig == null ||scenarioConfig.getVariable() == null || scenarioConfig.getVariable().getCsvVariables() == null) {
+        if (scenarioConfig == null || scenarioConfig.getVariable() == null || scenarioConfig.getVariable().getCsvVariables() == null) {
             return List.of();
         }
         return scenarioConfig.getVariable().getCsvVariables();
@@ -2187,6 +2187,12 @@ public class ApiScenarioService extends MoveNodeService {
         return apiScenarioDetail;
     }
 
+    public List<ApiScenarioDetail> getForRuns(List<String> scenarioIds) {
+        List<ApiScenarioDetail> apiScenarioDetails = list(scenarioIds);
+        apiScenarioDetails.forEach(apiScenarioDetail -> apiScenarioDetail.setSteps(filerDisableSteps(apiScenarioDetail.getSteps())));
+        return apiScenarioDetails;
+    }
+
     /**
      * 过滤掉禁用的步骤
      */
@@ -2258,9 +2264,80 @@ public class ApiScenarioService extends MoveNodeService {
         return apiScenarioDetail;
     }
 
+
+    public List<ApiScenarioDetail> list(List<String> scenarioIds) {
+        List<ApiScenarioDetail> list = new LinkedList<>();
+
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(scenarioIds).andDeletedEqualTo(false);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+
+
+        ApiScenarioBlobExample blobExample = new ApiScenarioBlobExample();
+        blobExample.createCriteria().andIdIn(scenarioIds);
+        List<ApiScenarioBlob> apiScenarioBlobs = apiScenarioBlobMapper.selectByExampleWithBLOBs(blobExample);
+        Map<String, ApiScenarioBlob> scenarioMap = apiScenarioBlobs.stream()
+                .collect(Collectors.toMap(ApiScenarioBlob::getId, item -> item));
+
+        apiScenarios.forEach(apiScenario -> {
+            ApiScenarioDetail apiScenarioDetail = BeanUtils.copyBean(new ApiScenarioDetail(), apiScenario);
+            apiScenarioDetail.setSteps(List.of());
+            ApiScenarioBlob apiScenarioBlob = scenarioMap.get(apiScenario.getId());
+
+            if (apiScenarioBlob != null) {
+                apiScenarioDetail.setScenarioConfig(JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class));
+            }
+
+            //存放csv变量
+            apiScenarioDetail.getScenarioConfig().getVariable().setCsvVariables(getCsvVariables(apiScenario.getId()));
+
+            // 获取所有步骤
+            List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(apiScenario.getId()))
+                    .stream()
+                    .distinct() // 这里可能存在多次引用相同场景，步骤可能会重复，去重
+                    .collect(Collectors.toList());
+
+            // 设置步骤的 csvIds
+            setStepCsvIds(apiScenario.getId(), allSteps);
+
+            // 构造 map，key 为场景ID，value 为步骤列表
+            Map<String, List<ApiScenarioStepDTO>> scenarioStepMap = allSteps.stream()
+                    .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getScenarioId()).orElse(StringUtils.EMPTY)));
+
+            // key 为父步骤ID，value 为子步骤列表
+            if (MapUtils.isEmpty(scenarioStepMap)) {
+                list.add(apiScenarioDetail);
+                return;
+            }
+
+            Map<String, List<ApiScenarioStepDTO>> currentScenarioParentStepMap = scenarioStepMap.get(apiScenario.getId())
+                    .stream()
+                    .collect(Collectors.groupingBy(step -> {
+                        if (StringUtils.equals(step.getParentId(), "NONE")) {
+                            step.setParentId(StringUtils.EMPTY);
+                        }
+                        return Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY);
+                    }));
+
+            List<ApiScenarioStepDTO> steps = buildStepTree(currentScenarioParentStepMap.get(StringUtils.EMPTY), currentScenarioParentStepMap, scenarioStepMap, new HashSet<>());
+
+            // 查询步骤详情
+            Map<String, String> stepDetailMap = getPartialRefStepDetailMap(allSteps);
+
+            // 设置部分引用的步骤的启用状态
+            setPartialRefStepsEnable(steps, stepDetailMap);
+
+            apiScenarioDetail.setSteps(steps);
+
+            list.add(apiScenarioDetail);
+        });
+
+        return list;
+    }
+
     private void setStepCsvIds(String scenarioId, List<ApiScenarioStepDTO> allSteps) {
         List<String> refScenarioIds = allSteps.stream()
-                .filter(step -> isRefOrPartialScenario(step))
+                .filter(this::isRefOrPartialScenario)
                 .map(ApiScenarioStepCommonDTO::getResourceId)
                 .collect(Collectors.toList());
         refScenarioIds.add(scenarioId);
