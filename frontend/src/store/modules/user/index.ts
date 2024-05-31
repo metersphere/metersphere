@@ -20,6 +20,7 @@ import { composePermissions, getFirstRouteNameByPermission } from '@/utils/permi
 import { removeRouteListener } from '@/utils/route-listener';
 
 import type { LoginData } from '@/models/user';
+import { LoginRes } from '@/models/user';
 
 import useAppStore from '../app';
 import { UserState } from './types';
@@ -119,6 +120,22 @@ const useUserStore = defineStore('user', {
         throw err;
       }
     },
+
+    qrCodeLogin(res: LoginRes) {
+      try {
+        const appStore = useAppStore();
+        setToken(res.sessionId, res.csrfToken);
+
+        appStore.setCurrentOrgId(res.lastOrganizationId || '');
+        appStore.setCurrentProjectId(res.lastProjectId || '');
+        this.setInfo(res);
+        this.initLocalConfig(); // 获取本地执行配置
+      } catch (err) {
+        clearToken();
+        throw err;
+      }
+    },
+
     // 获取登录认证方式
     async getAuthentication() {
       try {

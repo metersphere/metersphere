@@ -17,6 +17,7 @@ export default {
   'project.messageManagement.WE_COM': '企业微信',
   'project.messageManagement.DING_TALK': '钉钉',
   'project.messageManagement.LARK': '飞书',
+  'project.messageManagement.LARK_SUITE': '国际飞书',
   'project.messageManagement.CUSTOM': '自定义',
   'project.messageManagement.business': '（企业版）',
   'project.messageManagement.name': '机器人名称',

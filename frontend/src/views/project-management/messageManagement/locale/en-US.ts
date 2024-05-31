@@ -16,6 +16,7 @@ export default {
   'project.messageManagement.WE_COM': 'Enterprise WeChat',
   'project.messageManagement.DING_TALK': 'DingTalk',
   'project.messageManagement.LARK': 'Lark',
+  'project.messageManagement.LARK_SUITE': 'SuiteLark',
   'project.messageManagement.CUSTOM': 'custom',
   'project.messageManagement.business': '(Enterprise Edition)',
   'project.messageManagement.name': 'Robot name',

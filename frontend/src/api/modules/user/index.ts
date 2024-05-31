@@ -14,8 +14,11 @@ import {
   GetMenuListUrl,
   GetPlatformAccountUrl,
   GetPlatformOrgOptionUrl,
+  GetPlatformParamUrl,
   GetPlatformUrl,
   GetPublicKeyUrl,
+  GetWeComCallbackUrl,
+  GetWeComInfoUrl,
   isLoginUrl,
   ldapLoginUrl,
   LoginUrl,
@@ -43,6 +46,7 @@ import type {
   UpdateLocalConfigParams,
   UpdatePswParams,
 } from '@/models/user';
+import { WecomInfo } from '@/models/user';
 
 import type { RouteRecordNormalized } from 'vue-router';
 
@@ -62,6 +66,21 @@ export function isLogin() {
 // 获取登录认证方式
 export function getAuthenticationList() {
   return MSR.get<string[]>({ url: getAuthenticationUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+
+export function getPlatformParamUrl() {
+  return MSR.get<OrgOptionItem[]>({ url: GetPlatformParamUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+
+export function getWeComInfo() {
+  return MSR.get<WecomInfo>({ url: GetWeComInfoUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+
+export function getWeComCallback(code: string) {
+  return MSR.get<LoginRes>(
+    { url: GetWeComCallbackUrl, params: { code } },
+    { ignoreCancelToken: true, errorMessageMode: 'none' }
+  );
 }
 
 export function logout() {

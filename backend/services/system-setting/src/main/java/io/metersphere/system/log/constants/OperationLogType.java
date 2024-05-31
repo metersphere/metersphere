@@ -18,6 +18,7 @@ public enum OperationLogType {
     LOGOUT,
     DISASSOCIATE,
     ASSOCIATE,
+    QRCODE,
     ARCHIVED;
 
     public boolean contains(OperationLogType keyword) {
