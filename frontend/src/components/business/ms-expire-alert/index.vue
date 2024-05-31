@@ -9,8 +9,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import { useI18n } from '@/hooks/useI18n';
   import useLicenseStore from '@/store/modules/setting/license';
 

@@ -81,10 +81,10 @@ export default function useStepOperation({
 
   /**
    * 处理步骤选中事件
-   * @param _selectedKeys 选中的 key集合
    * @param step 点击的步骤节点
    */
-  async function handleStepSelect(_selectedKeys: Array<string | number>, step: ScenarioStepItem) {
+  async function handleStepSelect(step: ScenarioStepItem) {
+    activeStep.value = step;
     const _stepType = getStepType(step);
     const offspringIds: string[] = [];
     mapTree(step.children || [], (e) => {
@@ -94,7 +94,6 @@ export default function useStepOperation({
     selectedKeys.value = [step.uniqueId, ...offspringIds];
     if (_stepType.isCopyApi || _stepType.isQuoteApi || step.stepType === ScenarioStepType.CUSTOM_REQUEST) {
       // 复制 api、引用 api、自定义 api打开抽屉
-      activeStep.value = step;
       if (
         step.isQuoteScenarioStep ||
         (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
@@ -106,7 +105,6 @@ export default function useStepOperation({
       }
       customApiDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.API_CASE) {
-      activeStep.value = step;
       if (
         step.isQuoteScenarioStep ||
         (_stepType.isCopyCase && stepDetails.value[step.id] === undefined && step.copyFromStepId) ||
@@ -119,7 +117,6 @@ export default function useStepOperation({
       }
       customCaseDrawerVisible.value = true;
     } else if (step.stepType === ScenarioStepType.SCRIPT) {
-      activeStep.value = step;
       if (
         step.isQuoteScenarioStep ||
         (stepDetails.value[step.id] === undefined && step.copyFromStepId) ||

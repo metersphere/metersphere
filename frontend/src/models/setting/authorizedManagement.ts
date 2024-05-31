@@ -8,6 +8,6 @@ export interface License {
 }
 
 export interface LicenseInfo {
-  status: string;
+  status: string | null;
   license: License;
 }

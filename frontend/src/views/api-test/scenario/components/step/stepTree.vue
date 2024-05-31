@@ -26,7 +26,7 @@
         block-node
         draggable
         hide-switcher
-        @select="(selectedKeys, node) => handleStepSelect(selectedKeys, node as ScenarioStepItem)"
+        @select="(selectedKeys, node) => handleStepSelect(node as ScenarioStepItem)"
         @expand="handleStepExpand"
         @more-actions-close="() => setFocusNodeKey('')"
         @more-action-select="handleStepMoreActionSelect"
@@ -1069,6 +1069,7 @@
           steps.value.splice(index, 1, newStep);
         }
       }
+      activeStep.value = newStep;
     }
     Message.success(t('apiScenario.replaceSuccess'));
     scenario.value.unSaved = true;
@@ -1080,7 +1081,7 @@
       customApiDrawerVisible.value = false;
       nextTick(() => {
         // 等待抽屉关闭后再打开新的抽屉
-        handleStepSelect([newStep.uniqueId], newStep);
+        handleStepSelect(newStep);
       });
     }
   }

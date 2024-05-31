@@ -12,8 +12,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
