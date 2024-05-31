@@ -137,7 +137,6 @@
       {
         "id": "PROJECT_APPLICATION",
         "name": "permission.project_application.name",
-        "license": true,
         "permissions": [
           {
             "id": "PROJECT_APPLICATION_TEST_PLAN:READ",
@@ -198,7 +197,6 @@
       {
         "id": "PROJECT_LOG",
         "name": "permission.project_log.name",
-        "license": true,
         "permissions": [
           {
             "id": "PROJECT_LOG:READ"
