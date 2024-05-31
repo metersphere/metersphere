@@ -23,4 +23,7 @@ public interface ExtTestPlanBugMapper {
 	 * @return 用例集合
 	 */
 	List<TestPlanBugCaseDTO> getBugRelatedCase(@Param("ids") List<String> bugIds, @Param("planId") String planId);
+
+
+	List<TestPlanBugPageResponse> countBugByIds(@Param("planIds") List<String> planIds);
 }

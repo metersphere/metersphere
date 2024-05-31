@@ -57,7 +57,7 @@ public class FunctionalCaseRelationshipController {
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody RelationshipPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
-        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false, false));
+        return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false, true));
     }
 
     @PostMapping("/add")

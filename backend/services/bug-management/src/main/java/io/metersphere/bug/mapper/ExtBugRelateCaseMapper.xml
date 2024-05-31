@@ -261,6 +261,8 @@
     <select id="getBugCountByIds" resultType="io.metersphere.bug.dto.CaseRelateBugDTO">
         SELECT
             bug.id as bugId,
+            bug.num as num,
+            bug.status as status,
             bug.title as title,
             bug_relation_case.case_type as caseType,
             bug_relation_case.case_id as caseId,

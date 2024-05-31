@@ -37,10 +37,6 @@ VALUES
     ('wx_test_plan_id_7', b'0', b'0', 100);
 
 
-INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
-VALUES
-    ('123', 2, 1, 'wx', 'wx', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["bugManagement","caseManagement","apiTest","testPlan"]');
-
 
 INSERT INTO `test_plan_allocation`(`id`, `test_plan_id`, `test_resource_pool_id`, `retry_on_fail`, `retry_type`, `retry_times`, `retry_interval`, `stop_on_fail`)
 VALUES ('1', 'wx_test_plan_id_1', '111', b'0', 'scenario', '10', '1000', b'0');
