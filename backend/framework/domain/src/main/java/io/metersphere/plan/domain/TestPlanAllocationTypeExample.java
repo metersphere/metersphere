@@ -3,14 +3,14 @@ package io.metersphere.plan.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestPlanAllocationExample {
+public class TestPlanAllocationTypeExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public TestPlanAllocationExample() {
+    public TestPlanAllocationTypeExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -244,383 +244,273 @@ public class TestPlanAllocationExample {
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdIsNull() {
-            addCriterion("test_resource_pool_id is null");
+        public Criteria andNameIsNull() {
+            addCriterion("`name` is null");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdIsNotNull() {
-            addCriterion("test_resource_pool_id is not null");
+        public Criteria andNameIsNotNull() {
+            addCriterion("`name` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdEqualTo(String value) {
-            addCriterion("test_resource_pool_id =", value, "testResourcePoolId");
+        public Criteria andNameEqualTo(String value) {
+            addCriterion("`name` =", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdNotEqualTo(String value) {
-            addCriterion("test_resource_pool_id <>", value, "testResourcePoolId");
+        public Criteria andNameNotEqualTo(String value) {
+            addCriterion("`name` <>", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdGreaterThan(String value) {
-            addCriterion("test_resource_pool_id >", value, "testResourcePoolId");
+        public Criteria andNameGreaterThan(String value) {
+            addCriterion("`name` >", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdGreaterThanOrEqualTo(String value) {
-            addCriterion("test_resource_pool_id >=", value, "testResourcePoolId");
+        public Criteria andNameGreaterThanOrEqualTo(String value) {
+            addCriterion("`name` >=", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdLessThan(String value) {
-            addCriterion("test_resource_pool_id <", value, "testResourcePoolId");
+        public Criteria andNameLessThan(String value) {
+            addCriterion("`name` <", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdLessThanOrEqualTo(String value) {
-            addCriterion("test_resource_pool_id <=", value, "testResourcePoolId");
+        public Criteria andNameLessThanOrEqualTo(String value) {
+            addCriterion("`name` <=", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdLike(String value) {
-            addCriterion("test_resource_pool_id like", value, "testResourcePoolId");
+        public Criteria andNameLike(String value) {
+            addCriterion("`name` like", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdNotLike(String value) {
-            addCriterion("test_resource_pool_id not like", value, "testResourcePoolId");
+        public Criteria andNameNotLike(String value) {
+            addCriterion("`name` not like", value, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdIn(List<String> values) {
-            addCriterion("test_resource_pool_id in", values, "testResourcePoolId");
+        public Criteria andNameIn(List<String> values) {
+            addCriterion("`name` in", values, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdNotIn(List<String> values) {
-            addCriterion("test_resource_pool_id not in", values, "testResourcePoolId");
+        public Criteria andNameNotIn(List<String> values) {
+            addCriterion("`name` not in", values, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdBetween(String value1, String value2) {
-            addCriterion("test_resource_pool_id between", value1, value2, "testResourcePoolId");
+        public Criteria andNameBetween(String value1, String value2) {
+            addCriterion("`name` between", value1, value2, "name");
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdNotBetween(String value1, String value2) {
-            addCriterion("test_resource_pool_id not between", value1, value2, "testResourcePoolId");
+        public Criteria andNameNotBetween(String value1, String value2) {
+            addCriterion("`name` not between", value1, value2, "name");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailIsNull() {
-            addCriterion("retry_on_fail is null");
+        public Criteria andTypeIsNull() {
+            addCriterion("`type` is null");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailIsNotNull() {
-            addCriterion("retry_on_fail is not null");
+        public Criteria andTypeIsNotNull() {
+            addCriterion("`type` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailEqualTo(Boolean value) {
-            addCriterion("retry_on_fail =", value, "retryOnFail");
+        public Criteria andTypeEqualTo(String value) {
+            addCriterion("`type` =", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailNotEqualTo(Boolean value) {
-            addCriterion("retry_on_fail <>", value, "retryOnFail");
+        public Criteria andTypeNotEqualTo(String value) {
+            addCriterion("`type` <>", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailGreaterThan(Boolean value) {
-            addCriterion("retry_on_fail >", value, "retryOnFail");
+        public Criteria andTypeGreaterThan(String value) {
+            addCriterion("`type` >", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("retry_on_fail >=", value, "retryOnFail");
+        public Criteria andTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("`type` >=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailLessThan(Boolean value) {
-            addCriterion("retry_on_fail <", value, "retryOnFail");
+        public Criteria andTypeLessThan(String value) {
+            addCriterion("`type` <", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailLessThanOrEqualTo(Boolean value) {
-            addCriterion("retry_on_fail <=", value, "retryOnFail");
+        public Criteria andTypeLessThanOrEqualTo(String value) {
+            addCriterion("`type` <=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailIn(List<Boolean> values) {
-            addCriterion("retry_on_fail in", values, "retryOnFail");
+        public Criteria andTypeLike(String value) {
+            addCriterion("`type` like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailNotIn(List<Boolean> values) {
-            addCriterion("retry_on_fail not in", values, "retryOnFail");
+        public Criteria andTypeNotLike(String value) {
+            addCriterion("`type` not like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailBetween(Boolean value1, Boolean value2) {
-            addCriterion("retry_on_fail between", value1, value2, "retryOnFail");
+        public Criteria andTypeIn(List<String> values) {
+            addCriterion("`type` in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryOnFailNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("retry_on_fail not between", value1, value2, "retryOnFail");
+        public Criteria andTypeNotIn(List<String> values) {
+            addCriterion("`type` not in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeIsNull() {
-            addCriterion("retry_type is null");
+        public Criteria andTypeBetween(String value1, String value2) {
+            addCriterion("`type` between", value1, value2, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeIsNotNull() {
-            addCriterion("retry_type is not null");
+        public Criteria andTypeNotBetween(String value1, String value2) {
+            addCriterion("`type` not between", value1, value2, "type");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeEqualTo(String value) {
-            addCriterion("retry_type =", value, "retryType");
+        public Criteria andExecuteMethodIsNull() {
+            addCriterion("execute_method is null");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeNotEqualTo(String value) {
-            addCriterion("retry_type <>", value, "retryType");
+        public Criteria andExecuteMethodIsNotNull() {
+            addCriterion("execute_method is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeGreaterThan(String value) {
-            addCriterion("retry_type >", value, "retryType");
+        public Criteria andExecuteMethodEqualTo(String value) {
+            addCriterion("execute_method =", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("retry_type >=", value, "retryType");
+        public Criteria andExecuteMethodNotEqualTo(String value) {
+            addCriterion("execute_method <>", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeLessThan(String value) {
-            addCriterion("retry_type <", value, "retryType");
+        public Criteria andExecuteMethodGreaterThan(String value) {
+            addCriterion("execute_method >", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeLessThanOrEqualTo(String value) {
-            addCriterion("retry_type <=", value, "retryType");
+        public Criteria andExecuteMethodGreaterThanOrEqualTo(String value) {
+            addCriterion("execute_method >=", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeLike(String value) {
-            addCriterion("retry_type like", value, "retryType");
+        public Criteria andExecuteMethodLessThan(String value) {
+            addCriterion("execute_method <", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeNotLike(String value) {
-            addCriterion("retry_type not like", value, "retryType");
+        public Criteria andExecuteMethodLessThanOrEqualTo(String value) {
+            addCriterion("execute_method <=", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeIn(List<String> values) {
-            addCriterion("retry_type in", values, "retryType");
+        public Criteria andExecuteMethodLike(String value) {
+            addCriterion("execute_method like", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeNotIn(List<String> values) {
-            addCriterion("retry_type not in", values, "retryType");
+        public Criteria andExecuteMethodNotLike(String value) {
+            addCriterion("execute_method not like", value, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeBetween(String value1, String value2) {
-            addCriterion("retry_type between", value1, value2, "retryType");
+        public Criteria andExecuteMethodIn(List<String> values) {
+            addCriterion("execute_method in", values, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTypeNotBetween(String value1, String value2) {
-            addCriterion("retry_type not between", value1, value2, "retryType");
+        public Criteria andExecuteMethodNotIn(List<String> values) {
+            addCriterion("execute_method not in", values, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesIsNull() {
-            addCriterion("retry_times is null");
+        public Criteria andExecuteMethodBetween(String value1, String value2) {
+            addCriterion("execute_method between", value1, value2, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesIsNotNull() {
-            addCriterion("retry_times is not null");
+        public Criteria andExecuteMethodNotBetween(String value1, String value2) {
+            addCriterion("execute_method not between", value1, value2, "executeMethod");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesEqualTo(Integer value) {
-            addCriterion("retry_times =", value, "retryTimes");
+        public Criteria andPosIsNull() {
+            addCriterion("pos is null");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesNotEqualTo(Integer value) {
-            addCriterion("retry_times <>", value, "retryTimes");
+        public Criteria andPosIsNotNull() {
+            addCriterion("pos is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesGreaterThan(Integer value) {
-            addCriterion("retry_times >", value, "retryTimes");
+        public Criteria andPosEqualTo(Long value) {
+            addCriterion("pos =", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesGreaterThanOrEqualTo(Integer value) {
-            addCriterion("retry_times >=", value, "retryTimes");
+        public Criteria andPosNotEqualTo(Long value) {
+            addCriterion("pos <>", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesLessThan(Integer value) {
-            addCriterion("retry_times <", value, "retryTimes");
+        public Criteria andPosGreaterThan(Long value) {
+            addCriterion("pos >", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesLessThanOrEqualTo(Integer value) {
-            addCriterion("retry_times <=", value, "retryTimes");
+        public Criteria andPosGreaterThanOrEqualTo(Long value) {
+            addCriterion("pos >=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesIn(List<Integer> values) {
-            addCriterion("retry_times in", values, "retryTimes");
+        public Criteria andPosLessThan(Long value) {
+            addCriterion("pos <", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesNotIn(List<Integer> values) {
-            addCriterion("retry_times not in", values, "retryTimes");
+        public Criteria andPosLessThanOrEqualTo(Long value) {
+            addCriterion("pos <=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesBetween(Integer value1, Integer value2) {
-            addCriterion("retry_times between", value1, value2, "retryTimes");
+        public Criteria andPosIn(List<Long> values) {
+            addCriterion("pos in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryTimesNotBetween(Integer value1, Integer value2) {
-            addCriterion("retry_times not between", value1, value2, "retryTimes");
+        public Criteria andPosNotIn(List<Long> values) {
+            addCriterion("pos not in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryIntervalIsNull() {
-            addCriterion("retry_interval is null");
+        public Criteria andPosBetween(Long value1, Long value2) {
+            addCriterion("pos between", value1, value2, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andRetryIntervalIsNotNull() {
-            addCriterion("retry_interval is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalEqualTo(Integer value) {
-            addCriterion("retry_interval =", value, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalNotEqualTo(Integer value) {
-            addCriterion("retry_interval <>", value, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalGreaterThan(Integer value) {
-            addCriterion("retry_interval >", value, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalGreaterThanOrEqualTo(Integer value) {
-            addCriterion("retry_interval >=", value, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalLessThan(Integer value) {
-            addCriterion("retry_interval <", value, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalLessThanOrEqualTo(Integer value) {
-            addCriterion("retry_interval <=", value, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalIn(List<Integer> values) {
-            addCriterion("retry_interval in", values, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalNotIn(List<Integer> values) {
-            addCriterion("retry_interval not in", values, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalBetween(Integer value1, Integer value2) {
-            addCriterion("retry_interval between", value1, value2, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andRetryIntervalNotBetween(Integer value1, Integer value2) {
-            addCriterion("retry_interval not between", value1, value2, "retryInterval");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailIsNull() {
-            addCriterion("stop_on_fail is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailIsNotNull() {
-            addCriterion("stop_on_fail is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailEqualTo(Boolean value) {
-            addCriterion("stop_on_fail =", value, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailNotEqualTo(Boolean value) {
-            addCriterion("stop_on_fail <>", value, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailGreaterThan(Boolean value) {
-            addCriterion("stop_on_fail >", value, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("stop_on_fail >=", value, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailLessThan(Boolean value) {
-            addCriterion("stop_on_fail <", value, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailLessThanOrEqualTo(Boolean value) {
-            addCriterion("stop_on_fail <=", value, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailIn(List<Boolean> values) {
-            addCriterion("stop_on_fail in", values, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailNotIn(List<Boolean> values) {
-            addCriterion("stop_on_fail not in", values, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailBetween(Boolean value1, Boolean value2) {
-            addCriterion("stop_on_fail between", value1, value2, "stopOnFail");
-            return (Criteria) this;
-        }
-
-        public Criteria andStopOnFailNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("stop_on_fail not between", value1, value2, "stopOnFail");
+        public Criteria andPosNotBetween(Long value1, Long value2) {
+            addCriterion("pos not between", value1, value2, "pos");
             return (Criteria) this;
         }
     }

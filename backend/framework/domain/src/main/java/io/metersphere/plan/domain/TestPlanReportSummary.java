@@ -43,9 +43,6 @@ public class TestPlanReportSummary implements Serializable {
     @Schema(description = "总结")
     private String summary;
 
-    @Schema(description = "报告统计内容")
-    private byte[] reportCount;
-
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -55,8 +52,7 @@ public class TestPlanReportSummary implements Serializable {
         apiScenarioCount("api_scenario_count", "apiScenarioCount", "BIGINT", false),
         bugCount("bug_count", "bugCount", "BIGINT", false),
         testPlanReportId("test_plan_report_id", "testPlanReportId", "VARCHAR", false),
-        summary("summary", "summary", "VARCHAR", false),
-        reportCount("report_count", "reportCount", "LONGVARBINARY", false);
+        summary("summary", "summary", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

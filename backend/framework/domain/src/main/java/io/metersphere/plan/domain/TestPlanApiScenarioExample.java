@@ -174,66 +174,6 @@ public class TestPlanApiScenarioExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumIsNull() {
-            addCriterion("num is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumIsNotNull() {
-            addCriterion("num is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumEqualTo(Long value) {
-            addCriterion("num =", value, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumNotEqualTo(Long value) {
-            addCriterion("num <>", value, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumGreaterThan(Long value) {
-            addCriterion("num >", value, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumGreaterThanOrEqualTo(Long value) {
-            addCriterion("num >=", value, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumLessThan(Long value) {
-            addCriterion("num <", value, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumLessThanOrEqualTo(Long value) {
-            addCriterion("num <=", value, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumIn(List<Long> values) {
-            addCriterion("num in", values, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumNotIn(List<Long> values) {
-            addCriterion("num not in", values, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumBetween(Long value1, Long value2) {
-            addCriterion("num between", value1, value2, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andNumNotBetween(Long value1, Long value2) {
-            addCriterion("num not between", value1, value2, "num");
-            return (Criteria) this;
-        }
-
         public Criteria andTestPlanIdIsNull() {
             addCriterion("test_plan_id is null");
             return (Criteria) this;
@@ -374,6 +314,146 @@ public class TestPlanApiScenarioExample {
             return (Criteria) this;
         }
 
+        public Criteria andEnvironmentIdIsNull() {
+            addCriterion("environment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNotNull() {
+            addCriterion("environment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdEqualTo(String value) {
+            addCriterion("environment_id =", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotEqualTo(String value) {
+            addCriterion("environment_id <>", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThan(String value) {
+            addCriterion("environment_id >", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_id >=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThan(String value) {
+            addCriterion("environment_id <", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_id <=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLike(String value) {
+            addCriterion("environment_id like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotLike(String value) {
+            addCriterion("environment_id not like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIn(List<String> values) {
+            addCriterion("environment_id in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotIn(List<String> values) {
+            addCriterion("environment_id not in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdBetween(String value1, String value2) {
+            addCriterion("environment_id between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
+            addCriterion("environment_id not between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserIsNull() {
+            addCriterion("execute_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserIsNotNull() {
+            addCriterion("execute_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserEqualTo(String value) {
+            addCriterion("execute_user =", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotEqualTo(String value) {
+            addCriterion("execute_user <>", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserGreaterThan(String value) {
+            addCriterion("execute_user >", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserGreaterThanOrEqualTo(String value) {
+            addCriterion("execute_user >=", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserLessThan(String value) {
+            addCriterion("execute_user <", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserLessThanOrEqualTo(String value) {
+            addCriterion("execute_user <=", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserLike(String value) {
+            addCriterion("execute_user like", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotLike(String value) {
+            addCriterion("execute_user not like", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserIn(List<String> values) {
+            addCriterion("execute_user in", values, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotIn(List<String> values) {
+            addCriterion("execute_user not in", values, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserBetween(String value1, String value2) {
+            addCriterion("execute_user between", value1, value2, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotBetween(String value1, String value2) {
+            addCriterion("execute_user not between", value1, value2, "executeUser");
+            return (Criteria) this;
+        }
+
         public Criteria andLastExecResultIsNull() {
             addCriterion("last_exec_result is null");
             return (Criteria) this;
@@ -511,76 +591,6 @@ public class TestPlanApiScenarioExample {
 
         public Criteria andLastExecReportIdNotBetween(String value1, String value2) {
             addCriterion("last_exec_report_id not between", value1, value2, "lastExecReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserIsNull() {
-            addCriterion("execute_user is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserIsNotNull() {
-            addCriterion("execute_user is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserEqualTo(String value) {
-            addCriterion("execute_user =", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserNotEqualTo(String value) {
-            addCriterion("execute_user <>", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserGreaterThan(String value) {
-            addCriterion("execute_user >", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserGreaterThanOrEqualTo(String value) {
-            addCriterion("execute_user >=", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserLessThan(String value) {
-            addCriterion("execute_user <", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserLessThanOrEqualTo(String value) {
-            addCriterion("execute_user <=", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserLike(String value) {
-            addCriterion("execute_user like", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserNotLike(String value) {
-            addCriterion("execute_user not like", value, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserIn(List<String> values) {
-            addCriterion("execute_user in", values, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserNotIn(List<String> values) {
-            addCriterion("execute_user not in", values, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserBetween(String value1, String value2) {
-            addCriterion("execute_user between", value1, value2, "executeUser");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteUserNotBetween(String value1, String value2) {
-            addCriterion("execute_user not between", value1, value2, "executeUser");
             return (Criteria) this;
         }
 
@@ -771,6 +781,136 @@ public class TestPlanApiScenarioExample {
 
         public Criteria andPosNotBetween(Long value1, Long value2) {
             addCriterion("pos not between", value1, value2, "pos");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIsNull() {
+            addCriterion("test_plan_collection_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIsNotNull() {
+            addCriterion("test_plan_collection_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdEqualTo(String value) {
+            addCriterion("test_plan_collection_id =", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotEqualTo(String value) {
+            addCriterion("test_plan_collection_id <>", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdGreaterThan(String value) {
+            addCriterion("test_plan_collection_id >", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_plan_collection_id >=", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLessThan(String value) {
+            addCriterion("test_plan_collection_id <", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLessThanOrEqualTo(String value) {
+            addCriterion("test_plan_collection_id <=", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLike(String value) {
+            addCriterion("test_plan_collection_id like", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotLike(String value) {
+            addCriterion("test_plan_collection_id not like", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIn(List<String> values) {
+            addCriterion("test_plan_collection_id in", values, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotIn(List<String> values) {
+            addCriterion("test_plan_collection_id not in", values, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdBetween(String value1, String value2) {
+            addCriterion("test_plan_collection_id between", value1, value2, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotBetween(String value1, String value2) {
+            addCriterion("test_plan_collection_id not between", value1, value2, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedIsNull() {
+            addCriterion("grouped is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedIsNotNull() {
+            addCriterion("grouped is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedEqualTo(Boolean value) {
+            addCriterion("grouped =", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedNotEqualTo(Boolean value) {
+            addCriterion("grouped <>", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedGreaterThan(Boolean value) {
+            addCriterion("grouped >", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("grouped >=", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedLessThan(Boolean value) {
+            addCriterion("grouped <", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedLessThanOrEqualTo(Boolean value) {
+            addCriterion("grouped <=", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedIn(List<Boolean> values) {
+            addCriterion("grouped in", values, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedNotIn(List<Boolean> values) {
+            addCriterion("grouped not in", values, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedBetween(Boolean value1, Boolean value2) {
+            addCriterion("grouped between", value1, value2, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("grouped not between", value1, value2, "grouped");
             return (Criteria) this;
         }
     }

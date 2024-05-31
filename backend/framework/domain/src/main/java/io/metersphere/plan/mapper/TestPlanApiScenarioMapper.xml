@@ -3,18 +3,17 @@
 <mapper namespace="io.metersphere.plan.mapper.TestPlanApiScenarioMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanApiScenario">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
+    <result column="execute_user" jdbcType="VARCHAR" property="executeUser" />
     <result column="last_exec_result" jdbcType="VARCHAR" property="lastExecResult" />
     <result column="last_exec_report_id" jdbcType="VARCHAR" property="lastExecReportId" />
-    <result column="execute_user" jdbcType="VARCHAR" property="executeUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanApiScenario">
-    <result column="environment_id" jdbcType="LONGVARCHAR" property="environmentId" />
+    <result column="test_plan_collection_id" jdbcType="VARCHAR" property="testPlanCollectionId" />
+    <result column="grouped" jdbcType="BIT" property="grouped" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,28 +74,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, test_plan_id, api_scenario_id, last_exec_result, last_exec_report_id, execute_user, 
-    create_time, create_user, pos
+    id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, 
+    last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped
   </sql>
-  <sql id="Blob_Column_List">
-    environment_id
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanApiScenarioExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from test_plan_api_scenario
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanApiScenarioExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -111,11 +91,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from test_plan_api_scenario
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -130,14 +108,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
-    insert into test_plan_api_scenario (id, num, test_plan_id, 
-      api_scenario_id, last_exec_result, last_exec_report_id, 
-      execute_user, create_time, create_user, 
-      pos, environment_id)
-    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{testPlanId,jdbcType=VARCHAR}, 
-      #{apiScenarioId,jdbcType=VARCHAR}, #{lastExecResult,jdbcType=VARCHAR}, #{lastExecReportId,jdbcType=VARCHAR}, 
-      #{executeUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{pos,jdbcType=BIGINT}, #{environmentId,jdbcType=LONGVARCHAR})
+    insert into test_plan_api_scenario (id, test_plan_id, api_scenario_id, 
+      environment_id, execute_user, last_exec_result, 
+      last_exec_report_id, create_time, create_user, 
+      pos, test_plan_collection_id, grouped
+      )
+    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, 
+      #{environmentId,jdbcType=VARCHAR}, #{executeUser,jdbcType=VARCHAR}, #{lastExecResult,jdbcType=VARCHAR}, 
+      #{lastExecReportId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT}, #{testPlanCollectionId,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
     insert into test_plan_api_scenario
@@ -145,23 +125,23 @@
       <if test="id != null">
         id,
       </if>
-      <if test="num != null">
-        num,
-      </if>
       <if test="testPlanId != null">
         test_plan_id,
       </if>
       <if test="apiScenarioId != null">
         api_scenario_id,
       </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
+      <if test="executeUser != null">
+        execute_user,
+      </if>
       <if test="lastExecResult != null">
         last_exec_result,
       </if>
       <if test="lastExecReportId != null">
         last_exec_report_id,
-      </if>
-      <if test="executeUser != null">
-        execute_user,
       </if>
       <if test="createTime != null">
         create_time,
@@ -172,16 +152,16 @@
       <if test="pos != null">
         pos,
       </if>
-      <if test="environmentId != null">
-        environment_id,
+      <if test="testPlanCollectionId != null">
+        test_plan_collection_id,
+      </if>
+      <if test="grouped != null">
+        grouped,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="num != null">
-        #{num,jdbcType=BIGINT},
       </if>
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
@@ -189,14 +169,17 @@
       <if test="apiScenarioId != null">
         #{apiScenarioId,jdbcType=VARCHAR},
       </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="executeUser != null">
+        #{executeUser,jdbcType=VARCHAR},
+      </if>
       <if test="lastExecResult != null">
         #{lastExecResult,jdbcType=VARCHAR},
       </if>
       <if test="lastExecReportId != null">
         #{lastExecReportId,jdbcType=VARCHAR},
-      </if>
-      <if test="executeUser != null">
-        #{executeUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -207,8 +190,11 @@
       <if test="pos != null">
         #{pos,jdbcType=BIGINT},
       </if>
-      <if test="environmentId != null">
-        #{environmentId,jdbcType=LONGVARCHAR},
+      <if test="testPlanCollectionId != null">
+        #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="grouped != null">
+        #{grouped,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -224,23 +210,23 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.num != null">
-        num = #{record.num,jdbcType=BIGINT},
-      </if>
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
       <if test="record.apiScenarioId != null">
         api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
       </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.executeUser != null">
+        execute_user = #{record.executeUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.lastExecResult != null">
         last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
       </if>
       <if test="record.lastExecReportId != null">
         last_exec_report_id = #{record.lastExecReportId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.executeUser != null">
-        execute_user = #{record.executeUser,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -251,27 +237,13 @@
       <if test="record.pos != null">
         pos = #{record.pos,jdbcType=BIGINT},
       </if>
-      <if test="record.environmentId != null">
-        environment_id = #{record.environmentId,jdbcType=LONGVARCHAR},
+      <if test="record.testPlanCollectionId != null">
+        test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.grouped != null">
+        grouped = #{record.grouped,jdbcType=BIT},
       </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update test_plan_api_scenario
-    set id = #{record.id,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=BIGINT},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
-      api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
-      last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
-      last_exec_report_id = #{record.lastExecReportId,jdbcType=VARCHAR},
-      execute_user = #{record.executeUser,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=BIGINT},
-      environment_id = #{record.environmentId,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -279,15 +251,17 @@
   <update id="updateByExample" parameterType="map">
     update test_plan_api_scenario
     set id = #{record.id,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=BIGINT},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      execute_user = #{record.executeUser,jdbcType=VARCHAR},
       last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
       last_exec_report_id = #{record.lastExecReportId,jdbcType=VARCHAR},
-      execute_user = #{record.executeUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=BIGINT}
+      pos = #{record.pos,jdbcType=BIGINT},
+      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      grouped = #{record.grouped,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -295,23 +269,23 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
     update test_plan_api_scenario
     <set>
-      <if test="num != null">
-        num = #{num,jdbcType=BIGINT},
-      </if>
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
       <if test="apiScenarioId != null">
         api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
       </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="executeUser != null">
+        execute_user = #{executeUser,jdbcType=VARCHAR},
+      </if>
       <if test="lastExecResult != null">
         last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
       </if>
       <if test="lastExecReportId != null">
         last_exec_report_id = #{lastExecReportId,jdbcType=VARCHAR},
-      </if>
-      <if test="executeUser != null">
-        execute_user = #{executeUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -322,50 +296,42 @@
       <if test="pos != null">
         pos = #{pos,jdbcType=BIGINT},
       </if>
-      <if test="environmentId != null">
-        environment_id = #{environmentId,jdbcType=LONGVARCHAR},
+      <if test="testPlanCollectionId != null">
+        test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="grouped != null">
+        grouped = #{grouped,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
     update test_plan_api_scenario
-    set num = #{num,jdbcType=BIGINT},
-      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      execute_user = #{executeUser,jdbcType=VARCHAR},
       last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
       last_exec_report_id = #{lastExecReportId,jdbcType=VARCHAR},
-      execute_user = #{executeUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
-      environment_id = #{environmentId,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
-    update test_plan_api_scenario
-    set num = #{num,jdbcType=BIGINT},
-      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
-      api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
-      last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
-      last_exec_report_id = #{lastExecReportId,jdbcType=VARCHAR},
-      execute_user = #{executeUser,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      pos = #{pos,jdbcType=BIGINT}
+      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      grouped = #{grouped,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_api_scenario
-    (id, num, test_plan_id, api_scenario_id, last_exec_result, last_exec_report_id, execute_user, 
-      create_time, create_user, pos, environment_id)
+    (id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, 
+      last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped
+      )
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.testPlanId,jdbcType=VARCHAR}, 
-        #{item.apiScenarioId,jdbcType=VARCHAR}, #{item.lastExecResult,jdbcType=VARCHAR}, 
-        #{item.lastExecReportId,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
-        #{item.environmentId,jdbcType=LONGVARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.apiScenarioId,jdbcType=VARCHAR}, 
+        #{item.environmentId,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, #{item.lastExecResult,jdbcType=VARCHAR}, 
+        #{item.lastExecReportId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.testPlanCollectionId,jdbcType=VARCHAR}, 
+        #{item.grouped,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -381,23 +347,23 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'num'.toString() == column.value">
-          #{item.num,jdbcType=BIGINT}
-        </if>
         <if test="'test_plan_id'.toString() == column.value">
           #{item.testPlanId,jdbcType=VARCHAR}
         </if>
         <if test="'api_scenario_id'.toString() == column.value">
           #{item.apiScenarioId,jdbcType=VARCHAR}
         </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'execute_user'.toString() == column.value">
+          #{item.executeUser,jdbcType=VARCHAR}
+        </if>
         <if test="'last_exec_result'.toString() == column.value">
           #{item.lastExecResult,jdbcType=VARCHAR}
         </if>
         <if test="'last_exec_report_id'.toString() == column.value">
           #{item.lastExecReportId,jdbcType=VARCHAR}
-        </if>
-        <if test="'execute_user'.toString() == column.value">
-          #{item.executeUser,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
@@ -408,8 +374,11 @@
         <if test="'pos'.toString() == column.value">
           #{item.pos,jdbcType=BIGINT}
         </if>
-        <if test="'environment_id'.toString() == column.value">
-          #{item.environmentId,jdbcType=LONGVARCHAR}
+        <if test="'test_plan_collection_id'.toString() == column.value">
+          #{item.testPlanCollectionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'grouped'.toString() == column.value">
+          #{item.grouped,jdbcType=BIT}
         </if>
       </foreach>
       )

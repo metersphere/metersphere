@@ -8,10 +8,9 @@
     <result column="api_scenario_count" jdbcType="BIGINT" property="apiScenarioCount" />
     <result column="bug_count" jdbcType="BIGINT" property="bugCount" />
     <result column="test_plan_report_id" jdbcType="VARCHAR" property="testPlanReportId" />
-    <result column="summary" jdbcType="VARCHAR" property="summary" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanReportSummary">
-    <result column="report_count" jdbcType="LONGVARBINARY" property="reportCount" />
+    <result column="summary" jdbcType="LONGVARCHAR" property="summary" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,11 +71,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, functional_case_count, api_case_count, api_scenario_count, bug_count, test_plan_report_id, 
-    summary
+    id, functional_case_count, api_case_count, api_scenario_count, bug_count, test_plan_report_id
   </sql>
   <sql id="Blob_Column_List">
-    report_count
+    summary
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanReportSummaryExample" resultMap="ResultMapWithBLOBs">
     select
@@ -129,10 +127,10 @@
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanReportSummary">
     insert into test_plan_report_summary (id, functional_case_count, api_case_count, 
       api_scenario_count, bug_count, test_plan_report_id, 
-      summary, report_count)
+      summary)
     values (#{id,jdbcType=VARCHAR}, #{functionalCaseCount,jdbcType=BIGINT}, #{apiCaseCount,jdbcType=BIGINT}, 
       #{apiScenarioCount,jdbcType=BIGINT}, #{bugCount,jdbcType=BIGINT}, #{testPlanReportId,jdbcType=VARCHAR}, 
-      #{summary,jdbcType=VARCHAR}, #{reportCount,jdbcType=LONGVARBINARY})
+      #{summary,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportSummary">
     insert into test_plan_report_summary
@@ -158,9 +156,6 @@
       <if test="summary != null">
         summary,
       </if>
-      <if test="reportCount != null">
-        report_count,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -182,10 +177,7 @@
         #{testPlanReportId,jdbcType=VARCHAR},
       </if>
       <if test="summary != null">
-        #{summary,jdbcType=VARCHAR},
-      </if>
-      <if test="reportCount != null">
-        #{reportCount,jdbcType=LONGVARBINARY},
+        #{summary,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -217,10 +209,7 @@
         test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
       </if>
       <if test="record.summary != null">
-        summary = #{record.summary,jdbcType=VARCHAR},
-      </if>
-      <if test="record.reportCount != null">
-        report_count = #{record.reportCount,jdbcType=LONGVARBINARY},
+        summary = #{record.summary,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -235,8 +224,7 @@
       api_scenario_count = #{record.apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{record.bugCount,jdbcType=BIGINT},
       test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
-      summary = #{record.summary,jdbcType=VARCHAR},
-      report_count = #{record.reportCount,jdbcType=LONGVARBINARY}
+      summary = #{record.summary,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -248,8 +236,7 @@
       api_case_count = #{record.apiCaseCount,jdbcType=BIGINT},
       api_scenario_count = #{record.apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{record.bugCount,jdbcType=BIGINT},
-      test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
-      summary = #{record.summary,jdbcType=VARCHAR}
+      test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -273,10 +260,7 @@
         test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
       </if>
       <if test="summary != null">
-        summary = #{summary,jdbcType=VARCHAR},
-      </if>
-      <if test="reportCount != null">
-        report_count = #{reportCount,jdbcType=LONGVARBINARY},
+        summary = #{summary,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -288,8 +272,7 @@
       api_scenario_count = #{apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{bugCount,jdbcType=BIGINT},
       test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
-      summary = #{summary,jdbcType=VARCHAR},
-      report_count = #{reportCount,jdbcType=LONGVARBINARY}
+      summary = #{summary,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanReportSummary">
@@ -298,19 +281,18 @@
       api_case_count = #{apiCaseCount,jdbcType=BIGINT},
       api_scenario_count = #{apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{bugCount,jdbcType=BIGINT},
-      test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
-      summary = #{summary,jdbcType=VARCHAR}
+      test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_summary
     (id, functional_case_count, api_case_count, api_scenario_count, bug_count, test_plan_report_id, 
-      summary, report_count)
+      summary)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.functionalCaseCount,jdbcType=BIGINT}, #{item.apiCaseCount,jdbcType=BIGINT}, 
         #{item.apiScenarioCount,jdbcType=BIGINT}, #{item.bugCount,jdbcType=BIGINT}, #{item.testPlanReportId,jdbcType=VARCHAR}, 
-        #{item.summary,jdbcType=VARCHAR}, #{item.reportCount,jdbcType=LONGVARBINARY})
+        #{item.summary,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -342,10 +324,7 @@
           #{item.testPlanReportId,jdbcType=VARCHAR}
         </if>
         <if test="'summary'.toString() == column.value">
-          #{item.summary,jdbcType=VARCHAR}
-        </if>
-        <if test="'report_count'.toString() == column.value">
-          #{item.reportCount,jdbcType=LONGVARBINARY}
+          #{item.summary,jdbcType=LONGVARCHAR}
         </if>
       </foreach>
       )

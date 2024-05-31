@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.TestPlanCollectionMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanCollection">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
+    <result column="test_collection_type_id" jdbcType="VARCHAR" property="testCollectionTypeId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="execute_method" jdbcType="VARCHAR" property="executeMethod" />
+    <result column="grouped" jdbcType="BIT" property="grouped" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, test_plan_id, test_collection_type_id, `name`, execute_method, grouped, environment_id, 
+    pos, create_user, create_time
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanCollectionExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from test_plan_collection
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from test_plan_collection
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from test_plan_collection
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanCollectionExample">
+    delete from test_plan_collection
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanCollection">
+    insert into test_plan_collection (id, test_plan_id, test_collection_type_id, 
+      `name`, execute_method, grouped, 
+      environment_id, pos, create_user, 
+      create_time)
+    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{testCollectionTypeId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{executeMethod,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}, 
+      #{environmentId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanCollection">
+    insert into test_plan_collection
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="testPlanId != null">
+        test_plan_id,
+      </if>
+      <if test="testCollectionTypeId != null">
+        test_collection_type_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="executeMethod != null">
+        execute_method,
+      </if>
+      <if test="grouped != null">
+        grouped,
+      </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
+      <if test="pos != null">
+        pos,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanId != null">
+        #{testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="testCollectionTypeId != null">
+        #{testCollectionTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="executeMethod != null">
+        #{executeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="grouped != null">
+        #{grouped,jdbcType=BIT},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanCollectionExample" resultType="java.lang.Long">
+    select count(*) from test_plan_collection
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update test_plan_collection
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testPlanId != null">
+        test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testCollectionTypeId != null">
+        test_collection_type_id = #{record.testCollectionTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.executeMethod != null">
+        execute_method = #{record.executeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.grouped != null">
+        grouped = #{record.grouped,jdbcType=BIT},
+      </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update test_plan_collection
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      test_collection_type_id = #{record.testCollectionTypeId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      execute_method = #{record.executeMethod,jdbcType=VARCHAR},
+      grouped = #{record.grouped,jdbcType=BIT},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanCollection">
+    update test_plan_collection
+    <set>
+      <if test="testPlanId != null">
+        test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="testCollectionTypeId != null">
+        test_collection_type_id = #{testCollectionTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="executeMethod != null">
+        execute_method = #{executeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="grouped != null">
+        grouped = #{grouped,jdbcType=BIT},
+      </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanCollection">
+    update test_plan_collection
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      test_collection_type_id = #{testCollectionTypeId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      execute_method = #{executeMethod,jdbcType=VARCHAR},
+      grouped = #{grouped,jdbcType=BIT},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into test_plan_collection
+    (id, test_plan_id, test_collection_type_id, `name`, execute_method, grouped, environment_id, 
+      pos, create_user, create_time)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.testCollectionTypeId,jdbcType=VARCHAR}, 
+        #{item.name,jdbcType=VARCHAR}, #{item.executeMethod,jdbcType=VARCHAR}, #{item.grouped,jdbcType=BIT}, 
+        #{item.environmentId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into test_plan_collection (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_plan_id'.toString() == column.value">
+          #{item.testPlanId,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_collection_type_id'.toString() == column.value">
+          #{item.testCollectionTypeId,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'execute_method'.toString() == column.value">
+          #{item.executeMethod,jdbcType=VARCHAR}
+        </if>
+        <if test="'grouped'.toString() == column.value">
+          #{item.grouped,jdbcType=BIT}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>

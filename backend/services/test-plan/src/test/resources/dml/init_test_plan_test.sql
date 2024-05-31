@@ -30,11 +30,11 @@ VALUES
     ('1', '123', 'wx_测试模块名称', 'ROOT', 1, 1714980158000, 1714980158000, 'admin', 'admin');
 
 
-INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `test_planning`)
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`)
 VALUES
-    ('wx_test_plan_id_1', b'0', b'0', 100, b'0'),
-    ('wx_test_plan_id_4', b'0', b'0', 100, b'0'),
-    ('wx_test_plan_id_7', b'0', b'0', 100, b'0');
+    ('wx_test_plan_id_1', b'0', b'0', 100),
+    ('wx_test_plan_id_4', b'0', b'0', 100),
+    ('wx_test_plan_id_7', b'0', b'0', 100);
 
 
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
@@ -42,9 +42,8 @@ VALUES
     ('123', 2, 1, 'wx', 'wx', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["bugManagement","caseManagement","apiTest","testPlan"]');
 
 
-INSERT INTO `test_plan_allocation`(`id`, `test_plan_id`, `run_mode_config`)
-VALUES
-    ('1', 'wx_test_plan_id_1', '111');
+INSERT INTO `test_plan_allocation`(`id`, `test_plan_id`, `test_resource_pool_id`, `retry_on_fail`, `retry_type`, `retry_times`, `retry_interval`, `stop_on_fail`)
+VALUES ('1', 'wx_test_plan_id_1', '111', b'0', 'scenario', '10', '1000', b'0');
 
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
