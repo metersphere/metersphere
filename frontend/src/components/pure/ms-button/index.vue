@@ -58,11 +58,6 @@
     color: rgb(var(--primary-3)) !important;
     cursor: not-allowed;
   }
-  .ms-button-text {
-    @apply p-0;
-
-    color: rgb(var(--primary-5));
-  }
   .ms-button-icon {
     padding: 4px;
     color: var(--color-text-4);
@@ -108,5 +103,10 @@
   .ms-button--mini {
     padding: 0 2px;
     font-size: 12px;
+  }
+  .ms-button-text {
+    @apply p-0;
+
+    color: rgb(var(--primary-5));
   }
 </style>

@@ -1,13 +1,13 @@
 <template>
   <a-popover position="br" content-class="case-count-popover" @popup-visible-change="popupChange">
     <div class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{
-      props.bugItem.relateCase?.length ?? 0
+      props.bugItem.relateCases?.length ?? 0
     }}</div>
     <template #content>
       <div class="w-[500px]">
         <MsBaseTable v-bind="propsRes" v-on="propsEvent">
           <template #num="{ record }">
-            <MsButton type="text" @click="goCaseDetail(record.id)">{{ record.num }}</MsButton>
+            <MsButton size="mini" type="text" @click="goCaseDetail(record.id)">{{ record.num }}</MsButton>
           </template>
         </MsBaseTable>
       </div>
@@ -54,6 +54,7 @@
 
   const { propsRes, propsEvent } = useTable(undefined, {
     columns,
+    size: 'mini',
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_BUG_TABLE_CASE_COUNT,
     scroll: { x: '100%' },
     showSelectorAll: false,
@@ -63,7 +64,7 @@
   });
 
   function popupChange() {
-    propsRes.value.data = props.bugItem.relateCase;
+    propsRes.value.data = props.bugItem.relateCases;
   }
 
   function goCaseDetail(id: string) {

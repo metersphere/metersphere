@@ -67,6 +67,7 @@ export enum TableKeyEnum {
   TEST_PLAN_DETAIL_BUG_TABLE = 'testPlanDetailBug',
   TEST_PLAN_DETAIL_FEATURE_CASE_TABLE = 'testPlanDetailFeatureCaseTable',
   TEST_PLAN_DETAIL_BUG_TABLE_CASE_COUNT = 'testPlanDetailBugCaseCount',
+  TEST_PLAN_DETAIL_CASE_TABLE_BUG_COUNT = 'testPlanDetailCaseBugCount',
   TEST_PLAN_REPORT_TABLE = 'testPlanReportTable',
   TEST_PLAN_REPORT_DETAIL_BUG = 'testPlanReportDetailBug',
   TEST_PLAN_REPORT_DETAIL_FEATURE_CASE = 'testPlanReportDetailFeatureCase',
