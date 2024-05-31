@@ -1,0 +1,99 @@
+<template>
+  <a-tabs v-model:active-key="activeName" class="tabPlatform" @change="handleClick">
+    <a-tab-pane key="wecom" :title="t('project.messageManagement.WE_COM')" class="font-[16px]"></a-tab-pane>
+    <!--    <a-tab-pane key="dingtalk" :title="t('project.messageManagement.DING_TALK')" ></a-tab-pane>
+    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
+    <a-tab-pane key="larksuite" :title="t('project.messageManagement.LARK_SUITE')"></a-tab-pane>-->
+  </a-tabs>
+  <div v-if="activeName === 'wecom'" class="login-qrcode">
+    <div class="qrcode">
+      <wecom-qr v-if="activeName === 'wecom'" />
+    </div>
+  </div>
+  <!--  <div class="login-qrcode" v-if="activeName === 'dingtalk'">
+    <div class="qrcode">
+      <dingtalk-qr v-if="activeName === 'dingtalk'"/>
+    </div>
+  </div>
+  <div class="login-qrcode" v-if="activeName === 'lark'">
+    <div class="qrcode">
+      <lark-qr v-if="activeName === 'lark'"/>
+    </div>
+  </div>
+  <div class="login-qrcode" v-if="activeName === 'larksuite'">
+    <div class="qrcode">
+      <larksuite-qr v-if="activeName === 'larksuite'"/>
+    </div>
+  </div>-->
+</template>
+
+<script lang="ts" setup>
+  import { ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+
+  import WecomQr from './weComQrCode.vue';
+
+  const { t } = useI18n();
+
+  const activeName = ref('');
+  const props = defineProps<{
+    tabName: string;
+  }>();
+  const initActive = () => {
+    const qrArray = ['wecom', 'dingtalk', 'lark', 'larksuite'];
+    for (let i = 0; i < qrArray.length; i++) {
+      const key = qrArray[i];
+      if (props.tabName === key) {
+        activeName.value = key;
+        break;
+      }
+    }
+  };
+  function handleClick(val: string | number) {
+    if (typeof val === 'string') {
+      activeName.value = val;
+    }
+  }
+  onMounted(() => {
+    initActive();
+  });
+</script>
+
+<style lang="less" scoped>
+  .tabPlatform {
+    width: 400px;
+    height: 40px;
+  }
+
+  .login-qrcode {
+    min-width: 480px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 24px;
+    .qrcode {
+      display: flex;
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0px 0 16px 0;
+      overflow: hidden;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 26px;
+      .ed-icon {
+        margin-right: 8px;
+        font-size: 24px;
+      }
+    }
+  }
+</style>

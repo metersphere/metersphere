@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="form mt-[32px] min-w-[416px]">
+    <div class="form mt-[32px] min-w-[480px]">
       <div v-if="userInfo.authenticate === 'LOCAL'" class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]">
         {{ t('login.form.accountLogin') }}
       </div>
@@ -20,7 +20,7 @@
         class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]"
         >{{ t('login.form.LDAPLogin') }}</div
       >
-      <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
+      <a-form v-if="!showQrCodeTab" ref="formRef" :model="userInfo" @submit="handleSubmit">
         <!-- TOTO 第一版本暂时只考虑普通登录&LDAP -->
         <a-form-item
           class="login-form-item"
@@ -72,24 +72,40 @@
             </div>
           </div>
         </div>
-        <a-divider v-if="isShowLDAP || isShowOIDC || isShowOAUTH" orientation="center" type="dashed" class="m-0 mb-2">
-          <span class="text-[12px] font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
-        </a-divider>
-        <div v-if="userStore.loginType.length" class="mt-4 flex items-center justify-center">
-          <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">
-            <span class="type-text text-[10px]">LDAP</span>
-          </div>
-          <div v-if="userInfo.authenticate !== 'LOCAL'" class="loginType" @click="switchLoginType('LOCAL')">
-            <svg-icon width="18px" height="18px" name="userLogin"></svg-icon
-          ></div>
-          <div v-if="isShowOIDC && userInfo.authenticate !== 'OIDC'" class="loginType">
-            <span class="type-text text-[10px]">OIDC</span>
-          </div>
-          <div v-if="isShowOAUTH && userInfo.authenticate !== 'OAuth2'" class="loginType">
-            <span class="type-text text-[7px]">OAUTH</span>
-          </div>
-        </div>
       </a-form>
+      <div v-if="showQrCodeTab">
+        <tab-qr-code tab-name="wecom"></tab-qr-code>
+      </div>
+      <a-divider
+        v-if="isShowLDAP || isShowOIDC || isShowOAUTH || (isShowQRCode && orgOptions.length > 0)"
+        orientation="center"
+        type="dashed"
+        class="m-0 mb-2"
+      >
+        <span class="text-[12px] font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
+      </a-divider>
+      <div class="mt-4 flex items-center justify-center">
+        <div
+          v-if="isShowQRCode && !showQrCodeTab && orgOptions.length > 0"
+          class="loginType"
+          @click="switchLoginType('QR_CODE')"
+        >
+          <svg-icon name="scan_code" width="18px" height="18px" class="text-[rgb(var(--primary-6))]"></svg-icon>
+        </div>
+        <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">
+          <span class="type-text text-[10px]">LDAP</span>
+        </div>
+        <div v-if="userInfo.authenticate !== 'LOCAL'" class="loginType" @click="switchLoginType('LOCAL')">
+          <svg-icon width="18px" height="18px" name="userLogin"></svg-icon
+        ></div>
+        <div v-if="isShowOIDC && userInfo.authenticate !== 'OIDC'" class="loginType">
+          <span class="type-text text-[10px]">OIDC</span>
+        </div>
+        <div v-if="isShowOAUTH && userInfo.authenticate !== 'OAuth2'" class="loginType">
+          <span class="type-text text-[7px]">OAUTH</span>
+        </div>
+      </div>
+
       <div v-if="props.isPreview" class="mask"></div>
     </div>
   </div>
@@ -99,9 +115,13 @@
   import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { useStorage } from '@vueuse/core';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
+
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
+  import { getPlatformParamUrl } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
@@ -122,6 +142,8 @@
   const userStore = useUserStore();
   const appStore = useAppStore();
   const licenseStore = useLicenseStore();
+
+  const orgOptions = ref<SelectOptionData[]>([]);
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -158,8 +180,15 @@
     password: '',
   });
 
+  const showQrCodeTab = ref(false);
+
   function switchLoginType(type: string) {
     userInfo.value.authenticate = type;
+    if (type === 'QR_CODE') {
+      showQrCodeTab.value = showQrCodeTab.value === false;
+    } else {
+      showQrCodeTab.value = false;
+    }
   }
 
   const handleSubmit = async ({
@@ -244,8 +273,24 @@
     return userStore.loginType.includes('OAuth2');
   });
 
+  const isShowQRCode = ref(true);
+
+  async function initPlatformInfo() {
+    try {
+      const res = await getPlatformParamUrl();
+      orgOptions.value = res.map((e) => ({
+        label: e.name,
+        value: e.id,
+      }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   onMounted(() => {
     userStore.getAuthentication();
+    initPlatformInfo();
   });
 </script>
 
@@ -288,7 +333,7 @@
   .login-input {
     padding-right: 0;
     padding-left: 0;
-    width: 336px;
+    width: 400px;
     height: 36px;
   }
   .login-input :deep(.arco-input) {
@@ -299,7 +344,7 @@
     position: relative;
     padding-right: 0;
     padding-left: 0;
-    width: 336px;
+    width: 400px;
     height: 36px;
   }
   .login-password-input :deep(.arco-input) {
@@ -310,12 +355,12 @@
     position: absolute;
     top: 10px;
     float: right;
-    margin-left: 290px;
+    margin-left: 350px;
   }
   .login-password-input :deep(.arco-input-suffix) {
     position: absolute;
     top: 10px;
     float: right;
-    margin-left: 300px;
+    margin-left: 360px;
   }
 </style>

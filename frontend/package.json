@@ -50,6 +50,7 @@
     "@types/color": "^3.0.4",
     "@types/node": "^20.11.19",
     "@vueuse/core": "^10.9.0",
+    "@wecom/jssdk": "^1.4.5",
     "@xmldom/xmldom": "^0.8.10",
     "ace-builds": "^1.24.2",
     "ahooks-vue": "^0.15.1",

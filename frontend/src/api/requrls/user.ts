@@ -26,3 +26,6 @@ export const SavePlatformUrl = '/user/platform/save'; // 个人信息-保存三�
 export const GetPlatformUrl = '/user/platform/get'; // 个人信息-获取三方平台账号信息
 export const GetPlatformAccountUrl = '/user/platform/account/info'; // 个人信息-获取三方平台账号信息-插件信息
 export const GetPlatformOrgOptionUrl = '/user/platform/switch-option'; // 个人信息-获取三方平台账号信息-插件信息
+export const GetWeComInfoUrl = '/we_com/info'; // 获取企业微信登陆的配置信息
+export const GetWeComCallbackUrl = '/sso/callback/we_com'; // 获取企业微信登陆的回调信息
+export const GetPlatformParamUrl = '/setting/get/platform/param';
