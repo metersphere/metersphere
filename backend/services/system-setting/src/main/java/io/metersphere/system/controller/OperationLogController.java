@@ -10,9 +10,9 @@ import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.log.vo.OperationLogResponse;
 import io.metersphere.system.log.vo.SystemOperationLogRequest;
-import io.metersphere.system.service.NormalUserService;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
+import io.metersphere.system.service.UserService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +41,7 @@ public class OperationLogController {
     private OperationLogService operationLogService;
 
     @Resource
-    private NormalUserService normalUserService;
+    private UserService userService;
 
 
     @GetMapping("/get/options")
@@ -77,7 +77,6 @@ public class OperationLogController {
     @RequiresPermissions(PermissionConstants.SYSTEM_LOG_READ)
     public List<User> getUserList(@Schema(description = "查询关键字，根据邮箱和用户名查询")
                                       @RequestParam(value = "keyword", required = false) String keyword) {
-        List<User> userList = normalUserService.getUserList(keyword);
-        return userList;
+        return userService.getUserList(keyword);
     }
 }

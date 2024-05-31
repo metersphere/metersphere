@@ -6,8 +6,8 @@ import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.PersonalDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.NormalUserService;
 import io.metersphere.system.service.UserLogService;
+import io.metersphere.system.service.UserService;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,13 +23,13 @@ public class
 PersonalCenterController {
 
     @Resource
-    private NormalUserService normalUserService;
+    private UserService userService;
 
     @GetMapping("/get/{id}")
     @Operation(summary = "个人中心-获取信息")
     public PersonalDTO getInformation(@PathVariable String id) {
         this.checkPermission(id);
-        return normalUserService.getPersonalById(id);
+        return userService.getPersonalById(id);
     }
 
     @PostMapping("/update-info")
@@ -37,7 +37,7 @@ PersonalCenterController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateAccountLog(#request)", msClass = UserLogService.class)
     public boolean updateUser(@Validated @RequestBody PersonalUpdateRequest request) {
         this.checkPermission(request.getId());
-        return normalUserService.updateAccount(request, SessionUtils.getUserId());
+        return userService.updateAccount(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update-password")
@@ -45,7 +45,7 @@ PersonalCenterController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePasswordLog(#request)", msClass = UserLogService.class)
     public String updateUser(@Validated @RequestBody PersonalUpdatePasswordRequest request) {
         this.checkPermission(request.getId());
-        if (normalUserService.updatePassword(request)) {
+        if (userService.updatePassword(request)) {
             SessionUtils.kickOutUser(SessionUtils.getUser().getId());
         }
         return "OK";

@@ -24,7 +24,7 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.service.NormalUserService;
+import io.metersphere.system.service.UserService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -47,7 +47,7 @@ public class TestPlanReportService {
 	@Resource
 	private UserMapper userMapper;
 	@Resource
-	private NormalUserService normalUserService;
+	private UserService userService;
 	@Resource
 	private SqlSessionFactory sqlSessionFactory;
 	@Resource
@@ -91,7 +91,7 @@ public class TestPlanReportService {
             return new ArrayList<>();
         }
         List<String> distinctUserIds = reportList.stream().map(TestPlanReportPageResponse::getCreateUser).distinct().toList();
-		Map<String, String> userMap = normalUserService.getUserMapByIds(distinctUserIds);
+		Map<String, String> userMap = userService.getUserMapByIds(distinctUserIds);
         reportList.forEach(report -> report.setCreateUserName(userMap.get(report.getCreateUser())));
         return reportList;
     }

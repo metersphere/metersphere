@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class NormalUserService {
+public class UserService {
     @Resource
     private BaseUserMapper baseUserMapper;
     @Resource
@@ -340,10 +340,6 @@ public class NormalUserService {
 
     /**
      * 检查要处理的用户并抛出异常
-     *
-     * @param userIdList
-     * @param operatorId
-     * @param operatorName
      */
     private void checkProcessUserAndThrowException(List<String> userIdList, String operatorId, String operatorName, String exceptionMessage) {
         for (String userId : userIdList) {
@@ -438,9 +434,7 @@ public class NormalUserService {
     }
 
     /**
-     * 临时发送Email的方法。
-     *
-     * @param hashMap
+     * 发送Email的方法。
      */
     @Resource
     MailNoticeSender mailNoticeSender;

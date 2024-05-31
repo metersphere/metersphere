@@ -49,7 +49,7 @@ import java.util.Map;
 @RequestMapping("/system/user")
 public class UserController {
     @Resource
-    private NormalUserService normalUserService;
+    private UserService userService;
     @Resource
     private UserToolService userToolService;
     @Resource
@@ -67,14 +67,14 @@ public class UserController {
     @Operation(summary = "通过email或id查找用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public UserDTO getUser(@PathVariable String keyword) {
-        return normalUserService.getUserDTOByKeyword(keyword);
+        return userService.getUserDTOByKeyword(keyword);
     }
 
     @PostMapping("/add")
     @Operation(summary = "系统设置-系统-用户-添加用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ADD)
     public UserBatchCreateResponse addUser(@Validated({Created.class}) @RequestBody UserBatchCreateRequest userCreateDTO) {
-        return normalUserService.addUser(userCreateDTO, UserSource.LOCAL.name(), SessionUtils.getUserId());
+        return userService.addUser(userCreateDTO, UserSource.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
@@ -82,7 +82,7 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserLogService.class)
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
-        return normalUserService.updateUser(request, SessionUtils.getUserId());
+        return userService.updateUser(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/page")
@@ -91,7 +91,7 @@ public class UserController {
     public Pager<List<UserTableResponse>> list(@Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "create_time desc,id desc");
-        return PageUtils.setPageInfo(page, normalUserService.list(request));
+        return PageUtils.setPageInfo(page, userService.list(request));
     }
 
     @PostMapping("/update/enable")
@@ -99,14 +99,14 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateEnableLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
-        return normalUserService.updateUserEnable(request, SessionUtils.getUserId(), SessionUtils.getUser().getName());
+        return userService.updateUserEnable(request, SessionUtils.getUserId(), SessionUtils.getUser().getName());
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @Operation(summary = "系统设置-系统-用户-导入用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_IMPORT)
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
-        return normalUserService.importByExcel(excelFile, UserSource.LOCAL.name(), SessionUtils.getUserId());
+        return userService.importByExcel(excelFile, UserSource.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/delete")
@@ -114,7 +114,7 @@ public class UserController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#request)", msClass = UserLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_DELETE)
     public TableBatchProcessResponse deleteUser(@Validated @RequestBody TableBatchProcessDTO request) {
-        return normalUserService.deleteUser(request, SessionUtils.getUserId(), SessionUtils.getUser().getName());
+        return userService.deleteUser(request, SessionUtils.getUserId(), SessionUtils.getUser().getName());
     }
 
     @PostMapping("/reset/password")
@@ -122,7 +122,7 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#request)", msClass = UserLogService.class)
     public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
-        return normalUserService.resetPassword(request, SessionUtils.getUserId());
+        return userService.resetPassword(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/get/global/system/role")
@@ -186,18 +186,18 @@ public class UserController {
     @Operation(summary = "系统设置-系统-用户-邀请用户注册")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_INVITE)
     public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
-        return normalUserService.saveInviteRecord(request, SessionUtils.getUser());
+        return userService.saveInviteRecord(request, SessionUtils.getUser());
     }
 
     @GetMapping("/check-invite/{inviteId}")
     @Operation(summary = "系统设置-系统-用户-用户接受注册邀请并创建账户")
     public void checkInviteNum(@PathVariable String inviteId) {
-        normalUserService.getUserInviteAndCheckEfficient(inviteId);
+        userService.getUserInviteAndCheckEfficient(inviteId);
     }
 
     @PostMapping("/register-by-invite")
     @Operation(summary = "系统设置-系统-用户-用户接受注册邀请并创建账户")
     public String registerByInvite(@Validated @RequestBody UserRegisterRequest request) throws Exception {
-        return normalUserService.registerByInvite(request);
+        return userService.registerByInvite(request);
     }
 }
