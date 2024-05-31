@@ -176,9 +176,13 @@ public class ApiExecuteService {
             throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         } catch (MSException e) {
             handleDoExecuteException(scriptRedisKey, e);
+            // 集合报告对应的资源池集合移除
+            removeCollectionReport(taskRequest);
             throw e;
         } catch (Exception e) {
             handleDoExecuteException(scriptRedisKey, e);
+            // 集合报告对应的资源池集合移除
+            removeCollectionReport(taskRequest);
             throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         }
     }
@@ -187,6 +191,14 @@ public class ApiExecuteService {
         LogUtils.error(e);
         // 调用失败清理脚本
         stringRedisTemplate.delete(scriptRedisKey);
+    }
+
+    private void removeCollectionReport(TaskRequestDTO taskRequest) {
+        // 集合报告对应的资源池集合移除
+        if (taskRequest.getRunModeConfig().getIntegratedReport()) {
+            String SET_PREFIX = "set:" + taskRequest.getRunModeConfig().getCollectionReport().getReportId();
+            stringRedisTemplate.opsForSet().remove(SET_PREFIX, taskRequest.getResourceId());
+        }
     }
 
     private GlobalParams getGlobalParam(String projectId) {
@@ -205,7 +217,11 @@ public class ApiExecuteService {
     private TaskRequestDTO doExecute(TaskRequestDTO taskRequest) throws Exception {
         // 获取资源池
         TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(taskRequest.getRunModeConfig(), taskRequest.getProjectId());
+        if (testResourcePoolDTO == null || CollectionUtils.isEmpty(testResourcePoolDTO.getTestResourceReturnDTO().getNodesList())) {
+            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        }
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);
+
         if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
             // 如果资源池配置了当前站点，则使用资源池的
             taskRequest.setMsUrl(testResourcePoolDTO.getServerUrl());
@@ -231,14 +247,18 @@ public class ApiExecuteService {
     private TestResourceNodeDTO getProjectExecuteNode(TestResourcePoolReturnDTO resourcePoolDTO) {
         roundRobinService.initializeNodes(resourcePoolDTO.getId(), resourcePoolDTO.getTestResourceReturnDTO().getNodesList());
         try {
-            return roundRobinService.getNextNode(resourcePoolDTO.getId());
+            TestResourceNodeDTO node = roundRobinService.getNextNode(resourcePoolDTO.getId());
+            if (node == null) {
+                node = resourcePoolDTO.getTestResourceReturnDTO().getNodesList().getFirst();
+            }
+            return node;
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("get execute node error", e);
         }
     }
 
-    private TestResourcePoolReturnDTO getGetResourcePoolNodeDTO(ApiRunModeConfigDTO runModeConfig, String projectId) {
+    public TestResourcePoolReturnDTO getGetResourcePoolNodeDTO(ApiRunModeConfigDTO runModeConfig, String projectId) {
         String poolId = runModeConfig.getPoolId();
         if (StringUtils.isBlank(poolId)) {
             poolId = getProjectApiResourcePoolId(projectId);
