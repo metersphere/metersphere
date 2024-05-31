@@ -4,9 +4,12 @@
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanAllocation">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanAllocation">
-    <result column="run_mode_config" jdbcType="LONGVARBINARY" property="runModeConfig" />
+    <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
+    <result column="retry_on_fail" jdbcType="BIT" property="retryOnFail" />
+    <result column="retry_type" jdbcType="VARCHAR" property="retryType" />
+    <result column="retry_times" jdbcType="INTEGER" property="retryTimes" />
+    <result column="retry_interval" jdbcType="INTEGER" property="retryInterval" />
+    <result column="stop_on_fail" jdbcType="BIT" property="stopOnFail" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,27 +70,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id
+    id, test_plan_id, test_resource_pool_id, retry_on_fail, retry_type, retry_times, 
+    retry_interval, stop_on_fail
   </sql>
-  <sql id="Blob_Column_List">
-    run_mode_config
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanAllocationExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from test_plan_allocation
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanAllocationExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -102,11 +87,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from test_plan_allocation
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -121,10 +104,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanAllocation">
-    insert into test_plan_allocation (id, test_plan_id, run_mode_config
-      )
-    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{runModeConfig,jdbcType=LONGVARBINARY}
-      )
+    insert into test_plan_allocation (id, test_plan_id, test_resource_pool_id, 
+      retry_on_fail, retry_type, retry_times, 
+      retry_interval, stop_on_fail)
+    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
+      #{retryOnFail,jdbcType=BIT}, #{retryType,jdbcType=VARCHAR}, #{retryTimes,jdbcType=INTEGER}, 
+      #{retryInterval,jdbcType=INTEGER}, #{stopOnFail,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanAllocation">
     insert into test_plan_allocation
@@ -135,8 +120,23 @@
       <if test="testPlanId != null">
         test_plan_id,
       </if>
-      <if test="runModeConfig != null">
-        run_mode_config,
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id,
+      </if>
+      <if test="retryOnFail != null">
+        retry_on_fail,
+      </if>
+      <if test="retryType != null">
+        retry_type,
+      </if>
+      <if test="retryTimes != null">
+        retry_times,
+      </if>
+      <if test="retryInterval != null">
+        retry_interval,
+      </if>
+      <if test="stopOnFail != null">
+        stop_on_fail,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,8 +146,23 @@
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="runModeConfig != null">
-        #{runModeConfig,jdbcType=LONGVARBINARY},
+      <if test="testResourcePoolId != null">
+        #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="retryOnFail != null">
+        #{retryOnFail,jdbcType=BIT},
+      </if>
+      <if test="retryType != null">
+        #{retryType,jdbcType=VARCHAR},
+      </if>
+      <if test="retryTimes != null">
+        #{retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="retryInterval != null">
+        #{retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="stopOnFail != null">
+        #{stopOnFail,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -166,19 +181,25 @@
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="record.runModeConfig != null">
-        run_mode_config = #{record.runModeConfig,jdbcType=LONGVARBINARY},
+      <if test="record.testResourcePoolId != null">
+        test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.retryOnFail != null">
+        retry_on_fail = #{record.retryOnFail,jdbcType=BIT},
+      </if>
+      <if test="record.retryType != null">
+        retry_type = #{record.retryType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.retryTimes != null">
+        retry_times = #{record.retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="record.retryInterval != null">
+        retry_interval = #{record.retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="record.stopOnFail != null">
+        stop_on_fail = #{record.stopOnFail,jdbcType=BIT},
       </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update test_plan_allocation
-    set id = #{record.id,jdbcType=VARCHAR},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
-      run_mode_config = #{record.runModeConfig,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -186,7 +207,13 @@
   <update id="updateByExample" parameterType="map">
     update test_plan_allocation
     set id = #{record.id,jdbcType=VARCHAR},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR}
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      retry_on_fail = #{record.retryOnFail,jdbcType=BIT},
+      retry_type = #{record.retryType,jdbcType=VARCHAR},
+      retry_times = #{record.retryTimes,jdbcType=INTEGER},
+      retry_interval = #{record.retryInterval,jdbcType=INTEGER},
+      stop_on_fail = #{record.stopOnFail,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -197,30 +224,47 @@
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="runModeConfig != null">
-        run_mode_config = #{runModeConfig,jdbcType=LONGVARBINARY},
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="retryOnFail != null">
+        retry_on_fail = #{retryOnFail,jdbcType=BIT},
+      </if>
+      <if test="retryType != null">
+        retry_type = #{retryType,jdbcType=VARCHAR},
+      </if>
+      <if test="retryTimes != null">
+        retry_times = #{retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="retryInterval != null">
+        retry_interval = #{retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="stopOnFail != null">
+        stop_on_fail = #{stopOnFail,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanAllocation">
-    update test_plan_allocation
-    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
-      run_mode_config = #{runModeConfig,jdbcType=LONGVARBINARY}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanAllocation">
     update test_plan_allocation
-    set test_plan_id = #{testPlanId,jdbcType=VARCHAR}
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      retry_on_fail = #{retryOnFail,jdbcType=BIT},
+      retry_type = #{retryType,jdbcType=VARCHAR},
+      retry_times = #{retryTimes,jdbcType=INTEGER},
+      retry_interval = #{retryInterval,jdbcType=INTEGER},
+      stop_on_fail = #{stopOnFail,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_allocation
-    (id, test_plan_id, run_mode_config)
+    (id, test_plan_id, test_resource_pool_id, retry_on_fail, retry_type, retry_times, 
+      retry_interval, stop_on_fail)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.runModeConfig,jdbcType=LONGVARBINARY}
-        )
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.testResourcePoolId,jdbcType=VARCHAR}, 
+        #{item.retryOnFail,jdbcType=BIT}, #{item.retryType,jdbcType=VARCHAR}, #{item.retryTimes,jdbcType=INTEGER}, 
+        #{item.retryInterval,jdbcType=INTEGER}, #{item.stopOnFail,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -239,8 +283,23 @@
         <if test="'test_plan_id'.toString() == column.value">
           #{item.testPlanId,jdbcType=VARCHAR}
         </if>
-        <if test="'run_mode_config'.toString() == column.value">
-          #{item.runModeConfig,jdbcType=LONGVARBINARY}
+        <if test="'test_resource_pool_id'.toString() == column.value">
+          #{item.testResourcePoolId,jdbcType=VARCHAR}
+        </if>
+        <if test="'retry_on_fail'.toString() == column.value">
+          #{item.retryOnFail,jdbcType=BIT}
+        </if>
+        <if test="'retry_type'.toString() == column.value">
+          #{item.retryType,jdbcType=VARCHAR}
+        </if>
+        <if test="'retry_times'.toString() == column.value">
+          #{item.retryTimes,jdbcType=INTEGER}
+        </if>
+        <if test="'retry_interval'.toString() == column.value">
+          #{item.retryInterval,jdbcType=INTEGER}
+        </if>
+        <if test="'stop_on_fail'.toString() == column.value">
+          #{item.stopOnFail,jdbcType=BIT}
         </if>
       </foreach>
       )

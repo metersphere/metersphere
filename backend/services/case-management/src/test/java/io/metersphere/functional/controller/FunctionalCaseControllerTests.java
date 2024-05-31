@@ -506,7 +506,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
             testPlanConfig.setTestPlanId(IDGenerator.nextStr());
             testPlanConfig.setRepeatCase(false);
             testPlanConfig.setAutomaticStatusUpdate(false);
-            testPlanConfig.setTestPlanning(false);
             testPlanConfig.setPassThreshold(100.00);
 
             request.setTestPlanId(testPlanConfig.getTestPlanId());

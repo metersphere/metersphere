@@ -4,10 +4,10 @@ VALUES
     ('wxx_2', 10000, '123', 'NONE', '1', 'eeew', 'PREPARED', 'TEST_PLAN', NULL, 1714980158000, 'WX', 1714980158000, 'WX', 1714980158000, 1714980158000, 1714980158000, 1714980158000, '11');
 
 
-INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `test_planning`)
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`)
 VALUES
-    ('wxx_1', b'0', b'0', 100, b'0'),
-    ('wxx_2', b'0', b'0', 100, b'0');
+    ('wxx_1', b'0', b'0', 100),
+    ('wxx_2', b'0', b'0', 100);
 
 INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`)
 VALUES ('wxx_tpfc_1', 'wxx_1', 'wxx_test_1', 1714980158000, 'admin', NULL, NULL, NULL, 1);

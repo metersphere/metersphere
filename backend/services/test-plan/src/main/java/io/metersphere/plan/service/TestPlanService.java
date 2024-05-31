@@ -125,7 +125,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanConfig.setAutomaticStatusUpdate(createOrCopyRequest.isAutomaticStatusUpdate());
         testPlanConfig.setRepeatCase(createOrCopyRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(createOrCopyRequest.getPassThreshold());
-        testPlanConfig.setTestPlanning(createOrCopyRequest.isTestPlanning());
 
         if (StringUtils.isBlank(id)) {
             handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
@@ -317,7 +316,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             testPlanConfig.setAutomaticStatusUpdate(request.getAutomaticStatusUpdate());
             testPlanConfig.setRepeatCase(request.getRepeatCase());
             testPlanConfig.setPassThreshold(request.getPassThreshold());
-            testPlanConfig.setTestPlanning(request.getTestPlanning());
             testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
         }
         testPlanLogService.saveUpdateLog(testPlan, testPlanMapper.selectByPrimaryKey(request.getId()), testPlan.getProjectId(), userId, requestUrl, requestMethod);
@@ -505,7 +503,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         response.setAutomaticStatusUpdate(testPlanConfig.getAutomaticStatusUpdate());
         response.setRepeatCase(testPlanConfig.getRepeatCase());
         response.setPassThreshold(testPlanConfig.getPassThreshold());
-        response.setTestPlanning(testPlanConfig.getTestPlanning());
     }
 
     private void getGroupName(TestPlanDetailResponse response, TestPlan testPlan) {

@@ -4,11 +4,13 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class TestPlanAllocation implements Serializable {
@@ -22,16 +24,43 @@ public class TestPlanAllocation implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_allocation.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanId;
 
-    @Schema(description = "运行配置", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_allocation.run_mode_config.not_blank}", groups = {Created.class})
-    private byte[] runModeConfig;
+    @Schema(description = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_allocation.test_resource_pool_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_allocation.test_resource_pool_id.length_range}", groups = {Created.class, Updated.class})
+    private String testResourcePoolId;
+
+    @Schema(description = "是否失败重试", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_allocation.retry_on_fail.not_blank}", groups = {Created.class})
+    private Boolean retryOnFail;
+
+    @Schema(description = "失败重试类型(步骤/场景)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_allocation.retry_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_allocation.retry_type.length_range}", groups = {Created.class, Updated.class})
+    private String retryType;
+
+    @Schema(description = "失败重试次数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_allocation.retry_times.not_blank}", groups = {Created.class})
+    private Integer retryTimes;
+
+    @Schema(description = "失败重试间隔(单位: ms)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_allocation.retry_interval.not_blank}", groups = {Created.class})
+    private Integer retryInterval;
+
+    @Schema(description = "是否失败停止", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_allocation.stop_on_fail.not_blank}", groups = {Created.class})
+    private Boolean stopOnFail;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
-        runModeConfig("run_mode_config", "runModeConfig", "LONGVARBINARY", false);
+        testResourcePoolId("test_resource_pool_id", "testResourcePoolId", "VARCHAR", false),
+        retryOnFail("retry_on_fail", "retryOnFail", "BIT", false),
+        retryType("retry_type", "retryType", "VARCHAR", false),
+        retryTimes("retry_times", "retryTimes", "INTEGER", false),
+        retryInterval("retry_interval", "retryInterval", "INTEGER", false),
+        stopOnFail("stop_on_fail", "stopOnFail", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

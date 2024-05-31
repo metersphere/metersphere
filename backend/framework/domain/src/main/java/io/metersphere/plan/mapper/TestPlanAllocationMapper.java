@@ -2,8 +2,9 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.domain.TestPlanAllocation;
 import io.metersphere.plan.domain.TestPlanAllocationExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface TestPlanAllocationMapper {
     long countByExample(TestPlanAllocationExample example);
@@ -16,21 +17,15 @@ public interface TestPlanAllocationMapper {
 
     int insertSelective(TestPlanAllocation record);
 
-    List<TestPlanAllocation> selectByExampleWithBLOBs(TestPlanAllocationExample example);
-
     List<TestPlanAllocation> selectByExample(TestPlanAllocationExample example);
 
     TestPlanAllocation selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") TestPlanAllocation record, @Param("example") TestPlanAllocationExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") TestPlanAllocation record, @Param("example") TestPlanAllocationExample example);
-
     int updateByExample(@Param("record") TestPlanAllocation record, @Param("example") TestPlanAllocationExample example);
 
     int updateByPrimaryKeySelective(TestPlanAllocation record);
-
-    int updateByPrimaryKeyWithBLOBs(TestPlanAllocation record);
 
     int updateByPrimaryKey(TestPlanAllocation record);
 

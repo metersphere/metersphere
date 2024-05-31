@@ -64,7 +64,7 @@ public class TestPlanBatchCopyService {
             //测试规划配置信息
             TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
             allocationExample.createCriteria().andTestPlanIdIn(ids);
-            List<TestPlanAllocation> testPlanAllocations = testPlanAllocationMapper.selectByExampleWithBLOBs(allocationExample);
+            List<TestPlanAllocation> testPlanAllocations = testPlanAllocationMapper.selectByExample(allocationExample);
             batchInsertPlan(testPlans, testPlanConfigs, testPlanAllocations, request, userId);
         }
     }

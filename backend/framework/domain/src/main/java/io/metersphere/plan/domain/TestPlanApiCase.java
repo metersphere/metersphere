@@ -1,12 +1,16 @@
 package io.metersphere.plan.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class TestPlanApiCase implements Serializable {
@@ -14,9 +18,6 @@ public class TestPlanApiCase implements Serializable {
     @NotBlank(message = "{test_plan_api_case.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_plan_api_case.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
-
-    @Schema(description = "num")
-    private Long num;
 
     @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_api_case.test_plan_id.not_blank}", groups = {Created.class})
@@ -47,6 +48,11 @@ public class TestPlanApiCase implements Serializable {
     @NotNull(message = "{test_plan_api_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
+    @Schema(description = "测试计划集id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_api_case.test_plan_collection_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_api_case.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
+    private String testPlanCollectionId;
+
     @Schema(description = "所属环境")
     private String environmentId;
 
@@ -54,7 +60,6 @@ public class TestPlanApiCase implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        num("num", "num", "BIGINT", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         apiCaseId("api_case_id", "apiCaseId", "VARCHAR", false),
         lastExecResult("last_exec_result", "lastExecResult", "VARCHAR", false),
@@ -63,6 +68,7 @@ public class TestPlanApiCase implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
+        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
         environmentId("environment_id", "environmentId", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

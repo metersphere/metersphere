@@ -13,31 +13,45 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Data
-public class TestPlanConfig implements Serializable {
+public class TestPlanAllocationType implements Serializable {
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_allocation_type.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{test_plan_allocation_type.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
     @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_config.test_plan_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_config.test_plan_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_plan_allocation_type.test_plan_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_allocation_type.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanId;
 
-    @Schema(description = "是否自定更新功能用例状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_config.automatic_status_update.not_blank}", groups = {Created.class})
-    private Boolean automaticStatusUpdate;
+    @Schema(description = "测试集类型名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_allocation_type.name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{test_plan_allocation_type.name.length_range}", groups = {Created.class, Updated.class})
+    private String name;
 
-    @Schema(description = "是否允许重复添加用例", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_config.repeat_case.not_blank}", groups = {Created.class})
-    private Boolean repeatCase;
+    @Schema(description = "测试集类型(功能/接口/场景)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_allocation_type.type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_allocation_type.type.length_range}", groups = {Created.class, Updated.class})
+    private String type;
 
-    @Schema(description = "测试计划通过阈值; 0-100, 保留两位小数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_config.pass_threshold.not_blank}", groups = {Created.class})
-    private Double passThreshold;
+    @Schema(description = "执行方式(串行/并行)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_allocation_type.execute_method.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_allocation_type.execute_method.length_range}", groups = {Created.class, Updated.class})
+    private String executeMethod;
+
+    @Schema(description = "自定义排序，间隔为2的N次幂", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_allocation_type.pos.not_blank}", groups = {Created.class})
+    private Long pos;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
-        automaticStatusUpdate("automatic_status_update", "automaticStatusUpdate", "BIT", false),
-        repeatCase("repeat_case", "repeatCase", "BIT", false),
-        passThreshold("pass_threshold", "passThreshold", "DECIMAL", false);
+        name("name", "name", "VARCHAR", true),
+        type("type", "type", "VARCHAR", true),
+        executeMethod("execute_method", "executeMethod", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
