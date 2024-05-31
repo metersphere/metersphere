@@ -11,8 +11,8 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.NormalUserService;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.service.SimpleUserService;
 import io.metersphere.system.service.SystemOrganizationLogService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.utils.PageUtils;
@@ -43,7 +43,7 @@ import java.util.Map;
 public class SystemOrganizationController {
 
     @Resource
-    private NormalUserService normalUserService;
+    private SimpleUserService simpleUserService;
     @Resource
     private SystemProjectService systemProjectService;
     @Resource
@@ -182,6 +182,6 @@ public class SystemOrganizationController {
     public List<UserExtendDTO> getMemberOption(@PathVariable String sourceId,
                                                @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                             @RequestParam(value = "keyword", required = false) String keyword) {
-        return normalUserService.getMemberOption(sourceId, keyword);
+        return simpleUserService.getMemberOption(sourceId, keyword);
     }
 }

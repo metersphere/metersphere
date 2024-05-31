@@ -15,7 +15,7 @@ import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
-import io.metersphere.system.service.NormalUserService;
+import io.metersphere.system.service.SimpleUserService;
 import io.metersphere.system.service.SystemProjectLogService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.utils.PageUtils;
@@ -43,7 +43,7 @@ public class SystemProjectController {
     @Resource
     private SystemProjectService systemProjectService;
     @Resource
-    private NormalUserService normalUserService;
+    private SimpleUserService simpleUserService;
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
@@ -156,7 +156,7 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public List<User> getUserList(@Schema(description = "查询关键字，根据邮箱和用户名查询")
                                   @RequestParam(value = "keyword", required = false) String keyword) {
-        return normalUserService.getUserList(keyword);
+        return simpleUserService.getUserList(keyword);
     }
 
     @PostMapping("/pool-options")
