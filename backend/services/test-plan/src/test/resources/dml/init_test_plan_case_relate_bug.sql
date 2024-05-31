@@ -64,3 +64,6 @@ VALUES
     ('123445', 'relate_case_1', 'plan_1', 'fc_1', 'PASSED', '1234', '2132134', b'0', '', 'admin', 1715828421525);
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('fc_1', 'STEP', '1111', '', '', 'TEST');
 
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
+VALUES
+    ('123', 2, 1, 'wx', 'wx', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["bugManagement","caseManagement","apiTest","testPlan"]');

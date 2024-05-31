@@ -29,4 +29,6 @@ public class TestPlanBugPageResponse {
 	private String createUser;
 	@Schema(description = "创建时间")
 	private Long createTime;
+	@Schema(description = "测试计划id")
+	private String testPlanId;
 }

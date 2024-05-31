@@ -24,6 +24,23 @@
         group by brc.bug_id
     </select>
 
+
+    <select id="countBugByIds" resultType="io.metersphere.plan.dto.response.TestPlanBugPageResponse">
+        select b.id as id, b.num as num, b.title as title, bc.description content, b.handle_user handleUser, b.status as status, b.create_user createUser, b.create_time createTime,brc.test_plan_id testPlanId
+        from bug_relation_case brc join bug b on brc.bug_id = b.id
+        left join bug_content bc on b.id = bc.bug_id
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                and brc.test_plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        group by brc.bug_id
+    </select>
+
+
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
         select brc.test_plan_case_id as id, fc.num as num, brc.bug_id as bugId, fc.name as name
         from bug_relation_case brc

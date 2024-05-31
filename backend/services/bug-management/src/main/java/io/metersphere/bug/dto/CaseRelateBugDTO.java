@@ -28,4 +28,10 @@ public class CaseRelateBugDTO implements Serializable {
 
     @Schema(description = "用例id")
     private String caseId;
+
+    @Schema(description = "num")
+    private String num;
+
+    @Schema(description = "status")
+    private String status;
 }

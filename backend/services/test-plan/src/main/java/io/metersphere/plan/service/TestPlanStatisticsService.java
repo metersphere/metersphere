@@ -3,7 +3,9 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.domain.TestPlanConfigExample;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
+import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
+import io.metersphere.plan.mapper.ExtTestPlanBugMapper;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.utils.RateCalculateUtils;
@@ -25,6 +27,8 @@ public class TestPlanStatisticsService {
 	private TestPlanConfigMapper testPlanConfigMapper;
 	@Resource
 	private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
+	@Resource
+	private ExtTestPlanBugMapper extTestPlanBugMapper;
 
 	/**
 	 * 计划的用例统计数据
@@ -42,11 +46,15 @@ public class TestPlanStatisticsService {
 		// 计划-功能用例的关联数据
 		List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
 		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
+		List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.countBugByIds(planIds);
+		Map<String, List<TestPlanBugPageResponse>> planBugMap = planBugs.stream().collect(Collectors.groupingBy(TestPlanBugPageResponse::getTestPlanId));
 		// TODO: 计划-接口用例的关联数据
 		plans.forEach(plan -> {
 			// 功能用例统计开始
 			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(plan.getId());
 			plan.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
+			List<TestPlanBugPageResponse> bugs = planBugMap.get(plan.getId());
+			plan.setBugCount(CollectionUtils.isNotEmpty(bugs) ? bugs.size() : 0);
 			// TODO: 接口用例统计开始
 
 			// FIXME: CaseTotal后续会补充接口用例及场景的统计数据

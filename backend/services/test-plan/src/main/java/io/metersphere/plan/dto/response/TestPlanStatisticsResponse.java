@@ -53,4 +53,6 @@ public class TestPlanStatisticsResponse {
 	private Integer apiCaseCount = 0;
 	@Schema(description = "接口场景数量")
 	private Integer apiScenarioCount = 0;
+	@Schema(description = "缺陷数量")
+	private Integer bugCount = 0;
 }

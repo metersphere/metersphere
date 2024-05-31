@@ -75,7 +75,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_test_plan_case_relate_bug.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetFunctionalCaseList() throws Exception {
         TestPlanCaseRequest request = new TestPlanCaseRequest();
-        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setProjectId("123");
         request.setCurrent(1);
         request.setPageSize(10);
         request.setTestPlanId("plan_1");

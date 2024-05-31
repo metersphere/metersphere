@@ -119,7 +119,6 @@
         LEFT JOIN project_version ON  functional_case.version_id = project_version.id
         where functional_case.deleted = #{deleted}
         and test_plan_functional_case.test_plan_id = #{request.testPlanId}
-          and functional_case.project_id = #{request.projectId}
         <include refid="queryWhereCondition"/>
         order by
         <if test="sort != null and sort != ''">
