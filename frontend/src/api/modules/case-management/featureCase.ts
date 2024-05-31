@@ -90,7 +90,7 @@ import type {
   DeleteDependencyParams,
   DemandItem,
   DragCase,
-  FeatureCaseMinder,
+  FeatureCaseMinderUpdateParams,
   ImportExcelType,
   ModulesTreeType,
   OperationFile,
@@ -182,7 +182,7 @@ export function batchCopyToModules(data: BatchMoveOrCopyType) {
 }
 
 // 保存脑图
-export function saveCaseMinder(data: FeatureCaseMinder) {
+export function saveCaseMinder(data: FeatureCaseMinderUpdateParams) {
   return MSR.post({ url: `${SaveCaseMinderUrl}`, data });
 }
 

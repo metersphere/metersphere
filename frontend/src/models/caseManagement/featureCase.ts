@@ -365,7 +365,7 @@ export interface ContentTabsMap {
   backupTabList: TabItemType[];
 }
 // 脑图删除的模块/用例的集合
-export interface FeatureCaseMinderDeleteResourceList {
+export interface FeatureCaseMinderDeleteResourceItem {
   id: string;
   type: string;
 }
@@ -374,7 +374,7 @@ export type FeatureCaseMinderActionType = 'ADD' | 'UPDATE';
 // 脑图用例编辑模式
 export type FeatureCaseMinderEditType = 'STEP' | 'TEXT';
 // 脑图新增/修改的模块集合（只记录操作的节点，节点下的子节点不需要记录）
-export interface FeatureCaseMinderUpdateModuleList {
+export interface FeatureCaseMinderUpdateModuleItem {
   id: string;
   name: string;
   parentId: string;
@@ -395,7 +395,7 @@ export interface FeatureCaseMinderStepItem {
   result?: string;
 }
 // 脑图新增/修改的用例对象集合
-export interface FeatureCaseMinderUpdateCaseList {
+export interface FeatureCaseMinderUpdateCaseItem {
   id: string; // 用例id(新增的时候前端传UUid，更新的时候必填)
   templateId: string; // 模板id
   type: FeatureCaseMinderActionType;
@@ -403,7 +403,7 @@ export interface FeatureCaseMinderUpdateCaseList {
   moduleId: string;
   moveMode?: MoveMode; // 移动方式（节点移动或新增时需要）
   targetId?: string;
-  prerequisite: string;
+  prerequisite: string; // 前置条件
   caseEditType: FeatureCaseMinderEditType;
   steps: FeatureCaseMinderStepItem[];
   textDescription: string; // 文本描述
@@ -413,10 +413,10 @@ export interface FeatureCaseMinderUpdateCaseList {
   customFields: CustomField[];
 }
 // 脑图
-export interface FeatureCaseMinder {
+export interface FeatureCaseMinderUpdateParams {
   projectId: string;
   versionId?: string;
-  updateCaseList: FeatureCaseMinderUpdateCaseList[];
-  updateModuleList: FeatureCaseMinderUpdateModuleList[];
-  deleteResourceList: FeatureCaseMinderDeleteResourceList[];
+  updateCaseList: FeatureCaseMinderUpdateCaseItem[];
+  updateModuleList: FeatureCaseMinderUpdateModuleItem[];
+  deleteResourceList: FeatureCaseMinderDeleteResourceItem[];
 }

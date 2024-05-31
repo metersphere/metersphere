@@ -15,10 +15,15 @@
 <script lang="ts" name="TagBox" setup>
   import { nextTick, onMounted, reactive, ref } from 'vue';
 
+  import useMinderStore from '@/store/modules/components/minder-editor';
+
+  import { MinderEventName } from '@/enums/minderEnum';
+
   import { MinderJsonNode, tagProps } from '../../props';
   import { isDisableNode, isTagEnable } from '../../script/tool/utils';
 
   const props = defineProps(tagProps);
+  const minderStore = useMinderStore();
 
   let minder = reactive<any>({});
   const commandDisabled = ref(true);
@@ -94,6 +99,7 @@
     }
     window.minder.execCommand('resource', origin);
     const node: MinderJsonNode = minder.getSelectedNode();
+    minderStore.dispatchEvent(MinderEventName.SET_TAG, undefined, undefined, node);
     if (props.replaceableTags) {
       tagList.value = props.replaceableTags(node);
     }
