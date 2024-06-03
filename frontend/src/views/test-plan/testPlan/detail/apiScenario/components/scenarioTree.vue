@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-[16px]">
     <a-input
       v-model:model-value="moduleKeyword"
       :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
@@ -10,7 +10,7 @@
     <MsFolderAll
       v-model:isExpandAll="isExpandAll"
       :active-folder="activeFolder"
-      :folder-name="t('caseManagement.caseReview.allCases')"
+      :folder-name="t('apiScenario.allScenario')"
       :all-count="allCount"
       @set-active-folder="setActiveFolder"
     />
@@ -93,15 +93,13 @@
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const loading = ref(false);
-
   const selectedKeys = useVModel(props, 'selectedKeys', emit);
 
-  /**
-   * 初始化模块树
-   */
+  //  初始化模块树
   async function initModules() {
     try {
       loading.value = true;
+      // TODO 联调
       const res = await getFeatureCaseModule(route.query.id as string);
       folderTree.value = mapTree<ModuleTreeNode>(res, (node) => {
         return {
@@ -118,9 +116,7 @@
     }
   }
 
-  /**
-   * 处理文件夹树节点选中事件
-   */
+  // 处理文件夹树节点选中事件
   function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
     const offspringIds: string[] = [];
     mapTree(node.children || [], (e) => {
@@ -135,9 +131,7 @@
     initModules();
   });
 
-  /**
-   * 初始化模块文件数量
-   */
+  // 初始化模块文件数量
   watch(
     () => props.modulesCount,
     (obj) => {

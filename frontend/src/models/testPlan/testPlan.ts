@@ -69,6 +69,8 @@ export interface TestPlanDetail extends AddTestPlanParams {
   reReviewedCount: number;
   underReviewedCount: number;
   functionalCaseCount?: number;
+  apiCaseCount?: number;
+  apiScenarioCount?: number;
 }
 
 // 计划分页
