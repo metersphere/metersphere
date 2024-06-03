@@ -199,9 +199,6 @@
               <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
             </a-radio>
           </a-radio-group>
-          <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="fetchData">
-            <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
-          </MsTag>
         </div>
       </div>
       <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">

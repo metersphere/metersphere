@@ -1,6 +1,6 @@
 <template>
   <div class="h-full pl-[16px]">
-    <div class="baseInfo-form">
+    <div class="baseInfo-form" :class="props.activeCase.isNew ? 'baseInfo-form--no-bottom' : ''">
       <a-skeleton v-if="baseInfoLoading || props.loading" :loading="baseInfoLoading || props.loading" :animation="true">
         <a-space direction="vertical" class="w-full" size="large">
           <a-skeleton-line :rows="10" :line-height="30" :line-spacing="30" />
@@ -27,7 +27,7 @@
         </a-form-item>
       </a-form>
     </div>
-    <div class="flex items-center gap-[12px] bg-white py-[16px]">
+    <div v-if="!props.activeCase.isNew" class="flex items-center gap-[12px] bg-white py-[16px]">
       <a-button
         v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
         type="primary"
@@ -199,5 +199,8 @@
 
     overflow-y: auto;
     height: calc(100% - 64px);
+  }
+  .baseInfo-form--no-bottom {
+    height: 100%;
   }
 </style>

@@ -405,7 +405,7 @@ export interface FeatureCaseMinderUpdateCaseItem {
   targetId?: string;
   prerequisite: string; // 前置条件
   caseEditType: FeatureCaseMinderEditType;
-  steps: FeatureCaseMinderStepItem[];
+  steps: string;
   textDescription: string; // 文本描述
   expectedResult: string; // 期望结果
   description: string;

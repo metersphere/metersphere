@@ -2,6 +2,8 @@
  * Api 列表
  */
 
+import type { MoveMode } from '@/models/common';
+
 import type { PropType } from 'vue';
 
 export interface MinderIconButtonItem {
@@ -18,6 +20,8 @@ export interface MinderJsonNodeData {
   // 前端渲染字段
   isNew?: boolean; // 是否脑图新增节点，需要在初始化脑图数据时标记已存在节点为 false 以区分是否新增节点
   changed?: boolean; // 脑图节点是否发生过变化
+  moveMode?: MoveMode; // 移动方式（节点移动或新增时需要）
+  targetId?: string; // 目标节点 id（节点移动或新增时需要）
   [key: string]: any;
 }
 export interface MinderJsonNode {
@@ -105,7 +109,7 @@ export const tagProps = {
     type: Boolean,
     default: false,
   },
-  replaceableTags: Function as PropType<(node: MinderJsonNode) => string[]>,
+  replaceableTags: Function as PropType<(node: MinderJsonNode, nodes: MinderJsonNode[]) => string[]>,
   tagDisableCheck: Function,
   tagEditCheck: Function as PropType<(node: MinderJsonNode, tag: string) => boolean>,
   afterTagEdit: Function as PropType<(node: MinderJsonNode, tag: string) => void>,
