@@ -1,5 +1,5 @@
 <template>
-  <a-spin :loading="loading" :tip="t('minder.loading')" class="ms-minder-editor-container">
+  <a-spin :loading="loading" class="ms-minder-editor-container">
     <div class="flex-1">
       <minderHeader
         :sequence-enable="props.sequenceEnable"
@@ -67,7 +67,6 @@
   import minderHeader from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
   import { MinderEvent } from '@/store/modules/components/minder-editor/types';
 
   import useEventListener from './hooks/useEventListener';
@@ -105,8 +104,6 @@
     ...delProps,
     ...viewMenuProps,
   });
-
-  const { t } = useI18n();
 
   const loading = defineModel<boolean>('loading', {
     default: false,

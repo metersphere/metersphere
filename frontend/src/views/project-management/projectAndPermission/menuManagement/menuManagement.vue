@@ -271,15 +271,15 @@
         type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
       />
-      <!-- 功能测试 同步缺陷 -->
-      <div v-permission="['PROJECT_APPLICATION_BUG:UPDATE']">
+      <!-- 测试用例 关联需求 -->
+      <div v-permission="['PROJECT_APPLICATION_CASE:UPDATE']">
         <a-tooltip v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']" position="tr">
           <template #content>
             <span>
               {{ t('project.menu.notConfig') }}
-              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
-                t(`project.menu.${record.type}`)
-              }}</span>
+              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">
+                {{ t(`project.menu.${record.type}`) }}
+              </span>
               {{ t('project.menu.configure') }}
             </span>
           </template>
@@ -383,7 +383,7 @@
   <RelatedCase
     v-model:visible="relatedCaseDrawerVisible"
     @cancel="relatedCaseDrawerVisible = false"
-    @ok="initMenuData()"
+    @ok="getMenuConfig(MenuEnum.caseManagement)"
   />
 </template>
 

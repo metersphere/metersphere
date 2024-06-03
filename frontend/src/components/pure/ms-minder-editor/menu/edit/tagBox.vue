@@ -46,11 +46,12 @@
       minder = window.minder;
       minder.on('selectionchange', () => {
         commandDisabled.value = isDisable();
+        const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
         const node: MinderJsonNode = minder.getSelectedNode();
         if (commandDisabled.value) {
           tagList.value = [];
         } else if (props.replaceableTags) {
-          tagList.value = props.replaceableTags(node);
+          tagList.value = props.replaceableTags(node, nodes);
         } else {
           tagList.value = [];
         }
@@ -98,10 +99,11 @@
       }
     }
     window.minder.execCommand('resource', origin);
+    const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
     const node: MinderJsonNode = minder.getSelectedNode();
     minderStore.dispatchEvent(MinderEventName.SET_TAG, undefined, undefined, node);
     if (props.replaceableTags) {
-      tagList.value = props.replaceableTags(node);
+      tagList.value = props.replaceableTags(node, nodes);
     }
     if (props.afterTagEdit) {
       props.afterTagEdit(node, resourceName);

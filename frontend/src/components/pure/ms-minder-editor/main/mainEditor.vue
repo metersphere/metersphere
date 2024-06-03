@@ -266,6 +266,10 @@
     }
     if (window.minder.queryCommandState(command) !== -1) {
       window.minder.execCommand(command);
+      nextTick(() => {
+        const newNode: MinderJsonNode = window.minder.getSelectedNode();
+        newNode.data.isNew = true; // 新建的节点标记为新建
+      });
     }
   }
 
