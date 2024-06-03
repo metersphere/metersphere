@@ -59,7 +59,8 @@ public class TaskCenterScheduleDTO implements Serializable {
     private Long createTime;
     @Schema(description = "swaggerUrl")
     private String swaggerUrl;
-
+    @Schema(description = "任务类型  测试计划组 GROUP  测试计划 TEST_PLAN")
+    private String type;
 
 
 }

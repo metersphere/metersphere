@@ -188,7 +188,7 @@
 
   const allModuleIds = ['bugManagement', 'caseManagement', 'apiTest', 'testPlan'];
 
-  const showPoolModuleIds = ['apiTest'];
+  const showPoolModuleIds = ['apiTest', 'testPlan'];
 
   const form = reactive<CreateOrUpdateSystemProjectParams>({
     name: '',

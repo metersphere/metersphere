@@ -40,7 +40,10 @@ import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -189,7 +192,7 @@ public class TaskCenterService {
         return organization;
     }
 
-    public void delete(String id,String moduleType, String userId, String path, String module) {
+    public void delete(String id, String moduleType, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(id);
         String logModule = getLogModule(moduleType, module);
         if (StringUtils.equals(schedule.getResourceType(), ScheduleTagType.API_IMPORT.name())) {
@@ -203,6 +206,7 @@ public class TaskCenterService {
         return switch (ScheduleTagType.valueOf(moduleType)) {
             case ScheduleTagType.API_IMPORT -> StringUtils.join(module, "_TIME_API_IMPORT");
             case ScheduleTagType.API_SCENARIO -> StringUtils.join(module, "_TIME_API_SCENARIO");
+            case ScheduleTagType.TEST_PLAN -> StringUtils.join(module, "_TIME_TEST_PLAN");
             default -> throw new MSException(Translator.get("module_type_error"));
         };
     }
@@ -215,7 +219,7 @@ public class TaskCenterService {
         return schedule;
     }
 
-    public void enable(String id,String moduleType, String userId, String path, String module) {
+    public void enable(String id, String moduleType, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(id);
         schedule.setEnable(!schedule.getEnable());
         scheduleService.editSchedule(schedule);
@@ -226,7 +230,7 @@ public class TaskCenterService {
         saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), logModule, OperationLogType.UPDATE.name());
     }
 
-    public void update(String id,String moduleType, String cron, String userId, String path, String module) {
+    public void update(String id, String moduleType, String cron, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(id);
         schedule.setValue(cron);
         scheduleService.editSchedule(schedule);

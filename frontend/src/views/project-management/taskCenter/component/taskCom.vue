@@ -75,6 +75,10 @@
       value: TaskCenterEnum.API_IMPORT,
       label: t('project.taskCenter.apiImport'),
     },
+    {
+      value: TaskCenterEnum.TEST_PLAN,
+      label: t('project.taskCenter.testPlan'),
+    }
   ]);
 
   const activeTask = ref(route.query.tab || 'real');

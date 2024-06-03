@@ -11,7 +11,6 @@ import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterScheduleBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
-import io.metersphere.system.mapper.ExtSwaggerMapper;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.Pager;
@@ -35,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 class TaskCenterScheduleControllerTests extends BaseTest {
@@ -44,7 +43,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     private final static String SCHEDULED_PROJECT_PAGE = BASE_PATH + "project/schedule/page";
     private final static String SCHEDULED_ORG_PAGE = BASE_PATH + "org/schedule/page";
     private final static String SCHEDULED_SYSTEM_PAGE = BASE_PATH + "system/schedule/page";
-    private final static String SCHEDULED_DELETE = BASE_PATH + "schedule/delete/";
+
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -52,10 +51,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     ScheduleMapper scheduleMapper;
 
     @Resource
-    ExtSwaggerMapper extSwaggerMapper;
-    @Resource
     ScheduleService scheduleService;
-
 
 
     @Test
@@ -75,6 +71,13 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         doTaskCenterSchedulePage("FILTER", SCHEDULED_ORG_PAGE, ScheduleTagType.API_SCENARIO.toString());
         doTaskCenterSchedulePage("KEYWORD", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.API_SCENARIO.toString());
         doTaskCenterSchedulePage("FILTER", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.API_SCENARIO.toString());
+
+        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_PROJECT_PAGE, ScheduleTagType.TEST_PLAN.toString());
+        doTaskCenterSchedulePage("FILTER", SCHEDULED_PROJECT_PAGE, ScheduleTagType.TEST_PLAN.toString());
+        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_ORG_PAGE, ScheduleTagType.TEST_PLAN.toString());
+        doTaskCenterSchedulePage("FILTER", SCHEDULED_ORG_PAGE, ScheduleTagType.TEST_PLAN.toString());
+        doTaskCenterSchedulePage("KEYWORD", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.TEST_PLAN.toString());
+        doTaskCenterSchedulePage("FILTER", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.TEST_PLAN.toString());
     }
 
     private void doTaskCenterSchedulePage(String search, String url, String scheduleTagType) throws Exception {
@@ -87,7 +90,8 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         switch (search) {
             case "KEYWORD" -> configureKeywordSearch(request);
             case "FILTER" -> configureFilterSearch(request);
-            default -> {}
+            default -> {
+            }
         }
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -115,7 +119,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
 
     }
 
-    private void doTaskCenterSchedulePageError( String url, String scheduleTagType) throws Exception {
+    private void doTaskCenterSchedulePageError(String url, String scheduleTagType) throws Exception {
         TaskCenterSchedulePageRequest request = new TaskCenterSchedulePageRequest();
         request.setScheduleTagType(scheduleTagType);
         request.setCurrent(1);
@@ -172,7 +176,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     @Test
     @Order(13)
     void testEnable() throws Exception {
-       //先导入数据
+        //先导入数据
         Schedule schedule = new Schedule();
         schedule.setName("test-schedule-switch");
         schedule.setResourceId("test-schedule-switch");
@@ -190,12 +194,12 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         scheduleService.getSchedule(schedule.getId());
         scheduleService.editSchedule(schedule);
         scheduleService.getScheduleByResource(schedule.getResourceId(), schedule.getJob());
-        this.requestGet("/task/center/system/schedule/switch/" +"API_IMPORT/"+ "test-schedule-switch");
-        this.requestGet("/task/center/org/schedule/switch/" +"API_IMPORT/"+ "test-schedule-switch");
-        this.requestGet("/task/center/project/schedule/switch/" +"API_IMPORT/"+ "test-schedule-switch");
-        this.requestPost("/task/center/system/schedule/update/" + "API_IMPORT/"+ "test-schedule-switch" ,"/0 0/2 * * * ?");
-        this.requestPost("/task/center/org/schedule/update/" + "API_IMPORT/"+ "test-schedule-switch" ,"/0 0/2 * * * ?");
-        this.requestPost("/task/center/project/schedule/update/" + "API_IMPORT/"+ "test-schedule-switch" ,"/0 0/2 * * * ?");
+        this.requestGet("/task/center/system/schedule/switch/" + "API_IMPORT/" + "test-schedule-switch");
+        this.requestGet("/task/center/org/schedule/switch/" + "API_IMPORT/" + "test-schedule-switch");
+        this.requestGet("/task/center/project/schedule/switch/" + "API_IMPORT/" + "test-schedule-switch");
+        this.requestPost("/task/center/system/schedule/update/" + "API_IMPORT/" + "test-schedule-switch", "/0 0/2 * * * ?");
+        this.requestPost("/task/center/org/schedule/update/" + "API_IMPORT/" + "test-schedule-switch", "/0 0/2 * * * ?");
+        this.requestPost("/task/center/project/schedule/update/" + "API_IMPORT/" + "test-schedule-switch", "/0 0/2 * * * ?");
 
         //批量操作
         TaskCenterScheduleBatchRequest request = new TaskCenterScheduleBatchRequest();

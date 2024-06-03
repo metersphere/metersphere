@@ -40,6 +40,25 @@
             inner join api_scenario on schedule.resource_id = api_scenario.id
         </if>
 
+        <if test="request.scheduleTagType == 'TEST_PLAN'">
+            SELECT
+            schedule.id,
+            schedule.name as taskname,
+            schedule.project_id,
+            resource_type,
+            test_plan.num as resource_num,
+            test_plan.name as resource_name,
+            test_plan.id as resource_id,
+            schedule.value,
+            schedule.enable,
+            schedule.create_user AS createUserName,
+            schedule.create_time,
+            test_plan.type
+            FROM
+            schedule
+            inner join test_plan on schedule.resource_id = test_plan.id
+        </if>
+
     ) task left join project on task.project_id = project.id
             left join QRTZ_TRIGGERS on task.resource_id = QRTZ_TRIGGERS.TRIGGER_NAME
         where
@@ -81,6 +100,12 @@
                         </when>
                         <when test="key=='organizationIds'">
                             and project.organization_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='type'">
+                            and task.type in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
@@ -170,6 +195,16 @@
             FROM
             schedule
             inner join api_scenario on schedule.resource_id = api_scenario.id
+        </if>
+        <if test="request.scheduleTagType == 'TEST_PLAN'">
+            SELECT
+            schedule.*,
+            test_plan.type,
+            test_plan.num as resource_num,
+            test_plan.name as resource_name
+            FROM
+            schedule
+            inner join test_plan on schedule.resource_id = test_plan.id
         </if>
 
         ) task left join project on task.project_id = project.id
