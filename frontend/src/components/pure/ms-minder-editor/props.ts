@@ -6,6 +6,19 @@ import type { MoveMode } from '@/models/common';
 
 import type { PropType } from 'vue';
 
+export interface MinderClass {
+  stopPropagation: () => void; // 阻止事件冒泡
+  stopPropagationImmediately: () => void; // 立即阻止事件冒泡
+  [key: string]: any; // TODO: 其他事件属性
+}
+// TODO:脑图事件类型补充
+export interface MinderEvent extends MinderClass {
+  command: any;
+  commandArgs: Record<string, any>[];
+  commandName: string;
+  minder: any;
+  type: string;
+}
 export interface MinderIconButtonItem {
   icon: string;
   tooltip: string;

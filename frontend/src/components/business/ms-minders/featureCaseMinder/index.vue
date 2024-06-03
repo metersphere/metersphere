@@ -16,6 +16,7 @@
     @content-change="handleContentChange"
     @node-select="handleNodeSelect"
     @action="handleAction"
+    @before-exec-command="handleBeforeExecCommand"
     @save="handleMinderSave"
   >
     <template #extractTabContent>
@@ -44,7 +45,12 @@
 
   import { FormItem } from '@/components/pure/ms-form-create/types';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
-  import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
+  import type {
+    MinderEvent,
+    MinderJson,
+    MinderJsonNode,
+    MinderJsonNodeData,
+  } from '@/components/pure/ms-minder-editor/props';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import attachment from './attachment.vue';
   import baseInfo from './basInfo.vue';
@@ -60,7 +66,7 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { MinderEvent } from '@/store/modules/components/minder-editor/types';
+  import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
 
   import {
@@ -805,7 +811,7 @@
    * 处理脑图节点操作
    * @param event 脑图事件对象
    */
-  function handleAction(event: MinderEvent) {
+  function handleAction(event: MinderCustomEvent) {
     const { node, name } = event;
     if (node) {
       switch (name) {
@@ -829,6 +835,13 @@
         default:
           break;
       }
+    }
+  }
+
+  function handleBeforeExecCommand(event: MinderEvent) {
+    if (event.commandName === 'movetoparent') {
+      // TODO:拖拽拦截
+      event.stopPropagation();
     }
   }
 </script>

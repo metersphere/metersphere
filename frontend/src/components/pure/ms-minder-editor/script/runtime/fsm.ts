@@ -13,14 +13,6 @@ function handlerConditionMatch(condition: any, when: string, exit: string, enter
   return true;
 }
 
-type Handler = () => void & {
-  condition: {
-    when: string;
-    exit: string;
-    enter: string;
-  };
-};
-
 class FSM {
   private currentState: string;
 

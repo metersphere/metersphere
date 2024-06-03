@@ -22,11 +22,13 @@ function createDragRuntime(this: DragRuntimeOptions) {
     // when jumped to drag mode, enter
     fsm.when('* -> drag', () => {
       // now is drag mode
+      minder.fire('dragStart');
     });
 
     fsm.when('drag -> *', (exit: any, enter: any, reason: string) => {
       if (reason === 'drag-finish') {
         // now exit drag mode
+        minder.fire('dragFinish');
       }
     });
   }

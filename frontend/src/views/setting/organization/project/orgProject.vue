@@ -4,9 +4,9 @@
       class="mb-[16px] flex items-center"
       :class="{ 'justify-between': hasAddPermission, 'justify-end': !hasAddPermission }"
     >
-      <a-button v-permission="['ORGANIZATION_PROJECT:READ+ADD']" type="primary" @click="showAddProject">{{
-        t('system.organization.createProject')
-      }}</a-button>
+      <a-button v-permission="['ORGANIZATION_PROJECT:READ+ADD']" type="primary" @click="showAddProject">
+        {{ t('system.organization.createProject') }}
+      </a-button>
       <a-input-search
         v-model="keyword"
         :placeholder="t('system.organization.searchIndexPlaceholder')"
@@ -22,15 +22,16 @@
         <a-tooltip class="tooltip-white">
           <template #content>
             <div class="flex flex-row">
-              <span class="text-[var(--color-text-1)]">{{
-                t('system.project.revokeDeleteToolTip', { count: record.remainDayCount })
-              }}</span>
+              <span class="text-[var(--color-text-1)]">
+                {{ t('system.project.revokeDeleteToolTip', { count: record.remainDayCount }) }}
+              </span>
               <MsButton
                 v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+RECOVER'])"
                 class="ml-[8px]"
                 @click="handleRevokeDelete(record)"
-                >{{ t('common.revokeDelete') }}</MsButton
               >
+                {{ t('common.revokeDelete') }}
+              </MsButton>
             </div>
           </template>
           <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
@@ -44,34 +45,35 @@
           v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD_MEMBER', 'ORGANIZATION_PROJECT:READ'])"
           class="cursor-pointer text-[rgb(var(--primary-5))]"
           @click="showUserDrawer(record)"
-          >{{ record.memberCount }}</span
         >
+          {{ record.memberCount }}
+        </span>
         <span v-else>{{ record.memberCount }}</span>
       </template>
       <template #operation="{ record }">
         <template v-if="record.deleted">
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+RECOVER']" @click="handleRevokeDelete(record)">{{
-            t('common.revokeDelete')
-          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+RECOVER']" @click="handleRevokeDelete(record)">
+            {{ t('common.revokeDelete') }}
+          </MsButton>
         </template>
         <template v-else-if="!record.enable">
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="handleEnableOrDisableProject(record)">{{
-            t('common.enable')
-          }}</MsButton>
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
-            t('common.delete')
-          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="handleEnableOrDisableProject(record)">
+            {{ t('common.enable') }}
+          </MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">
+            {{ t('common.delete') }}
+          </MsButton>
         </template>
         <template v-else>
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="showAddProjectModal(record)">{{
-            t('common.edit')
-          }}</MsButton>
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">{{
-            t('system.organization.addMember')
-          }}</MsButton>
-          <MsButton v-permission="['PROJECT_BASE_INFO:READ']" @click="enterProject(record.id)">{{
-            t('system.project.enterProject')
-          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="showAddProjectModal(record)">
+            {{ t('common.edit') }}
+          </MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">
+            {{ t('system.organization.addMember') }}
+          </MsButton>
+          <MsButton v-permission="['PROJECT_BASE_INFO:READ']" @click="enterProject(record.id)">
+            {{ t('system.project.enterProject') }}
+          </MsButton>
           <MsTableMoreAction
             v-permission="['ORGANIZATION_PROJECT:READ+DELETE']"
             :list="tableActions"
