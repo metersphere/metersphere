@@ -1,6 +1,7 @@
 package io.metersphere.plan.controller;
 
 import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -21,15 +22,18 @@ import java.util.HashMap;
 public class TestPlanAssociateControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_ASSOCIATION_URL = "/test-plan/association/page";
     public static final String API_ASSOCIATION_URL = "/test-plan/association/api/page";
+    public static final String API_CASE_ASSOCIATION_URL = "/test-plan/association/api/case/page";
 
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_test_plan_association.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetPageList() throws Exception {
         FunctionalCasePageRequest request = new FunctionalCasePageRequest();
-        request.setProjectId("123");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProjectId("1234567");
+        this.requestPost(FUNCTIONAL_CASE_ASSOCIATION_URL, request);
+        request.setProjectId("wx_1234");
         this.requestPost(FUNCTIONAL_CASE_ASSOCIATION_URL, request);
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
@@ -46,10 +50,12 @@ public class TestPlanAssociateControllerTests extends BaseTest {
     @Order(2)
     public void testApiPageList() throws Exception {
         TestPlanApiRequest request = new TestPlanApiRequest();
-        request.setProjectId("123");
         request.setCurrent(1);
         request.setPageSize(10);
         request.setTestPlanId("wxx_1");
+        request.setProjectId("1234567");
+        this.requestPost(API_ASSOCIATION_URL, request);
+        request.setProjectId("wx_1234");
         this.requestPost(API_ASSOCIATION_URL, request);
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
@@ -58,5 +64,26 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(3)
+    public void testApiCasePageList() throws Exception {
+        TestPlanApiCaseRequest request = new TestPlanApiCaseRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setProjectId("1234567");
+        request.setTestPlanId("wxx_1");
+        this.requestPost(API_CASE_ASSOCIATION_URL, request);
+        request.setProjectId("wx_1234");
+        this.requestPost(API_CASE_ASSOCIATION_URL, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_ASSOCIATION_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
     }
 }

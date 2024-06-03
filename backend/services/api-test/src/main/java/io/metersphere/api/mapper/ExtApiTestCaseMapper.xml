@@ -66,6 +66,11 @@
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
         WHERE atc.deleted =#{deleted}
         <include refid="queryWhereCondition"/>
+        <if test="!isRepeat">
+            AND atc.id not in (
+            select test_plan_api_case.api_case_id from test_plan_api_case where test_plan_api_case.test_plan_id = #{request.testPlanId}
+            )
+        </if>
     </select>
     <select id="getIds" resultType="java.lang.String">
         SELECT

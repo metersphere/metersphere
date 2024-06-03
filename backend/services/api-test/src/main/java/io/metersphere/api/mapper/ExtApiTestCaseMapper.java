@@ -26,7 +26,7 @@ public interface ExtApiTestCaseMapper {
 
     Long getPos(@Param("projectId") String projectId);
 
-    List<ApiTestCaseDTO> listByRequest(@Param("request") ApiTestCasePageRequest request, @Param("deleted") boolean deleted);
+    List<ApiTestCaseDTO> listByRequest(@Param("request") ApiTestCasePageRequest request, @Param("deleted") boolean deleted, @Param("isRepeat") boolean isRepeat);
 
     List<String> getIds(@Param("request") ApiTestCaseBatchRequest request, @Param("deleted") boolean deleted);
 

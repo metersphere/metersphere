@@ -67,7 +67,7 @@ public class TestPlanManagementService {
 
     private List<TestPlanResponse> getTableList(TestPlanTableRequest request) {
         List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request, null);
-        handChildren(testPlanResponses,request.getProjectId());
+        handChildren(testPlanResponses, request.getProjectId());
         return testPlanResponses;
     }
 
@@ -76,7 +76,7 @@ public class TestPlanManagementService {
      *
      * @param testPlanResponses
      */
-    private void handChildren(List<TestPlanResponse> testPlanResponses,String projectId) {
+    private void handChildren(List<TestPlanResponse> testPlanResponses, String projectId) {
         List<String> groupIds = testPlanResponses.stream().filter(item -> StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)).map(TestPlanResponse::getId).toList();
         TestPlanTableRequest request = new TestPlanTableRequest();
         request.setProjectId(projectId);
@@ -114,5 +114,24 @@ public class TestPlanManagementService {
         if (!projectModuleMenus.containsAll(moduleMenus)) {
             throw new MSException(Translator.get("project.module_menu.check.error"));
         }
+    }
+
+
+    /**
+     * 根据项目id检查模块是否开启
+     *
+     * @param projectId
+     * @return
+     */
+    public boolean checkModuleIsOpenByProjectId(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null || StringUtils.isEmpty(project.getModuleSetting())) {
+            return false;
+        }
+        List<String> projectModuleMenus = JSON.parseArray(project.getModuleSetting(), String.class);
+        if (projectModuleMenus.contains(TestPlanResourceConfig.CONFIG_TEST_PLAN)) {
+            return true;
+        }
+        return false;
     }
 }
