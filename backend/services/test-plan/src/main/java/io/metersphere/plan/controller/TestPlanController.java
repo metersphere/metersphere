@@ -54,6 +54,15 @@ public class TestPlanController {
         return testPlanManagementService.page(request);
     }
 
+    @GetMapping("/list-in-group/{groupId}")
+    @Operation(summary = "测试计划-表格分页查询")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#groupId", resourceType = "test_plan")
+    public List<TestPlanResponse> listInGroup(@NotBlank @PathVariable String groupId) {
+        testPlanManagementService.checkModuleIsOpen(groupId, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        return testPlanManagementService.selectByGroupId(groupId);
+    }
+
     @PostMapping("/statistics")
     @Operation(summary = "测试计划-获取计划详情统计{通过率, 执行进度}")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)

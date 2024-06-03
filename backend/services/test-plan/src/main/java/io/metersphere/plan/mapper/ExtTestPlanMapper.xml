@@ -32,7 +32,7 @@
         </foreach>
     </update>
 
-    <select id="selectByGroupId" resultType="java.lang.String">
+    <select id="selectIdByGroupId" resultType="java.lang.String">
         SELECT id FROM test_plan WHERE group_id = #{parentId}
     </select>
     <select id="selectByGroupIdList" resultType="java.lang.String">
@@ -57,23 +57,32 @@
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
         WHERE t.project_id = #{request.projectId}
-        <if test="groupIds != null and groupIds.size() > 0">
-            and t.group_id IN
-            <foreach collection="groupIds" item="groupId" separator="," open="(" close=")">
-                #{groupId}
+        <include refid="queryByTableRequest"/>
+    </select>
+
+    <select id="selectByGroupIds"
+            resultMap="BaseResultMapDTO">
+        SELECT
+        t.id,t.num,t.name,t.status,t.group_id,
+        t.create_user AS createUser,
+        createUser.name AS createUserName,
+        t.create_time as createTime,
+        t.module_id as moduleId,
+        t.type,
+        t.description,
+        t.pos,
+        t.tags
+        FROM test_plan t
+        INNER JOIN user createUser ON t.create_user = createUser.id
+        WHERE t.group_id IN
+        <foreach collection="groupIds" item="groupId" separator="," open="(" close=")">
+            #{groupId}
             </foreach>
-        </if>
-        <include refid="queryWhereCondition"/>
         ORDER BY t.pos ASC
     </select>
 
-    <sql id="queryWhereCondition">
-        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and t.module_id in
-            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
-                #{moduleId}
-            </foreach>
-        </if>
+    <sql id="queryByTableRequest">
+        <include refid="baseConditionQuery"/>
         <if test="request.keyword != null and request.keyword != ''">
             and (
             t.name like concat('%', #{request.keyword},'%')
@@ -96,9 +105,6 @@
                 </when>
             </choose>
         </if>
-        <include refid="filters">
-            <property name="filter" value="request.filter"/>
-        </include>
         <choose>
             <when test='request.searchMode == "AND"'>
                 AND <include refid="queryCombine"/>
@@ -109,6 +115,10 @@
                 )
             </when>
         </choose>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+
     </sql>
 
 
@@ -249,7 +259,7 @@
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
         WHERE t.project_id = #{request.projectId}
-        <include refid="queryWhereCondition"/>
+        <include refid="queryByTableRequest"/>
         GROUP BY t.module_id
     </select>
     <select id="selectIdByConditions"
@@ -259,22 +269,14 @@
         t.id
         FROM test_plan t
         WHERE t.project_id = #{request.projectId}
-        <include refid="queryWhereConditionByBaseQueryRequest"/>
+        <include refid="queryByTestPlanQueryConditions"/>
     </select>
-
-    <sql id="queryWhereConditionByBaseQueryRequest">
+    <sql id="baseConditionQuery">
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and t.module_id in
             <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
                 #{moduleId}
             </foreach>
-        </if>
-        <if test="request.condition.keyword != null and request.condition.keyword != ''">
-            and (
-            t.name like concat('%', #{request.condition.keyword},'%')
-            or t.num like concat('%', #{request.condition.keyword},'%')
-            or t.tags like concat('%', #{request.condition.keyword}, '%')
-            )
         </if>
         <if test="request.type != null and request.type != ''">
             <choose>
@@ -287,13 +289,20 @@
                 </when>
                 <when test="request.type == 'GROUP'">
                     and t.group_id = 'NONE'
-                    and t.type = 'GTOUP'
+                    and t.type = 'GROUP'
                 </when>
             </choose>
         </if>
-        <include refid="filters">
-            <property name="filter" value="request.condition.filter"/>
-        </include>
+    </sql>
+    <sql id="queryByTestPlanQueryConditions">
+        <include refid="baseConditionQuery"/>
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            t.name like concat('%', #{request.condition.keyword},'%')
+            or t.num like concat('%', #{request.condition.keyword},'%')
+            or t.tags like concat('%', #{request.condition.keyword}, '%')
+            )
+        </if>
         <choose>
             <when test='request.condition.searchMode == "AND"'>
                 AND <include refid="baseQueryCombine"/>
@@ -304,6 +313,9 @@
                 )
             </when>
         </choose>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
     </sql>
 
     <sql id="baseQueryCombine">

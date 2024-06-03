@@ -17,6 +17,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -63,8 +64,8 @@ public class TestPlanManagementService {
     }
 
     private List<TestPlanResponse> getTableList(TestPlanTableRequest request) {
-        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request, null);
-        handChildren(testPlanResponses, request.getProjectId());
+        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request);
+        handChildren(testPlanResponses,request.getProjectId());
         return testPlanResponses;
     }
 
@@ -73,20 +74,20 @@ public class TestPlanManagementService {
      */
     private void handChildren(List<TestPlanResponse> testPlanResponses, String projectId) {
         List<String> groupIds = testPlanResponses.stream().filter(item -> StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)).map(TestPlanResponse::getId).toList();
-        TestPlanTableRequest request = new TestPlanTableRequest();
-        request.setProjectId(projectId);
-        List<TestPlanResponse> childrenList = extTestPlanMapper.selectByConditions(request, groupIds);
-        Map<String, List<TestPlanResponse>> collect = childrenList.stream().collect(Collectors.groupingBy(TestPlanResponse::getGroupId));
-        testPlanResponses.forEach(item -> {
-            if (collect.containsKey(item.getId())) {
-                //存在子节点
-                List<TestPlanResponse> list = collect.get(item.getId());
-                testPlanStatisticsService.calculateCaseCount(list);
-                item.setChildren(list);
-                item.setChildrenCount(list.size());
-            }
-            testPlanStatisticsService.calculateCaseCount(List.of(item));
-        });
+        if (CollectionUtils.isNotEmpty(groupIds)) {
+            List<TestPlanResponse> childrenList = extTestPlanMapper.selectByGroupIds(groupIds);
+            Map<String, List<TestPlanResponse>> collect = childrenList.stream().collect(Collectors.groupingBy(TestPlanResponse::getGroupId));
+            testPlanResponses.forEach(item -> {
+                if (collect.containsKey(item.getId())) {
+                    //存在子节点
+                    List<TestPlanResponse> list = collect.get(item.getId());
+                    testPlanStatisticsService.calculateCaseCount(list);
+                    item.setChildren(list);
+                    item.setChildrenCount(list.size());
+                }
+                testPlanStatisticsService.calculateCaseCount(List.of(item));
+            });
+        }
     }
 
     public void checkModuleIsOpen(String resourceId, String resourceType, List<String> moduleMenus) {
@@ -109,6 +110,10 @@ public class TestPlanManagementService {
         if (!projectModuleMenus.containsAll(moduleMenus)) {
             throw new MSException(Translator.get("project.module_menu.check.error"));
         }
+    }
+
+    public List<TestPlanResponse> selectByGroupId(String groupId) {
+        return extTestPlanMapper.selectByGroupIds(List.of(groupId));
     }
 
 
