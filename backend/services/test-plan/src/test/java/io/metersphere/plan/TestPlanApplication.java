@@ -1,5 +1,6 @@
 package io.metersphere.plan;
 
+import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.system.config.MinioProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,10 +17,11 @@ import org.springframework.context.annotation.ComponentScan;
         Neo4jAutoConfiguration.class
 })
 @EnableConfigurationProperties({
-        MinioProperties.class
+        MinioProperties.class,
+        JmeterProperties.class
 })
 @ServletComponentScan
-@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.plan", "io.metersphere.system", "io.metersphere.project", "io.metersphere.bug","io.metersphere.functional"})
+@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.plan", "io.metersphere.system", "io.metersphere.project", "io.metersphere.api", "io.metersphere.bug","io.metersphere.functional"})
 public class TestPlanApplication {
 
     public static void main(String[] args) {
