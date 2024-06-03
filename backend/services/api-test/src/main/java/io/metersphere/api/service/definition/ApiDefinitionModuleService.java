@@ -11,6 +11,8 @@ import io.metersphere.api.dto.definition.EnvApiModuleRequest;
 import io.metersphere.api.dto.definition.EnvApiTreeDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.debug.ApiDebugModuleService;
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;
@@ -61,6 +63,8 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
 
     public List<BaseTreeNode> getTree(ApiModuleRequest request, boolean deleted, boolean containRequest) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
@@ -259,13 +263,22 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     }
 
     public Map<String, Long> moduleCount(ApiModuleRequest request, boolean deleted) {
+        boolean isRepeat = true;
+        if (StringUtils.isNotEmpty(request.getTestPlanId())) {
+            isRepeat = this.checkTestPlanRepeatCase(request);
+        }
         request.setModuleIds(null);
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
-        List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.countModuleIdByRequest(request, deleted);
+        List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.countModuleIdByRequest(request, deleted, isRepeat);
         long allCount = getAllCount(moduleCountDTOList);
         Map<String, Long> moduleCountMap = getModuleCountMap(request, moduleCountDTOList);
         moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
+    }
+
+    private boolean checkTestPlanRepeatCase(ApiModuleRequest request) {
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
+        return BooleanUtils.isTrue(testPlanConfig.getRepeatCase());
     }
 
     public List<BaseTreeNode> getTrashTree(ApiModuleRequest request) {

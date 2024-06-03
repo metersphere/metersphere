@@ -1,9 +1,12 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.service.definition.ApiDefinitionService;
+import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
@@ -27,6 +30,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -65,10 +70,30 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         //        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
+    /**
+     * 获取接口列表
+     *
+     * @param request
+     * @param isRepeat
+     * @return
+     */
     public List<ApiDefinitionDTO> getApiPage(TestPlanApiRequest request, boolean isRepeat) {
         List<ApiDefinitionDTO> list = extTestPlanApiCaseMapper.list(request, isRepeat);
         apiDefinitionService.processApiDefinitions(list);
         return list;
+    }
+
+
+    /**
+     * 获取接口用例列表
+     *
+     * @param request
+     * @param isRepeat
+     * @return
+     */
+    public List<ApiTestCaseDTO> getApiCasePage(TestPlanApiCaseRequest request, boolean isRepeat) {
+        List<ApiTestCaseDTO> apiCaseLists = apiTestCaseService.page(request, isRepeat, false);
+        return apiCaseLists;
     }
 
 }
