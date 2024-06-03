@@ -401,6 +401,9 @@ public class FunctionalCaseMinderService {
 
     private static void checkModules(FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest, Map<String, List<FunctionalCaseModule>> parentModuleMap) {
         List<FunctionalCaseModule> functionalCaseModules = parentModuleMap.get(functionalCaseModuleEditRequest.getParentId());
+        if (CollectionUtils.isEmpty(functionalCaseModules)) {
+            return;
+        }
         List<FunctionalCaseModule> sameNameList = functionalCaseModules.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getName(), functionalCaseModuleEditRequest.getName())).toList();
         if (CollectionUtils.isNotEmpty(sameNameList)) {
             throw new MSException(Translator.get("node.name.repeat"));
@@ -499,14 +502,20 @@ public class FunctionalCaseMinderService {
 
     @NotNull
     private Map<String, List<FunctionalCaseModule>> getParentModuleMap(List<FunctionalCaseModuleEditRequest> addList) {
-        List<String> targetIds = addList.stream().map(FunctionalCaseModuleEditRequest::getTargetId).distinct().toList();
+        List<String> targetIds = addList.stream().filter(t->!StringUtils.equalsIgnoreCase(t.getMoveMode(), MoveTypeEnum.APPEND.name())).map(FunctionalCaseModuleEditRequest::getTargetId).distinct().toList();
+        List<String> parentIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(targetIds)) {
+            FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
+            functionalCaseModuleExample.createCriteria().andIdIn(targetIds);
+            List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+            parentIds = functionalCaseModules.stream().map(FunctionalCaseModule::getParentId).distinct().toList();
+        }
+        if (CollectionUtils.isEmpty(parentIds)) {
+            parentIds = addList.stream().map(FunctionalCaseModuleEditRequest::getParentId).distinct().toList();
+        }
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
-        functionalCaseModuleExample.createCriteria().andIdIn(targetIds);
-        List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
-        List<String> parentIds = functionalCaseModules.stream().map(FunctionalCaseModule::getParentId).distinct().toList();
-        functionalCaseModuleExample = new FunctionalCaseModuleExample();
         functionalCaseModuleExample.createCriteria().andParentIdIn(parentIds);
-        functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+        List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
         return functionalCaseModules.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getParentId));
     }
 
@@ -581,6 +590,9 @@ public class FunctionalCaseMinderService {
     @NotNull
     private Map<String, List<FunctionalCase>> getModuleCaseMap(List<FunctionalCaseChangeRequest> addList) {
         List<String> list = addList.stream().map(FunctionalCaseChangeRequest::getTargetId).distinct().toList();
+        if (CollectionUtils.isEmpty(list)) {
+            return new HashMap<>();
+        }
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andIdIn(list);
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
@@ -619,6 +631,9 @@ public class FunctionalCaseMinderService {
     private List<FunctionalCaseCustomField> updateCustomFields(FunctionalCaseChangeRequest functionalCaseChangeRequest, Map<String, List<FunctionalCaseCustomField>> caseCustomFieldMap, String caseId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper) {
         List<FunctionalCaseCustomField> total = new ArrayList<>();
         List<FunctionalCaseCustomField> functionalCaseCustomFields = caseCustomFieldMap.get(caseId);
+        if (CollectionUtils.isEmpty(functionalCaseCustomFields)) {
+            functionalCaseCustomFields = new ArrayList<>();
+        }
         List<CaseCustomFieldDTO> customFields = functionalCaseChangeRequest.getCustomFields();
         if (CollectionUtils.isNotEmpty(customFields)) {
             customFields = customFields.stream().distinct().collect(Collectors.toList());
@@ -637,7 +652,6 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCaseCustomField> functionalCaseCustomFields1 = saveCustomField(caseId, caseCustomFieldMapper, addFields);
                 total.addAll(functionalCaseCustomFields1);
             }
-            ;
             if (CollectionUtils.isNotEmpty(updateFields)) {
                 List<FunctionalCaseCustomField> functionalCaseCustomFields1 = updateField(updateFields, caseId, caseCustomFieldMapper);
                 total.addAll(functionalCaseCustomFields1);
