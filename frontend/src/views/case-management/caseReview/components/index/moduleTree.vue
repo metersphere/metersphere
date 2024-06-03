@@ -16,19 +16,15 @@
         {{ t('common.newCreate') }}
       </a-button>
     </div>
-
-    <div v-if="!props.isModal" class="folder">
-      <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
-        <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-        <div class="folder-name">{{ t('caseManagement.caseReview.allReviews') }}</div>
-        <div class="folder-count">({{ allFileCount }})</div>
-      </div>
-      <div class="ml-auto flex items-center">
-        <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
-          <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
-            <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-          </MsButton>
-        </a-tooltip>
+    <MsFolderAll
+      v-if="!props.isModal"
+      v-model:isExpandAll="isExpandAll"
+      :active-folder="activeFolder"
+      :folder-name="t('caseManagement.caseReview.allReviews')"
+      :all-count="allFileCount"
+      @set-active-folder="setActiveFolder"
+    >
+      <template #expandRight>
         <popConfirm
           v-if="hasAnyPermission(['CASE_REVIEW:READ+UPDATE'])"
           mode="add"
@@ -44,8 +40,8 @@
             />
           </MsButton>
         </popConfirm>
-      </div>
-    </div>
+      </template>
+    </MsFolderAll>
     <a-divider v-if="!props.isModal" class="my-[8px]" />
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
@@ -119,6 +115,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsFolderAll from '@/components/business/ms-folder-all/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import popConfirm from './popConfirm.vue';
@@ -172,14 +169,6 @@
       isExpandAll.value = val;
     }
   );
-
-  function changeExpand() {
-    isExpandAll.value = !isExpandAll.value;
-  }
-
-  function getFolderClass(id: string) {
-    return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
-  }
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;
@@ -385,36 +374,3 @@
     initModules,
   });
 </script>
-
-<style lang="less" scoped>
-  .folder {
-    @apply flex cursor-pointer items-center justify-between;
-
-    padding: 8px 4px;
-    border-radius: var(--border-radius-small);
-    &:hover {
-      background-color: rgb(var(--primary-1));
-    }
-    .folder-text {
-      @apply flex cursor-pointer items-center;
-      .folder-icon {
-        margin-right: 4px;
-        color: var(--color-text-4);
-      }
-      .folder-name {
-        color: var(--color-text-1);
-      }
-      .folder-count {
-        margin-left: 4px;
-        color: var(--color-text-4);
-      }
-    }
-    .folder-text--active {
-      .folder-icon,
-      .folder-name,
-      .folder-count {
-        color: rgb(var(--primary-5));
-      }
-    }
-  }
-</style>

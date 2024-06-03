@@ -7,13 +7,12 @@
       class="mb-[8px]"
       :max-length="255"
     />
-    <div class="folder">
-      <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
-        <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-        <div class="folder-name">{{ t('caseManagement.caseReview.allCases') }}</div>
-        <div class="folder-count">({{ allCount }})</div>
-      </div>
-    </div>
+    <MsFolderAll
+      :active-folder="activeFolder"
+      :folder-name="t('caseManagement.caseReview.allCases')"
+      :all-count="allCount"
+      @set-active-folder="setActiveFolder"
+    />
     <a-divider class="my-[8px]" />
     <a-spin class="min-h-[200px] w-full" :loading="loading">
       <MsTree
@@ -51,7 +50,7 @@
   import { useRoute } from 'vue-router';
   import { useVModel } from '@vueuse/core';
 
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsFolderAll from '@/components/business/ms-folder-all/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
@@ -91,10 +90,6 @@
       isExpandAll.value = val;
     }
   );
-
-  function getFolderClass(id: string) {
-    return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
-  }
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;
@@ -166,36 +161,3 @@
     initModules,
   });
 </script>
-
-<style lang="less" scoped>
-  .folder {
-    @apply flex cursor-pointer items-center justify-between;
-
-    padding: 8px 4px;
-    border-radius: var(--border-radius-small);
-    &:hover {
-      background-color: rgb(var(--primary-1));
-    }
-    .folder-text {
-      @apply flex cursor-pointer items-center;
-      .folder-icon {
-        margin-right: 4px;
-        color: var(--color-text-4);
-      }
-      .folder-name {
-        color: var(--color-text-1);
-      }
-      .folder-count {
-        margin-left: 4px;
-        color: var(--color-text-4);
-      }
-    }
-    .folder-text--active {
-      .folder-icon,
-      .folder-name,
-      .folder-count {
-        color: rgb(var(--primary-5));
-      }
-    }
-  }
-</style>

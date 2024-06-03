@@ -108,6 +108,20 @@
       @refresh="initDetail"
     />
     <BugManagement v-if="activeTab === 'defectList'" />
+    <ApiCase
+      v-if="activeTab === 'apiCase'"
+      ref="apiCaseRef"
+      :repeat-case="detail.repeatCase"
+      :can-edit="detail.status !== 'ARCHIVED'"
+      @refresh="initDetail"
+    />
+    <ApiScenario
+      v-if="activeTab === 'apiScenario'"
+      ref="apiScenarioRef"
+      :repeat-case="detail.repeatCase"
+      :can-edit="detail.status !== 'ARCHIVED'"
+      @refresh="initDetail"
+    />
   </MsCard>
   <AssociateDrawer
     v-model:visible="caseAssociateVisible"
@@ -142,6 +156,8 @@
   import ActionModal from '../components/actionModal.vue';
   import AssociateDrawer from '../components/associateDrawer.vue';
   import StatusProgress from '../components/statusProgress.vue';
+  import ApiCase from './apiCase/index.vue';
+  import ApiScenario from './apiScenario/index.vue';
   import BugManagement from './bugManagement/index.vue';
   import FeatureCase from './featureCase/index.vue';
   import CreateAndEditPlanDrawer from '@/views/test-plan/testPlan/createAndEditPlanDrawer.vue';
@@ -234,16 +250,6 @@
     return hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && detail.value.status !== 'ARCHIVED';
   });
 
-  function getTabBadge(tabKey: string) {
-    switch (tabKey) {
-      case 'featureCase':
-        const count = detail.value.functionalCaseCount ?? 0;
-        return `${count > 0 ? count : ''}`;
-      default:
-        return '';
-    }
-  }
-
   function archiveHandler() {
     openModal({
       type: 'warning',
@@ -306,7 +312,30 @@
       value: 'defectList',
       label: t('caseManagement.featureCase.defectList'),
     },
+    {
+      value: 'apiCase',
+      label: t('testPlan.testPlanIndex.apiCase'),
+    },
+    {
+      value: 'apiScenario',
+      label: t('testPlan.testPlanIndex.apiScenarioCase'),
+    },
   ]);
+  function getTabBadge(tabKey: string) {
+    switch (tabKey) {
+      case 'featureCase':
+        const count = detail.value.functionalCaseCount ?? 0;
+        return `${count > 0 ? count : ''}`;
+      case 'apiCase':
+        const apiCaseCount = detail.value?.apiCaseCount ?? 0;
+        return `${apiCaseCount > 0 ? apiCaseCount : ''}`;
+      case 'apiScenario':
+        const apiScenarioCount = detail.value?.apiScenarioCount ?? 0;
+        return `${apiScenarioCount > 0 ? apiScenarioCount : ''}`;
+      default:
+        return '';
+    }
+  }
   const hasSelectedIds = ref<string[]>([]);
   const caseAssociateVisible = ref(false);
   // 关联用例
@@ -376,9 +405,23 @@
   }
 
   const featureCaseRef = ref<InstanceType<typeof FeatureCase>>();
+  const apiCaseRef = ref<InstanceType<typeof ApiCase>>();
+  const apiScenarioRef = ref<InstanceType<typeof ApiScenario>>();
   function handleSuccess() {
     initDetail();
-    featureCaseRef.value?.getCaseTableList();
+    switch (activeTab.value) {
+      case 'featureCase':
+        featureCaseRef.value?.getCaseTableList();
+        return;
+      case 'apiCase':
+        apiCaseRef.value?.getCaseTableList();
+        return;
+      case 'apiScenario':
+        apiScenarioRef.value?.getCaseTableList();
+        return;
+      default:
+        return '';
+    }
   }
 
   onBeforeMount(() => {

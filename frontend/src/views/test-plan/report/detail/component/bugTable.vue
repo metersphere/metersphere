@@ -33,7 +33,6 @@
       },
       fixed: 'left',
       width: 100,
-      ellipsis: true,
       showTooltip: true,
     },
     {

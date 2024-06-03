@@ -386,7 +386,6 @@
       },
       fixed: 'left',
       width: 130,
-      ellipsis: true,
       showTooltip: true,
       columnSelectorDisabled: true,
     },

@@ -7,7 +7,7 @@
       :row-count="0"
       :count="props.modulesCount[props.activeModule] || 0"
       :name="moduleNamePath"
-      :search-placeholder="t('ms.case.associate.searchPlaceholder')"
+      :search-placeholder="t('common.searchByIdName')"
       @keyword-search="loadCaseList"
       @adv-search="loadCaseList"
       @refresh="loadCaseList"
@@ -17,16 +17,12 @@
       class="mt-[16px]"
       v-bind="propsRes"
       :action-config="batchActions"
-      :selectable="hasOperationPermission"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
       @selected-change="handleTableSelect"
       @filter-change="getModuleCount"
     >
-      <template #num="{ record }">
-        <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
-      </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
         <CaseLevel :case-level="filterContent.value" />
       </template>
@@ -37,32 +33,19 @@
         <ExecuteResult :execute-result="filterContent.key" />
       </template>
       <template #lastExecResult="{ record }">
-        <a-select
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && props.canEdit"
-          v-model:model-value="record.lastExecResult"
-          :placeholder="t('common.pleaseSelect')"
-          class="param-input w-full"
-          @change="() => handleEditLastExecResult(record)"
-        >
-          <template #label>
-            <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
-          </template>
-          <a-option v-for="item in Object.values(executionResultMap)" :key="item.key" :value="item.key">
-            <ExecuteResult :execute-result="item.key" />
-          </a-option>
-        </a-select>
-        <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
+        <ExecuteResult :execute-result="record.lastExecResult" />
+        <MsIcon
+          v-show="record.lastExecResult !== LastExecuteResults.PENDING"
+          type="icon-icon_take-action_outlined"
+          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]"
+          size="16"
+        />
       </template>
-      <template #bugCount="{ record }">
-        <BugCountPopover :case-item="record" :can-edit="props.canEdit" @load-list="loadList" />
+      <template #status="{ record }">
+        <apiStatus :status="record.status" />
       </template>
       <template v-if="props.canEdit" #operation="{ record }">
-        <MsButton
-          v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
-          type="text"
-          class="!mr-0"
-          @click="toCaseDetail(record)"
-        >
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']" type="text" class="!mr-0">
           {{ t('common.execute') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
@@ -95,79 +78,12 @@
         </MsButton>
       </template>
     </MsBaseTable>
-    <!-- 批量执行 -->
-    <a-modal
-      v-model:visible="batchExecuteModalVisible"
-      title-align="start"
-      body-class="p-0"
-      :width="800"
-      :cancel-button-props="{ disabled: batchLoading }"
-      :ok-loading="batchLoading"
-      :ok-text="t('caseManagement.caseReview.commitResult')"
-      @before-ok="handleBatchExecute"
-      @close="resetBatchForm"
-    >
-      <template #title>
-        {{ t('testPlan.testPlanIndex.batchExecution') }}
-        <div class="text-[var(--color-text-4)]">
-          {{
-            t('testPlan.testPlanIndex.selectedCount', {
-              count: batchParams.currentSelectCount || tableSelected.length,
-            })
-          }}
-        </div>
-      </template>
-      <ExecuteForm v-model:form="batchExecuteForm" />
-    </a-modal>
-    <!-- 批量修改执行人 -->
-    <a-modal
-      v-model:visible="batchUpdateExecutorModalVisible"
-      title-align="start"
-      body-class="p-0"
-      :cancel-button-props="{ disabled: batchLoading }"
-      :ok-loading="batchLoading"
-      :ok-button-props="{ disabled: batchUpdateExecutorDisabled }"
-      :ok-text="t('common.update')"
-      @before-ok="handleBatchUpdateExecutor"
-      @close="resetBatchForm"
-    >
-      <template #title>
-        {{ t('testPlan.featureCase.batchChangeExecutor') }}
-        <div class="text-[var(--color-text-4)]">
-          {{
-            t('testPlan.testPlanIndex.selectedCount', {
-              count: batchParams.currentSelectCount || tableSelected.length,
-            })
-          }}
-        </div>
-      </template>
-      <a-form ref="batchUpdateExecutorFormRef" :model="batchUpdateExecutorForm" layout="vertical">
-        <a-form-item
-          field="userId"
-          :label="t('testPlan.featureCase.executor')"
-          :rules="[{ required: true, message: t('testPlan.featureCase.requestExecutorRequired') }]"
-          asterisk-position="end"
-          class="mb-0"
-        >
-          <MsSelect
-            v-model:modelValue="batchUpdateExecutorForm.userId"
-            mode="static"
-            :placeholder="t('common.pleaseSelect')"
-            :loading="executorLoading"
-            :options="userOptions"
-            :search-keys="['label']"
-            allow-search
-          />
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
-  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -182,22 +98,15 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
-  import MsSelect from '@/components/business/ms-select';
-  import BugCountPopover from './bugCountPopover.vue';
-  import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
+  import apiStatus from '@/views/api-test/components/apiStatus.vue';
 
   import {
     associationCaseToPlan,
     batchDisassociateCase,
-    batchExecuteCase,
-    batchUpdateCaseExecutor,
     disassociateCase,
     getPlanDetailFeatureCaseList,
-    GetTestPlanUsers,
-    runFeatureCase,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
-  import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -205,15 +114,9 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ReviewUserItem } from '@/models/caseManagement/caseReview';
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
-  import type {
-    ExecuteFeatureCaseFormParams,
-    PlanDetailFeatureCaseItem,
-    PlanDetailFeatureCaseListQueryParams,
-  } from '@/models/testPlan/testPlan';
+  import type { PlanDetailFeatureCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
-  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -242,15 +145,13 @@
   }>();
 
   const { t } = useI18n();
-  const route = useRoute();
-  const router = useRouter();
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const { openModal } = useModal();
 
   const keyword = ref('');
   const moduleNamePath = computed(() => {
-    return props.activeModule === 'all' ? t('caseManagement.featureCase.allCase') : props.moduleName;
+    return props.activeModule === 'all' ? t('apiTestManagement.allApi') : props.moduleName;
   });
 
   const hasOperationPermission = computed(
@@ -260,7 +161,6 @@
     {
       title: 'ID',
       dataIndex: 'num',
-      slotName: 'num',
       sortIndex: 1,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -274,12 +174,12 @@
     {
       title: 'case.caseName',
       dataIndex: 'name',
-      showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 180,
+      width: 150,
+      showTooltip: true,
       columnSelectorDisabled: true,
     },
     {
@@ -307,6 +207,22 @@
       showDrag: true,
     },
     {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      slotName: 'status',
+      width: 150,
+      showDrag: true,
+      showInTable: false,
+    },
+    {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+      showInTable: false,
+    },
+    {
       title: 'common.belongModule',
       dataIndex: 'moduleId',
       showTooltip: true,
@@ -317,29 +233,28 @@
       title: 'common.belongProject',
       dataIndex: 'projectName',
       showTooltip: true,
-      showInTable: false,
       showDrag: true,
       width: 150,
     },
     {
-      title: 'testPlan.featureCase.bugCount',
-      dataIndex: 'bugCount',
-      slotName: 'bugCount',
-      width: 100,
+      title: 'report.detail.api.executeEnv',
+      dataIndex: 'executeEnv',
+      width: 150,
+      showInTable: false,
       showDrag: true,
     },
     {
       title: 'case.tableColumnCreateUser',
       dataIndex: 'createUserName',
       showTooltip: true,
-      width: 150,
+      width: 130,
       showDrag: true,
     },
     {
       title: 'testPlan.featureCase.executor',
       dataIndex: 'executeUserName',
       showTooltip: true,
-      width: 150,
+      width: 130,
       showDrag: true,
     },
     {
@@ -353,15 +268,17 @@
 
   const tableProps = ref<Partial<MsTableProps<PlanDetailFeatureCaseItem>>>({
     scroll: { x: '100%' },
-    tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
+    tableKey: TableKeyEnum.TEST_PLAN_DETAIL_API_CASE,
     showSetting: true,
     heightUsed: 460,
     showSubdirectory: true,
     draggable: { type: 'handle' },
     draggableCondition: true,
+    selectable: hasOperationPermission.value,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+    // TODO 联调
     getPlanDetailFeatureCaseList,
     tableProps.value,
     (record) => {
@@ -383,6 +300,13 @@
       immediate: true,
     }
   );
+  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
+  watch(
+    () => hasOperationPermission.value,
+    () => {
+      tableRef.value?.initColumn(columns.value);
+    }
+  );
 
   const batchActions = {
     baseAction: [
@@ -396,8 +320,11 @@
         eventTag: 'changeExecutor',
         permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
       },
-    ],
-    moreAction: [
+      {
+        label: 'common.move',
+        eventTag: 'move',
+        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+      },
       {
         label: 'common.cancelLink',
         eventTag: 'disassociate',
@@ -406,19 +333,11 @@
     ],
   };
 
-  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
-  watch(
-    () => hasOperationPermission.value,
-    () => {
-      tableRef.value?.initColumn(columns.value);
-    }
-  );
-
   async function getModuleIds() {
     let moduleIds: string[] = [];
     if (props.activeModule !== 'all') {
       moduleIds = [props.activeModule];
-      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE);
+      const getAllChildren = await tableStore.getSubShow(TableKeyEnum.TEST_PLAN_DETAIL_API_CASE);
       if (getAllChildren) {
         moduleIds = [props.activeModule, ...props.offspringIds];
       }
@@ -495,6 +414,7 @@
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
+      // TODO 联调
       await sortFeatureCase({ ...params, testPlanId: props.planId });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadCaseList();
@@ -507,6 +427,7 @@
   // 复制用例
   async function handleCopyCase(record: PlanDetailFeatureCaseItem) {
     try {
+      // TODO 联调
       await associationCaseToPlan({
         functionalSelectIds: [record.caseId],
         testPlanId: props.planId,
@@ -520,29 +441,12 @@
     }
   }
 
-  // 更新执行结果
-  async function handleEditLastExecResult(record: PlanDetailFeatureCaseItem) {
-    try {
-      await runFeatureCase({
-        id: record.id,
-        projectId: appStore.currentProjectId,
-        testPlanId: props.planId,
-        caseId: record.caseId,
-        lastExecResult: record.lastExecResult,
-      });
-      Message.success(t('common.updateSuccess'));
-      emit('refresh');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   // 取消关联
   const disassociateLoading = ref(false);
   async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
+      // TODO 联调
       await disassociateCase({ testPlanId: props.planId, id: record.id });
       if (done) {
         done();
@@ -572,6 +476,7 @@
       onBeforeOk: async () => {
         try {
           const tableParams = await getTableParams(true);
+          // TODO 联调
           await batchDisassociateCase({
             selectIds: tableSelected.value as string[],
             selectAll: batchParams.value.selectAll,
@@ -591,123 +496,27 @@
     });
   }
 
-  // 批量执行
-  const batchLoading = ref(false);
-  const batchExecuteModalVisible = ref(false);
-  const batchExecuteForm = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
-  async function handleBatchExecute() {
-    try {
-      batchLoading.value = true;
-      const tableParams = await getTableParams(true);
-      await batchExecuteCase({
-        ...tableParams,
-        ...batchExecuteForm.value,
-        notifier: batchExecuteForm.value?.commentIds?.join(';'),
-        selectIds: tableSelected.value as string[],
-        selectAll: batchParams.value.selectAll,
-        excludeIds: batchParams.value?.excludeIds || [],
-      });
-      Message.success(t('common.updateSuccess'));
-      resetSelector();
-      loadList();
-      emit('refresh');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      batchLoading.value = false;
-    }
-  }
-
-  // 批量修改执行人
-  const batchUpdateExecutorFormRef = ref<FormInstance>();
-  const batchUpdateExecutorModalVisible = ref(false);
-  const batchUpdateExecutorForm = ref<{ userId: string }>({ userId: '' });
-  const batchUpdateExecutorDisabled = computed(() => !batchUpdateExecutorForm.value.userId.length);
-  const userOptions = ref<SelectOptionData[]>([]);
-  const executorLoading = ref(false);
-  async function initUserOptions() {
-    try {
-      executorLoading.value = true;
-      const res = await GetTestPlanUsers(appStore.currentProjectId, '');
-      userOptions.value = res.map((e: ReviewUserItem) => ({ label: e.name, value: e.id }));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      executorLoading.value = false;
-    }
-  }
-
-  async function handleBatchUpdateExecutor() {
-    batchUpdateExecutorFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        try {
-          batchLoading.value = true;
-          const tableParams = await getTableParams(true);
-          await batchUpdateCaseExecutor({
-            selectIds: tableSelected.value as string[],
-            selectAll: batchParams.value.selectAll,
-            excludeIds: batchParams.value?.excludeIds || [],
-            ...tableParams,
-            ...batchUpdateExecutorForm.value,
-          });
-          Message.success(t('common.updateSuccess'));
-          resetSelector();
-          loadList();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          batchLoading.value = false;
-        }
-      }
-    });
-  }
-
-  function resetBatchForm() {
-    batchExecuteForm.value = { ...defaultExecuteForm };
-    batchUpdateExecutorForm.value = { userId: '' };
-  }
-
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = { ...params, selectIds: params?.selectedIds };
     switch (event.eventTag) {
       case 'execute':
-        batchExecuteModalVisible.value = true;
         break;
       case 'disassociate':
         handleBatchDisassociateCase();
         break;
       case 'changeExecutor':
-        batchUpdateExecutorModalVisible.value = true;
+        break;
+      case 'move':
         break;
       default:
         break;
     }
   }
 
-  // 去用例详情页面
-  function toCaseDetail(record: PlanDetailFeatureCaseItem) {
-    router.push({
-      name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL_FEATURE_CASE_DETAIL,
-      query: {
-        ...route.query,
-        caseId: record.caseId,
-        testPlanCaseId: record.id,
-        canEdit: String(props.canEdit),
-      },
-      state: {
-        params: JSON.stringify(getTableQueryParams()),
-      },
-    });
-  }
-
   onBeforeMount(() => {
     loadCaseList();
-    initUserOptions();
   });
 
   defineExpose({
@@ -715,22 +524,5 @@
     loadCaseList,
   });
 
-  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE, columns.value, 'drawer', true);
+  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_API_CASE, columns.value, 'drawer', true);
 </script>
-
-<style lang="less" scoped>
-  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
-    &:not(:hover) {
-      border-color: transparent !important;
-      .arco-input::placeholder {
-        @apply invisible;
-      }
-      .arco-select-view-icon {
-        @apply invisible;
-      }
-      .arco-select-view-value {
-        color: var(--color-text-brand);
-      }
-    }
-  }
-</style>
