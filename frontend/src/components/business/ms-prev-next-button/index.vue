@@ -45,7 +45,7 @@
   const props = defineProps<{
     loading: boolean;
     detailId: string; // 详情 id
-    detailIndex: number; // 详情 下标
+    detailIndex?: number; // 详情 下标
     tableData: any[]; // 表格数据
     pagination: MsPaginationI; // 分页器对象
     pageChange: (page: number) => Promise<void>; // 分页变更函数
@@ -82,12 +82,12 @@
     { immediate: true }
   );
 
-  const activeDetailIndex = ref(props.detailIndex);
+  const activeDetailIndex = ref(props.detailIndex || 0);
 
   watch(
     () => props.detailIndex,
     (val) => {
-      activeDetailIndex.value = val;
+      activeDetailIndex.value = val as number;
     }
   );
 

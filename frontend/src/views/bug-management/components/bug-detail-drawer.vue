@@ -17,6 +17,7 @@
     :mask="false"
     @loading-detail="setDetailLoading"
     @loaded="loadedBug"
+    @get-detail="getDetail"
   >
     <template #titleLeft>
       <div class="flex items-center">
@@ -286,11 +287,11 @@
   const props = defineProps<{
     visible: boolean;
     detailId: string; // 详情 id
-    detailIndex: number; // 详情 下标
+    detailIndex?: number; // 详情 下标
     detailDefaultTab: string; // 详情默认 tab
-    tableData: any[]; // 表格数据
-    pagination: MsPaginationI; // 分页器对象
-    pageChange: (page: number) => Promise<void>; // 分页变更函数
+    tableData?: any[]; // 表格数据
+    pagination?: MsPaginationI; // 分页器对象
+    pageChange?: (page: number) => Promise<void>; // 分页变更函数
     currentPlatform: string;
   }>();
   const caseCount = ref(0);
@@ -560,7 +561,11 @@
           await deleteSingleBug(params);
           Message.success(t('common.deleteSuccess'));
           updateSuccess();
-          detailDrawerRef.value?.openPrevDetail();
+          if (!props.pagination && !props.tableData) {
+            showDrawerVisible.value = false;
+          } else {
+            detailDrawerRef.value?.openPrevDetail();
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -655,6 +660,12 @@
     });
     return data;
   }
+
+  async function getDetail() {
+    const res = await getBugDetail(props.detailId);
+    loadedBug(res);
+  }
+
   watch(
     () => showDrawerVisible.value,
     (val) => {
@@ -665,6 +676,7 @@
           activeTab.value = 'detail';
         }
       } else {
+        if (!props.pagination && !props.tableData) return;
         const query = { ...route.query };
         delete query.id;
         router.replace({
