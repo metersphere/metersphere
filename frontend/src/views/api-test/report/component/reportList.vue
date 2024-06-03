@@ -200,7 +200,7 @@
       showDrag: true,
     },
     {
-      title: 'report.status',
+      title: 'report.result',
       dataIndex: 'status',
       slotName: 'status',
       filterConfig: {
@@ -216,7 +216,7 @@
       showDrag: true,
     },
     {
-      title: 'report.result',
+      title: 'report.status',
       dataIndex: 'execStatus',
       slotName: 'execStatus',
       filterConfig: {
