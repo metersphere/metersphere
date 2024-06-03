@@ -41,4 +41,6 @@ public class TestPlanResponse extends TestPlanStatisticsResponse {
 
     @Schema(description = "描述")
     private String description;
+
+    private long pos;
 }

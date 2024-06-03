@@ -13,11 +13,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtTestPlanMapper {
-    List<String> selectByGroupId(String parentId);
+    List<String> selectIdByGroupId(String parentId);
 
     List<String> selectByGroupIdList(@Param("list") List<String> parentTestPlanId);
 
-    List<TestPlanResponse> selectByConditions(@Param("request") TestPlanTableRequest request,@Param("groupIds") List<String> groupIds);
+    List<TestPlanResponse> selectByConditions(@Param("request") TestPlanTableRequest request);
 
     List<String> selectIdByConditions(@Param("request") TestPlanBatchProcessRequest request);
 
@@ -48,4 +48,6 @@ public interface ExtTestPlanMapper {
     DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
     long selectMaxPosByGroupId(String groupId);
+
+    List<TestPlanResponse> selectByGroupIds(@Param("groupIds") List<String> groupIds);
 }

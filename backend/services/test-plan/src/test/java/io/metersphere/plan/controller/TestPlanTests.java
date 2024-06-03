@@ -7,6 +7,7 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
+import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportMapper;
@@ -15,6 +16,7 @@ import io.metersphere.plan.utils.TestPlanTestUtils;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
+import io.metersphere.project.utils.NodeSortUtils;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -107,6 +109,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_PAGE = "/test-plan/page";
     private static final String URL_POST_TEST_PLAN_STATISTICS = "/test-plan/statistics";
     private static final String URL_POST_TEST_PLAN_MODULE_COUNT = "/test-plan/module/count";
+    private static final String URL_GET_TEST_PLAN_LIST_IN_GROUP = "/test-plan/list-in-group/%s";
     private static final String URL_POST_TEST_PLAN_ADD = "/test-plan/add";
     private static final String URL_POST_TEST_PLAN_SORT = "/test-plan/sort";
     private static final String URL_POST_TEST_PLAN_UPDATE = "/test-plan/update";
@@ -687,7 +690,16 @@ public class TestPlanTests extends BaseTest {
         this.checkTestPlanSortInGroup(groupTestPlanId7);
     }
 
-    protected void checkTestPlanSortInGroup(String groupTestPlanId7) throws Exception {
+    private List<TestPlanResponse> selectByGroupId(String groupId) throws Exception {
+        return JSON.parseArray(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestGetWithOkAndReturn(String.format(URL_GET_TEST_PLAN_LIST_IN_GROUP, groupId))
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanResponse.class);
+    }
+
+    protected void checkTestPlanSortInGroup(String groupId) throws Exception {
         /*
          排序校验用例设计：
          1.第一个移动到最后一个。
@@ -695,13 +707,9 @@ public class TestPlanTests extends BaseTest {
          3.第三个移动到第二个
          4.修改第一个和第二个之间的pos差小于2，将第三个移动到第二个（还原为原来的顺序），并检查pos有没有初始化
          */
-
-        TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andGroupIdEqualTo(groupTestPlanId7);
-        example.setOrderByClause("pos asc");
-        List<TestPlan> defaultTestPlanInGroup = testPlanMapper.selectByExample(example);
-        List<TestPlan> lastTestPlanInGroup = defaultTestPlanInGroup;
-        TestPlan movePlan, targetPlan = null;
+        List<TestPlanResponse> defaultTestPlanInGroup = this.selectByGroupId(groupId);
+        List<TestPlanResponse> lastTestPlanInGroup = defaultTestPlanInGroup;
+        TestPlanResponse movePlan, targetPlan = null;
         PosRequest posRequest = null;
         TestPlanResourceSortResponse response = null;
 
@@ -716,7 +724,7 @@ public class TestPlanTests extends BaseTest {
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanResourceSortResponse.class);
         //位置校验
-        List<TestPlan> newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        List<TestPlanResponse> newTestPlanInGroup = this.selectByGroupId(groupId);
         Assertions.assertEquals(response.getSortNodeNum(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
@@ -736,7 +744,7 @@ public class TestPlanTests extends BaseTest {
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanResourceSortResponse.class);
         //位置校验
-        newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        newTestPlanInGroup = this.selectByGroupId(groupId);
         Assertions.assertEquals(response.getSortNodeNum(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
@@ -755,7 +763,7 @@ public class TestPlanTests extends BaseTest {
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanResourceSortResponse.class);
         //位置校验
-        newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        newTestPlanInGroup = this.selectByGroupId(groupId);
         Assertions.assertEquals(response.getSortNodeNum(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
@@ -772,8 +780,10 @@ public class TestPlanTests extends BaseTest {
         // 修改第一个和第二个之间的pos差为2(拖拽的最小pos差），将第三个移动到第二个（换回来），然后检查pos有没有变化
         movePlan = lastTestPlanInGroup.get(2);
         targetPlan = lastTestPlanInGroup.get(1);
-        targetPlan.setPos(lastTestPlanInGroup.get(0).getPos() + 2);
-        testPlanMapper.updateByPrimaryKey(targetPlan);
+        TestPlan updatePlan = new TestPlan();
+        updatePlan.setId(targetPlan.getId());
+        updatePlan.setPos(lastTestPlanInGroup.get(0).getPos() + 2);
+        testPlanMapper.updateByPrimaryKeySelective(updatePlan);
 
         posRequest = new PosRequest(project.getId(), movePlan.getId(), targetPlan.getId(), MoveTypeEnum.BEFORE.name());
         response = JSON.parseObject(
@@ -783,13 +793,13 @@ public class TestPlanTests extends BaseTest {
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanResourceSortResponse.class);
         //位置校验
-        newTestPlanInGroup = testPlanMapper.selectByExample(example);
+        newTestPlanInGroup = this.selectByGroupId(groupId);
         Assertions.assertEquals(response.getSortNodeNum(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         long lastPos = 0;
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
             Assertions.assertEquals(newTestPlanInGroup.get(newListIndex).getId(), defaultTestPlanInGroup.get(newListIndex).getId());
-            Assertions.assertTrue(newTestPlanInGroup.get(newListIndex).getPos() > (lastPos + 1));
+            Assertions.assertTrue(newTestPlanInGroup.get(newListIndex).getPos() == (lastPos + NodeSortUtils.DEFAULT_NODE_INTERVAL_POS));
             lastPos = newTestPlanInGroup.get(newListIndex).getPos();
         }
     }
@@ -847,11 +857,13 @@ public class TestPlanTests extends BaseTest {
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
                     1010);
+            //只查询组
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, groupRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
                     2);
+            //只查询计划
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, onlyPlanRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
