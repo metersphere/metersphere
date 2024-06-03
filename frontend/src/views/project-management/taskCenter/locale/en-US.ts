@@ -59,4 +59,6 @@ export default {
   'project.taskCenter.filterPlaceholderText': 'Please select a project',
   'project.taskCenter.filterOrgPlaceholderText': 'Please select an organization',
   'project.executionHistory.cleared': 'Execution result has been cleared',
+  'project.taskCenter.plan': 'Plan',
+  'project.taskCenter.planGroup': 'Plan group',
 };

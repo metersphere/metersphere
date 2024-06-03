@@ -1,5 +1,16 @@
 <template>
   <div class="p-4 pt-0">
+    <a-radio-group
+      v-if="props.moduleType === 'TEST_PLAN'"
+      v-model:model-value="showType"
+      type="button"
+      class="file-show-type"
+      @change="changeShowType"
+    >
+      <a-radio value="All">{{ t('report.all') }}</a-radio>
+      <a-radio value="TEST_PLAN">{{ t('project.taskCenter.plan') }}</a-radio>
+      <a-radio value="GROUP">{{ t('project.taskCenter.planGroup') }}</a-radio>
+    </a-radio-group>
     <div class="mb-4 flex items-center justify-end">
       <!-- TODO这个版本不上 -->
       <!--      <a-button type="primary">
@@ -165,7 +176,8 @@
   }>();
 
   const keyword = ref<string>('');
-
+  type ReportShowType = 'All' | 'TEST_PLAN' | 'GROUP';
+  const showType = ref<ReportShowType>('All');
   const syncFrequencyOptions = [
     { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
     { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
@@ -209,6 +221,10 @@
         edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
         jump: ['PROJECT_API_SCENARIO:READ'],
       },
+      TEST_CASE: {
+        edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
+        jump: ['PROJECT_TEST_PLAN:READ'],
+      },
     },
     system: {
       API_IMPORT: {
@@ -218,6 +234,10 @@
         edit: ['SYSTEM_TASK_CENTER:READ+STOP', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
         jump: ['PROJECT_API_SCENARIO:READ'],
       },
+      TEST_CASE: {
+        edit: ['SYSTEM_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
+        jump: ['PROJECT_TEST_PLAN:READ'],
+      },
     },
     project: {
       API_IMPORT: {
@@ -226,6 +246,10 @@
       API_SCENARIO: {
         edit: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
         jump: ['PROJECT_API_SCENARIO:READ'],
+      },
+      TEST_CASE: {
+        edit: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+        jump: ['PROJECT_TEST_PLAN:READ'],
       },
     },
   };
@@ -324,14 +348,17 @@
     system: {
       API_IMPORT: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM,
       API_SCENARIO: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM,
+      TEST_PLAN: TableKeyEnum.TASK_SCHEDULE_TASK_TEST_PLAN_SYSTEM,
     },
     organization: {
       API_IMPORT: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_ORGANIZATION,
       API_SCENARIO: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_ORGANIZATION,
+      TEST_PLAN: TableKeyEnum.TASK_SCHEDULE_TASK_TEST_PLAN_ORGANIZATION,
     },
     project: {
       API_IMPORT: TableKeyEnum.TASK_SCHEDULE_TASK_API_IMPORT_PROJECT,
       API_SCENARIO: TableKeyEnum.TASK_SCHEDULE_TASK_API_SCENARIO_PROJECT,
+      TEST_PLAN: TableKeyEnum.TASK_SCHEDULE_TASK_TEST_PLAN_PROJECT,
     },
   };
 
@@ -351,6 +378,12 @@
         ...resourceColumns,
         ...staticColumns,
       ],
+      TEST_PLAN: [
+        getOrgColumns(),
+        getProjectColumns(tableKeyMap[props.group][props.moduleType]),
+        ...resourceColumns,
+        ...staticColumns,
+      ],
     },
     organization: {
       API_IMPORT: [
@@ -364,61 +397,98 @@
         ...resourceColumns,
         ...staticColumns,
       ],
+      TEST_PLAN: [getProjectColumns(tableKeyMap[props.group][props.moduleType]), ...resourceColumns, ...staticColumns],
     },
     project: {
       API_IMPORT: [...resourceColumns, ...swaggerUrlColumn, ...staticColumns],
       API_SCENARIO: [...resourceColumns, ...staticColumns],
+      TEST_PLAN: [...resourceColumns, ...staticColumns],
     },
   };
   const orgApiCaseFilter = ref([]);
   const orgApiScenarioFilter = ref([]);
+  const orgTestPlanFilter = ref([]);
 
   const orgFiltersMap = ref<Record<string, string[]>>({
     API_IMPORT: orgApiCaseFilter.value,
     API_SCENARIO: orgApiScenarioFilter.value,
+    TEST_PLAN: orgTestPlanFilter.value,
   });
 
   const projectApiCaseFilter = ref([]);
   const projectApiScenarioFilter = ref([]);
+  const projectTestPlanFilter = ref([]);
   const projectFiltersMap = ref<Record<string, string[]>>({
     API_CASE: projectApiCaseFilter.value,
     API_SCENARIO: projectApiScenarioFilter.value,
+    TEST_PLAN: projectTestPlanFilter.value,
+  });
+  const typeFilter = computed(() => {
+    if (showType.value === 'All') {
+      return [];
+    }
+    return [showType.value];
   });
 
   const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group][props.moduleType].jump));
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
-    loadRealMap.value[props.group].list,
-    {
-      tableKey: tableKeyMap[props.group][props.moduleType],
-      scroll: {
-        x: 1200,
+  const { propsRes, propsEvent, loadList, setLoadListParams, setPagination, resetSelector, resetFilterParams } =
+    useTable(
+      loadRealMap.value[props.group].list,
+      {
+        tableKey: tableKeyMap[props.group][props.moduleType],
+        scroll: {
+          x: 1200,
+        },
+        showSetting: true,
+        selectable: hasOperationPermission.value,
+        heightUsed: 300,
+        enableDrag: false,
+        showSelectorAll: true,
       },
-      showSetting: true,
-      selectable: hasOperationPermission.value,
-      heightUsed: 300,
-      enableDrag: false,
-      showSelectorAll: true,
-    },
-    // eslint-disable-next-line no-return-assign
-    (item) => ({
-      ...item,
-      nextTime: item.nextTime ? dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss') : null,
-    })
-  );
+      // eslint-disable-next-line no-return-assign
+      (item) => ({
+        ...item,
+        nextTime: item.nextTime ? dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss') : null,
+      })
+    );
 
   function initData() {
+    const filterParams = {
+      ...propsRes.value.filter,
+    };
+
     setLoadListParams({
       keyword: keyword.value,
       scheduleTagType: props.moduleType,
+      filter: {
+        ...(props.moduleType === 'TEST_PLAN'
+          ? {
+              type: typeFilter.value,
+              ...filterParams,
+            }
+          : { ...filterParams }),
+      },
     });
     loadList();
+  }
+
+  function changeShowType(val: string | number | boolean) {
+    showType.value = val as ReportShowType;
+    resetFilterParams();
+    resetSelector();
+    // 重置分页
+    setPagination({
+      current: 1,
+    });
+    initData();
   }
 
   function searchList() {
     resetSelector();
     initData();
   }
+
   const tableBatchActions = {
     baseAction: [
       {
@@ -530,6 +600,7 @@
       onBeforeOk: async () => {
         try {
           const { selectIds, selectAll, excludeIds } = batchParams.value;
+
           await loadRealMap.value[props.group].batchEnable({
             selectIds: selectIds || [],
             selectAll: !!selectAll,
@@ -537,7 +608,14 @@
             excludeIds,
             condition: {
               keyword: keyword.value,
-              filter: propsRes.value.filter,
+              filter: {
+                ...(props.moduleType === 'TEST_PLAN'
+                  ? {
+                      type: typeFilter.value,
+                      ...propsRes.value.filter,
+                    }
+                  : { ...propsRes.value.filter }),
+              },
             },
           });
           resetSelector();
@@ -573,8 +651,9 @@
             condition: {
               keyword: keyword.value,
               filter: {
-                organizationIds: orgFiltersMap.value[props.moduleType],
-                projectIds: projectFiltersMap.value[props.moduleType],
+                ...(props.moduleType === 'TEST_PLAN'
+                  ? { type: typeFilter.value, ...propsRes.value.filter }
+                  : { ...propsRes.value.filter }),
               },
             },
           });
@@ -598,6 +677,7 @@
       batchDisableTask();
     }
   }
+
   onBeforeMount(() => {
     initData();
   });
@@ -635,12 +715,15 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
+
       .arco-input::placeholder {
         @apply invisible;
       }
+
       .arco-select-view-icon {
         @apply invisible;
       }
+
       .arco-select-view-value {
         color: var(--color-text-1);
       }

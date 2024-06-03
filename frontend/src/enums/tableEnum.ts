@@ -2,6 +2,7 @@ export enum TableOpenDetailModeEnum {
   DRAWER = 'drawer',
   NEW_WINDOW = 'new_window',
 }
+
 export enum TableModuleEnum {
   USERGROUPINDEX = 'userGroupIndex',
 }
@@ -80,6 +81,9 @@ export enum TableKeyEnum {
   TASK_SCHEDULE_TASK_API_SCENARIO_ORGANIZATION = 'taskCenterScheduleApiScenarioOrganization',
   TASK_SCHEDULE_TASK_API_IMPORT_PROJECT = 'taskCenterScheduleApiImportProject',
   TASK_SCHEDULE_TASK_API_SCENARIO_PROJECT = 'taskCenterScheduleApiScenarioProject',
+  TASK_SCHEDULE_TASK_TEST_PLAN_SYSTEM = 'taskCenterScheduleTestPlanSystem',
+  TASK_SCHEDULE_TASK_TEST_PLAN_ORGANIZATION = 'taskCenterScheduleTestPlanOrganization',
+  TASK_SCHEDULE_TASK_TEST_PLAN_PROJECT = 'taskCenterScheduleTestPlanProject',
 }
 
 // 具有特殊功能的列
