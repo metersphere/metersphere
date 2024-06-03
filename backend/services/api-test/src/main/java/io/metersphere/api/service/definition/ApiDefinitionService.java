@@ -433,7 +433,7 @@ public class ApiDefinitionService extends MoveNodeService {
         }
     }
 
-    private void processApiDefinitions(List<ApiDefinitionDTO> list) {
+    public void processApiDefinitions(List<ApiDefinitionDTO> list) {
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
