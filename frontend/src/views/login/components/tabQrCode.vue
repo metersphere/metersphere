@@ -1,8 +1,8 @@
 <template>
   <a-tabs v-model:active-key="activeName" class="tabPlatform" @change="handleClick">
     <a-tab-pane key="wecom" :title="t('project.messageManagement.WE_COM')" class="font-[16px]"></a-tab-pane>
-    <!--    <a-tab-pane key="dingtalk" :title="t('project.messageManagement.DING_TALK')" ></a-tab-pane>
-    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
+    <a-tab-pane key="dingtalk" :title="t('project.messageManagement.DING_TALK')" class="font-[16px]"></a-tab-pane>
+    <!--    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
     <a-tab-pane key="larksuite" :title="t('project.messageManagement.LARK_SUITE')"></a-tab-pane>-->
   </a-tabs>
   <div v-if="activeName === 'wecom'" class="login-qrcode">
@@ -10,11 +10,16 @@
       <wecom-qr v-if="activeName === 'wecom'" />
     </div>
   </div>
-  <!--  <div class="login-qrcode" v-if="activeName === 'dingtalk'">
+  <div v-if="activeName === 'dingtalk'" class="login-qrcode">
     <div class="qrcode">
-      <dingtalk-qr v-if="activeName === 'dingtalk'"/>
+      <div class="title">
+        <MsIcon type="icon-logo_dingtalk" size="24"></MsIcon>
+        钉钉登录
+      </div>
+      <ding-talk-qr v-if="activeName === 'dingtalk'" />
     </div>
   </div>
+  <!--
   <div class="login-qrcode" v-if="activeName === 'lark'">
     <div class="qrcode">
       <lark-qr v-if="activeName === 'lark'"/>
@@ -31,6 +36,8 @@
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
 
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import dingTalkQr from './dingTalkQrCode.vue';
   import WecomQr from './weComQrCode.vue';
 
   const { t } = useI18n();
@@ -83,11 +90,12 @@
       justify-content: center;
       align-items: center;
       overflow: hidden;
-      margin: 0 0 16px;
       font-size: 18px;
       font-weight: 500;
       font-style: normal;
       line-height: 26px;
+      margin-bottom: -24px;
+      z-index: 100000;
       .ed-icon {
         margin-right: 8px;
         font-size: 24px;
