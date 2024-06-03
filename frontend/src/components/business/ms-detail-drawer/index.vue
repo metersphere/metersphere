@@ -20,6 +20,7 @@
           <slot name="titleLeft" :loading="loading" :detail="detail"></slot>
         </div>
         <MsPrevNextButton
+          v-if="props.tableData && props.pagination && props.pageChange"
           ref="prevNextButtonRef"
           v-model:loading="loading"
           class="ml-[16px]"
@@ -52,15 +53,15 @@
     width: number;
     detailId: string; // 详情 id
     tooltipText?: string; // tooltip内容
-    detailIndex: number; // 详情 下标
-    tableData: any[]; // 表格数据
-    pagination: MsPaginationI; // 分页器对象
+    detailIndex?: number; // 详情 下标
+    tableData?: any[]; // 表格数据
+    pagination?: MsPaginationI; // 分页器对象
     showFullScreen?: boolean; // 是否显示全屏按钮
-    pageChange: (page: number) => Promise<void>; // 分页变更函数
+    pageChange?: (page: number) => Promise<void>; // 分页变更函数
     getDetailFunc: (id: string) => Promise<any>; // 获取详情的请求函数
   }>();
 
-  const emit = defineEmits(['update:visible', 'loaded', 'loadingDetail']);
+  const emit = defineEmits(['update:visible', 'loaded', 'loadingDetail', 'getDetail']);
 
   const prevNextButtonRef = ref<InstanceType<typeof MsPrevNextButton>>();
 
@@ -108,7 +109,11 @@
     if (innerVisible.value) {
       nextTick(() => {
         // 为了确保 prevNextButtonRef 已渲染
-        initDetail();
+        if (props.tableData && props.pagination && props.pageChange) {
+          initDetail();
+        } else {
+          emit('getDetail');
+        }
       });
     }
   });

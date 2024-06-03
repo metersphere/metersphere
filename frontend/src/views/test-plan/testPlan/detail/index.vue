@@ -107,7 +107,7 @@
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
-    <BugManagement v-if="activeTab === 'defectList'" />
+    <BugManagement v-if="activeTab === 'defectList'" :can-edit="detail.status !== 'ARCHIVED'" @refresh="initDetail" />
     <ApiCase
       v-if="activeTab === 'apiCase'"
       ref="apiCaseRef"
@@ -326,6 +326,9 @@
       case 'featureCase':
         const count = detail.value.functionalCaseCount ?? 0;
         return `${count > 0 ? count : ''}`;
+      case 'defectList':
+        const bugCount = detail.value.bugCount ?? 0;
+        return `${bugCount > 0 ? bugCount : ''}`;
       case 'apiCase':
         const apiCaseCount = detail.value?.apiCaseCount ?? 0;
         return `${apiCaseCount > 0 ? apiCaseCount : ''}`;

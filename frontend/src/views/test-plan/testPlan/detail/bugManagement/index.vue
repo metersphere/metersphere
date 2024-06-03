@@ -16,8 +16,8 @@
       />
     </div>
     <MsBaseTable ref="tableRef" v-bind="propsRes" v-on="propsEvent">
-      <template #num="{ record }">
-        <MsButton type="text" @click="toDetail(record.id)">{{ record.num }}</MsButton>
+      <template v-if="props.canEdit" #num="{ record }">
+        <MsButton type="text" @click="handleShowDetail(record.id)">{{ record.num }}</MsButton>
       </template>
       <template #name="{ record }">
         <a-tooltip :content="record.title">
@@ -35,6 +35,13 @@
       </template>
     </MsBaseTable>
   </div>
+  <BugDetailDrawer
+    v-model:visible="detailVisible"
+    :detail-id="activeDetailId"
+    detail-default-tab="detail"
+    :current-platform="currentPlatform"
+    @submit="refresh"
+  />
 </template>
 
 <script setup lang="ts">
@@ -46,22 +53,28 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseCountPopover from './caseCountPopover.vue';
+  import BugDetailDrawer from '@/views/bug-management/components/bug-detail-drawer.vue';
 
-  import { getCustomOptionHeader } from '@/api/modules/bug-management';
+  import { getCustomOptionHeader, getPlatform } from '@/api/modules/bug-management';
   import { planDetailBugPage } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  // import { BugManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
 
+  const props = defineProps<{
+    canEdit: boolean;
+  }>();
+  const emit = defineEmits<{
+    (e: 'refresh'): void;
+  }>();
+
   const { t } = useI18n();
   const route = useRoute();
-  // const router = useRouter();
   const appStore = useAppStore();
 
   const keyword = ref<string>('');
@@ -166,20 +179,27 @@
     tableRef.value?.initColumn(columns.value);
   }
 
-  function toDetail(id: string) {
-    // eslint-disable-next-line no-console
-    console.log('id', id);
-    // TODO: 查看详情
-    // window.open(
-    //   `${window.location.origin}#${
-    //     router.resolve({ name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX }).fullPath
-    //   }?id=${id}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
-    // );
+  const detailVisible = ref(false);
+  const activeDetailId = ref<string>('');
+  const currentPlatform = ref('Local');
+  const handleShowDetail = async (id: string) => {
+    activeDetailId.value = id;
+    detailVisible.value = true;
+  };
+  const setCurrentPlatform = async () => {
+    const res = await getPlatform(appStore.currentProjectId);
+    currentPlatform.value = res;
+  };
+
+  function refresh() {
+    loadList();
+    emit('refresh');
   }
 
   onBeforeMount(() => {
     initFilterOptions();
     getFetch();
+    setCurrentPlatform();
   });
 </script>
 
