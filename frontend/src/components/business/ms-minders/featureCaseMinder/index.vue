@@ -68,7 +68,7 @@
     FeatureCaseMinderStepItem,
     FeatureCaseMinderUpdateParams,
   } from '@/models/caseManagement/featureCase';
-  import { TableQueryParams } from '@/models/common';
+  import { MoveMode, TableQueryParams } from '@/models/common';
   import { MinderEventName } from '@/enums/minderEnum';
 
   import { convertToFile, initFormCreate } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -240,6 +240,23 @@
   }
 
   /**
+   * 获取节点的移动信息
+   * @param node 节点
+   * @param parent 父节点
+   */
+  function getNodeMoveInfo(node: MinderJsonNode, parent?: MinderJsonNode): { moveMode: MoveMode; targetId?: string } {
+    const nodeIndex = parent?.children?.findIndex((e) => e.data.id === node.data.id);
+    const moveMode = nodeIndex === 0 ? 'BEFORE' : 'AFTER';
+    return {
+      moveMode,
+      targetId:
+        moveMode === 'BEFORE'
+          ? parent?.children?.[1]?.data.id
+          : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data.id,
+    };
+  }
+
+  /**
    * 生成脑图保存的入参
    */
   function makeMinderParams(): FeatureCaseMinderUpdateParams {
@@ -252,21 +269,20 @@
             name: node.data.text,
             parentId: parent?.data.id || 'NONE',
             type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
-            moveMode: node.data.moveMode,
-            targetId: node.data.targetId,
+            ...getNodeMoveInfo(node as MinderJsonNode, parent as MinderJsonNode),
           });
         } else if (node.data.resource?.includes(caseTag)) {
           const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
+          const caseBaseInfo = baseInfoRef.value?.makeParams();
           tempMinderParams.value.updateCaseList.push({
             id: node.data.id,
-            name: node.data.text,
             moduleId: parent?.data.id || '',
             type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
             templateId: templateId.value,
-            tags: node.data.resource || [],
-            customFields: baseInfoRef.value?.makeParams().customFields || [],
-            moveMode: node.data.moveMode,
-            targetId: node.data.targetId,
+            tags: caseBaseInfo?.tags || [],
+            customFields: caseBaseInfo?.customFields || [],
+            name: caseBaseInfo?.name || node.data.text,
+            ...getNodeMoveInfo(node as MinderJsonNode, parent as MinderJsonNode),
             ...caseNodeInfo,
           });
           return false; // 用例的子孙节点已经处理过，跳过
@@ -362,18 +378,6 @@
       nextTick(() => {
         const newNode: MinderJsonNode = window.minder.getSelectedNode();
         newNode.data.isNew = true; // 新建的节点标记为新建
-        switch (command) {
-          case 'AppendChildNode':
-            newNode.data.moveMode = 'APPEND'; // 新建的节点标记为插入模式
-            newNode.data.targetId = newNode.parent?.data.id || '';
-            break;
-          case 'AppendSiblingNode':
-            newNode.data.moveMode = 'AFTER'; // 新建的节点标记为插入模式
-            newNode.data.targetId = newNode.data.id || '';
-            break;
-          default:
-            break;
-        }
       });
     }
   }

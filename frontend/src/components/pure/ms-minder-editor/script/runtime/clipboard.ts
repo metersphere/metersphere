@@ -189,7 +189,8 @@ export default function ClipboardRuntime(this: any) {
    * @Editor: Naixor
    * @Date: 2015.9.24
    */
-  document.addEventListener('copy', (e) => beforeCopy(e));
-  document.addEventListener('cut', (e) => beforeCut(e));
-  document.addEventListener('paste', (e) => beforePaste(e));
+  // TODO: 未来需要支持自定义快捷键处理逻辑
+  // document.addEventListener('copy', (e) => beforeCopy(e));
+  // document.addEventListener('cut', (e) => beforeCut(e));
+  // document.addEventListener('paste', (e) => beforePaste(e));
 }

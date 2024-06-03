@@ -1,6 +1,6 @@
 <template>
   <div class="h-full pl-[16px]">
-    <div class="baseInfo-form" :class="props.activeCase.isNew ? 'baseInfo-form--no-bottom' : ''">
+    <div class="baseInfo-form">
       <a-skeleton v-if="baseInfoLoading || props.loading" :loading="baseInfoLoading || props.loading" :animation="true">
         <a-space direction="vertical" class="w-full" size="large">
           <a-skeleton-line :rows="10" :line-height="30" :line-spacing="30" />
@@ -27,7 +27,7 @@
         </a-form-item>
       </a-form>
     </div>
-    <div v-if="!props.activeCase.isNew" class="flex items-center gap-[12px] bg-white py-[16px]">
+    <div class="flex items-center gap-[12px] bg-white py-[16px]">
       <a-button
         v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
         type="primary"
@@ -49,7 +49,11 @@
   import { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
-  import { getCaseDefaultFields, updateCaseRequest } from '@/api/modules/case-management/featureCase';
+  import {
+    createCaseRequest,
+    getCaseDefaultFields,
+    updateCaseRequest,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
@@ -74,7 +78,7 @@
   const baseInfoFormRef = ref<FormInstance>();
   const baseInfoForm = ref({
     name: '',
-    tags: [],
+    tags: [] as string[],
     templateId: '',
     moduleId: 'root',
   });
@@ -137,7 +141,7 @@
       ...baseInfoForm.value,
       id: props.activeCase.id,
       projectId: appStore.currentProjectId,
-      caseEditType: props.activeCase.caseEditType,
+      caseEditType: props.activeCase.caseEditType || 'STEP',
       customFields: formItem.value.map((item: any) => {
         return {
           fieldId: item.field,
@@ -154,10 +158,21 @@
           if (valid === true) {
             try {
               saveLoading.value = true;
-              await updateCaseRequest({
-                request: makeParams(),
-                fileList: [],
-              });
+              if (props.activeCase.isNew !== false) {
+                const res = await createCaseRequest({
+                  request: makeParams(),
+                  fileList: [],
+                });
+                const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+                if (selectedNode?.data) {
+                  selectedNode.data.id = res.id;
+                }
+              } else {
+                await updateCaseRequest({
+                  request: makeParams(),
+                  fileList: [],
+                });
+              }
               const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
               if (selectedNode?.data) {
                 selectedNode.data.text = baseInfoForm.value.name;
@@ -199,8 +214,5 @@
 
     overflow-y: auto;
     height: calc(100% - 64px);
-  }
-  .baseInfo-form--no-bottom {
-    height: 100%;
   }
 </style>
