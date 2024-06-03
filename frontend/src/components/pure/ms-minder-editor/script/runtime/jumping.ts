@@ -94,7 +94,7 @@ function JumpingRuntime(this: IJumpingRuntime): void {
           receiverElement.innerHTML = '';
         }
         // normal -> normal shortcut
-        fsm.jump('normal', 'shortcut-handle', e);
+        // fsm.jump('normal', 'shortcut-handle', e); TODO: 未来需要支持自定义快捷键处理逻辑
         break;
       }
       case 'keyup': {
