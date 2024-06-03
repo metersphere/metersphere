@@ -83,9 +83,8 @@
                   class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
                   :class="{ '!opacity-100': element.id === currentId }"
                 >
-                  <div class="icon-button">
+                  <div v-if="element.type === systemType" class="icon-button">
                     <MsIcon
-                      v-if="element.type === systemType"
                       v-permission="props.updatePermission"
                       type="icon-icon_add_outlined"
                       size="16"
@@ -213,9 +212,8 @@
                   class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
                   :class="{ '!opacity-100': element.id === currentId }"
                 >
-                  <div class="icon-button">
+                  <div v-if="element.type === systemType" class="icon-button">
                     <MsIcon
-                      v-if="element.type === systemType"
                       v-permission="props.updatePermission"
                       type="icon-icon_add_outlined"
                       size="16"
@@ -317,9 +315,8 @@
                   class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
                   :class="{ '!opacity-100': element.id === currentId }"
                 >
-                  <div class="icon-button">
+                  <div v-if="element.type === systemType" class="icon-button">
                     <MsIcon
-                      v-if="element.type === systemType"
                       v-permission="props.updatePermission"
                       type="icon-icon_add_outlined"
                       size="16"

@@ -180,6 +180,7 @@ export default function HistoryRuntime(this: { minder: any; hotbox: any; editTex
     hasUndo,
     hasRedo,
   };
+  window.minderHistory = this.history;
   reset();
   minder.on('contentchange', changed);
   minder.on('import', reset);

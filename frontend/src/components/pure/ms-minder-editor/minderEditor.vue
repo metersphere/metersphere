@@ -67,15 +67,16 @@
   import minderHeader from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
 
-  import { MinderEvent } from '@/store/modules/components/minder-editor/types';
+  import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
 
-  import useEventListener from './hooks/useEventListener';
+  import useMinderEventListener from './hooks/useMinderEventListener';
   import {
     delProps,
     editMenuProps,
     headerProps,
     insertProps,
     mainEditorProps,
+    MinderEvent,
     MinderJsonNode,
     moleProps,
     priorityProps,
@@ -90,7 +91,8 @@
     (e: 'enterNode', data: MinderJsonNode): void;
     (e: 'nodeSelect', data: MinderJsonNode): void;
     (e: 'contentChange', data: MinderJsonNode): void;
-    (e: 'action', event: MinderEvent): void;
+    (e: 'action', event: MinderCustomEvent): void;
+    (e: 'beforeExecCommand', event: MinderEvent): void;
   }>();
 
   const props = defineProps({
@@ -132,7 +134,7 @@
   }
 
   onMounted(() => {
-    useEventListener({
+    useMinderEventListener({
       handleSelectionChange: () => {
         const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
         if (Object.keys(window.minder).length > 0 && selectedNode) {
@@ -144,6 +146,9 @@
       },
       handleMinderEvent: (event) => {
         emit('action', event);
+      },
+      handleBeforeExecCommand: (event) => {
+        emit('beforeExecCommand', event);
       },
     });
   });

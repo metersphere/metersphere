@@ -9,4 +9,11 @@ declare interface Window {
   minderEditor: Record<string, any>;
   km: Record<string, any>;
   canvg: (canvas: HTMLCanvasElement, xml: string, option: Record<string, any>) => void;
+  minderHistory: {
+    reset: () => void;
+    undo: () => void;
+    redo: () => void;
+    hasUndo: () => boolean;
+    hasRedo: () => boolean;
+  };
 }

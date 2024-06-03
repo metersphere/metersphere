@@ -7,7 +7,7 @@ export interface MinderNodePosition {
   y: number;
 }
 
-export interface MinderEvent {
+export interface MinderCustomEvent {
   name: MinderEventName;
   timestamp: number;
   nodePosition?: MinderNodePosition;
@@ -16,6 +16,6 @@ export interface MinderEvent {
 }
 
 export interface MinderState {
-  event: MinderEvent;
+  event: MinderCustomEvent;
   mold: number;
 }

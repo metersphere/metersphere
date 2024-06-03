@@ -1,14 +1,15 @@
 import { debounce } from 'lodash-es';
 
 import useMinderStore from '@/store/modules/components/minder-editor/index';
-import type { MinderEvent } from '@/store/modules/components/minder-editor/types';
+import type { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
 
-import type { MinderJsonNode } from '../props';
+import type { MinderEvent, MinderJsonNode } from '../props';
 
 export interface UseEventListenerProps {
   handleContentChange?: (node: MinderJsonNode) => void;
   handleSelectionChange?: (node: MinderJsonNode) => void;
-  handleMinderEvent?: (event: MinderEvent) => void;
+  handleMinderEvent?: (event: MinderCustomEvent) => void;
+  handleBeforeExecCommand?: (event: MinderEvent) => void;
 }
 
 export default function useEventListener(listener: UseEventListenerProps) {
@@ -33,6 +34,21 @@ export default function useEventListener(listener: UseEventListenerProps) {
       }
     }, 300)
   );
+
+  // minder.on('dragStart', () => {
+  //   const node: MinderJsonNode = minder.getSelectedNode();
+  //   console.log('dragStart', node);
+  // });
+
+  // minder.on('dragFinish', () => {
+  //   console.log('dragFinish', minder.history);
+  // });
+
+  minder.on('beforeExecCommand', (e: any) => {
+    if (listener.handleBeforeExecCommand) {
+      listener.handleBeforeExecCommand(e);
+    }
+  });
 
   // 监听脑图自定义事件
   watch(
