@@ -5,6 +5,8 @@ import com.github.pagehelper.page.PageMethod;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.TaskCenterResourceType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
@@ -28,6 +30,7 @@ import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -280,7 +283,7 @@ public class TaskCenterService {
     }
 
     private void batchOperation(TaskCenterScheduleBatchRequest request, String userId, String path, String module, List<OptionDTO> projectList, boolean enable, String projectId) {
-        List<Schedule> scheduleList = new ArrayList<>();
+        List<Schedule> scheduleList;
         if (request.isSelectAll()) {
             List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
             scheduleList = extScheduleMapper.getSchedule(request, projectIds);
@@ -315,5 +318,39 @@ public class TaskCenterService {
     public void batchEnableProject(TaskCenterScheduleBatchRequest request, String userId, String projectId, String path, String module, boolean enable) {
         List<OptionDTO> projectList = getProjectOption(projectId);
         batchOperation(request, userId, path, module, projectList, enable, projectId);
+    }
+
+    public void hasPermission(String type, String moduleType, String orgId, String projectId) {
+        Map<String, List<String>> orgPermission = Map.of(
+                ScheduleTagType.API_IMPORT.name(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_DEFINITION_IMPORT),
+                TaskCenterResourceType.API_SCENARIO.name(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE),
+                TaskCenterResourceType.TEST_PLAN.name(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.TEST_PLAN_READ_EXECUTE)
+        );
+
+        Map<String, List<String>> projectPermission = Map.of(
+                ScheduleTagType.API_IMPORT.name(), List.of(PermissionConstants.PROJECT_API_DEFINITION_IMPORT),
+                TaskCenterResourceType.API_SCENARIO.name(), List.of(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE),
+                TaskCenterResourceType.TEST_PLAN.name(), List.of(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+        );
+
+        Map<String, List<String>> systemPermission = Map.of(
+                ScheduleTagType.API_IMPORT.name(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_DEFINITION_IMPORT),
+                TaskCenterResourceType.API_SCENARIO.name(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE),
+                TaskCenterResourceType.TEST_PLAN.name(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.TEST_PLAN_READ_EXECUTE)
+        );
+
+        boolean hasPermission = switch (type) {
+            case "org" ->
+                    orgPermission.get(moduleType).stream().anyMatch(item -> SessionUtils.hasPermission(orgId, projectId, item));
+            case "project" ->
+                    projectPermission.get(moduleType).stream().anyMatch(item -> SessionUtils.hasPermission(orgId, projectId, item));
+            case "system" ->
+                    systemPermission.get(moduleType).stream().anyMatch(item -> SessionUtils.hasPermission(orgId, projectId, item));
+            default -> false;
+        };
+
+        if (!hasPermission) {
+            throw new MSException(Translator.get("no_permission_to_resource"));
+        }
     }
 }
