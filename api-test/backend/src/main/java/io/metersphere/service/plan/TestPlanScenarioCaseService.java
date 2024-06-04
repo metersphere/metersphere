@@ -493,7 +493,9 @@ public class TestPlanScenarioCaseService {
                 if (envMap != null && !envMap.isEmpty()) {
                     List<String> list = mapping.get(id);
                     list.forEach(l -> {
-                        newEnvMap.put(l, envMap.get(l));
+                        if (envMap.containsKey(l) && StringUtils.isNotBlank(envMap.get(l))) {
+                            newEnvMap.put(l, envMap.get(l));
+                        }
                     });
                 }
                 if (!newEnvMap.isEmpty()) {
