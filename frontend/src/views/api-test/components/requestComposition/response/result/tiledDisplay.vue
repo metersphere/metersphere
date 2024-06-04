@@ -45,7 +45,7 @@
               <ExtractTable :request-result="props.requestResult" :scroll="{ x: '100%' }" />
             </div>
             <div v-if="!expandIds.includes(item.value) && item.value === ResponseComposition.ASSERTION">
-              <ResAssertion :request-result="props.requestResult" />
+              <ResAssertion :request-result="props.requestResult" :scroll="{ x: '100%' }" />
             </div>
           </div>
         </transition>

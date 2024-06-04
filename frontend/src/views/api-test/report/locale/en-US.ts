@@ -28,8 +28,11 @@ export default {
   'report.detail.api.stepAnalysis': 'step Analysis',
   'report.detail.api.content': 'content',
   'report.detail.api.assertStatus': 'status',
-  'report.detail.api.totalTime': 'total time',
+  'report.detail.api.totalTime': 'Total report time',
   'report.detail.api.requestTotalTime': 'req total time',
+  'report.detail.api.totalTimeTip':
+    'The total time spent executing testing tasks, including waiting and processing times during the task execution process',
+  'report.detail.api.requestTotalTimeTip': 'The total response time of all requests',
   'report.detail.api.assertPass': 'Assert pass',
   'report.detail.api.executionRate': 'Req execution Rate',
   'report.detail.api.requestAnalysis': 'Request analysis',

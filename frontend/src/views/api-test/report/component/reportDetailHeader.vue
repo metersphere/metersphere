@@ -57,21 +57,6 @@
           </div>
         </template>
       </a-popover>
-      <a-popover position="left" content-class="response-popover-content">
-        <span v-if="props.detail.integrated">
-          {{ props.detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</span
-        >
-        <a-divider v-if="props.detail.integrated" direction="vertical" :margin="4" class="!mx-2"></a-divider>
-        <template #content>
-          <div class="items-center gap-[8px] text-[14px]">
-            <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.runMode') }}</div>
-            <div class="mt-1">
-              {{ props.detail.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel') }}</div
-            >
-          </div>
-        </template>
-      </a-popover>
-
       <a-popover position="bottom" content-class="response-popover-content">
         <div class="one-line-text max-w-[150px]"> {{ props.detail.creatUserName || '-' }}</div>
         <template #content>

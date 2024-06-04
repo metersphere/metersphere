@@ -14,48 +14,11 @@
   <div class="analysis-wrapper">
     <div class="analysis min-w-[238px]">
       <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
-      <ul class="report-analysis">
-        <li class="report-analysis-item">
-          <div class="report-analysis-item-icon">
-            <svg-icon class="mr-2" width="24px" height="24px" name="threshold" />
-            <span>{{ t('report.detail.threshold') }}</span>
-          </div>
-          <div>
-            <span class="report-analysis-item-number">{{ detail.passThreshold }}</span>
-            <span class="report-analysis-item-unit">(%)</span>
-          </div>
-        </li>
-        <li class="report-analysis-item">
-          <div class="report-analysis-item-icon">
-            <svg-icon class="mr-2" width="24px" height="24px" name="passRate" />
-            <span>{{ t('report.detail.reportPassRate') }}</span>
-          </div>
-          <div>
-            <span class="report-analysis-item-number">{{ detail.passRate }}</span>
-            <span class="report-analysis-item-unit">(%)</span>
-          </div>
-        </li>
-        <li class="report-analysis-item">
-          <div class="report-analysis-item-icon">
-            <svg-icon class="mr-2" width="24px" height="24px" name="passRate" />
-            <span>{{ t('report.detail.performCompletion') }}</span>
-          </div>
-          <div>
-            <span class="report-analysis-item-number">{{ detail.executeRate }}</span>
-            <span class="report-analysis-item-unit">(%)</span>
-          </div>
-        </li>
-        <li class="report-analysis-item">
-          <div class="report-analysis-item-icon">
-            <svg-icon class="mr-2" width="24px" height="24px" name="bugTotal" />
-            <span>{{ t('report.detail.totalDefects') }}</span>
-          </div>
-          <div>
-            <span class="report-analysis-item-number">{{ addCommasToNumber(detail.bugCount) }}</span>
-            <span class="report-analysis-item-unit">({{ t('report.detail.number') }})</span>
-          </div>
-        </li>
-      </ul>
+      <ReportMetricsItem
+        v-for="analysisItem in reportAnalysisList"
+        :key="analysisItem.name"
+        :item-info="analysisItem"
+      />
     </div>
     <div class="analysis min-w-[410px]">
       <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
@@ -144,6 +107,7 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import PlanDetailHeaderRight from './planDetailHeaderRight.vue';
+  import ReportMetricsItem from './ReportMetricsItem.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import BugTable from '@/views/test-plan/report/detail/component/bugTable.vue';
@@ -157,7 +121,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { LegendData } from '@/models/apiTest/report';
-  import type { PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
+  import type { PlanReportDetail, ReportMetricsItemModel, StatusListType } from '@/models/testPlan/testPlanReport';
 
   import { getIndicators } from '@/views/api-test/report/utils';
 
@@ -361,6 +325,33 @@
     showButton.value = false;
   }
 
+  const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
+    {
+      name: t('report.detail.threshold'),
+      value: detail.value.passThreshold,
+      unit: '%',
+      icon: 'threshold',
+    },
+    {
+      name: t('report.detail.reportPassRate'),
+      value: detail.value.passRate,
+      unit: '%',
+      icon: 'passRate',
+    },
+    {
+      name: t('report.detail.performCompletion'),
+      value: detail.value.executeRate,
+      unit: '%',
+      icon: 'passRate',
+    },
+    {
+      name: t('report.detail.totalDefects'),
+      value: addCommasToNumber(detail.value.bugCount),
+      unit: t('report.detail.number'),
+      icon: 'bugTotal',
+    },
+  ]);
+
   const functionCasePassRate = computed(() => {
     const { functionalCount } = detail.value;
     const { success, error, pending, block } = functionalCount;
@@ -409,26 +400,6 @@
       height: 250px;
       box-shadow: 0 0 10px rgba(120 56 135/ 5%);
       @apply flex-1 rounded-xl bg-white;
-      .report-analysis {
-        .report-analysis-item {
-          padding: 4px 8px;
-          border-radius: 4px;
-          background-color: var(--color-text-n9);
-          @apply mb-3 flex items-center justify-between;
-          .report-analysis-item-icon {
-            @apply flex items-center;
-          }
-          .report-analysis-item-number {
-            font-size: 16px;
-            @apply font-medium;
-          }
-          .report-analysis-item-unit {
-            font-size: 12px;
-            color: var(--color-text-4);
-            @apply ml-1 font-medium;
-          }
-        }
-      }
       .charts {
         top: 36%;
         right: 0;
