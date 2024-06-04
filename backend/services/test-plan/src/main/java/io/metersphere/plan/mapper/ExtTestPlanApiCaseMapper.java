@@ -3,7 +3,9 @@ package io.metersphere.plan.mapper;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
+import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
@@ -27,4 +29,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<TestPlanCaseRunResultCount> selectCaseExecResultCount(String testPlanId);
 
     List<ApiDefinitionDTO> list(@Param("request") TestPlanApiRequest request, @Param("isRepeat") boolean isRepeat);
+
+    List<TestPlanApiCasePageResponse> relateApiCaseList(@Param("request") TestPlanApiCaseRequest request, @Param("deleted") boolean deleted);
 }

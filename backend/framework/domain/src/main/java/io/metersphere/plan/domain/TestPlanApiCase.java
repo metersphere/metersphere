@@ -44,7 +44,7 @@ public class TestPlanApiCase implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "自定义排序，间隔为2的n次幂", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{test_plan_api_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
@@ -52,6 +52,9 @@ public class TestPlanApiCase implements Serializable {
     @NotBlank(message = "{test_plan_api_case.test_plan_collection_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_api_case.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanCollectionId;
+
+    @Schema(description = "最后执行时间")
+    private Long lastExecTime;
 
     @Schema(description = "所属环境")
     private String environmentId;
@@ -69,6 +72,7 @@ public class TestPlanApiCase implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
         testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
+        lastExecTime("last_exec_time", "lastExecTime", "BIGINT", false),
         environmentId("environment_id", "environmentId", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

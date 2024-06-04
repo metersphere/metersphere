@@ -12,6 +12,7 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="test_plan_collection_id" jdbcType="VARCHAR" property="testPlanCollectionId" />
+    <result column="last_exec_time" jdbcType="BIGINT" property="lastExecTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanApiCase">
     <result column="environment_id" jdbcType="LONGVARCHAR" property="environmentId" />
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, api_case_id, last_exec_result, last_exec_report_id, execute_user, 
-    create_time, create_user, pos, test_plan_collection_id
+    create_time, create_user, pos, test_plan_collection_id, last_exec_time
   </sql>
   <sql id="Blob_Column_List">
     environment_id
@@ -133,12 +134,12 @@
     insert into test_plan_api_case (id, test_plan_id, api_case_id, 
       last_exec_result, last_exec_report_id, execute_user, 
       create_time, create_user, pos, 
-      test_plan_collection_id, environment_id
+      test_plan_collection_id, last_exec_time, environment_id
       )
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiCaseId,jdbcType=VARCHAR}, 
       #{lastExecResult,jdbcType=VARCHAR}, #{lastExecReportId,jdbcType=VARCHAR}, #{executeUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
-      #{testPlanCollectionId,jdbcType=VARCHAR}, #{environmentId,jdbcType=LONGVARCHAR}
+      #{testPlanCollectionId,jdbcType=VARCHAR}, #{lastExecTime,jdbcType=BIGINT}, #{environmentId,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanApiCase">
@@ -174,6 +175,9 @@
       <if test="testPlanCollectionId != null">
         test_plan_collection_id,
       </if>
+      <if test="lastExecTime != null">
+        last_exec_time,
+      </if>
       <if test="environmentId != null">
         environment_id,
       </if>
@@ -208,6 +212,9 @@
       </if>
       <if test="testPlanCollectionId != null">
         #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastExecTime != null">
+        #{lastExecTime,jdbcType=BIGINT},
       </if>
       <if test="environmentId != null">
         #{environmentId,jdbcType=LONGVARCHAR},
@@ -253,6 +260,9 @@
       <if test="record.testPlanCollectionId != null">
         test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
       </if>
+      <if test="record.lastExecTime != null">
+        last_exec_time = #{record.lastExecTime,jdbcType=BIGINT},
+      </if>
       <if test="record.environmentId != null">
         environment_id = #{record.environmentId,jdbcType=LONGVARCHAR},
       </if>
@@ -273,6 +283,7 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       pos = #{record.pos,jdbcType=BIGINT},
       test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      last_exec_time = #{record.lastExecTime,jdbcType=BIGINT},
       environment_id = #{record.environmentId,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -289,7 +300,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       pos = #{record.pos,jdbcType=BIGINT},
-      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR}
+      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      last_exec_time = #{record.lastExecTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -324,6 +336,9 @@
       <if test="testPlanCollectionId != null">
         test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
       </if>
+      <if test="lastExecTime != null">
+        last_exec_time = #{lastExecTime,jdbcType=BIGINT},
+      </if>
       <if test="environmentId != null">
         environment_id = #{environmentId,jdbcType=LONGVARCHAR},
       </if>
@@ -341,6 +356,7 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
       test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      last_exec_time = #{lastExecTime,jdbcType=BIGINT},
       environment_id = #{environmentId,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -354,20 +370,22 @@
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
-      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR}
+      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      last_exec_time = #{lastExecTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_api_case
     (id, test_plan_id, api_case_id, last_exec_result, last_exec_report_id, execute_user, 
-      create_time, create_user, pos, test_plan_collection_id, environment_id)
+      create_time, create_user, pos, test_plan_collection_id, last_exec_time, environment_id
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.apiCaseId,jdbcType=VARCHAR}, 
         #{item.lastExecResult,jdbcType=VARCHAR}, #{item.lastExecReportId,jdbcType=VARCHAR}, 
         #{item.executeUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.pos,jdbcType=BIGINT}, #{item.testPlanCollectionId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=LONGVARCHAR}
-        )
+        #{item.pos,jdbcType=BIGINT}, #{item.testPlanCollectionId,jdbcType=VARCHAR}, #{item.lastExecTime,jdbcType=BIGINT}, 
+        #{item.environmentId,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -409,6 +427,9 @@
         </if>
         <if test="'test_plan_collection_id'.toString() == column.value">
           #{item.testPlanCollectionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'last_exec_time'.toString() == column.value">
+          #{item.lastExecTime,jdbcType=BIGINT}
         </if>
         <if test="'environment_id'.toString() == column.value">
           #{item.environmentId,jdbcType=LONGVARCHAR}

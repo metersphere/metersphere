@@ -14,6 +14,7 @@
     <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="test_plan_collection_id" jdbcType="VARCHAR" property="testPlanCollectionId" />
     <result column="grouped" jdbcType="BIT" property="grouped" />
+    <result column="last_exec_time" jdbcType="BIGINT" property="lastExecTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,7 +76,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, 
-    last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped
+    last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped, 
+    last_exec_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanApiScenarioExample" resultMap="BaseResultMap">
     select
@@ -111,13 +113,13 @@
     insert into test_plan_api_scenario (id, test_plan_id, api_scenario_id, 
       environment_id, execute_user, last_exec_result, 
       last_exec_report_id, create_time, create_user, 
-      pos, test_plan_collection_id, grouped
-      )
+      pos, test_plan_collection_id, grouped, 
+      last_exec_time)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, 
       #{environmentId,jdbcType=VARCHAR}, #{executeUser,jdbcType=VARCHAR}, #{lastExecResult,jdbcType=VARCHAR}, 
       #{lastExecReportId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{pos,jdbcType=BIGINT}, #{testPlanCollectionId,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}
-      )
+      #{pos,jdbcType=BIGINT}, #{testPlanCollectionId,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}, 
+      #{lastExecTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanApiScenario">
     insert into test_plan_api_scenario
@@ -158,6 +160,9 @@
       <if test="grouped != null">
         grouped,
       </if>
+      <if test="lastExecTime != null">
+        last_exec_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -195,6 +200,9 @@
       </if>
       <if test="grouped != null">
         #{grouped,jdbcType=BIT},
+      </if>
+      <if test="lastExecTime != null">
+        #{lastExecTime,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -243,6 +251,9 @@
       <if test="record.grouped != null">
         grouped = #{record.grouped,jdbcType=BIT},
       </if>
+      <if test="record.lastExecTime != null">
+        last_exec_time = #{record.lastExecTime,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -261,7 +272,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       pos = #{record.pos,jdbcType=BIGINT},
       test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
-      grouped = #{record.grouped,jdbcType=BIT}
+      grouped = #{record.grouped,jdbcType=BIT},
+      last_exec_time = #{record.lastExecTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +314,9 @@
       <if test="grouped != null">
         grouped = #{grouped,jdbcType=BIT},
       </if>
+      <if test="lastExecTime != null">
+        last_exec_time = #{lastExecTime,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,21 +332,22 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
       test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
-      grouped = #{grouped,jdbcType=BIT}
+      grouped = #{grouped,jdbcType=BIT},
+      last_exec_time = #{lastExecTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_api_scenario
     (id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, 
-      last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped
-      )
+      last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped, 
+      last_exec_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.apiScenarioId,jdbcType=VARCHAR}, 
         #{item.environmentId,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, #{item.lastExecResult,jdbcType=VARCHAR}, 
         #{item.lastExecReportId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.testPlanCollectionId,jdbcType=VARCHAR}, 
-        #{item.grouped,jdbcType=BIT})
+        #{item.grouped,jdbcType=BIT}, #{item.lastExecTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -379,6 +395,9 @@
         </if>
         <if test="'grouped'.toString() == column.value">
           #{item.grouped,jdbcType=BIT}
+        </if>
+        <if test="'last_exec_time'.toString() == column.value">
+          #{item.lastExecTime,jdbcType=BIGINT}
         </if>
       </foreach>
       )

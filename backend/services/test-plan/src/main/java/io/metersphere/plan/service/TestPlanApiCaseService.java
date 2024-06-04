@@ -8,13 +8,27 @@ import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
+import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,6 +46,14 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private EnvironmentMapper environmentMapper;
+    @Resource
+    private UserLoginService userLoginService;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -96,4 +118,78 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         return apiCaseLists;
     }
 
+
+    /**
+     * 获取已关联的接口用例列表
+     *
+     * @param request
+     * @param deleted
+     * @return
+     */
+    public List<TestPlanApiCasePageResponse> HasRelateApiCaseList(TestPlanApiCaseRequest request, boolean deleted) {
+        List<TestPlanApiCasePageResponse> list = extTestPlanApiCaseMapper.relateApiCaseList(request, deleted);
+        buildApiCaseResponse(list);
+        return list;
+    }
+
+    private void buildApiCaseResponse(List<TestPlanApiCasePageResponse> apiCaseList) {
+        if (CollectionUtils.isNotEmpty(apiCaseList)) {
+            Map<String, String> projectMap = getProject(apiCaseList);
+            Map<String, String> envMap = getEnvironmentMap(apiCaseList);
+            Map<String, String> userMap = getUserMap(apiCaseList);
+            apiCaseList.forEach(apiCase -> {
+                apiCase.setProjectName(projectMap.get(apiCase.getProjectId()));
+                apiCase.setEnvironmentName(envMap.get(apiCase.getId()));
+                apiCase.setCreateUserName(userMap.get(apiCase.getCreateUser()));
+            });
+        }
+    }
+
+    private Map<String, String> getUserMap(List<TestPlanApiCasePageResponse> apiCaseList) {
+        List<String> userIds = new ArrayList<>();
+        userIds.addAll(apiCaseList.stream().map(TestPlanApiCasePageResponse::getCreateUser).toList());
+        userIds.addAll(apiCaseList.stream().map(TestPlanApiCasePageResponse::getExecuteUser).toList());
+        return userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
+    }
+
+    private Map<String, String> getEnvironmentMap(List<TestPlanApiCasePageResponse> apiCaseList) {
+        Map<String, String> envMap = new HashMap<>();
+        //默认环境
+        List<TestPlanApiCasePageResponse> defaultEnv = apiCaseList.stream().filter(item -> StringUtils.equalsIgnoreCase(ModuleConstants.ROOT_NODE_PARENT_ID, item.getCollectEnvironmentId())).toList();
+        if (CollectionUtils.isNotEmpty(defaultEnv)) {
+            List<String> defaultEnvIds = defaultEnv.stream().map(TestPlanApiCasePageResponse::getEnvironmentId).distinct().toList();
+            Map<String, TestPlanApiCasePageResponse> defaultEnvMap = defaultEnv.stream().collect(Collectors.toMap(TestPlanApiCasePageResponse::getEnvironmentId, testPlanApiCasePageResponse -> testPlanApiCasePageResponse));
+            EnvironmentExample environmentExample = new EnvironmentExample();
+            environmentExample.createCriteria().andIdIn(defaultEnvIds);
+            List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+            environments.forEach(item -> {
+                TestPlanApiCasePageResponse testPlanApiCasePageResponse = defaultEnvMap.get(item.getId());
+                envMap.put(testPlanApiCasePageResponse.getId(), item.getName());
+            });
+        }
+        //非默认环境
+        List<TestPlanApiCasePageResponse> collectEnv = apiCaseList.stream().filter(item -> !StringUtils.equalsIgnoreCase(ModuleConstants.ROOT_NODE_PARENT_ID, item.getCollectEnvironmentId())).toList();
+        if (CollectionUtils.isNotEmpty(collectEnv)) {
+            List<String> collectEnvIds = collectEnv.stream().map(TestPlanApiCasePageResponse::getCollectEnvironmentId).distinct().toList();
+            Map<String, List<TestPlanApiCasePageResponse>> collectEnvMap = collectEnv.stream().collect(Collectors.groupingBy(TestPlanApiCasePageResponse::getCollectEnvironmentId));
+            EnvironmentExample environmentExample = new EnvironmentExample();
+            environmentExample.createCriteria().andIdIn(collectEnvIds);
+            List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+            environments.forEach(item -> {
+                List<TestPlanApiCasePageResponse> list = collectEnvMap.get(item.getId());
+                list.forEach(response -> {
+                    envMap.put(response.getId(), item.getName());
+                });
+            });
+        }
+        return envMap;
+    }
+
+    private Map<String, String> getProject(List<TestPlanApiCasePageResponse> apiCaseList) {
+        List<String> projectIds = apiCaseList.stream().map(TestPlanApiCasePageResponse::getProjectId).toList();
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(projectIds);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        return projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+    }
 }

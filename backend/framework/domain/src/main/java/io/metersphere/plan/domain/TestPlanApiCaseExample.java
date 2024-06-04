@@ -783,6 +783,66 @@ public class TestPlanApiCaseExample {
             addCriterion("test_plan_collection_id not between", value1, value2, "testPlanCollectionId");
             return (Criteria) this;
         }
+
+        public Criteria andLastExecTimeIsNull() {
+            addCriterion("last_exec_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeIsNotNull() {
+            addCriterion("last_exec_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeEqualTo(Long value) {
+            addCriterion("last_exec_time =", value, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeNotEqualTo(Long value) {
+            addCriterion("last_exec_time <>", value, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeGreaterThan(Long value) {
+            addCriterion("last_exec_time >", value, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("last_exec_time >=", value, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeLessThan(Long value) {
+            addCriterion("last_exec_time <", value, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeLessThanOrEqualTo(Long value) {
+            addCriterion("last_exec_time <=", value, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeIn(List<Long> values) {
+            addCriterion("last_exec_time in", values, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeNotIn(List<Long> values) {
+            addCriterion("last_exec_time not in", values, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeBetween(Long value1, Long value2) {
+            addCriterion("last_exec_time between", value1, value2, "lastExecTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecTimeNotBetween(Long value1, Long value2) {
+            addCriterion("last_exec_time not between", value1, value2, "lastExecTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
