@@ -395,4 +395,128 @@
             </otherwise>
         </choose>
     </sql>
+
+
+    <select id="relateApiCaseList" resultType="io.metersphere.plan.dto.response.TestPlanApiCasePageResponse">
+        SELECT
+            t.id,
+            t.test_plan_collection_id,
+            atc.num,
+            atc.name,
+            atc.priority,
+            atc.project_id,
+            atc.api_definition_id,
+            atc.create_user,
+            t.create_time,
+            t.environment_id,
+            a.module_id,
+            a.path,
+            a.method,
+            a.protocol,
+            t.last_exec_result,
+            t.execute_user,
+            t.last_exec_time,
+            tpc.environment_id as collectEnvironmentId
+        FROM
+            api_test_case atc
+                INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        inner join test_plan_api_case t on atc.id = t.api_case_id
+        left join test_plan_collection tpc on tpc.id = t.test_plan_collection_id
+        WHERE atc.deleted =#{deleted}
+        and t.test_plan_id = #{request.testPlanId}
+     <include refid="queryApiCaseWhereCondition"/>
+    </select>
+
+
+    <sql id="queryApiCaseWhereCondition">
+        <if test="request.protocol != null and request.protocol!=''">
+            and a.protocol = #{request.protocol}
+        </if>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+            and atc.api_definition_id = #{request.apiDefinitionId}
+        </if>
+        <if test="request.keyword != null and request.keyword !=''">
+            and (
+            atc.name like concat('%', #{request.keyword},'%')
+            or atc.num like concat('%', #{request.keyword},'%')
+            or a.path like concat('%', #{request.keyword},'%')
+            or atc.tags like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and a.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <include refid="apiCaseFilters">
+            <property name="filter" value="request.filter"/>
+        </include>
+        <include refid="queryApiCaseVersionCondition">
+            <property name="versionTable" value="atc"/>
+        </include>
+    </sql>
+
+    <sql id="apiCaseFilters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'priority'">
+                            and atc.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='status'">
+                            and atc.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='caseStatus' or key=='case_status'">
+                            and atc.case_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='lastReportStatus'">
+                            and atc.last_report_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='createUser'">
+                            and atc.create_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+                        <when test="key=='updateUser'">
+                            and atc.update_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+                        <when test="key=='deleteUser'">
+                            and atc.delete_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <sql id="queryApiCaseVersionCondition">
+        <if test="request.versionId != null and request.versionId != ''">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId == null and request.versionId != '' and request.apiDefinitionId == null and request.apiDefinitionId == ''">
+            AND a.latest = 1
+        </if>
+    </sql>
 </mapper>

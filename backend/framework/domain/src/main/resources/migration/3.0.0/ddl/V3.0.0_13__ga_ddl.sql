@@ -31,6 +31,7 @@ ALTER TABLE test_plan_report_bug MODIFY `bug_case_count` BIGINT NOT NULL  DEFAUL
 -- 修改测试计划关联接口表字段
 ALTER TABLE test_plan_api_case DROP COLUMN num;
 ALTER TABLE test_plan_api_case ADD COLUMN test_plan_collection_id VARCHAR(50) NOT NULL COMMENT '测试计划集id';
+ALTER TABLE test_plan_api_case ADD COLUMN last_exec_time BIGINT COMMENT '最后执行时间';
 CREATE INDEX idx_test_plan_collection_id ON test_plan_api_case(test_plan_collection_id);
 CREATE INDEX idx_pos ON test_plan_api_case(pos);
 
@@ -39,6 +40,7 @@ ALTER TABLE test_plan_api_scenario DROP COLUMN num;
 ALTER TABLE test_plan_api_scenario ADD COLUMN test_plan_collection_id VARCHAR(50) NOT NULL COMMENT '测试计划集id';
 ALTER TABLE test_plan_api_scenario ADD COLUMN grouped BIT DEFAULT 0 COMMENT '是否为环境组';
 ALTER TABLE test_plan_api_scenario MODIFY COLUMN `environment_id` VARCHAR(50) COMMENT '所属环境或环境组id';
+ALTER TABLE test_plan_api_scenario ADD COLUMN last_exec_time BIGINT COMMENT '最后执行时间';
 CREATE INDEX idx_test_plan_collection_id ON test_plan_api_scenario(test_plan_collection_id);
 CREATE INDEX idx_pos ON test_plan_api_scenario(pos);
 

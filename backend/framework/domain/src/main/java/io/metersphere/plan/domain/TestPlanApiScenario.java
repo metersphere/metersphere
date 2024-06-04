@@ -57,6 +57,9 @@ public class TestPlanApiScenario implements Serializable {
     @Schema(description = "是否为环境组")
     private Boolean grouped;
 
+    @Schema(description = "最后执行时间")
+    private Long lastExecTime;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -71,7 +74,8 @@ public class TestPlanApiScenario implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
         testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
-        grouped("grouped", "grouped", "BIT", false);
+        grouped("grouped", "grouped", "BIT", false),
+        lastExecTime("last_exec_time", "lastExecTime", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
