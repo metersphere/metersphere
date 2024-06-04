@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -56,6 +57,7 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
@@ -140,23 +142,11 @@
       shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${
         props.isScenario ? RouteEnum.SHARE_REPORT_SCENARIO : RouteEnum.SHARE_REPORT_CASE
       }${shareId}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(shareLink.value).then(
-          () => {
-            Message.info(t('bugManagement.detail.shareTip'));
-          },
-          (e) => {
-            Message.error(e);
-          }
-        );
-      } else {
-        const input = document.createElement('input');
-        input.value = shareLink.value;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
+      if (isSupported) {
+        copy(shareLink.value);
         Message.info(t('bugManagement.detail.shareTip'));
+      } else {
+        Message.error(t('common.copyNotSupport'));
       }
     } catch (error) {
       // eslint-disable-next-line no-console
