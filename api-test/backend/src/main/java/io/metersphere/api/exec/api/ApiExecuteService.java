@@ -192,9 +192,6 @@ public class ApiExecuteService {
         threadGroup.setName(request.getId());
         threadGroup.setHashTree(new LinkedList<>());
         testPlan.getHashTree().add(threadGroup);
-        testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
-            this.add(request.getProjectId());
-        }}, new BooleanPool()).keySet().stream().toList());
         threadGroup.getHashTree().add(request);
         ParameterConfig config = new ParameterConfig(request.getProjectId(), true);
         config.setCurrentProjectId(request.getProjectId());

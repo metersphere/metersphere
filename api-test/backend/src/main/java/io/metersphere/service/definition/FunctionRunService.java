@@ -4,6 +4,7 @@ package io.metersphere.service.definition;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
@@ -13,6 +14,7 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.vo.BooleanPool;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author lyh
@@ -45,6 +48,8 @@ public class FunctionRunService {
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(),
                     request.getId(), ApiRunMode.DEBUG.name(), hashTree);
             runRequest.setDebug(true);
+            
+            runRequest.setCustomJarInfo(NewDriverManager.getJars(List.of(request.getProjectId()), new BooleanPool()));
             if (StringUtils.isNotEmpty(runModeConfigDTO.getResourcePoolId())) {
                 runRequest.setPool(GenerateHashTreeUtil.isResourcePool(runModeConfigDTO.getResourcePoolId()));
                 runRequest.setPoolId(runModeConfigDTO.getResourcePoolId());
