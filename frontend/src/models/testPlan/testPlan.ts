@@ -236,4 +236,43 @@ export interface ExecuteHistoryItem {
   deleted: boolean;
 }
 
+// TODO: 联调
+export interface PlanDetailApiCaseItem {
+  id: string;
+  num: string;
+  name: string;
+  moduleId: string;
+  versionName: string;
+  createUser: string;
+  createUserName: string;
+  lastExecResult: LastExecuteResults;
+  lastExecTime: number;
+  executeUser: string;
+  executeUserName: string;
+  bugCount: number;
+  customFields: customFieldsItem[]; // 自定义字段集合
+  caseId: string;
+  testPlanId: string;
+  lastExecResultReportId: string;
+}
+
+// TODO: 联调
+export interface PlanDetailApiScenarioItem {
+  id: string;
+  num: string;
+  name: string;
+  moduleId: string;
+  versionName: string;
+  createUser: string;
+  createUserName: string;
+  lastExecResult: LastExecuteResults;
+  lastExecTime: number;
+  executeUser: string;
+  executeUserName: string;
+  bugCount: number;
+  customFields: customFieldsItem[]; // 自定义字段集合
+  caseId: string;
+  testPlanId: string;
+  lastExecResultReportId: string;
+}
 export default {};

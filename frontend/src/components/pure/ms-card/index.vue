@@ -98,6 +98,7 @@
         specialHeight: number; // 特殊高度，例如某些页面有面包屑，autoHeight 时无效
         hideBack: boolean; // 隐藏返回按钮
         autoHeight: boolean; // 内容区域高度是否自适应
+        autoWidth: boolean; // 内容区域宽度是否自适应
         otherWidth: number; // 该宽度为卡片外部同级容器的宽度
         headerMinWidth: number; // 卡片头部最小宽度
         minWidth: number; // 卡片内容最小宽度
@@ -121,6 +122,7 @@
       specialHeight: 0,
       hideBack: false,
       autoHeight: false,
+      autoWidth: false,
       hasBreadcrumb: false,
       noContentPadding: false,
       noBottomRadius: false,
@@ -180,11 +182,12 @@
         height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
       };
     }
+    const width = props.otherWidth
+      ? `calc(100vw - ${menuWidth.value}px - ${props.otherWidth}px)`
+      : `calc(100vw - ${menuWidth.value}px - 58px)`;
     return {
       overflow: 'auto',
-      width: props.otherWidth
-        ? `calc(100vw - ${menuWidth.value}px - ${props.otherWidth}px)`
-        : `calc(100vw - ${menuWidth.value}px - 58px)`,
+      width: props.autoWidth ? 'auto' : width,
       height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
     };
   });

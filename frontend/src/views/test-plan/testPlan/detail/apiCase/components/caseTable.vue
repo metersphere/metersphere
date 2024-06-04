@@ -39,6 +39,7 @@
           type="icon-icon_take-action_outlined"
           class="ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]"
           size="16"
+          @click="showReport(record)"
         />
       </template>
       <template #status="{ record }">
@@ -78,6 +79,7 @@
         </MsButton>
       </template>
     </MsBaseTable>
+    <ReportDrawer v-model:visible="reportVisible" :report-id="reportId" />
   </div>
 </template>
 
@@ -99,12 +101,13 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import {
     associationCaseToPlan,
     batchDisassociateCase,
     disassociateCase,
-    getPlanDetailFeatureCaseList,
+    getPlanDetailApiCaseList,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -115,7 +118,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailFeatureCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type { PlanDetailApiCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -266,7 +269,7 @@
     },
   ]);
 
-  const tableProps = ref<Partial<MsTableProps<PlanDetailFeatureCaseItem>>>({
+  const tableProps = ref<Partial<MsTableProps<PlanDetailApiCaseItem>>>({
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_API_CASE,
     showSetting: true,
@@ -278,8 +281,7 @@
   });
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    // TODO 联调
-    getPlanDetailFeatureCaseList,
+    getPlanDetailApiCaseList,
     tableProps.value,
     (record) => {
       return {
@@ -393,6 +395,14 @@
     });
   }
 
+  // 显示执行报告
+  const reportVisible = ref(false);
+  const reportId = ref('');
+  function showReport(record: PlanDetailApiCaseItem) {
+    reportVisible.value = true;
+    reportId.value = record.lastExecResultReportId; // TODO 联调
+  }
+
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
   const batchParams = ref<BatchActionQueryParams>({
     selectIds: [],
@@ -425,7 +435,7 @@
   }
 
   // 复制用例
-  async function handleCopyCase(record: PlanDetailFeatureCaseItem) {
+  async function handleCopyCase(record: PlanDetailApiCaseItem) {
     try {
       // TODO 联调
       await associationCaseToPlan({
@@ -443,7 +453,7 @@
 
   // 取消关联
   const disassociateLoading = ref(false);
-  async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
+  async function handleDisassociateCase(record: PlanDetailApiCaseItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
       // TODO 联调

@@ -16,14 +16,12 @@
 </template>
 
 <script setup lang="ts">
-  import { useRouter } from 'vue-router';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import useAppStore from '@/store/modules/app';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
 
   import type { PlanDetailBugItem } from '@/models/testPlan/testPlan';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
@@ -33,8 +31,7 @@
     bugItem: PlanDetailBugItem;
   }>();
 
-  const router = useRouter();
-  const appStore = useAppStore();
+  const { openNewPage } = useOpenNewPage();
 
   const columns: MsTableColumn = [
     {
@@ -68,11 +65,9 @@
   }
 
   function goCaseDetail(id: string) {
-    window.open(
-      `${window.location.origin}#${
-        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
-      }?id=${id}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
-    );
+    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
+      id,
+    });
   }
 </script>
 
