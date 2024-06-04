@@ -426,6 +426,13 @@
         and t.test_plan_id = #{request.testPlanId}
      <include refid="queryApiCaseWhereCondition"/>
     </select>
+    <select id="selectByTestPlanIdAndNotDeleted" resultType="io.metersphere.plan.domain.TestPlanApiCase">
+        SELECT t.*
+        FROM test_plan_api_case t
+                 INNER JOIN api_test_case atc ON t.api_case_id = atc.id
+        WHERE t.test_plan_id = #{0}
+          AND atc.deleted = false
+    </select>
 
 
     <sql id="queryApiCaseWhereCondition">

@@ -72,18 +72,15 @@ public class TestPlanBaseUtilsService {
         }
     }
 
-
     /**
      * 关联用例
      *
      * @param request
-     * @return
      */
     public void association(TestPlanAssociationRequest request, String operator) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         handleAssociateCase(request, operator, testPlan);
     }
-
 
     /**
      * 处理关联的用例

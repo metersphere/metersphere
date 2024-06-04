@@ -75,4 +75,11 @@
           AND api_scenario.deleted = false
         group by last_exec_result
     </select>
+    <select id="selectByTestPlanIdAndNotDeleted" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+        SELECT t.*
+        FROM test_plan_api_scenario t
+                 INNER JOIN api_scenario a ON t.api_scenario_id = a.id
+        WHERE t.test_plan_id = #{0}
+          AND a.deleted = false
+    </select>
 </mapper>

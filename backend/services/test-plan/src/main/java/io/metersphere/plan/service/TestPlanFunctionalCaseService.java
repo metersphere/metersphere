@@ -112,15 +112,38 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private ExtUserMapper extUserMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
+    public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
+        List<TestPlanFunctionalCase> copyList = new ArrayList<>();
+        extTestPlanFunctionalCaseMapper.selectByTestPlanIdAndNotDeleted(originalTestPlanId).forEach(originalCase -> {
+            TestPlanFunctionalCase newCase = new TestPlanFunctionalCase();
+            BeanUtils.copyBean(newCase, originalCase);
+            newCase.setId(IDGenerator.nextStr());
+            newCase.setTestPlanId(newTestPlanId);
+            newCase.setCreateTime(operatorTime);
+            newCase.setCreateUser(operator);
+            newCase.setLastExecTime(0L);
+            newCase.setLastExecResult(null);
+            copyList.add(newCase);
+        });
 
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanFunctionalCaseMapper batchInsertMapper = sqlSession.getMapper(TestPlanFunctionalCaseMapper.class);
+        copyList.forEach(item -> batchInsertMapper.insert(item));
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        return copyList.size();
+    }
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
-        TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
-        testPlanFunctionalCaseExample.createCriteria().andTestPlanIdIn(testPlanIdList);
-        testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
-        // todo:song.tianyang 删除执行历史
+        if (CollectionUtils.isNotEmpty(testPlanIdList)) {
+            TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+            testPlanFunctionalCaseExample.createCriteria().andTestPlanIdIn(testPlanIdList);
+            testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
 
-        testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
+            TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
+            testPlanCaseExecuteHistoryExample.createCriteria().andTestPlanIdIn(testPlanIdList);
+            testPlanCaseExecuteHistoryMapper.deleteByExample(testPlanCaseExecuteHistoryExample);
+        }
     }
 
 
@@ -164,13 +187,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         extTestPlanCaseExecuteHistoryMapper.updateDeleted(associationParam.getResourceIdList(), true);
     }
 
-    public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
+    public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getMoveId());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         if (dragNode == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
-        TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
+        TestPlanOperationResponse response = new TestPlanOperationResponse();
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 request.getTestPlanId(),
                 super.getNodeMoveRequest(request, true),
@@ -178,7 +201,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 extTestPlanFunctionalCaseMapper::selectNodeByPosOperator
         );
         super.sort(sortDTO);
-        response.setSortNodeNum(1);
+        response.setOperationCount(1);
         testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
         return response;
     }
