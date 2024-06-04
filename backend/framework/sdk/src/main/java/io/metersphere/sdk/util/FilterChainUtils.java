@@ -12,7 +12,9 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/ldap/login", "anon");
         filterChainDefinitionMap.put("/authentication/get-list", "anon");
         filterChainDefinitionMap.put("/we_com/info", "anon");
+        filterChainDefinitionMap.put("/ding_talk/info", "anon");
         filterChainDefinitionMap.put("/sso/callback/we_com", "anon");
+        filterChainDefinitionMap.put("/auth", "anon");
         filterChainDefinitionMap.put("/setting/get/platform/param", "anon");
         filterChainDefinitionMap.put("/signout", "anon");
         filterChainDefinitionMap.put("/is-login", "anon");

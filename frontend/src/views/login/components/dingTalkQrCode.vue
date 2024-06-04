@@ -3,16 +3,32 @@
 </template>
 
 <script lang="ts" setup>
+  import { useRouter } from 'vue-router';
   import { useScriptTag } from '@vueuse/core';
+  import { Message } from '@arco-design/web-vue';
+
+  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
+  import { getDingCallback, getDingInfo } from '@/api/modules/user';
+  import { useI18n } from '@/hooks/useI18n';
+  import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
+  import { useAppStore, useUserStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
+  import { setLoginExpires } from '@/utils/auth';
+  import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
+
+  const { t } = useI18n();
+
+  const userStore = useUserStore();
+  const appStore = useAppStore();
+  const licenseStore = useLicenseStore();
+  const router = useRouter();
 
   const { load } = useScriptTag('https://g.alicdn.com/dingding/h5-dingtalk-login/0.21.0/ddlogin.js');
 
-  const a = encodeURIComponent('https://s0my5tnf41e2.ngrok.xiaomiqiu123.top/');
-
-  const url = `https://login.dingtalk.com/oauth2/auth?redirect_uri=${a}&response_type=code&client_id=dinglsfxhodjquu4gq2x&scope=openid&state=dddd&prompt=consent`;
-
   const initActive = async () => {
+    const data = await getDingInfo();
     await load(true);
+    const url = encodeURIComponent(data.callBack ? data.callBack : '');
     window.DTFrameLogin(
       {
         id: 'ding-talk-qr',
@@ -20,17 +36,42 @@
         height: 300,
       },
       {
-        redirect_uri: a,
-        client_id: 'dinglsfxhodjquu4gq2x',
+        redirect_uri: url,
+        client_id: data.agentId ? data.agentId : '',
         scope: 'openid',
         response_type: 'code',
-        state: 'xxxxxxxxx',
+        state: 'fit2cloud-ding-qr',
         prompt: 'consent',
       },
-      (loginResult) => {
+      async (loginResult) => {
         const { redirectUrl, authCode, state } = loginResult;
-        // 这里可以直接进行重定向
-        window.location.href = redirectUrl;
+        const dingCallback = getDingCallback(authCode);
+        userStore.qrCodeLogin(await dingCallback);
+        Message.success(t('login.form.login.success'));
+        const { redirect, ...othersQuery } = router.currentRoute.value.query;
+        const redirectHasPermission =
+          redirect &&
+          ![NO_RESOURCE_ROUTE_NAME, NO_PROJECT_ROUTE_NAME].includes(redirect as string) &&
+          routerNameHasPermission(redirect as string, router.getRoutes());
+        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+        const [res] = await Promise.all([getProjectInfo(appStore.currentProjectId), licenseStore.getValidateLicense()]); // 登录前校验 license 避免进入页面后无license状态
+        if (!res || res.deleted) {
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+        }
+        if (res) {
+          appStore.setCurrentMenuConfig(res?.moduleIds || []);
+        }
+        setLoginExpires();
+        router.push({
+          name: redirectHasPermission ? (redirect as string) : currentRouteName,
+          query: {
+            ...othersQuery,
+            orgId: appStore.currentOrgId,
+            pId: appStore.currentProjectId,
+          },
+        });
         // 也可以在不跳转页面的情况下，使用code进行授权
         console.log(authCode);
       },

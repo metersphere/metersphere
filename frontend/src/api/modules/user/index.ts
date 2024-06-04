@@ -7,8 +7,10 @@ import {
   DisableLocalConfigUrl,
   EnableAPIKEYUrl,
   EnableLocalConfigUrl,
+  GeDingInfoUrl,
   GetAPIKEYListUrl,
   getAuthenticationUrl,
+  GetDingCallbackUrl,
   GetInfoUrl,
   GetLocalConfigUrl,
   GetMenuListUrl,
@@ -46,7 +48,7 @@ import type {
   UpdateLocalConfigParams,
   UpdatePswParams,
 } from '@/models/user';
-import { WecomInfo } from '@/models/user';
+import { DingInfo, WecomInfo } from '@/models/user';
 
 import type { RouteRecordNormalized } from 'vue-router';
 
@@ -83,6 +85,16 @@ export function getWeComCallback(code: string) {
   );
 }
 
+export function getDingInfo() {
+  return MSR.get<DingInfo>({ url: GeDingInfoUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+
+export function getDingCallback(code: string) {
+  return MSR.get<LoginRes>(
+    { url: GetDingCallbackUrl, params: { code } },
+    { ignoreCancelToken: true, errorMessageMode: 'none' }
+  );
+}
 export function logout() {
   return MSR.get<LoginRes>({ url: LogoutUrl });
 }
