@@ -8,10 +8,7 @@ import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.KafkaTopicConstants;
-import io.metersphere.sdk.constants.TaskCenterResourceType;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.result.ProcessResultDTO;
 import io.metersphere.sdk.dto.api.result.TaskResultDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -36,6 +33,7 @@ import io.metersphere.system.service.TestResourcePoolService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -368,4 +366,37 @@ public class ApiTaskCenterService {
         request.setModuleType(moduleType);
         stopApiTask(request, null, userId, path, HttpMethodConstants.GET.name(), module);
     }
+
+
+    public void hasPermission(String type, String moduleType, String orgId, String projectId) {
+        Map<String, List<String>> orgPermission = Map.of(
+                TaskCenterResourceType.API_CASE.name(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE),
+                TaskCenterResourceType.API_SCENARIO.name(), List.of(PermissionConstants.ORGANIZATION_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+        );
+
+        Map<String, List<String>> projectPermission = Map.of(
+                TaskCenterResourceType.API_CASE.name(), List.of(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE),
+                TaskCenterResourceType.API_SCENARIO.name(), List.of(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+        );
+
+        Map<String, List<String>> systemPermission = Map.of(
+                TaskCenterResourceType.API_CASE.name(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE),
+                TaskCenterResourceType.API_SCENARIO.name(), List.of(PermissionConstants.SYSTEM_TASK_CENTER_READ_STOP, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+        );
+
+        boolean hasPermission = switch (type) {
+            case "org" ->
+                    orgPermission.get(moduleType).stream().anyMatch(item -> SessionUtils.hasPermission(orgId, projectId, item));
+            case "project" ->
+                    projectPermission.get(moduleType).stream().anyMatch(item -> SessionUtils.hasPermission(orgId, projectId, item));
+            case "system" ->
+                    systemPermission.get(moduleType).stream().anyMatch(item -> SessionUtils.hasPermission(orgId, projectId, item));
+            default -> false;
+        };
+
+        if (!hasPermission) {
+            throw new MSException(Translator.get("no_permission_to_resource"));
+        }
+    }
+
 }
