@@ -88,7 +88,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * 创建测试计划
      */
     public TestPlan add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
-        TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator, null);
+        TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator);
         // 保存规划节点及配置
         saveAllocation(testPlanCreateRequest.getAllocationRequest(), operator, testPlan.getId());
         testPlanLogService.saveAddLog(testPlan, operator, requestUrl, requestMethod);
@@ -101,9 +101,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      *
      * @param createOrCopyRequest
      * @param operator
-     * @param id                  复制的计划/计划组id 判断新增还是复制
      */
-    private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator, String id) {
+    private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator) {
         //检查模块的合法性
         checkModule(createOrCopyRequest.getModuleId());
         TestPlan createTestPlan = new TestPlan();
@@ -125,12 +124,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanConfig.setRepeatCase(createOrCopyRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(createOrCopyRequest.getPassThreshold());
 
-        if (StringUtils.isBlank(id)) {
-            handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
-        } else {
-            //复制
-            handleCopy(createTestPlan, id);
-        }
+        handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
 
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insert(testPlanConfig);
@@ -507,43 +501,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         }
     }
 
-
-    /**
-     * 处理复制
-     *
-     * @param testPlan
-     * @param id
-     */
-    private void handleCopy(TestPlan testPlan, String id) {
-        if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            //计划组
-            TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andGroupIdEqualTo(id);
-            List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
-            if (CollectionUtils.isEmpty(testPlans)) {
-                return;
-            }
-            List<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
-            doHandleAssociateCase(ids, testPlan);
-        } else {
-            //计划
-            doHandleAssociateCase(Arrays.asList(id), testPlan);
-        }
-
-    }
-
-    /**
-     * 处理复制 关联用例数据
-     *
-     * @param ids
-     */
-    private void doHandleAssociateCase(List<String> ids, TestPlan testPlan) {
-        testPlanCaseService.saveTestPlanByPlanId(ids, testPlan);
-        //TODO 复制关联接口用例/接口场景用例
-
-    }
-
-
     /**
      * 获取单个测试计划或测试计划组详情（用于编辑）
      *
@@ -633,7 +590,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             List<TestPlan> copyTestPlanList = testPlanMapper.selectByExample(example);
 
             //批量复制时，不允许存在测试计划组下的测试计划。
-            copyTestPlanList = copyTestPlanList.stream().filter(item -> !StringUtils.equalsIgnoreCase(item.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
+            copyTestPlanList = copyTestPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
                     .collect(Collectors.toList());
             //日志
             if (CollectionUtils.isNotEmpty(copyTestPlanList)) {
