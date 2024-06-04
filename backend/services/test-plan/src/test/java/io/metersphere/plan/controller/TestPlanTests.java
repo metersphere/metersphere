@@ -1324,6 +1324,49 @@ public class TestPlanTests extends BaseTest {
 
     }
 
+    @Test
+    @Order(81)
+    public void copyTestPlan() throws Exception {
+        BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-b1");
+
+        // 批量赋值测试计划组下的测试计划（其实不复制）
+        TestPlanBatchRequest request = new TestPlanBatchRequest();
+        request.setProjectId(project.getId());
+        request.setTargetId(a1b1Node.getId());
+        request.setSelectIds(Collections.singletonList(simpleTestPlan.getId()));
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andNameLike("copy_" + simpleTestPlan.getName() + "%");
+        TestPlan copyTestPlan = testPlanMapper.selectByExample(testPlanExample).getFirst();
+        Assertions.assertTrue(copyTestPlan != null);
+        //删除
+        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, copyTestPlan.getId())).andExpect(status().isOk());
+
+        //测试复制测试计划组下的测试计划
+        List<TestPlanResponse> childs = this.selectByGroupId(groupTestPlanId7);
+        TestPlanResponse firstChild = childs.getFirst();
+        request.setSelectIds(Collections.singletonList(firstChild.getId()));
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
+        copyTestPlan = testPlanTestService.selectTestPlanByName("copy_" + firstChild.getName());
+        Assertions.assertTrue(copyTestPlan == null);
+
+        //批量赋值测试计划组
+        TestPlan testPlanGroup7 = testPlanMapper.selectByPrimaryKey(groupTestPlanId7);
+
+        request.setSelectIds(Collections.singletonList(groupTestPlanId7));
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
+        testPlanExample.clear();
+        testPlanExample.createCriteria().andNameLike("copy_" + testPlanGroup7.getName() + "%").andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+        TestPlan copyGroup = testPlanMapper.selectByExample(testPlanExample).getFirst();
+        Assertions.assertTrue(copyGroup != null);
+        List<TestPlanResponse> copyChild = this.selectByGroupId(copyGroup.getId());
+        childs = childs.stream().filter(item -> !StringUtils.equalsIgnoreCase(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)).collect(Collectors.toList());
+        Assertions.assertTrue(copyChild.size() == childs.size());
+
+        //删除
+        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, copyGroup.getId())).andExpect(status().isOk());
+
+    }
 
     @Test
     @Order(91)
@@ -2018,20 +2061,6 @@ public class TestPlanTests extends BaseTest {
         ResultHolder holder2 = JSON.parseObject(returnStr2, ResultHolder.class);
         String returnId2 = holder2.getData().toString();
         Assertions.assertNotNull(returnId2);
-
-    }
-
-
-    @Test
-    @Order(304)
-    public void testBatchCopy() throws Exception {
-        TestPlanBatchRequest request = new TestPlanBatchRequest();
-        request.setProjectId("songtianyang-fix-wx");
-        request.setType("ALL");
-        request.setTargetId("2");
-        request.setSelectIds(Arrays.asList("wx_test_plan_id_1", "wx_test_plan_id_2"));
-
-        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
 
     }
 
