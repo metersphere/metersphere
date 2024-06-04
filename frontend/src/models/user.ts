@@ -21,6 +21,13 @@ export interface WecomInfo {
   callBack?: string;
 }
 
+// 企业微信对接信息
+export interface DingInfo {
+  agentId?: string;
+  state?: string;
+  callBack?: string;
+}
+
 // 更新本地执行配置
 export interface UpdateLocalConfigParams {
   id: string;

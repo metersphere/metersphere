@@ -29,3 +29,5 @@ export const GetPlatformOrgOptionUrl = '/user/platform/switch-option'; // 个人
 export const GetWeComInfoUrl = '/we_com/info'; // 获取企业微信登陆的配置信息
 export const GetWeComCallbackUrl = '/sso/callback/we_com'; // 获取企业微信登陆的回调信息
 export const GetPlatformParamUrl = '/setting/get/platform/param';
+export const GeDingInfoUrl = '/ding_talk/info'; // 获取企业微信登陆的配置信息
+export const GetDingCallbackUrl = '/auth'; // 获取企业微信登陆的回调信息

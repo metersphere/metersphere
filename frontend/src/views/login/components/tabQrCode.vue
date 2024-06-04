@@ -1,10 +1,10 @@
 <template>
-  <a-tabs v-model:active-key="activeName" class="tabPlatform" @change="handleClick">
-    <a-tab-pane key="wecom" :title="t('project.messageManagement.WE_COM')" class="font-[16px]"></a-tab-pane>
-    <a-tab-pane key="dingtalk" :title="t('project.messageManagement.DING_TALK')" class="font-[16px]"></a-tab-pane>
+  <a-radio-group v-model:active-key="activeName" type="button" class="tabPlatform" @change="handleClick">
+    <a-radio value="wecom">{{ t('project.messageManagement.WE_COM') }}</a-radio>
+    <a-radio value="dingtalk">{{ t('project.messageManagement.DING_TALK') }}</a-radio>
     <!--    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
     <a-tab-pane key="larksuite" :title="t('project.messageManagement.LARK_SUITE')"></a-tab-pane>-->
-  </a-tabs>
+  </a-radio-group>
   <div v-if="activeName === 'wecom'" class="login-qrcode">
     <div class="qrcode">
       <wecom-qr v-if="activeName === 'wecom'" />
@@ -56,7 +56,7 @@
       }
     }
   };
-  function handleClick(val: string | number) {
+  function handleClick(val: string | number | boolean) {
     if (typeof val === 'string') {
       activeName.value = val;
     }
@@ -84,6 +84,7 @@
       overflow: hidden;
       border-radius: 8px;
       background: #ffffff;
+      flex-direction: column;
     }
     .title {
       display: flex;
