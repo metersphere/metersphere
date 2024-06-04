@@ -449,6 +449,12 @@
                 #{nodeId}
             </foreach>
         </if>
+        <if test="request.collectionIds != null and request.collectionIds.size() > 0">
+            and t.test_plan_collection_id in
+            <foreach collection="request.collectionIds" item="collectionId" separator="," open="(" close=")">
+                #{collectionId}
+            </foreach>
+        </if>
         <include refid="apiCaseFilters">
             <property name="filter" value="request.filter"/>
         </include>
@@ -519,4 +525,35 @@
             AND a.latest = 1
         </if>
     </sql>
+
+    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT a.module_id AS moduleId, count(atc.id) AS dataCount, atc.project_id AS projectId, project.name AS projectName
+        FROM test_plan_api_case t
+        INNER JOIN api_test_case atc ON t.api_case_id = atc.id
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        INNER JOIN project ON atc.project_id = project.id
+        WHERE t.test_plan_id = #{request.testPlanId}
+        AND atc.deleted = #{deleted}
+        <include refid="queryApiCaseWhereCondition"/>
+        GROUP BY module_id
+    </select>
+
+    <select id="selectIdByProjectIdAndTestPlanId" resultType="java.lang.String">
+        SELECT adm.id, adm.project_id
+        FROM api_definition_module adm
+        WHERE adm.id IN (
+            SELECT ad.module_id FROM api_definition ad LEFT JOIN api_test_case atc on atc.api_definition_id = ad.id LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id WHERE tpac.test_plan_id = #{testPlanId} AND atc.deleted = false and atc.project_id = #{projectId}
+            )
+    </select>
+
+    <select id="caseCount"
+            resultType="java.lang.Long">
+        SELECT count(atc.id)
+        FROM test_plan_api_case t
+        LEFT JOIN api_test_case atc ON t.api_case_id = atc.id
+        LEFT JOIN api_definition a on atc.api_definition_id = a.id
+        WHERE t.test_plan_id = #{request.testPlanId}
+        AND atc.deleted = #{deleted}
+        <include refid="queryApiCaseWhereCondition"/>
+    </select>
 </mapper>

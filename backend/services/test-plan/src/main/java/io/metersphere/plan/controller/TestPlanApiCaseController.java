@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "测试计划接口用例")
 @RestController
@@ -40,4 +41,14 @@ public class TestPlanApiCaseController {
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "create_time desc");
         return PageUtils.setPageInfo(page, testPlanApiCaseService.HasRelateApiCaseList(request, false));
     }
+
+
+    @PostMapping("/module/count")
+    @Operation(summary = "测试计划-已关联功能用例模块数量")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanApiCaseRequest request) {
+        return testPlanApiCaseService.moduleCount(request);
+    }
+
 }

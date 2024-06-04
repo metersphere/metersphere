@@ -20,6 +20,7 @@ import java.util.HashMap;
 public class TestPlanApiCaseControllerTests extends BaseTest {
 
     public static final String API_CASE_PAGE = "/test-plan/api/case/page";
+    public static final String API_CASE_TREE_COUNT = "/test-plan/api/case/module/count";
 
     @Test
     @Order(1)
@@ -36,6 +37,22 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
             put("createTime", "desc");
         }});
         MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_PAGE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(2)
+    public void testApiCaseCount() throws Exception {
+        TestPlanApiCaseRequest request = new TestPlanApiCaseRequest();
+        request.setTestPlanId("wxxx_1");
+        request.setProjectId("wxx_1234");
+        request.setProtocol("HTTP");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_TREE_COUNT, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
