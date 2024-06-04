@@ -809,6 +809,7 @@
             cf.name = 'functional_priority'
           AND cf.scene = 'FUNCTIONAL'
           AND cf.internal= true
+        order by fc.pos
     </select>
 
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">

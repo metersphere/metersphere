@@ -8,6 +8,7 @@ import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
+import io.metersphere.functional.mapper.MindAdditionalNodeMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -45,13 +46,14 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     public static final String FUNCTIONAL_CASE_PLAN_LIST_URL = "/functional/mind/case/plan/list";
 
 
-
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private FunctionalCaseModuleMapper functionalCaseModuleMapper;
+    @Resource
+    private MindAdditionalNodeMapper mindAdditionalNodeMapper;
 
     @Test
     @Order(1)
@@ -66,8 +68,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
-       mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-       contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
@@ -144,8 +146,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
-        Assertions.assertEquals(2, baseTreeNodes.size());
-
+        Assertions.assertEquals(3, baseTreeNodes.size());
     }
 
     @Test
@@ -208,6 +209,20 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseModuleEditRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
         functionalCaseModuleEditRequests.add(functionalCaseModuleEditRequest);
         request.setUpdateModuleList(functionalCaseModuleEditRequests);
+        List<MindAdditionalNodeRequest> additionalNodeList = new ArrayList<>();
+        MindAdditionalNodeRequest mindAdditionalNodeRequest = new MindAdditionalNodeRequest();
+        mindAdditionalNodeRequest.setId("weyyg");
+        mindAdditionalNodeRequest.setType("ADD");
+        mindAdditionalNodeRequest.setName("新增空白");
+        mindAdditionalNodeRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
+        additionalNodeList.add(mindAdditionalNodeRequest);
+        mindAdditionalNodeRequest = new MindAdditionalNodeRequest();
+        mindAdditionalNodeRequest.setId("additional2");
+        mindAdditionalNodeRequest.setType("UPDATE");
+        mindAdditionalNodeRequest.setName("additional2");
+        mindAdditionalNodeRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
+        additionalNodeList.add(mindAdditionalNodeRequest);
+        request.setAdditionalNodeList(additionalNodeList);
         List<MinderOptionDTO> deleteResourceList = new ArrayList<>();
         MinderOptionDTO minderOptionDTO = new MinderOptionDTO();
         minderOptionDTO.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_9");
@@ -217,18 +232,24 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         minderOptionDTO.setId("TEST_MINDER_MODULE_ID_GYQ9");
         minderOptionDTO.setType(Translator.get("minder_extra_node.module"));
         deleteResourceList.add(minderOptionDTO);
+        minderOptionDTO = new MinderOptionDTO();
+        minderOptionDTO.setId("additional1");
+        minderOptionDTO.setType("NONE");
+        deleteResourceList.add(minderOptionDTO);
         request.setDeleteResourceList(deleteResourceList);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_EDIT_URL, request);
+        MindAdditionalNode mindAdditionalNode = mindAdditionalNodeMapper.selectByPrimaryKey("additional2");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(mindAdditionalNode.getParentId(),"TEST_MINDER_MODULE_ID_GYQ"));
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andNameEqualTo("新增用例");
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
-        Assertions.assertTrue(functionalCases.get(0).getPos()>0L);
+        Assertions.assertTrue(functionalCases.get(0).getPos() > 0L);
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
         functionalCaseModuleExample.createCriteria().andNameEqualTo("新增9");
         List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCaseModules));
-        Assertions.assertTrue(functionalCaseModules.get(0).getPos()>0L);
+        Assertions.assertTrue(functionalCaseModules.get(0).getPos() > 0L);
         request = new FunctionalCaseMinderEditRequest();
         request.setProjectId("project-case-minder-test");
         request.setVersionId("ffff");
