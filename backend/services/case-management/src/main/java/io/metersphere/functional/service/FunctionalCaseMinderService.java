@@ -930,21 +930,19 @@ public class FunctionalCaseMinderService {
 
     private List<FunctionalCaseCustomField> addCustomFields(FunctionalCaseChangeRequest functionalCaseChangeRequest, String caseId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper, Map<String, Object> defaultValueMap) {
         List<CaseCustomFieldDTO> customFields = functionalCaseChangeRequest.getCustomFields();
-        List<FunctionalCaseCustomField> caseCustomFields;
-        if (CollectionUtils.isNotEmpty(customFields)) {
-            customFields = customFields.stream().distinct().collect(Collectors.toList());
-            caseCustomFields = saveCustomField(caseId, caseCustomFieldMapper, customFields);
-        } else {
-            List<CaseCustomFieldDTO> customFieldDTOs = new ArrayList<>();
-            defaultValueMap.forEach((k,v)->{
+        List<String> list = customFields.stream().map(CaseCustomFieldDTO::getFieldId).toList();
+        List<CaseCustomFieldDTO> customFieldDTOs = new ArrayList<>();
+        defaultValueMap.forEach((k, v) -> {
+            if (!list.contains(k)) {
                 CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
                 customFieldDTO.setFieldId(k);
                 customFieldDTO.setValue(v.toString());
                 customFieldDTOs.add(customFieldDTO);
-            });
-            caseCustomFields = saveCustomField(caseId, caseCustomFieldMapper, customFieldDTOs);
-        }
-        return caseCustomFields;
+            }
+        });
+        customFields.addAll(customFieldDTOs);
+        customFields = customFields.stream().distinct().collect(Collectors.toList());
+        return saveCustomField(caseId, caseCustomFieldMapper, customFields);
     }
 
     private List<FunctionalCaseCustomField> saveCustomField(String caseId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper, List<CaseCustomFieldDTO> customFields) {
