@@ -496,6 +496,14 @@
           AND functional_case.deleted = false
         group by last_exec_result
     </select>
+    <select id="selectByTestPlanIdAndNotDeleted"
+            resultType="io.metersphere.plan.domain.TestPlanFunctionalCase">
+        SELECT t.*
+        from test_plan_functional_case t
+                 INNER JOIN functional_case f ON t.functional_case_id = f.id
+        WHERE test_plan_id = #{0}
+          AND f.deleted = false
+    </select>
 
 
     <update id="batchUpdate">

@@ -1,14 +1,21 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,6 +52,30 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public Map<String, Long> caseExecResultCount(String testPlanId) {
         List<TestPlanCaseRunResultCount> runResultCounts = extTestPlanApiScenarioMapper.selectCaseExecResultCount(testPlanId);
         return runResultCounts.stream().collect(Collectors.toMap(TestPlanCaseRunResultCount::getResult, TestPlanCaseRunResultCount::getResultCount));
+    }
+
+    @Override
+    public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
+        List<TestPlanApiScenario> copyList = new ArrayList<>();
+        extTestPlanApiScenarioMapper.selectByTestPlanIdAndNotDeleted(originalTestPlanId).forEach(originalCase -> {
+            TestPlanApiScenario newCase = new TestPlanApiScenario();
+            BeanUtils.copyBean(newCase, originalCase);
+            newCase.setId(IDGenerator.nextStr());
+            newCase.setTestPlanId(newTestPlanId);
+            newCase.setCreateTime(operatorTime);
+            newCase.setCreateUser(operator);
+            newCase.setLastExecTime(0L);
+            newCase.setLastExecResult(null);
+            newCase.setLastExecReportId(null);
+            copyList.add(newCase);
+        });
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiScenarioMapper batchInsertMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
+        copyList.forEach(item -> batchInsertMapper.insert(item));
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        return copyList.size();
     }
 
     @Override

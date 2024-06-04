@@ -8,7 +8,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanAllocationTypeDTO;
 import io.metersphere.plan.dto.TestPlanCollectionInitDTO;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.enums.ExecuteMethod;
 import io.metersphere.plan.mapper.*;
@@ -128,7 +128,7 @@ public class TestPlanTests extends BaseTest {
 
     private static final String URL_TEST_PLAN_EDIT_FOLLOWER = "/test-plan/edit/follower";
     private static final String URL_TEST_PLAN_ARCHIVED = "/test-plan/archived/%s";
-    private static final String URL_TEST_PLAN_COPY = "/test-plan/copy";
+    private static final String URL_TEST_PLAN_COPY = "/test-plan/copy/%s";
     private static final String URL_TEST_PLAN_DETAIL = "/test-plan/%s";
     private static final String URL_TEST_PLAN_BATCH_COPY = "/test-plan/batch-copy";
     private static final String URL_TEST_PLAN_BATCH_MOVE = "/test-plan/batch-move";
@@ -137,6 +137,8 @@ public class TestPlanTests extends BaseTest {
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
+
+    private static List<String> rootPlanIds = new ArrayList<>();
 
     //普通测试计划
     private static TestPlan simpleTestPlan;
@@ -172,7 +174,6 @@ public class TestPlanTests extends BaseTest {
             testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
         }
     }
-
 
     private static long a1NodeCount = 0;
     private static long a2NodeCount = 0;
@@ -577,8 +578,6 @@ public class TestPlanTests extends BaseTest {
             } else if (i == 15) {
                 groupTestPlanId15 = returnId;
             } else if (i > 700 && i < 750) {
-
-
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
                 TestPlanReportMapper batchInsert = sqlSession.getMapper(TestPlanReportMapper.class);
                 // 701-749 要创建测试计划报告   每个测试计划创建250个报告
@@ -603,7 +602,9 @@ public class TestPlanTests extends BaseTest {
                 }
                 sqlSession.flushStatements();
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-
+                rootPlanIds.add(returnId);
+            } else {
+                rootPlanIds.add(returnId);
             }
 
             //操作日志检查
@@ -695,8 +696,9 @@ public class TestPlanTests extends BaseTest {
         request.setPassThreshold(100);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ADD, URL_POST_TEST_PLAN_ADD, request);
 
-
         this.checkTestPlanSortInGroup(groupTestPlanId7);
+        this.checkTestPlanMoveToGroup(groupTestPlanId7);
+        this.checkTestPlanGroupArchived(groupTestPlanId7);
     }
 
     private List<TestPlanResponse> selectByGroupId(String groupId) throws Exception {
@@ -720,7 +722,7 @@ public class TestPlanTests extends BaseTest {
         List<TestPlanResponse> lastTestPlanInGroup = defaultTestPlanInGroup;
         TestPlanResponse movePlan, targetPlan = null;
         PosRequest posRequest = null;
-        TestPlanResourceSortResponse response = null;
+        TestPlanOperationResponse response = null;
 
         // 第一个移动到最后一个
         movePlan = lastTestPlanInGroup.getFirst();
@@ -731,10 +733,10 @@ public class TestPlanTests extends BaseTest {
                         JSON.parseObject(
                                 this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
-                TestPlanResourceSortResponse.class);
+                TestPlanOperationResponse.class);
         //位置校验
         List<TestPlanResponse> newTestPlanInGroup = this.selectByGroupId(groupId);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
             int oldListIndex = newListIndex == newTestPlanInGroup.size() - 1 ? 0 : newListIndex + 1;
@@ -751,10 +753,10 @@ public class TestPlanTests extends BaseTest {
                         JSON.parseObject(
                                 this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
-                TestPlanResourceSortResponse.class);
+                TestPlanOperationResponse.class);
         //位置校验
         newTestPlanInGroup = this.selectByGroupId(groupId);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
             Assertions.assertEquals(newTestPlanInGroup.get(newListIndex).getId(), defaultTestPlanInGroup.get(newListIndex).getId());
@@ -770,10 +772,10 @@ public class TestPlanTests extends BaseTest {
                         JSON.parseObject(
                                 this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
-                TestPlanResourceSortResponse.class);
+                TestPlanOperationResponse.class);
         //位置校验
         newTestPlanInGroup = this.selectByGroupId(groupId);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
             int oldListIndex = newListIndex;
@@ -800,10 +802,10 @@ public class TestPlanTests extends BaseTest {
                         JSON.parseObject(
                                 this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_SORT, posRequest)
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
-                TestPlanResourceSortResponse.class);
+                TestPlanOperationResponse.class);
         //位置校验
         newTestPlanInGroup = this.selectByGroupId(groupId);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         Assertions.assertEquals(newTestPlanInGroup.size(), lastTestPlanInGroup.size());
         long lastPos = 0;
         for (int newListIndex = 0; newListIndex < newTestPlanInGroup.size(); newListIndex++) {
@@ -811,7 +813,64 @@ public class TestPlanTests extends BaseTest {
             Assertions.assertTrue(newTestPlanInGroup.get(newListIndex).getPos() == (lastPos + NodeSortUtils.DEFAULT_NODE_INTERVAL_POS));
             lastPos = newTestPlanInGroup.get(newListIndex).getPos();
         }
+
+        //测试权限
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_TEST_PLAN_SORT, posRequest);
     }
+
+    protected void checkTestPlanMoveToGroup(String groupId) throws Exception {
+        List<String> movePlanIds = rootPlanIds.subList(rootPlanIds.size() - 21, rootPlanIds.size() - 1);
+        TestPlanBatchRequest request = new TestPlanBatchRequest();
+        request.setProjectId(project.getId());
+        request.setSelectIds(movePlanIds);
+        request.setMoveType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+        request.setTargetId(groupId);
+
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
+        List<TestPlanResponse> groups = this.selectByGroupId(groupId);
+        List<String> checkList = new ArrayList<>(movePlanIds);
+        for (TestPlanResponse response : groups) {
+            checkList.remove(response.getId());
+        }
+        Assertions.assertTrue(CollectionUtils.isEmpty(checkList));
+
+        //移动出来
+        request.setTargetId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
+        List<TestPlanResponse> nextGroups = this.selectByGroupId(groupId);
+        groups.removeAll(nextGroups);
+        for (TestPlanResponse response : groups) {
+            movePlanIds.remove(response.getId());
+        }
+        Assertions.assertTrue(CollectionUtils.isEmpty(movePlanIds));
+
+        //权限
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_TEST_PLAN_BATCH_MOVE, request);
+    }
+
+    private void checkTestPlanGroupArchived(String groupId) throws Exception {
+        // 测试计划组内的测试计划不能归档
+        List<TestPlanResponse> testPlanResponseList = this.selectByGroupId(groupId);
+        TestPlanResponse cannotArchivedPlan = testPlanResponseList.getFirst();
+        testPlanMapper.updateByPrimaryKeySelective(new TestPlan() {{
+            this.setId(cannotArchivedPlan.getId());
+            this.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+        }});
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, cannotArchivedPlan.getId())).andExpect(status().is5xxServerError());
+
+        //归档测试组内的测试计划
+        for (TestPlanResponse testPlanResponse : testPlanResponseList) {
+            testPlanMapper.updateByPrimaryKeySelective(new TestPlan() {{
+                this.setId(testPlanResponse.getId());
+                this.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+            }});
+        }
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, groupId));
+    }
+
+
     @Test
     @Order(12)
     public void testPlanPageCountTest() throws Exception {
@@ -1200,8 +1259,8 @@ public class TestPlanTests extends BaseTest {
 
         MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        TestPlanOperationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
         Assertions.assertEquals(funcList.get(0).getId(), request.getMoveId());
         Assertions.assertEquals(funcList.get(1).getId(), request.getTargetId());
@@ -1215,8 +1274,8 @@ public class TestPlanTests extends BaseTest {
         request.setMoveMode(MoveTypeEnum.BEFORE.name());
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
         Assertions.assertEquals(funcList.get(0).getId(), request.getTargetId());
         Assertions.assertEquals(funcList.get(1).getId(), request.getMoveId());
@@ -1232,8 +1291,8 @@ public class TestPlanTests extends BaseTest {
         testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, 2);
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
-        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
-        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
         funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
         Assertions.assertEquals(funcList.get(0).getId(), request.getMoveId());
         Assertions.assertEquals(funcList.get(1).getId(), request.getTargetId());
@@ -1890,7 +1949,7 @@ public class TestPlanTests extends BaseTest {
     @Order(302)
     public void testArchived() throws Exception {
         //计划 -- 首先状态不是已完成
-        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1")).andExpect(status().is5xxServerError());
         //更改状态再归档
         TestPlan testPlan = new TestPlan();
         testPlan.setId("wx_test_plan_id_1");
@@ -1898,9 +1957,8 @@ public class TestPlanTests extends BaseTest {
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
 
-        //计划组
-        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2"));
-        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_3"));
+        //计划组没有可归档的测试计划：
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2")).andExpect(status().is5xxServerError());
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_5"));
 
     }
@@ -1909,59 +1967,33 @@ public class TestPlanTests extends BaseTest {
     @Order(303)
     public void testCopy() throws Exception {
         //1.计划  无用例
-        TestPlanCopyRequest copyRequest = new TestPlanCopyRequest();
-        copyRequest.setId("wx_test_plan_id_1");
-        copyRequest.setProjectId("123");
-        copyRequest.setName("测试计划复制");
-        copyRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
-
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest);
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_1"));
         String returnStr = mvcResult.getResponse().getContentAsString();
         ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
         String returnId = holder.getData().toString();
         Assertions.assertNotNull(returnId);
 
         //2.计划 有用例
-        TestPlanCopyRequest copyRequest1 = new TestPlanCopyRequest();
-        copyRequest1.setId("wx_test_plan_id_4");
-        copyRequest1.setProjectId("123");
-        copyRequest1.setName("测试计划复制有用例");
-        copyRequest1.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
-
-        MvcResult mvcResult1 = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest1);
+        MvcResult mvcResult1 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_4"));
         String returnStr1 = mvcResult1.getResponse().getContentAsString();
         ResultHolder holder1 = JSON.parseObject(returnStr1, ResultHolder.class);
         String returnId1 = holder1.getData().toString();
         Assertions.assertNotNull(returnId1);
 
         //3.计划组 无计划
-        TestPlanCopyRequest copyRequest2 = new TestPlanCopyRequest();
-        copyRequest2.setId("wx_test_plan_id_2");
-        copyRequest2.setProjectId("123");
-        copyRequest2.setName("测试计划组复制无计划");
-        copyRequest2.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
-
-        MvcResult mvcResult2 = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest2);
+        MvcResult mvcResult2 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_2"));
         String returnStr2 = mvcResult2.getResponse().getContentAsString();
         ResultHolder holder2 = JSON.parseObject(returnStr2, ResultHolder.class);
         String returnId2 = holder2.getData().toString();
         Assertions.assertNotNull(returnId2);
 
         //4.计划组 有计划
-        TestPlanCopyRequest copyRequest3 = new TestPlanCopyRequest();
-        copyRequest3.setId("wx_test_plan_id_5");
-        copyRequest3.setProjectId("123");
-        copyRequest3.setName("测试计划组复制有计划");
-        copyRequest3.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
-
-        MvcResult mvcResult3 = this.requestPostWithOkAndReturn(URL_TEST_PLAN_COPY, copyRequest3);
+        MvcResult mvcResult3 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_5"));
         String returnStr3 = mvcResult3.getResponse().getContentAsString();
         ResultHolder holder3 = JSON.parseObject(returnStr3, ResultHolder.class);
         String returnId3 = holder3.getData().toString();
         Assertions.assertNotNull(returnId3);
-
     }
-
 
     @Test
     @Order(303)
@@ -1994,9 +2026,9 @@ public class TestPlanTests extends BaseTest {
     @Order(304)
     public void testBatchCopy() throws Exception {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
-        request.setProjectId("123");
+        request.setProjectId("songtianyang-fix-wx");
         request.setType("ALL");
-        request.setModuleId("2");
+        request.setTargetId("2");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_1", "wx_test_plan_id_2"));
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
@@ -2007,22 +2039,22 @@ public class TestPlanTests extends BaseTest {
     @Order(304)
     public void testBatchMove() throws Exception {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
-        request.setProjectId("123");
+        request.setProjectId("songtianyang-fix-wx");
         request.setType("ALL");
-        request.setModuleId("3");
+        request.setTargetId("3");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_3", "wx_test_plan_id_4"));
+        request.setMoveType(ModuleConstants.NODE_TYPE_DEFAULT);
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
-
     }
 
     @Test
     @Order(305)
     public void testBatchArchived() throws Exception {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
-        request.setProjectId("123");
+        request.setProjectId("songtianyang-fix-wx");
         request.setType("ALL");
-        request.setModuleId("3");
+        request.setTargetId("3");
         request.setSelectIds(List.of("wx_test_plan_id_2"));
         this.requestPost(URL_TEST_PLAN_BATCH_ARCHIVED, request, status().is5xxServerError());
         request.setSelectIds(List.of("wx_test_plan_id_7"));
@@ -2058,7 +2090,7 @@ public class TestPlanTests extends BaseTest {
         request.setTags(Arrays.asList("tag1", "tag2"));
         request.setAppend(true);
         request.setType("ALL");
-        request.setProjectId("123");
+        request.setProjectId("songtianyang-fix-wx");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
         this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
         request.setAppend(false);

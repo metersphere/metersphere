@@ -33,6 +33,8 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<TestPlanCasePageResponse> getCasePage(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
+    List<TestPlanFunctionalCase> selectByTestPlanIdAndNotDeleted(String testPlanId);
+
     List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
 
     List<FunctionalCaseModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);

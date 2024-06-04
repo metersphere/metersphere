@@ -33,7 +33,7 @@ public interface ExtTestPlanMapper {
 
     void batchUpdateStatus(@Param("status") String status, @Param("userId") String userId, @Param("updateTime") Long updateTime, @Param("ids") List<String> ids);
 
-    void batchMove(@Param("ids") List<String> ids, @Param("moduleId") String moduleId, @Param("userId") String userId, @Param("updateTime") long updateTime);
+    long batchMove(@Param("ids") List<String> ids, @Param("moduleId") String moduleId, @Param("userId") String userId, @Param("updateTime") long updateTime);
 
     List<TestPlan> getTagsByIds(@Param("ids") List<String> ids);
 
