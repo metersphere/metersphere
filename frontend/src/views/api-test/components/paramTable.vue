@@ -855,6 +855,7 @@
 
   /** 环境管理-环境组 end */
 
+  const defaultLineData = ref(cloneDeep(props.defaultParamItem));
   /**
    * 当表格输入框变化时，给参数表格添加一行数据行
    * @param val 输入值
@@ -875,7 +876,7 @@
       const nextLine = {
         id,
         enable: true, // 是否勾选
-        ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
+        ...cloneDeep(defaultLineData.value), // 深拷贝，避免有嵌套引用类型，数据隔离
       } as any;
       selectColumnKeys.forEach((key) => {
         // 如果是更改了下拉框导致添加新的一列，需要将更改后的下拉框的值应用到下一行（产品为了方便统一输入参数类型）
@@ -894,6 +895,7 @@
         }
       });
       paramsData.value.push(nextLine);
+      defaultLineData.value = cloneDeep(nextLine);
     }
     emitChange('addTableLine', isInit);
     handleMustContainColChange(true);
@@ -910,7 +912,7 @@
             // 批量添加过来的数据最后一行会是 undefined
             hasNoIdItem = true;
             return {
-              ...cloneDeep(props.defaultParamItem),
+              ...cloneDeep(defaultLineData.value),
               id: getGenerateId(),
             };
           }
@@ -927,7 +929,7 @@
         if (
           (!props.disabledExceptParam || !props.disabledParamValue) &&
           hasNoIdItem &&
-          !filterKeyValParams(arr, props.defaultParamItem, !props.selectable).lastDataIsDefault &&
+          !filterKeyValParams(arr, defaultLineData.value, !props.selectable).lastDataIsDefault &&
           !props.isTreeTable
         ) {
           addTableLine(arr.length - 1, false, true);
@@ -939,7 +941,7 @@
           {
             id, // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
             enable: true, // 是否勾选
-            ...cloneDeep(props.defaultParamItem),
+            ...cloneDeep(defaultLineData.value),
           },
         ] as any[];
         emitChange('watch props.params', true);

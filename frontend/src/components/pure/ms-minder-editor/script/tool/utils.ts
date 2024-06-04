@@ -1,41 +1,41 @@
 import type { MinderJsonNode } from '../../props';
 
 export function isDisableNode(minder: any) {
-  let node;
+  let node: MinderJsonNode;
   if (minder && minder.getSelectedNode) {
     node = minder.getSelectedNode();
-  }
-  if (node && node.data.disable === true) {
-    return true;
+    if (node && node.data?.disabled === true) {
+      return true;
+    }
   }
   return false;
 }
 
 export function isDeleteDisableNode(minder: any) {
-  let node;
+  let node: MinderJsonNode;
   if (minder && minder.getSelectedNode) {
     node = minder.getSelectedNode();
-  }
-  if (node && node.data.disable === true && !node.data.allowDelete) {
-    return true;
+    if (node && node.data?.disabled === true && !node.data.allowDelete) {
+      return true;
+    }
   }
   return false;
 }
 
 export function isTagEnableNode(node: MinderJsonNode) {
-  if (node && (node.data.tagEnable === true || node.data.allowDisabledTag === true)) {
+  if (node.data && (node.data.tagEnable === true || node.data.allowDisabledTag === true)) {
     return true;
   }
   return false;
 }
 
 export function isTagEnable(minder: any) {
-  let node;
+  let node: MinderJsonNode;
   if (minder && minder.getSelectedNode) {
     node = minder.getSelectedNode();
-  }
-  if (isTagEnableNode(node)) {
-    return true;
+    if (isTagEnableNode(node)) {
+      return true;
+    }
   }
   return false;
 }
@@ -46,10 +46,10 @@ export function markChangeNode(node: MinderJsonNode) {
   }
 }
 
-function markDelNode(node: MinderJsonNode, deleteChild: any) {
+function markDelNode(node: MinderJsonNode, deleteChild: MinderJsonNode) {
   deleteChild.push(node.data);
   if (node.children) {
-    node.children.forEach((child: any) => {
+    node.children.forEach((child: MinderJsonNode) => {
       markDelNode(child, deleteChild);
     });
   }
@@ -58,9 +58,9 @@ function markDelNode(node: MinderJsonNode, deleteChild: any) {
 // 在父节点记录删除的节点
 export function markDeleteNode(minder: any) {
   if (minder) {
-    const nodes = minder.getSelectedNodes();
+    const nodes: MinderJsonNode[] = minder.getSelectedNodes();
     nodes.forEach((node: MinderJsonNode) => {
-      if (node && node.parent) {
+      if (node.parent?.data) {
         const pData = node.parent.data;
         if (!pData.deleteChild) {
           pData.deleteChild = [];
@@ -101,7 +101,7 @@ export function setPriorityView(priorityStartWithZero: boolean, priorityPrefix: 
  * 将节点及其子节点id置为null，changed 标记为true
  * @param node
  */
-export function resetNodes(nodes: any) {
+export function resetNodes(nodes: MinderJsonNode[]) {
   if (nodes) {
     nodes.forEach((item: any) => {
       if (item.data) {
@@ -115,7 +115,7 @@ export function resetNodes(nodes: any) {
 }
 
 export function isDisableForNode(node: MinderJsonNode) {
-  if (node && node.data.disable === true) {
+  if (node && node.data?.disabled === true) {
     return true;
   }
   return false;

@@ -6,19 +6,6 @@ import type { MoveMode } from '@/models/common';
 
 import type { PropType } from 'vue';
 
-export interface MinderClass {
-  stopPropagation: () => void; // 阻止事件冒泡
-  stopPropagationImmediately: () => void; // 立即阻止事件冒泡
-  [key: string]: any; // TODO: 其他事件属性
-}
-// TODO:脑图事件类型补充
-export interface MinderEvent extends MinderClass {
-  command: any;
-  commandArgs: Record<string, any>[];
-  commandName: string;
-  minder: any;
-  type: string;
-}
 export interface MinderIconButtonItem {
   icon: string;
   tooltip: string;
@@ -35,10 +22,11 @@ export interface MinderJsonNodeData {
   changed?: boolean; // 脑图节点是否发生过变化
   moveMode?: MoveMode; // 移动方式（节点移动或新增时需要）
   targetId?: string; // 目标节点 id（节点移动或新增时需要）
+  disabled?: boolean; // 是否禁用
   [key: string]: any;
 }
 export interface MinderJsonNode {
-  data: MinderJsonNodeData;
+  data?: MinderJsonNodeData;
   parent?: MinderJsonNode;
   children?: MinderJsonNode[];
   [key: string]: any; // minder 内置字段
@@ -48,6 +36,20 @@ export interface MinderJson {
   root: MinderJsonNode;
   template: string;
   treePath: Record<string, MinderJsonNode>[];
+}
+// 脑图类
+export interface MinderClass {
+  stopPropagation: () => void; // 阻止事件冒泡
+  stopPropagationImmediately: () => void; // 立即阻止事件冒泡
+  [key: string]: any; // TODO: 其他事件属性
+}
+// TODO:脑图事件类型补充
+export interface MinderEvent extends MinderClass {
+  command: any;
+  commandArgs: ((Record<string, any> & MinderJsonNode) | (Record<string, any> & MinderJsonNode)[] | number)[];
+  commandName: string;
+  minder: any;
+  type: string;
 }
 
 export const mainEditorProps = {
@@ -122,10 +124,10 @@ export const tagProps = {
     type: Boolean,
     default: false,
   },
-  replaceableTags: Function as PropType<(node: MinderJsonNode, nodes: MinderJsonNode[]) => string[]>,
+  replaceableTags: Function as PropType<(nodes: MinderJsonNode[]) => string[]>,
   tagDisableCheck: Function,
-  tagEditCheck: Function as PropType<(node: MinderJsonNode, tag: string) => boolean>,
-  afterTagEdit: Function as PropType<(node: MinderJsonNode, tag: string) => void>,
+  tagEditCheck: Function as PropType<(nodes: MinderJsonNode[], tag: string) => boolean>,
+  afterTagEdit: Function as PropType<(nodes: MinderJsonNode[], tag: string) => void>,
 };
 
 export const insertProps = {

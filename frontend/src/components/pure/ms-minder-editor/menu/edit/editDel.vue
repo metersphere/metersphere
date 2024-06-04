@@ -24,7 +24,7 @@
 
   import { MinderEventName } from '@/enums/minderEnum';
 
-  import { delProps } from '../../props';
+  import { delProps, MinderJsonNode } from '../../props';
   import { isDeleteDisableNode } from '../../script/tool/utils';
 
   const minderStore = useMinderStore();
@@ -59,19 +59,19 @@
     if (removeNodeDisabled.value || !minder.queryCommandState || !minder.execCommand) {
       return;
     }
-    const node = minder.getSelectedNode();
+    const nodes: MinderJsonNode[] = minder.getSelectedNodes();
     let position: MinderNodePosition | undefined;
-    if (node) {
+    if (nodes.length > 0) {
       if (props.delConfirm) {
-        props.delConfirm(node);
+        props.delConfirm(nodes);
         return;
       }
-      const box = node.getRenderBox();
+      const box = nodes[0].getRenderBox();
       position = {
         x: box.cx,
         y: box.cy,
       };
-      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, position, node.rc.node, node.data);
+      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, position, nodes[0].rc.node, nodes);
     }
     minder.forceRemoveNode();
   }

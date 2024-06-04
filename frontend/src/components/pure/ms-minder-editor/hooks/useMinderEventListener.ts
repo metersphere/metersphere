@@ -44,7 +44,8 @@ export default function useEventListener(listener: UseEventListenerProps) {
   //   console.log('dragFinish', minder.history);
   // });
 
-  minder.on('beforeExecCommand', (e: any) => {
+  // 监听脑图执行命令前（可通过e.stopPropagation拦截命令执行）
+  minder.on('beforeExecCommand', (e: MinderEvent) => {
     if (listener.handleBeforeExecCommand) {
       listener.handleBeforeExecCommand(e);
     }

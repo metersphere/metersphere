@@ -4,6 +4,7 @@ export default {
   'ms.minders.stepDesc': 'Step Description',
   'ms.minders.stepExpect': 'Expected Result',
   'ms.minders.textDesc': 'Text Description',
+  'ms.minders.remark': 'Remark Information',
   'ms.minders.caseName': 'Test Case Name',
   'ms.minders.caseNameNotNull': 'Test Case Name cannot be empty',
   'ms.minders.commentTotal': '{num} Comments in Total',

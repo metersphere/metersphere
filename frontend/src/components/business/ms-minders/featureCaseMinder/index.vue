@@ -94,9 +94,11 @@
   const stepTag = t('ms.minders.stepDesc');
   const textTag = t('ms.minders.textDesc');
   const prerequisiteTag = t('ms.minders.precondition');
-  const remarkTag = t('common.remark');
+  const stepExpectTag = t('ms.minders.stepExpect');
+  const remarkTag = t('ms.minders.remark');
   const descTags = [stepTag, textTag];
   const caseChildTags = [prerequisiteTag, stepTag, textTag, remarkTag];
+  const caseOffspringTags = [...caseChildTags, stepTag, stepExpectTag, textTag, remarkTag];
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
     template: 'default',
@@ -110,6 +112,7 @@
     updateCaseList: [],
     updateModuleList: [],
     deleteResourceList: [],
+    additionalNodeList: [],
   });
   const templateId = ref('');
 
@@ -153,6 +156,7 @@
           id: 'NONE',
           text: t('ms.minders.allModule'),
           resource: [moduleTag],
+          disabled: true,
         },
       };
       window.minder.importJson(importJson.value);
@@ -217,31 +221,31 @@
     let remarkNode: MinderJsonNode | undefined; // 备注
     const stepNodes: MinderJsonNode[] = []; // 步骤描述
     node.children?.forEach((item) => {
-      if (item.data.resource?.includes(textTag)) {
+      if (item.data?.resource?.includes(textTag)) {
         textStep = item;
-      } else if (item.data.resource?.includes(stepTag)) {
+      } else if (item.data?.resource?.includes(stepTag)) {
         stepNodes.push(item);
-      } else if (item.data.resource?.includes(prerequisiteTag)) {
+      } else if (item.data?.resource?.includes(prerequisiteTag)) {
         prerequisiteNode = item;
-      } else if (item.data.resource?.includes(remarkTag)) {
+      } else if (item.data?.resource?.includes(remarkTag)) {
         remarkNode = item;
       }
     });
     const steps: FeatureCaseMinderStepItem[] = stepNodes.map((child, i) => {
       return {
-        id: child.data.id,
+        id: child.data?.id || getGenerateId(),
         num: i,
-        desc: child.data.text,
-        result: child.children?.[0].data.text || '',
+        desc: child.data?.text || '',
+        result: child.children?.[0].data?.text || '',
       };
     });
     return {
-      prerequisite: prerequisiteNode?.data.text || '',
+      prerequisite: prerequisiteNode?.data?.text || '',
       caseEditType: steps.length > 0 ? 'STEP' : ('TEXT' as FeatureCaseMinderEditType),
       steps: JSON.stringify(steps),
-      textDescription: textStep?.data.text || '',
-      expectedResult: textStep?.children?.[0]?.data.text || '',
-      description: remarkNode?.data.text || '',
+      textDescription: textStep?.data?.text || '',
+      expectedResult: textStep?.children?.[0]?.data?.text || '',
+      description: remarkNode?.data?.text || '',
     };
   }
 
@@ -250,15 +254,14 @@
    * @param node 节点
    * @param parent 父节点
    */
-  function getNodeMoveInfo(node: MinderJsonNode, parent?: MinderJsonNode): { moveMode: MoveMode; targetId?: string } {
-    const nodeIndex = parent?.children?.findIndex((e) => e.data.id === node.data.id);
-    const moveMode = nodeIndex === 0 ? 'BEFORE' : 'AFTER';
+  function getNodeMoveInfo(nodeIndex: number, parent?: MinderJsonNode): { moveMode: MoveMode; targetId?: string } {
+    const moveMode = nodeIndex === 0 ? 'BEFORE' : 'AFTER'; // 除了第一个以外，其他都是在目标节点后面插入
     return {
       moveMode,
       targetId:
         moveMode === 'BEFORE'
-          ? parent?.children?.[1]?.data.id
-          : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data.id,
+          ? parent?.children?.[1]?.data?.id
+          : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data?.id,
     };
   }
 
@@ -267,17 +270,19 @@
    */
   function makeMinderParams(): FeatureCaseMinderUpdateParams {
     const fullJson: MinderJson = window.minder.exportJson();
-    filterTree(fullJson.root.children, (node, parent) => {
+    filterTree(fullJson.root.children, (node, nodeIndex, parent) => {
       if (node.data.isNew !== false || node.data.changed === true) {
         if (node.data.resource?.includes(moduleTag)) {
+          // 处理模块节点
           tempMinderParams.value.updateModuleList.push({
             id: node.data.id,
             name: node.data.text,
             parentId: parent?.data.id || 'NONE',
             type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
-            ...getNodeMoveInfo(node as MinderJsonNode, parent as MinderJsonNode),
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
           });
         } else if (node.data.resource?.includes(caseTag)) {
+          // 处理用例节点
           const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
           const caseBaseInfo = baseInfoRef.value?.makeParams();
           tempMinderParams.value.updateCaseList.push({
@@ -288,10 +293,19 @@
             tags: caseBaseInfo?.tags || [],
             customFields: caseBaseInfo?.customFields || [],
             name: caseBaseInfo?.name || node.data.text,
-            ...getNodeMoveInfo(node as MinderJsonNode, parent as MinderJsonNode),
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
             ...caseNodeInfo,
           });
           return false; // 用例的子孙节点已经处理过，跳过
+        } else if (!node.data.resource) {
+          // 处理文本节点
+          tempMinderParams.value.additionalNodeList.push({
+            id: node.data.id,
+            parentId: parent?.data.id || 'NONE',
+            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
+            name: node.data.text,
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
+          });
         }
       }
       return true;
@@ -316,7 +330,7 @@
    * 已选中节点的可替换标签判断
    * @param node 选中节点
    */
-  function replaceableTags(node: MinderJsonNode, nodes: MinderJsonNode[]) {
+  function replaceableTags(nodes: MinderJsonNode[]) {
     if (nodes.length > 1) {
       // 选中的节点大于 1 时
       if (nodes.some((e) => (e.data?.resource || []).length > 0)) {
@@ -328,10 +342,11 @@
         return [moduleTag];
       }
     }
+    const node = nodes[0];
     if (
       Object.keys(node.data || {}).length === 0 ||
       node.data?.id === 'root' ||
-      (node.parent?.data.resource || []).length === 0
+      (node.parent?.data?.resource || []).length === 0
     ) {
       // 没有数据的节点、默认模块节点、父节点为文本节点的节点不可替换标签
       return [];
@@ -357,18 +372,21 @@
       // 选中节点无标签，且父节点为用例节点，可替换用例下级标签
       return caseChildTags;
     }
-    if (
-      (!node.data?.resource || node.data.resource.length === 0) &&
-      (!node.parent?.data?.resource ||
-        node.parent?.data?.resource.length === 0 ||
-        node.parent?.data?.resource?.some((e) => topTags.includes(e)))
-    ) {
-      // 如果选中节点子级含有用例节点或模块节点，则不可将选中节点标记为用例
-      return node.children &&
-        (node.children.some((e) => e.data?.resource?.includes(caseTag)) ||
-          node.children.some((e) => e.data?.resource?.includes(moduleTag)))
-        ? topTags.filter((e) => e !== caseTag)
-        : topTags;
+    if ((!node.data?.resource || node.data.resource.length === 0) && node.parent?.data?.resource?.includes(moduleTag)) {
+      // 选中节点是文本节点、选中节点的父节点是模块节点
+      if (
+        (node.children &&
+          (node.children.some((e) => e.data?.resource?.includes(caseTag)) ||
+            node.children.some((e) => e.data?.resource?.includes(moduleTag)))) ||
+        node.parent?.data?.id === 'NONE'
+      ) {
+        // 如果选中节点子级含有用例节点或模块节点，或者选中节点的父节点是根节点 NONE，只能将节点标记为模块节点
+        return [moduleTag];
+      }
+      if (!node.children || node.children.length === 0) {
+        // 如果选中节点无子级，可标记为用例节点或模块节点
+        return topTags;
+      }
     }
     return [];
   }
@@ -383,7 +401,22 @@
       window.minder.execCommand(command, node);
       nextTick(() => {
         const newNode: MinderJsonNode = window.minder.getSelectedNode();
+        if (!newNode.data) {
+          newNode.data = {
+            id: getGenerateId(),
+            text: '',
+          };
+        }
         newNode.data.isNew = true; // 新建的节点标记为新建
+        if (newNode.data?.resource?.some((e) => caseOffspringTags.includes(e))) {
+          // 用例子孙节点更新，标记用例节点变化
+          if (newNode.parent?.data?.resource?.includes(caseTag)) {
+            newNode.parent.data.changed = true;
+          } else if (newNode.parent?.parent?.data?.resource?.includes(caseTag)) {
+            // 期望结果是第三层节点
+            newNode.parent.parent.data.changed = true;
+          }
+        }
       });
     }
   }
@@ -437,8 +470,8 @@
       parent: node,
       data: {
         id: getGenerateId(),
-        text: t('ms.minders.stepDesc'),
-        resource: [t('ms.minders.stepDesc')],
+        text: stepTag,
+        resource: [stepTag],
         isNew: true,
       },
       children: [],
@@ -447,8 +480,8 @@
       parent: child,
       data: {
         id: getGenerateId(),
-        text: t('ms.minders.stepExpect'),
-        resource: [t('ms.minders.stepExpect')],
+        text: stepExpectTag,
+        resource: [stepExpectTag],
         isNew: true,
       },
     };
@@ -468,8 +501,8 @@
       parent: node,
       data: {
         id: getGenerateId(),
-        text: t('ms.minders.stepExpect'),
-        resource: [t('ms.minders.stepExpect')],
+        text: stepExpectTag,
+        resource: [stepExpectTag],
         isNew: true,
       },
       children: [],
@@ -587,14 +620,22 @@
     if (tag === moduleTag && node.data) {
       // 排除是从用例节点切换到模块节点的数据
       tempMinderParams.value.updateCaseList = tempMinderParams.value.updateCaseList.filter(
-        (e) => e.id !== node.data.id
+        (e) => e.id !== node.data?.id
       );
       window.minder.execCommand('priority');
-    } else if (node.data.resource?.includes(caseTag)) {
+    } else if (node.data?.resource?.includes(caseTag)) {
       // 排除是从模块节点切换到用例节点的数据
       tempMinderParams.value.updateModuleList = tempMinderParams.value.updateModuleList.filter(
-        (e) => e.id !== node.data.id
+        (e) => e.id !== node.data?.id
       );
+    } else if (node.data?.resource?.some((e) => caseOffspringTags.includes(e))) {
+      // 用例子孙节点更新，标记用例节点变化
+      if (node.parent?.data?.resource?.includes(caseTag)) {
+        node.parent.data.changed = true;
+      } else if (node.parent?.parent?.data?.resource?.includes(caseTag)) {
+        // 期望结果是第三层节点
+        node.parent.parent.data.changed = true;
+      }
     }
   }
   const baseInfoLoading = ref(false);
@@ -792,9 +833,12 @@
         node.expand();
         node.renderTree();
         window.minder.layout();
+        window.minder.execCommand('camera', node, 600);
         if (node.data) {
           node.data.isLoaded = true;
         }
+        // 加载完用例数据后，更新当前importJson数据
+        importJson.value = window.minder.exportJson();
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -812,25 +856,33 @@
    * @param event 脑图事件对象
    */
   function handleAction(event: MinderCustomEvent) {
-    const { node, name } = event;
-    if (node) {
+    const { nodes, name } = event;
+    if (nodes && nodes.length > 0) {
       switch (name) {
         case MinderEventName.DELETE_NODE:
-          tempMinderParams.value.deleteResourceList.push({
-            id: node.data.id,
-            type: node.data?.resource?.[0] || moduleTag,
+          // TODO:循环优化
+          nodes.forEach((node) => {
+            tempMinderParams.value.deleteResourceList.push({
+              id: node.data?.id || getGenerateId(),
+              type: node.data?.resource?.[0] || moduleTag,
+            });
+            if (node.data?.resource?.includes(caseTag)) {
+              // 删除用例节点
+              tempMinderParams.value.updateCaseList = tempMinderParams.value.updateCaseList.filter(
+                (e) => e.id !== node.data?.id
+              );
+            } else if (node.data?.resource?.includes(moduleTag)) {
+              // 删除模块节点
+              tempMinderParams.value.updateModuleList = tempMinderParams.value.updateModuleList.filter(
+                (e) => e.id !== node.data?.id
+              );
+            } else if (!node.data?.resource) {
+              // 删除文本节点
+              tempMinderParams.value.additionalNodeList = tempMinderParams.value.additionalNodeList.filter(
+                (e) => e.id !== node.data?.id
+              );
+            }
           });
-          if (node.data?.resource?.includes(caseTag)) {
-            // 删除用例节点
-            tempMinderParams.value.updateCaseList = tempMinderParams.value.updateCaseList.filter(
-              (e) => e.id !== node.data.id
-            );
-          } else if (node.data?.resource?.includes(moduleTag)) {
-            // 删除模块节点
-            tempMinderParams.value.updateModuleList = tempMinderParams.value.updateModuleList.filter(
-              (e) => e.id !== node.data.id
-            );
-          }
           break;
         default:
           break;
@@ -838,10 +890,111 @@
     }
   }
 
+  /**
+   * 是否停止拖拽动作
+   * @param dragNode 拖动节点
+   * @param dropNode 目标节点
+   * @param mode 拖拽模式
+   */
+  function stopDrag(
+    dragNodes: MinderJsonNode | MinderJsonNode[],
+    dropNode: MinderJsonNode,
+    mode: 'movetoparent' | 'arrange'
+  ) {
+    if (!Array.isArray(dragNodes)) {
+      dragNodes = [dragNodes];
+    }
+    for (let i = 0; i < dragNodes.length; i++) {
+      const dragNode = (dragNodes as MinderJsonNode[])[i];
+      if (mode === 'movetoparent') {
+        // 拖拽到目标节点内
+        if (dragNode.data?.resource?.includes(caseTag) && dropNode.data?.id === 'NONE') {
+          // 用例不能拖拽到根模块节点内
+          return true;
+        }
+        if (
+          (dragNode.data?.resource?.includes(moduleTag) || dragNode.data?.resource?.includes(caseTag)) &&
+          dropNode.data?.resource?.includes(moduleTag)
+        ) {
+          // 模块、用例只能拖拽到模块节点内
+          if (dragNode.data) {
+            dragNode.data.changed = true;
+          }
+          return false;
+        }
+        if (!dragNode.data?.resource && (dropNode.data?.resource?.includes(moduleTag) || !dropNode.data?.resource)) {
+          // 文本节点只能拖拽到模块、文本节点内
+          if (dragNode.data) {
+            dragNode.data.changed = true;
+          }
+          return false;
+        }
+        if (
+          dragNode.data?.resource?.some((e) => caseChildTags.includes(e)) &&
+          dropNode.data?.resource?.includes(caseTag) &&
+          dragNode.parent?.data?.id === dropNode.data?.id
+        ) {
+          // 一个用例下的子节点只能拖拽到它自身内
+          if (dragNode.parent?.data) {
+            dragNode.parent.data.changed = true;
+          }
+          return false;
+        }
+      } else if (mode === 'arrange') {
+        // 拖拽到目标节点前后
+        if (
+          (dragNode.data?.resource?.includes(moduleTag) ||
+            dragNode.data?.resource?.includes(caseTag) ||
+            !dragNode.data?.resource) &&
+          (dropNode.data?.resource?.includes(moduleTag) ||
+            dropNode.data?.resource?.includes(caseTag) ||
+            !dropNode.data?.resource)
+        ) {
+          if (dragNode.data) {
+            dragNode.data.changed = true;
+          }
+          // 模块、用例、文本节点只能拖拽到模块、用例、文本节点前后
+          return false;
+        }
+        if (dragNode.data?.resource?.includes(stepTag) && dropNode.data?.resource?.includes(stepTag)) {
+          if (dragNode.parent?.data) {
+            dragNode.parent.data.changed = true;
+          }
+          // 用例节点下的步骤节点之间拖拽排序
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * 脑图命令执行前拦截
+   * @param event 命令执行事件
+   */
   function handleBeforeExecCommand(event: MinderEvent) {
     if (event.commandName === 'movetoparent') {
-      // TODO:拖拽拦截
-      event.stopPropagation();
+      // 拖拽到节点内拦截
+      if (stopDrag(event.commandArgs[0] as MinderJsonNode, event.commandArgs[1] as MinderJsonNode, 'movetoparent')) {
+        event.stopPropagation();
+      }
+    } else if (event.commandName === 'arrange') {
+      // 拖拽排序拦截
+      const dragNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+      let dropNode: MinderJsonNode;
+      if (dragNodes[0].parent?.children?.[event.commandArgs[0] as number]) {
+        // 释放到目标节点后
+        dropNode = dragNodes[0].parent?.children?.[event.commandArgs[0] as number];
+      } else if (dragNodes[0].parent?.children?.[(event.commandArgs[0] as number) - 1]) {
+        // 释放到目标节点前
+        dropNode = dragNodes[0].parent?.children?.[(event.commandArgs[0] as number) - 1];
+      } else {
+        // 释放到最后一个节点
+        dropNode = dragNodes[dragNodes.length - 1];
+      }
+      if (stopDrag(dragNodes, dropNode, 'arrange')) {
+        event.stopPropagation();
+      }
     }
   }
 </script>

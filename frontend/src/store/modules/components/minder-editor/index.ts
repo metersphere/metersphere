@@ -17,7 +17,7 @@ const useMinderStore = defineStore('minder', {
         y: 0,
       },
       nodeDom: undefined,
-      node: undefined,
+      nodes: undefined,
     },
     mold: 0,
   }),
@@ -27,15 +27,20 @@ const useMinderStore = defineStore('minder', {
      * @param name 事件名称
      * @param position 触发事件的节点/鼠标位置
      * @param nodeDom 节点 DOM
-     * @param node 节点
+     * @param nodes 节点集合
      */
-    dispatchEvent(name: MinderEventName, position?: MinderNodePosition, nodeDom?: HTMLElement, node?: MinderJsonNode) {
+    dispatchEvent(
+      name: MinderEventName,
+      position?: MinderNodePosition,
+      nodeDom?: HTMLElement,
+      nodes?: MinderJsonNode[]
+    ) {
       this.event = {
         name,
         timestamp: Date.now(),
         nodePosition: position,
         nodeDom,
-        node,
+        nodes,
       };
     },
     setMold(val: number) {
