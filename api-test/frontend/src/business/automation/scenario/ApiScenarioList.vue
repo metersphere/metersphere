@@ -308,6 +308,7 @@
           @openScenario="openScenario"
           @showCaseRef="showScenarioRef"
           v-if="!trashEnable"
+          @refreshTable="search"
           style="display: contents" />
       </template>
     </ms-table>

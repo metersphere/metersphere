@@ -91,7 +91,9 @@ export default {
     openScenario(item) {
       this.$emit('openScenario', item);
     },
-    refreshTable() {},
+    refreshTable() {
+      this.$emit('refreshTable');
+    },
   },
 };
 </script>
