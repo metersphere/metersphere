@@ -98,8 +98,8 @@ public class IssuesController {
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
     @CheckOwner(resourceId = "#request.getId()", resourceType = "issues")
-    public IssuesWithBLOBs updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
-        return issuesService.updateIssues(issuesRequest);
+    public IssuesWithBLOBs updateIssues(@RequestPart(value = "request") IssuesUpdateRequest request) {
+        return issuesService.updateIssues(request);
     }
 
     @GetMapping("/get/case/{refType}/{id}")
@@ -143,7 +143,7 @@ public class IssuesController {
     @PostMapping("/delete/relate")
     @MsRequestLog(module = OperLogModule.TRACK_BUG)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
-    @CheckOwner(resourceId = "#id", resourceType = "issues")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "issues")
     public void deleteRelate(@RequestBody IssuesRequest request) {
         issuesService.deleteIssueRelate(request);
     }
