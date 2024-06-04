@@ -78,6 +78,16 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         doTaskCenterSchedulePage("FILTER", SCHEDULED_ORG_PAGE, ScheduleTagType.TEST_PLAN.toString());
         doTaskCenterSchedulePage("KEYWORD", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.TEST_PLAN.toString());
         doTaskCenterSchedulePage("FILTER", SCHEDULED_SYSTEM_PAGE, ScheduleTagType.TEST_PLAN.toString());
+
+
+        this.requestGet("/task/center/system/schedule/total");
+        this.requestGet("/task/center/org/schedule/total");
+        this.requestGet("/task/center/project/schedule/total");
+
+        this.requestGet("/task/center/system/real/total");
+        this.requestGet("/task/center/org/real/total");
+        this.requestGet("/task/center/project/real/total");
+
     }
 
     private void doTaskCenterSchedulePage(String search, String url, String scheduleTagType) throws Exception {
@@ -163,7 +173,6 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     void testDel() throws Exception {
         LogUtils.info("delete Schedule test");
         String scheduleId = "1";
-        Schedule oldSchedule = scheduleMapper.selectByPrimaryKey(scheduleId);
         // @@请求成功
         this.requestGet("/task/center/system/schedule/delete/" + "API_IMPORT/" + scheduleId);
         Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);

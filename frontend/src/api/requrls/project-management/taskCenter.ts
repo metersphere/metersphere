@@ -68,3 +68,11 @@ export const batchDisableScheduleSysTaskUrl = '/task/center/system/schedule/batc
 export const batchDisableScheduleOrgTaskUrl = '/task/center/org/schedule/batch-disable';
 // 项目定时任务  批量关闭
 export const batchDisableScheduleProTaskUrl = '/task/center/project/schedule/batch-disable';
+
+export const systemScheduleTotal = '/task/center/system/schedule/total';
+export const orgScheduleTotal = '/task/center/org/schedule/total';
+export const projectScheduleTotal = '/task/center/project/schedule/total';
+
+export const systemRealTotal = '/task/center/system/real/total';
+export const orgRealTotal = '/task/center/org/real/total';
+export const projectRealTotal = '/task/center/project/real/total';

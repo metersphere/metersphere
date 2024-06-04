@@ -405,24 +405,7 @@
       TEST_PLAN: [...resourceColumns, ...staticColumns],
     },
   };
-  const orgApiCaseFilter = ref([]);
-  const orgApiScenarioFilter = ref([]);
-  const orgTestPlanFilter = ref([]);
 
-  const orgFiltersMap = ref<Record<string, string[]>>({
-    API_IMPORT: orgApiCaseFilter.value,
-    API_SCENARIO: orgApiScenarioFilter.value,
-    TEST_PLAN: orgTestPlanFilter.value,
-  });
-
-  const projectApiCaseFilter = ref([]);
-  const projectApiScenarioFilter = ref([]);
-  const projectTestPlanFilter = ref([]);
-  const projectFiltersMap = ref<Record<string, string[]>>({
-    API_CASE: projectApiCaseFilter.value,
-    API_SCENARIO: projectApiScenarioFilter.value,
-    TEST_PLAN: projectTestPlanFilter.value,
-  });
   const typeFilter = computed(() => {
     if (showType.value === 'All') {
       return [];

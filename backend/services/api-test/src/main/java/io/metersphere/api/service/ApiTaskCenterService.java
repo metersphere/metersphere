@@ -99,7 +99,7 @@ public class ApiTaskCenterService {
     public Pager<List<TaskCenterDTO>> getProjectPage(TaskCenterPageRequest request, String projectId) {
         checkProjectExist(projectId);
         List<OptionDTO> projectList = getProjectOption(projectId);
-        return createTaskCenterPager(request, projectList);
+        return createTaskCenterPager(request, projectList, false);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ApiTaskCenterService {
     public Pager<List<TaskCenterDTO>> getOrganizationPage(TaskCenterPageRequest request, String organizationId) {
         checkOrganizationExist(organizationId);
         List<OptionDTO> projectList = getOrgProjectList(organizationId);
-        return createTaskCenterPager(request, projectList);
+        return createTaskCenterPager(request, projectList, false);
     }
 
     /**
@@ -122,22 +122,22 @@ public class ApiTaskCenterService {
      */
     public Pager<List<TaskCenterDTO>> getSystemPage(TaskCenterPageRequest request) {
         List<OptionDTO> projectList = getSystemProjectList();
-        return createTaskCenterPager(request, projectList);
+        return createTaskCenterPager(request, projectList, true);
     }
 
-    private Pager<List<TaskCenterDTO>> createTaskCenterPager(TaskCenterPageRequest request, List<OptionDTO> projectList) {
+    private Pager<List<TaskCenterDTO>> createTaskCenterPager(TaskCenterPageRequest request, List<OptionDTO> projectList, boolean isSystem) {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : DEFAULT_SORT);
-        return PageUtils.setPageInfo(page, getPage(request, projectList));
+        return PageUtils.setPageInfo(page, getPage(request, projectList, isSystem));
     }
 
-    public List<TaskCenterDTO> getPage(TaskCenterPageRequest request, List<OptionDTO> projectList) {
+    public List<TaskCenterDTO> getPage(TaskCenterPageRequest request, List<OptionDTO> projectList, boolean isSystem) {
         List<TaskCenterDTO> list = new ArrayList<>();
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
         if (request != null && !projectIds.isEmpty()) {
             Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
             if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
-                list = extApiReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+                list = extApiReportMapper.taskCenterlist(request, isSystem ? new ArrayList<>() : projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
                 //执行历史列表
                 List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
                 if (CollectionUtils.isNotEmpty(reportIds)) {
@@ -145,7 +145,7 @@ public class ApiTaskCenterService {
                     historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
                 }
             } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
-                list = extApiScenarioReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+                list = extApiScenarioReportMapper.taskCenterlist(request, isSystem ? new ArrayList<>() : projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
                 List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
                 if (CollectionUtils.isNotEmpty(reportIds)) {
                     List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
@@ -220,7 +220,7 @@ public class ApiTaskCenterService {
     }
 
     public void systemStop(TaskCenterBatchRequest request, String userId) {
-        stopApiTask(request, getSystemProjectList().stream().map(OptionDTO::getId).toList(), userId, SYSTEM_STOP, HttpMethodConstants.POST.name(), OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        stopApiTask(request, new ArrayList<>(), userId, SYSTEM_STOP, HttpMethodConstants.POST.name(), OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String path, String method, String module) {
