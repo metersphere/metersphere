@@ -52,7 +52,7 @@ public class TestPlanFunctionalCaseController {
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public TestPlanResourceSortResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
+    public TestPlanOperationResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         return testPlanFunctionalCaseService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/sort", HttpMethodConstants.POST.name()));
     }

@@ -54,9 +54,14 @@ public class TestPlanBugService extends TestPlanResourceService {
         return Map.of();
     }
 
+    @Override
+    public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
+        return 0;
+    }
+
 
     @Override
-    public long getNextOrder(String projectId) {
+    public long getNextOrder(String testPlanId) {
         return 0;
     }
 

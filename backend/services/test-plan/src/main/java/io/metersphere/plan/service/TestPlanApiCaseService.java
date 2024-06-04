@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
@@ -22,12 +23,18 @@ import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,6 +87,30 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     public Map<String, Long> caseExecResultCount(String testPlanId) {
         List<TestPlanCaseRunResultCount> runResultCounts = extTestPlanApiCaseMapper.selectCaseExecResultCount(testPlanId);
         return runResultCounts.stream().collect(Collectors.toMap(TestPlanCaseRunResultCount::getResult, TestPlanCaseRunResultCount::getResultCount));
+    }
+
+    @Override
+    public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
+        List<TestPlanApiCase> copyList = new ArrayList<>();
+        extTestPlanApiCaseMapper.selectByTestPlanIdAndNotDeleted(originalTestPlanId).forEach(originalCase -> {
+            TestPlanApiCase newCase = new TestPlanApiCase();
+            BeanUtils.copyBean(newCase, originalCase);
+            newCase.setId(IDGenerator.nextStr());
+            newCase.setTestPlanId(newTestPlanId);
+            newCase.setCreateTime(operatorTime);
+            newCase.setCreateUser(operator);
+            newCase.setLastExecTime(0L);
+            newCase.setLastExecResult(null);
+            newCase.setLastExecReportId(null);
+            copyList.add(newCase);
+        });
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiCaseMapper batchInsertMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
+        copyList.forEach(item -> batchInsertMapper.insert(item));
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        return copyList.size();
     }
 
     @Override

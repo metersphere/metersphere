@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestPlanResourceSortResponse {
-    @Schema(description = "本次排序的数量")
-    private long sortNodeNum;
+public class TestPlanOperationResponse {
+    @Schema(description = "处理成功的数量")
+    private long operationCount;
 }
