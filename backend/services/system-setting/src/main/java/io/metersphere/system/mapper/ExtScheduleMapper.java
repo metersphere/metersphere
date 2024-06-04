@@ -39,4 +39,6 @@ public interface ExtScheduleMapper {
 
     List<Schedule> getSchedule(@Param("request") TaskCenterScheduleBatchRequest request, @Param("projectIds") List<String> projectIds);
 
+
+    int countByProjectIds(@Param("ids") List<String> ids);
 }

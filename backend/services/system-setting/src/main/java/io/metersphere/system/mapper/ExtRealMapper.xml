@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtRealMapper">
+
+    <select id="caseReportCountByProjectIds" resultType="java.lang.Integer">
+        select count(distinct ar.id)
+        FROM
+        api_report ar
+        where
+        ar.start_time BETWEEN #{startTime} AND #{endTime}
+        and
+        ar.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+    </select>
+    <select id="scenarioReportCountByProjectIds" resultType="java.lang.Integer">
+        select count(distinct asr.id)
+        FROM
+        api_scenario_report asr
+        where
+        asr.start_time BETWEEN #{startTime} AND #{endTime}
+        and
+        asr.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+    </select>
+    <select id="testPlanReportCountByProjectIds" resultType="java.lang.Integer">
+        select count(distinct tpr.id)
+        FROM
+        test_plan_report tpr
+        where
+        tpr.start_time BETWEEN #{startTime} AND #{endTime}
+        and
+        tpr.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+    </select>
+</mapper>

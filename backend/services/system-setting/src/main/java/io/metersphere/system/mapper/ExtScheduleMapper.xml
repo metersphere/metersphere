@@ -2,26 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtScheduleMapper">
     <select id="taskCenterSchedulelist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO">
-   select task.*, QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time  from (
-    <if test="request.scheduleTagType == 'API_IMPORT'">
-        SELECT
-        schedule.id,
-        schedule.name as taskname,
-        schedule.project_id,
-        resource_type,
-        ads.num as resource_num,
-        ads.name as resource_name,
-        ads.id as resource_id,
-        schedule.value,
-        schedule.enable,
-        schedule.create_user AS createUserName,
-        schedule.create_time,
-        ads.swagger_url
-        FROM
-        schedule
-        inner join api_definition_swagger ads on schedule.resource_id = ads.id
+        select task.*, QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time from (
+        <if test="request.scheduleTagType == 'API_IMPORT'">
+            SELECT
+            schedule.id,
+            schedule.name as taskname,
+            schedule.project_id,
+            resource_type,
+            ads.num as resource_num,
+            ads.name as resource_name,
+            ads.id as resource_id,
+            schedule.value,
+            schedule.enable,
+            schedule.create_user AS createUserName,
+            schedule.create_time,
+            ads.swagger_url
+            FROM
+            schedule
+            inner join api_definition_swagger ads on schedule.resource_id = ads.id
 
-    </if>
+        </if>
         <if test="request.scheduleTagType == 'API_SCENARIO'">
             SELECT
             schedule.id,
@@ -59,23 +59,25 @@
             inner join test_plan on schedule.resource_id = test_plan.id
         </if>
 
-    ) task left join project on task.project_id = project.id
-            left join QRTZ_TRIGGERS on task.resource_id = QRTZ_TRIGGERS.TRIGGER_NAME
+        ) task left join project on task.project_id = project.id
+        left join QRTZ_TRIGGERS on task.resource_id = QRTZ_TRIGGERS.TRIGGER_NAME
         where
         task.resource_type =#{request.scheduleTagType}
-        and task.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and task.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
         <if test="request.keyword != null and request.keyword != ''">
             and (
             task.resource_name like concat('%', #{request.keyword},'%')
-                or
+            or
             task.resource_num like concat('%', #{request.keyword},'%')
 
-        <if test="request.scheduleTagType == 'API_IMPORT'">
-            or task.swagger_url like concat('%', #{request.keyword},'%')
-        </if>
+            <if test="request.scheduleTagType == 'API_IMPORT'">
+                or task.swagger_url like concat('%', #{request.keyword},'%')
+            </if>
             )
         </if>
         <include refid="taskCenterScheduleFilters">
@@ -176,7 +178,7 @@
         </foreach>
     </select>
     <select id="getSchedule" resultType="io.metersphere.system.domain.Schedule">
-   select task.* from (
+        select task.* from (
         <if test="request.scheduleTagType == 'API_IMPORT'">
             SELECT
             schedule.*,
@@ -210,10 +212,12 @@
         ) task left join project on task.project_id = project.id
         where
         task.resource_type =#{request.scheduleTagType}
-        and task.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and task.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
         <if test="request.condition.keyword != null and request.condition.keyword != ''">
             and (
             task.resource_name like concat('%', #{request.condition.keyword},'%')
@@ -224,6 +228,17 @@
         <include refid="taskCenterScheduleFilters">
             <property name="filter" value="request.condition.filter"/>
         </include>
+    </select>
+    <select id="countByProjectIds" resultType="java.lang.Integer">
+        select count(*) from schedule
+        where resource_type in ('API_IMPORT', 'API_SCENARIO', 'TEST_PLAN')
+          <if test="ids != null and ids.size() > 0">
+            and project_id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+          and project_id in
+          </if>
     </select>
 
 </mapper>

@@ -163,18 +163,20 @@
         INNER JOIN api_scenario s on a.api_scenario_id = s.id
         left JOIN test_resource_pool t on asr.pool_id = t.id
         left join project on asr.project_id = project.id
-        where asr.test_plan_id = 'NONE'
-          and asr.start_time BETWEEN #{startTime} AND #{endTime}
-        and
-        asr.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+        where asr.start_time BETWEEN #{startTime} AND #{endTime}
+        <if test="projectIds != null and projectIds.size() > 0">
+            and
+            asr.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+
         <if test="request.keyword != null and request.keyword != ''">
             and (
             if(asr.integrated, asr.id, s.num) like concat('%', #{request.keyword},'%')
-                or if(asr.integrated, asr.name,s.name) like concat('%', #{request.keyword},'%')
-               )
+            or if(asr.integrated, asr.name,s.name) like concat('%', #{request.keyword},'%')
+            )
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>

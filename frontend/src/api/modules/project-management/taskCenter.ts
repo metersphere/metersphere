@@ -16,12 +16,18 @@ import {
   enableScheduleOrgTaskUrl,
   enableScheduleProTaskUrl,
   enableScheduleSysTaskUrl,
+  orgRealTotal,
+  orgScheduleTotal,
+  projectRealTotal,
+  projectScheduleTotal,
   scheduleOrgCenterListUrl,
   scheduleProCenterListUrl,
   scheduleSysCenterListUrl,
   stopRealOrdApiUrl,
   stopRealProjectApiUrl,
   stopRealSysApiUrl,
+  systemRealTotal,
+  systemScheduleTotal,
   taskOrgRealCenterListUrl,
   taskProRealCenterListUrl,
   taskSysRealCenterListUrl,
@@ -62,9 +68,11 @@ export function batchStopRealProjectApi(data: TableQueryParams) {
 export function stopRealSysApi(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${stopRealSysApiUrl}/${moduleType}/${id}` });
 }
+
 export function stopRealOrdApi(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${stopRealOrdApiUrl}/${moduleType}/${id}` });
 }
+
 export function stopRealProjectApi(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${stopRealProjectApiUrl}/${moduleType}/${id}` });
 }
@@ -86,10 +94,12 @@ export function getScheduleProApiCaseList(data: TableQueryParams) {
 export function deleteScheduleSysTask(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${deleteScheduleSysTaskUrl}/${moduleType}/${id}` });
 }
+
 // 组织删除定时任务
 export function deleteScheduleOrgTask(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${deleteScheduleOrgTaskUrl}/${moduleType}/${id}` });
 }
+
 // 项目删除定时任务
 export function deleteScheduleProTask(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${deleteScheduleProTaskUrl}/${moduleType}/${id}` });
@@ -99,46 +109,57 @@ export function deleteScheduleProTask(moduleType: keyof typeof TaskCenterEnum, i
 export function enableScheduleSysTask(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${enableScheduleSysTaskUrl}/${moduleType}/${id}` });
 }
+
 // 组织启用定时任务
 export function enableScheduleOrgTask(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${enableScheduleOrgTaskUrl}/${moduleType}/${id}` });
 }
+
 // 项目启用定时任务
 export function enableScheduleProTask(moduleType: keyof typeof TaskCenterEnum, id: string) {
   return MSR.get({ url: `${enableScheduleProTaskUrl}/${moduleType}/${id}` });
 }
+
 // 系统更新定时任务规则
 export function updateRunRules(moduleType: keyof typeof TaskCenterEnum, id: string, data: string) {
   return MSR.post({ url: `${updateScheduleSysTaskUrl}/${moduleType}/${id}`, data });
 }
+
 // 组织更新定时任务规则
 export function updateRunRulesOrg(moduleType: keyof typeof TaskCenterEnum, id: string, data: string) {
   return MSR.post({ url: `${updateScheduleOrgTaskUrl}/${moduleType}/${id}`, data });
 }
+
 // 项目更新定时任务规则
 export function updateRunRulesPro(moduleType: keyof typeof TaskCenterEnum, id: string, data: string) {
   return MSR.post({ url: `${updateScheduleProTaskUrl}/${moduleType}/${id}`, data });
 }
+
 // 系统批量开启定时任务
 export function batchEnableScheduleSysTask(data: TableQueryParams) {
   return MSR.post({ url: `${batchEnableScheduleSysTaskUrl}`, data });
 }
+
 // 组织批量开启定时任务
 export function batchEnableScheduleOrgTask(data: TableQueryParams) {
   return MSR.post({ url: `${batchEnableScheduleOrgTaskUrl}`, data });
 }
+
 // 项目批量开启定时任务
 export function batchEnableScheduleProTask(data: TableQueryParams) {
   return MSR.post({ url: `${batchEnableScheduleProTaskUrl}`, data });
 }
+
 // 系统批量关闭定时任务
 export function batchDisableScheduleSysTask(data: TableQueryParams) {
   return MSR.post({ url: `${batchDisableScheduleSysTaskUrl}`, data });
 }
+
 // 组织批量关闭定时任务
 export function batchDisableScheduleOrgTask(data: TableQueryParams) {
   return MSR.post({ url: `${batchDisableScheduleOrgTaskUrl}`, data });
 }
+
 // 项目批量关闭定时任务
 export function batchDisableScheduleProTask(data: TableQueryParams) {
   return MSR.post({ url: `${batchDisableScheduleProTaskUrl}`, data });
@@ -147,4 +168,29 @@ export function batchDisableScheduleProTask(data: TableQueryParams) {
 export function switchSchedule(id: string) {
   return MSR.get({ url: `${enableSchedule}/${id}` });
 }
+
+export function getSystemScheduleTotal() {
+  return MSR.get({ url: `${systemScheduleTotal}` });
+}
+
+export function getOrgScheduleTotal() {
+  return MSR.get({ url: `${orgScheduleTotal}` });
+}
+
+export function getProjectScheduleTotal() {
+  return MSR.get({ url: `${projectScheduleTotal}` });
+}
+
+export function getSystemRealTotal() {
+  return MSR.get({ url: `${systemRealTotal}` });
+}
+
+export function getOrgRealTotal() {
+  return MSR.get({ url: `${orgRealTotal}` });
+}
+
+export function getProjectRealTotal() {
+  return MSR.get({ url: `${projectRealTotal}` });
+}
+
 export default {};

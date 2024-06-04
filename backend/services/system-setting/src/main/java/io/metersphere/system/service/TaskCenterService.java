@@ -8,6 +8,7 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
@@ -93,6 +94,8 @@ public class TaskCenterService {
     ApiScheduleNoticeService apiScheduleNoticeService;
     @Resource
     UserMapper userMapper;
+    @Resource
+    ExtRealMapper extRealMapper;
 
 
     private static final String CREATE_TIME_SORT = "create_time desc";
@@ -101,33 +104,31 @@ public class TaskCenterService {
     public Pager<List<TaskCenterScheduleDTO>> getProjectSchedulePage(TaskCenterSchedulePageRequest request, String projectId) {
         checkProjectExist(projectId);
         List<OptionDTO> projectList = getProjectOption(projectId);
-        return createTaskCenterSchedulePager(request, projectList);
+        return createTaskCenterSchedulePager(request, projectList, false);
     }
 
     public Pager<List<TaskCenterScheduleDTO>> getOrgSchedulePage(TaskCenterSchedulePageRequest request, String organizationId) {
         checkOrganizationExist(organizationId);
         List<OptionDTO> projectList = getOrgProjectList(organizationId);
-        return createTaskCenterSchedulePager(request, projectList);
+        return createTaskCenterSchedulePager(request, projectList, false);
     }
 
     public Pager<List<TaskCenterScheduleDTO>> getSystemSchedulePage(TaskCenterSchedulePageRequest request) {
         List<OptionDTO> projectList = getSystemProjectList();
-        return createTaskCenterSchedulePager(request, projectList);
+        return createTaskCenterSchedulePager(request, projectList, true);
     }
 
-    private Pager<List<TaskCenterScheduleDTO>> createTaskCenterSchedulePager(TaskCenterSchedulePageRequest request, List<OptionDTO> projectList) {
+    private Pager<List<TaskCenterScheduleDTO>> createTaskCenterSchedulePager(TaskCenterSchedulePageRequest request, List<OptionDTO> projectList, boolean isSystem) {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : CREATE_TIME_SORT);
-        return PageUtils.setPageInfo(page, getSchedulePage(request, projectList));
+        return PageUtils.setPageInfo(page, getSchedulePage(request, projectList, isSystem));
     }
 
-    public List<TaskCenterScheduleDTO> getSchedulePage(TaskCenterSchedulePageRequest request, List<OptionDTO> projectList) {
+    public List<TaskCenterScheduleDTO> getSchedulePage(TaskCenterSchedulePageRequest request, List<OptionDTO> projectList, boolean isSystem) {
         List<TaskCenterScheduleDTO> list = new ArrayList<>();
-        if (request != null && !projectList.isEmpty()) {
-            List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-            list = extScheduleMapper.taskCenterSchedulelist(request, projectIds);
-            processTaskCenterSchedule(list, projectList, projectIds);
-        }
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        list = extScheduleMapper.taskCenterSchedulelist(request, isSystem ? new ArrayList<>() : projectIds);
+        processTaskCenterSchedule(list, projectList, projectIds);
         return list;
     }
 
@@ -272,8 +273,7 @@ public class TaskCenterService {
     }
 
     public void batchEnable(TaskCenterScheduleBatchRequest request, String userId, String path, String module, boolean enable, String projectId) {
-        List<OptionDTO> projectList = getSystemProjectList();
-        batchOperation(request, userId, path, module, projectList, enable, projectId);
+        batchOperation(request, userId, path, module, new ArrayList<>(), enable, projectId);
     }
 
     public void batchEnableOrg(TaskCenterScheduleBatchRequest request, String userId, String orgId, String path, String module, boolean enable, String projectId) {
@@ -352,5 +352,52 @@ public class TaskCenterService {
         if (!hasPermission) {
             throw new MSException(Translator.get("no_permission_to_resource"));
         }
+    }
+
+    public int getSystemScheduleTotal() {
+        List<OptionDTO> projectList = getSystemProjectList();
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        return extScheduleMapper.countByProjectIds(projectIds);
+    }
+
+    public int getOrgScheduleTotal(String currentOrganizationId) {
+        checkOrganizationExist(currentOrganizationId);
+        List<OptionDTO> projectList = getOrgProjectList(currentOrganizationId);
+        //获取项目id
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        return extScheduleMapper.countByProjectIds(projectIds);
+    }
+
+    public int getProjectScheduleTotal(String currentProjectId) {
+        checkProjectExist(currentProjectId);
+        return extScheduleMapper.countByProjectIds(List.of(currentProjectId));
+    }
+
+    public int getSystemRealTotal() {
+        List<OptionDTO> projectList = getSystemProjectList();
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        int apiTestCaseTotal = extRealMapper.caseReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int apiScenarioTotal = extRealMapper.scenarioReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int testPlanTotal = extRealMapper.testPlanReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        return apiTestCaseTotal + apiScenarioTotal + testPlanTotal;
+    }
+
+    public int getOrgRealTotal(String currentOrganizationId) {
+        checkOrganizationExist(currentOrganizationId);
+        List<OptionDTO> projectList = getOrgProjectList(currentOrganizationId);
+        //获取项目id
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        int apiTestCaseTotal = extRealMapper.caseReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int apiScenarioTotal = extRealMapper.scenarioReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int testPlanTotal = extRealMapper.testPlanReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        return apiTestCaseTotal + apiScenarioTotal + testPlanTotal;
+    }
+
+    public int getProjectRealTotal(String currentProjectId) {
+        checkProjectExist(currentProjectId);
+        int apiTestCaseTotal = extRealMapper.caseReportCountByProjectIds(List.of(currentProjectId), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int apiScenarioTotal = extRealMapper.scenarioReportCountByProjectIds(List.of(currentProjectId), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int testPlanTotal = extRealMapper.testPlanReportCountByProjectIds(List.of(currentProjectId), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        return apiTestCaseTotal + apiScenarioTotal + testPlanTotal;
     }
 }

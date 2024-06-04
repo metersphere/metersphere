@@ -191,14 +191,15 @@
         LEFT JOIN test_resource_pool t ON ar.pool_id = t.id
         left join project on ar.project_id = project.id
         where
-         ar.test_plan_id = 'NONE'
-        and ar.start_time BETWEEN #{startTime} AND #{endTime}
+        ar.start_time BETWEEN #{startTime} AND #{endTime}
 
-        and
-        ar.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and
+            ar.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
         <if test="request.keyword != null and request.keyword != ''">
             and ( if(ar.integrated, ar.id, c.num) like concat('%', #{request.keyword},'%')
 

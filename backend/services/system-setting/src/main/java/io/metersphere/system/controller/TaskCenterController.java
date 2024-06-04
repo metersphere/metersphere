@@ -179,4 +179,41 @@ public class TaskCenterController {
         taskCenterService.batchEnableProject(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId(), "/task/center/project/schedule/batch-disable", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, false);
     }
 
+    @GetMapping("/system/schedule/total")
+    @Operation(summary = "系统-任务中心-定时任务总数")
+    public int systemScheduleTotal() {
+        return taskCenterService.getSystemScheduleTotal();
+    }
+
+    @GetMapping("/org/schedule/total")
+    @Operation(summary = "组织-任务中心-定时任务总数")
+    public int orgScheduleTotal() {
+        return taskCenterService.getOrgScheduleTotal(SessionUtils.getCurrentOrganizationId());
+    }
+
+    @GetMapping("/project/schedule/total")
+    @Operation(summary = "项目-任务中心-定时任务总数")
+    public int projectScheduleTotal() {
+        return taskCenterService.getProjectScheduleTotal(SessionUtils.getCurrentProjectId());
+    }
+
+    @GetMapping("/system/real/total")
+    @Operation(summary = "系统-任务中心-实时任务总数")
+    public int systemRealTotal() {
+        return taskCenterService.getSystemRealTotal();
+    }
+
+    @GetMapping("/org/real/total")
+    @Operation(summary = "组织-任务中心-实时任务总数")
+    public int orgRealTotal() {
+        return taskCenterService.getOrgRealTotal(SessionUtils.getCurrentOrganizationId());
+    }
+
+    @GetMapping("/project/real/total")
+    @Operation(summary = "项目-任务中心-实时任务总数")
+    public int projectRealTotal() {
+        return taskCenterService.getProjectRealTotal(SessionUtils.getCurrentProjectId());
+    }
+
+
 }
