@@ -160,23 +160,19 @@ export default {
     },
     handleConfirm() {
       let map = new Map();
-      let sign = true;
       let projectEnvDesc = {};
+      let selectEnv = this.data.filter((dt) => dt.selectEnv);
+      if (selectEnv.length === 0) {
+        this.$warning("请为当前场景选择一个运行环境！");
+        return false;
+      }
       this.data.forEach((dt) => {
-        if (!dt.selectEnv) {
-          sign = false;
-          return;
-        }
         map.set(dt.id, dt.selectEnv);
         let filteredEnv = dt.envs.filter((e) => e.id === dt.selectEnv);
         if (filteredEnv.length > 0) {
           projectEnvDesc[this.getProjectName(dt.id)] = filteredEnv[0].name;
         }
       });
-      if (!sign) {
-        this.$warning("请为当前场景选择一个运行环境！");
-        return;
-      }
       this.$emit("setProjectEnvMap", map, projectEnvDesc);
       this.$emit("close");
     },
@@ -199,14 +195,7 @@ export default {
               return false;
             }
           });
-        } else {
-          sign = false;
         }
-      }
-
-      if (!sign) {
-        this.$warning("请为当前场景选择一个运行环境！");
-        return false;
       }
       return true;
     },
