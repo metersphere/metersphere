@@ -24,6 +24,15 @@ export interface PlanReportDetail {
   // apiScenarioCount: countDetail; // 接口场景用例分析-用例数
 }
 
+export interface ReportMetricsItemModel {
+  unit: string;
+  value: number | string;
+  name: string;
+  icon: string;
+  tip?: string;
+  runMode?: string;
+}
+
 export interface StatusListType {
   label: string;
   value: keyof countDetail;

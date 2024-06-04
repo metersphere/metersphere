@@ -161,6 +161,14 @@
 
   const responseCompositionTabList = [
     {
+      label: t('apiTestDebug.extract'),
+      value: ResponseComposition.EXTRACT,
+    },
+    {
+      label: t('apiTestDebug.assertion'),
+      value: ResponseComposition.ASSERTION,
+    },
+    {
       label: t('apiTestDebug.responseBody'),
       value: ResponseComposition.BODY,
     },
@@ -175,14 +183,6 @@
     {
       label: t('apiTestDebug.console'),
       value: ResponseComposition.CONSOLE,
-    },
-    {
-      label: t('apiTestDebug.extract'),
-      value: ResponseComposition.EXTRACT,
-    },
-    {
-      label: t('apiTestDebug.assertion'),
-      value: ResponseComposition.ASSERTION,
     },
   ];
 

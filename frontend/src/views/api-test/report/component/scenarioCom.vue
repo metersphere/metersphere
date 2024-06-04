@@ -3,156 +3,27 @@
     <!-- 报告参数开始 -->
     <ReportDetailHeader :detail="detail" show-type="API" />
     <!-- 报告参数结束 -->
-    <!-- 报告步骤分析和请求分析开始 -->
+    <!-- 报告分析，报告步骤分析和请求分析开始 -->
     <div class="analyze mb-1">
-      <div class="step-analyze min-w-[522px]">
+      <div class="analyze-item">
         <div class="block-title">{{ t('report.detail.api.stepAnalysis') }}</div>
-        <div class="mb-2 flex items-center">
-          <!-- 总数 -->
-          <div class="countItem">
-            <span class="mr-2 text-[var(--color-text-4)]"> {{ t('report.detail.stepTotal') }}</span>
-            {{ detail.stepTotal || 0 }}
-          </div>
-          <!-- 通过 -->
-          <div class="countItem">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--success-6))]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.pass') }}</div>
-            {{ detail.stepSuccessCount || 0 }}
-          </div>
-          <!-- 误报 -->
-          <div class="countItem">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.fakeError') }}</div>
-            {{ detail.stepFakeErrorCount || 0 }}
-          </div>
-          <!-- 失败 -->
-          <div class="countItem">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.fail') }}</div>
-            {{ detail.stepErrorCount || 0 }}
-          </div>
-          <!-- 未执行 -->
-          <div class="countItem">
-            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
-            <div class="mr-2 text-[var(--color-text-4)]">{{ t('common.unExecute') }}</div>
-            {{ detail.stepPendingCount || 0 }}
-          </div>
-        </div>
-        <StepProgress :report-detail="detail" height="8px" radius="var(--border-radius-mini)" />
-        <div class="card">
-          <div class="timer-card mr-2">
-            <div class="text-[var(--color-text-4)]">
-              <MsIcon type="icon-icon_time_outlined" class="text-[var(--color-text-4)]x mr-[4px]" size="16" />
-              {{ t('report.detail.api.totalTime') }}
-            </div>
-            <div>
-              <a-popover position="bottom" content-class="response-popover-content">
-                <div class="flex items-center">
-                  <div class="one-line-text ml-4 max-w-[80px] text-[18px] font-medium">{{
-                    getTotalTime.split('-')[0]
-                  }}</div>
-                  <div class="ml-1 text-[var(--color-text-4)]">{{ getTotalTime.split('-')[1] || 'ms' }}</div>
-                </div>
-                <template #content>
-                  <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
-                    <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.totalTime') }}</div>
-                    <div class="mt-2 text-[var(--color-text-1)]">
-                      <span class="text-[18px] font-medium">{{ getTotalTime.split('-')[0] }}</span
-                      >{{ getTotalTime.split('-')[1] || 'ms' }}</div
-                    >
-                  </div>
-                </template>
-              </a-popover>
-            </div>
-          </div>
-          <div class="timer-card mr-2">
-            <div class="text-[var(--color-text-4)]">
-              <MsIcon type="icon-icon_time_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
-              {{ t('report.detail.api.requestTotalTime') }}
-            </div>
-            <div>
-              <a-popover position="bottom" content-class="response-popover-content">
-                <span class="one-line-text ml-4 inline-block max-w-[80px] align-middle text-[18px] font-medium">{{
-                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '0'
-                }}</span>
-
-                <span class="ml-1 text-[var(--color-text-4)]">{{
-                  detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
-                }}</span>
-                <template #content>
-                  <div class="min-w-[140px] max-w-[400px] p-4 text-[14px]">
-                    <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.requestTotalTime') }}</div>
-                    <div class="mt-2 text-[var(--color-text-1)]">
-                      <span class="text-[18px] font-medium">{{
-                        detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[0] : '0'
-                      }}</span
-                      >{{
-                        detail.requestDuration !== null ? formatDuration(detail.requestDuration).split('-')[1] : 'ms'
-                      }}</div
-                    >
-                  </div>
-                </template>
-              </a-popover>
-            </div>
-          </div>
-          <div class="timer-card min-w-[40%]">
-            <div class="text-[var(--color-text-4)]">
-              <MsIcon type="icon-icon_yes_outlined" class="mr-[4px] text-[var(--color-text-4)]" size="16" />
-              {{ t('report.detail.api.assertPass') }}
-            </div>
-            <a-popover position="bottom" content-class="response-popover-content">
-              <div class="flex flex-nowrap items-center">
-                <div class="one-line-text max-w-[80px] text-[18px] font-medium text-[var(--color-text-1)]"
-                  >{{ detail.assertionPassRate || 0 }}
-                </div>
-                <span v-show="detail.assertionPassRate !== 'Calculating'" class="ml-1">%</span>
-                <a-divider direction="vertical" :margin="0" class="!mx-2 h-[16px]"></a-divider>
-                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{
-                  getIndicators(detail.assertionSuccessCount) !== 'Calculating'
-                    ? addCommasToNumber(detail.assertionSuccessCount)
-                    : getIndicators(detail.assertionSuccessCount)
-                }}</div>
-                <span class="mx-1">/</span>
-                <div class="one-line-text max-w-[80px] text-[var(--color-text-4)]">
-                  {{
-                    getIndicators(detail.assertionCount) !== 'Calculating'
-                      ? addCommasToNumber(detail.assertionCount)
-                      : getIndicators(detail.assertionCount)
-                  }}</div
-                >
-              </div>
-              <template #content>
-                <div class="min-w-[190px] max-w-[400px] p-4 text-[14px]">
-                  <div class="text-[var(--color-text-4)]">{{ t('report.detail.api.assertPass') }}</div>
-                  <div class="mt-2 flex items-center justify-between">
-                    <div class="text-[18px] font-medium text-[var(--color-text-1)]"
-                      >{{ getIndicators(detail.assertionPassRate) }}
-                      <span v-show="detail.assertionPassRate !== 'Calculating'">%</span></div
-                    >
-                    <div>
-                      <span class="text-[var(--color-text-1)]">{{
-                        getIndicators(detail.assertionSuccessCount) !== 'Calculating'
-                          ? addCommasToNumber(detail.assertionSuccessCount || 0)
-                          : getIndicators(detail.assertionSuccessCount)
-                      }}</span>
-                      <span class="text-[var(--color-text-4)]"
-                        ><span class="mx-1">/</span>
-                        {{
-                          getIndicators(detail.assertionCount) !== 'Calculating'
-                            ? addCommasToNumber(detail.assertionCount)
-                            : getIndicators(detail.assertionCount)
-                        }}</span
-                      >
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </a-popover>
-          </div>
-        </div>
+        <ReportMetricsItem
+          v-for="analysisItem in reportAnalysisList"
+          :key="analysisItem.name"
+          :item-info="analysisItem"
+        />
       </div>
-
-      <div class="request-analyze">
+      <!-- 步骤分析 -->
+      <div class="analyze-item request-analyze">
+        <div class="block-title">{{ t('report.detail.api.stepAnalysis') }}</div>
+        <SetReportChart
+          :legend-data="stepAnalysisLegendData"
+          :options="charOptions"
+          :request-total="getIndicators(detail.requestTotal) || 0"
+        />
+      </div>
+      <!-- 请求分析 -->
+      <div class="analyze-item request-analyze">
         <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
         <SetReportChart
           :legend-data="legendData"
@@ -161,7 +32,7 @@
         />
       </div>
     </div>
-    <!-- 报告步骤分析和请求分析结束 -->
+    <!-- 报告分析，报告步骤分析和请求分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
       <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" show-type="API" />
@@ -173,22 +44,20 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
 
   import SetReportChart from './case/setReportChart.vue';
   import ReportDetailHeader from './reportDetailHeader.vue';
   import reportInfoHeader from './step/reportInfoHeaders.vue';
-  import StepProgress from './stepProgress.vue';
   import TiledList from './tiledList.vue';
+  import ReportMetricsItem from '@/views/test-plan/report/detail/component/ReportMetricsItem.vue';
 
   import { useI18n } from '@/hooks/useI18n';
-  import { addCommasToNumber, formatDuration } from '@/utils';
+  import { formatDuration } from '@/utils';
 
   import type { LegendData, ReportDetail } from '@/models/apiTest/report';
+  import type { ReportMetricsItemModel } from '@/models/testPlan/testPlanReport';
 
   import { getIndicators } from '../utils';
-
-  const route = useRoute();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -252,7 +121,39 @@
     return '0';
   });
 
+  const getRunMode = computed(() => {
+    if (detail.value.integrated) {
+      return detail.value.runMode === 'SERIAL' ? t('case.execute.serial') : t('case.execute.parallel');
+    }
+    return '';
+  });
+
+  const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
+    {
+      name: t('report.detail.api.totalTime'),
+      value: getTotalTime.value.split('-')[0],
+      unit: getTotalTime.value.split('-')[1] || 'ms',
+      icon: 'totalTime',
+      tip: t('report.detail.api.totalTimeTip'),
+      runMode: getRunMode.value,
+    },
+    {
+      name: t('report.detail.api.requestTotalTime'),
+      value: detail.value.requestDuration !== null ? formatDuration(detail.value.requestDuration).split('-')[0] : '0',
+      unit: detail.value.requestDuration !== null ? formatDuration(detail.value.requestDuration).split('-')[1] : 'ms',
+      icon: 'totalTime',
+      tip: t('report.detail.api.requestTotalTimeTip'),
+    },
+    {
+      name: t('report.detail.api.assertPass'),
+      value: getIndicators(detail.value.assertionPassRate),
+      unit: '%',
+      icon: 'passRate',
+    },
+  ]);
+
   const legendData = ref<LegendData[]>([]);
+  const stepAnalysisLegendData = ref<LegendData[]>([]);
   const charOptions = ref({
     tooltip: {
       show: false,
@@ -314,6 +215,9 @@
   });
   const activeTab = ref<'tiled' | 'tab'>('tiled');
 
+  function getRote(count: number, countTotal: number) {
+    return (((count || 0) / countTotal) * 100).toFixed(2);
+  }
   function initOptionsData() {
     const tempArr = [
       {
@@ -365,6 +269,15 @@
         rote: `${detail.value[item.rateKey] || 0}%`,
       };
     });
+    stepAnalysisLegendData.value = tempArr.map((item: any) => {
+      const valueName = `step${item.value.charAt(0).toUpperCase() + item.value.slice(1)}`;
+      return {
+        ...item,
+        label: t(item.label),
+        count: detail.value[valueName] || 0,
+        rote: `${getRote(detail.value[valueName], detail.value.stepTotal)}%`,
+      };
+    });
   }
 
   watchEffect(() => {
@@ -390,30 +303,14 @@
       height: 196px;
       border-radius: 4px;
       @apply mb-4 flex justify-between;
-      .step-analyze {
+      .analyze-item {
         padding: 16px;
-        width: 60%;
-        height: 196px;
+        width: 33%;
         border-radius: 4px;
         @apply h-full bg-white;
-        .countItem {
-          @apply mr-6 flex items-center;
-        }
-        .card {
-          @apply mt-4 flex items-center justify-between;
-          .timer-card {
-            border-radius: 6px;
-            background-color: var(--color-text-n9);
-            @apply flex flex-1 flex-col p-4;
-          }
-        }
       }
       .request-analyze {
-        padding: 16px;
-        width: 40%;
-        height: 100%;
-        border-radius: 4px;
-        @apply ml-4 h-full flex-grow bg-white;
+        @apply ml-4 flex-grow;
         .chart-legend {
           .chart-legend-item {
             @apply grid grid-cols-3;

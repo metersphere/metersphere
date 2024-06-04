@@ -166,6 +166,7 @@
     {
       title: 'apiTestManagement.taskOperator',
       dataIndex: 'operationUser',
+      showTooltip: true,
       width: 100,
     },
     {
@@ -236,7 +237,6 @@
 
     .ms-scroll-bar();
   }
-
   .history-table-before {
     display: flex;
     justify-content: space-between;
