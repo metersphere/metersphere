@@ -5,12 +5,13 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.*;
+import io.metersphere.plan.dto.TestPlanAllocationTypeDTO;
+import io.metersphere.plan.dto.TestPlanCollectionInitDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
-import io.metersphere.plan.mapper.ExtTestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanReportMapper;
+import io.metersphere.plan.enums.ExecuteMethod;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.service.*;
 import io.metersphere.plan.utils.TestPlanTestUtils;
 import io.metersphere.project.domain.Project;
@@ -89,6 +90,12 @@ public class TestPlanTests extends BaseTest {
     private CommonProjectService commonProjectService;
     @Resource
     private TestPlanTestService testPlanTestService;
+    @Resource
+    private TestPlanAllocationTypeMapper testPlanAllocationTypeMapper;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private TestPlanAllocationMapper testPlanAllocationMapper;
 
     private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
@@ -526,6 +533,7 @@ public class TestPlanTests extends BaseTest {
 
         BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
         request.setBaseAssociateCaseRequest(associateCaseRequest);
+        request.setAllocationRequest(buildAllocationParam());
         for (int i = 0; i < 999; i++) {
             String moduleId;
             if (i < 50) {
@@ -637,6 +645,7 @@ public class TestPlanTests extends BaseTest {
             itemRequest.setGroupId(groupTestPlanId7);
             itemRequest.setName("testPlan_group7_" + i);
             itemRequest.setBaseAssociateCaseRequest(associateCaseRequest);
+            itemRequest.setAllocationRequest(buildAllocationParam());
             if (i == 0) {
                 //测试项目没有开启测试计划模块时能否使用
                 testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
@@ -947,6 +956,7 @@ public class TestPlanTests extends BaseTest {
         //修改名称
         TestPlanUpdateRequest updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setName(IDGenerator.nextStr());
+        updateRequest.setAllocationRequest(buildAllocationParam());
 
         //测试项目没有开启测试计划模块时能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
@@ -965,6 +975,7 @@ public class TestPlanTests extends BaseTest {
         //修改回来
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setName(testPlan.getName());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -983,6 +994,7 @@ public class TestPlanTests extends BaseTest {
         BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setModuleId(a2Node.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -991,6 +1003,7 @@ public class TestPlanTests extends BaseTest {
         testPlanTestService.checkTestPlanUpdateResult(testPlan, testPlanConfig, updateRequest);
         //修改回来
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setModuleId(testPlan.getModuleId());
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
@@ -1001,6 +1014,7 @@ public class TestPlanTests extends BaseTest {
 
         //修改标签
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setTags(new LinkedHashSet<>(Arrays.asList("tag1", "tag2", "tag3", "tag3")));
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
@@ -1012,6 +1026,7 @@ public class TestPlanTests extends BaseTest {
 
         //修改计划开始结束时间
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setPlannedStartTime(System.currentTimeMillis());
         updateRequest.setPlannedEndTime(updateRequest.getPlannedStartTime() - 10000);
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
@@ -1024,6 +1039,7 @@ public class TestPlanTests extends BaseTest {
 
         //修改描述
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setDescription("This is desc");
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
@@ -1035,6 +1051,7 @@ public class TestPlanTests extends BaseTest {
 
         //修改配置项
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setAutomaticStatusUpdate(true);
         updateRequest.setRepeatCase(true);
         updateRequest.setPassThreshold(43.12);
@@ -1046,6 +1063,7 @@ public class TestPlanTests extends BaseTest {
         testPlanTestService.checkTestPlanUpdateResult(testPlan, testPlanConfig, updateRequest);
 
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setAutomaticStatusUpdate(false);
         updateRequest.setRepeatCase(false);
         updateRequest.setPassThreshold(56.47);
@@ -1060,16 +1078,19 @@ public class TestPlanTests extends BaseTest {
 
         //修改a2节点下的数据（91,92）的所属测试计划组
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_91").getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setTestPlanGroupId(groupTestPlanId7);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_92").getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setTestPlanGroupId(groupTestPlanId7);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
 
         //修改测试计划组信息
         updateRequest = testPlanTestService.generateUpdateRequest(groupTestPlanId7);
+        updateRequest.setAllocationRequest(buildAllocationParam());
         updateRequest.setName(IDGenerator.nextStr());
         updateRequest.setDescription("This is desc");
         updateRequest.setTags(new LinkedHashSet<>(Arrays.asList("tag1", "tag2", "tag3", "tag3")));
@@ -1079,6 +1100,7 @@ public class TestPlanTests extends BaseTest {
 
         //什么都不修改
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setAllocationRequest(buildAllocationParam());
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
 
         //因为有条数据被移动了测试计划组里，所以检查一下moduleCount.
@@ -1838,7 +1860,7 @@ public class TestPlanTests extends BaseTest {
         TestPlanCreateRequest request = new TestPlanCreateRequest();
         request.setProjectId(project.getId());
         request.setTestPlanning(false);
-
+        request.setAllocationRequest(buildAllocationParam());
         BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
         associateCaseRequest.setFunctionalSelectIds(Arrays.asList("wx_fc_1", "wx_fc_2"));
         request.setBaseAssociateCaseRequest(associateCaseRequest);
@@ -2045,4 +2067,89 @@ public class TestPlanTests extends BaseTest {
         this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
     }
 
+    @Test
+    @Order(308)
+    void testSaveAllocation() throws Exception {
+        TestPlanCreateRequest createRequest = new TestPlanCreateRequest();
+        BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
+        createRequest.setBaseAssociateCaseRequest(associateCaseRequest);
+        createRequest.setTestPlanning(true);
+        createRequest.setProjectId(project.getId());
+        createRequest.setName("测试一下关联");
+        createRequest.setPlannedEndTime(null);
+        createRequest.setPlannedStartTime(null);
+        createRequest.setRepeatCase(false);
+        createRequest.setAutomaticStatusUpdate(false);
+        createRequest.setPassThreshold(100);
+        createRequest.setDescription(null);
+        createRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        createRequest.setAllocationRequest(buildAllocationParam());
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, createRequest);
+        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
+        TestPlan testPlan = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), TestPlan.class);
+        TestPlanAllocationCreateRequest updateRequest = buildAllocationUpdateParam(testPlan.getId());
+        createRequest.setAllocationRequest(updateRequest);
+        this.requestPostWithOk(URL_POST_TEST_PLAN_ADD, createRequest);
+        TestPlanAllocationCreateRequest createRequest1 = buildAllocationParam();
+        createRequest1.setCollectionNodes(null);
+        createRequest.setAllocationRequest(createRequest1);
+        this.requestPostWithOk(URL_POST_TEST_PLAN_ADD, createRequest);
+    }
+
+    private TestPlanAllocationCreateRequest buildAllocationParam() {
+        TestPlanAllocationCreateRequest request = new TestPlanAllocationCreateRequest();
+        TestPlanAllocationTypeDTO functionalType = new TestPlanAllocationTypeDTO();
+        functionalType.setType(CaseType.FUNCTIONAL_CASE.getKey());
+        functionalType.setName("功能用例");
+        functionalType.setPos(1L);
+        functionalType.setExecuteMethod(ExecuteMethod.SERIAL.name());
+        request.setTypeNodes(List.of(functionalType, functionalType, functionalType));
+        TestPlanCollectionInitDTO collection = new TestPlanCollectionInitDTO();
+        collection.setName("默认测试集");
+        collection.setTestCollectionTypeId(CaseType.FUNCTIONAL_CASE.getKey());
+        collection.setExecuteMethod(ExecuteMethod.PARALLEL.name());
+        collection.setGrouped(false);
+        collection.setEnvironmentId(IDGenerator.nextStr());
+        collection.setPos(1L);
+        request.setCollectionNodes(List.of(collection));
+        TestPlanAllocation allocation = new TestPlanAllocation();
+        allocation.setTestResourcePoolId(IDGenerator.nextStr());
+        allocation.setRetryOnFail(true);
+        allocation.setRetryTimes(10);
+        allocation.setRetryInterval(1000);
+        allocation.setRetryType(CaseType.SCENARIO_CASE.getKey());
+        allocation.setStopOnFail(false);
+        request.setConfig(allocation);
+        return request;
+    }
+
+    private TestPlanAllocationCreateRequest buildAllocationUpdateParam(String planId) {
+        TestPlanAllocationCreateRequest updateParam = new TestPlanAllocationCreateRequest();
+        TestPlanAllocationTypeExample allocationTypeExample = new TestPlanAllocationTypeExample();
+        allocationTypeExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanAllocationType> testPlanAllocationTypes = testPlanAllocationTypeMapper.selectByExample(allocationTypeExample);
+        List<TestPlanAllocationTypeDTO> allocationTypeDTOS = new ArrayList<>();
+        testPlanAllocationTypes.forEach(allocationType -> {
+            TestPlanAllocationTypeDTO allocationTypeDTO = new TestPlanAllocationTypeDTO();
+            BeanUtils.copyBean(allocationTypeDTO, allocationType);
+            allocationTypeDTOS.add(allocationTypeDTO);
+        });
+        TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
+        collectionExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanCollection> collections = testPlanCollectionMapper.selectByExample(collectionExample);
+        List<TestPlanCollectionInitDTO> collectionInitDTOS = new ArrayList<>();
+        collections.forEach(collection -> {
+            TestPlanCollectionInitDTO collectionInitDTO = new TestPlanCollectionInitDTO();
+            BeanUtils.copyBean(collectionInitDTO, collection);
+            collectionInitDTOS.add(collectionInitDTO);
+        });
+        TestPlanAllocationExample example = new TestPlanAllocationExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        TestPlanAllocation allocation = testPlanAllocationMapper.selectByExample(example).get(0);
+        updateParam.setTypeNodes(allocationTypeDTOS);
+        updateParam.setCollectionNodes(collectionInitDTOS);
+        updateParam.setConfig(allocation);
+        return updateParam;
+    }
 }

@@ -20,7 +20,7 @@ public class TestPlanAllocation implements Serializable {
     private String id;
 
     @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_allocation.test_plan_id.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{test_plan_allocation.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_plan_allocation.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanId;
 

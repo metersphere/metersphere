@@ -83,6 +83,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanSendNoticeService testPlanSendNoticeService;
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+
     private static final int MAX_TAG_SIZE = 10;
 
     /**
@@ -90,6 +91,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      */
     public TestPlan add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator, null);
+        // 保存规划节点及配置
+        saveAllocation(testPlanCreateRequest.getAllocationRequest(), operator, testPlan.getId());
         testPlanLogService.saveAddLog(testPlan, operator, requestUrl, requestMethod);
         return testPlan;
     }
@@ -152,6 +155,82 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         }
     }
 
+    /**
+     * 保存规划
+     *
+     * @param allocationRequest 规划的请求参数
+     * @param currentUser 当前用户
+     */
+    private void saveAllocation(TestPlanAllocationCreateRequest allocationRequest, String currentUser, String planId) {
+        // 前置参数校验
+        checkAllocationParam(allocationRequest);
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanAllocationTypeMapper allocationTypeBatchMapper = sqlSession.getMapper(TestPlanAllocationTypeMapper.class);
+        TestPlanCollectionMapper collectionBatchMapper = sqlSession.getMapper(TestPlanCollectionMapper.class);
+        // 处理测试集分类
+        Map<String, String> allocationTypeMap = new HashMap<>();
+        List<TestPlanAllocationType> addAllocationTypes = new ArrayList<>();
+        List<TestPlanAllocationType> updateAllocationTypes = new ArrayList<>();
+        allocationRequest.getTypeNodes().forEach(allocationTypeDTO -> {
+            TestPlanAllocationType allocationType = new TestPlanAllocationType();
+            BeanUtils.copyBean(allocationType, allocationTypeDTO);
+            allocationType.setTestPlanId(planId);
+            allocationType.setPos(allocationType.getPos() << 6);
+            if (allocationTypeDTO.getId() == null) {
+                allocationType.setId(IDGenerator.nextStr());
+                allocationTypeMap.put(allocationType.getType(), allocationType.getId());
+                addAllocationTypes.add(allocationType);
+            } else {
+                updateAllocationTypes.add(allocationType);
+            }
+        });
+        // 处理测试集
+        List<TestPlanCollection> addCollections = new ArrayList<>();
+        List<TestPlanCollection> updateCollections = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(allocationRequest.getCollectionNodes())) {
+            allocationRequest.getCollectionNodes().forEach(collectionNode -> {
+                TestPlanCollection collection = new TestPlanCollection();
+                BeanUtils.copyBean(collection, collectionNode);
+                collection.setTestPlanId(planId);
+                collection.setPos(collection.getPos() << 6);
+                if (collection.getId() == null) {
+                    collection.setId(IDGenerator.nextStr());
+                    collection.setTestCollectionTypeId(allocationTypeMap.get(collection.getTestCollectionTypeId()));
+                    collection.setCreateUser(currentUser);
+                    collection.setCreateTime(System.currentTimeMillis());
+                    addCollections.add(collection);
+                } else {
+                    updateCollections.add(collection);
+                }
+            });
+        }
+
+        // 入库 { 测试集分类, 测试集, 规划配置项 }
+        if (CollectionUtils.isNotEmpty(addAllocationTypes)) {
+            allocationTypeBatchMapper.batchInsert(addAllocationTypes);
+        }
+        if (CollectionUtils.isNotEmpty(updateAllocationTypes)) {
+            // 仅有三条记录
+            updateAllocationTypes.forEach(allocationType -> allocationTypeBatchMapper.updateByPrimaryKey(allocationType));
+        }
+        if (CollectionUtils.isNotEmpty(addCollections)) {
+            collectionBatchMapper.batchInsert(addCollections);
+        }
+        if (CollectionUtils.isNotEmpty(updateCollections)) {
+            updateCollections.forEach(collection -> collectionBatchMapper.updateByPrimaryKeySelective(collection));
+        }
+        if (allocationRequest.getConfig().getId() == null) {
+            TestPlanAllocation allocationConfig = allocationRequest.getConfig();
+            allocationConfig.setId(IDGenerator.nextStr());
+            allocationConfig.setTestPlanId(planId);
+            testPlanAllocationMapper.insert(allocationConfig);
+        } else {
+            testPlanAllocationMapper.updateByPrimaryKeySelective(allocationRequest.getConfig());
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
 
     /**
      * 删除测试计划
@@ -326,6 +405,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             testPlanConfig.setPassThreshold(request.getPassThreshold());
             testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
         }
+        // 保存规划节点及配置
+        saveAllocation(request.getAllocationRequest(), userId, testPlan.getId());
         testPlanLogService.saveUpdateLog(testPlan, testPlanMapper.selectByPrimaryKey(request.getId()), testPlan.getProjectId(), userId, requestUrl, requestMethod);
         return testPlan;
     }
@@ -721,4 +802,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         return new TestPlanResourceSortResponse(1);
     }
 
+
+    private void checkAllocationParam(TestPlanAllocationCreateRequest request) {
+        if (CollectionUtils.size(request.getTypeNodes()) != 3) {
+            throw new MSException(Translator.get("test_plan_allocation_type_param_error"));
+        }
+    }
 }
