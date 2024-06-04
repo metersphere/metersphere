@@ -57,6 +57,8 @@ import type {
   ExecuteHistoryType,
   FollowPlanParams,
   PassRateCountDetail,
+  PlanDetailApiCaseItem,
+  PlanDetailApiScenarioItem,
   PlanDetailBugItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
@@ -237,4 +239,12 @@ export function testPlanCancelBug(id: string) {
 // 测试计划-用例详情-执行历史
 export function executeHistory(data: ExecuteHistoryType) {
   return MSR.post<ExecuteHistoryItem[]>({ url: ExecuteHistoryUrl, data });
+}
+// 计划详情-接口用例列表 TODO 联调
+export function getPlanDetailApiCaseList(data: PlanDetailFeatureCaseListQueryParams) {
+  return MSR.post<CommonList<PlanDetailApiCaseItem>>({ url: GetPlanDetailFeatureCaseListUrl, data });
+}
+// 计划详情-接口场景列表 TODO 联调
+export function getPlanDetailApiScenarioList(data: PlanDetailFeatureCaseListQueryParams) {
+  return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailFeatureCaseListUrl, data });
 }

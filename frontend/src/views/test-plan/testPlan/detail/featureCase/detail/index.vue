@@ -221,7 +221,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -251,6 +251,7 @@
   } from '@/api/modules/test-plan/testPlan';
   import { testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -267,8 +268,8 @@
 
   const { t } = useI18n();
   const route = useRoute();
-  const router = useRouter();
   const appStore = useAppStore();
+  const { openNewPage } = useOpenNewPage();
 
   const planDetail = ref<TestPlanDetail>({
     ...testPlanDefaultDetail,
@@ -334,11 +335,9 @@
   }
 
   function goCaseDetail() {
-    window.open(
-      `${window.location.origin}#${
-        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
-      }?id=${activeCaseId.value}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`
-    );
+    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
+      id: activeCaseId.value,
+    });
   }
 
   const caseDetail = ref<any>({});

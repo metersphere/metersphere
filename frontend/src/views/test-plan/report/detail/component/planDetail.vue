@@ -1,5 +1,5 @@
 <template>
-  <MsCard class="mb-[16px]" hide-back hide-footer auto-height no-content-padding hide-divider>
+  <MsCard v-if="!props.isDrawer" class="mb-[16px]" hide-back hide-footer auto-height no-content-padding hide-divider>
     <template #headerLeft>
       <div class="flex items-center font-medium">
         <a-tooltip :content="detail.name" :mouse-enter-delay="300"
@@ -8,33 +8,7 @@
       </div>
     </template>
     <template #headerRight>
-      <a-popover position="bottom" content-class="response-popover-content">
-        <div>
-          <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
-          {{ detail.executeTime ? dayjs(detail.executeTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-          <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
-          {{ detail.endTime ? dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-        </div>
-        <template #content>
-          <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
-            <div class="flex-shrink-0 text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</div>
-            <div class="mt-2">
-              {{ dayjs(detail.executeTime).format('YYYY-MM-DD HH:mm:ss') }}
-            </div>
-          </div>
-        </template>
-      </a-popover>
-      <MsButton
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+SHARE']) && !shareId"
-        type="icon"
-        status="secondary"
-        class="ml-4 !rounded-[var(--border-radius-small)]"
-        :loading="shareLoading"
-        @click="shareHandler"
-      >
-        <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
-        {{ t('common.share') }}
-      </MsButton>
+      <PlanDetailHeaderRight :share-id="shareId" :detail="detail" />
     </template>
   </MsCard>
   <div class="analysis-wrapper">
@@ -123,7 +97,7 @@
       </div>
     </div>
   </div>
-  <MsCard class="mb-[16px]" simple auto-height>
+  <MsCard class="mb-[16px]" simple auto-height auto-width>
     <div class="font-medium">{{ t('report.detail.reportSummary') }}</div>
     <div
       :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`"
@@ -145,7 +119,7 @@
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
     </div>
   </MsCard>
-  <MsCard simple auto-height>
+  <MsCard simple auto-height auto-width>
     <MsTab
       v-model:active-key="activeTab"
       :show-badge="false"
@@ -164,38 +138,35 @@
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
-  import dayjs from 'dayjs';
 
   import MsChart from '@/components/pure/chart/index.vue';
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
+  import PlanDetailHeaderRight from './planDetailHeaderRight.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import BugTable from '@/views/test-plan/report/detail/component/bugTable.vue';
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/featureCaseTable.vue';
 
-  import { editorUploadFile, planReportShare, updateReportDetail } from '@/api/modules/test-plan/report';
+  import { editorUploadFile, updateReportDetail } from '@/api/modules/test-plan/report';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultReportDetail, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { LegendData } from '@/models/apiTest/report';
   import type { PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
-  import { RouteEnum } from '@/enums/routeEnum';
 
   import { getIndicators } from '@/views/api-test/report/utils';
 
   const { t } = useI18n();
 
   const route = useRoute();
-  const appStore = useAppStore();
   const props = defineProps<{
     detailInfo: PlanReportDetail;
+    isDrawer?: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -211,39 +182,7 @@
   /**
    * 分享share
    */
-  const shareLink = ref<string>('');
   const shareId = ref<string>(route.query.shareId as string);
-  const shareLoading = ref<boolean>(false);
-  async function shareHandler() {
-    try {
-      const res = await planReportShare({
-        reportId: detail.value.id,
-        projectId: appStore.currentProjectId,
-      });
-      const { origin } = window.location;
-      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_TEST_PLAN}${res.shareUrl}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(shareLink.value).then(
-          () => {
-            Message.info(t('bugManagement.detail.shareTip'));
-          },
-          (e) => {
-            Message.error(e);
-          }
-        );
-      } else {
-        const input = document.createElement('input');
-        input.value = shareLink.value;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        Message.info(t('bugManagement.detail.shareTip'));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   const legendData = ref<LegendData[]>([]);
 

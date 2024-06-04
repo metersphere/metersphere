@@ -22,7 +22,7 @@
           <div class="flex flex-1 items-center justify-between">
             <div class="flex items-center">
               <a-tooltip :disabled="!props.title" :content="props.title">
-                <span> {{ characterLimit(props.title) }}</span>
+                <span class="one-line-text max-w-[300px]"> {{ props.title }}</span>
               </a-tooltip>
 
               <slot name="headerLeft"></slot>
