@@ -281,7 +281,7 @@ export function mapTree<T>(
  */
 export function filterTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
-  filterFn: (node: TreeNode<T>, parent?: TreeNode<T> | null) => boolean,
+  filterFn: (node: TreeNode<T>, nodeIndex: number, parent?: TreeNode<T> | null) => boolean,
   customChildrenKey = 'children',
   parentNode: TreeNode<T> | null = null
 ): TreeNode<T>[] {
@@ -292,7 +292,7 @@ export function filterTree<T>(
   for (let i = 0; i < tree.length; i++) {
     const node = (tree as TreeNode<T>[])[i];
     // 如果节点满足过滤条件，则保留该节点，并递归过滤子节点
-    if (filterFn(node, parentNode)) {
+    if (filterFn(node, i, parentNode)) {
       const newNode = cloneDeep(node);
       if (node[customChildrenKey] && node[customChildrenKey].length > 0) {
         // 递归过滤子节点，并将过滤后的子节点添加到当前节点中

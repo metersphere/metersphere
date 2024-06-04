@@ -12,7 +12,7 @@ export interface MinderCustomEvent {
   timestamp: number;
   nodePosition?: MinderNodePosition;
   nodeDom?: HTMLElement;
-  node?: MinderJsonNode;
+  nodes?: MinderJsonNode[];
 }
 
 export interface MinderState {

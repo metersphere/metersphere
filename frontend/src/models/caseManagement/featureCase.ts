@@ -382,7 +382,15 @@ export interface FeatureCaseMinderUpdateModuleItem {
   moveMode?: MoveMode;
   targetId?: string;
 }
-
+// 脑图新增/修改的文本节点集合
+export interface FeatureCaseMinderUpdateTextNodeItem {
+  id: string;
+  name: string;
+  parentId: string;
+  type: FeatureCaseMinderActionType;
+  moveMode?: MoveMode;
+  targetId?: string;
+}
 export interface CustomField {
   fieldId: string;
   value: string;
@@ -419,4 +427,5 @@ export interface FeatureCaseMinderUpdateParams {
   updateCaseList: FeatureCaseMinderUpdateCaseItem[];
   updateModuleList: FeatureCaseMinderUpdateModuleItem[];
   deleteResourceList: FeatureCaseMinderDeleteResourceItem[];
+  additionalNodeList: FeatureCaseMinderUpdateTextNodeItem[];
 }

@@ -84,7 +84,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor';
-  import { findNodePathByKey } from '@/utils';
+  import { findNodePathByKey, getGenerateId } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
@@ -94,6 +94,7 @@
     mainEditorProps,
     MinderJson,
     MinderJsonNode,
+    MinderJsonNodeData,
     priorityProps,
     tagProps,
   } from '../props';
@@ -214,14 +215,6 @@
     init();
   });
 
-  watch(
-    () => props.importJson,
-    (val) => {
-      innerImportJson.value = val;
-      window.minder.importJson(val);
-    }
-  );
-
   const menuVisible = ref(false);
   const menuPopupOffset = ref([0, 0]);
 
@@ -229,12 +222,17 @@
    * 切换脑图展示的节点层级
    * @param node 切换的节点
    */
-  function switchNode(node: MinderJsonNode) {
-    innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.data?.id, 'data', 'id'));
+  function switchNode(node: MinderJsonNode | MinderJsonNodeData) {
+    if (node.data) {
+      innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.data.id, 'data', 'id'));
+    } else {
+      innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.id, 'data', 'id'));
+    }
     innerImportJson.value.data.expandState = 'expand';
     window.minder.importJson(innerImportJson.value);
-    window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[minderStore.mold]);
-    minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, node);
+    setTimeout(() => {
+      window.minder.execCommand('camera', window.minder.getRoot(), 600);
+    }, 100); // TODO:暂未知渲染时机，临时延迟解决
   }
 
   watch(
@@ -248,8 +246,8 @@
         ];
         menuVisible.value = true;
       }
-      if (minderStore.event.name === MinderEventName.ENTER_NODE && minderStore.event.node) {
-        switchNode(minderStore.event.node);
+      if (minderStore.event.name === MinderEventName.ENTER_NODE && minderStore.event.nodes) {
+        switchNode(minderStore.event.nodes[0]);
       }
     }
   );
@@ -268,6 +266,12 @@
       window.minder.execCommand(command);
       nextTick(() => {
         const newNode: MinderJsonNode = window.minder.getSelectedNode();
+        if (!newNode.data) {
+          newNode.data = {
+            id: getGenerateId(),
+            text: '',
+          };
+        }
         newNode.data.isNew = true; // 新建的节点标记为新建
       });
     }
@@ -278,49 +282,52 @@
    * @param val 选择的菜单项
    */
   function handleMinderMenuSelect(val: string | number | Record<string, any> | undefined) {
-    const selectedNode = window.minder.getSelectedNode();
-    switch (val) {
-      case 'expand':
-        if (selectedNode.data.expandState === 'collapse') {
-          window.minder.execCommand('Expand');
-        } else {
-          window.minder.execCommand('Collapse');
-        }
-        minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, selectedNode);
-        break;
-      case 'insetParent':
-        execInsertCommand('AppendParentNode');
-        minderStore.dispatchEvent(MinderEventName.INSERT_PARENT, undefined, undefined, selectedNode);
-        break;
-      case 'insetSon':
-        execInsertCommand('AppendChildNode');
-        minderStore.dispatchEvent(MinderEventName.INSERT_CHILD, undefined, undefined, selectedNode);
-        break;
-      case 'insetBrother':
-        execInsertCommand('AppendSiblingNode');
-        minderStore.dispatchEvent(MinderEventName.INSERT_SIBLING, undefined, undefined, selectedNode);
-        break;
-      case 'copy':
-        window.minder.execCommand('Copy');
-        minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, selectedNode);
-        break;
-      case 'cut':
-        window.minder.execCommand('Cut');
-        minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, selectedNode);
-        break;
-      case 'paste':
-        window.minder.execCommand('Paste');
-        minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, selectedNode);
-        break;
-      case 'delete':
-        window.minder.execCommand('RemoveNode');
-        minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, selectedNode);
-        break;
-      case 'enterNode':
-        switchNode(selectedNode.data);
-        break;
-      default:
-        break;
+    const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+    if (selectedNodes.length > 0) {
+      switch (val) {
+        case 'expand':
+          if (selectedNodes.some((node) => node.data?.expandState === 'collapse')) {
+            window.minder.execCommand('Expand');
+          } else {
+            window.minder.execCommand('Collapse');
+          }
+          minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, selectedNodes);
+          break;
+        case 'insetParent':
+          execInsertCommand('AppendParentNode');
+          minderStore.dispatchEvent(MinderEventName.INSERT_PARENT, undefined, undefined, selectedNodes);
+          break;
+        case 'insetSon':
+          execInsertCommand('AppendChildNode');
+          minderStore.dispatchEvent(MinderEventName.INSERT_CHILD, undefined, undefined, selectedNodes);
+          break;
+        case 'insetBrother':
+          execInsertCommand('AppendSiblingNode');
+          minderStore.dispatchEvent(MinderEventName.INSERT_SIBLING, undefined, undefined, selectedNodes);
+          break;
+        case 'copy':
+          window.minder.execCommand('Copy');
+          minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, selectedNodes);
+          break;
+        case 'cut':
+          window.minder.execCommand('Cut');
+          minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, selectedNodes);
+          break;
+        case 'paste':
+          window.minder.execCommand('Paste');
+          minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, selectedNodes);
+          break;
+        case 'delete':
+          window.minder.execCommand('RemoveNode');
+          minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, selectedNodes);
+          break;
+        case 'enterNode':
+          switchNode(selectedNodes[0]);
+          minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, [selectedNodes[0]]);
+          break;
+        default:
+          break;
+      }
     }
   }
 </script>
