@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -76,7 +77,7 @@
   import { RouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
-
+  const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -165,23 +166,11 @@
 
       const { origin } = window.location;
       shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_CASE}${shareId}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(shareLink.value).then(
-          () => {
-            Message.info(t('bugManagement.detail.shareTip'));
-          },
-          (e) => {
-            Message.error(e);
-          }
-        );
-      } else {
-        const input = document.createElement('input');
-        input.value = shareLink.value;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
+      if (isSupported) {
+        copy(shareLink.value);
         Message.info(t('bugManagement.detail.shareTip'));
+      } else {
+        Message.error(t('common.copyNotSupport'));
       }
     } catch (error) {
       console.log(error);

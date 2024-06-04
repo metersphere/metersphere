@@ -232,6 +232,7 @@
 <script setup lang="ts">
   import { defineModel, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';
 
@@ -279,6 +280,7 @@
 
   const { t } = useI18n();
   const { openDeleteModal } = useModal();
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
   const emit = defineEmits<{
     (e: 'submit'): void;
@@ -504,23 +506,11 @@
   function shareHandler() {
     const { origin } = window.location;
     const url = `${origin}/#${route.path}?id=${detailInfo.value.id}&pId=${appStore.currentProjectId}&orgId=${appStore.currentOrgId}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(
-        () => {
-          Message.info(t('bugManagement.detail.shareTip'));
-        },
-        (e) => {
-          Message.error(e);
-        }
-      );
-    } else {
-      const input = document.createElement('input');
-      input.value = url;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('copy');
-      document.body.removeChild(input);
+    if (isSupported) {
+      copy(url);
       Message.info(t('bugManagement.detail.shareTip'));
+    } else {
+      Message.error(t('common.copyNotSupport'));
     }
   }
 
