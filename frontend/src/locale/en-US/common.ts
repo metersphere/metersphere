@@ -136,7 +136,7 @@ export default {
   'common.tip': 'Tips',
   'common.stay': 'Stay',
   'common.apply': 'Apply',
-  'common.stop': 'Stop',
+  'common.stop': 'Stopped',
   'common.module': 'Module',
   'common.yes': 'Yes',
   'common.no': 'No',
