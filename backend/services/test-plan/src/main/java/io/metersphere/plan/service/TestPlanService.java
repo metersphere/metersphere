@@ -66,7 +66,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanBatchCopyService testPlanBatchCopyService;
     @Resource
-    private TestPlanBatchMoveService testPlanBatchMoveService;
+    private TestPlanBatchOperationService testPlanBatchOperationService;
     @Resource
     private TestPlanBatchArchivedService testPlanBatchArchivedService;
     @Resource
@@ -302,6 +302,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 //检查模块的合法性
                 checkModule(request.getModuleId());
                 updateTestPlan.setModuleId(request.getModuleId());
+                //移动模块时重置GroupId
+                updateTestPlan.setGroupId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
             }
             if (StringUtils.isNotBlank(request.getName())) {
                 updateTestPlan.setName(request.getName());
@@ -362,12 +364,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             //测试计划组归档
             updateGroupStatus(testPlan.getId(), userId);
-        } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
+        } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             //测试计划
             testPlan.setStatus(TEST_PLAN_STATUS_ARCHIVED);
             testPlan.setUpdateUser(userId);
             testPlan.setUpdateTime(System.currentTimeMillis());
             testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        } else {
+            throw new MSException(Translator.get("test_plan.cannot.archived"));
         }
 
     }
@@ -559,25 +563,30 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      *
      * @param request 批量请求参数
      * @param userId  当前登录用户
-     * @param url     请求URL
+     * @param operationUrl     请求URL
      * @param method  请求方法
      */
-    public void batchMove(TestPlanBatchRequest request, String userId, String url, String method) {
+    public void batchMove(TestPlanBatchRequest request, String userId, String operationUrl, String method) {
         // 目前计划的批量操作不支持全选所有页
         List<String> moveIds = request.getSelectIds();
+
         if (CollectionUtils.isNotEmpty(moveIds)) {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria().andIdIn(moveIds);
             List<TestPlan> moveTestPlanList = testPlanMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(moveTestPlanList)) {
-                Map<String, List<TestPlan>> plans = moveTestPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
-                testPlanBatchMoveService.batchMove(plans, request, userId);
-                //日志
-                testPlanLogService.saveBatchLog(moveTestPlanList, userId, url, method, OperationLogType.UPDATE.name(), "update");
+
+            //判断移动的是测试计划组还是模块
+            if (StringUtils.equalsIgnoreCase(request.getMoveType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+                moveTestPlanList = moveTestPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN))
+                        .collect(Collectors.toList());
+                testPlanBatchOperationService.batchMoveGroup(moveTestPlanList, request.getTargetId(), userId);
+            } else {
+                testPlanBatchOperationService.batchMoveModule(moveTestPlanList, request.getTargetId(), userId);
             }
+            //日志
+            testPlanLogService.saveBatchLog(moveTestPlanList, userId, operationUrl, method, OperationLogType.UPDATE.name(), "update");
         }
     }
-
 
     /**
      * 批量编辑

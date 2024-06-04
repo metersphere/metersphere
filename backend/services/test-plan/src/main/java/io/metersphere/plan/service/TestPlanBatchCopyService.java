@@ -82,7 +82,7 @@ public class TestPlanBatchCopyService {
             testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
             testPlan.setNum(NumGenerator.nextNum(testPlan.getProjectId(), ApplicationNumScope.TEST_PLAN));
             testPlan.setName(getCopyName(testPlan.getName(), num, testPlan.getNum()));
-            testPlan.setModuleId(request.getModuleId());
+            testPlan.setModuleId(request.getTargetId());
             testPlan.setCreateTime(System.currentTimeMillis());
             testPlan.setUpdateTime(System.currentTimeMillis());
             testPlan.setCreateUser(userId);

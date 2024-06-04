@@ -131,6 +131,8 @@ public class TestPlanTests extends BaseTest {
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
 
+    private static List<String> rootPlanIds = new ArrayList<>();
+
     //普通测试计划
     private static TestPlan simpleTestPlan;
     //允许重复添加用例的测试计划
@@ -569,8 +571,6 @@ public class TestPlanTests extends BaseTest {
             } else if (i == 15) {
                 groupTestPlanId15 = returnId;
             } else if (i > 700 && i < 750) {
-
-
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
                 TestPlanReportMapper batchInsert = sqlSession.getMapper(TestPlanReportMapper.class);
                 // 701-749 要创建测试计划报告   每个测试计划创建250个报告
@@ -595,7 +595,9 @@ public class TestPlanTests extends BaseTest {
                 }
                 sqlSession.flushStatements();
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-
+                rootPlanIds.add(returnId);
+            } else {
+                rootPlanIds.add(returnId);
             }
 
             //操作日志检查
@@ -686,8 +688,8 @@ public class TestPlanTests extends BaseTest {
         request.setPassThreshold(100);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ADD, URL_POST_TEST_PLAN_ADD, request);
 
-
         this.checkTestPlanSortInGroup(groupTestPlanId7);
+        this.checkTestPlanMoveToGroup(groupTestPlanId7);
     }
 
     private List<TestPlanResponse> selectByGroupId(String groupId) throws Exception {
@@ -802,7 +804,44 @@ public class TestPlanTests extends BaseTest {
             Assertions.assertTrue(newTestPlanInGroup.get(newListIndex).getPos() == (lastPos + NodeSortUtils.DEFAULT_NODE_INTERVAL_POS));
             lastPos = newTestPlanInGroup.get(newListIndex).getPos();
         }
+
+        //测试权限
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_TEST_PLAN_SORT, posRequest);
     }
+
+    protected void checkTestPlanMoveToGroup(String groupId) throws Exception {
+        List<String> movePlanIds = rootPlanIds.subList(rootPlanIds.size() - 21, rootPlanIds.size() - 1);
+        TestPlanBatchRequest request = new TestPlanBatchRequest();
+        request.setProjectId(project.getId());
+        request.setSelectIds(movePlanIds);
+        request.setMoveType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+        request.setTargetId(groupId);
+
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
+        List<TestPlanResponse> groups = this.selectByGroupId(groupId);
+        List<String> checkList = new ArrayList<>(movePlanIds);
+        for (TestPlanResponse response : groups) {
+            checkList.remove(response.getId());
+        }
+        Assertions.assertTrue(CollectionUtils.isEmpty(checkList));
+
+        //移动出来
+        request.setTargetId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
+        List<TestPlanResponse> nextGroups = this.selectByGroupId(groupId);
+        groups.removeAll(nextGroups);
+        for (TestPlanResponse response : groups) {
+            movePlanIds.remove(response.getId());
+        }
+        Assertions.assertTrue(CollectionUtils.isEmpty(movePlanIds));
+
+        //权限
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_TEST_PLAN_BATCH_MOVE, request);
+    }
+
+
     @Test
     @Order(12)
     public void testPlanPageCountTest() throws Exception {
@@ -1877,10 +1916,21 @@ public class TestPlanTests extends BaseTest {
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
 
         //计划组
-        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2"));
-        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_3"));
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2"));
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_3"));
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_5"));
 
+        // 测试计划组内的测试计划不能归档
+        if (groupTestPlanId7 == null) {
+            this.testPlanAddTest();
+        }
+        List<TestPlanResponse> testPlanResponseList = this.selectByGroupId(groupTestPlanId7);
+        TestPlanResponse cannotArchivedPlan = testPlanResponseList.getFirst();
+        testPlanMapper.updateByPrimaryKeySelective(new TestPlan() {{
+            this.setId(cannotArchivedPlan.getId());
+            this.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+        }});
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_5")).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -1974,7 +2024,7 @@ public class TestPlanTests extends BaseTest {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
         request.setProjectId("123");
         request.setType("ALL");
-        request.setModuleId("2");
+        request.setTargetId("2");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_1", "wx_test_plan_id_2"));
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_COPY, request);
@@ -1987,11 +2037,11 @@ public class TestPlanTests extends BaseTest {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
         request.setProjectId("123");
         request.setType("ALL");
-        request.setModuleId("3");
+        request.setTargetId("3");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_3", "wx_test_plan_id_4"));
+        request.setMoveType(ModuleConstants.NODE_TYPE_DEFAULT);
 
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
-
     }
 
     @Test
@@ -2000,7 +2050,7 @@ public class TestPlanTests extends BaseTest {
         TestPlanBatchRequest request = new TestPlanBatchRequest();
         request.setProjectId("123");
         request.setType("ALL");
-        request.setModuleId("3");
+        request.setTargetId("3");
         request.setSelectIds(List.of("wx_test_plan_id_2"));
         this.requestPost(URL_TEST_PLAN_BATCH_ARCHIVED, request, status().is5xxServerError());
         request.setSelectIds(List.of("wx_test_plan_id_7"));
