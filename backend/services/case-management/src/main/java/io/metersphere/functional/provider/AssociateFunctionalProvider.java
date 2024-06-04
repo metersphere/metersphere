@@ -35,13 +35,15 @@ public class AssociateFunctionalProvider implements BaseAssociateCaseProvider {
         Map<String, List<FunctionalCaseCustomFieldDTO>> caseCustomFiledMap = functionalCaseService.getCaseCustomFiledMap(ids, testCasePageProviderRequest.getProjectId());
         functionalCases.forEach(functionalCase -> {
             List<FunctionalCaseCustomFieldDTO> customFields = caseCustomFiledMap.get(functionalCase.getId());
-            List<BaseCaseCustomFieldDTO> customs = new ArrayList<>();
-            for (FunctionalCaseCustomFieldDTO customField : customFields) {
-                BaseCaseCustomFieldDTO baseCaseCustomFieldDTO = new BaseCaseCustomFieldDTO();
-                BeanUtils.copyBean(baseCaseCustomFieldDTO, customField);
-                customs.add(baseCaseCustomFieldDTO);
+            if (CollectionUtils.isNotEmpty(customFields)) {
+                List<BaseCaseCustomFieldDTO> customs = new ArrayList<>();
+                for (FunctionalCaseCustomFieldDTO customField : customFields) {
+                    BaseCaseCustomFieldDTO baseCaseCustomFieldDTO = new BaseCaseCustomFieldDTO();
+                    BeanUtils.copyBean(baseCaseCustomFieldDTO, customField);
+                    customs.add(baseCaseCustomFieldDTO);
+                }
+                functionalCase.setCustomFields(customs);
             }
-            functionalCase.setCustomFields(customs);
         });
         return functionalCases;
     }

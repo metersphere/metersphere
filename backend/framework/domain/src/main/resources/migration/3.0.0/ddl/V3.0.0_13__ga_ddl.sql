@@ -19,13 +19,16 @@ alter table test_plan
 ALTER TABLE test_plan_config DROP `test_planning`;
 
 -- 修改计划报告详情表字段
+UPDATE test_plan_report_summary SET bug_count = 0 WHERE bug_count IS NULL;
 ALTER TABLE test_plan_report_summary MODIFY `bug_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '缺陷数量';
 ALTER TABLE test_plan_report_summary DROP `report_count`;
 
 -- 修改计划报告功能用例表字段
+UPDATE test_plan_report_function_case SET function_case_bug_count = 0 WHERE function_case_bug_count IS NULL;
 ALTER TABLE test_plan_report_function_case MODIFY `function_case_bug_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '功能用例关联缺陷数';
 
 -- 修改计划报告缺陷表字段
+UPDATE test_plan_report_bug SET bug_case_count = 0 WHERE bug_case_count IS NULL;
 ALTER TABLE test_plan_report_bug MODIFY `bug_case_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '缺陷用例数';
 
 -- 修改测试计划关联接口表字段
