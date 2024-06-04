@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
+        <version>3.2.6</version>
         <relativePath/>
     </parent>
 
@@ -23,7 +23,7 @@
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <dubbo.version>2.7.22</dubbo.version>
         <platform-plugin-sdk.version>1.6.0</platform-plugin-sdk.version>
-        <shiro.version>1.13.0</shiro.version>
+        <shiro.version>2.0.1</shiro.version>
         <java-websocket.version>1.5.3</java-websocket.version>
         <easyexcel.version>3.1.1</easyexcel.version>
         <dom4j.version>2.1.4</dom4j.version>

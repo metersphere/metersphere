@@ -7,8 +7,13 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.web.util.WebUtils;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -20,9 +25,10 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -43,6 +49,16 @@ public class CheckOwnerAspect {
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
 
+        // apikey 过来的请求
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+            if (ApiKeyHandler.isApiKeyCall(request) && !SecurityUtils.getSubject().isAuthenticated()) {
+                String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
+                SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, SSOSessionHandler.random));
+            }
+        }
+
         //从切面织入点处通过反射机制获取织入点处的方法
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         //获取切入点所在的方法
@@ -59,6 +75,7 @@ public class CheckOwnerAspect {
             return;
         }
 
+
         // 操作内容
         //获取方法参数名
         String[] params = discoverer.getParameterNames(method);
@@ -73,13 +90,26 @@ public class CheckOwnerAspect {
         Expression titleExp = parser.parseExpression(resourceId);
         Object v = titleExp.getValue(context, Object.class);
         if (v instanceof String id) {
-            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), List.of(id))) {
+            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getUserId(), List.of(id))) {
                 MSException.throwException(Translator.get("check_owner_case"));
             }
         }
         if (v instanceof List ids) {
-            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), ids)) {
+            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getUserId(), ids)) {
                 MSException.throwException(Translator.get("check_owner_case"));
+            }
+        }
+    }
+
+    @After("pointcut()")
+    public void after() {
+        // apikey 过来的请求
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+            // apikey 退出
+            if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request)) && SecurityUtils.getSubject().isAuthenticated()) {
+                SecurityUtils.getSubject().logout();
             }
         }
     }

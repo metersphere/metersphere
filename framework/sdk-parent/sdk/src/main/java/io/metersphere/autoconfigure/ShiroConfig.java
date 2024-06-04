@@ -51,14 +51,6 @@ public class ShiroConfig {
         return shiroFilterFactoryBean;
     }
 
-    @Bean(name = "shiroFilter")
-    public FilterRegistrationBean<Filter> shiroFilter(ShiroFilterFactoryBean shiroFilterFactoryBean) throws Exception {
-        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
-        registration.setFilter((Filter) Objects.requireNonNull(shiroFilterFactoryBean.getObject()));
-        registration.setDispatcherTypes(EnumSet.allOf(DispatcherType.class));
-        return registration;
-    }
-
     @Bean
     public MemoryConstrainedCacheManager memoryConstrainedCacheManager() {
         return new MemoryConstrainedCacheManager();

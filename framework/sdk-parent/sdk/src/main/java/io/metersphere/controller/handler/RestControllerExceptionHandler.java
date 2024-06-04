@@ -3,9 +3,9 @@ package io.metersphere.controller.handler;
 
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthorizedException;
 
+import org.apache.shiro.lang.ShiroException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
