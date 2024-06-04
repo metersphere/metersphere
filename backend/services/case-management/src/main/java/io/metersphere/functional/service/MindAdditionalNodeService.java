@@ -9,6 +9,6 @@ import org.springframework.stereotype.Service;
  * @date : 2023-5-17
  */
 @Service
-public class MinderExtraNodeService {
+public class MindAdditionalNodeService {
 
 }

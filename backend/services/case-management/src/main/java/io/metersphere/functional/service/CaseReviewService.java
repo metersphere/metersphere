@@ -133,6 +133,7 @@ public class CaseReviewService {
             caseReviewDTO.setReReviewedCount(0);
             caseReviewDTO.setUnderReviewedCount(0);
             caseReviewDTO.setReviewedCount(0);
+            caseReviewDTO.setUnReviewCount(0);
         } else {
             buildAboutCaseCount(caseReviewDTO, caseReviewFunctionalCaseList);
         }
@@ -174,6 +175,13 @@ public class CaseReviewService {
         caseReviewDTO.setUnderReviewedCount(underReviewedList.size());
 
         caseReviewDTO.setReviewedCount(caseReviewDTO.getPassCount() + caseReviewDTO.getUnPassCount());
+
+        List<CaseReviewFunctionalCase> unReviewList = statusCaseMap.get(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+        if (unReviewList == null) {
+            unReviewList = new ArrayList<>();
+        }
+        caseReviewDTO.setUnReviewCount(unReviewList.size());
+
     }
 
     /**

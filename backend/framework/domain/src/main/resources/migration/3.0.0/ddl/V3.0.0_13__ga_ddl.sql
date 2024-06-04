@@ -11,6 +11,32 @@ CREATE TABLE IF NOT EXISTS platform_source(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '平台对接保存参数';
 
+CREATE TABLE IF NOT EXISTS mind_additional_node(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
+    `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父节点ID' ,
+    `pos` BIGINT NOT NULL  DEFAULT 0 COMMENT '同一节点下的顺序' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
+    PRIMARY KEY (id)
+    )  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '平台对接保存参数';
+
+
+CREATE INDEX idx_project_id ON mind_additional_node(project_id);
+CREATE INDEX idx_name ON mind_additional_node(name);
+CREATE INDEX idx_pos ON mind_additional_node(pos);
+CREATE INDEX idx_parent_id ON mind_additional_node(parent_id);
+CREATE INDEX idx_create_user ON mind_additional_node(create_user);
+CREATE INDEX idx_update_user ON mind_additional_node(update_user);
+CREATE INDEX idx_create_time ON mind_additional_node(create_time);
+CREATE INDEX idx_update_time ON mind_additional_node(update_time);
+CREATE UNIQUE INDEX uq_name_project_parent ON mind_additional_node(project_id,name,parent_id);
+
 -- 测试计划增加排序字段
 alter table test_plan
     ADD COLUMN `pos` BIGINT NOT NULL DEFAULT 0 COMMENT '自定义排序';

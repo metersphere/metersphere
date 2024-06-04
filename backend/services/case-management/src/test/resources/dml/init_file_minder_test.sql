@@ -93,4 +93,9 @@ VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'
        ('TEST_FUNCTIONAL_MINDER_CASE_ID_5', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin'),
        ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin');
 
+INSERT INTO mind_additional_node(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user)
+VALUES ('additional1', 'project-case-minder-test', 'additional1', 'TEST_MINDER_MODULE_ID_GYQ', 0, UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, 'admin','admin'),
+       ('additional2', 'project-case-minder-test', 'additional2', 'additional1', 500, UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, 'admin','admin');
 
+INSERT INTO template(id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene, ref_id)
+VALUES ('100001', 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', 'project-case-minder-test', 0, 'FUNCTIONAL', '100001');

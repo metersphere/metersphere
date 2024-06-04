@@ -27,6 +27,9 @@ public class CaseReviewDTO extends CaseReview {
     @Schema(description = "已评审过得用例数")
     private int reviewedCount;
 
+    @Schema(description = "未评审得用例数")
+    private int unReviewCount;
+
     @Schema(description = "关注标识")
     private Boolean followFlag;
 
