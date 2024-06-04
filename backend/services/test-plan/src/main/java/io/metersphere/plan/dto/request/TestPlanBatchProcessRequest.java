@@ -20,7 +20,6 @@ public class TestPlanBatchProcessRequest extends TableBatchProcessDTO {
     private List<String> moduleIds;
 
     @Schema(description = "类型", allowableValues = {"ALL", "TEST_PLAN", "GROUP"}, requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan.type.not_blank}")
-    private String type;
+    private String type = "ALL";
 
 }
