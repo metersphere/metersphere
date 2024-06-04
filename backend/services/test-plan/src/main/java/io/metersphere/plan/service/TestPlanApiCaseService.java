@@ -2,8 +2,10 @@ package io.metersphere.plan.service;
 
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
@@ -11,19 +13,21 @@ import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
-import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +40,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanApiCaseService extends TestPlanResourceService {
-    @Resource
-    private SqlSessionFactory sqlSessionFactory;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
@@ -53,7 +55,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private UserLoginService userLoginService;
     @Resource
-    private TestPlanCollectionMapper testPlanCollectionMapper;
+    private ApiDefinitionModuleService apiDefinitionModuleService;
+    private static final String CASE_MODULE_COUNT_ALL = "all";
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -191,5 +194,48 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         projectExample.createCriteria().andIdIn(projectIds);
         List<Project> projectList = projectMapper.selectByExample(projectExample);
         return projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+    }
+
+
+    public Map<String, Long> moduleCount(TestPlanApiCaseRequest request) {
+        request.setModuleIds(null);
+        List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanApiCaseMapper.countModuleIdByRequest(request, false);
+        Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
+        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        projectCountMap.forEach((projectId, moduleCountDTOList) -> {
+            List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
+            for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {
+                ModuleCountDTO moduleCountDTO = new ModuleCountDTO();
+                BeanUtils.copyBean(moduleCountDTO, functionalCaseModuleCountDTO);
+                moduleCountDTOS.add(moduleCountDTO);
+            }
+            int sum = moduleCountDTOList.stream().mapToInt(FunctionalCaseModuleCountDTO::getDataCount).sum();
+            Map<String, Long> moduleCountMap = getModuleCountMap(projectId, request.getTestPlanId(), moduleCountDTOS);
+            moduleCountMap.forEach((k, v) -> {
+                if (projectModuleCountMap.get(k) == null || projectModuleCountMap.get(k) == 0L) {
+                    projectModuleCountMap.put(k, v);
+                }
+            });
+            projectModuleCountMap.put(projectId, (long) sum);
+        });
+        //查出全部用例数量
+        long allCount = extTestPlanApiCaseMapper.caseCount(request, false);
+        projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return projectModuleCountMap;
+    }
+
+    public Map<String, Long> getModuleCountMap(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
+        //构建模块树，并计算每个节点下的所有数量（包含子节点）
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, testPlanId, moduleCountDTOList);
+        //通过广度遍历的方式构建返回值
+        return apiDefinitionModuleService.getIdCountMapByBreadth(treeNodeList);
+    }
+
+
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
+        //节点内容只有Id和parentId
+        List<String> moduleIds = extTestPlanApiCaseMapper.selectIdByProjectIdAndTestPlanId(projectId, testPlanId);
+        List<BaseTreeNode> nodeByNodeIds = apiDefinitionModuleService.getNodeByNodeIds(moduleIds);
+        return apiDefinitionModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
     }
 }
