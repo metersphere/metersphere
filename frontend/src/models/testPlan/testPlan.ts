@@ -275,4 +275,17 @@ export interface PlanDetailApiScenarioItem {
   testPlanId: string;
   lastExecResultReportId: string;
 }
+
+// 执行历史 TODO 联调
+export interface PlanDetailExecuteHistoryItem {
+  id: string;
+  num: string;
+  name: string;
+  operationUser: string;
+  createUser: string;
+  startTime: number;
+  endTime: number;
+  lastExecResult: LastExecuteResults;
+  triggerMode: string;
+}
 export default {};

@@ -102,4 +102,5 @@ export default {
   'testPlan.featureCase.richTextDblclickPlaceholder': '双击可快速输入',
   'testPlan.featureCase.autoNextTip1': '开启：提交结果后，跳转至下一条用例',
   'testPlan.featureCase.autoNextTip2': '关闭：提交结果后，还在当前',
+  'testPlan.executeHistory.executionStartAndEndTime': '执行起止时间',
 };
