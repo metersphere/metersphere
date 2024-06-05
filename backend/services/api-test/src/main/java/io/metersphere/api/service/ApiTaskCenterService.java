@@ -11,6 +11,8 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.result.ProcessResultDTO;
 import io.metersphere.sdk.dto.api.result.TaskResultDTO;
+import io.metersphere.sdk.dto.api.task.TaskInfo;
+import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
@@ -293,11 +295,14 @@ public class ApiTaskCenterService {
                     LogUtils.error(e);
                 } finally {
                     subList.forEach(reportId -> {
-                        taskRequestDTO.setReportId(reportId);
-                        taskRequestDTO.setResourceType(request.getModuleType());
-                        taskRequestDTO.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
+                        TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
+                        TaskItem taskItem = new TaskItem();
+                        taskRequestDTO.setTaskItem(taskItem);
+                        taskItem.setReportId(reportId);
+                        taskInfo.setResourceType(request.getModuleType());
+                        taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
                         if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
-                            taskRequestDTO.getRunModeConfig().getCollectionReport().setReportId(reportId);
+                            taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
                         }
                         result.setRequest(taskRequestDTO);
                         kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));

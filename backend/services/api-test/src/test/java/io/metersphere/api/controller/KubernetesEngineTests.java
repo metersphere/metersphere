@@ -166,7 +166,7 @@ public class KubernetesEngineTests extends BaseTest {
         TaskRequestDTO request = new TaskRequestDTO();
         ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
         runModeConfig.setPoolId(id);
-        request.setRunModeConfig(runModeConfig);
+        request.getTaskInfo().setRunModeConfig(runModeConfig);
 
         final ApiEngine engine = EngineFactory.createApiEngine(request);
         engine.start();

@@ -25,6 +25,7 @@ import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -213,10 +214,11 @@ public class ApiDebugService extends MoveNodeService {
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
 
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
-        taskRequest.setSaveResult(false);
-        taskRequest.setRealTime(true);
-        taskRequest.setResourceType(ApiResourceType.API_DEBUG.name());
-        taskRequest.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setSaveResult(false);
+        taskInfo.setRealTime(true);
+        taskInfo.setResourceType(ApiResourceType.API_DEBUG.name());
+        taskInfo.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 

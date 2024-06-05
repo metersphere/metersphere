@@ -2,6 +2,7 @@ package io.metersphere.system.utils;
 
 import com.bastiaanjansen.otp.TOTPGenerator;
 import io.metersphere.sdk.constants.MsHttpHeaders;
+import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -28,6 +29,7 @@ public class TaskRunnerClient {
 
     private static final String API_DEBUG = "/api/debug";
     private static final String API_RUN = "/api/run";
+    private static final String BATCH_API_RUN = "/api/batch/run";
     private static final String HTTP_BATH = "http://%s:%s";
     private static final String API_STOP = "/api/stop";
 
@@ -48,6 +50,10 @@ public class TaskRunnerClient {
 
     public static void runApi(String endpoint, TaskRequestDTO taskRequest) throws Exception {
         post(endpoint + API_RUN, taskRequest);
+    }
+
+    public static void batchRunApi(String endpoint, TaskBatchRequestDTO taskRequest) throws Exception {
+        post(endpoint + BATCH_API_RUN, taskRequest);
     }
 
     public static void stopApi(String endpoint, List<String> reportIds) throws Exception {
