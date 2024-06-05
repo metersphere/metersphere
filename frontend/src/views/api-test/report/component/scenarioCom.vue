@@ -6,7 +6,7 @@
     <!-- 报告分析，报告步骤分析和请求分析开始 -->
     <div class="analyze mb-1">
       <div class="analyze-item">
-        <div class="block-title">{{ t('report.detail.api.stepAnalysis') }}</div>
+        <div class="block-title">{{ t('report.detail.api.reportAnalysis') }}</div>
         <ReportMetricsItem
           v-for="analysisItem in reportAnalysisList"
           :key="analysisItem.name"
@@ -18,8 +18,8 @@
         <div class="block-title">{{ t('report.detail.api.stepAnalysis') }}</div>
         <SetReportChart
           :legend-data="stepAnalysisLegendData"
-          :options="charOptions"
-          :request-total="getIndicators(detail.requestTotal) || 0"
+          :options="stepCharOptions"
+          :request-total="getIndicators(detail.stepTotal) || 0"
         />
       </div>
       <!-- 请求分析 -->
@@ -27,7 +27,7 @@
         <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
         <SetReportChart
           :legend-data="legendData"
-          :options="charOptions"
+          :options="requestCharOptions"
           :request-total="getIndicators(detail.requestTotal) || 0"
         />
       </div>
@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import SetReportChart from './case/setReportChart.vue';
   import ReportDetailHeader from './reportDetailHeader.vue';
@@ -154,7 +155,7 @@
 
   const legendData = ref<LegendData[]>([]);
   const stepAnalysisLegendData = ref<LegendData[]>([]);
-  const charOptions = ref({
+  const defaultCharOptions = {
     tooltip: {
       show: false,
       trigger: 'item',
@@ -212,7 +213,9 @@
         },
       ],
     },
-  });
+  };
+  const stepCharOptions = ref(cloneDeep(defaultCharOptions));
+  const requestCharOptions = ref(cloneDeep(defaultCharOptions));
   const activeTab = ref<'tiled' | 'tab'>('tiled');
 
   function getRote(count: number, countTotal: number) {
@@ -250,7 +253,7 @@
       },
     ];
 
-    charOptions.value.series.data = tempArr.map((item: any) => {
+    requestCharOptions.value.series.data = tempArr.map((item: any) => {
       return {
         value: detail.value[item.value] || 0,
         name: t(item.label),
@@ -267,6 +270,18 @@
         label: t(item.label),
         count: detail.value[item.value] || 0,
         rote: `${detail.value[item.rateKey] || 0}%`,
+      };
+    });
+    stepCharOptions.value.series.data = tempArr.map((item: any) => {
+      const valueName = `step${item.value.charAt(0).toUpperCase() + item.value.slice(1)}`;
+      return {
+        value: detail.value[valueName] || 0,
+        name: t(item.label),
+        itemStyle: {
+          color: item.color,
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
       };
     });
     stepAnalysisLegendData.value = tempArr.map((item: any) => {

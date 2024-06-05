@@ -25,6 +25,7 @@ export default {
   'report.detail.api.executionTime': '执行时间',
   'report.detail.api.executionTimeTo': '至',
   'report.detail.api.stepAnalysis': '步骤分析',
+  'report.detail.api.reportAnalysis': '报告分析',
   'report.detail.api.content': '内容',
   'report.detail.api.assertStatus': '状态',
   'report.detail.api.totalTime': '报告总耗时',
