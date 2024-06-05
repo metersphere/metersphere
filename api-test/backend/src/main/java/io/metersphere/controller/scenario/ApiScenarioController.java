@@ -200,7 +200,7 @@ public class ApiScenarioController {
     }
 
     @GetMapping("/scenario-details/{id}")
-    @RequiresPermissions(value ={PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE}, logical = Logical.OR)
     public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getNewApiScenario(id);
     }
@@ -398,7 +398,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/export/jmx")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO, PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE , PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE_BATCH}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO, PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE, PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE_BATCH}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ScenarioToPerformanceInfoDTO exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
@@ -437,7 +437,7 @@ public class ApiScenarioController {
 
     @GetMapping("versions/{scenarioId}")
     public List<ApiScenarioDTO> getApiScenarioVersions(@PathVariable String scenarioId) {
-        apiAutomationService.checkOwner(scenarioId, SessionUtils.getCurrentProjectId());
+        apiAutomationService.checkOwner(scenarioId, SessionUtils.getUserId());
         return apiAutomationService.getApiScenarioVersions(scenarioId);
     }
 

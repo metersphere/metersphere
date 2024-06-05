@@ -19,7 +19,6 @@ import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.scenario.ApiScenarioImportUtil;
 import io.metersphere.api.parse.scenario.ScenarioImport;
 import io.metersphere.api.parse.scenario.ScenarioImportParserFactory;
-import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
@@ -1632,7 +1631,7 @@ public class ApiScenarioService {
     private List<ApiScenarioWithBLOBs> getExportResult(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<ApiScenarioWithBLOBs> result = new ArrayList<>();
-        request.getIds().forEach( item-> {
+        request.getIds().forEach(item -> {
             result.add(this.getNewApiScenario(item));
         });
         return result;
@@ -2196,12 +2195,12 @@ public class ApiScenarioService {
         return this.list(request);
     }
 
-    public void checkOwner(String scenarioId, String projectId) {
+    public void checkOwner(String scenarioId, String userId) {
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(scenarioId);
         if (scenario == null) {
             return;
         }
-        if (!extCheckOwnerMapper.checkoutOwner("api_scenario", projectId, List.of(scenarioId))) {
+        if (!extCheckOwnerMapper.checkoutOwner("api_scenario", userId, List.of(scenarioId))) {
             MSException.throwException(Translator.get("check_owner_case"));
         }
 
