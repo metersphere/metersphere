@@ -52,7 +52,4 @@ public class TestPlanUpdateRequest {
 
     @Schema(description = "测试计划组Id")
     private String testPlanGroupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
-
-    @Schema(description = "测试规划请求参数")
-    private TestPlanAllocationCreateRequest allocationRequest;
 }

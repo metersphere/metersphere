@@ -75,7 +75,4 @@ public class TestPlanCreateRequest {
 
     @Schema(description = "查询用例的条件")
     private BaseAssociateCaseRequest baseAssociateCaseRequest;
-
-    @Schema(description = "测试规划请求参数")
-    private TestPlanAllocationCreateRequest allocationRequest;
 }
