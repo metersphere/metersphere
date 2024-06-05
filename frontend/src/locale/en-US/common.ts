@@ -185,5 +185,6 @@ export default {
   'common.updateTime': 'Update time',
   'common.belongProject': 'Belong to Project',
   'common.noMatchData': 'No matching data',
+  'common.name': 'name',
   'common.stopped': 'Stopped',
 };

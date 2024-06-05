@@ -1,19 +1,15 @@
 <template>
   <MsCaseAssociate
     v-model:visible="innerVisible"
-    v-model:currentSelectCase="currentSelectCase"
-    :get-modules-func="getCaseModuleTree"
-    :get-table-func="getTestPlanCaseList"
+    v-model:project-id="currentProjectId"
+    :get-modules-api-type="CaseModulesApiTypeEnum.TEST_PLAN_LINK_CASE_MODULE"
+    :get-page-api-type="CasePageApiTypeEnum.TEST_PLAN_CASE_PAGE"
+    :get-module-count-api-type="CaseCountApiTypeEnum.TEST_PLAN_CASE_COUNT"
     :confirm-loading="confirmLoading"
-    :table-params="{
+    :extra-table-params="{
       testPlanId: props?.testPlanId,
     }"
     :associated-ids="props.hasNotAssociatedIds || []"
-    :project-id="currentProjectId"
-    :type="RequestModuleEnum.CASE_MANAGEMENT"
-    hide-project-select
-    :is-hidden-case-level="false"
-    :selector-all="true"
     @save="saveHandler"
   >
   </MsCaseAssociate>
@@ -23,15 +19,13 @@
   import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
-  import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
-  import { RequestModuleEnum } from '@/components/business/ms-case-associate/utils';
+  import MsCaseAssociate from '@/components/business/ms-associate-case/index.vue';
 
-  import { getCaseModuleTree } from '@/api/modules/case-management/featureCase';
-  import { getTestPlanCaseList } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import type { AssociateCaseRequest, AssociateCaseRequestType } from '@/models/testPlan/testPlan';
+  import { CaseCountApiTypeEnum, CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
   const { t } = useI18n();
@@ -49,7 +43,6 @@
 
   const appStore = useAppStore();
   const route = useRoute();
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
   const currentProjectId = ref(appStore.currentProjectId);
 
   const confirmLoading = ref<boolean>(false);

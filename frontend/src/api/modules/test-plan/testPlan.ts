@@ -16,6 +16,7 @@ import {
   deletePlanUrl,
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
+  dragPlanOnGroupUrl,
   ExecuteHistoryUrl,
   followPlanUrl,
   GenerateReportUrl,
@@ -36,17 +37,22 @@ import {
   planPassRateUrl,
   RunFeatureCaseUrl,
   SortFeatureCaseUrl,
+  TestPlanAndGroupCopyUrl,
+  TestPlanApiAssociatedPageUrl,
   TestPlanAssociateBugUrl,
   TestPlanCancelBugUrl,
+  TestPlanCaseAssociatedPageUrl,
   TestPlanCaseDetailUrl,
+  TestPlanGroupOptionsUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
 
+import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
 import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 import type { CaseManagementTable, CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
-import { ModuleTreeNode } from '@/models/common';
+import { DragSortParams, ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
   AssociateCaseRequestType,
@@ -253,4 +259,25 @@ export function getPlanDetailApiScenarioList(data: PlanDetailFeatureCaseListQuer
 // 计划详情-执行历史 TODO 联调
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {
   return MSR.post<CommonList<PlanDetailExecuteHistoryItem>>({ url: PlanDetailExecuteHistoryUrl, data });
+}
+
+// 功能用例-关联用例-接口用例-API
+export function getTestPlanAssociationApiList(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiDefinitionDetail>>({ url: TestPlanApiAssociatedPageUrl, data });
+}
+// 功能用例-关联用例-接口用例-CASE
+export function getTestPlanAssociationCaseList(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiCaseDetail>>({ url: TestPlanCaseAssociatedPageUrl, data });
+}
+// 测试计划-复制测试计划&测试计划组
+export function testPlanAndGroupCopy(id: string) {
+  return MSR.get({ url: `${TestPlanAndGroupCopyUrl}/${id}` });
+}
+// 测试计划-测试计划组下拉列表
+export function getPlanGroupOptions(projectId: string) {
+  return MSR.get({ url: `${TestPlanGroupOptionsUrl}/${projectId}` });
+}
+// 测试计划-测试计划组内拖拽
+export function dragPlanOnGroup(data: DragSortParams) {
+  return MSR.post({ url: dragPlanOnGroupUrl, data });
 }

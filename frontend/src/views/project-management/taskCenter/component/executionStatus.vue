@@ -53,6 +53,7 @@
       label: 'common.fakeError',
     },
     DEFAULT: {
+      icon: '',
       label: '-',
       color: '!text-[var(--color-text-input-border)]',
     },

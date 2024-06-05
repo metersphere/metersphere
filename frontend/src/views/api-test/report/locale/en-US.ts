@@ -36,7 +36,7 @@ export default {
   'report.detail.api.requestTotalTimeTip': 'The total response time of all requests',
   'report.detail.api.assertPass': 'Assert pass',
   'report.detail.api.executionRate': 'Req execution Rate',
-  'report.detail.api.requestAnalysis': 'Request analysis',
+  'report.detail.api.requestAnalysis': 'Report analysis',
   'report.detail.api.total': 'total',
   'report.detail.api.reportDetail': 'Report detail',
   'report.detail.api.filterPlaceholder': 'Please select a filter conditions',

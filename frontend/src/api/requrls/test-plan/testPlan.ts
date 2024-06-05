@@ -80,3 +80,13 @@ export const BatchUpdateCaseExecutorUrl = '/test-plan/functional/case/batch/upda
 export const ExecuteHistoryUrl = '/test-plan/functional/case/exec/history';
 // 计划详情-执行历史 TODO 联调
 export const PlanDetailExecuteHistoryUrl = '/api/scenario/execute/page';
+// 功能用例-关联用例-接口用例-API
+export const TestPlanApiAssociatedPageUrl = '/test-plan/association/api/page';
+// 功能用例-关联用例-接口用例-CASE
+export const TestPlanCaseAssociatedPageUrl = '/test-plan/association/api/case/page';
+// 测试计划-复制
+export const TestPlanAndGroupCopyUrl = '/test-plan/copy';
+// 测试计划-计划组下拉
+export const TestPlanGroupOptionsUrl = 'test-plan/group-list';
+// 测试计划-拖拽测试计划
+export const dragPlanOnGroupUrl = '/test-plan/sort';

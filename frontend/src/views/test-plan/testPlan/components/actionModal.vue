@@ -49,12 +49,12 @@
   import { characterLimit } from '@/utils';
 
   import type { TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
+  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
-    // isScheduled: boolean; // TODO 这个版本不做有无定时任务区分
     record: TestPlanItem | TestPlanDetail | undefined; // 表record
   }>();
 
@@ -71,16 +71,16 @@
 
   const confirmLoading = ref<boolean>(false);
 
+  // 计划组删除
   async function confirmHandler(isDelete: boolean) {
     try {
       confirmLoading.value = true;
       if (isDelete) {
         await deletePlan(props.record?.id);
-        emit('success', true);
       } else {
         await archivedPlan(props.record?.id);
-        emit('success', false);
       }
+      emit('success', isDelete);
       Message.success(isDelete ? t('common.deleteSuccess') : t('common.batchArchiveSuccess'));
       showModalVisible.value = false;
     } catch (error) {
@@ -91,6 +91,9 @@
   }
 
   const contentTip = computed(() => {
+    if (props.record?.type === testPlanTypeEnum.GROUP) {
+      return t('testPlan.testPlanGroup.planGroupDeleteContent');
+    }
     switch (props.record && props.record.status) {
       case 'ARCHIVED':
         return t('testPlan.testPlanIndex.deleteArchivedPlan');

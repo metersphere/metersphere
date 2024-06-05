@@ -33,5 +33,11 @@ export default {
   'report.detail.performCompletion': 'Perform completion',
   'report.detail.totalDefects': 'Total defects',
   'report.detail.useCaseAnalysis': 'Function of use case analysis',
+  'report.detail.apiUseCaseAnalysis': 'Api use case analysis',
+  'report.detail.scenarioUseCaseAnalysis': 'Scenario use case analysis',
   'report.detail.number': 'number',
+  'report.detail.level': 'level',
+  'report.detail.apiCaseDetails': 'Api use case details',
+  'report.detail.scenarioCaseDetails': 'Scenario use case details',
+  'report.detail.oneClickSummary': 'One click report summary',
 };

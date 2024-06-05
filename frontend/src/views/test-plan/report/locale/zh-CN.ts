@@ -33,5 +33,11 @@ export default {
   'report.detail.performCompletion': '执行完成率',
   'report.detail.totalDefects': '缺陷总数',
   'report.detail.useCaseAnalysis': '功能用例分析',
+  'report.detail.apiUseCaseAnalysis': '接口用例分析',
+  'report.detail.scenarioUseCaseAnalysis': '场景用例分析',
   'report.detail.number': '个',
+  'report.detail.level': '等级',
+  'report.detail.apiCaseDetails': '接口用例明细',
+  'report.detail.scenarioCaseDetails': '场景用例明细',
+  'report.detail.oneClickSummary': '一键填写报告总结',
 };

@@ -124,6 +124,7 @@
     />
     <ExecuteHistory v-if="activeTab === 'executeHistory'" />
   </MsCard>
+  <!-- TODO  待联调关联用例 目前可以暂时关联功能用例 -->
   <AssociateDrawer
     v-model:visible="caseAssociateVisible"
     :associated-ids="detail.repeatCase ? hasSelectedIds : []"
@@ -131,10 +132,10 @@
     :test-plan-id="planId"
     @success="handleSuccess"
   />
+
   <CreateAndEditPlanDrawer
     v-model:visible="showPlanDrawer"
     :plan-id="planId"
-    :is-copy="isCopy"
     :module-tree="testPlanTree"
     @load-plan-list="successHandler"
   />
