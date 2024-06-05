@@ -59,6 +59,43 @@
             #{testPlanId}
         </foreach>
     </select>
+    <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
+        select
+        distinct tpr.id,
+        tpr.project_id,
+        tpr.integrated,
+        tpr.result_status as status,
+        tpr.exec_status,
+        tpr.start_time AS operationTime,
+        tpr.create_user AS operationName,
+        tpr.trigger_mode,
+        tpr.start_time,
+        project.organization_id,
+
+        tp.num AS resourceNum,
+        tp.name AS resourceName,
+        tp.id AS resourceId
+        FROM
+        test_plan_report tpr
+        INNER JOIN test_plan tp ON tpr.test_plan_id = tp.id
+        left join project on tpr.project_id = project.id
+        where
+        tpr.start_time BETWEEN #{startTime} AND #{endTime}
+        <if test="projectIds != null and projectIds.size() > 0">
+            and
+            tpr.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (tp.num like concat('%', #{request.keyword},'%')
+
+            or tp.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="filter"/>
+    </select>
 
     <sql id="queryWhereCondition">
         <where>
@@ -104,9 +141,23 @@
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <!-- 执行结果 -->
-                        <when test="key == 'resultStatus'">
+                        <when test="key == 'resultStatus' || key == 'status'">
                             and tpr.result_status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 项目id -->
+                        <when test="key=='projectIds'">
+                            and tpr.project_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <!-- 组织id -->
+                        <when test="key=='organizationIds'">
+                            and project.organization_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
                         </when>
                     </choose>
                 </if>

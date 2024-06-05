@@ -45,10 +45,9 @@ public class MessageListener {
     @KafkaListener(id = MESSAGE_CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_TASK_TOPIC, groupId = MESSAGE_CONSUME_ID)
     public void messageConsume(ConsumerRecord<?, String> record) {
         try {
-            LogUtils.info("接收到发送通知信息：{}", record.key());
             if (ObjectUtils.isNotEmpty(record.value())) {
                 ApiNoticeDTO dto = JSON.parseObject(record.value(), ApiNoticeDTO.class);
-
+                LogUtils.info("接收到发送通知信息：{}", dto.getReportId());
                 // 集合报告不发送通知
                 if (!BooleanUtils.isTrue(dto.getIntegratedReport())) {
                     apiReportSendNoticeService.sendNotice(dto);

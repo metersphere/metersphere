@@ -76,3 +76,7 @@ export const projectScheduleTotal = '/task/center/project/schedule/total';
 export const systemRealTotal = '/task/center/system/real/total';
 export const orgRealTotal = '/task/center/org/real/total';
 export const projectRealTotal = '/task/center/project/real/total';
+
+export const taskSysPlanRealCenterListUrl = '/task/center/plan/system/real-time/page';
+export const taskOrgPlanRealCenterListUrl = '/task/center/plan/org/real-time/page';
+export const taskProPlanRealCenterListUrl = '/task/center/plan/project/real-time/page';

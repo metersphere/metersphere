@@ -37,7 +37,7 @@
   };
 
   function getExecutionResult(): IconType {
-    return iconTypeStatus[props.status] ?? iconTypeStatus[props.status]?.DEFAULT;
+    return iconTypeStatus[props.status] ? iconTypeStatus[props.status] : iconTypeStatus.DEFAULT;
   }
 </script>
 

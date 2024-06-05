@@ -86,6 +86,9 @@ export enum TableKeyEnum {
   TASK_SCHEDULE_TASK_TEST_PLAN_SYSTEM = 'taskCenterScheduleTestPlanSystem',
   TASK_SCHEDULE_TASK_TEST_PLAN_ORGANIZATION = 'taskCenterScheduleTestPlanOrganization',
   TASK_SCHEDULE_TASK_TEST_PLAN_PROJECT = 'taskCenterScheduleTestPlanProject',
+  TASK_PLAN_SYSTEM = 'taskCenterPlanSystem',
+  TASK_PLAN_ORGANIZATION = 'taskCenterPlanOrganization',
+  TASK_PLAN_PROJECT = 'taskCenterPlanProject',
 }
 
 // 具有特殊功能的列
