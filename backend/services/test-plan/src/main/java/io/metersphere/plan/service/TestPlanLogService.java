@@ -41,6 +41,20 @@ public class TestPlanLogService {
     @Resource
     private TestPlanMapper testPlanMapper;
 
+    public LogDTO scheduleLog(String id) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(project.getId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.UPDATE.name())
+                .module(OperationLogModule.TEST_PLAN)
+                .sourceId(testPlan.getId())
+                .content(Translator.get("test_plan_schedule") + ":" + testPlan.getName())
+                .build().getLogDTO();
+        return dto;
+    }
+
     /**
      * 新增计划日志
      *

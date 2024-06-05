@@ -26,6 +26,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestPlanModule;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.dto.AddProjectRequest;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
@@ -115,6 +116,9 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_SORT = "/test-plan/sort";
     private static final String URL_POST_TEST_PLAN_UPDATE = "/test-plan/update";
     private static final String URL_POST_TEST_PLAN_BATCH_DELETE = "/test-plan/batch-delete";
+    private static final String URL_POST_TEST_PLAN_SCHEDULE = "/test-plan/schedule-config";
+    private static final String URL_POST_TEST_PLAN_SCHEDULE_DELETE = "/test-plan/schedule-config-delete/%s";
+    private static final String URL_POST_TEST_PLAN_EXECUTE = "/test-plan-execute/start";
 
     //测试计划资源-功能用例
     private static final String URL_POST_RESOURCE_CASE_ASSOCIATION = "/test-plan/association";
@@ -1312,6 +1316,123 @@ public class TestPlanTests extends BaseTest {
 
     }
 
+    @Test
+    @Order(61)
+    public void scheduleTest() throws Exception {
+
+
+        //为测试计划组创建
+        BaseScheduleConfigRequest request = new BaseScheduleConfigRequest();
+        request.setResourceId(groupTestPlanId7);
+        request.setEnable(true);
+        request.setCron("0 0 0 * * ?");
+
+        //先测试一下没有开启模块时接口能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestPost(URL_POST_TEST_PLAN_SCHEDULE, request).andExpect(status().is5xxServerError());
+        this.requestGet(String.format(URL_POST_TEST_PLAN_SCHEDULE_DELETE, groupTestPlanId7)).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+        MvcResult result = this.requestPostAndReturn(URL_POST_TEST_PLAN_SCHEDULE, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        String scheduleId = resultHolder.getData().toString();
+        testPlanTestService.checkSchedule(scheduleId, groupTestPlanId7, request.isEnable());
+
+        //增加日志检查
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(groupTestPlanId7, OperationLogType.UPDATE, null)
+        );
+
+        //关闭
+        request.setEnable(false);
+        result = this.requestPostAndReturn(URL_POST_TEST_PLAN_SCHEDULE, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        String newScheduleId = resultHolder.getData().toString();
+        //检查两个scheduleId是否相同
+        Assertions.assertEquals(scheduleId, newScheduleId);
+        testPlanTestService.checkSchedule(newScheduleId, groupTestPlanId7, request.isEnable());
+
+        //测试各种corn表达式用于校验正则的准确性
+        String[] cornStrArr = new String[]{
+                "0 0 12 * * ?", //每天中午12点触发
+                "0 15 10 ? * *", //每天上午10:15触发
+                "0 15 10 * * ?", //每天上午10:15触发
+                "0 15 10 * * ? *",//每天上午10:15触发
+                "0 15 10 * * ? 2048",//2008年的每天上午10:15触发
+                "0 * 10 * * ?",//每天上午10:00至10:59期间的每1分钟触发
+                "0 0/5 10 * * ?",//每天上午10:00至10:55期间的每5分钟触发
+                "0 0/5 10,16 * * ?",//每天上午10:00至10:55期间和下午4:00至4:55期间的每5分钟触发
+                "0 0-5 10 * * ?",//每天上午10:00至10:05期间的每1分钟触发
+                "0 10,14,18 15 ? 3 WED",//每年三月的星期三的下午2:10和2:18触发
+                "0 10 15 ? * MON-FRI",//每个周一、周二、周三、周四、周五的下午3:10触发
+                "0 15 10 15 * ?",//每月15日上午10:15触发
+                "0 15 10 L * ?", //每月最后一日的上午10:15触发
+                "0 15 10 ? * 6L", //每月的最后一个星期五上午10:15触发
+                "0 15 10 ? * 6L 2024-2026", //从2024年至2026年每月的最后一个星期五上午10:15触发
+                "0 15 10 ? * 6#3", //每月的第三个星期五上午10:15触发
+        };
+
+        //每种corn表达式开启、关闭都测试一遍，检查是否能正常开关定时任务
+        for (String corn : cornStrArr) {
+            request = new BaseScheduleConfigRequest();
+            request.setResourceId(groupTestPlanId7);
+            request.setEnable(true);
+            request.setCron(corn);
+            result = this.requestPostAndReturn(URL_POST_TEST_PLAN_SCHEDULE, request);
+            resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+            scheduleId = resultHolder.getData().toString();
+            testPlanTestService.checkSchedule(scheduleId, groupTestPlanId7, request.isEnable());
+
+            request = new BaseScheduleConfigRequest();
+            request.setResourceId(groupTestPlanId7);
+            request.setEnable(false);
+            request.setCron(corn);
+            result = this.requestPostAndReturn(URL_POST_TEST_PLAN_SCHEDULE, request);
+            resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+            scheduleId = resultHolder.getData().toString();
+            testPlanTestService.checkSchedule(scheduleId, groupTestPlanId7, request.isEnable());
+        }
+
+
+        //校验权限
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, URL_POST_TEST_PLAN_SCHEDULE, request);
+
+        //反例：scenarioId不存在
+        request = new BaseScheduleConfigRequest();
+        request.setCron("0 0 0 * * ?");
+        this.requestPost(URL_POST_TEST_PLAN_SCHEDULE, request).andExpect(status().isBadRequest());
+        request.setResourceId(IDGenerator.nextStr());
+        this.requestPost(URL_POST_TEST_PLAN_SCHEDULE, request).andExpect(status().is5xxServerError());
+
+        //反例：不配置cron表达式
+        request = new BaseScheduleConfigRequest();
+        request.setResourceId(IDGenerator.nextStr());
+        this.requestPost(URL_POST_TEST_PLAN_SCHEDULE, request).andExpect(status().isBadRequest());
+
+        //反例：配置错误的cron表达式，测试是否会关闭定时任务
+        request = new BaseScheduleConfigRequest();
+        request.setResourceId(IDGenerator.nextStr());
+        request.setEnable(true);
+        request.setCron(IDGenerator.nextStr());
+        this.requestPost(URL_POST_TEST_PLAN_SCHEDULE, request).andExpect(status().is5xxServerError());
+
+        //测试删除
+        this.requestGetWithOk(String.format(URL_POST_TEST_PLAN_SCHEDULE_DELETE, groupTestPlanId7));
+        testPlanTestService.checkScheduleIsRemove(groupTestPlanId7);
+    }
+
+    @Test
+    @Order(71)
+    public void executeTest() throws Exception {
+        TestPlanExecuteRequest executeRequest = new TestPlanExecuteRequest();
+        executeRequest.setExecuteIds(Collections.singletonList(groupTestPlanId7));
+        executeRequest.setProjectId(project.getId());
+        //串行
+        this.requestPostWithOk(URL_POST_TEST_PLAN_EXECUTE, executeRequest);
+        //并行
+        executeRequest.setExecuteMode(ApiBatchRunMode.PARALLEL.name());
+        this.requestPostWithOk(URL_POST_TEST_PLAN_EXECUTE, executeRequest);
+    }
     @Test
     @Order(81)
     public void copyTestPlan() throws Exception {

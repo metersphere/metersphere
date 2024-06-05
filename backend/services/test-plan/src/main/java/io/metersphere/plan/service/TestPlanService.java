@@ -4,6 +4,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
+import io.metersphere.plan.job.TestPlanScheduleJob;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
@@ -15,12 +16,15 @@ import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.request.ScheduleConfig;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.BatchProcessUtils;
@@ -81,6 +85,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanSendNoticeService testPlanSendNoticeService;
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
+    private ScheduleService scheduleService;
 
     private static final int MAX_TAG_SIZE = 10;
 
@@ -199,11 +205,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 List<String> allDeleteIds = ListUtils.union(deleteGroupIds, deleteGroupPlanIds);
                 if (CollectionUtils.isNotEmpty(allDeleteIds)) {
                     // 级联删除子计划关联的资源(计划组不存在关联的资源,但是存在报告)
-                    this.cascadeDeleteTestPlanIds(deleteGroupPlanIds, testPlanReportService);
+                    this.cascadeDeleteTestPlanIds(allDeleteIds, testPlanReportService);
+                    testPlanExample.clear();
+                    testPlanExample.createCriteria().andIdIn(allDeleteIds);
+                    testPlanMapper.deleteByExample(testPlanExample);
                 }
-                testPlanExample.clear();
-                testPlanExample.createCriteria().andIdIn(allDeleteIds);
-                testPlanMapper.deleteByExample(testPlanExample);
             });
         }
     }
@@ -693,5 +699,42 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanGroupService.sort(request);
         testPlanLogService.saveMoveLog(testPlanMapper.selectByPrimaryKey(request.getMoveId()), request.getMoveId(), logInsertModule);
         return new TestPlanOperationResponse(1);
+    }
+
+    public String scheduleConfig(BaseScheduleConfigRequest request, String operator) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getResourceId());
+        if (testPlan == null) {
+            throw new MSException(Translator.get("test_plan.not.exist"));
+        }
+        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                .resourceId(testPlan.getId())
+                .key(testPlan.getId())
+                .projectId(testPlan.getProjectId())
+                .name(testPlan.getName())
+                .enable(request.isEnable())
+                .cron(request.getCron())
+                .resourceType(ScheduleResourceType.TEST_PLAN.name())
+                .build();
+        return scheduleService.scheduleConfig(
+                scheduleConfig,
+                TestPlanScheduleJob.getJobKey(testPlan.getId()),
+                TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
+                TestPlanScheduleJob.class,
+                operator);
+    }
+
+    public void deleteScheduleConfig(String testPlanId) {
+        scheduleService.deleteByResourceId(testPlanId, TestPlanScheduleJob.getJobKey(testPlanId), TestPlanScheduleJob.getTriggerKey(testPlanId));
+    }
+
+    public List<String> selectRightfulIds(List<String> executeIds) {
+        return extTestPlanMapper.selectNotArchivedIds(executeIds);
+    }
+
+    public List<TestPlan> selectChildPlanByGroupId(String testPlanId) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andGroupIdEqualTo(testPlanId).andStatusNotEqualTo(TEST_PLAN_STATUS_ARCHIVED);
+        example.setOrderByClause("pos asc");
+        return testPlanMapper.selectByExample(example);
     }
 }

@@ -50,4 +50,6 @@ public interface ExtTestPlanMapper {
     long selectMaxPosByGroupId(String groupId);
 
     List<TestPlanResponse> selectByGroupIds(@Param("groupIds") List<String> groupIds);
+
+    List<String> selectRightfulIdsForExecute(@Param("ids") List<String> ids);
 }

@@ -10,6 +10,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.job.TestPlanScheduleJob;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -18,6 +19,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestPlanModuleExample;
+import io.metersphere.system.mapper.ExtScheduleMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
@@ -25,6 +27,8 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -446,5 +450,27 @@ public class TestPlanTestService {
         if (allData > 0) {
             Assertions.assertEquals(result.getTotal(), allData);
         }
+    }
+
+    @Resource
+    private ExtScheduleMapper extScheduleMapper;
+
+    @Resource
+    private Scheduler scheduler;
+
+    /*
+    校验定时任务是否成功开启：
+        1.schedule表中存在数据，且开启状态符合isEnable
+        2.开启状态下：    qrtz_triggers 和 qrtz_cron_triggers 表存在对应的数据
+        3.关闭状态下：    qrtz_triggers 和 qrtz_cron_triggers 表不存在对应的数据
+     */
+    public void checkSchedule(String scheduleId, String resourceId, boolean isEnable) throws Exception {
+        Assertions.assertEquals(extScheduleMapper.countByIdAndEnable(scheduleId, isEnable), 1L);
+        Assertions.assertEquals(scheduler.checkExists(TestPlanScheduleJob.getJobKey(resourceId)), isEnable);
+    }
+
+    public void checkScheduleIsRemove(String resourceId) throws SchedulerException {
+        Assertions.assertEquals(extScheduleMapper.countByResourceId(resourceId), 0L);
+        Assertions.assertEquals(scheduler.checkExists(TestPlanScheduleJob.getJobKey(resourceId)), false);
     }
 }
