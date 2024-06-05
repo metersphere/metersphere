@@ -104,7 +104,7 @@ public class TestPlanBaseUtilsService {
         if (CollectionUtils.isNotEmpty(functionalSelectIds)) {
             TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(functionalSelectIds, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), testPlan.getCreateUser());
             testPlanCaseService.saveTestPlanResource(associationParam);
-            testPlanResourceLogService.saveAddLog(testPlan, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, new LogInsertModule(operator, "/test-plan/association", HttpMethodConstants.POST.name())));
+            testPlanResourceLogService.saveAssociateLog(testPlan, new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, new LogInsertModule(operator, "/test-plan/association", HttpMethodConstants.POST.name())));
         }
     }
 }

@@ -7,6 +7,7 @@ import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
@@ -47,4 +48,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
 
     List<ApiCaseModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);
+
+    List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
 }

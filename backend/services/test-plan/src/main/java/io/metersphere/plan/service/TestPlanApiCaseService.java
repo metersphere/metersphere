@@ -11,9 +11,12 @@ import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
+import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.project.domain.Project;
@@ -21,11 +24,13 @@ import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -39,6 +44,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +74,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private static final String CASE_MODULE_COUNT_ALL = "all";
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -306,5 +313,43 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             }
         });
         return returnList;
+    }
+
+
+    /**
+     * 取消关联
+     *
+     * @param request
+     * @param logInsertModule
+     * @return
+     */
+    public TestPlanAssociationResponse disassociate(BasePlanCaseBatchRequest request, LogInsertModule logInsertModule) {
+        List<String> selectIds = doSelectIds(request);
+        return super.disassociate(
+                TestPlanResourceConstants.RESOURCE_API_CASE,
+                request,
+                logInsertModule,
+                selectIds,
+                this::deleteTestPlanResource);
+    }
+
+
+    public void deleteTestPlanResource(@Validated TestPlanResourceAssociationParam associationParam) {
+        TestPlanApiCaseExample testPlanApiCaseExample = new TestPlanApiCaseExample();
+        testPlanApiCaseExample.createCriteria().andIdIn(associationParam.getResourceIdList());
+        testPlanApiCaseMapper.deleteByExample(testPlanApiCaseExample);
+    }
+
+
+    public List<String> doSelectIds(BasePlanCaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extTestPlanApiCaseMapper.getIds(request, false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }
