@@ -34,7 +34,7 @@ export default {
   'report.detail.api.requestTotalTimeTip': '全部请求的响应时间总和',
   'report.detail.api.assertPass': '断言通过率',
   'report.detail.api.executionRate': '请求执行率',
-  'report.detail.api.requestAnalysis': '请求分析',
+  'report.detail.api.requestAnalysis': '报告分析',
   'report.detail.api.total': '总数(个)',
   'report.detail.api.reportDetail': '报告明细',
   'report.detail.api.filterPlaceholder': '请选择过滤条件',

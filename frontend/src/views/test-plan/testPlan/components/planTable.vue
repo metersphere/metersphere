@@ -10,32 +10,25 @@
     @refresh="fetchData"
   >
     <template #left>
-      <!-- TODO 这个版本不上 -->
-      <!-- <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
-        <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">{{
-          t('testPlan.testPlanIndex.all')
-        }}</a-radio>
-        <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">{{
-          t('testPlan.testPlanIndex.testPlan')
-        }}</a-radio>
-        <a-radio value="testPlanGroup" class="show-type-icon p-[2px]">{{
-          t('testPlan.testPlanIndex.testPlanGroup')
-        }}</a-radio>
-      </a-radio-group> -->
-      <a-popover title="" position="bottom">
-        <div class="flex">
-          <div class="one-line-text mr-1 max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
-            {{ props.activeFolder === 'all' ? t('testPlan.testPlanIndex.allTestPlan') : props.nodeName }}
-          </div>
-          <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+      <div class="flex w-full items-center justify-between">
+        <div>
+          <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
+            <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">{{
+              t('testPlan.testPlanIndex.all')
+            }}</a-radio>
+            <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">{{
+              t('testPlan.testPlanIndex.plan')
+            }}</a-radio>
+            <a-radio :value="testPlanTypeEnum.GROUP" class="show-type-icon p-[2px]">{{
+              t('testPlan.testPlanIndex.testPlanGroup')
+            }}</a-radio>
+          </a-radio-group></div
+        >
+        <div class="mr-[24px]">
+          <a-switch v-model="isArchived" size="small" type="line" @change="archivedChangeHandler" />
+          <span class="ml-1 text-[var(--color-text-3)]">{{ t('testPlan.testPlanGroup.seeArchived') }}</span>
         </div>
-        <template #content>
-          <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
-            {{ props.nodeName }}
-            <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
-          </div>
-        </template>
-      </a-popover>
+      </div>
     </template>
   </MsAdvanceFilter>
   <MsBaseTable
@@ -43,60 +36,101 @@
     ref="tableRef"
     class="mt-4"
     :action-config="testPlanBatchActions"
+    :selectable="hasOperationPermission && showType !== testPlanTypeEnum.ALL"
     filter-icon-align-left
-    :selectable="hasOperationPermission"
+    :expanded-keys="expandedKeys"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
     @filter-change="filterChange"
+    @drag-change="handleDragChange"
   >
-    <!-- :expanded-keys="expandedKeys" -->
+    <!-- TODO: 快捷创建暂时不上 -->
+    <!-- <template v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])" #quickCreate>
+      <a-form
+        v-if="showQuickCreateForm"
+        ref="quickCreateFormRef"
+        :model="quickCreateForm"
+        layout="inline"
+        size="small"
+        class="flex items-center"
+      >
+        <a-form-item
+          field="name"
+          :rules="[{ required: true, message: t('project.projectVersion.versionNameRequired') }]"
+          no-style
+        >
+          <a-input
+            v-model:model-value="quickCreateForm.name"
+            :max-length="255"
+            :placeholder="t('testPlan.testPlanGroup.newPlanPlaceHolder')"
+            class="w-[262px]"
+          />
+        </a-form-item>
+        <a-form-item no-style>
+          <a-button type="outline" size="mini" class="ml-[12px] mr-[8px] px-[8px]" @click="quickCreateConfirm">
+            {{ t('common.confirm') }}
+          </a-button>
+          <a-button type="outline" class="arco-btn-outline--secondary px-[8px]" size="mini" @click="quickCreateCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+        </a-form-item>
+      </a-form>
+      <MsButton v-if="!showQuickCreateForm && showType !== testPlanTypeEnum.ALL" @click="showQuickCreateForm = true">
+        <MsIcon type="icon-icon_add_outlined" size="14" class="mr-[8px]" />
+        {{ t('common.newCreate') }}
+      </MsButton>
+      <a-dropdown position="br" @select="handleSelect">
+        <MsButton v-if="!showQuickCreateForm && showType === testPlanTypeEnum.ALL">
+          <MsIcon type="icon-icon_add_outlined" size="14" class="mr-[8px]" />
+          {{ t('common.newCreate') }}
+        </MsButton>
+        <template #content>
+          <a-doption :value="testPlanTypeEnum.TEST_PLAN">{{ t('testPlan.testPlanIndex.createTestPlan') }}</a-doption>
+          <a-doption :value="testPlanTypeEnum.GROUP">{{ t('testPlan.testPlanIndex.createTestPlanGroup') }}</a-doption>
+        </template>
+      </a-dropdown>
+    </template> -->
     <template #num="{ record }">
-      <!-- TODO 这个版本不做 -->
-      <!-- <div class="flex items-center">
-        <div v-if="record.childrenCount" class="mr-2 flex items-center" @click="expandHandler(record)">
+      <div class="flex items-center">
+        <div
+          v-if="record.type === testPlanTypeEnum.GROUP"
+          class="mr-2 flex items-center"
+          @click="expandHandler(record)"
+        >
           <MsIcon
-            type="icon-icon_split-turn-down-left"
-            class="arrowIcon mr-1 text-[16px]"
+            type="icon-icon_split_turn-down_arrow"
+            class="arrowIcon mr-1 cursor-pointer text-[16px]"
             :class="getIconClass(record)"
           />
-          <span :class="getIconClass(record)">{{ record.childrenCount }}</span>
+          <span :class="getIconClass(record)">{{ record.childrenCount || 0 }}</span>
         </div>
         <div
-          :class="[record.childrenCount ? 'pl-0' : 'pl-[36px]']"
-          class="one-line-text text-[rgb(var(--primary-5))]"
+          :class="`${
+            record.type === testPlanTypeEnum.TEST_PLAN ? 'text-[rgb(var(--primary-5))]' : ''
+          } one-line-text ${hasIndent(record)}`"
+          @click="openDetail(record.id, record.type)"
           >{{ record.num }}</div
         >
-        <a-tooltip position="right" :disabled="!record.schedule" :mouse-enter-delay="300">
-          <MsTag v-if="record.schedule" size="small" type="link" theme="outline" class="ml-2">{{
-            t('testPlan.testPlanIndex.timing')
-          }}</MsTag>
+        <!-- TODO 待联调定时任务 -->
+        <a-tooltip position="right" :disabled="record.schedule" :mouse-enter-delay="300">
+          <MsTag
+            v-if="record.schedule"
+            size="small"
+            :type="record.schedule ? 'link' : 'default'"
+            theme="outline"
+            class="ml-2"
+            >{{ t('testPlan.testPlanIndex.timing') }}</MsTag
+          >
           <template #content>
-            <div>
+            <div v-if="record.schedule">
               <div>{{ t('testPlan.testPlanIndex.scheduledTaskOpened') }}</div>
               <div>{{ t('testPlan.testPlanIndex.nextExecutionTime') }}</div>
-              <div>---</div>
+              <div> {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}</div>
             </div>
-            <div> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div>
+            <div v-else> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div>
           </template>
         </a-tooltip>
-      </div> -->
-      <div class="flex items-center">
-        <div class="one-line-text cursor-pointer text-[rgb(var(--primary-5))]" @click="openDetail(record.id)">{{
-          record.num
-        }}</div>
-        <a-tooltip position="right" :disabled="!record.schedule" :mouse-enter-delay="300">
-          <MsTag v-if="record.schedule" size="small" type="link" theme="outline" class="ml-2">{{
-            t('testPlan.testPlanIndex.timing')
-          }}</MsTag>
-          <template #content>
-            <div>
-              <div>{{ t('testPlan.testPlanIndex.scheduledTaskOpened') }}</div>
-              <div>{{ t('testPlan.testPlanIndex.nextExecutionTime') }}</div>
-            </div>
-            <div> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div>
-          </template>
-        </a-tooltip></div
-      >
+      </div>
     </template>
     <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
       <MsStatusTag :status="filterContent.value" />
@@ -208,7 +242,7 @@
         <MsButton
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
           class="!mx-0"
-          @click="emit('editOrCopy', record.id, false)"
+          @click="emit('edit', record)"
           >{{ t('common.edit') }}</MsButton
         >
         <a-divider
@@ -224,7 +258,7 @@
             record.status !== 'ARCHIVED'
           "
           class="!mx-0"
-          @click="emit('editOrCopy', record.id, true)"
+          @click="copyTestPlanOrGroup(record.id)"
           >{{ t('common.copy') }}</MsButton
         >
         <a-divider
@@ -236,10 +270,7 @@
           direction="vertical"
           :margin="8"
         ></a-divider>
-        <MsTableMoreAction
-          :list="getMoreActions(record.status, record.functionalCaseCount)"
-          @select="handleMoreActionSelect($event, record)"
-        />
+        <MsTableMoreAction :list="getMoreActions(record)" @select="handleMoreActionSelect($event, record)" />
       </div>
     </template>
   </MsBaseTable>
@@ -255,7 +286,7 @@
     <template #title>
       {{ t('testPlan.testPlanIndex.batchExecution') }}
     </template>
-    <a-radio-group>
+    <a-radio-group v-model="executeType">
       <a-radio value="serial">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
       <a-radio value="parallel">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
     </a-radio-group>
@@ -277,9 +308,11 @@
     :current-select-count="batchParams.currentSelectCount || 0"
     :get-module-tree-api="getTestPlanModule"
     :ok-loading="okLoading"
+    :type="showType"
     @save="handleMoveOrCopy"
   />
-  <ScheduledModal v-model:visible="showScheduledTaskModal" />
+  <!-- TODO 待联调定时任务 -->
+  <ScheduledModal v-model:visible="showScheduledTaskModal" :type="currentPlanType" @close="resetPlanType" />
   <ActionModal v-model:visible="showStatusDeleteModal" :record="activeRecord" @success="fetchData()" />
   <BatchEditModal
     v-model:visible="showEditModel"
@@ -295,7 +328,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
@@ -303,7 +336,12 @@
   import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type {
+    BatchActionParams,
+    BatchActionQueryParams,
+    MsTableColumn,
+    MsTableProps,
+  } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -316,15 +354,19 @@
   import StatusProgress from './statusProgress.vue';
 
   import {
+    addTestPlan,
     archivedPlan,
     batchArchivedPlan,
     batchCopyPlan,
     batchDeletePlan,
     batchMovePlan,
+    deletePlan,
+    dragPlanOnGroup,
     getPlanPassRate,
     getTestPlanDetail,
     getTestPlanList,
     getTestPlanModule,
+    testPlanAndGroupCopy,
     updateTestPlan,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -333,8 +375,14 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ModuleTreeNode } from '@/models/common';
-  import type { PassRateCountDetail, planStatusType, TestPlanItem } from '@/models/testPlan/testPlan';
+  import { DragSortParams, ModuleTreeNode } from '@/models/common';
+  import type {
+    AddTestPlanParams,
+    BatchMoveParams,
+    moduleForm,
+    PassRateCountDetail,
+    TestPlanItem,
+  } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -361,8 +409,12 @@
 
   const emit = defineEmits<{
     (e: 'init', params: any): void;
-    (e: 'editOrCopy', id: string, isCopy: boolean): void;
+    (e: 'edit', record: TestPlanItem): void;
   }>();
+
+  const isArchived = ref<boolean>(false);
+  const keyword = ref<string>('');
+  const currentPlanType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE', 'PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ADD'])
@@ -496,7 +548,7 @@
   ];
 
   /**
-   * 更新测试计划名称
+   * 更新测试计划以及测试计划组
    */
   async function updatePlanName(record: TestPlanItem) {
     try {
@@ -511,69 +563,92 @@
         return Promise.resolve(true);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
       return Promise.resolve(false);
     }
   }
 
-  const keyword = ref<string>('');
-  const showType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
+  const showType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.ALL);
 
-  const testPlanBatchActions = {
-    baseAction: [
-      // TODO 批量执行不上这个版本
-      // {
-      //   label: 'testPlan.testPlanIndex.execute',
-      //   eventTag: 'execute',
-      //   permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
-      // },
-      {
-        label: 'common.edit',
-        eventTag: 'edit',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-      {
-        label: 'common.copy',
-        eventTag: 'copy',
-        permission: ['PROJECT_TEST_PLAN:READ+ADD'],
-      },
-      // {
-      //   label: 'common.export',
-      //   eventTag: 'export',
-      // },
-    ],
-    moreAction: [
-      // {
-      //   label: 'testPlan.testPlanIndex.openTimingTask',
-      //   eventTag: 'openTimingTask',
-      //   permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      // },
-      // {
-      //   label: 'testPlan.testPlanIndex.closeTimingTask',
-      //   eventTag: 'closeTimingTask',
-      //   permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      // },
-      {
-        label: 'common.move',
-        eventTag: 'move',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-      {
-        label: 'common.archive',
-        eventTag: 'archive',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-      {
-        isDivider: true,
-      },
-      {
-        label: 'common.delete',
-        eventTag: 'delete',
-        danger: true,
-        permission: ['PROJECT_TEST_PLAN:READ+DELETE'],
-      },
-    ],
-  };
+  // 设置对齐缩进
+  function hasIndent(record: TestPlanItem) {
+    return (showType.value === 'ALL' || showType.value === 'GROUP') &&
+      record.type === testPlanTypeEnum.TEST_PLAN &&
+      record.groupId &&
+      record.groupId !== 'NONE'
+      ? 'pl-[36px]'
+      : '';
+  }
+
+  const batchCopyActions = [
+    {
+      label: 'common.copy',
+      eventTag: 'copy',
+      permission: ['PROJECT_TEST_PLAN:READ+ADD'],
+    },
+  ];
+  const baseActions = [
+    {
+      label: 'testPlan.testPlanIndex.execute',
+      eventTag: 'execute',
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+    },
+    {
+      label: 'common.edit',
+      eventTag: 'edit',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+    // TODO 批量执行不上这个版本
+    // {
+    //   label: 'common.export',
+    //   eventTag: 'export',
+    // },
+  ];
+  const moreAction = [
+    {
+      label: 'testPlan.testPlanIndex.openTimingTask',
+      eventTag: 'openTimingTask',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+    {
+      label: 'testPlan.testPlanIndex.closeTimingTask',
+      eventTag: 'closeTimingTask',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+    {
+      label: 'common.move',
+      eventTag: 'move',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+    {
+      label: 'common.archive',
+      eventTag: 'archive',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: 'common.delete',
+      eventTag: 'delete',
+      danger: true,
+      permission: ['PROJECT_TEST_PLAN:READ+DELETE'],
+    },
+  ];
+
+  const testPlanBatchActions = computed(() => {
+    if (showType.value === testPlanTypeEnum.GROUP) {
+      return {
+        baseAction: baseActions,
+        moreAction,
+      };
+    }
+    return {
+      baseAction: [...baseActions, ...batchCopyActions],
+      moreAction,
+    };
+  });
 
   const archiveActions: ActionsItem[] = [
     {
@@ -590,14 +665,47 @@
     },
   ];
 
-  function getMoreActions(status: planStatusType, useCount: number) {
+  const createScheduledActions: ActionsItem[] = [
+    {
+      label: 'testPlan.testPlanIndex.createScheduledTask',
+      eventTag: 'createScheduledTask',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+  ];
+  const updateAndDeleteScheduledActions: ActionsItem[] = [
+    {
+      label: 'testPlan.testPlanIndex.updateScheduledTask',
+      eventTag: 'updateScheduledTask',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+    {
+      label: 'testPlan.testPlanIndex.deleteScheduledTask',
+      eventTag: 'deleteScheduledTask',
+      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+    },
+  ];
+
+  function getMoreActions(record: TestPlanItem) {
+    const { status: planStatus, functionalCaseCount: useCount, schedule } = record;
     // 有用例数量才可以执行 否则不展示执行
     const copyAction =
-      useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && status !== 'ARCHIVED' ? copyActions : [];
-    // 单独操作已归档和已完成 不展示归档
-    if (status === 'ARCHIVED' || status === 'PREPARED' || status === 'UNDERWAY') {
+      useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && planStatus !== 'ARCHIVED' ? copyActions : [];
+    // TODO 定时任务待联调
+    let scheduledTaskAction: ActionsItem[] = [];
+    if (planStatus !== 'ARCHIVED') {
+      scheduledTaskAction = schedule ? updateAndDeleteScheduledActions : createScheduledActions;
+    }
+    // 计划组下没有计划&计划组内计划不允许单独归档
+    const archiveAction =
+      (record.type === testPlanTypeEnum.GROUP && record.childrenCount < 1) ||
+      (record.type === testPlanTypeEnum.TEST_PLAN && record.groupId && record.groupId !== 'NONE')
+        ? []
+        : archiveActions;
+    // 已归档和已完成不展示归档
+    if (planStatus === 'ARCHIVED' || planStatus === 'PREPARED' || planStatus === 'UNDERWAY') {
       return [
         ...copyAction,
+        ...scheduledTaskAction,
         {
           label: 'common.delete',
           danger: true,
@@ -608,7 +716,8 @@
     }
     return [
       ...copyAction,
-      ...archiveActions,
+      ...archiveAction,
+      ...scheduledTaskAction,
       {
         isDivider: true,
       },
@@ -621,16 +730,20 @@
     ];
   }
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const tableProps = ref<Partial<MsTableProps<TestPlanItem>>>({
+    tableKey: TableKeyEnum.TEST_PLAN_ALL_TABLE,
+    selectable: true,
+    showSetting: true,
+    heightUsed: 236,
+    paginationSize: 'mini',
+    showSelectorAll: true,
+    draggable: { type: 'handle' },
+    draggableCondition: true,
+  });
+
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     getTestPlanList,
-    {
-      tableKey: TableKeyEnum.TEST_PLAN_ALL_TABLE,
-      selectable: true,
-      showSetting: true,
-      heightUsed: 236,
-      paginationSize: 'mini',
-      showSelectorAll: false,
-    },
+    tableProps.value,
     (item) => {
       return {
         ...item,
@@ -661,6 +774,13 @@
     if (isSetDefaultKey) {
       moduleIds = [];
     }
+
+    const filterParams = {
+      ...propsRes.value.filter,
+    };
+    if (isArchived.value) {
+      filterParams.status = ['ARCHIVED'];
+    }
     return {
       type: showType.value,
       moduleIds,
@@ -670,9 +790,10 @@
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
       condition: {
-        filter: propsRes.value.filter,
+        filter: filterParams,
         keyword: keyword.value,
       },
+      filter: filterParams,
       combine: {
         ...batchParams.value.condition,
       },
@@ -704,6 +825,7 @@
         defaultCountDetailMap.value[item.id] = item;
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -715,7 +837,10 @@
   }
 
   // 测试计划详情
-  function openDetail(id: string) {
+  function openDetail(id: string, type?: keyof typeof testPlanTypeEnum) {
+    if (type && type === testPlanTypeEnum.GROUP) {
+      return;
+    }
     router.push({
       name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
       query: {
@@ -727,7 +852,9 @@
   /**
    * 批量执行
    */
+  const executeType = ref('serial');
   const executeVisible = ref<boolean>(false);
+
   function handleExecute() {
     executeVisible.value = true;
   }
@@ -737,11 +864,16 @@
   }
 
   const confirmLoading = ref<boolean>(false);
-
   /**
-   * 执行
+   * 执行 TODO 待联调
    */
-  function executeHandler() {}
+  function executeHandler() {
+    try {
+      Message.success(t('case.detail.execute.success'));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * 批量复制或者移动
@@ -759,11 +891,13 @@
   /**
    * 批量移动或复制保存
    */
-  async function handleMoveOrCopy() {
+  async function handleMoveOrCopy(moveForm: moduleForm) {
     okLoading.value = true;
     try {
-      const params = {
+      const params: BatchMoveParams = {
+        excludeIds: batchParams.value?.excludeIds || [],
         selectIds: batchParams.value.selectedIds || [],
+        selectAll: !!batchParams.value?.selectAll,
         condition: {
           keyword: keyword.value,
           filter: {},
@@ -773,6 +907,8 @@
         moduleIds: [...selectNodeKeys.value],
         type: showType.value,
         moduleId: selectNodeKeys.value[0],
+        targetId: moveForm.moveType === 'MODULE' ? selectNodeKeys.value[0] : moveForm.targetId,
+        moveType: moveForm.moveType,
       };
       if (modeType.value === 'copy') {
         await batchCopyPlan(params);
@@ -791,19 +927,24 @@
   }
 
   /**
-   * 打开关闭定时任务
+   * 打开关闭定时任务 TODO 待联调
    */
-  function handleStatusTimingTask(status: boolean) {}
+  function handleStatusTimingTask(enable: boolean) {}
 
   /**
-   * 归档
+   * 归档测试计划以及计划组
    */
   function handleArchive() {
     openModal({
       type: 'warning',
-      title: t('testPlan.testPlanIndex.confirmBatchArchivePlan', {
-        count: batchParams.value.currentSelectCount,
-      }),
+      title: t(
+        showType.value === testPlanTypeEnum.TEST_PLAN
+          ? 'testPlan.testPlanIndex.confirmBatchArchivePlan'
+          : 'testPlan.testPlanGroup.batchArchivedGroup',
+        {
+          count: batchParams.value.currentSelectCount,
+        }
+      ),
       content: t('testPlan.testPlanIndex.confirmBatchArchivePlanContent'),
       okText: t('common.archive'),
       cancelText: t('common.cancel'),
@@ -813,7 +954,9 @@
       onBeforeOk: async () => {
         try {
           await batchArchivedPlan({
+            excludeIds: batchParams.value?.excludeIds || [],
             selectIds: batchParams.value.selectedIds || [],
+            selectAll: !!batchParams.value?.selectAll,
             condition: {
               keyword: keyword.value,
               filter: propsRes.value.filter,
@@ -834,14 +977,19 @@
     });
   }
   /**
-   * 删除
+   * 删除测试计划以及计划组
    */
   function handleDelete() {
     openModal({
       type: 'error',
-      title: t('testPlan.testPlanIndex.confirmBatchDeletePlan', {
-        count: batchParams.value.currentSelectCount,
-      }),
+      title: t(
+        showType.value === testPlanTypeEnum.GROUP
+          ? 'testPlan.testPlanGroup.confirmBatchDeletePlanGroup'
+          : 'testPlan.testPlanIndex.confirmBatchDeletePlan',
+        {
+          count: batchParams.value.currentSelectCount,
+        }
+      ),
       content: t('testPlan.testPlanIndex.confirmBatchDeletePlanContent'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
@@ -923,27 +1071,65 @@
     }
   }
 
-  function copyHandler(record: TestPlanItem) {
-    emit('editOrCopy', record.id as string, true);
+  const showScheduledTaskModal = ref<boolean>(false);
+  function handleScheduledTask(record: TestPlanItem) {
+    currentPlanType.value = record.type;
+    showScheduledTaskModal.value = true;
   }
 
-  const showScheduledTaskModal = ref<boolean>(false);
-  function handleScheduledTask() {
-    showScheduledTaskModal.value = true;
+  function resetPlanType() {
+    currentPlanType.value = testPlanTypeEnum.TEST_PLAN;
   }
 
   const showStatusDeleteModal = ref<boolean>(false);
   const activeRecord = ref<TestPlanItem>();
+
+  // 计划组删除: 没有计划直接删除
+  async function handleDeleteGroup(record: TestPlanItem) {
+    try {
+      await deletePlan(record.id);
+      fetchData();
+      Message.success(t('common.deleteSuccess'));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   function deleteStatusHandler(record: TestPlanItem) {
+    if (record.type === testPlanTypeEnum.GROUP && !record.childrenCount) {
+      handleDeleteGroup(record);
+      return;
+    }
     activeRecord.value = cloneDeep(record);
     showStatusDeleteModal.value = true;
   }
 
+  // 拖拽排序 TODO 待联调
+  async function handleDragChange(params: DragSortParams) {
+    try {
+      await dragPlanOnGroup(params);
+      Message.success(t('caseManagement.featureCase.sortSuccess'));
+      fetchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 归档计划以及计划组
   function archiveHandle(record: TestPlanItem) {
+    let archiveTitle = t('common.archiveConfirmTitle', { name: characterLimit(record.name) });
+    let archiveContent = t('testPlan.testPlanIndex.confirmArchivePlan');
+    if (record.type === 'GROUP') {
+      archiveTitle = t('testPlan.testPlanGroup.planGroupArchiveTitle', {
+        name: characterLimit(record.name),
+      });
+      archiveContent = t('testPlan.testPlanGroup.planGroupArchiveContent');
+    }
     openModal({
       type: 'warning',
-      title: t('common.archiveConfirmTitle', { name: characterLimit(record.name) }),
-      content: t('testPlan.testPlanIndex.confirmArchivePlan'),
+      title: archiveTitle,
+      content: archiveContent,
       okText: t('common.archive'),
       cancelText: t('common.cancel'),
       okButtonProps: {
@@ -962,13 +1148,23 @@
     });
   }
 
+  async function copyTestPlanOrGroup(id: string) {
+    try {
+      await testPlanAndGroupCopy(id);
+      Message.success(t('common.copySuccess'));
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   function handleMoreActionSelect(item: ActionsItem, record: TestPlanItem) {
     switch (item.eventTag) {
       case 'copy':
-        copyHandler(record);
+        copyTestPlanOrGroup(record.id as string);
         break;
       case 'createScheduledTask':
-        handleScheduledTask();
+        handleScheduledTask(record);
         break;
       case 'delete':
         deleteStatusHandler(record);
@@ -982,19 +1178,21 @@
   }
 
   const expandedKeys = ref<string[]>([]);
-
-  // TODO先不做展开折叠
-  // function expandHandler(record: any) {
-  //   if (expandedKeys.value.includes(record.id)) {
-  //     expandedKeys.value = expandedKeys.value.filter((key) => key !== record.id);
-  //   } else {
-  //     expandedKeys.value = [...expandedKeys.value, record.id];
-  //   }
-  // }
-  // TODO先不做展开折叠
-  // function getIconClass(record: any) {
-  //   return expandedKeys.value.includes(record.id) ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]';
-  // }
+  // 展开折叠
+  function expandHandler(record: TestPlanItem) {
+    if (expandedKeys.value.includes(record.id)) {
+      expandedKeys.value = expandedKeys.value.filter((key) => key !== record.id);
+    } else {
+      expandedKeys.value = [...expandedKeys.value, record.id];
+      if (record.type === 'GROUP' && record.childrenCount) {
+        const testPlanId = record.children.map((item: TestPlanItem) => item.id);
+        getStatistics(testPlanId);
+      }
+    }
+  }
+  function getIconClass(record: TestPlanItem) {
+    return expandedKeys.value.includes(record.id) ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]';
+  }
 
   /** *
    * 高级检索
@@ -1007,6 +1205,9 @@
     () => showType.value,
     (val) => {
       if (val) {
+        tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val === 'ALL';
+        expandedKeys.value = [];
+        resetFilterParams();
         fetchData();
       }
     }
@@ -1051,6 +1252,80 @@
     emitTableParams();
   }
 
+  const showQuickCreateForm = ref(false);
+  const quickCreateFormRef = ref<FormInstance>();
+
+  const initPlanGroupForm: AddTestPlanParams = {
+    groupId: 'NONE',
+    name: '',
+    projectId: appStore.currentProjectId,
+    moduleId: '',
+    cycle: [],
+    tags: [],
+    description: '',
+    testPlanning: false,
+    automaticStatusUpdate: true,
+    repeatCase: false,
+    passThreshold: 100,
+    type: testPlanTypeEnum.GROUP,
+    baseAssociateCaseRequest: { selectIds: [], selectAll: false, condition: {} },
+  };
+  const quickCreateForm = ref<AddTestPlanParams>(cloneDeep(initPlanGroupForm));
+
+  const quickCreateLoading = ref(false);
+
+  function quickCreateCancel() {
+    showQuickCreateForm.value = false;
+    quickCreateForm.value = cloneDeep(initPlanGroupForm);
+    quickCreateFormRef.value?.resetFields();
+  }
+
+  /**
+   * 快速创建测试计划或者测试计划组
+   */
+  const createType = ref<keyof typeof testPlanTypeEnum>(showType.value);
+  //  TODO: 快捷创建先不上
+  function quickCreateConfirm() {
+    quickCreateFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          quickCreateLoading.value = true;
+          const params = {
+            ...cloneDeep(quickCreateForm.value),
+            groupId: 'NONE',
+            projectId: appStore.currentProjectId,
+            moduleId: props.activeFolder === 'all' ? 'root' : props.activeFolder,
+            testPlanning: false,
+            automaticStatusUpdate: true,
+            repeatCase: false,
+            passThreshold: 100,
+            type: showType.value === testPlanTypeEnum.ALL ? createType.value : showType.value,
+          };
+          await addTestPlan(params);
+          Message.success(t('common.createSuccess'));
+          quickCreateCancel();
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          quickCreateLoading.value = false;
+        }
+      }
+    });
+  }
+  // TODO: 快捷创建先不上
+  function handleSelect(value: string | number | Record<string, any> | undefined) {
+    showQuickCreateForm.value = true;
+    createType.value = value as keyof typeof testPlanTypeEnum;
+  }
+
+  // 查看已归档测试计划以及计划组
+  function archivedChangeHandler() {
+    resetFilterParams();
+    fetchData();
+  }
+
   defineExpose({
     fetchData,
     emitTableParams,
@@ -1060,16 +1335,12 @@
 </script>
 
 <style scoped lang="less">
-  // TODO先不做展开折叠
-  // :deep(.arco-table-cell-expand-icon .arco-table-cell-inline-icon) {
-  //   display: none;
-  // }
-  // :deep(.arco-table-cell-align-left) > span:first-child {
-  //   padding-left: 0 !important;
-  // }
-  // .arrowIcon {
-  //   transform: scaleX(-1);
-  // }
+  :deep(.arco-table-cell-expand-icon .arco-table-cell-inline-icon) {
+    display: none;
+  }
+  :deep(.arco-table-cell-align-left) > span:first-child {
+    padding-left: 0 !important;
+  }
   .popover-label-td {
     @apply flex items-center;
 

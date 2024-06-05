@@ -1,0 +1,20 @@
+export enum CaseModulesApiTypeEnum {
+  FUNCTIONAL_CASE_MODULE = 'FUNCTIONAL_CASE_MODULE', // 功能用例关联模块树
+  BUG_MANAGEMENT_MODULE = 'BUG_MANAGEMENT_MODULE', // 缺陷管理关联模块树
+  CASE_MANAGEMENT_MODULE = 'CASE_MANAGEMENT_MODULE', // 用例评审关联用例模块树
+  TEST_PLAN_LINK_CASE_MODULE = 'TEST_PLAN_LINK_CASE_MODULE', // 测试计划关联用例模块树
+}
+export enum CasePageApiTypeEnum {
+  FUNCTIONAL_CASE_PAGE = 'FUNCTIONAL_CASE_PAGE', // 功能用例关联用例分页
+  BUG_MANAGEMENT_CASE_PAGE = 'BUG_MANAGEMENT_CASE_PAGE', // 缺陷管理关联用例分页
+  CASE_REVIEW_CASE_PAGE = 'CASE_REVIEW_CASE_PAGE', // 用例评审关联用例分页
+  TEST_PLAN_CASE_PAGE = 'TEST_PLAN_CASE_PAGE', // 测试计划关联用例分页
+}
+export enum CaseCountApiTypeEnum {
+  FUNCTIONAL_CASE_COUNT = 'FUNCTIONAL_CASE_COUNT', // 功能用例关联用例模块数量
+  BUG_MANAGEMENT_CASE_COUNT = 'BUG_MANAGEMENT_CASE_COUNT', // 缺陷管理关联用例模块数量
+  CASE_MANAGEMENT_CASE_COUNT = 'CASE_MANAGEMENT_CASE_COUNT', // 用例评审关联用例模块数量
+  TEST_PLAN_CASE_COUNT = 'TEST_PLAN_CASE_COUNT', // 测试计划关联用例模块数量
+}
+
+export default {};

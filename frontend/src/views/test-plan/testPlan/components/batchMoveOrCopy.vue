@@ -16,48 +16,78 @@
         </div>
       </div>
     </template>
-    <a-input
-      v-model:model-value="moduleKeyword"
-      :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
-      allow-clear
-      :max-length="255"
-      class="mb-4"
-    />
-    <a-spin class="min-h-[400px] w-full" :loading="loading">
-      <MsTree
-        v-model:focus-node-key="focusNodeKey"
-        v-model:selected-keys="innerSelectedModuleKeys"
-        :data="treeData"
-        :keyword="moduleKeyword"
-        :default-expand-all="props.isExpandAll"
-        :expand-all="isExpandAll"
-        :empty-text="t(props.emptyText)"
-        :draggable="false"
-        :virtual-list-props="virtualListProps"
-        :field-names="{
-          title: 'name',
-          key: 'id',
-          children: 'children',
-          count: 'count',
-        }"
-        block-node
-        title-tooltip-position="top"
-        @select="nodeSelect"
+    <div v-if="props.type === testPlanTypeEnum.TEST_PLAN" class="mb-[16px] flex items-center">
+      <span class="mr-2 text-[var(--color-text-1)]"
+        >{{ props.mode === 'move' ? t('msTable.batch.moveTo') : t('msTable.batch.copyTo') }}:
+      </span>
+      <a-radio-group v-model="form.moveType" class="file-show-type mr-2">
+        <a-radio value="MODULE" class="show-type-icon p-[2px]">{{ t('testPlan.testPlanGroup.module') }}</a-radio>
+        <a-radio value="GROUP" class="show-type-icon p-[2px]">{{ t('testPlan.testPlanIndex.testPlanGroup') }}</a-radio>
+      </a-radio-group>
+    </div>
+    <a-form
+      v-if="form.moveType === 'GROUP' && props.type === testPlanTypeEnum.TEST_PLAN"
+      ref="formRef"
+      :model="form"
+      layout="vertical"
+      class="flex items-center"
+    >
+      <a-form-item
+        :rules="[{ required: true, message: t('testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder') }]"
+        field="targetId"
+        :label="t('testPlan.testPlanIndex.testPlanGroup')"
       >
-        <template #title="nodeData">
-          <div class="inline-flex w-full">
-            <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-          </div>
-        </template>
-      </MsTree>
-    </a-spin>
+        <a-select v-model="form.targetId" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of groupList" :key="item.id" :value="item.id">
+            {{ item.name }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+    <div v-if="form.moveType === 'MODULE'">
+      <a-input
+        v-model:model-value="moduleKeyword"
+        :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
+        allow-clear
+        :max-length="255"
+        class="mb-4"
+      />
+      <a-spin class="min-h-[300px] w-full" :loading="loading">
+        <MsTree
+          v-model:focus-node-key="focusNodeKey"
+          v-model:selected-keys="innerSelectedModuleKeys"
+          :data="treeData"
+          :keyword="moduleKeyword"
+          :default-expand-all="props.isExpandAll"
+          :expand-all="isExpandAll"
+          :empty-text="t(props.emptyText)"
+          :draggable="false"
+          :virtual-list-props="virtualListProps"
+          :field-names="{
+            title: 'name',
+            key: 'id',
+            children: 'children',
+            count: 'count',
+          }"
+          block-node
+          title-tooltip-position="top"
+          @select="nodeSelect"
+        >
+          <template #title="nodeData">
+            <div class="inline-flex w-full">
+              <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            </div>
+          </template>
+        </MsTree>
+      </a-spin>
+    </div>
     <template #footer>
       <a-button type="secondary" @click="handleMoveCaseModalCancel">{{ t('common.cancel') }}</a-button>
       <a-button
         class="ml-[12px]"
         type="primary"
         :loading="props.okLoading"
-        :disabled="innerSelectedModuleKeys.length === 0"
+        :disabled="innerSelectedModuleKeys.length === 0 && form.moveType === 'MODULE'"
         @click="handleCaseMoveOrCopy"
       >
         {{ props.mode === 'move' ? t('common.move') : t('common.copy') }}
@@ -69,16 +99,22 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
+  import { SelectOptionData } from '@arco-design/web-vue';
 
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
+  import { getPlanGroupOptions } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { mapTree } from '@/utils';
 
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
+  import type { moduleForm } from '@/models/testPlan/testPlan';
+  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
+
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -92,6 +128,7 @@
       selectedNodeKeys: (string | number)[];
       okLoading: boolean;
       emptyText?: string;
+      type: keyof typeof testPlanTypeEnum;
     }>(),
     {
       isExpandAll: false,
@@ -102,7 +139,7 @@
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
     (e: 'update:selectedNodeKeys', val: string[]): void;
-    (e: 'save'): void;
+    (e: 'save', form: moduleForm): void;
   }>();
 
   const showModalVisible = useVModel(props, 'visible', emit);
@@ -110,17 +147,36 @@
 
   const moduleKeyword = ref<string>('');
 
-  const focusNodeKey = ref<string>('');
+  const form = ref<moduleForm>({
+    moveType: 'MODULE',
+    targetId: '',
+  });
 
+  const groupList = ref<SelectOptionData>([]);
+
+  const focusNodeKey = ref<string>('');
+  const formRef = ref<FormInstance | null>(null);
   // 批量移动和复制
   async function handleCaseMoveOrCopy() {
-    emit('save');
+    if (form.value.moveType === 'GROUP') {
+      formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+        if (!errors) {
+          emit('save', form.value);
+        }
+      });
+    } else {
+      emit('save', form.value);
+    }
   }
 
   function handleMoveCaseModalCancel() {
     showModalVisible.value = false;
     innerSelectedModuleKeys.value = [];
     moduleKeyword.value = '';
+    form.value = {
+      moveType: 'MODULE',
+      targetId: '',
+    };
   }
 
   const loading = ref<boolean>(false);
@@ -173,11 +229,21 @@
     innerSelectedModuleKeys.value = selectedKeys;
   };
 
+  async function initGroupOptions() {
+    try {
+      groupList.value = await getPlanGroupOptions(appStore.currentProjectId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   watch(
     () => showModalVisible.value,
     (val) => {
       if (val) {
         initModules();
+        initGroupOptions();
       }
     }
   );

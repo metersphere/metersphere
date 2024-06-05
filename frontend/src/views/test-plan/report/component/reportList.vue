@@ -61,7 +61,7 @@
       </template>
       <!-- 执行状态筛选 -->
       <template #resultStatus="{ record }">
-        <ExecutionStatus :status="record.resultStatus" />
+        <ExecutionStatus v-if="record.resultStatus !== '-'" :status="record.resultStatus" />
       </template>
       <template #execStatus="{ record }">
         <ExecStatus :status="record.execStatus" />

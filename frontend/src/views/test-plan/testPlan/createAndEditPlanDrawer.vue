@@ -153,7 +153,7 @@
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import AssociateDrawer from './components/associateDrawer.vue';
 
-  import { addTestPlan, copyTestPlan, getTestPlanDetail, updateTestPlan } from '@/api/modules/test-plan/testPlan';
+  import { addTestPlan, getTestPlanDetail, updateTestPlan } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -166,7 +166,6 @@
   const props = defineProps<{
     planId?: string;
     moduleTree?: ModuleTreeNode[];
-    isCopy: boolean;
     moduleId?: string;
   }>();
   const innerVisible = defineModel<boolean>('visible', {
@@ -288,18 +287,6 @@
       if (!errors) {
         drawerLoading.value = true;
         try {
-          const {
-            id,
-            name,
-            moduleId,
-            tags,
-            description,
-            testPlanning,
-            automaticStatusUpdate,
-            repeatCase,
-            passThreshold,
-            groupOption,
-          } = form.value;
           const params: AddTestPlanParams = {
             ...cloneDeep(form.value),
             groupId: 'NONE',
@@ -311,31 +298,8 @@
             await addTestPlan(params);
             Message.success(t('common.createSuccess'));
           } else {
-            if (props.isCopy) {
-              const copyParams: AddTestPlanParams = {
-                id,
-                groupId: 'NONE',
-                name,
-                moduleId,
-                tags,
-                description,
-                testPlanning,
-                automaticStatusUpdate,
-                repeatCase,
-                passThreshold,
-                baseAssociateCaseRequest: null,
-                groupOption,
-                plannedStartTime: form.value.cycle ? form.value.cycle[0] : undefined,
-                plannedEndTime: form.value.cycle ? form.value.cycle[1] : undefined,
-                projectId: appStore.currentProjectId,
-                type: testPlanTypeEnum.TEST_PLAN,
-              };
-              await copyTestPlan(copyParams);
-            } else {
-              await updateTestPlan(params);
-            }
-
-            Message.success(props.isCopy ? t('common.copySuccess') : t('common.updateSuccess'));
+            await updateTestPlan(params);
+            Message.success(t('common.updateSuccess'));
           }
           emit('loadPlanList');
         } catch (error) {
@@ -357,11 +321,6 @@
       if (props.planId?.length) {
         const result = await getTestPlanDetail(props.planId);
         form.value = cloneDeep(result);
-        if (props.isCopy) {
-          let copyName = `copy_${result.name}`;
-          copyName = copyName.length > 255 ? copyName.slice(0, 255) : copyName;
-          form.value.name = copyName;
-        }
 
         form.value.cycle = [result.plannedStartTime as number, result.plannedEndTime as number];
         form.value.passThreshold = parseFloat(result.passThreshold.toString());
@@ -386,17 +345,11 @@
   );
 
   const modelTitle = computed(() => {
-    if (props.planId) {
-      return props.isCopy ? t('testPlan.testPlanIndex.copyTestPlan') : t('testPlan.testPlanIndex.updateTestPlan');
-    }
-    return t('testPlan.testPlanIndex.createTestPlan');
+    return props.planId ? t('testPlan.testPlanIndex.updateTestPlan') : t('testPlan.testPlanIndex.createTestPlan');
   });
 
   const okText = computed(() => {
-    if (props.planId) {
-      return props.isCopy ? t('common.copy') : t('common.update');
-    }
-    return t('common.create');
+    return props.planId ? t('common.update') : t('common.create');
   });
 
   const getSelectedCount = computed(() => {

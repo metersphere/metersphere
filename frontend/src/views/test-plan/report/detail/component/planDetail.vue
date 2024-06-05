@@ -29,8 +29,71 @@
         :request-total="getIndicators(detail.caseTotal) || 0"
       />
     </div>
+  </div>
+  <!-- TODO 接口用例&场景用例待联调 -->
+  <div class="analysis-wrapper">
     <div class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.useCaseAnalysis') }}</div>
+      <div class="flex">
+        <div class="w-[70%]">
+          <SingleStatusProgress :detail="detail" status="pending" />
+          <SingleStatusProgress :detail="detail" status="success" />
+          <SingleStatusProgress :detail="detail" status="block" />
+          <SingleStatusProgress :detail="detail" status="error" />
+        </div>
+        <div class="relative w-[30%] min-w-[150px]">
+          <div class="charts absolute w-full text-center">
+            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+            <a-popover position="bottom" content-class="response-popover-content">
+              <div class="flex justify-center text-[18px] font-medium">
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCasePassRate }} </div>
+              </div>
+              <template #content>
+                <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
+                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCasePassRate }}</div>
+                </div>
+              </template>
+            </a-popover>
+          </div>
+          <div class="flex h-full w-full min-w-[150px] items-center justify-center">
+            <MsChart width="150px" height="150px" :options="functionCaseOptions"
+          /></div>
+        </div>
+      </div>
+    </div>
+    <div class="analysis min-w-[330px]">
+      <div class="block-title">{{ t('report.detail.apiUseCaseAnalysis') }}</div>
+      <div class="flex">
+        <div class="w-[70%]">
+          <SingleStatusProgress :detail="detail" status="pending" />
+          <SingleStatusProgress :detail="detail" status="success" />
+          <SingleStatusProgress :detail="detail" status="block" />
+          <SingleStatusProgress :detail="detail" status="error" />
+        </div>
+        <div class="relative w-[30%] min-w-[150px]">
+          <div class="charts absolute w-full text-center">
+            <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+            <a-popover position="bottom" content-class="response-popover-content">
+              <div class="flex justify-center text-[18px] font-medium">
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCasePassRate }} </div>
+              </div>
+              <template #content>
+                <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
+                  <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCasePassRate }}</div>
+                </div>
+              </template>
+            </a-popover>
+          </div>
+          <div class="flex h-full w-full min-w-[150px] items-center justify-center">
+            <MsChart width="150px" height="150px" :options="functionCaseOptions"
+          /></div>
+        </div>
+      </div>
+    </div>
+    <div class="analysis min-w-[330px]">
+      <div class="block-title">{{ t('report.detail.scenarioUseCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
           <SingleStatusProgress :detail="detail" status="pending" />
@@ -72,7 +135,14 @@
         :preview-url="PreviewEditorImageUrl"
         class="mt-[8px] w-full"
         :editable="!!shareId"
-    /></div>
+      />
+      <MsFormItemSub
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && showButton"
+        :text="t('report.detail.oneClickSummary')"
+        :show-fill-icon="true"
+        @fill="handleSummary"
+      />
+    </div>
 
     <div
       v-show="showButton && hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId"
@@ -92,6 +162,8 @@
     />
     <BugTable v-if="activeTab === 'bug'" :report-id="detail.id" :share-id="shareId" />
     <FeatureCaseTable v-if="activeTab === 'featureCase'" :report-id="detail.id" :share-id="shareId" />
+    <ApiCaseTable v-if="activeTab === 'apiCase'" :report-id="detail.id" :share-id="shareId" />
+    <ScenarioCaseTable v-if="activeTab === 'scenarioCase'" :report-id="detail.id" :share-id="shareId" />
   </MsCard>
 </template>
 
@@ -106,12 +178,15 @@
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
+  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import PlanDetailHeaderRight from './planDetailHeaderRight.vue';
   import ReportMetricsItem from './ReportMetricsItem.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
+  import ApiCaseTable from '@/views/test-plan/report/detail/component/apiCaseTable.vue';
   import BugTable from '@/views/test-plan/report/detail/component/bugTable.vue';
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/featureCaseTable.vue';
+  import ScenarioCaseTable from '@/views/test-plan/report/detail/component/scenarioCaseTable.vue';
 
   import { editorUploadFile, updateReportDetail } from '@/api/modules/test-plan/report';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
@@ -369,6 +444,14 @@
       value: 'featureCase',
       label: t('report.detail.featureCaseDetails'),
     },
+    {
+      value: 'apiCase',
+      label: t('report.detail.apiCaseDetails'),
+    },
+    {
+      value: 'scenarioCase',
+      label: t('report.detail.scenarioCaseDetails'),
+    },
   ]);
 
   watchEffect(() => {
@@ -387,6 +470,14 @@
       });
     });
   });
+
+  const summaryContent = ref<string>(`
+  <p style=""><span color="" fontsize="">本次完成 测试计划名称，功能测试，接口测试；共 300条 用例，已执行 285 条，未执行 15 条，执行率为 95%，通过用例 270 条，通过率为 90%，达到/未达到通过阈值（通过阈值为85%），xxx计划满足/不满足发布要求。<br>（1）本次测试包含100条功能测试用例，执行了95条，未执行5条，执行率为95%，通过用例90条，通过率为90%。共发现缺陷0个。<br>（2）本次测试包含100条接口测试用例，执行了95条，未执行5条，执行率为95%，通过用例90条，通过率为90%。共发现缺陷0个。<br>（3）本次测试包含100条场景测试用例，执行了95条，未执行5条，执行率为95%，通过用例90条，通过率为90%。共发现缺陷0个</span></p>
+  `);
+  // 一键总结 TODO 待联调
+  function handleSummary() {
+    richText.value.summary = summaryContent.value;
+  }
 </script>
 
 <style scoped lang="less">
@@ -409,8 +500,5 @@
         margin: auto;
       }
     }
-  }
-  :deep(.rich-wrapper) .halo-rich-text-editor .ProseMirror {
-    height: 58px;
   }
 </style>

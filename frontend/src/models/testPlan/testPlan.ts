@@ -4,6 +4,7 @@ import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
 import { LastExecuteResults } from '@/enums/caseEnum';
+import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
 
@@ -76,12 +77,12 @@ export interface TestPlanDetail extends AddTestPlanParams {
 
 // 计划分页
 export interface TestPlanItem {
-  id?: string;
+  id: string;
   projectId: string;
   num: number;
   name: string;
   status: planStatusType;
-  type: string;
+  type: keyof typeof testPlanTypeEnum;
   tags: string[];
   schedule: string; // 是否定时
   createUser: string;
@@ -91,6 +92,7 @@ export interface TestPlanItem {
   children: TestPlanItem[];
   childrenCount: number;
   groupId: string;
+  functionalCaseCount: number;
 }
 export type TestPlanItemType = TestPlanItem & TestPlanDetail;
 
@@ -234,6 +236,16 @@ export interface ExecuteHistoryItem {
   steps: string;
   createTime: string;
   deleted: boolean;
+}
+
+export interface moduleForm {
+  moveType: 'MODULE' | 'GROUP';
+  targetId: string | number;
+}
+
+export interface BatchMoveParams extends TableQueryParams {
+  moveType?: 'MODULE' | 'GROUP';
+  targetId?: string | number;
 }
 
 // TODO: 联调

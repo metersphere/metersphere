@@ -17,16 +17,18 @@
               {{ item.label }}
             </span>
           </a-option>
-          <template #footer>
+          <!-- TODO :暂时不做 -->
+          <!-- <template #footer>
             <div class="mb-[6px] mt-[4px] p-[3px_8px]">
               <MsButton type="text" class="text-[rgb(var(--primary-5))]" @click="createCustomFrequency">
                 {{ t('testPlan.testPlanIndex.customFrequency') }}
               </MsButton>
             </div>
-          </template>
+          </template> -->
         </a-select>
       </a-form-item>
-      <a-radio-group v-model="form.env" class="mb-4">
+      <!-- TOTO 环境暂时不上 -->
+      <!-- <a-radio-group v-model="form.env" class="mb-4">
         <a-radio value="">
           {{ t('testPlan.testPlanIndex.defaultEnv') }}
           <span class="float-right mx-1 mt-[1px]">
@@ -36,12 +38,13 @@
           </span>
         </a-radio>
         <a-radio value="new"> {{ t('testPlan.testPlanIndex.newEnv') }}</a-radio>
-      </a-radio-group>
-      <a-radio-group v-model="form.methods">
+      </a-radio-group> -->
+      <a-radio-group v-if="props.type === testPlanTypeEnum.GROUP" v-model="form.methods">
         <a-radio value="serial">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
         <a-radio value="parallel">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
       </a-radio-group>
-      <a-form-item :label="t('testPlan.testPlanIndex.resourcePool')" asterisk-position="end" class="mb-0">
+      <!-- TODO 资源池暂时不做 -->
+      <!-- <a-form-item :label="t('testPlan.testPlanIndex.resourcePool')" asterisk-position="end" class="mb-0">
         <a-select
           v-model="form.resourcePoolIds"
           :placeholder="t('common.pleaseSelect')"
@@ -65,7 +68,7 @@
             </div>
           </a-option>
         </a-select>
-      </a-form-item>
+      </a-form-item> -->
     </a-form>
     <template #footer>
       <div class="flex items-center justify-between">
@@ -104,16 +107,19 @@
   import { useAppStore } from '@/store';
 
   import type { ResourcesItem } from '@/models/testPlan/testPlan';
+  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   const appStore = useAppStore();
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
+    type: keyof typeof testPlanTypeEnum;
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
+    (e: 'close'): void;
   }>();
   const showModalVisible = useVModel(props, 'visible', emit);
 
@@ -140,6 +146,7 @@
     showModalVisible.value = false;
     formRef.value?.resetFields();
     resetForm();
+    emit('close');
   }
 
   const syncFrequencyOptions = [

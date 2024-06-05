@@ -1,5 +1,6 @@
 export default {
   'testPlan.testPlanIndex.createTestPlan': 'create test plan',
+  'testPlan.testPlanIndex.createTestPlanGroup': 'New Plan group',
   'testPlan.testPlanIndex.updateTestPlan': 'update test plan',
   'testPlan.testPlanIndex.copyTestPlan': 'copy test plan',
   'testPlan.testPlanIndex.allTestPlan': 'All test Plans',
@@ -11,7 +12,8 @@ export default {
   'testPlan.testPlanIndex.rename': 'rename',
   'testPlan.testPlanIndex.all': 'All',
   'testPlan.testPlanIndex.testPlan': 'Test plan',
-  'testPlan.testPlanIndex.testPlanGroup': 'Test planning groups',
+  'testPlan.testPlanIndex.plan': 'Plan',
+  'testPlan.testPlanIndex.testPlanGroup': 'Planning groups',
   'testPlan.testPlanIndex.testPlanName': 'name',
   'testPlan.testPlanIndex.ID': 'ID',
   'testPlan.testPlanIndex.executionResult': 'Execution Result',
@@ -46,6 +48,7 @@ export default {
   'testPlan.testPlanIndex.selectedCount': '{count} data selected',
   'testPlan.testPlanIndex.createScheduledTask': 'Create Scheduled Task',
   'testPlan.testPlanIndex.updateScheduledTask': 'Update Scheduled Task',
+  'testPlan.testPlanIndex.deleteScheduledTask': 'Delete Scheduled Task',
   'testPlan.testPlanIndex.configuration': 'config',
   'testPlan.testPlanIndex.triggerTime': 'Trigger time',
   'testPlan.testPlanIndex.envTip': 'Use case save environment',
@@ -109,4 +112,25 @@ export default {
   'testPlan.featureCase.autoNextTip1': 'Enable: After submitting the results, jump to the next case',
   'testPlan.featureCase.autoNextTip2': 'Close: After submitting the results, it is still in the current state',
   'testPlan.executeHistory.executionStartAndEndTime': 'Execution start and end time',
+  'testPlan.testPlanGroup.seeArchived': 'Only see archived',
+  'testPlan.testPlanGroup.planNamePlaceholder': 'Please enter the name of the test plan group',
+  'testPlan.testPlanGroup.name': 'Group Name',
+  'testPlan.testPlanGroup.newPlanGroupTitle': 'New Project group',
+  'testPlan.testPlanGroup.updatePlanGroupTitle': 'Update Planning group {name}',
+  'testPlan.testPlanGroup.copyPlanGroupTitle': 'Copy planning groups {name}',
+  'testPlan.testPlanGroup.newPlanPlaceHolder': 'Please enter name',
+  'testPlan.testPlanGroup.noPlanOnGroupArchiveTitle': '{name} No archived test plan',
+  'testPlan.testPlanGroup.noPlanOnGroupArchiveContent': 'The test plan can be archived if the status is completed',
+  'testPlan.testPlanGroup.allPlanIsCompletedAndArchivedContent':
+    'Test plans in the Completed state can be archived. Archived plans are not affected',
+  'testPlan.testPlanGroup.unCompletedAndArchivedContent':
+    'Status as completed test plans can be archived, unfinished and archived plans are not affected',
+  'testPlan.testPlanGroup.planGroupArchiveTitle': 'Confirm archive {name} plan group and plan?',
+  'testPlan.testPlanGroup.planGroupArchiveContent':
+    'After archived, plan and carry out information no longer update and edit data unrecoverable, please careful operation.',
+  'testPlan.testPlanGroup.planGroupDeleteContent':
+    'Planning groups choose file has been completed and the case information, and the results will be retained, If you continue to delete, the data will not be recovered, please be careful!',
+  'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': 'Please select the Plan group',
+  'testPlan.testPlanGroup.batchArchivedGroup': 'Confirm archive: {count} test plan groups',
+  'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': 'Are you sure to delete {count} test plan groups?',
 };

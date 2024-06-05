@@ -9,14 +9,22 @@
               :placeholder="t('caseManagement.featureCase.searchTip')"
               allow-clear
             />
-            <a-button
+            <a-dropdown-button
               v-permission="['PROJECT_TEST_PLAN:READ+ADD']"
               class="ml-2"
               type="primary"
               @click="handleSelect('createPlan')"
             >
               {{ t('common.newCreate') }}
-            </a-button>
+              <template #icon>
+                <icon-down />
+              </template>
+              <template #content>
+                <a-doption value="createGroup" @click="handleSelect('createGroup')">
+                  {{ t('testPlan.testPlanIndex.testPlanGroup') }}
+                </a-doption>
+              </template>
+            </a-dropdown-button>
           </div>
 
           <div class="test-plan h-[100%]">
@@ -85,7 +93,7 @@
             :module-tree="folderTree"
             :node-name="nodeName"
             @init="initModulesCount"
-            @edit-or-copy="handleEditOrCopy"
+            @edit="handleEdit"
           />
         </div>
       </template>
@@ -95,7 +103,14 @@
       :plan-id="planId"
       :module-id="selectedKeys[0]"
       :module-tree="folderTree"
-      :is-copy="isCopy"
+      @close="resetPlanId"
+      @load-plan-list="loadPlanList"
+    />
+    <CreateAndUpdatePlanGroup
+      v-model:visible="showPlanGroupModel"
+      :plan-group-id="planId"
+      :module-tree="folderTree"
+      :module-id="selectedKeys[0]"
       @close="resetPlanId"
       @load-plan-list="loadPlanList"
     />
@@ -114,14 +129,16 @@
   import PlanTable from './components/planTable.vue';
   import TestPlanTree from './components/testPlanTree.vue';
   import CreateAndEditPlanDrawer from './createAndEditPlanDrawer.vue';
+  import CreateAndUpdatePlanGroup from '@/views/test-plan/testPlan/planGroup/createAndUpdatePlanGroup.vue';
 
   import { createPlanModuleTree, getPlanModulesCount } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { TestPlanItem } from '@/models/testPlan/testPlan';
+  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -221,27 +238,36 @@
     }
   }
 
-  const showPlanDrawer = ref(false);
+  const showPlanDrawer = ref<boolean>(false);
+  const showPlanGroupModel = ref<boolean>(false);
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     switch (value) {
       case 'createPlan':
         showPlanDrawer.value = true;
+        break;
+      case 'createGroup':
+        showPlanGroupModel.value = true;
         break;
       default:
         break;
     }
   }
 
-  const planId = ref('');
-  const isCopy = ref<boolean>(false);
-  function handleEditOrCopy(id: string, isCopyFlag: boolean) {
-    planId.value = id;
-    isCopy.value = isCopyFlag;
-    showPlanDrawer.value = true;
+  const planId = ref<string>();
+
+  function handleEdit(record: TestPlanItem) {
+    planId.value = record.id;
+    if (record.type === testPlanTypeEnum.TEST_PLAN) {
+      showPlanDrawer.value = true;
+    } else {
+      showPlanGroupModel.value = true;
+    }
   }
+
   function resetPlanId() {
     planId.value = '';
   }
+
   function loadPlanList() {
     planTableRef.value?.fetchData();
   }
