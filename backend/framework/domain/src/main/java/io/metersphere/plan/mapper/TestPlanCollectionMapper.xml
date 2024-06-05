@@ -4,14 +4,22 @@
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanCollection">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
-    <result column="test_collection_type_id" jdbcType="VARCHAR" property="testCollectionTypeId" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="execute_method" jdbcType="VARCHAR" property="executeMethod" />
+    <result column="extended" jdbcType="BIT" property="extended" />
     <result column="grouped" jdbcType="BIT" property="grouped" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
+    <result column="retry_on_fail" jdbcType="BIT" property="retryOnFail" />
+    <result column="retry_type" jdbcType="VARCHAR" property="retryType" />
+    <result column="retry_times" jdbcType="INTEGER" property="retryTimes" />
+    <result column="retry_interval" jdbcType="INTEGER" property="retryInterval" />
+    <result column="stop_on_fail" jdbcType="BIT" property="stopOnFail" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +80,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, test_collection_type_id, `name`, execute_method, grouped, environment_id, 
-    pos, create_user, create_time
+    id, test_plan_id, parent_id, `name`, `type`, execute_method, extended, grouped, environment_id, 
+    test_resource_pool_id, retry_on_fail, retry_type, retry_times, retry_interval, stop_on_fail, 
+    create_user, create_time, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanCollectionExample" resultMap="BaseResultMap">
     select
@@ -106,14 +115,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanCollection">
-    insert into test_plan_collection (id, test_plan_id, test_collection_type_id, 
-      `name`, execute_method, grouped, 
-      environment_id, pos, create_user, 
-      create_time)
-    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{testCollectionTypeId,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{executeMethod,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}, 
-      #{environmentId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT})
+    insert into test_plan_collection (id, test_plan_id, parent_id, 
+      `name`, `type`, execute_method, 
+      extended, grouped, environment_id, 
+      test_resource_pool_id, retry_on_fail, retry_type, 
+      retry_times, retry_interval, stop_on_fail, 
+      create_user, create_time, pos
+      )
+    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{executeMethod,jdbcType=VARCHAR}, 
+      #{extended,jdbcType=BIT}, #{grouped,jdbcType=BIT}, #{environmentId,jdbcType=VARCHAR}, 
+      #{testResourcePoolId,jdbcType=VARCHAR}, #{retryOnFail,jdbcType=BIT}, #{retryType,jdbcType=VARCHAR}, 
+      #{retryTimes,jdbcType=INTEGER}, #{retryInterval,jdbcType=INTEGER}, #{stopOnFail,jdbcType=BIT}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanCollection">
     insert into test_plan_collection
@@ -124,14 +139,20 @@
       <if test="testPlanId != null">
         test_plan_id,
       </if>
-      <if test="testCollectionTypeId != null">
-        test_collection_type_id,
+      <if test="parentId != null">
+        parent_id,
       </if>
       <if test="name != null">
         `name`,
       </if>
+      <if test="type != null">
+        `type`,
+      </if>
       <if test="executeMethod != null">
         execute_method,
+      </if>
+      <if test="extended != null">
+        extended,
       </if>
       <if test="grouped != null">
         grouped,
@@ -139,14 +160,32 @@
       <if test="environmentId != null">
         environment_id,
       </if>
-      <if test="pos != null">
-        pos,
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id,
+      </if>
+      <if test="retryOnFail != null">
+        retry_on_fail,
+      </if>
+      <if test="retryType != null">
+        retry_type,
+      </if>
+      <if test="retryTimes != null">
+        retry_times,
+      </if>
+      <if test="retryInterval != null">
+        retry_interval,
+      </if>
+      <if test="stopOnFail != null">
+        stop_on_fail,
       </if>
       <if test="createUser != null">
         create_user,
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="pos != null">
+        pos,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -156,14 +195,20 @@
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="testCollectionTypeId != null">
-        #{testCollectionTypeId,jdbcType=VARCHAR},
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
       <if test="executeMethod != null">
         #{executeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="extended != null">
+        #{extended,jdbcType=BIT},
       </if>
       <if test="grouped != null">
         #{grouped,jdbcType=BIT},
@@ -171,14 +216,32 @@
       <if test="environmentId != null">
         #{environmentId,jdbcType=VARCHAR},
       </if>
-      <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
+      <if test="testResourcePoolId != null">
+        #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="retryOnFail != null">
+        #{retryOnFail,jdbcType=BIT},
+      </if>
+      <if test="retryType != null">
+        #{retryType,jdbcType=VARCHAR},
+      </if>
+      <if test="retryTimes != null">
+        #{retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="retryInterval != null">
+        #{retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="stopOnFail != null">
+        #{stopOnFail,jdbcType=BIT},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -197,14 +260,20 @@
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="record.testCollectionTypeId != null">
-        test_collection_type_id = #{record.testCollectionTypeId,jdbcType=VARCHAR},
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
       <if test="record.executeMethod != null">
         execute_method = #{record.executeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.extended != null">
+        extended = #{record.extended,jdbcType=BIT},
       </if>
       <if test="record.grouped != null">
         grouped = #{record.grouped,jdbcType=BIT},
@@ -212,14 +281,32 @@
       <if test="record.environmentId != null">
         environment_id = #{record.environmentId,jdbcType=VARCHAR},
       </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
+      <if test="record.testResourcePoolId != null">
+        test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.retryOnFail != null">
+        retry_on_fail = #{record.retryOnFail,jdbcType=BIT},
+      </if>
+      <if test="record.retryType != null">
+        retry_type = #{record.retryType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.retryTimes != null">
+        retry_times = #{record.retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="record.retryInterval != null">
+        retry_interval = #{record.retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="record.stopOnFail != null">
+        stop_on_fail = #{record.stopOnFail,jdbcType=BIT},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -230,14 +317,22 @@
     update test_plan_collection
     set id = #{record.id,jdbcType=VARCHAR},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
-      test_collection_type_id = #{record.testCollectionTypeId,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
       execute_method = #{record.executeMethod,jdbcType=VARCHAR},
+      extended = #{record.extended,jdbcType=BIT},
       grouped = #{record.grouped,jdbcType=BIT},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=BIGINT},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      retry_on_fail = #{record.retryOnFail,jdbcType=BIT},
+      retry_type = #{record.retryType,jdbcType=VARCHAR},
+      retry_times = #{record.retryTimes,jdbcType=INTEGER},
+      retry_interval = #{record.retryInterval,jdbcType=INTEGER},
+      stop_on_fail = #{record.stopOnFail,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -248,14 +343,20 @@
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="testCollectionTypeId != null">
-        test_collection_type_id = #{testCollectionTypeId,jdbcType=VARCHAR},
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
       <if test="executeMethod != null">
         execute_method = #{executeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="extended != null">
+        extended = #{extended,jdbcType=BIT},
       </if>
       <if test="grouped != null">
         grouped = #{grouped,jdbcType=BIT},
@@ -263,8 +364,23 @@
       <if test="environmentId != null">
         environment_id = #{environmentId,jdbcType=VARCHAR},
       </if>
-      <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="retryOnFail != null">
+        retry_on_fail = #{retryOnFail,jdbcType=BIT},
+      </if>
+      <if test="retryType != null">
+        retry_type = #{retryType,jdbcType=VARCHAR},
+      </if>
+      <if test="retryTimes != null">
+        retry_times = #{retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="retryInterval != null">
+        retry_interval = #{retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="stopOnFail != null">
+        stop_on_fail = #{stopOnFail,jdbcType=BIT},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -272,32 +388,47 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanCollection">
     update test_plan_collection
     set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
-      test_collection_type_id = #{testCollectionTypeId,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
       execute_method = #{executeMethod,jdbcType=VARCHAR},
+      extended = #{extended,jdbcType=BIT},
       grouped = #{grouped,jdbcType=BIT},
       environment_id = #{environmentId,jdbcType=VARCHAR},
-      pos = #{pos,jdbcType=BIGINT},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      retry_on_fail = #{retryOnFail,jdbcType=BIT},
+      retry_type = #{retryType,jdbcType=VARCHAR},
+      retry_times = #{retryTimes,jdbcType=INTEGER},
+      retry_interval = #{retryInterval,jdbcType=INTEGER},
+      stop_on_fail = #{stopOnFail,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_collection
-    (id, test_plan_id, test_collection_type_id, `name`, execute_method, grouped, environment_id, 
-      pos, create_user, create_time)
+    (id, test_plan_id, parent_id, `name`, `type`, execute_method, extended, grouped, 
+      environment_id, test_resource_pool_id, retry_on_fail, retry_type, retry_times, 
+      retry_interval, stop_on_fail, create_user, create_time, pos)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.testCollectionTypeId,jdbcType=VARCHAR}, 
-        #{item.name,jdbcType=VARCHAR}, #{item.executeMethod,jdbcType=VARCHAR}, #{item.grouped,jdbcType=BIT}, 
-        #{item.environmentId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT})
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, 
+        #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.executeMethod,jdbcType=VARCHAR}, 
+        #{item.extended,jdbcType=BIT}, #{item.grouped,jdbcType=BIT}, #{item.environmentId,jdbcType=VARCHAR}, 
+        #{item.testResourcePoolId,jdbcType=VARCHAR}, #{item.retryOnFail,jdbcType=BIT}, 
+        #{item.retryType,jdbcType=VARCHAR}, #{item.retryTimes,jdbcType=INTEGER}, #{item.retryInterval,jdbcType=INTEGER}, 
+        #{item.stopOnFail,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.pos,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -316,14 +447,20 @@
         <if test="'test_plan_id'.toString() == column.value">
           #{item.testPlanId,jdbcType=VARCHAR}
         </if>
-        <if test="'test_collection_type_id'.toString() == column.value">
-          #{item.testCollectionTypeId,jdbcType=VARCHAR}
+        <if test="'parent_id'.toString() == column.value">
+          #{item.parentId,jdbcType=VARCHAR}
         </if>
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
         <if test="'execute_method'.toString() == column.value">
           #{item.executeMethod,jdbcType=VARCHAR}
+        </if>
+        <if test="'extended'.toString() == column.value">
+          #{item.extended,jdbcType=BIT}
         </if>
         <if test="'grouped'.toString() == column.value">
           #{item.grouped,jdbcType=BIT}
@@ -331,14 +468,32 @@
         <if test="'environment_id'.toString() == column.value">
           #{item.environmentId,jdbcType=VARCHAR}
         </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
+        <if test="'test_resource_pool_id'.toString() == column.value">
+          #{item.testResourcePoolId,jdbcType=VARCHAR}
+        </if>
+        <if test="'retry_on_fail'.toString() == column.value">
+          #{item.retryOnFail,jdbcType=BIT}
+        </if>
+        <if test="'retry_type'.toString() == column.value">
+          #{item.retryType,jdbcType=VARCHAR}
+        </if>
+        <if test="'retry_times'.toString() == column.value">
+          #{item.retryTimes,jdbcType=INTEGER}
+        </if>
+        <if test="'retry_interval'.toString() == column.value">
+          #{item.retryInterval,jdbcType=INTEGER}
+        </if>
+        <if test="'stop_on_fail'.toString() == column.value">
+          #{item.stopOnFail,jdbcType=BIT}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

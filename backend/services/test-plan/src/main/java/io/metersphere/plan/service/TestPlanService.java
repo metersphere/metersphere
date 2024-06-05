@@ -1,10 +1,15 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
+import io.metersphere.plan.enums.ExecuteMethod;
+import io.metersphere.plan.enums.RetryType;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.project.request.ProjectApplicationRequest;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -62,8 +67,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanFollowerMapper testPlanFollowerMapper;
     @Resource
-    private TestPlanAllocationMapper testPlanAllocationMapper;
-    @Resource
     private TestPlanBatchOperationService testPlanBatchOperationService;
     @Resource
     private TestPlanBatchArchivedService testPlanBatchArchivedService;
@@ -81,6 +84,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanSendNoticeService testPlanSendNoticeService;
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
 
     private static final int MAX_TAG_SIZE = 10;
 
@@ -263,10 +270,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         TestPlanFollowerExample testPlanFollowerExample = new TestPlanFollowerExample();
         testPlanFollowerExample.createCriteria().andTestPlanIdIn(testPlanIds);
         testPlanFollowerMapper.deleteByExample(testPlanFollowerExample);
-
-        TestPlanAllocationExample allocationExample = new TestPlanAllocationExample();
-        allocationExample.createCriteria().andTestPlanIdIn(testPlanIds);
-        testPlanAllocationMapper.deleteByExample(allocationExample);
 
         TestPlanCaseExecuteHistoryExample historyExample = new TestPlanCaseExecuteHistoryExample();
         historyExample.createCriteria().andTestPlanIdIn(testPlanIds);
@@ -693,5 +696,73 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanGroupService.sort(request);
         testPlanLogService.saveMoveLog(testPlanMapper.selectByPrimaryKey(request.getMoveId()), request.getMoveId(), logInsertModule);
         return new TestPlanOperationResponse(1);
+    }
+
+    /**
+     * 初始化测试规划默认节点
+     *
+     * @param planId 计划ID
+     * @param currentUser 当前用户
+     */
+    public List<TestPlanCollectionDTO> initDefaultPlanCollection(String planId, String currentUser) {
+        List<TestPlanCollectionDTO> collectionDTOS = new ArrayList<>();
+        // 获取项目下默认资源池
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        ProjectApplicationRequest projectApplicationRequest = new ProjectApplicationRequest();
+        projectApplicationRequest.setProjectId(testPlan.getProjectId());
+        projectApplicationRequest.setType("apiTest");
+        Map<String, Object> configMap = projectApplicationService.get(projectApplicationRequest, Arrays.stream(ProjectApplicationType.API.values()).map(ProjectApplicationType.API::name).collect(Collectors.toList()));
+
+        // 批量插入测试集
+        List<TestPlanCollection> collections = new ArrayList<>();
+        TestPlanCollection defaultCollection = new TestPlanCollection();
+        defaultCollection.setTestPlanId(planId);
+        defaultCollection.setExecuteMethod(ExecuteMethod.SERIAL.name());
+        defaultCollection.setExtended(true);
+        defaultCollection.setGrouped(false);
+        defaultCollection.setEnvironmentId("NONE");
+        defaultCollection.setTestResourcePoolId(configMap.getOrDefault(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name(), StringUtils.EMPTY).toString());
+        defaultCollection.setRetryOnFail(false);
+        defaultCollection.setRetryType(RetryType.STEP.name());
+        defaultCollection.setRetryTimes(10);
+        defaultCollection.setRetryInterval(1);
+        defaultCollection.setStopOnFail(false);
+        defaultCollection.setCreateUser(currentUser);
+        defaultCollection.setCreateTime(System.currentTimeMillis());
+        Long initPos = 1L;
+        for (CaseType caseType : CaseType.values()) {
+            // 测试集分类
+            TestPlanCollectionDTO parentCollectionDTO = new TestPlanCollectionDTO();
+            TestPlanCollection parentCollection = new TestPlanCollection();
+            BeanUtils.copyBean(parentCollection, defaultCollection);
+            parentCollection.setId(IDGenerator.nextStr());
+            parentCollection.setParentId("NONE");
+            parentCollection.setName(caseType.getType());
+            parentCollection.setType(caseType.getKey());
+            parentCollection.setPos(initPos << 12);
+            collections.add(parentCollection);
+            BeanUtils.copyBean(parentCollectionDTO, parentCollection);
+            // 测试集
+            TestPlanCollectionDTO childCollectionDTO = new TestPlanCollectionDTO();
+            TestPlanCollection childCollection = new TestPlanCollection();
+            BeanUtils.copyBean(childCollection, defaultCollection);
+            childCollection.setId(IDGenerator.nextStr());
+            childCollection.setParentId(parentCollection.getId());
+            childCollection.setName(caseType.getPlanDefaultCollection());
+            childCollection.setType(caseType.getKey());
+            childCollection.setPos(1L << 12);
+            collections.add(childCollection);
+            BeanUtils.copyBean(childCollectionDTO, childCollection);
+            parentCollectionDTO.setChildren(List.of(childCollectionDTO));
+            // 更新pos
+            initPos ++;
+
+            collectionDTOS.add(parentCollectionDTO);
+        }
+        testPlanCollectionMapper.batchInsertSelective(collections, TestPlanCollection.Column.id, TestPlanCollection.Column.testPlanId,
+                TestPlanCollection.Column.parentId, TestPlanCollection.Column.name, TestPlanCollection.Column.type, TestPlanCollection.Column.testResourcePoolId,
+                TestPlanCollection.Column.createUser, TestPlanCollection.Column.createTime, TestPlanCollection.Column.pos);
+
+        return collectionDTOS;
     }
 }

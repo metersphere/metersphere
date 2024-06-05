@@ -43,8 +43,6 @@ public class TestPlanTestService {
     @Resource
     private TestPlanFollowerMapper testPlanFollowerMapper;
     @Resource
-    private TestPlanAllocationMapper testPlanAllocationMapper;
-    @Resource
     private TestPlanReportMapper testPlanReportMapper;
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
@@ -423,10 +421,6 @@ public class TestPlanTestService {
             TestPlanFollowerExample testPlanFollowerExample = new TestPlanFollowerExample();
             testPlanFollowerExample.createCriteria().andTestPlanIdIn(subList);
             Assertions.assertEquals(testPlanFollowerMapper.countByExample(testPlanFollowerExample), 0);
-
-            TestPlanAllocationExample testPlanAllocationExample = new TestPlanAllocationExample();
-            testPlanAllocationExample.createCriteria().andTestPlanIdIn(subList);
-            Assertions.assertEquals(testPlanAllocationMapper.countByExample(testPlanAllocationExample), 0);
 
             TestPlanReportExample testPlanReportExample = new TestPlanReportExample();
             testPlanReportExample.createCriteria().andTestPlanIdIn(subList);

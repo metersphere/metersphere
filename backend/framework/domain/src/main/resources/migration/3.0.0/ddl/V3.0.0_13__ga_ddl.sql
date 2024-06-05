@@ -59,7 +59,7 @@ ALTER TABLE test_plan_report_bug MODIFY `bug_case_count` BIGINT NOT NULL  DEFAUL
 
 -- 修改测试计划关联接口表字段
 ALTER TABLE test_plan_api_case DROP COLUMN num;
-ALTER TABLE test_plan_api_case ADD COLUMN test_plan_collection_id VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '测试计划集id';
+ALTER TABLE test_plan_api_case ADD COLUMN test_plan_collection_id VARCHAR(50) NOT NULL COMMENT '测试计划集id';
 ALTER TABLE test_plan_api_case ADD COLUMN last_exec_time BIGINT COMMENT '最后执行时间';
 CREATE INDEX idx_test_plan_collection_id ON test_plan_api_case(test_plan_collection_id);
 CREATE INDEX idx_pos ON test_plan_api_case(pos);
@@ -103,20 +103,26 @@ CREATE INDEX idx_test_plan_id ON test_plan_allocation_type(test_plan_id);
 CREATE TABLE IF NOT EXISTS test_plan_collection(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
-    `test_collection_type_id` VARCHAR(50) NOT NULL   COMMENT '所属测试集类型ID' ,
+    `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级ID' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '测试集名称' ,
-    `execute_method` VARCHAR(50) NOT NULL   COMMENT '执行方式(串行/并行)' ,
+    `type` VARCHAR(255) NOT NULL   COMMENT '测试集类型(功能/接口/场景)' ,
+    `execute_method` VARCHAR(50) NOT NULL  DEFAULT 'SERIAL' COMMENT '执行方式(串行/并行)' ,
+    `extended` BIT NOT NULL  DEFAULT 1 COMMENT '是否继承' ,
     `grouped` BIT NOT NULL  DEFAULT 0 COMMENT '是否使用环境组' ,
-    `environment_id` VARCHAR(50) NOT NULL   COMMENT '环境ID/环境组ID' ,
-    `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔为2的N次幂' ,
+    `environment_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '环境ID/环境组ID' ,
+    `test_resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '测试资源池ID' ,
+    `retry_on_fail` BIT NOT NULL  DEFAULT 0 COMMENT '是否失败重试' ,
+    `retry_type` VARCHAR(50) NOT NULL  DEFAULT 'STEP' COMMENT '失败重试类型(步骤/场景)' ,
+    `retry_times` INT NOT NULL  DEFAULT 1 COMMENT '失败重试次数' ,
+    `retry_interval` INT NOT NULL  DEFAULT 1000 COMMENT '失败重试间隔(单位: ms)' ,
+    `stop_on_fail` BIT NOT NULL  DEFAULT 0 COMMENT '是否失败停止' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔为4096' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试集';
-CREATE INDEX idx_test_plan_id ON test_plan_collection(test_plan_id);
-CREATE INDEX idx_collection_type_id ON test_plan_collection(test_collection_type_id);
-CREATE INDEX idx_env_id ON test_plan_collection(environment_id);
-CREATE INDEX idx_create_user ON test_plan_collection(create_user);
+CREATE INDEX idx_test_plan_id_and_type ON test_plan_collection(test_plan_id,type);
+CREATE INDEX idx_parent_id ON test_plan_collection(parent_id);
 
 
 ALTER TABLE api_report ADD COLUMN exec_status VARCHAR(20) NOT NULL  DEFAULT 'PENDING' COMMENT '执行状态';

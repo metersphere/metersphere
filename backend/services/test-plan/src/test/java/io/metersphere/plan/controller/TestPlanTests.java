@@ -2114,4 +2114,10 @@ public class TestPlanTests extends BaseTest {
         request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
         this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
     }
+
+    @Test
+    @Order(308)
+    void testInitDefaultCollection() {
+        testPlanService.initDefaultPlanCollection("init_plan_id", "admin");
+    }
 }

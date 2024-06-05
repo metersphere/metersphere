@@ -1,6 +1,5 @@
 package io.metersphere.system.config.interceptor;
 
-import io.metersphere.plan.domain.TestPlanAllocation;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.system.utils.MybatisInterceptorConfig;
@@ -16,7 +15,6 @@ public class TestPlanInterceptor {
     public List<MybatisInterceptorConfig> tstPlanCompressConfigs() {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
 
-        configList.add(new MybatisInterceptorConfig(TestPlanAllocation.class, "runModeConfig", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(TestPlanCaseExecuteHistory.class, "content", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(TestPlanCaseExecuteHistory.class, "steps", CompressUtils.class, "zip", "unzip"));
 
