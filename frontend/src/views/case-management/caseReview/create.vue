@@ -42,8 +42,8 @@
           </template>
         </a-tree-select>
       </a-form-item>
-      <a-form-item field="type" :label="t('caseManagement.caseReview.type')">
-        <a-radio-group v-model:modelValue="reviewForm.type" :disabled="isEdit">
+      <a-form-item v-if="!isEdit" field="type" :label="t('caseManagement.caseReview.type')">
+        <a-radio-group v-model:modelValue="reviewForm.type">
           <a-radio value="SINGLE">
             <div class="flex items-center">
               {{ t('caseManagement.caseReview.single') }}

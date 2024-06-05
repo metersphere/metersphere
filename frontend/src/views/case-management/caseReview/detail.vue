@@ -123,6 +123,7 @@
           :module-tree="moduleTree"
           @init="initModulesCount"
           @refresh="handleRefresh"
+          @link="associateDrawerVisible = true"
         ></CaseTable>
       </template>
     </MsSplitBox>

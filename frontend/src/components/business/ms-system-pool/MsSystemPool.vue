@@ -1,11 +1,22 @@
 <template>
-  <a-select v-model="value" multiple allow-search allow-clear :options="options" :field-names="fieldNames" />
+  <a-select
+    v-model="value"
+    :placeholder="t('system.project.resourcePoolPlaceholder')"
+    multiple
+    allow-search
+    allow-clear
+    :options="options"
+    :field-names="fieldNames"
+  />
 </template>
 
 <script setup lang="ts">
   import { computed, ref, watchEffect } from 'vue';
 
   import { getPoolOptionsByOrg, getPoolOptionsByOrgOrSystem } from '@/api/modules/setting/organizationAndProject';
+  import { useI18n } from '@/hooks/useI18n';
+
+  const { t } = useI18n();
 
   const options = ref([]);
   const fieldNames = { value: 'id', label: 'name' };

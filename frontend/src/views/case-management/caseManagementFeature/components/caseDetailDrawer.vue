@@ -556,7 +556,8 @@
       default:
         break;
     }
-    return featureCaseStore.countMap[key] > 99 ? '99+' : `${featureCaseStore.countMap[key]}` || '';
+    const count = featureCaseStore.countMap[key] ?? 0;
+    return featureCaseStore.countMap[key] > 99 ? '99+' : `${count > 0 ? count : ''}`;
   }
 
   watch(
