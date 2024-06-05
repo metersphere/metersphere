@@ -563,4 +563,25 @@
         AND atc.deleted = #{deleted}
         <include refid="queryApiCaseWhereCondition"/>
     </select>
+
+    <select id="selectRootIdByTestPlanId" resultType="io.metersphere.functional.dto.ProjectOptionDTO">
+        SELECT a.module_id as id, atc.project_id as name, p.name as projectName
+        FROM api_test_case atc
+                 LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id
+                 LEFT JOIN project p ON atc.project_id = p.id
+                 LEFT JOIN api_definition a on atc.api_definition_id = a.id
+        WHERE tpac.test_plan_id = #{testPlanId}
+          AND atc.deleted = false AND a.module_id = 'root'
+        ORDER BY atc.pos
+    </select>
+
+    <select id="selectBaseByProjectIdAndTestPlanId" resultType="io.metersphere.plan.dto.ApiCaseModuleDTO">
+        SELECT adm.id, adm.project_id, p.name as projectName
+        FROM api_definition_module adm
+                 LEFT JOIN project p ON adm.project_id = p.id
+        WHERE adm.id IN
+              (SELECT ad.module_id FROM api_definition ad LEFT JOIN api_test_case atc on atc.api_definition_id = ad.id LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id WHERE tpac.test_plan_id = #{testPlanId} AND atc.deleted = false)
+        ORDER BY pos
+    </select>
+
 </mapper>

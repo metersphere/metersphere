@@ -21,6 +21,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
     public static final String API_CASE_PAGE = "/test-plan/api/case/page";
     public static final String API_CASE_TREE_COUNT = "/test-plan/api/case/module/count";
+    public static final String API_CASE_TREE_MODULE_TREE = "/test-plan/api/case/tree/";
 
     @Test
     @Order(1)
@@ -56,6 +57,17 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(3)
+    public void testApiCaseModuleTree() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(API_CASE_TREE_MODULE_TREE + "wxxx_1");
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        this.requestGetWithOkAndReturn(API_CASE_TREE_MODULE_TREE + "wxxx_2");
     }
 
 }

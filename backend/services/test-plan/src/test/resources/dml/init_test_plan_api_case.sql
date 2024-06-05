@@ -13,7 +13,7 @@ VALUES
 INSERT INTO `api_definition`(`id`, `name`, `protocol`, `method`, `path`, `status`, `num`, `tags`, `pos`, `project_id`, `module_id`, `latest`, `version_id`, `ref_id`, `description`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_user`, `delete_time`, `deleted`)
 VALUES
     ('wxxx_api_1', '2222', 'HTTP', 'GET', '/111', 'DEPRECATED', 100003, '[]', 192, 'wxx_1234', 'root', b'1', '100844458962059498', '1086025445195776', '', 1716370415311, 'admin', 1716455838628, 'admin', NULL, NULL, b'0'),
-    ('wxxx_api_2', '3333', 'HTTP', 'GET', '/111', 'DEPRECATED', 100003, '[]', 192, 'wxx_1234', 'root', b'1', '100844458962059498', '1086025445195776', '', 1716370415311, 'admin', 1716455838628, 'admin', NULL, NULL, b'0'),
+    ('wxxx_api_2', '3333', 'HTTP', 'GET', '/111', 'DEPRECATED', 100003, '[]', 192, 'wxx_1234', '123', b'1', '100844458962059498', '1086025445195776', '', 1716370415311, 'admin', 1716455838628, 'admin', NULL, NULL, b'0'),
     ('wxxx_api_3', '4444', 'HTTP', 'GET', '/111', 'DEPRECATED', 100003, '[]', 192, 'wxx_1234', 'root', b'1', '100844458962059498', '1086025445195776', '', 1716370415311, 'admin', 1716455838628, 'admin', NULL, NULL, b'0');
 
 
@@ -31,7 +31,8 @@ VALUES
 INSERT INTO `test_plan_api_case`(`id`, `test_plan_id`, `api_case_id`, `environment_id`, `last_exec_result`, `last_exec_report_id`, `execute_user`, `create_time`, `create_user`, `pos`, `test_plan_collection_id`, `last_exec_time`)
 VALUES
     ('wxxx_1', 'wxxx_1', 'wxxx_api_case_1', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_1', 1716370415311),
-    ('wxxx_2', 'wxxx_1', 'wxxx_api_case_2', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311);
+    ('wxxx_2', 'wxxx_1', 'wxxx_api_case_2', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311),
+    ('wxxx_3', 'wxxx_2', 'wxxx_api_case_3', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311);
 
 INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `test_collection_type_id`, `name`, `execute_method`, `grouped`, `environment_id`, `pos`, `create_user`, `create_time`)
 VALUES
@@ -43,3 +44,5 @@ VALUES
 INSERT INTO `environment`(`id`, `name`, `project_id`, `create_user`, `update_user`, `create_time`, `update_time`, `mock`, `description`, `pos`)
 VALUES ('123', 'Mock环境', 'wxx_1234', 'admin', 'admin', 1716175907000, 1716175907000, b'1', NULL, 64);
 
+INSERT INTO `api_definition_module`(`id`, `name`, `parent_id`, `project_id`, `pos`, `create_time`, `update_time`, `update_user`, `create_user`)
+VALUES ('123', 'Halo', 'NONE', 'wxx_1234', 384, 1716280762025, 1716280762025, '805048669970432', '805048669970432');
