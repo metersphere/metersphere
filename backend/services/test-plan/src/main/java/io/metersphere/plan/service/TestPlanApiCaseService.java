@@ -6,8 +6,10 @@ import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
+import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
+import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
@@ -29,6 +31,7 @@ import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -268,5 +271,40 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         List<String> moduleIds = extTestPlanApiCaseMapper.selectIdByProjectIdAndTestPlanId(projectId, testPlanId);
         List<BaseTreeNode> nodeByNodeIds = apiDefinitionModuleService.getNodeByNodeIds(moduleIds);
         return apiDefinitionModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
+    }
+
+    /**
+     * 已关联接口用例模块树
+     *
+     * @param testPlanId
+     * @return
+     */
+    public List<BaseTreeNode> getTree(String testPlanId) {
+        List<BaseTreeNode> returnList = new ArrayList<>();
+        List<ProjectOptionDTO> rootIds = extTestPlanApiCaseMapper.selectRootIdByTestPlanId(testPlanId);
+        Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
+        List<ApiCaseModuleDTO> apiCaseModuleIds = extTestPlanApiCaseMapper.selectBaseByProjectIdAndTestPlanId(testPlanId);
+        Map<String, List<ApiCaseModuleDTO>> projectModuleMap = apiCaseModuleIds.stream().collect(Collectors.groupingBy(ApiCaseModuleDTO::getProjectId));
+        if (MapUtils.isEmpty(projectModuleMap)) {
+            projectRootMap.forEach((projectId, projectOptionDTOList) -> {
+                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
+                returnList.add(projectNode);
+                BaseTreeNode defaultNode = apiDefinitionModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
+                projectNode.addChild(defaultNode);
+            });
+            return returnList;
+        }
+        projectModuleMap.forEach((projectId, moduleList) -> {
+            BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
+            returnList.add(projectNode);
+            List<String> projectModuleIds = moduleList.stream().map(ApiCaseModuleDTO::getId).toList();
+            List<BaseTreeNode> nodeByNodeIds = apiDefinitionModuleService.getNodeByNodeIds(projectModuleIds);
+            boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
+            List<BaseTreeNode> baseTreeNodes = apiDefinitionModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
+            for (BaseTreeNode baseTreeNode : baseTreeNodes) {
+                projectNode.addChild(baseTreeNode);
+            }
+        });
+        return returnList;
     }
 }

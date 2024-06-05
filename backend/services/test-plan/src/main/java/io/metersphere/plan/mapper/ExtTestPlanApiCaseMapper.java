@@ -2,7 +2,9 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
+import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanApiCase;
+import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
@@ -41,4 +43,8 @@ public interface ExtTestPlanApiCaseMapper {
     long caseCount(@Param("request") TestPlanApiCaseRequest request, @Param("deleted") boolean deleted);
 
     List<TestPlanApiCase> selectByTestPlanIdAndNotDeleted(String testPlanId);
+
+    List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
+
+    List<ApiCaseModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);
 }
