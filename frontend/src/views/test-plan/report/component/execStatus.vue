@@ -27,7 +27,7 @@
       class: '!text-[rgb(var(--link-6))]',
     },
     STOPPED: {
-      label: 'common.stop',
+      label: 'common.stopped',
       color: 'rgb(var(--warning-2))',
       class: '!text-[rgb(var(--warning-6))]',
     },

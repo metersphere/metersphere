@@ -26,7 +26,7 @@
     [ScenarioExecuteStatus.STOP]: {
       bgColor: 'rgb(var(--link-2))',
       color: 'rgb(var(--link-6))',
-      text: 'common.stop',
+      text: 'common.stopped',
     },
     [ScenarioExecuteStatus.EXECUTING]: {
       bgColor: 'rgb(var(--link-2))',

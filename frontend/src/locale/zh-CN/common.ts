@@ -136,7 +136,7 @@ export default {
   'common.tip': '温馨提示',
   'common.stay': '留下',
   'common.apply': '应用',
-  'common.stop': '已停止',
+  'common.stop': '停止',
   'common.module': '模块',
   'common.yes': '是',
   'common.no': '否',
@@ -186,4 +186,5 @@ export default {
   'common.updateTime': '更新时间',
   'common.belongProject': '所属项目',
   'common.noMatchData': '暂无匹配数据',
+  'common.stopped': '已停止',
 };

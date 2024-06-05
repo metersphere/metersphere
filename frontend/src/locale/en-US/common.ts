@@ -136,7 +136,7 @@ export default {
   'common.tip': 'Tips',
   'common.stay': 'Stay',
   'common.apply': 'Apply',
-  'common.stop': 'Stopped',
+  'common.stop': 'Stop',
   'common.module': 'Module',
   'common.yes': 'Yes',
   'common.no': 'No',
@@ -185,4 +185,5 @@ export default {
   'common.updateTime': 'Update time',
   'common.belongProject': 'Belong to Project',
   'common.noMatchData': 'No matching data',
+  'common.stopped': 'Stopped',
 };

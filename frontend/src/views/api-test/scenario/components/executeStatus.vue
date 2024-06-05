@@ -50,7 +50,7 @@
     [ExecuteStatusFilters.STOPPED]: {
       bgColor: 'rgb(var(--link-2))',
       color: 'rgb(var(--color-border-2))',
-      text: 'common.stop',
+      text: 'common.stopped',
     },
   };
   const status = computed(() => {
