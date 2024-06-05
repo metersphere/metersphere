@@ -3,10 +3,13 @@ package io.metersphere.plan.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanExample;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -41,6 +44,8 @@ public class TestPlanManagementService {
     private TestPlanModuleService testPlanModuleService;
     @Resource
     private TestPlanStatisticsService testPlanStatisticsService;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     public Map<String, Long> moduleCount(TestPlanTableRequest request) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
@@ -61,13 +66,19 @@ public class TestPlanManagementService {
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 MapUtils.isEmpty(request.getSort()) ? "t.num desc" : request.getSortString());
-        return PageUtils.setPageInfo(page, this.getTableList(request));
+        return PageUtils.setPageInfo(page, this.list(request));
     }
 
-    private List<TestPlanResponse> getTableList(TestPlanTableRequest request) {
+    public List<TestPlanResponse> list(TestPlanTableRequest request) {
         List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request);
         handChildren(testPlanResponses,request.getProjectId());
         return testPlanResponses;
+    }
+
+    public List<TestPlan> groupList(String projectId) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_GROUP).andProjectIdEqualTo(projectId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        return testPlanMapper.selectByExample(example);
     }
 
     /**
