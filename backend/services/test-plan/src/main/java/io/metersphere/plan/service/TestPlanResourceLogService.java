@@ -86,4 +86,38 @@ public class TestPlanResourceLogService {
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
+
+
+    public void saveDisassociateLog(TestPlan module, @Validated ResourceLogInsertModule logInsertModule) {
+        Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(module.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.DISASSOCIATE.name())
+                .module(logModule)
+                .method(logInsertModule.getRequestMethod())
+                .path(logInsertModule.getRequestUrl())
+                .sourceId(module.getId())
+                .content(generateContent(module.getName(), logInsertModule.getResourceType(), "disassociate"))
+                .createUser(logInsertModule.getOperator())
+                .build().getLogDTO();
+        operationLogService.add(dto);
+    }
+
+
+    public void saveAssociateLog(TestPlan module, @Validated ResourceLogInsertModule logInsertModule) {
+        Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(module.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.ASSOCIATE.name())
+                .module(logModule)
+                .method(logInsertModule.getRequestMethod())
+                .path(logInsertModule.getRequestUrl())
+                .sourceId(module.getId())
+                .content(generateContent(module.getName(), logInsertModule.getResourceType(), "associate"))
+                .createUser(logInsertModule.getOperator())
+                .build().getLogDTO();
+        operationLogService.add(dto);
+    }
 }
