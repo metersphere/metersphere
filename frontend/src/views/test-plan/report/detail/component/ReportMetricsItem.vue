@@ -7,7 +7,7 @@
         <MsIcon
           v-if="props.itemInfo.tip?.length"
           type="icon-icon-maybe_outlined"
-          class="ml-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+          class="ml-[8px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
         />
       </a-tooltip>
       <MsTag
