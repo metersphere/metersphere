@@ -1,5 +1,6 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.request.*;
@@ -11,6 +12,7 @@ import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -228,5 +230,25 @@ public class TestPlanController {
     public TestPlanOperationResponse sortTestPlan(@Validated @RequestBody PosRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getMoveId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.sortInGroup(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/move", HttpMethodConstants.POST.name()));
+    }
+
+    @PostMapping(value = "/schedule-config")
+    @Operation(summary = "接口测试-接口场景管理-定时任务配置")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#testPlanId)", msClass = TestPlanLogService.class)
+    @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "test_plan")
+    public String scheduleConfig(@Validated @RequestBody BaseScheduleConfigRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getResourceId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        return testPlanService.scheduleConfig(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/schedule-config-delete/{testPlanId}")
+    @Operation(summary = "接口测试-接口场景管理-删除定时任务配置")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#testPlanId)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
+    public void deleteScheduleConfig(@PathVariable String testPlanId) {
+        testPlanManagementService.checkModuleIsOpen(testPlanId, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanService.deleteScheduleConfig(testPlanId);
     }
 }

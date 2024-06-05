@@ -130,4 +130,21 @@ CREATE INDEX idx_exec_status ON api_scenario_report(exec_status);
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
+-- 测试计划队列表
+CREATE TABLE IF NOT EXISTS test_plan_execution_queue
+(
+    `id`                VARCHAR(50) NOT NULL COMMENT 'ID',
+    `execute_queue_id`  VARCHAR(50) NOT NULL COMMENT '执行队列唯一ID',
+    `test_plan_id`      VARCHAR(50) NOT NULL COMMENT '测试计划id',
+    `pos`               BIGINT      NOT NULL COMMENT '排序',
+    `prepare_report_id` VARCHAR(50) NOT NULL COMMENT '预生成报告ID',
+    `run_mode`          VARCHAR(10) NOT NULL COMMENT '运行模式(SERIAL/PARALLEL)',
+    `create_user`       VARCHAR(50) NOT NULL COMMENT '操作人',
+    `create_time`       BIGINT      NOT NULL COMMENT '操作时间',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划执行队列';
+
+
 
