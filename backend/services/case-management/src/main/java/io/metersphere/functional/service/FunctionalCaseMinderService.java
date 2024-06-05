@@ -301,15 +301,7 @@ public class FunctionalCaseMinderService {
             Map<String, String> customFieldNameMap = getCustomFieldNameMap(request);
             List<FunctionalCaseChangeRequest> addList = resourceMap.get(OperationLogType.ADD.toString());
             List<FunctionalCase> updatePosList = new ArrayList<>();
-            CustomFieldExample customFieldExample = new CustomFieldExample();
-            customFieldExample.createCriteria().andNameEqualTo("functional_priority").andSceneEqualTo(TemplateScene.FUNCTIONAL.toString()).andInternalEqualTo(true);
-            List<CustomField> defaultCustomFields = customFieldMapper.selectByExample(customFieldExample);
-            CustomField customField = defaultCustomFields.get(0);
-            TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.toString());
-            List<TemplateCustomFieldDTO> customFields = defaultTemplateDTO.getCustomFields();
-            Map<String, Object> defaultValueMap = customFields.stream().filter(t -> t.getDefaultValue() != null).collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldId, TemplateCustomFieldDTO::getDefaultValue));
-            defaultValueMap.putIfAbsent(customField.getId(), "P0");
-
+            Map<String, Object> defaultValueMap = getDefaultValueMap(request);
             if (CollectionUtils.isNotEmpty(addList)) {
                 Map<String, List<FunctionalCase>> moduleCaseMap = getModuleCaseMap(addList);
                 for (FunctionalCaseChangeRequest functionalCaseChangeRequest : addList) {
@@ -397,6 +389,24 @@ public class FunctionalCaseMinderService {
         resources = new ArrayList<>();
         resources.addAll(JSON.parseArray(JSON.toJSONString(updateNoticeList), Map.class));
         commonNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.UPDATE, resources, user, request.getProjectId());
+    }
+
+    @NotNull
+    private Map<String, Object> getDefaultValueMap(FunctionalCaseMinderEditRequest request) {
+        TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.toString());
+        List<TemplateCustomFieldDTO> customFields = defaultTemplateDTO.getCustomFields();
+        Map<String, Object> defaultValueMap = new HashMap<>();
+        for (TemplateCustomFieldDTO field : customFields) {
+            if (StringUtils.equalsIgnoreCase(field.getFieldName(), "functional_priority")) {
+                if (field.getDefaultValue() == null) {
+                    field.setDefaultValue("P0");
+                }
+            }
+            if (field.getDefaultValue() != null) {
+                defaultValueMap.put(field.getFieldId(), field.getDefaultValue());
+            }
+        }
+        return defaultValueMap;
     }
 
     private void dealAdditionalNode(FunctionalCaseMinderEditRequest request, String userId, MindAdditionalNodeMapper additionalNodeMapper, Map<String, String> newModuleMap) {

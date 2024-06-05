@@ -37,7 +37,7 @@
       },
       {
         redirect_uri: url,
-        client_id: data.agentId ? data.agentId : '',
+        client_id: data.appKey ? data.appKey : '',
         scope: 'openid',
         response_type: 'code',
         state: 'fit2cloud-ding-qr',
@@ -45,6 +45,8 @@
       },
       async (loginResult) => {
         const { redirectUrl, authCode, state } = loginResult;
+        console.log('authCode');
+        console.log(authCode);
         const dingCallback = getDingCallback(authCode);
         userStore.qrCodeLogin(await dingCallback);
         Message.success(t('login.form.login.success'));
