@@ -33,4 +33,7 @@ public class TestPlanCaseRequest extends BasePageRequest implements Serializable
 
     @Schema(description = "模块id")
     private List<String> moduleIds;
+
+    @Schema(description = "计划集id")
+    private List<String> collectionIds;
 }

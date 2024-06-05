@@ -142,6 +142,12 @@
             or functional_case.num like concat('%', #{request.keyword},'%')
             )
         </if>
+        <if test="request.collectionIds != null and request.collectionIds.size() > 0">
+            and test_plan_functional_case.test_plan_collection_id in
+            <foreach collection="request.collectionIds" item="collectionId" separator="," open="(" close=")">
+                #{collectionId}
+            </foreach>
+        </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
@@ -173,6 +179,12 @@
             or functional_case.num like concat('%', #{request.condition.keyword},'%')
             or functional_case.tags like concat('%', #{request.condition.keyword},'%')
             )
+        </if>
+        <if test="request.collectionIds != null and request.collectionIds.size() > 0">
+            and test_plan_functional_case.test_plan_collection_id in
+            <foreach collection="request.collectionIds" item="collectionId" separator="," open="(" close=")">
+                #{collectionId}
+            </foreach>
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>

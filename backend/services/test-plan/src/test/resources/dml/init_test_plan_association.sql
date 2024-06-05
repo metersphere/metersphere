@@ -9,8 +9,8 @@ VALUES
     ('wxx_1', b'0', b'0', 100),
     ('wxx_2', b'0', b'0', 100);
 
-INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`)
-VALUES ('wxx_tpfc_1', 'wxx_1', 'wxx_test_1', 1714980158000, 'admin', NULL, NULL, NULL, 1);
+INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`, `test_plan_collection_id`)
+VALUES ('wxx_tpfc_1', 'wxx_1', 'wxx_test_1', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123');
 
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)

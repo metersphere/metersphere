@@ -40,9 +40,14 @@ public class TestPlanFunctionalCase implements Serializable {
     @Schema(description = "最后执行结果")
     private String lastExecResult;
 
-    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "自定义排序，间隔为2的n次幂", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{test_plan_functional_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
+
+    @Schema(description = "测试计划集id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_functional_case.test_plan_collection_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_functional_case.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
+    private String testPlanCollectionId;
 
     private static final long serialVersionUID = 1L;
 
@@ -55,7 +60,8 @@ public class TestPlanFunctionalCase implements Serializable {
         executeUser("execute_user", "executeUser", "VARCHAR", false),
         lastExecTime("last_exec_time", "lastExecTime", "BIGINT", false),
         lastExecResult("last_exec_result", "lastExecResult", "VARCHAR", false),
-        pos("pos", "pos", "BIGINT", false);
+        pos("pos", "pos", "BIGINT", false),
+        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

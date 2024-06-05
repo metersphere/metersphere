@@ -14,15 +14,15 @@ VALUES
     ('gyq_disassociate_plan_2', 25000, 'gyq_disassociate', 'gyq_test_plan_id_1', 'root', '测试取消关联2', 'PREPARED', 'TEST_PLAN', NULL, 1714980158000, 'WX', 1714980158000, 'WX', 1714980158000, 1714980158000, 1714980158000, 1714980158000, '11');
 ;
 
-INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`)
+INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`, `test_plan_collection_id`)
 VALUES
-    ('relate_case_1', 'plan_1', 'fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1),
-    ('relate_case_2', 'plan_1', 'fc_2', 1714980158000, 'admin', NULL, NULL, NULL, 1),
-    ('relate_case_3', 'plan_2', 'fc_3', 1714980158000, 'admin', NULL, NULL, NULL, 1),
-    ('gyq_disassociate_case_1', 'gyq_disassociate_plan_1', 'gyq_disassociate_fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1),
-    ('gyq_disassociate_case_2', 'gyq_disassociate_plan_1', 'gyq_disassociate_fc_2', 1714980158000, 'admin', NULL, NULL, NULL, 1),
-    ('gyq_disassociate_case_3', 'gyq_disassociate_plan_1', 'gyq_disassociate_fc_3', 1714980158000, 'admin', NULL, NULL, NULL, 1),
-    ('gyq_disassociate_case_4', 'gyq_disassociate_plan_2', 'gyq_disassociate_fc_4', 1714980158000, 'admin', NULL, NULL, NULL, 1);
+    ('relate_case_1', 'plan_1', 'fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),
+    ('relate_case_2', 'plan_1', 'fc_2', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),
+    ('relate_case_3', 'plan_2', 'fc_3', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),
+    ('gyq_disassociate_case_1', 'gyq_disassociate_plan_1', 'gyq_disassociate_fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),
+    ('gyq_disassociate_case_2', 'gyq_disassociate_plan_1', 'gyq_disassociate_fc_2', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),
+    ('gyq_disassociate_case_3', 'gyq_disassociate_plan_1', 'gyq_disassociate_fc_3', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),
+    ('gyq_disassociate_case_4', 'gyq_disassociate_plan_2', 'gyq_disassociate_fc_4', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123');
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES

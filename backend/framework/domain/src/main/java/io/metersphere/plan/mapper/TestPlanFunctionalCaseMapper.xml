@@ -11,6 +11,7 @@
     <result column="last_exec_time" jdbcType="BIGINT" property="lastExecTime" />
     <result column="last_exec_result" jdbcType="VARCHAR" property="lastExecResult" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="test_plan_collection_id" jdbcType="VARCHAR" property="testPlanCollectionId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,7 +73,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, 
-    last_exec_result, pos
+    last_exec_result, pos, test_plan_collection_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCaseExample" resultMap="BaseResultMap">
     select
@@ -107,12 +108,12 @@
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
     insert into test_plan_functional_case (id, test_plan_id, functional_case_id, 
       create_time, create_user, execute_user, 
-      last_exec_time, last_exec_result, pos
-      )
+      last_exec_time, last_exec_result, pos, 
+      test_plan_collection_id)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{functionalCaseId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{executeUser,jdbcType=VARCHAR}, 
-      #{lastExecTime,jdbcType=BIGINT}, #{lastExecResult,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}
-      )
+      #{lastExecTime,jdbcType=BIGINT}, #{lastExecResult,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
+      #{testPlanCollectionId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
     insert into test_plan_functional_case
@@ -144,6 +145,9 @@
       <if test="pos != null">
         pos,
       </if>
+      <if test="testPlanCollectionId != null">
+        test_plan_collection_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -172,6 +176,9 @@
       </if>
       <if test="pos != null">
         #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="testPlanCollectionId != null">
+        #{testPlanCollectionId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -211,6 +218,9 @@
       <if test="record.pos != null">
         pos = #{record.pos,jdbcType=BIGINT},
       </if>
+      <if test="record.testPlanCollectionId != null">
+        test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -226,7 +236,8 @@
       execute_user = #{record.executeUser,jdbcType=VARCHAR},
       last_exec_time = #{record.lastExecTime,jdbcType=BIGINT},
       last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=BIGINT}
+      pos = #{record.pos,jdbcType=BIGINT},
+      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -258,6 +269,9 @@
       <if test="pos != null">
         pos = #{pos,jdbcType=BIGINT},
       </if>
+      <if test="testPlanCollectionId != null">
+        test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -270,19 +284,20 @@
       execute_user = #{executeUser,jdbcType=VARCHAR},
       last_exec_time = #{lastExecTime,jdbcType=BIGINT},
       last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
-      pos = #{pos,jdbcType=BIGINT}
+      pos = #{pos,jdbcType=BIGINT},
+      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_functional_case
     (id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, 
-      last_exec_result, pos)
+      last_exec_result, pos, test_plan_collection_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.functionalCaseId,jdbcType=VARCHAR}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, 
         #{item.lastExecTime,jdbcType=BIGINT}, #{item.lastExecResult,jdbcType=VARCHAR}, 
-        #{item.pos,jdbcType=BIGINT})
+        #{item.pos,jdbcType=BIGINT}, #{item.testPlanCollectionId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -321,6 +336,9 @@
         </if>
         <if test="'pos'.toString() == column.value">
           #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'test_plan_collection_id'.toString() == column.value">
+          #{item.testPlanCollectionId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

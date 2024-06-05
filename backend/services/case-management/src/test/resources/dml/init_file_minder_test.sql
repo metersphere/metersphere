@@ -50,9 +50,9 @@ VALUES
 INSERT INTO test_plan(id, num, project_id, group_id, module_id, name, status, type, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
     VALUE ('TEST_MINDER_PLAN_ID_1', 1000, 'project-case-minder-test', 'none', 'TEST_MINDER_PLAN_MODULE', '脑图测试计划', 'PREPARED', 'TEST_PLAN', null, 1669174143999, 'admin', 1669174143999, 'admin', null, null, null,null,null);
 
-INSERT INTO test_plan_functional_case(id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, last_exec_result, pos)
-    VALUES ('test_plan_functional_case_minder_id1', 'TEST_MINDER_PLAN_ID_1', 'TEST_FUNCTIONAL_MINDER_CASE_ID_5', 1669174143999, 'admin', 'admin', 1669174143999, 'SUCCESS', 5000),
-         ('test_plan_functional_case_minder_id2', 'TEST_MINDER_PLAN_ID_1', 'TEST_FUNCTIONAL_MINDER_CASE_ID_5', 1669174143999, 'admin', 'admin', 1669174143999, 'SUCCESS', 10000);
+INSERT INTO test_plan_functional_case(id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, last_exec_result, pos, test_plan_collection_id)
+    VALUES ('test_plan_functional_case_minder_id1', 'TEST_MINDER_PLAN_ID_1', 'TEST_FUNCTIONAL_MINDER_CASE_ID_5', 1669174143999, 'admin', 'admin', 1669174143999, 'SUCCESS', 5000, '123'),
+         ('test_plan_functional_case_minder_id2', 'TEST_MINDER_PLAN_ID_1', 'TEST_FUNCTIONAL_MINDER_CASE_ID_5', 1669174143999, 'admin', 'admin', 1669174143999, 'SUCCESS', 10000, '123');
 
 INSERT INTO custom_field (id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUES
     ('custom_field_minder_gyq_id_2', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', true, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001'),
