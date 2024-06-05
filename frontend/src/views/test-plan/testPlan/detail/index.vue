@@ -122,6 +122,7 @@
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
+    <ExecuteHistory v-if="activeTab === 'executeHistory'" />
   </MsCard>
   <AssociateDrawer
     v-model:visible="caseAssociateVisible"
@@ -159,6 +160,7 @@
   import ApiCase from './apiCase/index.vue';
   import ApiScenario from './apiScenario/index.vue';
   import BugManagement from './bugManagement/index.vue';
+  import ExecuteHistory from './executeHistory/index.vue';
   import FeatureCase from './featureCase/index.vue';
   import CreateAndEditPlanDrawer from '@/views/test-plan/testPlan/createAndEditPlanDrawer.vue';
 
@@ -319,6 +321,10 @@
     {
       value: 'apiScenario',
       label: t('testPlan.testPlanIndex.apiScenarioCase'),
+    },
+    {
+      value: 'executeHistory',
+      label: t('testPlan.featureCase.executionHistory'),
     },
   ]);
   function getTabBadge(tabKey: string) {

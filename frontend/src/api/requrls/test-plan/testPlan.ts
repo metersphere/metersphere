@@ -78,3 +78,5 @@ export const GetTestPlanUsersUrl = '/test-plan/functional/case/user-option';
 export const BatchUpdateCaseExecutorUrl = '/test-plan/functional/case/batch/update/executor';
 // 计划详情-功能用例-执行历史
 export const ExecuteHistoryUrl = '/test-plan/functional/case/exec/history';
+// 计划详情-执行历史 TODO 联调
+export const PlanDetailExecuteHistoryUrl = '/api/scenario/execute/page';

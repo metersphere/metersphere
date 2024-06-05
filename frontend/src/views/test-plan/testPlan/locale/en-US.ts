@@ -108,4 +108,5 @@ export default {
   'testPlan.featureCase.richTextDblclickPlaceholder': 'Double click for quick input',
   'testPlan.featureCase.autoNextTip1': 'Enable: After submitting the results, jump to the next case',
   'testPlan.featureCase.autoNextTip2': 'Close: After submitting the results, it is still in the current state',
+  'testPlan.executeHistory.executionStartAndEndTime': 'Execution start and end time',
 };

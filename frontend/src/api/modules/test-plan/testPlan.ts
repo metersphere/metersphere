@@ -32,6 +32,7 @@ import {
   GetTestPlanUsersUrl,
   MoveTestPlanModuleUrl,
   planDetailBugPageUrl,
+  PlanDetailExecuteHistoryUrl,
   planPassRateUrl,
   RunFeatureCaseUrl,
   SortFeatureCaseUrl,
@@ -60,6 +61,7 @@ import type {
   PlanDetailApiCaseItem,
   PlanDetailApiScenarioItem,
   PlanDetailBugItem,
+  PlanDetailExecuteHistoryItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
   RunFeatureCaseParams,
@@ -247,4 +249,8 @@ export function getPlanDetailApiCaseList(data: PlanDetailFeatureCaseListQueryPar
 // 计划详情-接口场景列表 TODO 联调
 export function getPlanDetailApiScenarioList(data: PlanDetailFeatureCaseListQueryParams) {
   return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailFeatureCaseListUrl, data });
+}
+// 计划详情-执行历史 TODO 联调
+export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {
+  return MSR.post<CommonList<PlanDetailExecuteHistoryItem>>({ url: PlanDetailExecuteHistoryUrl, data });
 }
