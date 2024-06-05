@@ -1,7 +1,7 @@
 <template>
   <a-radio-group v-model:active-key="activeName" type="button" class="tabPlatform" @change="handleClick">
-    <a-radio value="wecom">{{ t('project.messageManagement.WE_COM') }}</a-radio>
-    <a-radio value="dingtalk">{{ t('project.messageManagement.DING_TALK') }}</a-radio>
+    <a-radio value="wecom" class="radioOneButton">{{ t('project.messageManagement.WE_COM') }}</a-radio>
+    <a-radio value="dingtalk" class="radioOneButton">{{ t('project.messageManagement.DING_TALK') }}</a-radio>
     <!--    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
     <a-tab-pane key="larksuite" :title="t('project.messageManagement.LARK_SUITE')"></a-tab-pane>-->
   </a-radio-group>
@@ -59,6 +59,8 @@
   function handleClick(val: string | number | boolean) {
     if (typeof val === 'string') {
       activeName.value = val;
+    } else {
+      activeName.value = 'wecom';
     }
   }
   onMounted(() => {
@@ -102,5 +104,14 @@
         font-size: 24px;
       }
     }
+  }
+  .radioOneButton {
+    width: 200px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    font-size: 16px;
+    justify-content: center;
   }
 </style>

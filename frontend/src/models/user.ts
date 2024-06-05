@@ -23,7 +23,7 @@ export interface WecomInfo {
 
 // 企业微信对接信息
 export interface DingInfo {
-  agentId?: string;
+  appKey?: string;
   state?: string;
   callBack?: string;
 }
