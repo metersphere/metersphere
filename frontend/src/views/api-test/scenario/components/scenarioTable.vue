@@ -1339,10 +1339,12 @@
     let moduleIds: string[] = [];
     const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_SCENARIO);
     if (getAllChildren) {
-      moduleIds = [props.activeModule, ...props.offspringIds];
-    } else {
-      moduleIds = [props.activeModule];
+      moduleIds = [...props.offspringIds];
     }
+    if (props.activeModule !== 'all') {
+      moduleIds.push(props.activeModule);
+    }
+
     batchParams.value = { ...params, moduleIds: [] };
     batchParams.value.moduleIds = moduleIds;
     if (batchParams.value.condition) {
