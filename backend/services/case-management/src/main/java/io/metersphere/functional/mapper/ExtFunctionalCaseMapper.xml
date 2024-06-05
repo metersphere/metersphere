@@ -874,4 +874,11 @@
         AND cf.internal= true
     </select>
 
+    <select id="selectBaseMindNodeByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT id, name, parent_id AS parentId, 'module' AS type
+        FROM mind_additional_node
+        WHERE project_id = #{projectId}
+        ORDER BY pos
+    </select>
+
 </mapper>
