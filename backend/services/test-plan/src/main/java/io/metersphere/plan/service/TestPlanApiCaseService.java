@@ -14,6 +14,7 @@ import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -324,12 +325,11 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @return
      */
     public TestPlanAssociationResponse disassociate(BasePlanCaseBatchRequest request, LogInsertModule logInsertModule) {
-        List<String> selectIds = doSelectIds(request);
         return super.disassociate(
                 TestPlanResourceConstants.RESOURCE_API_CASE,
                 request,
                 logInsertModule,
-                selectIds,
+                request.getSelectIds(),
                 this::deleteTestPlanResource);
     }
 
@@ -341,15 +341,28 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
 
-    public List<String> doSelectIds(BasePlanCaseBatchRequest request) {
+    public List<String> doSelectIds(BasePlanCaseBatchRequest request, List<String> protocols) {
         if (request.isSelectAll()) {
-            List<String> ids = extTestPlanApiCaseMapper.getIds(request, false);
+            List<String> ids = extTestPlanApiCaseMapper.getIds(request, false, protocols);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
             return ids;
         } else {
             return request.getSelectIds();
+        }
+    }
+
+
+    /**
+     * 批量更新执行人
+     *
+     * @param request
+     */
+    public void batchUpdateExecutor(TestPlanApiCaseUpdateRequest request) {
+        List<String> ids = doSelectIds(request, request.getProtocols());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            extTestPlanApiCaseMapper.batchUpdateExecutor(ids, request.getUserId());
         }
     }
 }

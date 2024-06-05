@@ -163,7 +163,7 @@ public class TestPlanFunctionalCaseController {
     @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanCaseLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanCaseLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanCaseUpdateRequest request) {
         testPlanFunctionalCaseService.batchUpdateExecutor(request);
     }

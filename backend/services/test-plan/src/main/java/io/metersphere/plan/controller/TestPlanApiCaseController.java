@@ -4,15 +4,19 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.service.TestPlanApiCaseLogService;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -77,6 +81,15 @@ public class TestPlanApiCaseController {
         TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/association", HttpMethodConstants.POST.name()));
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
+    }
+
+    @PostMapping("/batch/update/executor")
+    @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiCaseLogService.class)
+    public void batchUpdateExecutor(@Validated @RequestBody TestPlanApiCaseUpdateRequest request) {
+        testPlanApiCaseService.batchUpdateExecutor(request);
     }
 
 
