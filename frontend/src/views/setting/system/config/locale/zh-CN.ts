@@ -2,6 +2,7 @@ export default {
   'system.config.parameterConfig': '系统参数配置',
   'system.config.baseConfig': '基础设置',
   'system.config.pageConfig': '界面设置',
+  'system.config.qrCodeConfig': '扫码登陆',
   'system.config.authConfig': '认证设置',
   'system.config.baseInfo': '基本信息',
   'system.config.update': '更新',

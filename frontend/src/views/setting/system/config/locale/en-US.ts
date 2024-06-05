@@ -2,6 +2,7 @@ export default {
   'system.config.parameterConfig': 'System Parameters Configuration',
   'system.config.baseConfig': 'Basic Settings',
   'system.config.pageConfig': 'Interface settings',
+  'system.config.qrCodeConfig': 'Scan the QR code to log in',
   'system.config.authConfig': 'Authentication Settings',
   'system.config.baseInfo': 'Base Information',
   'system.config.update': 'Update',
