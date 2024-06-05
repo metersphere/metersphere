@@ -14,6 +14,7 @@ import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
+import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -48,6 +49,8 @@ import java.util.List;
 public class ApiScenarioController {
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiScenarioRunService apiScenarioRunService;
     @Resource
     private ApiValidateService apiValidateService;
     @Resource
@@ -166,14 +169,14 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-场景调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     public TaskRequestDTO debug(@Validated @RequestBody ApiScenarioDebugRequest request) {
-        return apiScenarioService.debug(request);
+        return apiScenarioRunService.debug(request);
     }
 
     @PostMapping("/run")
     @Operation(summary = "接口测试-接口场景管理-场景执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     public TaskRequestDTO run(@Validated @RequestBody ApiScenarioDebugRequest request) {
-        return apiScenarioService.run(request, SessionUtils.getUserId());
+        return apiScenarioRunService.run(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/run/{id}")
@@ -181,7 +184,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public TaskRequestDTO run(@PathVariable String id, @RequestParam(required = false) String reportId) {
-        return apiScenarioService.run(id, reportId, SessionUtils.getUserId());
+        return apiScenarioRunService.run(id, reportId, SessionUtils.getUserId());
     }
 
     @GetMapping(value = "/update-status/{id}/{status}")

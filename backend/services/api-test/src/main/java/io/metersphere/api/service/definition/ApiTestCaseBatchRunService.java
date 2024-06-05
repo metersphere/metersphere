@@ -1,23 +1,14 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
-import io.metersphere.api.dto.ApiParamConfig;
-import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseBatchRunRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiBatchRunBaseService;
-import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
-import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
-import io.metersphere.sdk.dto.api.task.CollectionReportDTO;
-import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.BeanUtils;
@@ -34,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,13 +37,9 @@ public class ApiTestCaseBatchRunService {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
-    private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
-    @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiExecuteService apiExecuteService;
-    @Resource
-    private EnvironmentService environmentService;
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
@@ -62,10 +48,6 @@ public class ApiTestCaseBatchRunService {
     private ApiReportService apiReportService;
     @Resource
     private ApiBatchRunBaseService apiBatchRunBaseService;
-    @Resource
-    private ApiCommonService apiCommonService;
-    @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ApiReportMapper apiReportMapper;
     @Resource
@@ -168,49 +150,32 @@ public class ApiTestCaseBatchRunService {
 
         // 集成报告，执行前先设置成 RUNNING
         setRunningIntegrateReport(runModeConfig);
+        List<TaskItem> taskItems = new ArrayList<>(ids.size());
 
-        // 分批查询
-        SubListUtils.dealForSubList(ids, 100, subIds -> {
+        // 这里ID顺序和队列的ID顺序保持一致
+        for (String id : ids) {
+            ApiTestCase apiTestCase = apiCaseMap.get(id);
 
-            AtomicInteger errorCount = new AtomicInteger();
-            Map<String, ApiTestCaseBlob> apiTestCaseBlobMap = apiTestCaseService.getBlobByIds(subIds).stream()
-                    .collect(Collectors.toMap(ApiTestCaseBlob::getId, Function.identity()));
-
-            // 获取用例和定义信息的map，key 为用例ID，value 为接口定义信息
-            Map<String, ApiDefinitionExecuteInfo> definitionExecuteInfoMap = apiTestCaseService.getModuleInfoByIds(subIds).stream()
-                    .collect(Collectors.toMap(ApiDefinitionExecuteInfo::getResourceId, Function.identity()));
-
-            // 这里ID顺序和队列的ID顺序保持一致
-            for (String id : subIds) {
-                String reportId = null;
-                try {
-                    ApiTestCase apiTestCase = apiCaseMap.get(id);
-                    ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMap.get(id);
-
-                    if (apiTestCase == null) {
-                        if (runModeConfig.isIntegratedReport()) {
-                            // 用例不存在，则在执行集合中删除
-                            apiExecutionSetService.removeItem(runModeConfig.getCollectionReport().getReportId(), id);
-                        }
-                        LogUtils.info("当前执行任务的用例已删除 {}", id);
-                        break;
-                    }
-
-                    // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
-                    reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
-                    TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
-                    taskRequest.setRequestCount(1L);
-                    execute(taskRequest, apiTestCase, apiTestCaseBlob, definitionExecuteInfoMap.get(apiTestCase.getId()));
-                } catch (Exception e) {
-                    LogUtils.error("执行用例失败 {}-{}", reportId, id);
-                    LogUtils.error(e);
-                    if (errorCount.getAndIncrement() > 10) {
-                        LogUtils.error("批量执行用例失败，错误次数超过10次，停止执行");
-                        return;
-                    }
+            if (apiTestCase == null) {
+                if (runModeConfig.isIntegratedReport()) {
+                    // 用例不存在，则在执行集合中删除
+                    apiExecutionSetService.removeItem(runModeConfig.getCollectionReport().getReportId(), id);
                 }
+                LogUtils.info("当前执行任务的用例已删除 {}", id);
+                break;
             }
-        });
+
+            // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
+            String reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
+
+            TaskItem taskItem = apiExecuteService.getTaskItem(reportId, id);
+            taskItem.setRequestCount(1L);
+            taskItems.add(taskItem);
+        }
+
+        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(request.getProjectId(), runModeConfig);
+        taskRequest.setTaskItems(taskItems);
+        apiExecuteService.batchExecute(taskRequest);
     }
 
     /**
@@ -309,7 +274,6 @@ public class ApiTestCaseBatchRunService {
         String resourceId = queueDetail.getResourceId();
 
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(resourceId);
-        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(resourceId);
 
         String reportId;
         if (runModeConfig.isIntegratedReport()) {
@@ -323,39 +287,37 @@ public class ApiTestCaseBatchRunService {
             LogUtils.info("当前执行任务的用例已删除 {}", resourceId);
             return;
         }
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
 
         TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
-        taskRequest.setQueueId(queue.getQueueId());
-        taskRequest.setRequestCount(1L);
-        execute(taskRequest, apiTestCase, apiTestCaseBlob, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
-    }
+        taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskItem().setRequestCount(1L);
 
-    /**
-     * 执行批量的单个任务
-     *
-     * @param apiTestCase
-     * @param apiTestCaseBlob
-     */
-    public void execute(TaskRequestDTO taskRequest, ApiTestCase apiTestCase, ApiTestCaseBlob apiTestCaseBlob, ApiDefinitionExecuteInfo definitionExecuteInfo) {
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getReportId());
-        ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
-        runRequest.setTestElement(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
-
-        // 设置环境信息
-        apiParamConfig.setEnvConfig(environmentService.get(getEnvId(taskRequest.getRunModeConfig(), apiTestCase)));
-        // 设置 method 等信息
-        apiCommonService.setApiDefinitionExecuteInfo(runRequest.getTestElement(), definitionExecuteInfo);
-
-        apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
+        apiExecuteService.execute(taskRequest);
     }
 
     private TaskRequestDTO getTaskRequestDTO(String reportId, ApiTestCase apiTestCase, ApiRunModeConfigDTO runModeConfig) {
-        TaskRequestDTO taskRequest = apiTestCaseService.getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
-        taskRequest.setSaveResult(true);
-        taskRequest.setRealTime(false);
-        taskRequest.setRunModeConfig(runModeConfig);
+        TaskRequestDTO taskRequest = new TaskRequestDTO();
+        TaskItem taskItem = apiExecuteService.getTaskItem(reportId, apiTestCase.getId());
+        TaskInfo taskInfo = getTaskInfo(apiTestCase.getProjectId(), runModeConfig);
+        taskRequest.setTaskInfo(taskInfo);
+        taskRequest.setTaskItem(taskItem);
         return taskRequest;
+    }
+
+    private TaskBatchRequestDTO getTaskBatchRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
+        TaskBatchRequestDTO taskRequest = new TaskBatchRequestDTO();
+        TaskInfo taskInfo = getTaskInfo(projectId, runModeConfig);
+        taskRequest.setTaskInfo(taskInfo);
+        return taskRequest;
+    }
+
+    private TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
+        TaskInfo taskInfo = apiTestCaseService.getTaskInfo(projectId, ApiExecuteRunMode.RUN.name());
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(false);
+        taskInfo.setNeedParseScript(true);
+        taskInfo.setRunModeConfig(runModeConfig);
+        return taskInfo;
     }
 
 
@@ -387,7 +349,7 @@ public class ApiTestCaseBatchRunService {
 
     private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase, String userId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
-        apiReport.setEnvironmentId(getEnvId(runModeConfig, apiTestCase));
+        apiReport.setEnvironmentId(apiTestCaseService.getEnvId(runModeConfig, apiTestCase));
         apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setProjectId(apiTestCase.getProjectId());
         apiReport.setTriggerMode(TaskTriggerMode.BATCH.name());
@@ -403,18 +365,6 @@ public class ApiTestCaseBatchRunService {
         return apiReport;
     }
 
-    /**
-     * 获取执行的环境ID
-     * 优先使用运行配置的环境
-     * 没有则使用用例自身的环境
-     *
-     * @param runModeConfig
-     * @param apiTestCase
-     * @return
-     */
-    public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiTestCase.getEnvironmentId() : runModeConfig.getEnvironmentId();
-    }
 
     public void updateStopOnFailureApiReport(ExecutionQueue queue) {
         ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();

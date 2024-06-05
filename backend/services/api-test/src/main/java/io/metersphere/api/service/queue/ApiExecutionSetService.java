@@ -23,10 +23,14 @@ public class ApiExecutionSetService {
      */
     public void initSet(String setId, List<String> resourceIds) {
         resourceIds.forEach(resourceId -> {
-            String key = SET_PREFIX + setId;
+            String key = getKey(setId);
             redisTemplate.opsForSet().add(key, resourceId);
             redisTemplate.expire(key, 1, TimeUnit.DAYS);
         });
+    }
+
+    private String getKey(String setId) {
+        return SET_PREFIX + setId;
     }
 
     /**

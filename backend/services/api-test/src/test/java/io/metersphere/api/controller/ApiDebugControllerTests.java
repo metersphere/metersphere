@@ -543,7 +543,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setFrontendDebug(true);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEBUG, request);
         TaskRequestDTO taskRequestDTO = getResultData(mvcResult, TaskRequestDTO.class);
-        Assertions.assertEquals(taskRequestDTO.getReportId(), request.getReportId());
+        Assertions.assertEquals(taskRequestDTO.getTaskItem().getReportId(), request.getReportId());
 
         // 测试请求体
         MockMultipartFile file = getMockMultipartFile();

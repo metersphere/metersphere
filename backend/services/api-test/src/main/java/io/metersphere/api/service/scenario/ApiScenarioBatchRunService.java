@@ -4,39 +4,27 @@ import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.domain.ApiScenarioReportStep;
-import io.metersphere.api.dto.ApiScenarioParamConfig;
-import io.metersphere.api.dto.ApiScenarioParseTmpParam;
-import io.metersphere.api.dto.debug.ApiResourceRunRequest;
-import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
-import io.metersphere.api.dto.scenario.ApiScenarioParseParam;
-import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
+import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
-import io.metersphere.api.utils.ExecTask;
-import io.metersphere.api.utils.TaskRunnerUtils;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
-import io.metersphere.sdk.dto.api.task.CollectionReportDTO;
-import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -68,9 +55,10 @@ public class ApiScenarioBatchRunService {
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
-
-    @Value("${spring.datasource.hikari.maximum-pool-size}")
-    private int maximumPoolSize;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiScenarioRunService apiScenarioRunService;
 
     /**
      * 异步批量执行
@@ -148,31 +136,17 @@ public class ApiScenarioBatchRunService {
         // 集成报告，执行前先设置成 RUNNING
         setRunningIntegrateReport(runModeConfig);
 
-        TestResourcePoolReturnDTO testResourcePoolDTO = apiExecuteService.getGetResourcePoolNodeDTO(runModeConfig, request.getProjectId());
-        List<ApiScenarioDetail> apiScenarioDetails = apiScenarioService.getForRuns(ids);
+        List<TaskItem> taskItems = ids.stream()
+                .map(id -> {
+                    String reportId = runModeConfig.isIntegratedReport() ? IDGenerator.nextStr() : scenarioReportMap.get(id);
+                    return apiExecuteService.getTaskItem(reportId, id);
+                }).toList();
+        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(request.getProjectId(), runModeConfig);
+        taskRequest.setTaskItems(taskItems);
 
-        if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
-            // 独立部署执行专属服务,线程池执行
-            TaskRunnerUtils.setThreadPoolSize(maximumPoolSize / 2 - 10);
-            apiScenarioDetails.forEach(apiScenarioDetail -> {
-                ExecTask execTask = new ExecTask(this, apiScenarioDetail, scenarioReportMap, runModeConfig);
-                TaskRunnerUtils.executeThreadPool(execTask);
-            });
-        } else {
-            // 未独立部署执行专属引用则使用默认循环分发任务
-            apiScenarioDetails.forEach(apiScenarioDetail -> execute(apiScenarioDetail, scenarioReportMap, runModeConfig));
-        }
+        apiExecuteService.batchExecute(taskRequest);
     }
 
-    public void execute(ApiScenarioDetail apiScenarioDetail, Map<String, String> scenarioReportMap, ApiRunModeConfigDTO runModeConfig) {
-        try {
-            String reportId = runModeConfig.isIntegratedReport() ? IDGenerator.nextStr() : scenarioReportMap.get(apiScenarioDetail.getId());
-            TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiScenarioDetail, runModeConfig);
-            execute(taskRequest, apiScenarioDetail);
-        } catch (Exception e) {
-            LogUtils.error("执行用例失败 {}", apiScenarioDetail.getId(), e);
-        }
-    }
 
     private Map<String, String> initReport(List<String> ids, ApiRunModeConfigDTO runModeConfig, String userId) {
         Map<String, String> scenarioReportMap = new HashMap<>();
@@ -213,17 +187,6 @@ public class ApiScenarioBatchRunService {
         return isIntegratedReport ? null : scenarioReportMap;
     }
 
-
-    private Long getRequestCount(List<ApiScenarioStepDTO> steps) {
-        AtomicLong requestCount = new AtomicLong();
-        apiScenarioService.traversalStepTree(steps, step -> {
-            if (BooleanUtils.isTrue(step.getEnable()) && apiScenarioService.isRequestStep(step)) {
-                requestCount.getAndIncrement();
-            }
-            return true;
-        });
-        return requestCount.get();
-    }
 
     /**
      * 集成报告，执行前先设置成 RUNNING
@@ -288,79 +251,51 @@ public class ApiScenarioBatchRunService {
      */
     public void executeNextTask(ExecutionQueue queue, ExecutionQueueDetail queueDetail) {
         ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
-        ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(queueDetail.getResourceId());
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(queueDetail.getResourceId());
+
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(queueDetail.getResourceId());
         if (apiScenarioDetail == null) {
             LogUtils.info("当前执行任务的用例已删除 {}", queueDetail.getResourceId());
             return;
         }
+
         String reportId;
         if (runModeConfig.isIntegratedReport()) {
             reportId = IDGenerator.nextStr();
         } else {
             // 独立报告，执行到当前任务时初始化报告
-            reportId = initScenarioReport(runModeConfig, apiScenarioDetail, queue.getUserId()).getApiScenarioReportId();
+            reportId = initScenarioReport(runModeConfig, apiScenario, queue.getUserId()).getApiScenarioReportId();
         }
 
-        TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiScenarioDetail, queue.getRunModeConfig());
-        taskRequest.setQueueId(queue.getQueueId());
-        execute(taskRequest, apiScenarioDetail);
+        TaskRequestDTO taskRequest = getTaskRequestDTO(apiScenario.getProjectId(), queue.getRunModeConfig());
+        TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
+        taskRequest.setTaskItem(taskItem);
+        taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+
+        apiExecuteService.execute(taskRequest);
     }
 
-    /**
-     * 执行批量的单个任务
-     */
-    public void execute(TaskRequestDTO taskRequest, ApiScenarioDetail apiScenarioDetail) {
-        ApiRunModeConfigDTO runModeConfig = taskRequest.getRunModeConfig();
-        String reportId = taskRequest.getReportId();
-        String envId = getEnvId(runModeConfig, apiScenarioDetail);
-        boolean envGroup = getEnvGroup(runModeConfig, apiScenarioDetail);
-
-        // 解析生成待执行的场景树
-        MsScenario msScenario = apiScenarioService.getMsScenario(apiScenarioDetail);
-
-        ApiScenarioParseParam parseParam = apiScenarioService.getApiScenarioParseParam(apiScenarioDetail);
-        parseParam.setEnvironmentId(envId);
-        parseParam.setGrouped(envGroup);
-
-        // 初始化报告步骤
-        if (runModeConfig.isIntegratedReport()) {
-            apiScenarioService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), runModeConfig.getCollectionReport().getReportId());
-        } else {
-            updateReportWaitTime(reportId, parseParam);
-            apiScenarioService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
-        }
-
-        taskRequest.setReportId(reportId);
-        // 记录请求数量
-        taskRequest.setRequestCount(getRequestCount(apiScenarioDetail.getSteps()));
-
-        msScenario.setResourceId(apiScenarioDetail.getId());
-        ApiScenarioParseTmpParam tmpParam = apiScenarioService.parse(msScenario, apiScenarioDetail.getSteps(), parseParam);
-
-        ApiResourceRunRequest runRequest = apiScenarioService.getApiResourceRunRequest(msScenario, tmpParam);
-
-        ApiScenarioParamConfig parseConfig = apiScenarioService.getApiScenarioParamConfig(parseParam, tmpParam.getScenarioParseEnvInfo());
-        parseConfig.setReportId(reportId);
-
-        apiExecuteService.execute(runRequest, taskRequest, parseConfig);
-    }
-
-    private void updateReportWaitTime(String reportId, ApiScenarioParseParam parseParam) {
-        Long globalWaitTime = apiScenarioService.getGlobalWaitTime(parseParam.getScenarioConfig());
-        if (globalWaitTime != null) {
-            ApiScenarioReport apiScenarioReport = new ApiScenarioReport();
-            apiScenarioReport.setId(reportId);
-            apiScenarioReport.setWaitingTime(globalWaitTime);
-            apiScenarioReportMapper.updateByPrimaryKeySelective(apiScenarioReport);
-        }
-    }
-
-    private TaskRequestDTO getTaskRequestDTO(String reportId, ApiScenarioDetail apiScenarioDetail, ApiRunModeConfigDTO runModeConfig) {
-        TaskRequestDTO taskRequest = apiScenarioService.getTaskRequest(reportId, apiScenarioDetail.getId(), apiScenarioDetail.getProjectId(), ApiExecuteRunMode.RUN.name());
-        taskRequest.setSaveResult(true);
-        taskRequest.setRealTime(false);
-        taskRequest.setRunModeConfig(runModeConfig);
+    private TaskRequestDTO getTaskRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
+        TaskRequestDTO taskRequest = new TaskRequestDTO();
+        TaskInfo taskInfo = getTaskInfo(projectId, runModeConfig);
+        taskRequest.setTaskInfo(taskInfo);
         return taskRequest;
+    }
+
+    private TaskBatchRequestDTO getTaskBatchRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
+        TaskBatchRequestDTO taskRequest = new TaskBatchRequestDTO();
+        TaskInfo taskInfo = getTaskInfo(projectId, runModeConfig);
+        taskRequest.setTaskInfo(taskInfo);
+        return taskRequest;
+    }
+
+    private TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
+        TaskInfo taskInfo = apiScenarioRunService.getTaskInfo(projectId, ApiExecuteRunMode.RUN.name());
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(false);
+        taskInfo.setNeedParseScript(true);
+        taskInfo.setRunModeConfig(runModeConfig);
+        return taskInfo;
     }
 
     /**
@@ -375,7 +310,7 @@ public class ApiScenarioBatchRunService {
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, apiScenario, userId);
         apiScenarioReport.setId(IDGenerator.nextStr());
         // 创建报告和用例的关联关系
-        ApiScenarioRecord apiScenarioRecord = apiScenarioService.getApiScenarioRecord(apiScenario, apiScenarioReport);
+        ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(apiScenario, apiScenarioReport);
         apiScenarioReportService.insertApiScenarioReport(List.of(apiScenarioReport), List.of(apiScenarioRecord));
         return apiScenarioRecord;
     }
@@ -383,7 +318,7 @@ public class ApiScenarioBatchRunService {
 
     private ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario, String userId) {
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, userId);
-        apiScenarioReport.setEnvironmentId(getEnvId(runModeConfig, apiScenario));
+        apiScenarioReport.setEnvironmentId(apiScenarioRunService.getEnvId(runModeConfig, apiScenario));
         apiScenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiScenarioReport.setProjectId(apiScenario.getProjectId());
         apiScenarioReport.setTriggerMode(TaskTriggerMode.BATCH.name());
@@ -391,7 +326,7 @@ public class ApiScenarioBatchRunService {
     }
 
     public ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, String userId) {
-        ApiScenarioReport apiScenarioReport = apiScenarioService.getScenarioReport(userId);
+        ApiScenarioReport apiScenarioReport = apiScenarioRunService.getScenarioReport(userId);
         apiScenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         apiScenarioReport.setRunMode(runModeConfig.getRunMode());
         apiScenarioReport.setPoolId(runModeConfig.getPoolId());
@@ -399,22 +334,7 @@ public class ApiScenarioBatchRunService {
         return apiScenarioReport;
     }
 
-    /**
-     * 获取执行的环境ID
-     * 优先使用运行配置的环境
-     * 没有则使用用例自身的环境
-     *
-     * @param runModeConfig
-     * @param apiScenario
-     * @return
-     */
-    public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiScenario.getEnvironmentId() : runModeConfig.getEnvironmentId();
-    }
 
-    public boolean getEnvGroup(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiScenario.getGrouped() : runModeConfig.getGrouped();
-    }
 
     public void updateStopOnFailureReport(ExecutionQueue queue) {
         ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
@@ -425,18 +345,18 @@ public class ApiScenarioBatchRunService {
             }
             long requestCount = 0L;
             while (queueDetail != null) {
-                ApiScenarioDetail apiScenarioDetail = apiScenarioService.getForRun(queueDetail.getResourceId());
+                ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(queueDetail.getResourceId());
                 if (apiScenarioDetail == null) {
                     LogUtils.info("当前场景已删除 {}", queueDetail.getResourceId());
                     continue;
                 }
 
-                Long requestCountItem = getRequestCount(apiScenarioDetail.getSteps());
+                Long requestCountItem = apiScenarioRunService.getRequestCount(apiScenarioDetail.getSteps());
                 requestCount += requestCountItem;
 
                 // 初始化报告步骤
                 if (runModeConfig.isIntegratedReport()) {
-                    apiScenarioService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), runModeConfig.getCollectionReport().getReportId());
+                    apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), runModeConfig.getCollectionReport().getReportId());
                 }
 
                 queueDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());

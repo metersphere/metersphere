@@ -5,12 +5,13 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 任务请求参数数据
  */
 @Data
-public class TaskRequestDTO implements Serializable {
+public class TaskBatchRequestDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -24,5 +25,5 @@ public class TaskRequestDTO implements Serializable {
      * 任务项
      */
     @Valid
-    private TaskItem taskItem;
+    private List<TaskItem> taskItems;
 }

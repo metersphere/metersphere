@@ -30,6 +30,7 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.domain.OperationLogBlob;
+import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.OperationLogBlobMapper;
@@ -1145,13 +1146,14 @@ public class ApiDefinitionService extends MoveNodeService {
     public TaskRequestDTO debug(ApiDefinitionRunRequest request) {
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
         EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId(), request.getProjectId());
 
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
-        taskRequest.setSaveResult(false);
-        taskRequest.setRealTime(true);
-        taskRequest.setResourceType(ApiResourceType.API.name());
-        taskRequest.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setSaveResult(false);
+        taskInfo.setRealTime(true);
+        taskInfo.setResourceType(ApiResourceType.API.name());
+        taskInfo.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
 
         AbstractMsTestElement msTestElement = runRequest.getTestElement();
 

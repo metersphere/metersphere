@@ -67,7 +67,7 @@ public class ApiExecuteResourceControllerTest extends BaseTest {
 
         String reportId = UUID.randomUUID().toString();
         String testId = UUID.randomUUID().toString();
-        String scriptRedisKey = apiExecuteService.getScriptRedisKey(reportId, testId);
+        String scriptRedisKey = apiExecuteService.getTaskKey(reportId, testId);
         stringRedisTemplate.opsForValue().set(scriptRedisKey, "aaa");
         mockMvc.perform(getPostRequestBuilder(FILE, fileRequest,  reportId, testId))
                 .andExpect(status().isOk());
