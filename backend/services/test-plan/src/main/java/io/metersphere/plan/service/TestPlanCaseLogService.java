@@ -56,7 +56,7 @@ public class TestPlanCaseLogService {
                         OperationLogType.UPDATE.name(),
                         OperationLogModule.TEST_PLAN,
                         caseMap.get(v));
-                dto.setPath("/test-plan/functional/case/batch/update/executer");
+                dto.setPath("/test-plan/functional/case/batch/update/executor");
                 dto.setMethod(HttpMethodConstants.POST.name());
                 dto.setOriginalValue(JSON.toJSONBytes(userMap.get(k)));
                 dto.setModifiedValue(JSON.toJSONBytes(request.getUserId()));

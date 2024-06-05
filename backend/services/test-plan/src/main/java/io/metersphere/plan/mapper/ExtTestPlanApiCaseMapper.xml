@@ -599,11 +599,11 @@
     </select>
 
     <sql id="queryWhereConditionByBatchQueryRequest">
-        <if test="request.protocol != null and request.protocol!=''">
-            and a.protocol = #{request.protocol}
-        </if>
-        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
-            and atc.api_definition_id = #{request.apiDefinitionId}
+        <if test="protocols != null and protocols.size() > 0">
+            and a.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
         </if>
         <if test="request.condition.keyword != null and request.condition.keyword !=''">
             and (
@@ -629,5 +629,15 @@
             <property name="filter" value="request.condition.filter"/>
         </include>
     </sql>
+
+    <update id="batchUpdateExecutor">
+        update test_plan_api_case
+        set execute_user = #{userId}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
 
 </mapper>

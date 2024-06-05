@@ -49,5 +49,7 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<ApiCaseModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);
 
-    List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
+    List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted, @Param("protocols") List<String> protocols);
+
+    void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 }

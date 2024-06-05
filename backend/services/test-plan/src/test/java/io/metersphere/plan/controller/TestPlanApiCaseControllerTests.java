@@ -1,6 +1,7 @@
 package io.metersphere.plan.controller;
 
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -24,6 +26,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String API_CASE_TREE_COUNT = "/test-plan/api/case/module/count";
     public static final String API_CASE_TREE_MODULE_TREE = "/test-plan/api/case/tree/";
     public static final String API_CASE_DISASSOCIATE = "/test-plan/api/case/disassociate";
+    public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/api/case/batch/update/executor";
 
     @Test
     @Order(1)
@@ -85,5 +88,20 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
+    }
+
+    @Test
+    @Order(5)
+    public void testBatchUpdateExecutor() throws Exception {
+        TestPlanApiCaseUpdateRequest request = new TestPlanApiCaseUpdateRequest();
+        request.setUserId("test_user");
+        request.setTestPlanId("wxxx_2");
+        request.setSelectAll(true);
+        request.setProtocols(List.of("HTTP"));
+        this.requestPostWithOk(API_CASE_BATCH_UPDATE_EXECUTOR_URL, request);
+        request.setTestPlanId("wxxx_1");
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wxxx_1"));
+        this.requestPostWithOk(API_CASE_BATCH_UPDATE_EXECUTOR_URL, request);
     }
 }
