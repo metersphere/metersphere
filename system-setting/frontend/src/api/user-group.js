@@ -1,4 +1,4 @@
-import {get, post} from 'metersphere-frontend/src/plugins/request';
+import { get, post } from "metersphere-frontend/src/plugins/request";
 
 /**
  * param: {type: '', resourceId: ''}
@@ -6,7 +6,7 @@ import {get, post} from 'metersphere-frontend/src/plugins/request';
  * @returns {Promise | Promise<unknown>}
  */
 export function getUserGroupList(param) {
-  return post('/user/group/list', param);
+  return post("/user/group/list", param);
 }
 
 export function getWorkspaceMemberGroup(workspaceId, userId) {
@@ -22,7 +22,7 @@ export function getUserGroupListByPage(goPage, pageSize, param) {
 }
 
 export function getAllUserGroupByType(param) {
-  return post('/user/group/get', param);
+  return post("/user/group/get", param);
 }
 
 export function getUserGroupsByTypeAndId(type, id) {
@@ -38,19 +38,19 @@ export function delUserGroupById(groupId) {
 }
 
 export function getUserGroupPermission(param) {
-  return post('/user/group/permission', param);
+  return post("/user/group/permission", param);
 }
 
 export function modifyUserGroupPermission(param) {
-  return post('/user/group/permission/edit', param);
+  return post("/user/group/permission/edit", param);
 }
 
 export function createUserGroup(group) {
-  return post('/user/group/add', group);
+  return post("/user/group/add", group);
 }
 
 export function modifyUserGroup(group) {
-  return post('/user/group/edit', group);
+  return post("/user/group/edit", group);
 }
 
 export function getUserGroupByResourceUrlAndPage(url, goPage, pageSize, param) {
@@ -62,7 +62,7 @@ export function getUserGroupSourceByUserIdAndGroupId(userId, groupId) {
 }
 
 export function modifyUserGroupMember(param) {
-  return post('/user/group/edit/member', param);
+  return post("/user/group/edit/member", param);
 }
 
 export function rmUserFromGroup(userId, groupId) {
@@ -70,9 +70,9 @@ export function rmUserFromGroup(userId, groupId) {
 }
 
 export function addUser2Group(param) {
-  return post('/user/group/add/member', param);
+  return post("/user/group/add/member", param);
 }
 
 export function getUserAllGroups(userId) {
-  return get(`/user/group/all/${userId}`);
+  return post(`/user/group/all`, userId);
 }
