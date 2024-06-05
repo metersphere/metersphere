@@ -50,6 +50,8 @@ public class TestPlanCaseService {
             testPlanFunctionalCase.setLastExecResult(ExecStatus.PENDING.name());
             testPlanFunctionalCase.setExecuteUser(associationParam.getOperator());
             testPlanFunctionalCaseList.add(testPlanFunctionalCase);
+            // TODO 关联逻辑后续改进  默认先写死
+            testPlanFunctionalCase.setTestPlanCollectionId("NONE");
             pox += ServiceUtils.POS_STEP;
         }
         testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);

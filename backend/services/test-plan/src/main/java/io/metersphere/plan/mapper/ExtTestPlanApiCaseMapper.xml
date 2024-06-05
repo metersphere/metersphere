@@ -205,7 +205,7 @@
 
     <sql id="combine">
         <!-- 名称 -->
-        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+        <if test='${condition}.name != null'>
             api_definition.name
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.name"/>
@@ -416,6 +416,7 @@
             t.last_exec_result,
             t.execute_user,
             t.last_exec_time,
+            t.last_exec_report_id,
             tpc.environment_id as collectEnvironmentId
         FROM
             api_test_case atc

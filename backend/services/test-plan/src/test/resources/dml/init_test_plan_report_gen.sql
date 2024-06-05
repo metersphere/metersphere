@@ -7,12 +7,12 @@ INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repea
 ('plan_id_for_gen_report_1', b'0', b'0', 0.00);
 
 -- 计划关联用例执行的测试数据
-INSERT INTO `test_plan_functional_case` (`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`) VALUES
-('plan_id_for_gen_report_case_1', 'plan_id_for_gen_report', 'f1_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'PENDING', 1),
-('plan_id_for_gen_report_case_2', 'plan_id_for_gen_report', 'f2_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'SUCCESS', 2),
-('plan_id_for_gen_report_case_3', 'plan_id_for_gen_report', 'f3_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'ERROR', 3),
-('plan_id_for_gen_report_case_4', 'plan_id_for_gen_report', 'f4_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'BLOCKED', 4),
-('plan_id_for_gen_report_case_5', 'plan_id_for_gen_report', 'f5_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'FAKE_ERROR', 5);
+INSERT INTO `test_plan_functional_case` (`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`, `test_plan_collection_id`) VALUES
+('plan_id_for_gen_report_case_1', 'plan_id_for_gen_report', 'f1_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'PENDING', 1, '123'),
+('plan_id_for_gen_report_case_2', 'plan_id_for_gen_report', 'f2_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'SUCCESS', 2, '123'),
+('plan_id_for_gen_report_case_3', 'plan_id_for_gen_report', 'f3_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'ERROR', 3, '123'),
+('plan_id_for_gen_report_case_4', 'plan_id_for_gen_report', 'f4_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'BLOCKED', 4, '123'),
+('plan_id_for_gen_report_case_5', 'plan_id_for_gen_report', 'f5_gen', CURRENT_TIMESTAMP, 'admin', 'admin', CURRENT_TIMESTAMP, 'FAKE_ERROR', 5, '123');
 
 -- 计划关联缺陷的测试数据
 INSERT INTO `bug_relation_case` (`id`, `case_id`, `bug_id`, `case_type`, `test_plan_id`, `test_plan_case_id`, `create_user`, `create_time`, `update_time`) VALUES
