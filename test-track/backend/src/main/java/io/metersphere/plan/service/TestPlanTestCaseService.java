@@ -1,7 +1,6 @@
 package io.metersphere.plan.service;
 
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseTestMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
@@ -44,6 +43,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.testelement.TestPlan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -309,9 +309,9 @@ public class TestPlanTestCaseService {
         request.setExecutor(user.getId());
     }
 
-    public TestPlanCaseDTO get(String id, String currentProjectId) {
+    public TestPlanCaseDTO get(String id, String userId) {
         TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(id);
-        checkPlanCaseOwner(testPlanCaseDTO.getCaseId(), currentProjectId);
+        checkPlanCaseOwner(testPlanCaseDTO.getCaseId(), userId);
         ServiceUtils.buildCustomNumInfo(testPlanCaseDTO);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
         testCaseTestDTOS.forEach(this::setTestName);
@@ -668,8 +668,8 @@ public class TestPlanTestCaseService {
         return updateIsDel(caseIds, false);
     }
 
-    private void checkPlanCaseOwner(String caseId, String currentProjectId) {
-        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", currentProjectId, List.of(caseId));
+    private void checkPlanCaseOwner(String caseId, String userId) {
+        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", userId, List.of(caseId));
         if (!hasPermission) {
             MSException.throwException(Translator.get("check_owner_case"));
         }
