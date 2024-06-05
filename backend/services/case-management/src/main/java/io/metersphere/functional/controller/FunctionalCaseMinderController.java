@@ -8,6 +8,7 @@ import io.metersphere.functional.request.FunctionalCasePlanMindRequest;
 import io.metersphere.functional.request.FunctionalCaseReviewMindRequest;
 import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,10 +17,7 @@ import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,6 +31,14 @@ public class FunctionalCaseMinderController {
 
     @Resource
     private FunctionalCaseMinderService functionalCaseMinderService;
+
+    @GetMapping("/tree/{projectId}")
+    @Operation(summary = "用例管理-功能用例-脑图-获取空白节点和模块的组合树")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<BaseTreeNode> getTree(@PathVariable String projectId) {
+        return functionalCaseMinderService.getTree(projectId);
+    }
 
     @PostMapping("/list")
     @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")

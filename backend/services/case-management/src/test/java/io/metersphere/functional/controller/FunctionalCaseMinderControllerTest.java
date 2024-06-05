@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/mind/case/list";
 
     public static final String FUNCTIONAL_CASE_EDIT_URL = "/functional/mind/case/edit";
+
+    public static final String FUNCTIONAL_CASE_NODE_MODULE_URL = "/functional/mind/case/tree/";
+
 
 
     //评审
@@ -258,9 +262,19 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
     }
 
-
     @Test
     @Order(3)
+    public void testGetCaseModuleNodeList() throws Exception {
+        MvcResult mvcResultPage = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_NODE_MODULE_URL+"project-case-minder-test");
+        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<BaseTreeNode> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
+        Assertions.assertNotNull(baseTreeNodes);
+        System.out.println(baseTreeNodes);
+    }
+
+    @Test
+    @Order(4)
     public void testGetCaseReviewList() throws Exception {
         FunctionalCaseReviewMindRequest request = new FunctionalCaseReviewMindRequest();
         request.setProjectId("project-case-minder-test");
@@ -287,7 +301,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void testGetCasePlanList() throws Exception {
         FunctionalCasePlanMindRequest request = new FunctionalCasePlanMindRequest();
         request.setProjectId("project-case-minder-test");

@@ -22,6 +22,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -1059,4 +1060,48 @@ public class FunctionalCaseMinderService {
     }
 
 
+    public List<BaseTreeNode> getTree(String projectId) {
+        List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
+        List<BaseTreeNode> baseTreeNodes = extFunctionalCaseMapper.selectBaseMindNodeByProjectId(projectId);
+        functionalModuleList.addAll(baseTreeNodes);
+        return buildTreeAndCountResource(functionalModuleList, true, Translator.get("functional_case.module.default.name"));
+    }
+
+    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode, String virtualRootName) {
+
+        List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
+        if (haveVirtualRootNode) {
+            BaseTreeNode defaultNode = this.getDefaultModule(virtualRootName);
+            defaultNode.genModulePath(null);
+            baseTreeNodeList.add(defaultNode);
+        }
+        int lastSize = 0;
+        Map<String, BaseTreeNode> baseTreeNodeMap = new HashMap<>();
+        while (CollectionUtils.isNotEmpty(traverseList) && traverseList.size() != lastSize) {
+            lastSize = traverseList.size();
+            List<BaseTreeNode> notMatchedList = new ArrayList<>();
+            for (BaseTreeNode treeNode : traverseList) {
+                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                    notMatchedList.add(treeNode);
+                    continue;
+                }
+                BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
+                node.genModulePath(baseTreeNodeMap.get(treeNode.getParentId()));
+                baseTreeNodeMap.put(treeNode.getId(), node);
+
+                if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                    baseTreeNodeList.add(node);
+                } else if (baseTreeNodeMap.containsKey(treeNode.getParentId())) {
+                    baseTreeNodeMap.get(treeNode.getParentId()).addChild(node);
+                }
+            }
+            traverseList = notMatchedList;
+        }
+        return baseTreeNodeList;
+    }
+
+    public BaseTreeNode getDefaultModule(String name) {
+        //默认模块下不允许创建子模块。  它本身也就是叶子节点。
+        return new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, name, ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
+    }
 }

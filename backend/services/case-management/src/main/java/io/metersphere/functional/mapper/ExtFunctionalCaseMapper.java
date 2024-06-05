@@ -7,6 +7,7 @@ import io.metersphere.functional.request.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -89,5 +90,5 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCaseMindDTO> getMinderTestPlanList(@Param("request") FunctionalCasePlanMindRequest request, @Param("deleted") boolean delete);
 
-
+    List<BaseTreeNode> selectBaseMindNodeByProjectId(@Param("projectId")String projectId);
 }
