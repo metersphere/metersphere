@@ -19,6 +19,7 @@ import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.scenario.ApiScenarioImportUtil;
 import io.metersphere.api.parse.scenario.ScenarioImport;
 import io.metersphere.api.parse.scenario.ScenarioImportParserFactory;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
