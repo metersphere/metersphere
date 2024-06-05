@@ -217,7 +217,6 @@
         left join project on ar.project_id = project.id
                            where
         ar.deleted = false
-        and ar.test_plan_id = 'NONE'
         and ar.start_time BETWEEN #{startTime} AND #{endTime}
         and ar.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">

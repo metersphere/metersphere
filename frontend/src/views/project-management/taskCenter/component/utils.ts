@@ -121,7 +121,10 @@ export const TaskStatus: Record<ResourceTypeMapKey, Record<string, { icon: strin
 
 export type Group = 'system' | 'organization' | 'project';
 
-export type ExtractedKeys = Extract<ResourceTypeMapKey, TaskCenterEnum.API_CASE | TaskCenterEnum.API_SCENARIO>;
+export type ExtractedKeys = Extract<
+  ResourceTypeMapKey,
+  TaskCenterEnum.API_CASE | TaskCenterEnum.API_SCENARIO | TaskCenterEnum.TEST_PLAN
+>;
 
 export const resourceTypeMap: Record<ResourceTypeMapKey, Record<string, any>> = {
   [TaskCenterEnum.API_CASE]: {

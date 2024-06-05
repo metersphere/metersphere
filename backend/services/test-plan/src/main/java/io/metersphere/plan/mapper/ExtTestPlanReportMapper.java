@@ -5,6 +5,8 @@ import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
+import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -31,9 +33,13 @@ public interface ExtTestPlanReportMapper {
 
     List<ApiReportMessageDTO> getNoticeList(@Param("ids") List<String> subList);
 
-	long countReportByTime(@Param("time") long timeMills, @Param("projectId") String projectId);
+    long countReportByTime(@Param("time") long timeMills, @Param("projectId") String projectId);
 
-	List<String> selectReportIdByProjectIdAndTime(@Param("time") long timeMills, @Param("projectId") String projectId);
+    List<String> selectReportIdByProjectIdAndTime(@Param("time") long timeMills, @Param("projectId") String projectId);
 
-	List<String> selectReportIdTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+    List<String> selectReportIdTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+
+    List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request, @Param("projectIds") List<String> projectIds,
+                                       @Param("startTime") long startTime, @Param("endTime") long endTime);
+
 }

@@ -61,7 +61,7 @@
       </template>
       <!-- 执行状态筛选 -->
       <template #resultStatus="{ record }">
-        <ExecutionStatus :module-type="ReportStatusEnum.REPORT_STATUS" :status="record.resultStatus" />
+        <ExecutionStatus :status="record.resultStatus" />
       </template>
       <template #execStatus="{ record }">
         <ExecStatus :status="record.execStatus" />
@@ -114,7 +114,7 @@
 
   import { BatchApiParams } from '@/models/common';
   import { ReportExecStatus } from '@/enums/apiEnum';
-  import { PlanReportStatus, ReportStatusEnum, TriggerModeLabel } from '@/enums/reportEnum';
+  import { PlanReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';

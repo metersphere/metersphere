@@ -111,7 +111,6 @@
                       left join project on asr.project_id = project.id
                       where
         asr.deleted = false
-        and asr.test_plan_id = 'NONE'
         and asr.start_time BETWEEN #{startTime} AND #{endTime}
         and asr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">

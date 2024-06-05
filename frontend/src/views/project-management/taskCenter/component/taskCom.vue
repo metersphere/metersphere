@@ -14,7 +14,20 @@
       </a-tabs>
       <a-divider margin="0" class="!mb-[16px]"></a-divider>
       <!-- 接口用例列表-->
-      <ApiCase v-if="activeTask === 'real'" :name="listName" :module-type="activeTab" :group="props.group" />
+      <ApiCase
+        v-if="
+          activeTask === 'real' && (activeTab === TaskCenterEnum.API_CASE || activeTab === TaskCenterEnum.API_SCENARIO)
+        "
+        :name="listName"
+        :module-type="activeTab"
+        :group="props.group"
+      />
+      <!-- 测试计划列表-->
+      <TestPlan
+        v-if="activeTask === 'real' && activeTab === TaskCenterEnum.TEST_PLAN"
+        :name="listName"
+        :group="props.group"
+      />
       <ScheduledTask v-if="activeTask === 'timing'" :name="listName" :group="props.group" :module-type="activeTab" />
     </div>
   </div>
@@ -25,10 +38,10 @@
 
   import ApiCase from './apiCase.vue';
   import ScheduledTask from './scheduledTask.vue';
+  import TestPlan from './testPlan.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { ResourceTypeMapKey } from '@/enums/taskCenter';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
   import type { ExtractedKeys } from './utils';
@@ -51,6 +64,10 @@
       value: TaskCenterEnum.API_SCENARIO,
       label: t('project.taskCenter.apiScenario'),
     },
+    {
+      value: TaskCenterEnum.TEST_PLAN,
+      label: t('project.taskCenter.testPlan'),
+    },
     // TODO 第一个版本目前不上以下几类
     // {
     //   value: TaskCenterEnum.UI_TEST,
@@ -59,10 +76,6 @@
     // {
     //   value: TaskCenterEnum.LOAD_TEST,
     //   label: t('project.taskCenter.performanceTest'),
-    // },
-    // {
-    //   value: TaskCenterEnum.TEST_PLAN,
-    //   label: t('project.taskCenter.testPlan'),
     // },
   ]);
 
@@ -78,7 +91,7 @@
     {
       value: TaskCenterEnum.TEST_PLAN,
       label: t('project.taskCenter.testPlan'),
-    }
+    },
   ]);
 
   const activeTask = ref(route.query.tab || 'real');
@@ -110,10 +123,12 @@
   .box {
     display: flex;
     height: 100%;
+
     .left {
       width: 252px;
       height: 100%;
       border-right: 1px solid var(--color-text-n8);
+
       .item {
         padding: 0 20px;
         height: 38px;
@@ -121,18 +136,21 @@
         line-height: 38px;
         border-radius: 4px;
         cursor: pointer;
+
         &.active {
           color: rgb(var(--primary-5));
           background: rgb(var(--primary-1));
         }
       }
     }
+
     .right {
       width: calc(100% - 300px);
       flex-grow: 1; /* 自适应 */
       height: 100%;
     }
   }
+
   .no-content {
     :deep(.arco-tabs-content) {
       padding-top: 0;

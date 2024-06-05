@@ -28,8 +28,11 @@ import {
   stopRealSysApiUrl,
   systemRealTotal,
   systemScheduleTotal,
+  taskOrgPlanRealCenterListUrl,
   taskOrgRealCenterListUrl,
+  taskProPlanRealCenterListUrl,
   taskProRealCenterListUrl,
+  taskSysPlanRealCenterListUrl,
   taskSysRealCenterListUrl,
   updateScheduleOrgTaskUrl,
   updateScheduleProTaskUrl,
@@ -191,6 +194,19 @@ export function getOrgRealTotal() {
 
 export function getProjectRealTotal() {
   return MSR.get({ url: `${projectRealTotal}` });
+}
+
+// 实时任务 测试计划
+export function getRealSysPlanList(data: TableQueryParams) {
+  return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskSysPlanRealCenterListUrl, data });
+}
+
+export function getRealOrgPlanList(data: TableQueryParams) {
+  return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskOrgPlanRealCenterListUrl, data });
+}
+
+export function getRealProPlanList(data: TableQueryParams) {
+  return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskProPlanRealCenterListUrl, data });
 }
 
 export default {};
