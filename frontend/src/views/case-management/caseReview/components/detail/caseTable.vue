@@ -106,8 +106,8 @@
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="createCase">
-            {{ t('caseManagement.caseReview.crateCase') }}
+          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="emit('link')">
+            {{ t('caseManagement.featureCase.linkCase') }}
           </MsButton>
         </div>
       </template>
@@ -317,7 +317,7 @@
     offspringIds: string[]; // 当前选中节点的所有子节点id
     moduleTree: ModuleTreeNode[];
   }>();
-  const emit = defineEmits(['init', 'refresh']);
+  const emit = defineEmits(['init', 'refresh', 'link']);
 
   const router = useRouter();
   const route = useRoute();
@@ -833,15 +833,6 @@
       },
       state: {
         params: JSON.stringify(getTableQueryParams()),
-      },
-    });
-  }
-
-  function createCase() {
-    router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-      query: {
-        reviewId: route.query.id,
       },
     });
   }

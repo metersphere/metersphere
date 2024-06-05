@@ -149,10 +149,15 @@
     reset();
   };
 
+  const emitConfirm = () => emits('confirm', { ...form.value, id: props.nodeId }, handleCancel);
   const handleConfirm = () => {
+    if (!formRef.value) {
+      emitConfirm();
+      return;
+    }
     formRef.value?.validate((errors) => {
       if (!errors) {
-        emits('confirm', { ...form.value, id: props.nodeId }, handleCancel);
+        emitConfirm();
       }
     });
   };

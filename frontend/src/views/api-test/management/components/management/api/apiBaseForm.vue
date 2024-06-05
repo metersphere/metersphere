@@ -6,6 +6,7 @@
       field="name"
       :label="t('apiTestManagement.apiName')"
       class="mb-[16px] w-[60%]"
+      asterisk-position="end"
       :rules="[{ required: true, message: t('apiTestManagement.apiNameRequired') }]"
     >
       <a-input
@@ -16,10 +17,10 @@
         @change="handleActiveApiChange"
       />
     </a-form-item>
-    <a-form-item :label="t('common.desc')" class="mb-[16px] w-[60%]">
+    <a-form-item asterisk-position="end" :label="t('common.desc')" class="mb-[16px] w-[60%]">
       <a-textarea v-model:model-value="requestVModel.description" :max-length="1000" @change="handleActiveApiChange" />
     </a-form-item>
-    <a-form-item :label="t('apiTestManagement.belongModule')" class="mb-[16px] w-[436px]">
+    <a-form-item asterisk-position="end" :label="t('apiTestManagement.belongModule')" class="mb-[16px] w-[436px]">
       <a-tree-select
         v-model:modelValue="requestVModel.moduleId"
         :data="props.selectTree as ModuleTreeNode[]"
@@ -45,10 +46,10 @@
         </template>
       </a-tree-select>
     </a-form-item>
-    <a-form-item :label="t('common.tag')" class="mb-[16px] w-[436px]">
+    <a-form-item asterisk-position="end" :label="t('common.tag')" class="mb-[16px] w-[436px]">
       <MsTagsInput v-model:model-value="requestVModel.tags" @change="handleActiveApiChange" />
     </a-form-item>
-    <a-form-item :label="t('apiTestManagement.apiStatus')" class="mb-[16px] w-[240px]">
+    <a-form-item asterisk-position="end" :label="t('apiTestManagement.apiStatus')" class="mb-[16px] w-[240px]">
       <a-select
         v-model:model-value="requestVModel.status"
         :placeholder="t('common.pleaseSelect')"

@@ -69,6 +69,7 @@ export default {
   'system.project.createProjectSuccess': '创建项目成功',
   'system.project.updateProjectSuccess': '更新项目成功',
   'system.project.resourcePool': '资源池',
+  'system.project.resourcePoolPlaceholder': '请选择接口测试的执行机，支持多选',
   'system.project.removeName': '确认移除 {name} 这个用户吗？',
   'system.project.descriptionPlaceholder': '请对该项目进行描述',
   'system.project.enterProject': '进入项目',
