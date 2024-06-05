@@ -73,6 +73,10 @@ ALTER TABLE test_plan_api_scenario ADD COLUMN last_exec_time BIGINT COMMENT '最
 CREATE INDEX idx_test_plan_collection_id ON test_plan_api_scenario(test_plan_collection_id);
 CREATE INDEX idx_pos ON test_plan_api_scenario(pos);
 
+-- 修改测试计划关联功能用例表字段
+ALTER TABLE test_plan_functional_case ADD COLUMN test_plan_collection_id VARCHAR(50) NOT NULL COMMENT '测试计划集id';
+CREATE INDEX idx_test_plan_collection_id ON test_plan_functional_case(test_plan_collection_id);
+
 -- 修改测试规划配置表
 ALTER TABLE test_plan_allocation DROP `run_mode_config`;
 ALTER TABLE test_plan_allocation ADD `test_resource_pool_id` VARCHAR(50) NOT NULL COMMENT '资源池ID';

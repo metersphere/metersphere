@@ -68,4 +68,7 @@ public class TestPlanApiCasePageResponse implements Serializable {
 
     @Schema(description = "计划集环境")
     private String collectEnvironmentId;
+
+    @Schema(description = "报告id")
+    private String lastExecReportId;
 }

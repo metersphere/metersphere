@@ -170,7 +170,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param deleted
      * @return
      */
-    public List<TestPlanApiCasePageResponse> HasRelateApiCaseList(TestPlanApiCaseRequest request, boolean deleted) {
+    public List<TestPlanApiCasePageResponse> hasRelateApiCaseList(TestPlanApiCaseRequest request, boolean deleted) {
         List<TestPlanApiCasePageResponse> list = extTestPlanApiCaseMapper.relateApiCaseList(request, deleted);
         buildApiCaseResponse(list);
         return list;
