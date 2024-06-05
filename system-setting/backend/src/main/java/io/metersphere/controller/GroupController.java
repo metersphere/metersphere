@@ -14,20 +14,18 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.GroupDTO;
+import io.metersphere.dto.GroupPermissionDTO;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.GroupRequest;
 import io.metersphere.request.group.EditGroupRequest;
 import io.metersphere.request.group.EditGroupUserRequest;
-import io.metersphere.dto.GroupDTO;
-import io.metersphere.dto.GroupPermissionDTO;
-import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.GroupService;
-import org.apache.commons.lang3.StringUtils;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.annotation.Resource;
 
 import java.util.*;
 
@@ -99,9 +97,9 @@ public class GroupController {
         groupService.editGroupPermission(editGroupRequest);
     }
 
-    @GetMapping("/all/{userId}")
+    @PostMapping("/all")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT)
-    public List<Map<String, Object>> getAllUserGroup(@PathVariable("userId") String userId) {
+    public List<Map<String, Object>> getAllUserGroup(@RequestBody String userId) {
         return groupService.getAllUserGroup(userId);
     }
 
