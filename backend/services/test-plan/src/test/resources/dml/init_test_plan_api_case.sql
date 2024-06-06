@@ -34,10 +34,11 @@ VALUES
     ('wxxx_2', 'wxxx_1', 'wxxx_api_case_2', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311),
     ('wxxx_3', 'wxxx_2', 'wxxx_api_case_3', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311);
 
-INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `environment_id`, `test_resource_pool_id`, `pos`, `create_user`, `create_time`)
+INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `environment_id`, `test_resource_pool_id`, `pos`, `create_user`, `create_time`, `parent_id`)
 VALUES
-    ('wxxx_1', 'wxxx_1', 'wxxx_1', 'API', 'NONE', 'NONE', 1, 'admin', 1716370415311),
-    ('wxxx_2', 'wxxx_1', 'wxxx_2', 'API', '123', 'NONE', 2, 'admin', 1716370415311);
+    ('wxxx_1', 'wxxx_1', 'wxxx_1', 'API', 'NONE', 'NONE', 1, 'admin', 1716370415311, 'NONE'),
+    ('wxxx_2', 'wxxx_1', 'wxxx_2', 'API', '123', 'NONE', 2, 'admin', 1716370415311, 'NONE'),
+    ('wxxx_3', 'wxxx_2', 'wxxx_3', 'API', 'NONE', 'NONE', 3, 'admin', 1716370415311, 'wxxx_1');
 
 
 
