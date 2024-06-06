@@ -355,9 +355,7 @@ public class TaskCenterService {
     }
 
     public int getSystemScheduleTotal() {
-        List<OptionDTO> projectList = getSystemProjectList();
-        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-        return extScheduleMapper.countByProjectIds(projectIds);
+        return extScheduleMapper.countByProjectIds(new ArrayList<>());
     }
 
     public int getOrgScheduleTotal(String currentOrganizationId) {
@@ -374,11 +372,9 @@ public class TaskCenterService {
     }
 
     public int getSystemRealTotal() {
-        List<OptionDTO> projectList = getSystemProjectList();
-        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-        int apiTestCaseTotal = extRealMapper.caseReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
-        int apiScenarioTotal = extRealMapper.scenarioReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
-        int testPlanTotal = extRealMapper.testPlanReportCountByProjectIds(projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int apiTestCaseTotal = extRealMapper.caseReportCountByProjectIds(new ArrayList<>(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int apiScenarioTotal = extRealMapper.scenarioReportCountByProjectIds(new ArrayList<>(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+        int testPlanTotal = extRealMapper.testPlanReportCountByProjectIds(new ArrayList<>(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
         return apiTestCaseTotal + apiScenarioTotal + testPlanTotal;
     }
 

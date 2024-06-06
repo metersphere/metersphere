@@ -27,7 +27,7 @@
         select
         asr.*
         from api_scenario_report asr where asr.deleted = false
-                          and asr.test_plan_id = 'NONE'
+                          and asr.test_plan_scenario_id = 'NONE'
         <if test="request.keyword != null and request.keyword != ''">
             and (
             asr.name like concat('%', #{request.keyword},'%')
@@ -44,7 +44,7 @@
         select
         asr.id
         from api_scenario_report asr where asr.deleted = false
-                          and asr.test_plan_id = 'NONE'
+                          and asr.test_plan_scenario_id = 'NONE'
         <if test="request.condition.keyword != null">
             and (
             asr.name like concat('%', #{request.condition.keyword},'%')
@@ -62,7 +62,7 @@
         api_scenario_report.id,
         api_scenario_report.name
         from api_scenario_report where
-                         api_scenario_report.test_plan_id = 'NONE'
+                         api_scenario_report.test_plan_scenario_id = 'NONE'
         and api_scenario_report.id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -90,7 +90,7 @@
         count(api_scenario_report.id)
         from api_scenario_report inner join api_scenario_report_step on
         api_scenario_report.id = api_scenario_report_step.report_id
-        where api_scenario_report.test_plan_id = 'NONE'
+        where api_scenario_report.test_plan_scenario_id = 'NONE'
           and api_scenario_report.start_time &lt;= #{time}
           and api_scenario_report.project_id = #{projectId}
     </select>
@@ -99,18 +99,19 @@
             api_scenario_report.id
         from api_scenario_report inner join api_scenario_report_step on
             api_scenario_report.id = api_scenario_report_step.report_id
-        where api_scenario_report.test_plan_id = 'NONE'
+        where api_scenario_report.test_plan_scenario_id = 'NONE'
           and api_scenario_report.start_time &lt;= #{time}
           and api_scenario_report.project_id = #{projectId} limit 500
     </select>
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
 
-        select distinct asr.*, project.organization_id from api_scenario_report asr
+        select distinct asr.*, project.organization_id, a.api_scenario_id as resourceId from api_scenario_report asr
         left join api_scenario_record a on asr.id = a.api_scenario_report_id
         left JOIN api_scenario s on a.api_scenario_id = s.id
                       left join project on asr.project_id = project.id
                       where
         asr.deleted = false
+        and asr.plan = 0
         and asr.start_time BETWEEN #{startTime} AND #{endTime}
         and asr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
@@ -150,6 +151,7 @@
         asr.trigger_mode,
         asr.script_identifier,
         asr.start_time,
+        asr.plan,
         project.organization_id,
 
         if(asr.integrated, asr.id, s.num) AS resourceNum,
@@ -163,6 +165,7 @@
         left JOIN test_resource_pool t on asr.pool_id = t.id
         left join project on asr.project_id = project.id
         where asr.start_time BETWEEN #{startTime} AND #{endTime}
+        and asr.plan = 0
         <if test="projectIds != null and projectIds.size() > 0">
             and
             asr.project_id IN
@@ -187,7 +190,7 @@
         api_scenario_report.name,
         api_scenario_report.project_id
         from api_scenario_report where api_scenario_report.deleted = false
-                          and api_scenario_report.test_plan_id = 'NONE'
+                          and api_scenario_report.test_plan_scenario_id = 'NONE'
         and api_scenario_report.id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}

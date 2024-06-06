@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReport">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
+    <result column="test_plan_scenario_id" jdbcType="VARCHAR" property="testPlanScenarioId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
@@ -35,6 +35,7 @@
     <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
     <result column="waiting_time" jdbcType="BIGINT" property="waitingTime" />
     <result column="exec_status" jdbcType="VARCHAR" property="execStatus" />
+    <result column="plan" jdbcType="BIT" property="plan" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -95,12 +96,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, test_plan_id, create_user, delete_time, delete_user, deleted, update_user, 
-    update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
-    pool_id, integrated, project_id, environment_id, error_count, fake_error_count, pending_count, 
-    success_count, assertion_count, assertion_success_count, request_error_rate, request_pending_rate, 
-    request_fake_error_rate, request_pass_rate, assertion_pass_rate, script_identifier, 
-    waiting_time, exec_status
+    id, `name`, test_plan_scenario_id, create_user, delete_time, delete_user, deleted, 
+    update_user, update_time, start_time, end_time, request_duration, `status`, trigger_mode, 
+    run_mode, pool_id, integrated, project_id, environment_id, error_count, fake_error_count, 
+    pending_count, success_count, assertion_count, assertion_success_count, request_error_rate, 
+    request_pending_rate, request_fake_error_rate, request_pass_rate, assertion_pass_rate, 
+    script_identifier, waiting_time, exec_status, `plan`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -133,7 +134,7 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReport">
-    insert into api_scenario_report (id, `name`, test_plan_id, 
+    insert into api_scenario_report (id, `name`, test_plan_scenario_id, 
       create_user, delete_time, delete_user, 
       deleted, update_user, update_time, 
       start_time, end_time, request_duration, 
@@ -144,8 +145,9 @@
       assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, 
       request_pass_rate, assertion_pass_rate, script_identifier, 
-      waiting_time, exec_status)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, 
+      waiting_time, exec_status, `plan`
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{testPlanScenarioId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
       #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
       #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{requestDuration,jdbcType=BIGINT}, 
@@ -156,7 +158,8 @@
       #{assertionSuccessCount,jdbcType=BIGINT}, #{requestErrorRate,jdbcType=VARCHAR}, 
       #{requestPendingRate,jdbcType=VARCHAR}, #{requestFakeErrorRate,jdbcType=VARCHAR}, 
       #{requestPassRate,jdbcType=VARCHAR}, #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR}, 
-      #{waitingTime,jdbcType=BIGINT}, #{execStatus,jdbcType=VARCHAR})
+      #{waitingTime,jdbcType=BIGINT}, #{execStatus,jdbcType=VARCHAR}, #{plan,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -167,8 +170,8 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="testPlanId != null">
-        test_plan_id,
+      <if test="testPlanScenarioId != null">
+        test_plan_scenario_id,
       </if>
       <if test="createUser != null">
         create_user,
@@ -260,6 +263,9 @@
       <if test="execStatus != null">
         exec_status,
       </if>
+      <if test="plan != null">
+        `plan`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -268,8 +274,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="testPlanId != null">
-        #{testPlanId,jdbcType=VARCHAR},
+      <if test="testPlanScenarioId != null">
+        #{testPlanScenarioId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -361,6 +367,9 @@
       <if test="execStatus != null">
         #{execStatus,jdbcType=VARCHAR},
       </if>
+      <if test="plan != null">
+        #{plan,jdbcType=BIT},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultType="java.lang.Long">
@@ -378,8 +387,8 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.testPlanId != null">
-        test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      <if test="record.testPlanScenarioId != null">
+        test_plan_scenario_id = #{record.testPlanScenarioId,jdbcType=VARCHAR},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -471,6 +480,9 @@
       <if test="record.execStatus != null">
         exec_status = #{record.execStatus,jdbcType=VARCHAR},
       </if>
+      <if test="record.plan != null">
+        `plan` = #{record.plan,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -480,7 +492,7 @@
     update api_scenario_report
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      test_plan_scenario_id = #{record.testPlanScenarioId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
@@ -510,7 +522,8 @@
       assertion_pass_rate = #{record.assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
       waiting_time = #{record.waitingTime,jdbcType=BIGINT},
-      exec_status = #{record.execStatus,jdbcType=VARCHAR}
+      exec_status = #{record.execStatus,jdbcType=VARCHAR},
+      `plan` = #{record.plan,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -521,8 +534,8 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="testPlanId != null">
-        test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      <if test="testPlanScenarioId != null">
+        test_plan_scenario_id = #{testPlanScenarioId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -614,13 +627,16 @@
       <if test="execStatus != null">
         exec_status = #{execStatus,jdbcType=VARCHAR},
       </if>
+      <if test="plan != null">
+        `plan` = #{plan,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReport">
     update api_scenario_report
     set `name` = #{name,jdbcType=VARCHAR},
-      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      test_plan_scenario_id = #{testPlanScenarioId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
@@ -650,20 +666,21 @@
       assertion_pass_rate = #{assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
       waiting_time = #{waitingTime,jdbcType=BIGINT},
-      exec_status = #{execStatus,jdbcType=VARCHAR}
+      exec_status = #{execStatus,jdbcType=VARCHAR},
+      `plan` = #{plan,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_report
-    (id, `name`, test_plan_id, create_user, delete_time, delete_user, deleted, update_user, 
-      update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
-      pool_id, integrated, project_id, environment_id, error_count, fake_error_count, 
+    (id, `name`, test_plan_scenario_id, create_user, delete_time, delete_user, deleted, 
+      update_user, update_time, start_time, end_time, request_duration, `status`, trigger_mode, 
+      run_mode, pool_id, integrated, project_id, environment_id, error_count, fake_error_count, 
       pending_count, success_count, assertion_count, assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, request_pass_rate, assertion_pass_rate, 
-      script_identifier, waiting_time, exec_status)
+      script_identifier, waiting_time, exec_status, `plan`)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.testPlanScenarioId,jdbcType=VARCHAR}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
         #{item.deleted,jdbcType=BIT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.requestDuration,jdbcType=BIGINT}, 
@@ -675,7 +692,7 @@
         #{item.requestPendingRate,jdbcType=VARCHAR}, #{item.requestFakeErrorRate,jdbcType=VARCHAR}, 
         #{item.requestPassRate,jdbcType=VARCHAR}, #{item.assertionPassRate,jdbcType=VARCHAR}, 
         #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.waitingTime,jdbcType=BIGINT}, 
-        #{item.execStatus,jdbcType=VARCHAR})
+        #{item.execStatus,jdbcType=VARCHAR}, #{item.plan,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -694,8 +711,8 @@
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'test_plan_id'.toString() == column.value">
-          #{item.testPlanId,jdbcType=VARCHAR}
+        <if test="'test_plan_scenario_id'.toString() == column.value">
+          #{item.testPlanScenarioId,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
@@ -786,6 +803,9 @@
         </if>
         <if test="'exec_status'.toString() == column.value">
           #{item.execStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="'plan'.toString() == column.value">
+          #{item.plan,jdbcType=BIT}
         </if>
       </foreach>
       )

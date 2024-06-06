@@ -237,7 +237,6 @@
             <foreach collection="ids" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
-          and project_id in
           </if>
     </select>
 

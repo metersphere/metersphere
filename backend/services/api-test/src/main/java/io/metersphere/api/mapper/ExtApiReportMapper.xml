@@ -28,7 +28,7 @@
         select
         ar.*
         from api_report ar where ar.deleted = false
-                          and ar.test_plan_id = 'NONE'
+                          and ar.test_plan_case_id = 'NONE'
         <if test="request.keyword != null and request.keyword != ''">
             and (
             ar.name like concat('%', #{request.keyword},'%')
@@ -45,7 +45,7 @@
         select
         ar.id
         from api_report ar where ar.deleted = false
-                          and ar.test_plan_id = 'NONE'
+                          and ar.test_plan_case_id = 'NONE'
         <if test="request.condition.keyword != null">
             and (
             ar.name like concat('%', #{request.condition.keyword},'%')
@@ -62,7 +62,7 @@
         select
         api_report.id,
         api_report.name
-        from api_report where api_report.test_plan_id = 'NONE'
+        from api_report where api_report.test_plan_case_id = 'NONE'
         and api_report.id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -97,7 +97,7 @@
         count(api_report.id)
         from api_report inner join api_report_step on
         api_report_step.report_id = api_report.id
-        where api_report.test_plan_id = 'NONE'
+        where api_report.test_plan_case_id = 'NONE'
         and api_report.start_time &lt;= #{time}
         and api_report.project_id = #{projectId}
     </select>
@@ -106,7 +106,7 @@
             api_report.id
         from api_report inner join api_report_step on
             api_report_step.report_id = api_report.id
-        where api_report.test_plan_id = 'NONE'
+        where api_report.test_plan_case_id = 'NONE'
           and api_report.start_time &lt;= #{time}
           and api_report.project_id = #{projectId} limit 500;
     </select>
@@ -177,6 +177,7 @@
         ar.create_user AS operationName,
         ar.trigger_mode,
         ar.start_time,
+        ar.plan,
         project.organization_id,
 
         if(ar.integrated, ar.id, c.num) AS resourceNum,
@@ -192,7 +193,7 @@
         left join project on ar.project_id = project.id
         where
         ar.start_time BETWEEN #{startTime} AND #{endTime}
-
+        and ar.plan = 0
         <if test="projectIds != null and projectIds.size() > 0">
             and
             ar.project_id IN
@@ -211,12 +212,12 @@
         </include>
     </select>
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
-       select distinct ar.* , project.organization_id from api_report ar
+       select distinct ar.* , project.organization_id , a.api_test_case_id as resourceId from api_report ar
         LEFT JOIN api_test_case_record a ON ar.id = a.api_report_id
         LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
         left join project on ar.project_id = project.id
                            where
-        ar.deleted = false
+        ar.deleted = false and ar.plan = 0
         and ar.start_time BETWEEN #{startTime} AND #{endTime}
         and ar.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
@@ -252,7 +253,7 @@
         name,
         project_id
         from api_report where deleted = false
-        and test_plan_id = 'NONE'
+        and test_plan_case_id = 'NONE'
         and id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}

@@ -133,9 +133,6 @@ ALTER TABLE api_scenario_report ADD COLUMN exec_status VARCHAR(20) NOT NULL  DEF
 ALTER TABLE api_scenario_report ALTER COLUMN status set DEFAULT '-';
 CREATE INDEX idx_exec_status ON api_scenario_report(exec_status);
 
--- set innodb lock wait timeout to default
-SET SESSION innodb_lock_wait_timeout = DEFAULT;
-
 -- 测试计划队列表
 CREATE TABLE IF NOT EXISTS test_plan_execution_queue
 (
@@ -151,6 +148,19 @@ CREATE TABLE IF NOT EXISTS test_plan_execution_queue
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '测试计划执行队列';
+
+ALTER TABLE api_report CHANGE COLUMN `test_plan_id` `test_plan_case_id` VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '测试计划关联用例表ID';
+ALTER TABLE api_report DROP INDEX idx_test_plan_id;
+CREATE INDEX idx_test_plan_case_id ON api_report(test_plan_case_id);
+ALTER TABLE api_report ADD COLUMN `plan` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是测试计划整体执行';
+CREATE INDEX idx_plan ON api_report(`plan`);
+ALTER TABLE api_scenario_report CHANGE COLUMN `test_plan_id` `test_plan_scenario_id` VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '测试计划关联场景表ID';
+ALTER TABLE api_scenario_report DROP INDEX idx_test_plan_id;
+CREATE INDEX idx_test_plan_scenario_id ON api_scenario_report(test_plan_scenario_id);
+ALTER TABLE api_scenario_report ADD COLUMN `plan` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是测试计划整体执行';
+CREATE INDEX idx_plan ON api_scenario_report(`plan`);
+-- set innodb lock wait timeout to default
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
 
 
