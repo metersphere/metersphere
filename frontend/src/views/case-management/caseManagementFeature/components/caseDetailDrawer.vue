@@ -862,7 +862,4 @@
       color: rgb(var(--danger-6));
     }
   }
-  :deep(.active .arco-badge-text) {
-    background: rgb(var(--primary-5));
-  }
 </style>

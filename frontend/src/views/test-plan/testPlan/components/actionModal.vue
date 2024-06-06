@@ -26,7 +26,7 @@
           {{ t('common.confirmDelete') }}
         </a-button>
         <a-button
-          v-if="props.record?.status === 'COMPLETED'"
+          v-if="showArchive"
           :loading="confirmLoading"
           class="ml-3"
           type="primary"
@@ -104,6 +104,10 @@
       default:
         return t('testPlan.testPlanIndex.deletePendingPlan');
     }
+  });
+
+  const showArchive = computed(() => {
+    return props.record?.status === 'COMPLETED' && props.record.groupId && props.record.groupId === 'NONE';
   });
 </script>
 

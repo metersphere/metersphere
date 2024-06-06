@@ -38,6 +38,15 @@ export const defaultDetailCount: PassRateCountDetail = {
   functionalCaseCount: 0,
   apiCaseCount: 0,
   apiScenarioCount: 0,
+  scheduleConfig: {
+    resourceId: '',
+    enable: false,
+    cron: '',
+    runConfig: {
+      runMode: 'SERIAL',
+    },
+  },
+  nextTriggerTime: 0,
 };
 
 export const defaultExecuteForm = {
