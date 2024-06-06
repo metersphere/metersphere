@@ -7,8 +7,11 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.plan.constants.TreeTypeEnums;
 import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
@@ -17,6 +20,7 @@ import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -73,6 +77,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private static final String CASE_MODULE_COUNT_ALL = "all";
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -237,7 +243,41 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
 
-    public Map<String, Long> moduleCount(TestPlanApiCaseRequest request) {
+    public Map<String, Long> moduleCount(TestPlanApiCaseModuleRequest request) {
+        switch (request.getTreeType()) {
+            case TreeTypeEnums.MODULE:
+                return getModuleCount(request);
+            case TreeTypeEnums.COLLECTION:
+                return getCollectionCount(request);
+            default:
+                return new HashMap<>();
+        }
+    }
+
+    /**
+     * 已关联接口用例规划视图统计
+     *
+     * @param request
+     * @return
+     */
+    private Map<String, Long> getCollectionCount(TestPlanApiCaseModuleRequest request) {
+        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        List<ModuleCountDTO> list = extTestPlanApiCaseMapper.collectionCountByRequest(request.getTestPlanId());
+        list.forEach(item -> {
+            projectModuleCountMap.put(item.getModuleId(), (long) item.getDataCount());
+        });
+        long allCount = extTestPlanApiCaseMapper.caseCount(request, false);
+        projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return projectModuleCountMap;
+    }
+
+    /**
+     * 已关联接口用例模块树统计
+     *
+     * @param request
+     * @return
+     */
+    private Map<String, Long> getModuleCount(TestPlanApiCaseModuleRequest request) {
         request.setModuleIds(null);
         List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanApiCaseMapper.countModuleIdByRequest(request, false);
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
@@ -282,10 +322,45 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     /**
      * 已关联接口用例模块树
      *
+     * @param request
+     * @return
+     */
+    public List<BaseTreeNode> getTree(TestPlanApiCaseTreeRequest request) {
+        switch (request.getTreeType()) {
+            case TreeTypeEnums.MODULE:
+                return getModuleTree(request.getTestPlanId());
+            case TreeTypeEnums.COLLECTION:
+                return getCollectionTree(request.getTestPlanId());
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 已关联接口用例规划视图树
+     *
      * @param testPlanId
      * @return
      */
-    public List<BaseTreeNode> getTree(String testPlanId) {
+    private List<BaseTreeNode> getCollectionTree(String testPlanId) {
+        List<BaseTreeNode> returnList = new ArrayList<>();
+        TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
+        collectionExample.createCriteria().andTypeEqualTo(CaseType.API_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
+        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
+        testPlanCollections.forEach(item -> {
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.API_CASE.getKey());
+            returnList.add(baseTreeNode);
+        });
+        return returnList;
+    }
+
+    /**
+     * 模块树
+     *
+     * @param testPlanId
+     * @return
+     */
+    private List<BaseTreeNode> getModuleTree(String testPlanId) {
         List<BaseTreeNode> returnList = new ArrayList<>();
         List<ProjectOptionDTO> rootIds = extTestPlanApiCaseMapper.selectRootIdByTestPlanId(testPlanId);
         Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));

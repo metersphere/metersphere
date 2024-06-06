@@ -1,9 +1,6 @@
 package io.metersphere.plan.controller;
 
-import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
-import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -25,7 +22,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
     public static final String API_CASE_PAGE = "/test-plan/api/case/page";
     public static final String API_CASE_TREE_COUNT = "/test-plan/api/case/module/count";
-    public static final String API_CASE_TREE_MODULE_TREE = "/test-plan/api/case/tree/";
+    public static final String API_CASE_TREE_MODULE_TREE = "/test-plan/api/case/tree";
     public static final String API_CASE_DISASSOCIATE = "/test-plan/api/case/disassociate";
     public static final String API_CASE_BATCH_DISASSOCIATE = "/test-plan/api/case/batch/disassociate";
     public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/api/case/batch/update/executor";
@@ -54,27 +51,41 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void testApiCaseCount() throws Exception {
-        TestPlanApiCaseRequest request = new TestPlanApiCaseRequest();
+        TestPlanApiCaseModuleRequest request = new TestPlanApiCaseModuleRequest();
         request.setTestPlanId("wxxx_1");
         request.setProjectId("wxx_1234");
         request.setProtocol("HTTP");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setTreeType("MODULE");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_TREE_COUNT, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+
+        request.setTreeType("COLLECTION");
+        this.requestPostWithOkAndReturn(API_CASE_TREE_COUNT, request);
     }
 
     @Test
     @Order(3)
     public void testApiCaseModuleTree() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(API_CASE_TREE_MODULE_TREE + "wxxx_1");
+        TestPlanApiCaseTreeRequest request = new TestPlanApiCaseTreeRequest();
+        request.setTestPlanId("wxxx_1");
+        request.setTreeType("MODULE");
+        this.requestPostWithOkAndReturn(API_CASE_TREE_MODULE_TREE, request);
+        request.setTestPlanId("wxxx_2");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_TREE_MODULE_TREE, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
-        this.requestGetWithOkAndReturn(API_CASE_TREE_MODULE_TREE + "wxxx_2");
+        request.setTestPlanId("wxxx_2");
+        request.setTreeType("COLLECTION");
+        MvcResult mvcResult1 = this.requestPostWithOkAndReturn(API_CASE_TREE_MODULE_TREE, request);
+        String returnData1 = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder1 = JSON.parseObject(returnData1, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder1);
     }
 
 

@@ -12,6 +12,7 @@ import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -52,4 +53,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<String> getIds(@Param("request") TestPlanApiCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
+
+    List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
 }

@@ -128,9 +128,9 @@
         <if test="request.projectId != null and request.projectId != ''">
             and api_definition.project_id = #{request.projectId}
         </if>
-        <if test="request.protocol != null and request.protocol != ''">
+        <!--<if test="request.protocol != null and request.protocol != ''">
             AND api_definition.protocol = #{request.protocol}
-        </if>
+        </if>-->
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
@@ -437,9 +437,9 @@
 
 
     <sql id="queryApiCaseWhereCondition">
-        <if test="request.protocol != null and request.protocol!=''">
+        <!--<if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
-        </if>
+        </if>-->
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and atc.api_definition_id = #{request.apiDefinitionId}
         </if>
@@ -640,4 +640,17 @@
     </update>
 
 
+    <select id="collectionCountByRequest" parameterType="java.lang.String" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT
+            test_plan_api_case.test_plan_collection_id AS moduleId,
+            count( test_plan_api_case.id ) AS dataCount
+        FROM
+            api_test_case
+                INNER JOIN test_plan_api_case ON api_test_case.id = test_plan_api_case.api_case_id
+        WHERE
+            api_test_case.deleted = FALSE
+          AND test_plan_api_case.test_plan_id = #{testPlanId}
+        GROUP BY
+            test_plan_api_case.test_plan_collection_id
+    </select>
 </mapper>

@@ -2,10 +2,7 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
-import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.service.TestPlanApiCaseLogService;
@@ -27,7 +24,10 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -58,16 +58,16 @@ public class TestPlanApiCaseController {
     @Operation(summary = "测试计划-已关联接口用例模块数量")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanApiCaseRequest request) {
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanApiCaseModuleRequest request) {
         return testPlanApiCaseService.moduleCount(request);
     }
 
-    @GetMapping("/tree/{testPlanId}")
+    @PostMapping("/tree")
     @Operation(summary = "测试计划-已关联接口用例列表模块树")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
-    @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
-    public List<BaseTreeNode> getTree(@PathVariable String testPlanId) {
-        return testPlanApiCaseService.getTree(testPlanId);
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanApiCaseTreeRequest request) {
+        return testPlanApiCaseService.getTree(request);
     }
 
     @PostMapping("/disassociate")
