@@ -75,16 +75,6 @@
               </div>
             </template>
           </a-popover>
-          <a-popover position="left" content-class="response-popover-content">
-            <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text max-w-[150px]">
-              {{ props.environmentName }}
-            </div>
-            <template #content>
-              <div v-if="props.showType && props.showType !== 'CASE'" class="one-line-text">
-                {{ props.environmentName }}
-              </div>
-            </template>
-          </a-popover>
         </div>
       </div>
       <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
@@ -152,7 +142,6 @@
     isHttpProtocol?: boolean;
     isDefinition?: boolean;
     showType: 'API' | 'CASE';
-    environmentName?: string; // 环境
     isResponseModel?: boolean;
     reportId?: string;
     steps?: ScenarioItemType[]; // 步骤列表

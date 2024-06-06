@@ -13,7 +13,7 @@
   </MsCard>
   <div class="analysis-wrapper">
     <div class="analysis min-w-[238px]">
-      <div class="block-title">{{ t('report.detail.api.requestAnalysis') }}</div>
+      <div class="block-title">{{ t('report.detail.api.reportAnalysis') }}</div>
       <ReportMetricsItem
         v-for="analysisItem in reportAnalysisList"
         :key="analysisItem.name"

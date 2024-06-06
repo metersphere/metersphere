@@ -40,7 +40,7 @@
           <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
           <div class="text-[var(--color-text-4)]">{{ item.label }}</div>
         </div>
-        <div class="text-center font-medium text-[var(--color-text-1)]">{{ item.count || 0 }}</div>
+        <div class="text-end font-medium text-[var(--color-text-1)]">{{ item.count || 0 }}</div>
         <div class="text-right font-medium text-[var(--color-text-1)]"
           >{{ item.rote || 0 }} <span v-if="String(item.rote) !== 'Calculating'"></span
         ></div>
