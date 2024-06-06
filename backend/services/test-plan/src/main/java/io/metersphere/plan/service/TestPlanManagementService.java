@@ -93,11 +93,9 @@ public class TestPlanManagementService {
                 if (collect.containsKey(item.getId())) {
                     //存在子节点
                     List<TestPlanResponse> list = collect.get(item.getId());
-                    testPlanStatisticsService.calculateCaseCount(list);
                     item.setChildren(list);
                     item.setChildrenCount(list.size());
                 }
-                testPlanStatisticsService.calculateCaseCount(List.of(item));
             });
         }
     }
