@@ -25,6 +25,18 @@
           <template #arrow-icon>
             <icon-caret-down />
           </template>
+          <template v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD'])" #header>
+            <a-button
+              class="select-header-button mb-[4px] h-[28px] w-full justify-start pl-[7px] pr-0"
+              type="text"
+              @click="projectVisible = true"
+            >
+              <template #icon>
+                <MsIcon type="icon-icon_add_outlined" />
+              </template>
+              {{ t('settings.navbar.createProject') }}
+            </a-button>
+          </template>
           <a-tooltip
             v-for="project of appStore.projectList"
             :key="project.id"
@@ -157,6 +169,7 @@
   </div>
   <TaskCenterModal v-model:visible="taskCenterVisible" />
   <MessageCenterDrawer v-model:visible="messageCenterVisible" />
+  <AddProjectModal :visible="projectVisible" @cancel="projectVisible = false" />
 </template>
 
 <script lang="ts" setup>
@@ -169,6 +182,7 @@
   import MessageCenterDrawer from '@/components/business/ms-message/MessageCenterDrawer.vue';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import TaskCenterModal from './taskCenterModal.vue';
+  import AddProjectModal from '@/views/setting/organization/project/components/addProjectModal.vue';
 
   import { getMessageUnReadCount } from '@/api/modules/message';
   import { switchProject } from '@/api/modules/project-management/project';
@@ -179,7 +193,7 @@
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { getFirstRouteNameByPermission } from '@/utils/permission';
+  import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
 
   import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
 
@@ -220,6 +234,7 @@
     }
   );
 
+  const projectVisible = ref(false);
   const showProjectSelect = computed(() => {
     const { getRouteLevelByKey } = usePathMap();
     // 非项目级别页面不需要展示项目选择器
@@ -305,6 +320,9 @@
 <style scoped lang="less">
   .navbar {
     @apply flex h-full justify-between bg-transparent;
+  }
+  .select-header-button.arco-btn-text:not(:disabled):hover {
+    background-color: rgb(var(--primary-1)) !important;
   }
   .center-side {
     @apply flex flex-1 items-center;

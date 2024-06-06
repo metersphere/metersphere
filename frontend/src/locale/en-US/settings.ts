@@ -31,4 +31,5 @@ export default {
   'settings.copySettings.message': 'Copy succeeded, please paste to file src/settings.json.',
   'settings.close': 'Close',
   'settings.color.tooltip': '10 gradient colors generated according to the theme color',
+  'settings.navbar.createProject': 'Create project',
 };
