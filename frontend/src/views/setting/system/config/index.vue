@@ -1,6 +1,7 @@
 <template>
   <MsTabCard v-model:active-tab="activeTab" :title="t('system.config.parameterConfig')" :tab-list="tabList" />
   <baseConfig v-if="activeTab === 'baseConfig'" v-show="activeTab === 'baseConfig'" />
+  <qrCodeConfig v-if="activeTab === 'qrCodeConfig'" v-show="activeTab === 'qrCodeConfig'" />
   <pageConfig v-if="isInitPageConfig" v-show="activeTab === 'pageConfig'" />
   <authConfig v-if="isInitAuthConfig" v-show="activeTab === 'authConfig'" />
   <memoryCleanup v-if="isInitMemoryCleanup" v-show="activeTab === 'memoryCleanup'" />
@@ -21,6 +22,7 @@
   // 异步组件加载
   const baseConfig = defineAsyncComponent(() => import('./components/baseConfig.vue'));
   const pageConfig = defineAsyncComponent(() => import('./components/pageConfig.vue'));
+  const qrCodeConfig = defineAsyncComponent(() => import('./components/qrCodeConfig.vue'));
   const authConfig = defineAsyncComponent(() => import('./components/authConfig.vue'));
   const memoryCleanup = defineAsyncComponent(() => import('./components/memoryCleanup.vue'));
 
@@ -31,9 +33,15 @@
   const isInitPageConfig = ref(activeTab.value === 'pageConfig');
   const isInitAuthConfig = ref(activeTab.value === 'authConfig');
   const isInitMemoryCleanup = ref(activeTab.value === 'memoryCleanup');
+  const isInitQrCodeConfig = ref(activeTab.value === 'qrCodeConfig');
   const tabList = ref([
     { key: 'baseConfig', title: t('system.config.baseConfig'), permission: ['SYSTEM_PARAMETER_SETTING_BASE:READ'] },
     { key: 'pageConfig', title: t('system.config.pageConfig'), permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'] },
+    {
+      key: 'qrCodeConfig',
+      title: t('system.config.qrCodeConfig'),
+      permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'],
+    },
     { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
     {
       key: 'memoryCleanup',
@@ -51,6 +59,8 @@
         isInitAuthConfig.value = true;
       } else if (val === 'memoryCleanup' && !isInitMemoryCleanup.value) {
         isInitMemoryCleanup.value = true;
+      } else if (val === 'qrCodeConfig' && !isInitMemoryCleanup.value) {
+        isInitQrCodeConfig.value = true;
       }
     },
     {

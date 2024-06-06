@@ -1,0 +1,9 @@
+export const PostValidateWeComUrl = '/we_com/validate';
+export const GetWeComInfoUrl = '/we_com/info/with_detail';
+export const PostWeComSaveUrl = '/we_com/save';
+export const PostWeComEnableUrl = '/we_com/enable';
+export const PostValidateDingTalkUrl = '/ding_talk/validate';
+export const GetDingTalkInfoUrl = '/ding_talk/info/with_detail';
+export const PostDingTalkSaveUrl = '/ding_talk/save';
+export const PostDingTalkEnableUrl = '/ding_talk/enable';
+export const GetPlatformInfoUrl = '/setting/get/platform/info';

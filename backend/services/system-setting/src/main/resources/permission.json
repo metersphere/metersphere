@@ -162,6 +162,16 @@
           {
             "id": "SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ+UPDATE",
             "name": "permission.system_parameter_setting_memory_clean.update"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_QRCODE:READ",
+            "name": "permission.system_parameter_setting_qrcode.read",
+            "license": true
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_QRCODE:READ",
+            "name": "permission.system_parameter_setting_qrcode.update",
+            "license": true
           }
         ]
       },
