@@ -253,14 +253,11 @@ public class ApiTaskCenterService {
                               String module) {
         Map<String, List<String>> poolIdMap = reports.stream()
                 .collect(Collectors.groupingBy(ReportDTO::getPoolId, Collectors.mapping(ReportDTO::getId, Collectors.toList())));
-        // 根据报告id分组 key是报告id value是 是否集成
-        Map<String, Boolean> integrationMap = reports.stream()
-                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getIntegrated));
         poolIdMap.forEach((poolId, reportList) -> {
             TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(poolId);
             List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
             if (CollectionUtils.isNotEmpty(nodesList)) {
-                stopTask(request, reportList, nodesList, userId, path, method, module, integrationMap);
+                stopTask(request, reportList, nodesList, userId, path, method, module, reports);
             }
         });
     }
@@ -272,7 +269,12 @@ public class ApiTaskCenterService {
                          String path,
                          String method,
                          String module,
-                         Map<String, Boolean> integrationMap) {
+                         List<ReportDTO> reports) {
+        // 根据报告id分组 key是报告id value是 是否集成
+        Map<String, Boolean> integrationMap = reports.stream()
+                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getIntegrated));
+        Map<String, String> resourceIdMap = reports.stream()
+                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getResourceId));
         nodesList.parallelStream().forEach(node -> {
             String endpoint = TaskRunnerClient.getEndpoint(node.getIp(), node.getPort());
             //需要去除取消勾选的report
@@ -297,13 +299,16 @@ public class ApiTaskCenterService {
                     subList.forEach(reportId -> {
                         TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
                         TaskItem taskItem = new TaskItem();
-                        taskRequestDTO.setTaskItem(taskItem);
                         taskItem.setReportId(reportId);
+                        taskItem.setResourceId(resourceIdMap.getOrDefault(reportId, null));
+                        // TODO  这里需要兼容测试计划批量执行的类型
+
                         taskInfo.setResourceType(request.getModuleType());
                         taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
                         if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
                             taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
                         }
+                        taskRequestDTO.setTaskItem(taskItem);
                         result.setRequest(taskRequestDTO);
                         kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
                     });

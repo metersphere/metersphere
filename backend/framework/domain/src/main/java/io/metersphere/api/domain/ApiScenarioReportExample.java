@@ -244,73 +244,73 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdIsNull() {
-            addCriterion("test_plan_id is null");
+        public Criteria andTestPlanScenarioIdIsNull() {
+            addCriterion("test_plan_scenario_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdIsNotNull() {
-            addCriterion("test_plan_id is not null");
+        public Criteria andTestPlanScenarioIdIsNotNull() {
+            addCriterion("test_plan_scenario_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdEqualTo(String value) {
-            addCriterion("test_plan_id =", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdEqualTo(String value) {
+            addCriterion("test_plan_scenario_id =", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdNotEqualTo(String value) {
-            addCriterion("test_plan_id <>", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdNotEqualTo(String value) {
+            addCriterion("test_plan_scenario_id <>", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdGreaterThan(String value) {
-            addCriterion("test_plan_id >", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdGreaterThan(String value) {
+            addCriterion("test_plan_scenario_id >", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdGreaterThanOrEqualTo(String value) {
-            addCriterion("test_plan_id >=", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_plan_scenario_id >=", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdLessThan(String value) {
-            addCriterion("test_plan_id <", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdLessThan(String value) {
+            addCriterion("test_plan_scenario_id <", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdLessThanOrEqualTo(String value) {
-            addCriterion("test_plan_id <=", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdLessThanOrEqualTo(String value) {
+            addCriterion("test_plan_scenario_id <=", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdLike(String value) {
-            addCriterion("test_plan_id like", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdLike(String value) {
+            addCriterion("test_plan_scenario_id like", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdNotLike(String value) {
-            addCriterion("test_plan_id not like", value, "testPlanId");
+        public Criteria andTestPlanScenarioIdNotLike(String value) {
+            addCriterion("test_plan_scenario_id not like", value, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdIn(List<String> values) {
-            addCriterion("test_plan_id in", values, "testPlanId");
+        public Criteria andTestPlanScenarioIdIn(List<String> values) {
+            addCriterion("test_plan_scenario_id in", values, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdNotIn(List<String> values) {
-            addCriterion("test_plan_id not in", values, "testPlanId");
+        public Criteria andTestPlanScenarioIdNotIn(List<String> values) {
+            addCriterion("test_plan_scenario_id not in", values, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdBetween(String value1, String value2) {
-            addCriterion("test_plan_id between", value1, value2, "testPlanId");
+        public Criteria andTestPlanScenarioIdBetween(String value1, String value2) {
+            addCriterion("test_plan_scenario_id between", value1, value2, "testPlanScenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andTestPlanIdNotBetween(String value1, String value2) {
-            addCriterion("test_plan_id not between", value1, value2, "testPlanId");
+        public Criteria andTestPlanScenarioIdNotBetween(String value1, String value2) {
+            addCriterion("test_plan_scenario_id not between", value1, value2, "testPlanScenarioId");
             return (Criteria) this;
         }
 
@@ -2271,6 +2271,66 @@ public class ApiScenarioReportExample {
 
         public Criteria andExecStatusNotBetween(String value1, String value2) {
             addCriterion("exec_status not between", value1, value2, "execStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanIsNull() {
+            addCriterion("`plan` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanIsNotNull() {
+            addCriterion("`plan` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanEqualTo(Boolean value) {
+            addCriterion("`plan` =", value, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanNotEqualTo(Boolean value) {
+            addCriterion("`plan` <>", value, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanGreaterThan(Boolean value) {
+            addCriterion("`plan` >", value, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`plan` >=", value, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanLessThan(Boolean value) {
+            addCriterion("`plan` <", value, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanLessThanOrEqualTo(Boolean value) {
+            addCriterion("`plan` <=", value, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanIn(List<Boolean> values) {
+            addCriterion("`plan` in", values, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanNotIn(List<Boolean> values) {
+            addCriterion("`plan` not in", values, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanBetween(Boolean value1, Boolean value2) {
+            addCriterion("`plan` between", value1, value2, "plan");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`plan` not between", value1, value2, "plan");
             return (Criteria) this;
         }
     }

@@ -8,11 +8,14 @@
         api_report ar
         where
         ar.start_time BETWEEN #{startTime} AND #{endTime}
-        and
-        ar.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+          and ar.plan = 0
+        <if test="ids != null and ids.size() > 0">
+            and
+            ar.project_id IN
+            <foreach collection="ids" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
     </select>
     <select id="scenarioReportCountByProjectIds" resultType="java.lang.Integer">
         select count(distinct asr.id)
@@ -20,11 +23,14 @@
         api_scenario_report asr
         where
         asr.start_time BETWEEN #{startTime} AND #{endTime}
-        and
-        asr.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+          and asr.plan = 0
+        <if test="ids != null and ids.size() > 0">
+            and
+            asr.project_id IN
+            <foreach collection="ids" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
     </select>
     <select id="testPlanReportCountByProjectIds" resultType="java.lang.Integer">
         select count(distinct tpr.id)
@@ -32,10 +38,12 @@
         test_plan_report tpr
         where
         tpr.start_time BETWEEN #{startTime} AND #{endTime}
-        and
-        tpr.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
+        <if test="ids != null and ids.size() > 0">
+            and
+            tpr.project_id IN
+            <foreach collection="ids" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
     </select>
 </mapper>
