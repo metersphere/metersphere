@@ -51,8 +51,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.metersphere.sdk.constants.TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED;
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService extends TestPlanBaseUtilsService {
@@ -96,6 +94,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanCollectionMapper testPlanCollectionMapper;
 
     private static final int MAX_TAG_SIZE = 10;
+    private static final int MAX_CHILDREN_COUNT = 20;
 
     /**
      * 创建测试计划
@@ -118,6 +117,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         checkModule(createOrCopyRequest.getModuleId());
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
+        validateTestPlanGroup(createTestPlan.getGroupId(), 1);
         initTestPlanPos(createTestPlan);
 
         createTestPlan.setId(IDGenerator.nextStr());
@@ -142,17 +142,37 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         return createTestPlan;
     }
 
+
+    /**
+     * 校验测试计划组
+     *
+     * @param groupId     测试计划组Id
+     * @param preAddCount 准备添加的数量
+     */
+    private void validateTestPlanGroup(String groupId, int preAddCount) {
+        if (!StringUtils.equals(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            // 判断测试计划组是否存在
+            TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
+            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                throw new MSException(Translator.get("test_plan.group.error"));
+            }
+            //判断并未归档
+            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                throw new MSException(Translator.get("test_plan.group.error"));
+            }
+            //判断测试计划组下的测试计划数量是否超过20
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andGroupIdEqualTo(groupId);
+            if (testPlanMapper.countByExample(example) + preAddCount > 20) {
+                throw new MSException(Translator.getWithArgs("test_plan.group.children.max", MAX_CHILDREN_COUNT));
+            }
+        }
+    }
+
     //校验测试计划
     private void initTestPlanPos(TestPlan createTestPlan) {
         if (!StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            //如果测试计划组不为NONE，判断是否真实存在并未归档
-            TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andIdEqualTo(createTestPlan.getGroupId()).andStatusNotEqualTo(TEST_PLAN_STATUS_ARCHIVED);
-            if (testPlanMapper.countByExample(example) == 0) {
-                throw new MSException(Translator.get("test_plan.group.error"));
-            } else {
-                createTestPlan.setPos(testPlanGroupService.getNextOrder(createTestPlan.getGroupId()));
-            }
+            createTestPlan.setPos(testPlanGroupService.getNextOrder(createTestPlan.getGroupId()));
         } else {
             createTestPlan.setPos(0L);
         }
@@ -367,7 +387,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             updateGroupStatus(testPlan.getId(), userId);
         } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             //测试计划
-            testPlan.setStatus(TEST_PLAN_STATUS_ARCHIVED);
+            testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
             testPlan.setUpdateUser(userId);
             testPlan.setUpdateTime(System.currentTimeMillis());
             testPlanMapper.updateByPrimaryKeySelective(testPlan);
@@ -413,7 +433,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (CollectionUtils.isEmpty(ids)) {
             throw new MSException(Translator.get("test_plan.group.not_plan"));
         }
-        extTestPlanMapper.batchUpdateStatus(TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
+        extTestPlanMapper.batchUpdateStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
     }
 
     /**
@@ -550,14 +570,18 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
             //判断移动的是测试计划组还是模块
             if (StringUtils.equalsIgnoreCase(request.getMoveType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                moveTestPlanList = moveTestPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN))
-                        .collect(Collectors.toList());
+                moveTestPlanList = moveTestPlanList.stream().filter(
+                        item -> StringUtils.equalsIgnoreCase(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equalsIgnoreCase(item.getGroupId(), request.getTargetId())
+                ).collect(Collectors.toList());
+                this.validateTestPlanGroup(request.getTargetId(), moveTestPlanList.size());
                 moveCount = testPlanBatchOperationService.batchMoveGroup(moveTestPlanList, request.getTargetId(), userId);
             } else {
                 moveCount = testPlanBatchOperationService.batchMoveModule(moveTestPlanList, request.getTargetId(), userId);
             }
             //日志
-            testPlanLogService.saveBatchLog(moveTestPlanList, userId, operationUrl, method, OperationLogType.UPDATE.name(), "update");
+            if (CollectionUtils.isNotEmpty(moveTestPlanList)) {
+                testPlanLogService.saveBatchLog(moveTestPlanList, userId, operationUrl, method, OperationLogType.UPDATE.name(), "update");
+            }
         }
         return moveCount;
     }
@@ -660,7 +684,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     public void checkTestPlanNotArchived(String testPlanId) {
         TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andIdEqualTo(testPlanId).andStatusEqualTo(TEST_PLAN_STATUS_ARCHIVED);
+        example.createCriteria().andIdEqualTo(testPlanId).andStatusEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         if (testPlanMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("test_plan.is.archived"));
         }
@@ -696,6 +720,18 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlan.setId(testPlanId);
         testPlan.setStatus(testPlanFinalStatus);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
+
+        List<TestPlan> childPlan = this.selectChildPlanByGroupId(testPlanId);
+        if (CollectionUtils.isNotEmpty(childPlan)) {
+            TestPlan updateGroupPlan = new TestPlan();
+            updateGroupPlan.setId(testPlanId);
+            if (childPlan.stream().allMatch(item -> StringUtils.equals(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))) {
+                testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+            } else {
+                testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+            }
+            testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        }
     }
 
     public TestPlanOperationResponse sortInGroup(PosRequest request, LogInsertModule logInsertModule) {
@@ -718,6 +754,17 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 .cron(request.getCron())
                 .resourceType(ScheduleResourceType.TEST_PLAN.name())
                 .build();
+
+        if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //配置开启的测试计划组定时任务，要将组下的所有测试计划定时任务都关闭掉
+            List<TestPlan> children = this.selectChildPlanByGroupId(testPlan.getId());
+            for (TestPlan child : children) {
+                scheduleService.closeIfExist(child.getId(), TestPlanScheduleJob.getJobKey(testPlan.getId()),
+                        TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
+                        TestPlanScheduleJob.class);
+            }
+        }
+
         return scheduleService.scheduleConfig(
                 scheduleConfig,
                 TestPlanScheduleJob.getJobKey(testPlan.getId()),
@@ -734,9 +781,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         return extTestPlanMapper.selectNotArchivedIds(executeIds);
     }
 
-    public List<TestPlan> selectChildPlanByGroupId(String testPlanId) {
+    public List<TestPlan> selectChildPlanByGroupId(String testPlanGroupId) {
         TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andGroupIdEqualTo(testPlanId).andStatusNotEqualTo(TEST_PLAN_STATUS_ARCHIVED);
+        example.createCriteria().andGroupIdEqualTo(testPlanGroupId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         example.setOrderByClause("pos asc");
         return testPlanMapper.selectByExample(example);
     }

@@ -135,6 +135,7 @@ public class TestPlanTests extends BaseTest {
 
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
+    private static String groupTestPlanId35 = null;
 
     private static List<String> rootPlanIds = new ArrayList<>();
 
@@ -536,8 +537,7 @@ public class TestPlanTests extends BaseTest {
             String moduleId;
             if (i < 50) {
                 moduleId = a1Node.getId();
-                //选择安东尼巅峰期球衣号码为标志，该测试计划将改为测试计划组，并用于后续的测试用例相关操作
-                if (i == 7 || i == 15) {
+                if (i == 7 || i == 15 || i == 35) {
                     request.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
                 }
                 a1NodeCount++;
@@ -574,6 +574,8 @@ public class TestPlanTests extends BaseTest {
                 groupTestPlanId7 = returnId;
             } else if (i == 15) {
                 groupTestPlanId15 = returnId;
+            } else if (i == 35) {
+                groupTestPlanId35 = returnId;
             } else if (i > 700 && i < 750) {
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
                 TestPlanReportMapper batchInsert = sqlSession.getMapper(TestPlanReportMapper.class);
@@ -635,8 +637,8 @@ public class TestPlanTests extends BaseTest {
             this.requestPost(URL_POST_TEST_PLAN_ADD, request);
         }
 
-        //在groupTestPlanId7、groupTestPlanId15下面各创建20条数据
-        for (int i = 0; i < 20; i++) {
+        //在groupTestPlanId7、groupTestPlanId15下面各创建20条数据（并且校验第21条不能创建成功）
+        for (int i = 0; i < 21; i++) {
             TestPlanCreateRequest itemRequest = new TestPlanCreateRequest();
             itemRequest.setProjectId(project.getId());
             itemRequest.setModuleId(a1Node.getId());
@@ -650,17 +652,27 @@ public class TestPlanTests extends BaseTest {
                 //恢复
                 testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
             }
-            MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, itemRequest);
-            String returnStr = mvcResult.getResponse().getContentAsString();
-            ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
-            Assertions.assertNotNull(JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId());
+            if (i == 20) {
+                this.requestPost(URL_POST_TEST_PLAN_ADD, itemRequest).andExpect(status().is5xxServerError());
+            } else {
+                MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, itemRequest);
+                String returnStr = mvcResult.getResponse().getContentAsString();
+                ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+                Assertions.assertNotNull(JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId());
+            }
+
 
             itemRequest.setGroupId(groupTestPlanId15);
             itemRequest.setName("testPlan_group15_" + i);
-            mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, itemRequest);
-            returnStr = mvcResult.getResponse().getContentAsString();
-            holder = JSON.parseObject(returnStr, ResultHolder.class);
-            Assertions.assertNotNull(JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId());
+
+            if (i == 20) {
+                this.requestPost(URL_POST_TEST_PLAN_ADD, itemRequest).andExpect(status().is5xxServerError());
+            } else {
+                MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, itemRequest);
+                String returnStr = mvcResult.getResponse().getContentAsString();
+                ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+                Assertions.assertNotNull(JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId());
+            }
         }
 
         //校验Group数量
@@ -670,7 +682,7 @@ public class TestPlanTests extends BaseTest {
                                 this.requestGetWithOkAndReturn(String.format(URL_POST_TEST_PLAN_GROUP_LIST, project.getId()))
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlan.class);
-        Assertions.assertEquals(groupList.size(), 2);
+        Assertions.assertEquals(groupList.size(), 3);
 
         /*
         反例
@@ -702,7 +714,7 @@ public class TestPlanTests extends BaseTest {
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ADD, URL_POST_TEST_PLAN_ADD, request);
 
         this.checkTestPlanSortInGroup(groupTestPlanId7);
-        this.checkTestPlanMoveToGroup(groupTestPlanId7);
+        this.checkTestPlanMoveToGroup();
         this.checkTestPlanGroupArchived(groupTestPlanId7);
     }
 
@@ -824,14 +836,34 @@ public class TestPlanTests extends BaseTest {
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_TEST_PLAN_SORT, posRequest);
     }
 
-    protected void checkTestPlanMoveToGroup(String groupId) throws Exception {
+    protected void checkTestPlanMoveToGroup() throws Exception {
+        //首先校验 groupTestPlanId7 下不能再增加
+        String groupId = groupTestPlanId7;
         List<String> movePlanIds = rootPlanIds.subList(rootPlanIds.size() - 21, rootPlanIds.size() - 1);
         TestPlanBatchRequest request = new TestPlanBatchRequest();
         request.setProjectId(project.getId());
         request.setSelectIds(movePlanIds);
         request.setMoveType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
         request.setTargetId(groupId);
+        this.requestPost(URL_TEST_PLAN_BATCH_MOVE, request).andExpect(status().is5xxServerError());
 
+        //判断组不存在
+        request.setTargetId(IDGenerator.nextStr());
+        this.requestPost(URL_TEST_PLAN_BATCH_MOVE, request).andExpect(status().is5xxServerError());
+
+        //判断组归档
+        TestPlan updatePlan = new TestPlan();
+        updatePlan.setId(groupTestPlanId35);
+        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        testPlanMapper.updateByPrimaryKeySelective(updatePlan);
+        this.requestPost(URL_TEST_PLAN_BATCH_MOVE, request).andExpect(status().is5xxServerError());
+        //改回来
+        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        testPlanMapper.updateByPrimaryKeySelective(updatePlan);
+
+        //正式测试
+        groupId = groupTestPlanId35;
+        request.setTargetId(groupId);
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
         List<TestPlanResponse> groups = this.selectByGroupId(groupId);
         List<String> checkList = new ArrayList<>(movePlanIds);
@@ -935,13 +967,13 @@ public class TestPlanTests extends BaseTest {
                             URL_POST_TEST_PLAN_PAGE, groupRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    2);
+                    3);
             //只查询计划
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, onlyPlanRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    1008);
+                    1007);
 
             //按照名称倒叙
             dataRequest.setSort(new HashMap<>() {{
