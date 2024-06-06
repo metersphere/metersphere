@@ -77,7 +77,7 @@
         <!--                            typeHandler="io.metersphere.handler.ListTypeHandler"/>-->
         <!--        </table>-->
 
-<!--        <table tableName="test_plan_functional_case"/>-->
+        <table tableName="test_plan_config"/>
 <!--        <table tableName="test_plan_api_case"/>-->
 <!--        <table tableName="test_plan_api_scenario"/>-->
 <!--        <table tableName="test_plan_report"/>-->

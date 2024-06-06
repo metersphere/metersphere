@@ -152,5 +152,9 @@ CREATE TABLE IF NOT EXISTS test_plan_execution_queue
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '测试计划执行队列';
 
+-- 测试计划配置 增加运行模式
+ALTER table test_plan_config
+    ADD COLUMN `case_run_mode` VARCHAR(50) NOT NULL DEFAULT 'PARALLEL' COMMENT '不同用例之间的执行方式(串行/并行)';
+
 
 

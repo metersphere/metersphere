@@ -724,7 +724,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlan.setStatus(testPlanFinalStatus);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
 
-        List<TestPlan> childPlan = this.selectChildPlanByGroupId(testPlanId);
+        List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlanId);
         if (CollectionUtils.isNotEmpty(childPlan)) {
             TestPlan updateGroupPlan = new TestPlan();
             updateGroupPlan.setId(testPlanId);
@@ -761,7 +761,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             //配置开启的测试计划组定时任务，要将组下的所有测试计划定时任务都关闭掉
-            List<TestPlan> children = this.selectChildPlanByGroupId(testPlan.getId());
+            List<TestPlan> children = this.selectNotArchivedChildren(testPlan.getId());
             for (TestPlan child : children) {
                 scheduleService.closeIfExist(child.getId(), TestPlanScheduleJob.getJobKey(testPlan.getId()),
                         TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
@@ -785,7 +785,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         return extTestPlanMapper.selectNotArchivedIds(executeIds);
     }
 
-    public List<TestPlan> selectChildPlanByGroupId(String testPlanGroupId) {
+    public List<TestPlan> selectNotArchivedChildren(String testPlanGroupId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andGroupIdEqualTo(testPlanGroupId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         example.setOrderByClause("pos asc");

@@ -6,6 +6,7 @@
     <result column="automatic_status_update" jdbcType="BIT" property="automaticStatusUpdate" />
     <result column="repeat_case" jdbcType="BIT" property="repeatCase" />
     <result column="pass_threshold" jdbcType="DECIMAL" property="passThreshold" />
+    <result column="case_run_mode" jdbcType="VARCHAR" property="caseRunMode" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -66,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    test_plan_id, automatic_status_update, repeat_case, pass_threshold
+    test_plan_id, automatic_status_update, repeat_case, pass_threshold, case_run_mode
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanConfigExample" resultMap="BaseResultMap">
     select
@@ -100,9 +101,9 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanConfig">
     insert into test_plan_config (test_plan_id, automatic_status_update, repeat_case, 
-      pass_threshold)
+      pass_threshold, case_run_mode)
     values (#{testPlanId,jdbcType=VARCHAR}, #{automaticStatusUpdate,jdbcType=BIT}, #{repeatCase,jdbcType=BIT}, 
-      #{passThreshold,jdbcType=DECIMAL})
+      #{passThreshold,jdbcType=DECIMAL}, #{caseRunMode,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanConfig">
     insert into test_plan_config
@@ -119,6 +120,9 @@
       <if test="passThreshold != null">
         pass_threshold,
       </if>
+      <if test="caseRunMode != null">
+        case_run_mode,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="testPlanId != null">
@@ -132,6 +136,9 @@
       </if>
       <if test="passThreshold != null">
         #{passThreshold,jdbcType=DECIMAL},
+      </if>
+      <if test="caseRunMode != null">
+        #{caseRunMode,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -156,6 +163,9 @@
       <if test="record.passThreshold != null">
         pass_threshold = #{record.passThreshold,jdbcType=DECIMAL},
       </if>
+      <if test="record.caseRunMode != null">
+        case_run_mode = #{record.caseRunMode,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -166,7 +176,8 @@
     set test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
       repeat_case = #{record.repeatCase,jdbcType=BIT},
-      pass_threshold = #{record.passThreshold,jdbcType=DECIMAL}
+      pass_threshold = #{record.passThreshold,jdbcType=DECIMAL},
+      case_run_mode = #{record.caseRunMode,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -183,6 +194,9 @@
       <if test="passThreshold != null">
         pass_threshold = #{passThreshold,jdbcType=DECIMAL},
       </if>
+      <if test="caseRunMode != null">
+        case_run_mode = #{caseRunMode,jdbcType=VARCHAR},
+      </if>
     </set>
     where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
   </update>
@@ -190,16 +204,19 @@
     update test_plan_config
     set automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
       repeat_case = #{repeatCase,jdbcType=BIT},
-      pass_threshold = #{passThreshold,jdbcType=DECIMAL}
+      pass_threshold = #{passThreshold,jdbcType=DECIMAL},
+      case_run_mode = #{caseRunMode,jdbcType=VARCHAR}
     where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_config
-    (test_plan_id, automatic_status_update, repeat_case, pass_threshold)
+    (test_plan_id, automatic_status_update, repeat_case, pass_threshold, case_run_mode
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.testPlanId,jdbcType=VARCHAR}, #{item.automaticStatusUpdate,jdbcType=BIT}, 
-        #{item.repeatCase,jdbcType=BIT}, #{item.passThreshold,jdbcType=DECIMAL})
+        #{item.repeatCase,jdbcType=BIT}, #{item.passThreshold,jdbcType=DECIMAL}, #{item.caseRunMode,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -223,6 +240,9 @@
         </if>
         <if test="'pass_threshold'.toString() == column.value">
           #{item.passThreshold,jdbcType=DECIMAL}
+        </if>
+        <if test="'case_run_mode'.toString() == column.value">
+          #{item.caseRunMode,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

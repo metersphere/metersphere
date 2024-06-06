@@ -27,9 +27,14 @@ public class TestPlanConfig implements Serializable {
     @NotNull(message = "{test_plan_config.repeat_case.not_blank}", groups = {Created.class})
     private Boolean repeatCase;
 
-    @Schema(description = "测试计划通过阈值; 0-100, 保留两位小数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{test_plan_config.pass_threshold.not_blank}", groups = {Created.class})
     private Double passThreshold;
+
+    @Schema(description = "不同用例之间的执行方式(串行/并行)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_config.case_run_mode.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_config.case_run_mode.length_range}", groups = {Created.class, Updated.class})
+    private String caseRunMode;
 
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +42,8 @@ public class TestPlanConfig implements Serializable {
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         automaticStatusUpdate("automatic_status_update", "automaticStatusUpdate", "BIT", false),
         repeatCase("repeat_case", "repeatCase", "BIT", false),
-        passThreshold("pass_threshold", "passThreshold", "DECIMAL", false);
+        passThreshold("pass_threshold", "passThreshold", "DECIMAL", false),
+        caseRunMode("case_run_mode", "caseRunMode", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
