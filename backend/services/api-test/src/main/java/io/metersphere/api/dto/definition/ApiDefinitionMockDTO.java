@@ -34,5 +34,7 @@ public class ApiDefinitionMockDTO extends ApiDefinitionMock {
 
     @Schema(description = "接口类型")
     private String apiMethod;
+    @Schema(description = "接口协议")
+    private String protocol;
 
 }

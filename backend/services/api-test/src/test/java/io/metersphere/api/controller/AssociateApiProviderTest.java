@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class AssociateApiProviderTest extends BaseTest {
@@ -36,6 +36,7 @@ public class AssociateApiProviderTest extends BaseTest {
         request.setProjectId("project-associate-case-test");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
@@ -53,6 +54,7 @@ public class AssociateApiProviderTest extends BaseTest {
         request.setProjectId("project-associate-case-test");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
@@ -69,6 +71,7 @@ public class AssociateApiProviderTest extends BaseTest {
         request.setSourceType("API");
         request.setSourceId("gyq_associate_case_id_1");
         request.setSelectAll(true);
+        request.setProtocols(List.of("HTTP"));
         request.setProjectId("project-associate-case-test");
         request.setExcludeIds(List.of("gyq_associate_api_case_id_2"));
         List<ApiTestCase> apiTestCases = provider.getSelectApiTestCases(request, false);

@@ -36,7 +36,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setTestPlanId("wxxx_1");
         request.setProjectId("wxx_1234");
-        request.setProtocol("HTTP");
+        request.setProtocols(List.of("HTTP"));
         this.requestPost(API_CASE_PAGE, request);
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
@@ -54,7 +54,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         TestPlanApiCaseModuleRequest request = new TestPlanApiCaseModuleRequest();
         request.setTestPlanId("wxxx_1");
         request.setProjectId("wxx_1234");
-        request.setProtocol("HTTP");
+        request.setProtocols(List.of("HTTP"));
         request.setCurrent(1);
         request.setPageSize(10);
         request.setTreeType("MODULE");

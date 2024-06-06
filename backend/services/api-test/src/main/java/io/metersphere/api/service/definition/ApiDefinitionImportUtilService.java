@@ -199,7 +199,7 @@ public class ApiDefinitionImportUtilService {
         //查询数据库中所有的数据， 用于判断是否重复
         ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
         pageRequest.setProjectId(request.getProjectId());
-        pageRequest.setProtocol(request.getProtocol());
+        pageRequest.setProtocols(List.of(request.getProtocol()));
         //TODO 如果是有版本的话 需要加上版本的判断
         List<ApiDefinitionImportDetail> apiLists = extApiDefinitionMapper.importList(pageRequest);
         List<BaseTreeNode> apiModules = this.buildTreeData(request.getProjectId(), request.getProtocol());
@@ -812,7 +812,7 @@ public class ApiDefinitionImportUtilService {
     public List<BaseTreeNode> buildTreeData(String projectId, String protocol) {
         ApiModuleRequest request = new ApiModuleRequest();
         request.setProjectId(projectId);
-        request.setProtocol(protocol);
+        request.setProtocols(List.of(protocol));
         List<BaseTreeNode> apiModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
         return this.buildTreeAndCountResource(apiModuleList, true, Translator.get(UNPLANNED_API));
     }

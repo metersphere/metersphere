@@ -13,7 +13,7 @@
     <select id="list" resultMap="ApiDefinitionMockDTO">
         select
         m.id, m.create_time, m.update_time, m.create_user, m.`name`, m.tags, m.`enable`, m.expect_num, m.project_id, m.status_code,
-        m.api_definition_id, u.name as create_user_name, d.path as api_path, d.method as apiMethod
+        m.api_definition_id, u.name as create_user_name, d.path as api_path, d.method as apiMethod, d.protocol as protocol
         from api_definition_mock m
         left join `api_definition` d on d.id = m.api_definition_id
         left join `user` u on u.id = m.create_user
@@ -62,9 +62,13 @@
     </select>
 
     <sql id="queryWhereConditionByBatch">
-        <if test="request.protocol != null and request.protocol!=''">
-            and a.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and a.protocol in
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
         </if>
+
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and m.api_definition_id = #{request.apiDefinitionId}
         </if>
@@ -107,8 +111,11 @@
         <if test="request.apiDefinitionId != null and request.apiDefinitionId != ''">
             and m.api_definition_id = #{request.apiDefinitionId}
         </if>
-        <if test="request.protocol != null and request.protocol!=''">
-            and d.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and d.protocol in
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and d.module_id in

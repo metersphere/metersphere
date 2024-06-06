@@ -689,6 +689,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001", "1002", "1005"));
         apiDefinitionBatchUpdateRequest.setExcludeIds(List.of("1005"));
         apiDefinitionBatchUpdateRequest.setSelectAll(false);
+        apiDefinitionBatchUpdateRequest.setProtocols(List.of("HTTP"));
         apiDefinitionBatchUpdateRequest.setType("tags");
         // 修改标签，追加
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001", "1002"));
@@ -814,6 +815,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1001", "1002", "1005"));
         request.setExcludeIds(List.of("1005"));
         request.setSelectAll(false);
+        request.setProtocols(List.of("HTTP"));
         this.requestPostWithOkAndReturn(BATCH_MOVE, request);
         // @@校验日志
 
@@ -918,6 +920,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         request.setDeleted(false);
         request.setSort(Map.of("createTime", "asc"));
         // "ALL", "KEYWORD", "FILTER", "COMBINE", "DELETED"
@@ -1019,6 +1022,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         request.setApiId(apiDefinition.getId());
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setProtocols(List.of("HTTP"));
         request.setType(ApiDefinitionDocType.API.name());
         // @@请求成功
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DOC, request);
@@ -1111,6 +1115,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@模块查看文档
         request.setApiId(null);
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setProtocols(List.of("HTTP"));
         request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("1001001"));
         MvcResult mvcResultModule = this.requestPostWithOkAndReturn(DOC, request);
@@ -1325,6 +1330,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1004"));
         request.setDeleteAllVersion(false);
         request.setSelectAll(false);
+        request.setProtocols(List.of("HTTP"));
         this.requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         // @@校验日志
         checkLogModelList.add(new CheckLogModel("1004", OperationLogType.DELETE, BATCH_DELETE_TO_GC));
@@ -1399,6 +1405,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("batch recover api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setProtocols(List.of("HTTP"));
         // 恢复选中
         request.setSelectIds(List.of("1002", "1004", "1005"));
         request.setExcludeIds(List.of("1005"));
@@ -1480,6 +1487,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("batch trash delete api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setProtocols(List.of("HTTP"));
 
         // 删除选中
         request.setSelectIds(List.of("1003"));

@@ -23,6 +23,7 @@ import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -113,15 +114,18 @@ public class TestPlanTaskCenterService {
     public List<TaskCenterDTO> getPage(TaskCenterPageRequest request, List<OptionDTO> projectList, boolean isSystem) {
         List<TaskCenterDTO> list = new ArrayList<>();
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-        Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
-        list = extTestPlanReportMapper.taskCenterlist(request, isSystem ? new ArrayList<>() : projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
-        //执行历史列表
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
+            list = extTestPlanReportMapper.taskCenterlist(request, isSystem ? new ArrayList<>() : projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+            //执行历史列表
         /*List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
         if (CollectionUtils.isNotEmpty(reportIds)) {
             List<ExecuteReportDTO> historyDeletedList = extTestPlanReportMapper.getHistoryDeleted(reportIds);
             historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
         }*/
-        processTaskCenter(list, projectList, projectIds, historyDeletedMap);
+            processTaskCenter(list, projectList, projectIds, historyDeletedMap);
+        }
+
         return list;
     }
 
@@ -186,5 +190,5 @@ public class TestPlanTaskCenterService {
             throw new MSException(Translator.get("organization_not_exist"));
         }
     }
-    
+
 }

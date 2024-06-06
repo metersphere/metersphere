@@ -1,13 +1,14 @@
 package io.metersphere.api.dto.definition.request;
 
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class ApiDefinitionMockPageRequest extends BasePageRequest {
 
-    @Schema(description =  "接口 mock 名称")
+    @Schema(description = "接口 mock 名称")
     @Size(min = 1, max = 255, message = "{api_definition_mock.name.length_range}")
     private String name;
 
@@ -34,9 +35,8 @@ public class ApiDefinitionMockPageRequest extends BasePageRequest {
     private String apiDefinitionId;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.protocol.not_blank}")
-    @Size(min = 1, max = 20, message = "{api_definition.protocol.length_range}")
-    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+    @NotEmpty
+    private List<@NotBlank String> protocols = new ArrayList<>();
 
     @Schema(description = "模块ID")
     private List<@NotBlank String> moduleIds;

@@ -508,6 +508,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiRunModeRequest.setIntegratedReportName("aaaa");
         apiRunModeRequest.setPoolId("poolId");
         request.setRunModeConfig(apiRunModeRequest);
+        request.setProtocols(List.of("HTTP"));
         this.requestPostWithOk(BATCH_RUN, request);
 
         apiRunModeRequest.setIntegratedReport(false);
@@ -833,6 +834,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
         pageRequest.setCurrent(1);
+        pageRequest.setProtocols(List.of("HTTP"));
         MvcResult mvcResult = requestPostWithOkAndReturn(PAGE, pageRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
@@ -912,6 +914,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setType("Tags");
         request.setAppend(true);
         request.setSelectAll(true);
+        request.setProtocols(List.of("HTTP"));
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
@@ -1086,6 +1089,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
         pageRequest.setCurrent(1);
+        pageRequest.setProtocols(List.of("HTTP"));
         MvcResult mvcResult = requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
@@ -1137,6 +1141,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
+        request.setProtocols(List.of("HTTP"));
         requestPostWithOkAndReturn(BATCH_RECOVER, request);
 
         ApiDefinition apiDefinition = new ApiDefinition();

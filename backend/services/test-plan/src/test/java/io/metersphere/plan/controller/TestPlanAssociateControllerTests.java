@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -54,6 +55,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setTestPlanId("wxx_1");
         request.setProjectId("1234567");
+        request.setProtocols(List.of("HTTP"));
         this.requestPost(API_ASSOCIATION_URL, request);
         request.setProjectId("wx_1234");
         this.requestPost(API_ASSOCIATION_URL, request);
@@ -74,6 +76,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setProjectId("1234567");
         request.setTestPlanId("wxx_1");
+        request.setProtocols(List.of("HTTP"));
         this.requestPost(API_CASE_ASSOCIATION_URL, request);
         request.setProjectId("wx_1234");
         this.requestPost(API_CASE_ASSOCIATION_URL, request);

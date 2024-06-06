@@ -287,6 +287,13 @@
       showDrag: true,
     },
     {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'mockManagement.apiPath',
       dataIndex: 'apiPath',
       slotName: 'apiPath',
