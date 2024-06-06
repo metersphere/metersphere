@@ -25,7 +25,7 @@
           <template #arrow-icon>
             <icon-caret-down />
           </template>
-          <template #header>
+          <template v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD'])" #header>
             <a-button
               class="select-header-button mb-[4px] h-[28px] w-full justify-start pl-[7px] pr-0"
               type="text"
@@ -182,7 +182,7 @@
   import MessageCenterDrawer from '@/components/business/ms-message/MessageCenterDrawer.vue';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import TaskCenterModal from './taskCenterModal.vue';
-  import AddProjectModal from '@/views/setting/system/organizationAndProject/components/addProjectModal.vue';
+  import AddProjectModal from '@/views/setting/organization/project/components/addProjectModal.vue';
 
   import { getMessageUnReadCount } from '@/api/modules/message';
   import { switchProject } from '@/api/modules/project-management/project';
@@ -193,7 +193,7 @@
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { getFirstRouteNameByPermission } from '@/utils/permission';
+  import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
 
   import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
 
