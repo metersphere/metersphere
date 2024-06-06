@@ -2,6 +2,7 @@ package io.metersphere.plan.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.metersphere.plan.serializer.CustomRateSerializer;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -55,4 +56,8 @@ public class TestPlanStatisticsResponse {
 	private Integer apiScenarioCount = 0;
 	@Schema(description = "缺陷数量")
 	private Integer bugCount = 0;
+	@Schema(description = "定时任务配置")
+	private BaseScheduleConfigRequest scheduleConfig;
+	@Schema(description = "定时任务下一次执行时间")
+	private Long nextTriggerTime;
 }

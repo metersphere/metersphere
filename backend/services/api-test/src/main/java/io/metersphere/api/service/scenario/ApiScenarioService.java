@@ -19,10 +19,8 @@ import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
-import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
@@ -65,6 +63,7 @@ import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.ScheduleUtils;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
@@ -79,10 +78,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.quartz.CronExpression;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
-import org.quartz.TriggerBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -242,29 +237,13 @@ public class ApiScenarioService extends MoveNodeService {
                 }
                 item.setScheduleConfig(request);
                 if (schedule.getEnable()) {
-                    item.setNextTriggerTime(getNextTriggerTime(schedule.getValue()));
+                    item.setNextTriggerTime(ScheduleUtils.getNextTriggerTime(schedule.getValue()));
                 }
             }
             if (MapUtils.isNotEmpty(reportMap) && reportMap.containsKey(item.getLastReportId())) {
                 item.setScriptIdentifier(reportMap.get(item.getLastReportId()));
             }
         });
-    }
-
-    /**
-     * 获取下次执行时间（getFireTimeAfter，也可以下下次...）
-     *
-     * @param cron cron表达式
-     * @return 下次执行时间
-     */
-    private static Long getNextTriggerTime(String cron) {
-        if (!CronExpression.isValidExpression(cron)) {
-            return null;
-        }
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
-        Date time0 = trigger.getStartTime();
-        Date time1 = trigger.getFireTimeAfter(time0);
-        return time1 == null ? 0 : time1.getTime();
     }
 
     private Set<String> extractUserIds(List<ApiScenarioDTO> list) {

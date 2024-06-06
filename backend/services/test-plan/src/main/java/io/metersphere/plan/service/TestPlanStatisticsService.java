@@ -10,6 +10,13 @@ import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ScheduleResourceType;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.domain.ScheduleExample;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
+import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.utils.ScheduleUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -29,6 +36,8 @@ public class TestPlanStatisticsService {
 	private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
 	@Resource
 	private ExtTestPlanBugMapper extTestPlanBugMapper;
+	@Resource
+	private ScheduleMapper scheduleMapper;
 
 	/**
 	 * 计划的用例统计数据
@@ -83,6 +92,13 @@ public class TestPlanStatisticsService {
 		// 计划-功能用例的关联数据
 		List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
 		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
+
+		//查询定时任务
+		ScheduleExample scheduleExample = new ScheduleExample();
+		scheduleExample.createCriteria().andResourceIdIn(planIds).andResourceTypeEqualTo(ScheduleResourceType.TEST_PLAN.name());
+		List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+		Map<String, Schedule> scheduleMap = schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
+
 		// TODO: 计划-接口用例的关联数据
 		planIds.forEach(planId -> {
 			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
@@ -115,6 +131,23 @@ public class TestPlanStatisticsService {
 			statisticsResponse.setPassRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getSuccessCount(), statisticsResponse.getCaseTotal(), 2));
 			statisticsResponse.setExecuteRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount(), statisticsResponse.getCaseTotal(), 2));
 			planStatisticsResponses.add(statisticsResponse);
+
+			//定时任务
+			if (scheduleMap.containsKey(planId)) {
+				Schedule schedule = scheduleMap.get(planId);
+				BaseScheduleConfigRequest request = new BaseScheduleConfigRequest();
+				request.setEnable(schedule.getEnable());
+				request.setCron(schedule.getValue());
+				request.setResourceId(planId);
+				if (schedule.getConfig() != null) {
+					request.setRunConfig(JSON.parseObject(schedule.getConfig(), Map.class));
+				}
+				statisticsResponse.setScheduleConfig(request);
+				if (schedule.getEnable()) {
+					statisticsResponse.setNextTriggerTime(ScheduleUtils.getNextTriggerTime(schedule.getValue()));
+				}
+			}
+
 		});
 		return planStatisticsResponses;
 	}
