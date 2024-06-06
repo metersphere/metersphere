@@ -4,9 +4,11 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.uid.IDGenerator;
@@ -34,6 +36,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -102,4 +106,16 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         // TODO: 调用具体的关联场景用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
     }
 
+    @Override
+    public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections) {
+        TestPlanCollectionDTO defaultCollection = defaultCollections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.SCENARIO_CASE.getKey())
+                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().get(0);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiScenarioMapper scenarioBatchMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
+        TestPlanApiScenario record = new TestPlanApiScenario();
+        record.setTestPlanCollectionId(defaultCollection.getId());
+        TestPlanApiScenarioExample scenarioCaseExample = new TestPlanApiScenarioExample();
+        scenarioCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
+        scenarioBatchMapper.updateByExampleSelective(record, scenarioCaseExample);
+    }
 }

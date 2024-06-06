@@ -21,6 +21,7 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
@@ -108,11 +109,14 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanSendNoticeService testPlanSendNoticeService;
     @Resource
     private BugStatusService bugStatusService;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
 
     @Resource
     private ExtUserMapper extUserMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
+    @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
         List<TestPlanFunctionalCase> copyList = new ArrayList<>();
         extTestPlanFunctionalCaseMapper.selectByTestPlanIdAndNotDeleted(originalTestPlanId).forEach(originalCase -> {
@@ -653,4 +657,18 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<BaseCollectionAssociateRequest> functionals = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
         // TODO: 调用具体的关联接口用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
     }
+
+    @Override
+    public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections) {
+        TestPlanCollectionDTO defaultCollection = defaultCollections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.FUNCTIONAL_CASE.getKey())
+                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().get(0);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanFunctionalCaseMapper functionalBatchMapper = sqlSession.getMapper(TestPlanFunctionalCaseMapper.class);
+        TestPlanFunctionalCase record = new TestPlanFunctionalCase();
+        record.setTestPlanCollectionId(defaultCollection.getId());
+        TestPlanFunctionalCaseExample functionalCaseExample = new TestPlanFunctionalCaseExample();
+        functionalCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
+        functionalBatchMapper.updateByExampleSelective(record, functionalCaseExample);
+    }
+
 }
