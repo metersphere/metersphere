@@ -73,9 +73,6 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         String groupModuleId = null;
         if (!StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
-            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                throw new MSException(Translator.get("test_plan.group.error"));
-            }
             groupModuleId = groupPlan.getModuleId();
         }
 

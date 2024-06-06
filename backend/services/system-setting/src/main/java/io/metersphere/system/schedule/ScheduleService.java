@@ -113,6 +113,15 @@ public class ScheduleService {
         }
     }
 
+    public void closeIfExist(String resourceId, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
+        ScheduleExample example = new ScheduleExample();
+        example.createCriteria().andResourceIdEqualTo(resourceId).andJobEqualTo(clazz.getName());
+        Schedule updateSchedule = new Schedule();
+        updateSchedule.setEnable(false);
+        scheduleMapper.updateByExampleSelective(updateSchedule, example);
+        scheduleManager.removeJob(jobKey, triggerKey);
+    }
+
     public String scheduleConfig(ScheduleConfig scheduleConfig, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {
         Schedule schedule;
         ScheduleExample example = new ScheduleExample();
