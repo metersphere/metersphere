@@ -1,11 +1,21 @@
 <template>
   <div class="box">
     <div class="left" :class="getStyleClass()">
-      <div class="item" :class="[activeTask === 'real' ? 'active' : '']" @click="toggleTask('real')">
-        {{ t('project.taskCenter.realTimeTask') }}
-      </div>
-      <div class="item" :class="[activeTask === 'timing' ? 'active' : '']" @click="toggleTask('timing')">
-        {{ t('project.taskCenter.scheduledTask') }}
+      <div
+        v-for="item of menuTab"
+        :key="item.value"
+        :class="`${activeTask === item.value ? 'active' : ''} item flex items-center`"
+        @click="toggleTask(item.value)"
+      >
+        <div class="mr-2">
+          {{ item.label }}
+        </div>
+        <a-badge
+          v-if="getTextFunc(item.value) !== ''"
+          :class="`${item.value === activeTask ? 'active-badge' : ''} mt-[2px]`"
+          :max-count="99"
+          :text="getTextFunc(item.value)"
+        />
       </div>
     </div>
     <div class="right">
@@ -40,11 +50,20 @@
   import ScheduledTask from './scheduledTask.vue';
   import TestPlan from './testPlan.vue';
 
+  import {
+    getOrgRealTotal,
+    getOrgScheduleTotal,
+    getProjectRealTotal,
+    getProjectScheduleTotal,
+    getSystemRealTotal,
+    getSystemScheduleTotal,
+  } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
 
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
   import type { ExtractedKeys } from './utils';
+  import { on } from 'events';
 
   const { t } = useI18n();
 
@@ -94,7 +113,7 @@
     },
   ]);
 
-  const activeTask = ref(route.query.tab || 'real');
+  const activeTask = ref<string>((route.query.tab as string) || 'real');
   const activeTab = ref<ExtractedKeys>((route.query.type as ExtractedKeys) || TaskCenterEnum.API_CASE);
 
   const rightTabList = computed(() => {
@@ -117,40 +136,86 @@
   const listName = computed(() => {
     return rightTabList.value.find((item) => item.value === activeTab.value)?.label || '';
   });
+
+  export type menuType = 'real' | 'timing';
+
+  const menuTab: { value: menuType; label: string }[] = [
+    {
+      value: 'real',
+      label: t('project.taskCenter.realTimeTask'),
+    },
+    {
+      value: 'timing',
+      label: t('project.taskCenter.scheduledTask'),
+    },
+  ];
+
+  const getTotalMap: Record<menuType, any> = {
+    real: {
+      system: getSystemRealTotal,
+      organization: getOrgRealTotal,
+      project: getProjectRealTotal,
+    },
+    timing: {
+      system: getSystemScheduleTotal,
+      organization: getOrgScheduleTotal,
+      project: getProjectScheduleTotal,
+    },
+  };
+
+  const totalMap = ref<Record<menuType, number>>({
+    real: 0,
+    timing: 0,
+  });
+
+  async function getTotal() {
+    try {
+      const [timingTotal, realTotal] = await Promise.all([
+        getTotalMap.timing[props.group](),
+        getTotalMap.real[props.group](),
+      ]);
+      totalMap.value.timing = timingTotal;
+      totalMap.value.real = realTotal;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function getTextFunc(activeKey: menuType) {
+    return totalMap.value[activeKey] > 99 ? '99+' : `${totalMap.value[activeKey]}` || '';
+  }
+
+  onMounted(() => {
+    getTotal();
+  });
 </script>
 
 <style scoped lang="less">
   .box {
     display: flex;
     height: 100%;
-
     .left {
       width: 252px;
       height: 100%;
       border-right: 1px solid var(--color-text-n8);
-
       .item {
         padding: 0 20px;
         height: 38px;
         font-size: 14px;
-        line-height: 38px;
         border-radius: 4px;
         cursor: pointer;
-
         &.active {
           color: rgb(var(--primary-5));
           background: rgb(var(--primary-1));
         }
       }
     }
-
     .right {
       width: calc(100% - 300px);
       flex-grow: 1; /* 自适应 */
       height: 100%;
     }
   }
-
   .no-content {
     :deep(.arco-tabs-content) {
       padding-top: 0;

@@ -122,4 +122,5 @@ export default {
   'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': '请选择计划组',
   'testPlan.testPlanGroup.batchArchivedGroup': '确认归档：{count} 个测试计划组吗',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': '确认删除 {count} 个测试计划组吗？',
+  'testPlan.testPlanGroup.deleteScheduleTaskSuccess': '删除定时任务成功',
 };

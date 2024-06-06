@@ -108,24 +108,24 @@
           :class="`${
             record.type === testPlanTypeEnum.TEST_PLAN ? 'text-[rgb(var(--primary-5))]' : ''
           } one-line-text ${hasIndent(record)}`"
-          @click="openDetail(record.id, record.type)"
+          @click="openDetail(record.id)"
           >{{ record.num }}</div
         >
-        <!-- TODO 待联调定时任务 -->
-        <a-tooltip position="right" :disabled="record.schedule" :mouse-enter-delay="300">
+        <a-tooltip position="right" :disabled="!getSchedule(record.id)" :mouse-enter-delay="300">
           <MsTag
-            v-if="record.schedule"
+            v-if="getSchedule(record.id)"
             size="small"
-            :type="record.schedule ? 'link' : 'default'"
+            :type="getScheduleEnable(record.id) ? 'link' : 'default'"
             theme="outline"
             class="ml-2"
+            :tooltip-disabled="true"
             >{{ t('testPlan.testPlanIndex.timing') }}</MsTag
           >
           <template #content>
-            <div v-if="record.schedule">
+            <div v-if="getScheduleEnable(record.id)">
               <div>{{ t('testPlan.testPlanIndex.scheduledTaskOpened') }}</div>
               <div>{{ t('testPlan.testPlanIndex.nextExecutionTime') }}</div>
-              <div> {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}</div>
+              <div> {{ dayjs(defaultCountDetailMap[record.id]?.nextTriggerTime).format('YYYY-MM-DD HH:mm:ss') }}</div>
             </div>
             <div v-else> {{ t('testPlan.testPlanIndex.scheduledTaskUnEnable') }} </div>
           </template>
@@ -176,8 +176,8 @@
       </div>
     </template>
     <template #functionalCaseCount="{ record }">
-      <a-popover position="bottom" content-class="p-[16px]" :disabled="record.functionalCaseCount < 1">
-        <div>{{ record.functionalCaseCount }}</div>
+      <a-popover position="bottom" content-class="p-[16px]" :disabled="getFunctionalCount(record.id) < 1">
+        <div>{{ getFunctionalCount(record.id) }}</div>
         <template #content>
           <table class="min-w-[140px] max-w-[176px]">
             <tr>
@@ -185,7 +185,7 @@
                 <div>{{ t('testPlan.testPlanIndex.TotalCases') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.caseTotal }}
+                {{ defaultCountDetailMap[record.id]?.caseTotal ?? '0' }}
               </td>
             </tr>
             <tr>
@@ -193,7 +193,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.functionalUseCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.functionalCaseCount }}
+                {{ getFunctionalCount(record.id) }}
               </td>
             </tr>
             <tr>
@@ -201,7 +201,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.apiCaseCount }}
+                {{ defaultCountDetailMap[record.id]?.apiCaseCount ?? '0' }}
               </td>
             </tr>
             <tr>
@@ -209,7 +209,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiScenarioCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ record.apiScenarioCount }}
+                {{ defaultCountDetailMap[record.id]?.apiScenarioCount ?? '0' }}
               </td>
             </tr>
           </table>
@@ -221,17 +221,17 @@
       <div class="flex items-center">
         <MsButton
           v-if="
-            record.functionalCaseCount > 0 &&
+            getFunctionalCount(record.id) > 0 &&
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
             record.status !== 'ARCHIVED'
           "
           class="!mx-0"
-          @click="openDetail(record.id)"
+          @click="executePlan(record)"
           >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
         >
         <a-divider
           v-if="
-            record.functionalCaseCount > 0 &&
+            getFunctionalCount(record.id) > 0 &&
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
             record.status !== 'ARCHIVED'
           "
@@ -254,7 +254,7 @@
         <MsButton
           v-if="
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
-            record.functionalCaseCount < 1 &&
+            getFunctionalCount(record.id) < 1 &&
             record.status !== 'ARCHIVED'
           "
           class="!mx-0"
@@ -264,7 +264,7 @@
         <a-divider
           v-if="
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
-            record.functionalCaseCount < 1 &&
+            getFunctionalCount(record.id) < 1 &&
             record.status !== 'ARCHIVED'
           "
           direction="vertical"
@@ -286,9 +286,9 @@
     <template #title>
       {{ t('testPlan.testPlanIndex.batchExecution') }}
     </template>
-    <a-radio-group v-model="executeType">
-      <a-radio value="serial">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
-      <a-radio value="parallel">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
+    <a-radio-group v-model="executeForm.executeMode">
+      <a-radio value="SERIAL">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
+      <a-radio value="PARALLEL">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
     </a-radio-group>
     <template #footer>
       <div class="flex justify-end">
@@ -311,8 +311,14 @@
     :type="showType"
     @save="handleMoveOrCopy"
   />
-  <!-- TODO 待联调定时任务 -->
-  <ScheduledModal v-model:visible="showScheduledTaskModal" :type="currentPlanType" @close="resetPlanType" />
+  <!-- TODO 待联调[编辑] 字段加到统计里边 -->
+  <ScheduledModal
+    v-model:visible="showScheduledTaskModal"
+    :type="planType"
+    :source-id="planSourceId"
+    :task-config="taskForm"
+    @handle-success="fetchData()"
+  />
   <ActionModal v-model:visible="showStatusDeleteModal" :record="activeRecord" @success="fetchData()" />
   <BatchEditModal
     v-model:visible="showEditModel"
@@ -361,7 +367,9 @@
     batchDeletePlan,
     batchMovePlan,
     deletePlan,
+    deleteScheduleTask,
     dragPlanOnGroup,
+    executePlanOrGroup,
     getPlanPassRate,
     getTestPlanDetail,
     getTestPlanList,
@@ -379,6 +387,8 @@
   import type {
     AddTestPlanParams,
     BatchMoveParams,
+    CreateTask,
+    ExecutePlan,
     moduleForm,
     PassRateCountDetail,
     TestPlanItem,
@@ -414,7 +424,6 @@
 
   const isArchived = ref<boolean>(false);
   const keyword = ref<string>('');
-  const currentPlanType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE', 'PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ADD'])
@@ -685,15 +694,28 @@
     },
   ];
 
+  const defaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
+  function getFunctionalCount(id: string) {
+    return defaultCountDetailMap.value[id]?.functionalCaseCount ?? 0;
+  }
+  function getSchedule(id: string) {
+    return !!defaultCountDetailMap.value[id]?.scheduleConfig;
+  }
+  function getScheduleEnable(id: string) {
+    return defaultCountDetailMap.value[id].scheduleConfig.enable;
+  }
+
   function getMoreActions(record: TestPlanItem) {
-    const { status: planStatus, functionalCaseCount: useCount, schedule } = record;
+    const { status: planStatus } = record;
+    const useCount = defaultCountDetailMap.value[record.id]?.functionalCaseCount ?? 0;
+
     // 有用例数量才可以执行 否则不展示执行
     const copyAction =
       useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && planStatus !== 'ARCHIVED' ? copyActions : [];
-    // TODO 定时任务待联调
+
     let scheduledTaskAction: ActionsItem[] = [];
-    if (planStatus !== 'ARCHIVED') {
-      scheduledTaskAction = schedule ? updateAndDeleteScheduledActions : createScheduledActions;
+    if (planStatus !== 'ARCHIVED' && record.groupId && record.groupId === 'NONE') {
+      scheduledTaskAction = getSchedule(record.id) ? updateAndDeleteScheduledActions : createScheduledActions;
     }
     // 计划组下没有计划&计划组内计划不允许单独归档
     const archiveAction =
@@ -701,6 +723,7 @@
       (record.type === testPlanTypeEnum.TEST_PLAN && record.groupId && record.groupId !== 'NONE')
         ? []
         : archiveActions;
+
     // 已归档和已完成不展示归档
     if (planStatus === 'ARCHIVED' || planStatus === 'PREPARED' || planStatus === 'UNDERWAY') {
       return [
@@ -741,17 +764,18 @@
     draggableCondition: true,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
-    getTestPlanList,
-    tableProps.value,
-    (item) => {
-      return {
-        ...item,
-        tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
-      };
-    },
-    updatePlanName
-  );
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams, setPagination } =
+    useTable(
+      getTestPlanList,
+      tableProps.value,
+      (item) => {
+        return {
+          ...item,
+          tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
+        };
+      },
+      updatePlanName
+    );
 
   const batchParams = ref<BatchActionQueryParams>({
     selectedIds: [],
@@ -816,8 +840,6 @@
     });
   }
 
-  const defaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
-
   async function getStatistics(selectedPlanIds: (string | undefined)[]) {
     try {
       const result = await getPlanPassRate(selectedPlanIds);
@@ -829,18 +851,8 @@
       console.log(error);
     }
   }
-
-  async function fetchData() {
-    resetSelector();
-    await loadPlanList();
-    emitTableParams();
-  }
-
   // 测试计划详情
-  function openDetail(id: string, type?: keyof typeof testPlanTypeEnum) {
-    if (type && type === testPlanTypeEnum.GROUP) {
-      return;
-    }
+  function openDetail(id: string) {
     router.push({
       name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
       query: {
@@ -849,29 +861,82 @@
     });
   }
 
+  async function fetchData() {
+    resetSelector();
+    await loadPlanList();
+    emitTableParams();
+  }
+
   /**
    * 批量执行
    */
-  const executeType = ref('serial');
+  const initExecuteForm: ExecutePlan = {
+    projectId: appStore.currentProjectId,
+    executeIds: [],
+    executeMode: 'SERIAL',
+  };
+
+  const executeForm = ref<ExecutePlan>(cloneDeep(initExecuteForm));
   const executeVisible = ref<boolean>(false);
 
-  function handleExecute() {
+  function handleExecute(isBatch: boolean) {
+    if (isBatch) {
+      executeForm.value.executeIds = batchParams.value.selectedIds || [];
+    }
     executeVisible.value = true;
   }
 
   function cancelHandler() {
     executeVisible.value = false;
+    executeForm.value = cloneDeep(initExecuteForm);
   }
 
-  const confirmLoading = ref<boolean>(false);
   /**
-   * 执行 TODO 待联调
+   * 批量执行
    */
-  function executeHandler() {
+
+  const confirmLoading = ref<boolean>(false);
+
+  async function executeHandler() {
+    confirmLoading.value = true;
     try {
+      await executePlanOrGroup(executeForm.value);
+      cancelHandler();
       Message.success(t('case.detail.execute.success'));
+      fetchData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  }
+
+  // 测试计划详情
+  function executePlan(record: TestPlanItem) {
+    const { type, id } = record;
+
+    if (type === testPlanTypeEnum.GROUP) {
+      handleExecute(false);
+      executeForm.value.executeIds = [id];
+      return;
+    }
+    if (type === testPlanTypeEnum.TEST_PLAN) {
+      // 如果都为功能用例直接执行
+      if (defaultCountDetailMap.value[id]) {
+        const { apiScenarioCount, apiCaseCount } = defaultCountDetailMap.value[id];
+        if (!apiScenarioCount && !apiCaseCount) {
+          router.push({
+            name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+            query: {
+              id,
+            },
+          });
+        } else {
+          executeForm.value.executeIds = [id];
+          executeHandler();
+        }
+      }
     }
   }
 
@@ -920,6 +985,7 @@
       showBatchModal.value = false;
       fetchData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       okLoading.value = false;
@@ -1042,7 +1108,7 @@
     batchParams.value = params;
     switch (event.eventTag) {
       case 'execute':
-        handleExecute();
+        handleExecute(true);
         break;
       case 'copy':
         handleCopyOrMove('copy');
@@ -1072,17 +1138,19 @@
   }
 
   const showScheduledTaskModal = ref<boolean>(false);
+  const activeRecord = ref<TestPlanItem>();
+
+  const taskForm = ref<CreateTask>();
+  const planSourceId = ref<string>();
+  const planType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
   function handleScheduledTask(record: TestPlanItem) {
-    currentPlanType.value = record.type;
+    planType.value = record.type;
+    planSourceId.value = record.id;
+    taskForm.value = defaultCountDetailMap.value[record.id]?.scheduleConfig;
     showScheduledTaskModal.value = true;
   }
 
-  function resetPlanType() {
-    currentPlanType.value = testPlanTypeEnum.TEST_PLAN;
-  }
-
   const showStatusDeleteModal = ref<boolean>(false);
-  const activeRecord = ref<TestPlanItem>();
 
   // 计划组删除: 没有计划直接删除
   async function handleDeleteGroup(record: TestPlanItem) {
@@ -1158,6 +1226,16 @@
     }
   }
 
+  async function handleDeleteScheduled(record: TestPlanItem) {
+    try {
+      await deleteScheduleTask(record.id);
+      Message.success(t('testPlan.testPlanGroup.deleteScheduleTaskSuccess'));
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   function handleMoreActionSelect(item: ActionsItem, record: TestPlanItem) {
     switch (item.eventTag) {
       case 'copy':
@@ -1165,6 +1243,12 @@
         break;
       case 'createScheduledTask':
         handleScheduledTask(record);
+        break;
+      case 'updateScheduledTask':
+        handleScheduledTask(record);
+        break;
+      case 'deleteScheduledTask':
+        handleDeleteScheduled(record);
         break;
       case 'delete':
         deleteStatusHandler(record);
@@ -1206,6 +1290,9 @@
     (val) => {
       if (val) {
         tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val === 'ALL';
+        setPagination({
+          current: 1,
+        });
         expandedKeys.value = [];
         resetFilterParams();
         fetchData();

@@ -133,4 +133,5 @@ export default {
   'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': 'Please select the Plan group',
   'testPlan.testPlanGroup.batchArchivedGroup': 'Confirm archive: {count} test plan groups',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': 'Are you sure to delete {count} test plan groups?',
+  'testPlan.testPlanGroup.deleteScheduleTaskSuccess': 'Delete the scheduled task successfully',
 };

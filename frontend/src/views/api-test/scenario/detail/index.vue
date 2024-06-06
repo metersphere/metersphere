@@ -374,10 +374,4 @@
       .ms-scroll-bar();
     }
   }
-  :deep(.active-badge) {
-    .arco-badge-text,
-    .arco-badge-number {
-      background-color: rgb(var(--primary-5));
-    }
-  }
 </style>

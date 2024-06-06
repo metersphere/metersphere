@@ -69,12 +69,6 @@
       @apply relative right-0 top-0  transform-none shadow-none;
     }
   }
-  :deep(.active-badge) {
-    .arco-badge-text,
-    .arco-badge-number {
-      background-color: rgb(var(--primary-5));
-    }
-  }
   .no-content {
     :deep(.arco-tabs-content) {
       display: none;

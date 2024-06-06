@@ -206,7 +206,7 @@ export interface BatchUpdateCaseExecutorParams extends BatchFeatureCaseParams {
 export interface SortFeatureCaseParams extends DragSortParams {
   testPlanId: string;
 }
-
+export type RunModeType = 'SERIAL' | 'PARALLEL';
 export interface PassRateCountDetail {
   id: string;
   passThreshold: number;
@@ -221,6 +221,15 @@ export interface PassRateCountDetail {
   functionalCaseCount: number;
   apiCaseCount: number;
   apiScenarioCount: number;
+  scheduleConfig: {
+    resourceId: string;
+    enable: boolean;
+    cron: string;
+    runConfig: {
+      runMode: RunModeType;
+    };
+  };
+  nextTriggerTime: number;
 }
 
 // 执行历史
@@ -299,5 +308,17 @@ export interface PlanDetailExecuteHistoryItem {
   endTime: number;
   lastExecResult: LastExecuteResults;
   triggerMode: string;
+}
+
+export interface CreateTask {
+  resourceId: string;
+  enable: boolean;
+  cron: string;
+  runConfig: { runMode: 'SERIAL' | 'PARALLEL' };
+}
+export interface ExecutePlan {
+  projectId: string;
+  executeIds: string[];
+  executeMode: RunModeType;
 }
 export default {};

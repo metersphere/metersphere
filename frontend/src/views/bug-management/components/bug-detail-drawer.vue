@@ -788,9 +788,6 @@
       color: rgb(var(--danger-6));
     }
   }
-  :deep(.active .arco-badge-text) {
-    background: rgb(var(--primary-5));
-  }
   :deep(.tags-class .arco-form-item-label-col) {
     justify-content: flex-start !important;
   }

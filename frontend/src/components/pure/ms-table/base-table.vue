@@ -157,11 +157,11 @@
               <template v-else-if="item.showTooltip">
                 <a-input
                   v-if="
-                    editActiveKey === `${item.dataIndex}${rowIndex}` &&
+                    editActiveKey === `${record[rowKey || 'id']}` &&
                     item.editType &&
                     item.editType === ColumnEditTypeEnum.INPUT
                   "
-                  ref="currentInputRef"
+                  :ref="(el: any) => setRefMap(el, `${record[rowKey|| 'id']}`)"
                   v-model="record[item.dataIndex as string]"
                   :max-length="255"
                   @click.stop
@@ -375,8 +375,16 @@
 
   // 编辑按钮的Active状态
   const editActiveKey = ref<string>('');
+
   // 编辑项的Ref
-  const currentInputRef = ref();
+
+  const refMap = ref<Record<string, any>>({});
+  const setRefMap = (el: any, id: string) => {
+    if (el) {
+      refMap.value[id] = el;
+    }
+  };
+
   // 编辑项的初始值，用于blur时恢复旧值
   const currentEditValue = ref<string>('');
   // 是否是enter触发
@@ -543,7 +551,7 @@
         record[dataIndex] = currentEditValue.value;
       }
       isEnter.value = false;
-      currentInputRef.value = null;
+      refMap.value[record[rowKey || 'id']] = null;
       editActiveKey.value = '';
       currentEditValue.value = '';
     } else {
@@ -585,6 +593,16 @@
     emit('sorterChange', sortOrder ? { [dataIndex]: sortOrder } : {});
   };
 
+  function getCurrentList(data: TableData[], key: string, id: string) {
+    return data.find((item) => {
+      const currentChildrenIds = (item.children || []).map((e) => e[key]);
+      if (currentChildrenIds?.includes(id)) {
+        return true;
+      }
+      return false;
+    });
+  }
+
   // 拖拽排序
   const handleDragChange = (data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => {
     if (!currentData || currentData.length === 1) {
@@ -592,36 +610,60 @@
     }
 
     if (extra && extra.dragTarget?.id) {
+      let newDragData: TableData[] = data;
+      let oldDragData: TableData[] = currentData;
+
+      const newDragItem = getCurrentList(data, 'id', extra.dragTarget.id);
+      const oldDragItem = getCurrentList(currentData, 'key', extra.dragTarget.id);
+
+      if (newDragItem && newDragItem.children && oldDragItem && oldDragItem.children) {
+        newDragData = newDragItem.children;
+        oldDragData = oldDragItem.children;
+      }
+
+      let oldIndex = 0;
+      let newIndex = 0;
+
+      newIndex = newDragData.findIndex((item: any) => item.id === extra.dragTarget?.id);
+      oldIndex = oldDragData.findIndex((item: any) => item.key === extra.dragTarget?.id);
+      let position: 'AFTER' | 'BEFORE' = 'BEFORE';
+
+      position = newIndex > oldIndex ? 'AFTER' : 'BEFORE';
       const params: DragSortParams = {
         projectId: appStore.currentProjectId,
         targetId: '', // 放置目标id
-        moveMode: 'BEFORE',
+        moveMode: position,
         moveId: extra.dragTarget.id as string, // 拖拽id
       };
-      const index = currentData.findIndex((item: any) => item.key === extra.dragTarget?.id);
 
-      if (index > -1 && currentData[index + 1]) {
+      let targetIndex;
+      if (position === 'AFTER' && newIndex > 0) {
+        targetIndex = newIndex - 1;
+      } else if (position === 'AFTER') {
         params.moveMode = 'BEFORE';
-        params.targetId = currentData[index + 1].raw.id;
-      } else if (index > -1 && !currentData[index + 1]) {
-        if (index > -1 && currentData[index - 1]) {
-          params.moveMode = 'AFTER';
-          params.targetId = currentData[index - 1].raw.id;
-        }
+        targetIndex = newIndex + 1;
+      } else if (position === 'BEFORE' && newIndex < newDragData.length - 1) {
+        targetIndex = newIndex + 1;
+      } else {
+        params.moveMode = 'AFTER';
+        targetIndex = newIndex - 1;
       }
+      params.targetId = newDragData[targetIndex]?.id ?? newDragData[newIndex]?.id;
+
       emit('dragChange', params);
     }
   };
 
   // 编辑单元格的input
   const handleEdit = (dataIndex: string, rowIndex: number, record: TableData) => {
-    editActiveKey.value = dataIndex + rowIndex;
+    editActiveKey.value = record.id;
     currentEditValue.value = record[dataIndex];
-    if (currentInputRef.value) {
-      currentInputRef.value[0].focus();
+    const refKey = `${record[rowKey as string]}`;
+    if (refMap.value[refKey]) {
+      refMap.value[refKey]?.focus();
     } else {
       nextTick(() => {
-        currentInputRef.value[0].focus();
+        refMap.value[refKey]?.focus();
       });
     }
   };

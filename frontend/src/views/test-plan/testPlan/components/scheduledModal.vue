@@ -6,11 +6,15 @@
     :mask-closable="false"
   >
     <template #title>
-      {{ form.id ? t('testPlan.testPlanIndex.updateScheduledTask') : t('testPlan.testPlanIndex.createScheduledTask') }}
+      {{
+        props.taskConfig
+          ? t('testPlan.testPlanIndex.updateScheduledTask')
+          : t('testPlan.testPlanIndex.createScheduledTask')
+      }}
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item :label="t('testPlan.testPlanIndex.triggerTime')" asterisk-position="end">
-        <a-select v-model:model-value="form.time" :placeholder="t('common.pleaseSelect')">
+        <a-select v-model:model-value="form.cron" :placeholder="t('common.pleaseSelect')">
           <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value">
             <span class="text-[var(--color-text-2)]"> {{ item.value }}</span
             ><span class="ml-1 text-[var(--color-text-n4)] hover:text-[rgb(var(--primary-5))]">
@@ -39,9 +43,9 @@
         </a-radio>
         <a-radio value="new"> {{ t('testPlan.testPlanIndex.newEnv') }}</a-radio>
       </a-radio-group> -->
-      <a-radio-group v-if="props.type === testPlanTypeEnum.GROUP" v-model="form.methods">
-        <a-radio value="serial">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
-        <a-radio value="parallel">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
+      <a-radio-group v-if="props.type === testPlanTypeEnum.GROUP" v-model="form.runConfig.runMode">
+        <a-radio value="SERIAL">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
+        <a-radio value="PARALLEL">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
       </a-radio-group>
       <!-- TODO 资源池暂时不做 -->
       <!-- <a-form-item :label="t('testPlan.testPlanIndex.resourcePool')" asterisk-position="end" class="mb-0">
@@ -89,7 +93,9 @@
         </div>
         <div>
           <a-button type="secondary" class="mr-3" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-          <a-button type="primary" :loading="confirmLoading" @click="handleCreate">{{ t('common.create') }}</a-button>
+          <a-button type="primary" :loading="confirmLoading" @click="handleCreate">{{
+            props.taskConfig ? t('common.update') : t('common.create')
+          }}</a-button>
         </div>
       </div>
     </template>
@@ -99,54 +105,72 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
+  import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-
+  import { configSchedule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
 
-  import type { ResourcesItem } from '@/models/testPlan/testPlan';
+  import type { CreateTask } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
-
-  const appStore = useAppStore();
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
+    taskConfig?: CreateTask;
     type: keyof typeof testPlanTypeEnum;
+    sourceId?: string;
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
     (e: 'close'): void;
+    (e: 'handleSuccess'): void;
   }>();
+
   const showModalVisible = useVModel(props, 'visible', emit);
 
-  const initForm = {
-    id: '',
-    time: '',
-    env: '',
-    resourcePoolIds: '',
+  const initForm: CreateTask = {
+    resourceId: '',
+    cron: '',
     enable: false,
-    methods: 'parallel',
+    runConfig: { runMode: 'SERIAL' },
   };
 
-  const form = ref({ ...initForm });
+  const form = ref<CreateTask>(cloneDeep(initForm));
 
   const confirmLoading = ref<boolean>(false);
-  const formRef = ref();
-  function handleCreate() {}
-
-  function resetForm() {
-    form.value = { ...initForm };
-  }
+  const formRef = ref<FormInstance | null>(null);
 
   function handleCancel() {
     showModalVisible.value = false;
     formRef.value?.resetFields();
-    resetForm();
-    emit('close');
+    form.value = cloneDeep(initForm);
+  }
+
+  function handleCreate() {
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        confirmLoading.value = true;
+        try {
+          if (props.sourceId) {
+            const params = {
+              ...form.value,
+              resourceId: props.sourceId,
+            };
+            await configSchedule(params);
+            handleCancel();
+            emit('handleSuccess');
+            Message.success(t('common.createSuccess'));
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          confirmLoading.value = false;
+        }
+      }
+    });
   }
 
   const syncFrequencyOptions = [
@@ -156,22 +180,14 @@
     { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
   ];
 
-  const resourcesList = ref<ResourcesItem[]>([
-    {
-      id: '1',
-      name: '200.4',
-      cpuRate: '80%',
-      status: true,
-    },
-    {
-      id: '2',
-      name: 'LOCAL',
-      cpuRate: '80%',
-      status: true,
-    },
-  ]);
-
-  function createCustomFrequency() {}
+  watch(
+    () => props.taskConfig,
+    (val) => {
+      if (val) {
+        form.value = cloneDeep(val);
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">

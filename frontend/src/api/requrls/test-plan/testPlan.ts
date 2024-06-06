@@ -90,3 +90,9 @@ export const TestPlanAndGroupCopyUrl = '/test-plan/copy';
 export const TestPlanGroupOptionsUrl = 'test-plan/group-list';
 // 测试计划-拖拽测试计划
 export const dragPlanOnGroupUrl = '/test-plan/sort';
+// 测试计划-创建定时任务
+export const ConfigScheduleUrl = '/test-plan/schedule-config';
+// 测试计划-计划&计划组-执行&批量执行
+export const ExecutePlanUrl = '/test-plan-execute/start';
+// 测试计划-删除定时任务
+export const DeleteScheduleTaskUrl = 'test-plan/schedule-config-delete';

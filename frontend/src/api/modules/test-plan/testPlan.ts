@@ -12,12 +12,15 @@ import {
   batchMovePlanUrl,
   BatchRunCaseUrl,
   BatchUpdateCaseExecutorUrl,
+  ConfigScheduleUrl,
   copyTestPlanUrl,
   deletePlanUrl,
+  DeleteScheduleTaskUrl,
   DeleteTestPlanModuleUrl,
   DisassociateCaseUrl,
   dragPlanOnGroupUrl,
   ExecuteHistoryUrl,
+  ExecutePlanUrl,
   followPlanUrl,
   GenerateReportUrl,
   GetAssociatedBugUrl,
@@ -59,9 +62,11 @@ import type {
   BatchExecuteFeatureCaseParams,
   BatchFeatureCaseParams,
   BatchUpdateCaseExecutorParams,
+  CreateTask,
   DisassociateCaseParams,
   ExecuteHistoryItem,
   ExecuteHistoryType,
+  ExecutePlan,
   FollowPlanParams,
   PassRateCountDetail,
   PlanDetailApiCaseItem,
@@ -280,4 +285,16 @@ export function getPlanGroupOptions(projectId: string) {
 // 测试计划-测试计划组内拖拽
 export function dragPlanOnGroup(data: DragSortParams) {
   return MSR.post({ url: dragPlanOnGroupUrl, data });
+}
+// 测试计划-配置定时任务
+export function configSchedule(data: CreateTask) {
+  return MSR.post({ url: ConfigScheduleUrl, data });
+}
+// 测试计划-计划&计划组-执行&批量执行
+export function executePlanOrGroup(data: ExecutePlan) {
+  return MSR.post({ url: ExecutePlanUrl, data });
+}
+// 测试计划-计划&计划组-执行&批量执行
+export function deleteScheduleTask(testPlanId: string) {
+  return MSR.get({ url: `${DeleteScheduleTaskUrl}/${testPlanId}` });
 }
