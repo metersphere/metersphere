@@ -74,5 +74,5 @@ export function addUser2Group(param) {
 }
 
 export function getUserAllGroups(userId) {
-  return post(`/user/group/all`, userId);
+  return post("/user/group/all", { id: userId });
 }

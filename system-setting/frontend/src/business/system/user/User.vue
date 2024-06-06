@@ -351,7 +351,7 @@ export default {
           this.tableData = listObject;
           for (let i = 0; i < this.tableData.length; i++) {
             if (this.tableData[i].id) {
-              specialGetUserGroup(encodeURIComponent(this.tableData[i].id))
+              specialGetUserGroup(this.tableData[i].id)
                 .then(result => {
                   let data = result.data;
                   let groups = data.groups;

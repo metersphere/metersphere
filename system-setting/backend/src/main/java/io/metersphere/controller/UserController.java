@@ -61,8 +61,8 @@ public class UserController {
     }
 
     @PostMapping("/special/user/group")
-    public UserGroupPermissionDTO getUserGroup(@RequestBody String userId) {
-        return userService.getUserGroup(userId);
+    public UserGroupPermissionDTO getUserGroup(@RequestBody User user) {
+        return userService.getUserGroup(user.getId());
     }
 
     @GetMapping("/special/delete")

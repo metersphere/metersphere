@@ -99,8 +99,8 @@ public class GroupController {
 
     @PostMapping("/all")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT)
-    public List<Map<String, Object>> getAllUserGroup(@RequestBody String userId) {
-        return groupService.getAllUserGroup(userId);
+    public List<Map<String, Object>> getAllUserGroup(@RequestBody User user) {
+        return groupService.getAllUserGroup(user.getId());
     }
 
     @PostMapping("/list")
