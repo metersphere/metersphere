@@ -2,6 +2,7 @@ package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
@@ -62,4 +63,11 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
      * @param collectionAssociates 测试集关联用例参数
      */
     public abstract void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId);
+
+	/**
+	 * 初始化旧的关联资源到默认测试集
+	 * @param planId
+	 * @param defaultCollections 默认的测试集集合
+	 */
+	public abstract void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections);
 }

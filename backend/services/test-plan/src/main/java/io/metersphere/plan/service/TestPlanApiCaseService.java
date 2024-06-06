@@ -18,6 +18,7 @@ import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
@@ -515,5 +516,18 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             testPlanApiCase.setPos(getNextOrder(collectionId));
             testPlanApiCaseList.add(testPlanApiCase);
         });
+    }
+
+    @Override
+    public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections) {
+        TestPlanCollectionDTO defaultCollection = defaultCollections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.API_CASE.getKey())
+                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().get(0);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiCaseMapper apiBatchMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
+        TestPlanApiCase record = new TestPlanApiCase();
+        record.setTestPlanCollectionId(defaultCollection.getId());
+        TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
+        apiCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
+        apiBatchMapper.updateByExampleSelective(record, apiCaseExample);
     }
 }

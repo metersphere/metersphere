@@ -4,6 +4,7 @@ import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.plan.dto.TestPlanBugCaseDTO;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.TestPlanBugPageRequest;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
@@ -121,4 +122,9 @@ public class TestPlanBugService extends TestPlanResourceService {
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
         // TODO: 暂不支持缺陷关联测试集
     }
+
+	@Override
+	public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections) {
+		// 暂不支持缺陷关联测试集
+	}
 }

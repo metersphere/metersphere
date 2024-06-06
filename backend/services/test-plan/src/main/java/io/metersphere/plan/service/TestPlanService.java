@@ -42,6 +42,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -488,7 +489,32 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         Boolean isFollow = checkIsFollowCase(id, userId);
         response.setFollowFlag(isFollow);
 
+        // 是否计划已初始化默认测试集
+        TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
+        collectionExample.createCriteria().andTestPlanIdEqualTo(id);
+        if (testPlanCollectionMapper.countByExample(collectionExample) == 0) {
+            List<TestPlanCollectionDTO> collections = initDefaultPlanCollection(id, userId);
+            TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+            testPlanService.initResourceDefaultCollection(id, collections);
+        }
         return response;
+    }
+
+
+    /**
+     * 关联的资源初始化默认测试集
+     * @param planId 计划ID
+     * @param allCollections 测试集
+     */
+    @Async
+    public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> allCollections) {
+        // 批处理旧数据
+        List<TestPlanCollectionDTO> defaultCollections = new ArrayList<>();
+        allCollections.forEach(allCollection -> {
+            defaultCollections.addAll(allCollection.getChildren());
+        });
+        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+        beansOfType.forEach((k, v) -> v.initResourceDefaultCollection(planId, defaultCollections));
     }
 
 
@@ -853,9 +879,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
             collectionDTOS.add(parentCollectionDTO);
         }
-        testPlanCollectionMapper.batchInsertSelective(collections, TestPlanCollection.Column.id, TestPlanCollection.Column.testPlanId,
-                TestPlanCollection.Column.parentId, TestPlanCollection.Column.name, TestPlanCollection.Column.type, TestPlanCollection.Column.testResourcePoolId,
-                TestPlanCollection.Column.createUser, TestPlanCollection.Column.createTime, TestPlanCollection.Column.pos);
+        testPlanCollectionMapper.batchInsert(collections);
 
         return collectionDTOS;
     }
