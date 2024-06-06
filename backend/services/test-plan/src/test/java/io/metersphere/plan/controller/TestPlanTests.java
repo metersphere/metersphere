@@ -8,6 +8,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportMapper;
@@ -1365,10 +1366,23 @@ public class TestPlanTests extends BaseTest {
         this.requestGet(String.format(URL_POST_TEST_PLAN_SCHEDULE_DELETE, groupTestPlanId7)).andExpect(status().is5xxServerError());
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
+        //正是测试
         MvcResult result = this.requestPostAndReturn(URL_POST_TEST_PLAN_SCHEDULE, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         String scheduleId = resultHolder.getData().toString();
         testPlanTestService.checkSchedule(scheduleId, groupTestPlanId7, request.isEnable());
+        //检查统计接口查询的是否正确
+        List<TestPlanStatisticsResponse> statisticsResponses = JSON.parseArray(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, List.of(groupTestPlanId7))
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanStatisticsResponse.class);
+        Assertions.assertTrue(statisticsResponses.size() == 1);
+        Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() > 0);
+        Assertions.assertTrue(statisticsResponses.getFirst().getScheduleConfig().isEnable());
+
 
         //增加日志检查
         LOG_CHECK_LIST.add(
@@ -1383,6 +1397,17 @@ public class TestPlanTests extends BaseTest {
         //检查两个scheduleId是否相同
         Assertions.assertEquals(scheduleId, newScheduleId);
         testPlanTestService.checkSchedule(newScheduleId, groupTestPlanId7, request.isEnable());
+        //检查统计接口查询的是否正确
+        statisticsResponses = JSON.parseArray(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, List.of(groupTestPlanId7))
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanStatisticsResponse.class);
+        Assertions.assertTrue(statisticsResponses.size() == 1);
+        Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() == null);
+        Assertions.assertFalse(statisticsResponses.getFirst().getScheduleConfig().isEnable());
+
 
         //测试各种corn表达式用于校验正则的准确性
         String[] cornStrArr = new String[]{
@@ -1451,6 +1476,16 @@ public class TestPlanTests extends BaseTest {
         //测试删除
         this.requestGetWithOk(String.format(URL_POST_TEST_PLAN_SCHEDULE_DELETE, groupTestPlanId7));
         testPlanTestService.checkScheduleIsRemove(groupTestPlanId7);
+        //检查统计接口查询的是否正确
+        statisticsResponses = JSON.parseArray(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, List.of(groupTestPlanId7))
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanStatisticsResponse.class);
+        Assertions.assertTrue(statisticsResponses.size() == 1);
+        Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() == null);
+        Assertions.assertTrue(statisticsResponses.getFirst().getScheduleConfig() == null);
     }
 
     @Test
