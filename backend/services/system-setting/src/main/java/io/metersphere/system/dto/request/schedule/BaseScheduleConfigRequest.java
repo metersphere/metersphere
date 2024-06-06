@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 public class BaseScheduleConfigRequest {
     @NotBlank(message = "{api_scenario.id.not_blank}")
@@ -18,4 +21,7 @@ public class BaseScheduleConfigRequest {
     @Schema(description = "Cron表达式")
     @NotBlank
     private String cron;
+
+    @Schema(description = "运行配置")
+    private Map<String, String> runConfig = new HashMap<>();
 }

@@ -13,10 +13,7 @@ import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.domain.User;
@@ -753,6 +750,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 .enable(request.isEnable())
                 .cron(request.getCron())
                 .resourceType(ScheduleResourceType.TEST_PLAN.name())
+                .config(JSON.toJSONString(request.getRunConfig()))
                 .build();
 
         if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {

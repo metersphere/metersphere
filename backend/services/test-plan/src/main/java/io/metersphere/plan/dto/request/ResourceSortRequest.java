@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class ResourceSortRequest extends PosRequest {
-    @Schema(description = "测试计划ID")
+    @Schema(description = "测试集ID")
     @NotBlank(message = "{test_plan.id.not_blank}")
-    private String testPlanId;
+    private String testCollectionId;
 }
 

@@ -189,13 +189,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getMoveId());
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestCollectionId());
         if (dragNode == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
         TestPlanOperationResponse response = new TestPlanOperationResponse();
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
-                request.getTestPlanId(),
+                request.getTestCollectionId(),
                 super.getNodeMoveRequest(request, true),
                 extTestPlanFunctionalCaseMapper::selectDragInfoById,
                 extTestPlanFunctionalCaseMapper::selectNodeByPosOperator
