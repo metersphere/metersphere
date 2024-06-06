@@ -191,7 +191,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
             TestPlanConfig newTestPlanConfig = new TestPlanConfig();
             BeanUtils.copyBean(newTestPlanConfig, originalTestPlanConfig);
             newTestPlanConfig.setTestPlanId(testPlan.getId());
-            testPlanConfigMapper.insert(newTestPlanConfig);
+            testPlanConfigMapper.insertSelective(newTestPlanConfig);
         }
 
         //todo 测试规划信息

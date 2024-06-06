@@ -71,6 +71,7 @@
         t.type,
         t.description,
         t.pos,
+        t.group_id AS parent,
         t.tags
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id

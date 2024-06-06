@@ -12,29 +12,31 @@ import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TreeTypeEnums;
-import io.metersphere.plan.domain.TestPlanApiCase;
-import io.metersphere.plan.domain.TestPlanApiCaseExample;
-import io.metersphere.plan.domain.TestPlanCollection;
-import io.metersphere.plan.domain.TestPlanCollectionExample;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
+import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -63,6 +65,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanApiCaseService extends TestPlanResourceService {
+
+    @Resource
+    private TestPlanMapper testPlanMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
@@ -86,6 +91,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private TestPlanResourceLogService testPlanResourceLogService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -106,8 +113,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     @Override
     public void updatePos(String id, long pos) {
-        //        todo
-        //        extTestPlanApiCaseMapper.updatePos(id, pos);
+        extTestPlanApiCaseMapper.updatePos(id, pos);
     }
 
     @Override
@@ -142,15 +148,14 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     @Override
     public void refreshPos(String testPlanId) {
-        //        todo
-        //        List<String> caseIdList = extTestPlanApiCaseMapper.selectIdByTestPlanIdOrderByPos(testPlanId);
-        //        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        //        ExtTestPlanApiCaseMapper batchUpdateMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
-        //        for (int i = 0; i < caseIdList.size(); i++) {
-        //            batchUpdateMapper.updatePos(caseIdList.get(i), i * DEFAULT_NODE_INTERVAL_POS);
-        //        }
-        //        sqlSession.flushStatements();
-        //        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        List<String> caseIdList = extTestPlanApiCaseMapper.selectIdByTestPlanIdOrderByPos(testPlanId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtTestPlanApiCaseMapper batchUpdateMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
+        for (int i = 0; i < caseIdList.size(); i++) {
+            batchUpdateMapper.updatePos(caseIdList.get(i), i * DEFAULT_NODE_INTERVAL_POS);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     /**
@@ -540,5 +545,24 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
         apiCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
         apiBatchMapper.updateByExampleSelective(record, apiCaseExample);
+    }
+
+    public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
+        TestPlanApiCase dragNode = testPlanApiCaseMapper.selectByPrimaryKey(request.getMoveId());
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestCollectionId());
+        if (dragNode == null) {
+            throw new MSException(Translator.get("test_plan.drag.node.error"));
+        }
+        TestPlanOperationResponse response = new TestPlanOperationResponse();
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                request.getTestCollectionId(),
+                super.getNodeMoveRequest(request, true),
+                extTestPlanApiCaseMapper::selectDragInfoById,
+                extTestPlanApiCaseMapper::selectNodeByPosOperator
+        );
+        super.sort(sortDTO);
+        response.setOperationCount(1);
+        testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
+        return response;
     }
 }

@@ -4,10 +4,10 @@ VALUES
     ('wxxx_2', 10000, 'wxx_1234', 'NONE', '1', 'eeew', 'PREPARED', 'TEST_PLAN', NULL, 1714980158000, 'WX', 1714980158000, 'WX', 1714980158000, 1714980158000, 1714980158000, 1714980158000, '11');
 
 
-INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`)
-VALUES
-    ('wxxx_1', b'0', b'0', 100),
-    ('wxxx_2', b'0', b'0', 100);
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`,
+                               `case_run_mode`)
+VALUES ('wxxx_1', b'0', b'0', 100, 'PARALLEL'),
+       ('wxxx_2', b'0', b'0', 100, 'PARALLEL');
 
 
 INSERT INTO `api_definition`(`id`, `name`, `protocol`, `method`, `path`, `status`, `num`, `tags`, `pos`, `project_id`, `module_id`, `latest`, `version_id`, `ref_id`, `description`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_user`, `delete_time`, `deleted`)

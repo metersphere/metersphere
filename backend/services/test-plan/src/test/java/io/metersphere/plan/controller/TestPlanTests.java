@@ -119,7 +119,8 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_BATCH_DELETE = "/test-plan/batch-delete";
     private static final String URL_POST_TEST_PLAN_SCHEDULE = "/test-plan/schedule-config";
     private static final String URL_POST_TEST_PLAN_SCHEDULE_DELETE = "/test-plan/schedule-config-delete/%s";
-    private static final String URL_POST_TEST_PLAN_EXECUTE = "/test-plan-execute/start";
+    private static final String URL_POST_TEST_PLAN_SINGLE_EXECUTE = "/test-plan-execute/single";
+    private static final String URL_POST_TEST_PLAN_BATCH_EXECUTE = "/test-plan-execute/batch";
 
     //测试计划资源-功能用例
     private static final String URL_POST_RESOURCE_CASE_ASSOCIATION = "/test-plan/association";
@@ -1492,13 +1493,21 @@ public class TestPlanTests extends BaseTest {
     @Order(71)
     public void executeTest() throws Exception {
         TestPlanExecuteRequest executeRequest = new TestPlanExecuteRequest();
-        executeRequest.setExecuteIds(Collections.singletonList(groupTestPlanId7));
-        executeRequest.setProjectId(project.getId());
+        executeRequest.setExecuteId(groupTestPlanId7);
         //串行
-        this.requestPostWithOk(URL_POST_TEST_PLAN_EXECUTE, executeRequest);
+        this.requestPostWithOk(URL_POST_TEST_PLAN_SINGLE_EXECUTE, executeRequest);
         //并行
-        executeRequest.setExecuteMode(ApiBatchRunMode.PARALLEL.name());
-        this.requestPostWithOk(URL_POST_TEST_PLAN_EXECUTE, executeRequest);
+        executeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        this.requestPostWithOk(URL_POST_TEST_PLAN_SINGLE_EXECUTE, executeRequest);
+
+        TestPlanBatchExecuteRequest batchExecuteRequest = new TestPlanBatchExecuteRequest();
+        batchExecuteRequest.setExecuteIds(Collections.singletonList(groupTestPlanId7));
+        batchExecuteRequest.setProjectId(project.getId());
+        //串行
+        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_EXECUTE, batchExecuteRequest);
+        //并行
+        batchExecuteRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_EXECUTE, batchExecuteRequest);
     }
     @Test
     @Order(81)

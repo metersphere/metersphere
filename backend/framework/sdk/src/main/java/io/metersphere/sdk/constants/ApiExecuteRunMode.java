@@ -27,5 +27,5 @@ public enum ApiExecuteRunMode {
     /**
      * 定时任务
      */
-    SCENARIO
+    SCHEDULE
 }

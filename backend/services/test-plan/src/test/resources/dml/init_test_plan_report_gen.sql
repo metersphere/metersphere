@@ -2,9 +2,10 @@
 INSERT INTO `test_plan`(`id`, `num`, `project_id`, `group_id`, `module_id`, `name`, `status`, `type`, `tags`, `create_time`, `create_user`, `update_time`, `update_user`, `planned_start_time`, `planned_end_time`, `actual_start_time`, `actual_end_time`, `description`) VALUES
 ('plan_id_for_gen_report', 100001, '100001100001', 'NONE', '1', 'gen-report-plan', 'PREPARED', 'TEST_PLAN', NULL, CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '11'),
 ('plan_id_for_gen_report_1', 100001, '100001100001', 'NONE', '1', 'gen-report-plan-1', 'PREPARED', 'TEST_PLAN', NULL, CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '11');
-INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`) VALUES
-('plan_id_for_gen_report', b'0', b'0', 100.00),
-('plan_id_for_gen_report_1', b'0', b'0', 0.00);
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`,
+                               'case_run_mode')
+VALUES ('plan_id_for_gen_report', b'0', b'0', 100.00, 'PARALLEL'),
+       ('plan_id_for_gen_report_1', b'0', b'0', 0.00, 'PARALLEL');
 
 -- 计划关联用例执行的测试数据
 INSERT INTO `test_plan_functional_case` (`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`, `test_plan_collection_id`) VALUES

@@ -159,8 +159,12 @@ ALTER TABLE api_scenario_report DROP INDEX idx_test_plan_id;
 CREATE INDEX idx_test_plan_scenario_id ON api_scenario_report(test_plan_scenario_id);
 ALTER TABLE api_scenario_report ADD COLUMN `plan` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是测试计划整体执行';
 CREATE INDEX idx_plan ON api_scenario_report(`plan`);
+
+-- 测试计划配置 增加运行模式
+ALTER table test_plan_config
+    ADD COLUMN `case_run_mode` VARCHAR(50) NOT NULL DEFAULT 'PARALLEL' COMMENT '不同用例之间的执行方式(串行/并行)';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
-
 
 

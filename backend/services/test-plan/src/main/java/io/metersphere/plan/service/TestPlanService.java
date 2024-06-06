@@ -142,7 +142,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
 
         testPlanMapper.insert(createTestPlan);
-        testPlanConfigMapper.insert(testPlanConfig);
+        testPlanConfigMapper.insertSelective(testPlanConfig);
         return createTestPlan;
     }
 
@@ -307,10 +307,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         //删除测试计划报告 todo: 正式版增加接口用例报告、接口场景报告的清理
         testPlanReportService.deleteByTestPlanIds(testPlanIds);
-        /*
-        todo
-            删除计划定时任务
-         */
+        //删除定时任务
+        scheduleService.deleteByResourceIds(testPlanIds, TestPlanScheduleJob.class.getName());
     }
 
 
@@ -622,12 +620,25 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param userId
      */
     public void batchEdit(TestPlanBatchEditRequest request, String userId) {
+
         // 目前计划的批量操作不支持全选所有页
         List<String> ids = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(ids)) {
-            User user = userMapper.selectByPrimaryKey(userId);
-            handleTags(request, userId, ids);
-            testPlanSendNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
+            if (StringUtils.equalsIgnoreCase(request.getEditColumn(), "SCHEDULE")) {
+                TestPlanExample example = new TestPlanExample();
+                example.createCriteria().andIdIn(ids).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+                List<TestPlan> testPlanList = testPlanMapper.selectByExample(example);
+                //批量编辑定时任务
+                for (TestPlan testPlan : testPlanList) {
+                    scheduleService.updateIfExist(testPlan.getId(), request.isScheduleOpen(), TestPlanScheduleJob.getJobKey(testPlan.getId()),
+                            TestPlanScheduleJob.getTriggerKey(testPlan.getId()), TestPlanScheduleJob.class, userId);
+                }
+            } else {
+                //默认编辑tags
+                User user = userMapper.selectByPrimaryKey(userId);
+                handleTags(request, userId, ids);
+                testPlanSendNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
+            }
         }
     }
 
@@ -750,7 +761,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlan.setStatus(testPlanFinalStatus);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
 
-        List<TestPlan> childPlan = this.selectChildPlanByGroupId(testPlanId);
+        List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlanId);
         if (CollectionUtils.isNotEmpty(childPlan)) {
             TestPlan updateGroupPlan = new TestPlan();
             updateGroupPlan.setId(testPlanId);
@@ -787,11 +798,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             //配置开启的测试计划组定时任务，要将组下的所有测试计划定时任务都关闭掉
-            List<TestPlan> children = this.selectChildPlanByGroupId(testPlan.getId());
+            List<TestPlan> children = this.selectNotArchivedChildren(testPlan.getId());
             for (TestPlan child : children) {
-                scheduleService.closeIfExist(child.getId(), TestPlanScheduleJob.getJobKey(testPlan.getId()),
+                scheduleService.updateIfExist(child.getId(), false, TestPlanScheduleJob.getJobKey(testPlan.getId()),
                         TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
-                        TestPlanScheduleJob.class);
+                        TestPlanScheduleJob.class, operator);
             }
         }
 
@@ -811,7 +822,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         return extTestPlanMapper.selectNotArchivedIds(executeIds);
     }
 
-    public List<TestPlan> selectChildPlanByGroupId(String testPlanGroupId) {
+    public List<TestPlan> selectNotArchivedChildren(String testPlanGroupId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andGroupIdEqualTo(testPlanGroupId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         example.setOrderByClause("pos asc");
