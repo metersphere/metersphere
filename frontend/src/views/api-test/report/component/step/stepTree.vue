@@ -172,7 +172,6 @@
                   :step-item="step"
                   :console="props.console"
                   :is-definition="true"
-                  :environment-name="props.environmentName"
                   :show-type="props.showType"
                   :is-response-model="true"
                   :report-id="props?.reportId"
@@ -221,7 +220,6 @@
     showType: 'API' | 'CASE';
     activeType: 'tiled' | 'tab';
     console?: string;
-    environmentName?: string;
     reportId?: string;
     expandedKeys: (string | number)[];
   }>();

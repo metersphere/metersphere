@@ -14,7 +14,6 @@
       :active-type="props.activeType"
       :expand-all="isExpandAll"
       :console="props.reportDetail.console"
-      :environment-name="props.reportDetail.environmentName"
       :report-id="props.reportDetail.id"
       @detail="showDetail"
     />
@@ -26,7 +25,6 @@
       :scenario-detail="scenarioDetail"
       :show-type="props.showType"
       :console="props.reportDetail.console"
-      :environment-name="props.reportDetail.environmentName"
       :report-id="props.reportDetail.id"
     />
   </div>

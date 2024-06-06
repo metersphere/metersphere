@@ -23,7 +23,6 @@
         :step-item="props.scenarioDetail"
         :console="props.console"
         :is-definition="true"
-        :environment-name="props.environmentName"
         :report-id="props.scenarioDetail?.reportId"
       />
     </div>
@@ -37,12 +36,9 @@
   import ConditionStatus from '../conditionStatus.vue';
   import StepDetailContent from '@/views/api-test/components/requestComposition/response/result/index.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
-
   import type { ScenarioItemType } from '@/models/apiTest/report';
   import { ScenarioStepType } from '@/enums/apiEnum';
 
-  const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     stepId: string;
@@ -50,7 +46,6 @@
     scenarioDetail?: ScenarioItemType;
     showType: 'API' | 'CASE'; // 接口场景|用例
     console?: string; //  控制台
-    environmentName?: string; // 环境名称
   }>();
 
   const emit = defineEmits<{
