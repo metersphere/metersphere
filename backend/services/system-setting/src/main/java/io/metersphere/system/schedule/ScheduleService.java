@@ -113,13 +113,25 @@ public class ScheduleService {
         }
     }
 
-    public void closeIfExist(String resourceId, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
+    public void updateIfExist(String resourceId, boolean enable, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(resourceId).andJobEqualTo(clazz.getName());
-        Schedule updateSchedule = new Schedule();
-        updateSchedule.setEnable(false);
-        scheduleMapper.updateByExampleSelective(updateSchedule, example);
-        scheduleManager.removeJob(jobKey, triggerKey);
+        List<Schedule> scheduleList = scheduleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(scheduleList)) {
+            Schedule schedule = scheduleList.getFirst();
+            if (!schedule.getEnable().equals(enable)) {
+                schedule.setEnable(enable);
+                schedule.setUpdateTime(System.currentTimeMillis());
+                scheduleMapper.updateByExampleSelective(schedule, example);
+                apiScheduleNoticeService.sendScheduleNotice(schedule, operator);
+                if (enable) {
+                    scheduleManager.addCronJob(jobKey, triggerKey, clazz, schedule.getValue(),
+                            scheduleManager.getDefaultJobDataMap(schedule, schedule.getValue(), schedule.getCreateUser()));
+                } else {
+                    scheduleManager.removeJob(jobKey, triggerKey);
+                }
+            }
+        }
     }
 
     public String scheduleConfig(ScheduleConfig scheduleConfig, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {

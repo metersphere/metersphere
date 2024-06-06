@@ -43,11 +43,11 @@ INSERT INTO `test_plan_module`(`id`, `project_id`, `name`, `parent_id`, `pos`, `
 VALUES ('1', 'songtianyang-fix-wx', 'wx_测试模块名称', 'ROOT', 1, 1714980158000, 1714980158000, 'admin', 'admin');
 
 
-INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`)
-VALUES
-    ('wx_test_plan_id_1', b'0', b'0', 100),
-    ('wx_test_plan_id_4', b'0', b'0', 100),
-    ('wx_test_plan_id_7', b'0', b'0', 100);
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`,
+                               'case_run_mode')
+VALUES ('wx_test_plan_id_1', b'0', b'0', 100, 'PARALLEL'),
+       ('wx_test_plan_id_4', b'0', b'0', 100, 'PARALLEL'),
+       ('wx_test_plan_id_7', b'0', b'0', 100, 'PARALLEL');
 
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)

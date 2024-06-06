@@ -58,7 +58,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
 
         ApiResourceRunRequest runRequest = apiScenarioRunService.getApiResourceRunRequest(msScenario, tmpParam);
 
-        TaskRequestDTO taskRequest = apiScenarioRunService.getTaskRequest(IDGenerator.nextStr(), apiScenarioDetail.getId(), apiScenarioDetail.getProjectId(), ApiExecuteRunMode.SCENARIO.name());
+        TaskRequestDTO taskRequest = apiScenarioRunService.getTaskRequest(IDGenerator.nextStr(), apiScenarioDetail.getId(), apiScenarioDetail.getProjectId(), ApiExecuteRunMode.SCHEDULE.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
         taskInfo.getRunModeConfig().setPoolId(apiRunModeConfigDTO.getPoolId());

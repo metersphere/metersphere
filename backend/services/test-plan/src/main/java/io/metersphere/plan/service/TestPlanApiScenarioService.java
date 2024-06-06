@@ -1,18 +1,25 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
+import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
+import io.metersphere.plan.dto.request.ResourceSortRequest;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
-import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.project.dto.MoveNodeSortDTO;
+import io.metersphere.sdk.constants.TestPlanResourceConstants;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -34,6 +41,10 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
+    private TestPlanResourceLogService testPlanResourceLogService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -43,14 +54,18 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     @Override
-    public long getNextOrder(String projectId) {
-        return 0;
+    public long getNextOrder(String collectionId) {
+        Long maxPos = extTestPlanApiScenarioMapper.getMaxPosByRangeId(collectionId);
+        if (maxPos == null) {
+            return 0;
+        } else {
+            return maxPos + DEFAULT_NODE_INTERVAL_POS;
+        }
     }
 
     @Override
     public void updatePos(String id, long pos) {
-        //        todo
-        //        extTestPlanApiScenarioMapper.updatePos(id, pos);
+        extTestPlanApiScenarioMapper.updatePos(id, pos);
     }
 
     @Override
@@ -102,4 +117,22 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         // TODO: 调用具体的关联场景用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
     }
 
+    public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
+        TestPlanApiScenario dragNode = testPlanApiScenarioMapper.selectByPrimaryKey(request.getMoveId());
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestCollectionId());
+        if (dragNode == null) {
+            throw new MSException(Translator.get("test_plan.drag.node.error"));
+        }
+        TestPlanOperationResponse response = new TestPlanOperationResponse();
+        MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
+                request.getTestCollectionId(),
+                super.getNodeMoveRequest(request, true),
+                extTestPlanApiScenarioMapper::selectDragInfoById,
+                extTestPlanApiScenarioMapper::selectNodeByPosOperator
+        );
+        super.sort(sortDTO);
+        response.setOperationCount(1);
+        testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
+        return response;
+    }
 }

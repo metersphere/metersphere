@@ -832,7 +832,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         planConfig.setRepeatCase(false);
         planConfig.setAutomaticStatusUpdate(false);
         request.setTestPlanId("wx_123");
-        testPlanConfigMapper.insert(planConfig);
+        testPlanConfigMapper.insertSelective(planConfig);
         this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
     }
 
