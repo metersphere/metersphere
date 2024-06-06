@@ -599,9 +599,9 @@
     </select>
 
     <sql id="queryWhereConditionByBatchQueryRequest">
-        <if test="protocols != null and protocols.size() > 0">
+        <if test="request.protocols != null and request.protocols.size() > 0">
             and a.protocol in
-            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
                 #{protocol}
             </foreach>
         </if>

@@ -1,5 +1,6 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
@@ -26,6 +27,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String API_CASE_TREE_COUNT = "/test-plan/api/case/module/count";
     public static final String API_CASE_TREE_MODULE_TREE = "/test-plan/api/case/tree/";
     public static final String API_CASE_DISASSOCIATE = "/test-plan/api/case/disassociate";
+    public static final String API_CASE_BATCH_DISASSOCIATE = "/test-plan/api/case/batch/disassociate";
     public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/api/case/batch/update/executor";
 
     @Test
@@ -103,5 +105,20 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of("wxxx_1"));
         this.requestPostWithOk(API_CASE_BATCH_UPDATE_EXECUTOR_URL, request);
+    }
+
+
+    @Test
+    @Order(6)
+    public void testApiCaseBatchDisassociate() throws Exception {
+        TestPlanApiCaseBatchRequest request = new TestPlanApiCaseBatchRequest();
+        request.setTestPlanId("wxxx_2");
+        request.setProtocols(List.of("HTTP"));
+        request.setSelectAll(true);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_BATCH_DISASSOCIATE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
     }
 }

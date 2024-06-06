@@ -2,7 +2,7 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanDisassociationRequest;
@@ -75,19 +75,31 @@ public class TestPlanApiCaseController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse disassociate(@Validated @RequestBody TestPlanDisassociationRequest request) {
-        BasePlanCaseBatchRequest batchRequest = new BasePlanCaseBatchRequest();
+        TestPlanApiCaseBatchRequest batchRequest = new TestPlanApiCaseBatchRequest();
         batchRequest.setTestPlanId(request.getTestPlanId());
         batchRequest.setSelectIds(List.of(request.getId()));
-        TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/association", HttpMethodConstants.POST.name()));
+        TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/disassociate", HttpMethodConstants.POST.name()));
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
+
+
+    @PostMapping("/batch/disassociate")
+    @Operation(summary = "测试计划-计划详情-列表-批量取消关联用例")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody TestPlanApiCaseBatchRequest request) {
+        TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/batch/disassociate", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
+        return response;
+    }
+
 
     @PostMapping("/batch/update/executor")
     @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiCaseLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiCaseLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanApiCaseUpdateRequest request) {
         testPlanApiCaseService.batchUpdateExecutor(request);
     }

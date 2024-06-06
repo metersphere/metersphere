@@ -91,7 +91,7 @@ public class TestPlanFunctionalCaseController {
         BasePlanCaseBatchRequest batchRequest = new BasePlanCaseBatchRequest();
         batchRequest.setTestPlanId(request.getTestPlanId());
         batchRequest.setSelectIds(List.of(request.getId()));
-        TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/disassociate", HttpMethodConstants.POST.name()));
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
@@ -102,7 +102,7 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody BasePlanCaseBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
-        TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/disassociate", HttpMethodConstants.POST.name()));
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
