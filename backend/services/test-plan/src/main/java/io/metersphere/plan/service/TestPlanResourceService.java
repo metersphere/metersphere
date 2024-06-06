@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.mapper.TestPlanMapper;
@@ -53,4 +54,11 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
     }
 
     public abstract long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime);
+
+    /**
+     * 关联用例
+     * @param planId 计划ID
+     * @param collectionAssociates 测试集关联用例参数
+     */
+    public abstract void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates);
 }

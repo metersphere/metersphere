@@ -21,6 +21,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -361,6 +362,16 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
             extTestPlanApiCaseMapper.batchUpdateExecutor(ids, request.getUserId());
+        }
+    }
+
+    @Override
+    public void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates) {
+        List<BaseCollectionAssociateRequest> apiAssociates = collectionAssociates.stream().filter(associate -> StringUtils.equals(associate.getType(), CaseType.API_CASE.getKey())).toList();
+        if (CollectionUtils.isNotEmpty(apiAssociates)) {
+            apiAssociates.forEach(apiAssociate -> {
+                // TODO: 调用具体的关联功能用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
+            });
         }
     }
 }

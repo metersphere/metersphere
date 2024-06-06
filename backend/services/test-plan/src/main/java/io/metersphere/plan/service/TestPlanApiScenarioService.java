@@ -3,11 +3,15 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -91,5 +95,14 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         //        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
+    @Override
+    public void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates) {
+        List<BaseCollectionAssociateRequest> scenarioAssociates = collectionAssociates.stream().filter(associate -> StringUtils.equals(associate.getType(), CaseType.SCENARIO_CASE.getKey())).toList();
+        if (CollectionUtils.isNotEmpty(scenarioAssociates)) {
+            scenarioAssociates.forEach(scenarioAssociate -> {
+                // TODO: 调用具体的关联场景用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
+            });
+        }
+    }
 
 }

@@ -92,6 +92,12 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     private static final int MAX_TAG_SIZE = 10;
     private static final int MAX_CHILDREN_COUNT = 20;
@@ -854,5 +860,38 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 TestPlanCollection.Column.createUser, TestPlanCollection.Column.createTime, TestPlanCollection.Column.pos);
 
         return collectionDTOS;
+    }
+
+    /**
+     * 删除测试集资源 (删除测试集及所关联的关联用例)
+     */
+    public void deletePlanCollectionResource(List<String> collectionIds) {
+        TestPlanCollectionExample example = new TestPlanCollectionExample();
+        example.createCriteria().andIdIn(collectionIds);
+        List<TestPlanCollection> collections = testPlanCollectionMapper.selectByExample(example);
+        List<TestPlanCollection> functionalCollections = collections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.FUNCTIONAL_CASE.getKey())).toList();
+        List<TestPlanCollection> apiCollections = collections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.API_CASE.getKey())).toList();
+        List<TestPlanCollection> scenarioCollections = collections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.SCENARIO_CASE.getKey())).toList();
+        if (CollectionUtils.isNotEmpty(functionalCollections)) {
+            // 删除{计划集-功能用例}关系
+            TestPlanFunctionalCaseExample functionalCaseExample = new TestPlanFunctionalCaseExample();
+            functionalCaseExample.createCriteria().andTestPlanCollectionIdIn(functionalCollections.stream().map(TestPlanCollection::getId).toList());
+            testPlanFunctionalCaseMapper.deleteByExample(functionalCaseExample);
+        }
+        if (CollectionUtils.isNotEmpty(apiCollections)) {
+            // 删除{计划集-接口用例}关系
+            TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
+            apiCaseExample.createCriteria().andTestPlanCollectionIdIn(apiCollections.stream().map(TestPlanCollection::getId).toList());
+            testPlanApiCaseMapper.deleteByExample(apiCaseExample);
+        }
+        if (CollectionUtils.isNotEmpty(scenarioCollections)) {
+            // 删除{计划集-场景用例}关系
+            TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
+            scenarioExample.createCriteria().andTestPlanCollectionIdIn(scenarioCollections.stream().map(TestPlanCollection::getId).toList());
+            testPlanApiScenarioMapper.deleteByExample(scenarioExample);
+        }
+
+        // 删除测试集
+        testPlanCollectionMapper.deleteByExample(example);
     }
 }

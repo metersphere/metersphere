@@ -646,4 +646,14 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public List<UserDTO> getExecUserList(String projectId, String keyword) {
         return extUserMapper.getUserByKeyword(projectId, keyword);
     }
+
+    @Override
+    public void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates) {
+        List<BaseCollectionAssociateRequest> functionalAssociates = collectionAssociates.stream().filter(associate -> StringUtils.equals(associate.getType(), CaseType.FUNCTIONAL_CASE.getKey())).toList();
+        if (CollectionUtils.isNotEmpty(functionalAssociates)) {
+            functionalAssociates.forEach(functionalAssociate -> {
+                // TODO: 调用具体的关联接口用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
+            });
+        }
+    }
 }
