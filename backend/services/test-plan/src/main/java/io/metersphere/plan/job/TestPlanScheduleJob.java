@@ -3,6 +3,7 @@ package io.metersphere.plan.job;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.service.TestPlanExecuteService;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.schedule.BaseScheduleJob;
@@ -10,7 +11,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class TestPlanScheduleJob extends BaseScheduleJob {
@@ -21,9 +21,10 @@ public class TestPlanScheduleJob extends BaseScheduleJob {
         assert testPlanExecuteService != null;
         Map<String, String> runConfig = JSON.parseObject(context.getJobDetail().getJobDataMap().get("config").toString(), Map.class);
         String runMode = runConfig.containsKey("runMode") ? runConfig.get("runMode") : ApiBatchRunMode.SERIAL.name();
-        testPlanExecuteService.execute(new TestPlanExecuteRequest() {{
-            this.setExecuteIds(Collections.singletonList(resourceId));
-            this.setExecuteMode(runMode);
+        testPlanExecuteService.singleExecuteTestPlan(new TestPlanExecuteRequest() {{
+            this.setExecuteId(resourceId);
+            this.setRunMode(runMode);
+            this.setExecutionSource(ApiExecuteRunMode.SCHEDULE.name());
         }}, userId);
     }
 

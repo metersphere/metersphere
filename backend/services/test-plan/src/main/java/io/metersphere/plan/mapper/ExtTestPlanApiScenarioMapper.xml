@@ -13,10 +13,10 @@
         WHERE test_plan_id = #{testPlanId}
         ORDER BY pos ASC
     </select>
-    <select id="getMaxPosByTestPlanId" resultType="java.lang.Long">
+    <select id="getMaxPosByRangeId" resultType="java.lang.Long">
         SELECT max(pos)
         FROM test_plan_api_scenario
-        WHERE test_plan_id = #{0}
+        WHERE test_plan_collection_Id = #{0}
     </select>
     <select id="getIdByParam"
             parameterType="io.metersphere.plan.dto.ResourceSelectParam"

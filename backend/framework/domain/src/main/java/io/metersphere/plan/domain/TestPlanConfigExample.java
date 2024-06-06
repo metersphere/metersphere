@@ -354,6 +354,76 @@ public class TestPlanConfigExample {
             addCriterion("pass_threshold not between", value1, value2, "passThreshold");
             return (Criteria) this;
         }
+
+        public Criteria andCaseRunModeIsNull() {
+            addCriterion("case_run_mode is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeIsNotNull() {
+            addCriterion("case_run_mode is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeEqualTo(String value) {
+            addCriterion("case_run_mode =", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeNotEqualTo(String value) {
+            addCriterion("case_run_mode <>", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeGreaterThan(String value) {
+            addCriterion("case_run_mode >", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeGreaterThanOrEqualTo(String value) {
+            addCriterion("case_run_mode >=", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeLessThan(String value) {
+            addCriterion("case_run_mode <", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeLessThanOrEqualTo(String value) {
+            addCriterion("case_run_mode <=", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeLike(String value) {
+            addCriterion("case_run_mode like", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeNotLike(String value) {
+            addCriterion("case_run_mode not like", value, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeIn(List<String> values) {
+            addCriterion("case_run_mode in", values, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeNotIn(List<String> values) {
+            addCriterion("case_run_mode not in", values, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeBetween(String value1, String value2) {
+            addCriterion("case_run_mode between", value1, value2, "caseRunMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseRunModeNotBetween(String value1, String value2) {
+            addCriterion("case_run_mode not between", value1, value2, "caseRunMode");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
