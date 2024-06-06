@@ -34,7 +34,7 @@ public class TestPlanApiCaseLogService {
     private ApiTestCaseMapper apiTestCaseMapper;
 
     public void batchUpdateExecutor(TestPlanApiCaseUpdateRequest request) {
-        List<String> ids = testPlanApiCaseService.doSelectIds(request, request.getProtocols());
+        List<String> ids = testPlanApiCaseService.doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
             TestPlanApiCaseExample example = new TestPlanApiCaseExample();
             example.createCriteria().andIdIn(ids);

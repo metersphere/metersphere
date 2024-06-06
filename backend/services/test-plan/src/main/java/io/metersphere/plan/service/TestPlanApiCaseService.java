@@ -12,10 +12,7 @@ import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
-import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
-import io.metersphere.plan.dto.request.TestPlanApiRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
@@ -324,12 +321,13 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param logInsertModule
      * @return
      */
-    public TestPlanAssociationResponse disassociate(BasePlanCaseBatchRequest request, LogInsertModule logInsertModule) {
+    public TestPlanAssociationResponse disassociate(TestPlanApiCaseBatchRequest request, LogInsertModule logInsertModule) {
+        List<String> selectIds = doSelectIds(request);
         return super.disassociate(
                 TestPlanResourceConstants.RESOURCE_API_CASE,
                 request,
                 logInsertModule,
-                request.getSelectIds(),
+                selectIds,
                 this::deleteTestPlanResource);
     }
 
@@ -341,9 +339,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
 
-    public List<String> doSelectIds(BasePlanCaseBatchRequest request, List<String> protocols) {
+    public List<String> doSelectIds(TestPlanApiCaseBatchRequest request) {
         if (request.isSelectAll()) {
-            List<String> ids = extTestPlanApiCaseMapper.getIds(request, false, protocols);
+            List<String> ids = extTestPlanApiCaseMapper.getIds(request, false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
@@ -360,7 +358,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param request
      */
     public void batchUpdateExecutor(TestPlanApiCaseUpdateRequest request) {
-        List<String> ids = doSelectIds(request, request.getProtocols());
+        List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
             extTestPlanApiCaseMapper.batchUpdateExecutor(ids, request.getUserId());
         }
