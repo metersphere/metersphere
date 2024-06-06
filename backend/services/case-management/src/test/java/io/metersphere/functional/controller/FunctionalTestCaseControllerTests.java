@@ -114,6 +114,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         request.setProjectId("project_gyq_associate_test");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
@@ -162,6 +163,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         request.setProjectId("project_gyq_associate_test");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         List<TestCaseProviderDTO> apiTestCaseList = provider.getApiTestCaseList("functional_case_test", "case_id", "source_id", request);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_CASE_PAGE, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -195,6 +197,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         request.setProjectId("project_gyq_associate_test");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_CASE_PAGE_MODULE_COUNT, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -592,7 +595,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());
         testPlanCaseExecuteHistoryMapper.insertSelective(testPlanCaseExecuteHistory);
         gyqReviewCaseTest = getPlanExecuteHistoryList("gyq_associate_function_case");
-        Assertions.assertTrue(gyqReviewCaseTest.size()>1);
+        Assertions.assertTrue(gyqReviewCaseTest.size() > 1);
     }
 
     public List<TestPlanCaseExecuteHistoryDTO> getPlanExecuteHistoryList(String caseId) throws Exception {

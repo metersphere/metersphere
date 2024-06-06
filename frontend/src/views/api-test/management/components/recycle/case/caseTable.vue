@@ -182,6 +182,13 @@
       columnSelectorDisabled: true,
     },
     {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'case.caseLevel',
       dataIndex: 'priority',
       slotName: 'caseLevel',

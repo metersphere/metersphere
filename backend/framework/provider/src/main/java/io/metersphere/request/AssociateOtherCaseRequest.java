@@ -1,6 +1,5 @@
 package io.metersphere.request;
 
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -44,7 +44,7 @@ public class AssociateOtherCaseRequest {
     private String sourceId;
 
     @Schema(description = "接口用例的接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+    private List<String> protocols = new ArrayList<>();
 
     @Schema(description = "关联用例的类型(API,SCENARIO,UI,PERFORMANCE)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{associate_other_case_request.type.not_blank}")

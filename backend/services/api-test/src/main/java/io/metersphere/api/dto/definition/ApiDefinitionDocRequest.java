@@ -1,13 +1,14 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ public class ApiDefinitionDocRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description =  "关键字")
+    @Schema(description = "关键字")
     private String keyword;
 
     @Schema(description = "接口pk")
@@ -32,8 +33,8 @@ public class ApiDefinitionDocRequest implements Serializable {
     private String projectId;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(min = 1, max = 20, message = "{api_debug.protocol.length_range}")
-    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+    @NotEmpty(message = "{api_definition.protocol.not_blank}")
+    private List<@NotBlank String> protocols = new ArrayList<>();
 
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<@NotBlank String> moduleIds;

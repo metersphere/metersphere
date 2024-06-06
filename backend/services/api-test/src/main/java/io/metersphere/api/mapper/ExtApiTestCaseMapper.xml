@@ -284,8 +284,11 @@
         <if test="request.projectId != null and request.projectId != ''">
             and api_test_case.project_id = #{request.projectId}
         </if>
-        <if test="request.protocol != null and request.protocol != ''">
-            AND api_definition.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            AND api_definition.protocol in
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+          </foreach>
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and api_definition.module_id in
@@ -412,8 +415,11 @@
     </sql>
 
     <sql id="queryWhereConditionByBatch">
-        <if test="request.protocol != null and request.protocol!=''">
-            and a.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and a.protocol in
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
         </if>
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and atc.api_definition_id = #{request.apiDefinitionId}
@@ -444,8 +450,11 @@
     </sql>
 
     <sql id="queryWhereCondition">
-        <if test="request.protocol != null and request.protocol!=''">
-            and a.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and a.protocol in
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
         </if>
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and atc.api_definition_id = #{request.apiDefinitionId}
@@ -552,8 +561,11 @@
                 #{moduleId}
             </foreach>
         </if>
-        <if test="request.protocol != null and request.protocol!=''">
-            and ad.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and ad.protocol in
+            <foreach collection="request.protocols" item="protocol" open="(" separator="," close=")">
+                #{protocol}
+            </foreach>
         </if>
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and ac.api_definition_id = #{request.apiDefinitionId}
@@ -575,8 +587,12 @@
                 #{moduleId}
             </foreach>
         </if>
-        <if test="request.protocol != null and request.protocol!=''">
-            and ad.protocol = #{request.protocol}
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and ad.protocol in
+            <foreach collection="request.protocols" item="protocol" open="(" separator="," close=")">
+                #{protocol}
+            </foreach>
+
         </if>
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and ac.api_definition_id = #{request.apiDefinitionId}

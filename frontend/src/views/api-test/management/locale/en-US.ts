@@ -40,6 +40,7 @@ export default {
   'apiTestManagement.apiType': 'Method',
   'apiTestManagement.apiStatus': 'Status',
   'apiTestManagement.path': 'Path',
+  'apiTestManagement.protocol': 'Protocol',
   'apiTestManagement.version': 'Version',
   'apiTestManagement.createTime': 'Creation Time',
   'apiTestManagement.updateTime': 'Update Time',

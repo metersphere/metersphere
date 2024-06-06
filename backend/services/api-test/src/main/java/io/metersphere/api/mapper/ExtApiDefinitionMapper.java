@@ -28,7 +28,7 @@ public interface ExtApiDefinitionMapper {
 
     Long getPos(@Param("projectId") String projectId);
 
-    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocol") String protocol, @Param("deleted") boolean deleted);
+    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("deleted") boolean deleted);
 
     List<String> getRefIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 

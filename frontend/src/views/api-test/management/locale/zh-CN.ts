@@ -39,6 +39,7 @@ export default {
   'apiTestManagement.apiType': '请求类型',
   'apiTestManagement.apiStatus': '状态',
   'apiTestManagement.path': '路径',
+  'apiTestManagement.protocol': '协议',
   'apiTestManagement.version': '版本',
   'apiTestManagement.createTime': '创建时间',
   'apiTestManagement.updateTime': '更新时间',

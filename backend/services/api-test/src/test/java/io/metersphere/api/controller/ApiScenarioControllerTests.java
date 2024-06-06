@@ -2829,7 +2829,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         ScenarioSystemRequest scenarioSystemRequest = new ScenarioSystemRequest();
         scenarioSystemRequest.setProjectId(DEFAULT_PROJECT_ID);
-        scenarioSystemRequest.setProtocol("HTTP");
+        scenarioSystemRequest.setProtocols(List.of("HTTP"));
         scenarioSystemRequest.setModuleIds(List.of("test-default"));
         ApiScenarioSystemRequest apiScenarioSystemRequest = new ApiScenarioSystemRequest();
         apiScenarioSystemRequest.setApiRequest(scenarioSystemRequest);

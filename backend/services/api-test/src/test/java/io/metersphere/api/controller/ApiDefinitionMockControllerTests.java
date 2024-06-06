@@ -525,6 +525,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setApiDefinitionId(apiDefinitionMock.getApiDefinitionId());
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProtocols(List.of("HTTP"));
         request.setSort(Map.of("createTime", "asc"));
         // "ALL", "KEYWORD", "FILTER", "COMBINE", "DELETED"
         switch (search) {
@@ -600,6 +601,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setType("Tags");
         request.setAppend(true);
         request.setSelectAll(true);
+        request.setProtocols(List.of("HTTP"));
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         ApiDefinitionMockExample example = new ApiDefinitionMockExample();

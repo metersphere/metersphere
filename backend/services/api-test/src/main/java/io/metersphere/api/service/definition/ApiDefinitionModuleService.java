@@ -80,7 +80,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(ApiModuleRequest request, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
-        
+
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
         request.setKeyword(null);
         request.setModuleIds(null);
@@ -286,7 +286,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         example.createCriteria()
                 .andProjectIdEqualTo(request.getProjectId())
                 .andDeletedEqualTo(true)
-                .andProtocolEqualTo(request.getProtocol());
+                .andProtocolIn(request.getProtocols());
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(apiDefinitions)) {
             return new ArrayList<>();
@@ -315,7 +315,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         EnvApiTreeDTO envApiTreeDTO = new EnvApiTreeDTO();
         ApiModuleRequest apiModuleRequest = new ApiModuleRequest();
         apiModuleRequest.setProjectId(request.getProjectId());
-        apiModuleRequest.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
+        apiModuleRequest.setProtocols(List.of(ModuleConstants.NODE_PROTOCOL_HTTP));
         List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(apiModuleRequest);
         List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
         envApiTreeDTO.setModuleTree(baseTreeNodes);

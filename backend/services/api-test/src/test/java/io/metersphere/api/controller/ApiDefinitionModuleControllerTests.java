@@ -815,7 +815,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     public void TestModuleCountSuccess() throws Exception {
         this.preliminaryData();
         ApiModuleRequest request = new ApiModuleRequest() {{
-            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
+            this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
         }};
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
@@ -879,7 +879,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         apiDefinition.setDeleted(true);
         apiDefinitionMapper.updateByExampleSelective(apiDefinition, example);
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiModuleRequest() {{
-            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
+            this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
         }});
 
@@ -892,7 +892,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Order(12)
     public void getModuleTrashTreeCount() throws Exception {
         ApiModuleRequest request = new ApiModuleRequest() {{
-            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
+            this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
         }};
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_COUNT, request);
@@ -954,11 +954,11 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
 
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiModuleRequest() {{
-            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
+            this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
         }});
         this.requestPostWithOkAndReturn(URL_MODULE_ONLY_TREE, new ApiModuleRequest() {{
-            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
+            this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
         }});
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);

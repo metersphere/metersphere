@@ -384,6 +384,13 @@
       columnSelectorDisabled: true,
     },
     {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'apiTestManagement.apiType',
       dataIndex: 'method',
       slotName: 'method',
@@ -494,6 +501,7 @@
       return item;
     });
   }
+
   await initFilterColumn();
   await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
   if (props.readOnly) {
@@ -964,12 +972,15 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
+
       .arco-input::placeholder {
         @apply invisible;
       }
+
       .arco-select-view-icon {
         @apply invisible;
       }
+
       .arco-select-view-value {
         color: var(--color-text-brand);
       }

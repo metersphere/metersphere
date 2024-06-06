@@ -1,7 +1,6 @@
 package io.metersphere.request;
 
 import com.google.common.base.CaseFormat;
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -11,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +25,15 @@ public class TestCasePageProviderRequest extends BaseProviderCondition implement
     private static final long serialVersionUID = 1L;
 
     @Min(value = 1, message = "当前页码必须大于0")
-    @Schema(description =  "当前页码")
+    @Schema(description = "当前页码")
     private int current;
 
     @Min(value = 5, message = "每页显示条数必须不小于5")
     @Max(value = 500, message = "每页显示条数不能大于500")
-    @Schema(description =  "每页显示条数")
+    @Schema(description = "每页显示条数")
     private int pageSize;
 
-    @Schema(description =  "排序字段（model中的字段 : asc/desc）")
+    @Schema(description = "排序字段（model中的字段 : asc/desc）")
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
 
     @Schema(description = "接口pk")
@@ -45,9 +45,7 @@ public class TestCasePageProviderRequest extends BaseProviderCondition implement
     private String projectId;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.protocol.not_blank}")
-    @Size(min = 1, max = 20, message = "{api_definition.protocol.length_range}")
-    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+    private List<String> protocols = new ArrayList<>();
 
     @Schema(description = "模块ID")
     private List<@NotBlank String> moduleIds;

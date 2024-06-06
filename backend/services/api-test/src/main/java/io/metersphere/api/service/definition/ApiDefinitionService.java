@@ -291,7 +291,7 @@ public class ApiDefinitionService extends MoveNodeService {
 
     public void batchUpdate(ApiDefinitionBatchUpdateRequest request, String userId) {
         ProjectService.checkResourceExist(request.getProjectId());
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false, userId);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocols(), false, userId);
         // 记录更新前的数据
         apiDefinitionLogService.batchUpdateLog(ids, userId, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
@@ -417,14 +417,14 @@ public class ApiDefinitionService extends MoveNodeService {
     }
 
     public void batchDeleteToGc(ApiDefinitionBatchDeleteRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false, userId);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocols(), false, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleDeleteApiDefinition(ids, request.getDeleteAllVersion(), request.getProjectId(), userId, true);
         }
     }
 
     public void batchMove(ApiDefinitionBatchMoveRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false, userId);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocols(), false, userId);
         if (!ids.isEmpty()) {
             // 移动接口所有版本引用的数据
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
@@ -805,14 +805,14 @@ public class ApiDefinitionService extends MoveNodeService {
     }
 
     public void batchRecover(ApiDefinitionBatchRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true, userId);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocols(), true, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleRecoverApiDefinition(ids, userId, request.getProjectId(), true);
         }
     }
 
     public void batchDelete(ApiDefinitionBatchRequest request, String userId) {
-        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true, userId);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocols(), true, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
             handleTrashDelApiDefinition(ids, userId, request.getProjectId(), true);
         }
@@ -864,12 +864,12 @@ public class ApiDefinitionService extends MoveNodeService {
     }
 
     // 获取批量操作选中的ID
-    public <T> List<String> getBatchApiIds(T dto, String projectId, String protocol, boolean deleted, String userId) {
+    public <T> List<String> getBatchApiIds(T dto, String projectId, List<String> protocols, boolean deleted, String userId) {
         TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
         if (request.isSelectAll()) {
             // 全选
             CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request.getCondition(), userId);
-            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocol, deleted);
+            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocols, deleted);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
