@@ -66,3 +66,9 @@ INSERT INTO `test_plan`(`id`, `num`, `project_id`, `group_id`, `module_id`, `nam
 VALUES ('init_plan_id', 5000, 'init_project', 'NONE', '1', '测试一下计划', 'PREPARED', 'TEST_PLAN', NULL,
         unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000, unix_timestamp() * 1000, unix_timestamp() * 1000, '11');
 
+-- 初始化功能集 (删除使用)
+INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `environment_id`, `test_resource_pool_id`, `pos`, `create_user`, `create_time`) VALUES
+('init_collection-delete-1', 'init_plan_id', '功能用例点', 'FUNCTIONAL', '1', '1', 1, 'admin', unix_timestamp() * 1000),
+('init_collection-delete-2', 'init_plan_id', '接口功能点', 'API', '1', '1', 1, 'admin', unix_timestamp() * 1000),
+('init_collection-delete-3', 'init_plan_id', '场景功能点', 'SCENARIO', '1', '1', 1, 'admin', unix_timestamp() * 1000),
+('init_collection-delete-4', 'init_plan_id', '未知的功能点', 'UNKNOWN', '1', '1', 1, 'admin', unix_timestamp() * 1000);

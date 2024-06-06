@@ -2308,4 +2308,11 @@ public class TestPlanTests extends BaseTest {
     void testInitDefaultCollection() {
         testPlanService.initDefaultPlanCollection("init_plan_id", "admin");
     }
+
+    @Test
+    @Order(309)
+    void testDeleteCollection() {
+        testPlanService.deletePlanCollectionResource(List.of("init_collection-delete-4"));
+        testPlanService.deletePlanCollectionResource(List.of("init_collection-delete-1", "init_collection-delete-2", "init_collection-delete-3"));
+    }
 }
