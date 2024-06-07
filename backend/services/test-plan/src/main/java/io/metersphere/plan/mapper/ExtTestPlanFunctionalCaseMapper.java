@@ -59,5 +59,5 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<TestPlanCaseRunResultCount> selectCaseExecResultCount(String testPlanId);
 
-    Long getMaxPosByCollectionId(@Param("collectionId") String collectionId);
+    Long getMaxPosByCollectionId(String collectionId);
 }

@@ -5,7 +5,7 @@ VALUES
 
 
 INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`,
-                               'case_run_mode')
+                               `case_run_mode`)
 VALUES ('wxx_1', b'0', b'0', 100, 'PARALLEL'),
        ('wxx_2', b'0', b'0', 100, 'PARALLEL');
 

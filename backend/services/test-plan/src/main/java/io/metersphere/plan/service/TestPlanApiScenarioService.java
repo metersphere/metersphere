@@ -151,7 +151,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
     public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanApiScenario dragNode = testPlanApiScenarioMapper.selectByPrimaryKey(request.getMoveId());
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestCollectionId());
         if (dragNode == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
@@ -164,6 +163,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         );
         super.sort(sortDTO);
         response.setOperationCount(1);
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(dragNode.getTestPlanId());
         testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
         return response;
     }
