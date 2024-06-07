@@ -4,7 +4,7 @@
       <apiTable
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
-        :protocol="props.protocol"
+        :selected-protocols="props.selectedProtocols"
         :refresh-time-stamp="refreshTableTimeStamp"
         :member-options="memberOptions"
         @open-api-tab="(record, isExecute) => openApiTab({ apiInfo: record, isCopy: false, isExecute })"
@@ -99,7 +99,7 @@
             ref="caseTableRef"
             :is-api="true"
             :active-module="props.activeModule"
-            :protocol="activeApiTab.protocol"
+            :selected-protocols="[activeApiTab.protocol]"
             :api-detail="activeApiTab"
             :offspring-ids="props.offspringIds"
             :member-options="memberOptions"
@@ -116,7 +116,7 @@
             :active-module="props.activeModule"
             :offspring-ids="props.offspringIds"
             :definition-detail="activeApiTab"
-            :protocol="activeApiTab.protocol"
+            :selected-protocols="[activeApiTab.protocol]"
             :height-used="48"
             is-api
             @debug="openApiTabAndDebugMock"
@@ -188,7 +188,7 @@
     activeModule: string;
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
-    protocol: string;
+    selectedProtocols: string[];
     currentTab: string;
     memberOptions: { label: string; value: string }[];
   }>();

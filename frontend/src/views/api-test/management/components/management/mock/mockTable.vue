@@ -42,6 +42,9 @@
           {{ record.expectNum }}
         </MsButton>
       </template>
+      <template #protocol="{ record }">
+        <apiMethodName :method="record.protocol" />
+      </template>
       <template #enable="{ record }">
         <a-switch
           v-model="record.enable"
@@ -112,7 +115,7 @@
         asterisk-position="end"
       >
         <a-select v-model="batchForm.attr" :placeholder="t('common.pleaseSelect')">
-          <a-option v-for="item of attrOptions" :key="item.value" :value="item.value">
+          <a-option v-for="item of fullAttrs" :key="item.value" :value="item.value">
             {{ t(item.name) }}
           </a-option>
         </a-select>
@@ -240,7 +243,7 @@
     offspringIds: string[];
     definitionDetail: RequestParam;
     readOnly?: boolean; // 是否是只读模式
-    protocol: string; // 查看的协议类型
+    selectedProtocols: string[]; // 查看的协议类型
     heightUsed?: number;
   }>();
   const emit = defineEmits<{
@@ -289,8 +292,8 @@
     {
       title: 'apiTestManagement.protocol',
       dataIndex: 'protocol',
-      showTooltip: true,
-      width: 200,
+      slotName: 'protocol',
+      width: 150,
       showDrag: true,
     },
     {
@@ -401,7 +404,7 @@
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
       apiDefinitionId: props.definitionDetail.id !== 'all' ? props.definitionDetail.id : undefined,
       filter: {},
       moduleIds: selectModules,
@@ -418,11 +421,13 @@
     });
   }
 
-  watchEffect(() => {
-    if (props.activeModule || props.protocol) {
+  watch(
+    [() => props.activeModule, () => props.selectedProtocols],
+    () => {
       loadMockList();
-    }
-  });
+    },
+    { immediate: true }
+  );
 
   async function handleBeforeEnableChange(record: ApiDefinitionMockDetail) {
     try {
@@ -477,6 +482,7 @@
               condition: { keyword: keyword.value },
               projectId: appStore.currentProjectId,
               moduleIds: selectModules,
+              protocols: props.selectedProtocols,
             });
           } else {
             await deleteMock({
@@ -559,12 +565,6 @@
       value: 'Tags',
     },
   ];
-  const attrOptions = computed(() => {
-    if (props.protocol === 'HTTP') {
-      return fullAttrs;
-    }
-    return fullAttrs.filter((e) => e.value !== 'method');
-  });
 
   function cancelBatch() {
     showBatchModal.value = false;
@@ -595,6 +595,7 @@
             append: batchForm.value.append,
             tags: batchForm.value.attr === 'Tags' ? batchForm.value.values : [],
             enable: batchForm.value.attr === 'Status' ? batchForm.value.value : false,
+            protocols: props.selectedProtocols,
           });
           Message.success(t('common.updateSuccess'));
           cancelBatch();

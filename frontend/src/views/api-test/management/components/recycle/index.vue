@@ -21,6 +21,7 @@
       </template>
     </MsEditableTab>
   </div>
+  <!-- TODO 协议 -->
   <api
     v-show="currentTab === 'api'"
     ref="apiRef"
@@ -28,14 +29,15 @@
     :module-tree="props.moduleTree"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
-    :protocol="protocol"
+    :protocol="props.selectedProtocols[0]"
   />
+  <!-- TODO 协议 -->
   <api-case
     v-show="currentTab === 'case'"
     :member-options="memberOptions"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
-    :protocol="protocol"
+    :protocol="props.selectedProtocols[0]"
   ></api-case>
 </template>
 
@@ -55,7 +57,7 @@
   const props = defineProps<{
     activeModule: string;
     offspringIds: string[];
-    protocol: string;
+    selectedProtocols: string[]; // 查看的协议类型
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
 

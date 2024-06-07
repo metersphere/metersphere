@@ -54,7 +54,7 @@
             :module-tree="folderTree"
             :active-module="activeModule"
             :offspring-ids="offspringIds"
-            :protocol="protocol"
+            :selected-protocols="selectedProtocols"
             @import="importDrawerVisible = true"
           />
         </div>
@@ -93,14 +93,14 @@
   const folderTreePathMap = ref<Record<string, any>>({});
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
-  const protocol = ref('HTTP');
+  const selectedProtocols = ref<string[]>([]);
   const activeNodeId = ref<string | number>('all');
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
 
-  function handleModuleInit(tree: ModuleTreeNode[], _protocol: string, pathMap: Record<string, any>) {
+  function handleModuleInit(tree: ModuleTreeNode[], _protocols: string[], pathMap: Record<string, any>) {
     folderTree.value = tree;
-    protocol.value = _protocol;
+    selectedProtocols.value = _protocols;
     folderTreePathMap.value = pathMap;
   }
 
@@ -128,8 +128,8 @@
     }
   }
 
-  function handleProtocolChange(val: string) {
-    protocol.value = val;
+  function handleProtocolChange(val: string[]) {
+    selectedProtocols.value = val;
   }
 
   const appStore = useAppStore();
@@ -139,7 +139,7 @@
       projectId: appStore.currentProjectId,
       keyword: '',
       moduleIds: [],
-      protocol: protocol.value,
+      protocols: selectedProtocols.value,
     });
     recycleModulesCount.value = res.all;
   }

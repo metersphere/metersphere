@@ -18,7 +18,7 @@
         :active-module="activeModule"
         :offspring-ids="offspringIds"
         class="flex-1 overflow-hidden !pl-0 !pr-[16px]"
-        :protocol="protocol"
+        :selected-protocols="selectedProtocols"
         :member-options="memberOptions"
         read-only
       />
@@ -50,15 +50,15 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const activeModule = ref<string>('all');
   const offspringIds = ref<string[]>([]);
-  const protocol = ref('HTTP');
+  const selectedProtocols = ref<string[]>([]);
 
   function handleNodeSelect(keys: string[], _offspringIds: string[]) {
     [activeModule.value] = keys;
     offspringIds.value = _offspringIds;
   }
 
-  function handleProtocolChange(val: string) {
-    protocol.value = val;
+  function handleProtocolChange(val: string[]) {
+    selectedProtocols.value = val;
   }
 </script>
 

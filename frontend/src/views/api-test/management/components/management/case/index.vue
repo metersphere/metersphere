@@ -6,7 +6,7 @@
         :offspring-ids="props.offspringIds"
         :is-api="false"
         :active-module="props.activeModule"
-        :protocol="props.protocol"
+        :selected-protocols="props.selectedProtocols"
         :member-options="memberOptions"
         @open-case-tab="openCaseTab"
         @open-case-tab-and-execute="openCaseTabAndExecute"
@@ -44,7 +44,7 @@
 
   const props = defineProps<{
     activeModule: string;
-    protocol: string;
+    selectedProtocols: string[];
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
     memberOptions: { label: string; value: string }[];

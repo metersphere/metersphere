@@ -1,13 +1,6 @@
 <template>
   <div>
     <template v-if="!props.isModal">
-      <a-select
-        v-if="!props.readOnly"
-        v-model:model-value="moduleProtocol"
-        :options="moduleProtocolOptions"
-        class="mb-[8px]"
-        @change="() => handleProtocolChange()"
-      />
       <div class="mb-[8px] flex items-center gap-[8px]">
         <a-input
           v-model:model-value="moduleKeyword"
@@ -17,7 +10,7 @@
         <template v-if="!props.readOnly && !props.trash">
           <a-dropdown-button
             v-if="
-              moduleProtocol === 'HTTP' &&
+              selectedProtocols.includes('HTTP') &&
               hasAllPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])
             "
             type="primary"
@@ -35,7 +28,7 @@
           </a-dropdown-button>
           <a-button
             v-else-if="
-              moduleProtocol === 'HTTP' &&
+              selectedProtocols.includes('HTTP') &&
               !hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) &&
               hasAnyPermission(['PROJECT_API_DEFINITION:READ+IMPORT'])
             "
@@ -54,27 +47,20 @@
           </a-button>
         </template>
       </div>
-      <div class="folder" @click="setActiveFolder('all')">
-        <div :class="allFolderClass">
-          <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-          <div class="folder-name">{{ t('apiTestManagement.allApi') }}</div>
-          <div class="folder-count">({{ allFileCount }})</div>
-        </div>
-        <div class="ml-auto flex items-center">
-          <a-tooltip
-            v-if="!props.readOnly && !props.trash"
-            :content="isExpandApi ? t('apiTestManagement.collapseApi') : t('apiTestManagement.expandApi')"
-          >
-            <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeApiExpand">
-              <icon-eye-invisible v-if="isExpandApi" />
-              <icon-eye v-else />
-            </MsButton>
-          </a-tooltip>
-          <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
-            <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
-              <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-            </MsButton>
-          </a-tooltip>
+      <TreeFolderAll
+        v-if="!props.readOnly"
+        v-model:isExpandApi="isExpandApi"
+        v-model:isExpandAll="isExpandAll"
+        v-model:selectedProtocols="selectedProtocols"
+        :folder-name="t('apiTestManagement.allApi')"
+        :all-count="allFileCount"
+        :active-folder="selectedKeys[0] as string"
+        :show-expand-api="!props.readOnly && !props.trash"
+        @set-active-folder="setActiveFolder"
+        @change-api-expand="changeApiExpand"
+        @selected-protocols-change="selectedProtocolsChange"
+      >
+        <template #expandRight>
           <popConfirm
             v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) && !props.readOnly && !props.trash"
             mode="add"
@@ -91,8 +77,8 @@
               />
             </MsButton>
           </popConfirm>
-        </div>
-      </div>
+        </template>
+      </TreeFolderAll>
       <a-divider class="my-[8px]" />
     </template>
     <a-input
@@ -188,6 +174,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
+  import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
   import {
@@ -247,7 +234,7 @@
   const { openModal } = useModal();
   const { copy, isSupported } = useClipboard({ legacy: true });
 
-  const moduleProtocol = ref('HTTP');
+  const selectedProtocols = ref<string[]>([]);
   const moduleProtocolOptions = ref<SelectOptionData[]>([]);
   const protocolLoading = ref(false);
 
@@ -303,9 +290,6 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
   const selectedKeys = ref<Array<string | number>>([props.activeModule]);
-  const allFolderClass = computed(() =>
-    selectedKeys.value[0] === 'all' ? 'folder-text folder-text--active' : 'folder-text'
-  );
   const loading = ref(false);
 
   function setActiveFolder(id: string) {
@@ -372,13 +356,13 @@
   const lastModuleCountParam = ref<ApiDefinitionGetModuleParams>({
     projectId: appStore.currentProjectId,
     keyword: '',
-    protocol: moduleProtocol.value,
+    protocols: selectedProtocols.value,
     moduleIds: [],
   });
   async function initModuleCount(params: ApiDefinitionGetModuleParams) {
     try {
       lastModuleCountParam.value = params;
-      lastModuleCountParam.value.protocol = moduleProtocol.value;
+      lastModuleCountParam.value.protocols = selectedProtocols.value;
       let res;
       if (props.trash) {
         res = await getTrashModuleCount(params);
@@ -428,7 +412,7 @@
         res = await getTrashModuleTree({
           // 回收站下的模块
           keyword: '',
-          protocol: moduleProtocol.value,
+          protocols: selectedProtocols.value,
           projectId: appStore.currentProjectId,
           moduleIds: [],
         });
@@ -436,7 +420,7 @@
         // 查看模块及模块下的请求
         res = await getModuleTree({
           keyword: '',
-          protocol: moduleProtocol.value,
+          protocols: selectedProtocols.value,
           projectId: appStore.currentProjectId,
           moduleIds: [],
         });
@@ -444,7 +428,7 @@
         res = await getModuleTreeOnlyModules({
           // 只查看模块
           keyword: '',
-          protocol: moduleProtocol.value,
+          protocols: selectedProtocols.value,
           projectId: appStore.currentProjectId,
           moduleIds: [],
         });
@@ -484,7 +468,7 @@
       if (isSetDefaultKey) {
         selectedKeys.value = [folderTree.value[0].id];
       }
-      emit('init', folderTree.value, moduleProtocol.value, nodePathObj);
+      emit('init', folderTree.value, selectedProtocols.value, nodePathObj);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -494,9 +478,9 @@
     }
   }
 
-  function handleProtocolChange() {
-    emit('changeProtocol', moduleProtocol.value);
-    lastModuleCountParam.value.protocol = moduleProtocol.value;
+  function selectedProtocolsChange() {
+    emit('changeProtocol', selectedProtocols.value);
+    lastModuleCountParam.value.protocols = selectedProtocols.value;
     initModules();
   }
 
@@ -507,12 +491,7 @@
     }
   );
 
-  function changeExpand() {
-    isExpandAll.value = !isExpandAll.value;
-  }
-
   function changeApiExpand() {
-    isExpandApi.value = !isExpandApi.value;
     initModules();
   }
 
@@ -675,7 +654,6 @@
 
   onBeforeMount(() => {
     initProtocolList();
-    initModules();
   });
 
   async function refresh() {

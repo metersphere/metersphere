@@ -51,6 +51,9 @@
           {{ record.num }}
         </MsButton>
       </template>
+      <template #protocol="{ record }">
+        <apiMethodName :method="record.protocol" />
+      </template>
       <template #caseLevel="{ record }">
         <a-select
           v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])"
@@ -295,6 +298,7 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import caseDetailDrawer from './caseDetailDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
@@ -332,7 +336,7 @@
   const props = defineProps<{
     isApi: boolean; // 接口定义详情的case tab下
     activeModule: string;
-    protocol: string; // 查看的协议类型
+    selectedProtocols: string[]; // 查看的协议类型
     apiDetail?: RequestParam;
     offspringIds: string[];
     memberOptions: { label: string; value: string }[];
@@ -403,8 +407,9 @@
     {
       title: 'apiTestManagement.protocol',
       dataIndex: 'protocol',
+      slotName: 'protocol',
       showTooltip: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     {
@@ -598,7 +603,7 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
     };
     setLoadListParams(params);
     loadList();
@@ -620,7 +625,7 @@
   );
 
   watch(
-    () => props.protocol,
+    () => props.selectedProtocols,
     () => {
       if (props.isApi) return;
       loadCaseListAndResetSelector();
@@ -675,7 +680,7 @@
         filter: propsRes.value.filter,
       },
       projectId: appStore.currentProjectId,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
       moduleIds: selectModules,
       apiDefinitionId: props.apiDetail?.id as string,
     };

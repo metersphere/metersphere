@@ -7,11 +7,13 @@
       class="mb-[8px]"
       :max-length="255"
     />
-    <MsFolderAll
+    <TreeFolderAll
       v-model:isExpandAll="isExpandAll"
+      v-model:selectedProtocols="selectedProtocols"
       :active-folder="activeFolder"
       :folder-name="t('apiTestManagement.allApi')"
       :all-count="allCount"
+      :show-expand-api="false"
       @set-active-folder="setActiveFolder"
     />
     <a-divider class="my-[8px]" />
@@ -50,9 +52,9 @@
   import { useRoute } from 'vue-router';
   import { useVModel } from '@vueuse/core';
 
-  import MsFolderAll from '@/components/business/ms-folder-all/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
 
   import { getFeatureCaseModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -94,6 +96,7 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const loading = ref(false);
   const selectedKeys = useVModel(props, 'selectedKeys', emit);
+  const selectedProtocols = ref<string[]>([]);
 
   //  初始化模块树
   async function initModules() {
