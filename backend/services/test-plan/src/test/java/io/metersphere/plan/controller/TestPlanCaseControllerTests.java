@@ -8,12 +8,14 @@ import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
+import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
@@ -35,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,6 +71,8 @@ public class TestPlanCaseControllerTests extends BaseTest {
     BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     FunctionalCaseBlobMapper functionalCaseBlobMapper;
+    @Resource
+    private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
 
 
     @Test
@@ -261,7 +266,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     @Test
     @Order(16)
     public void testGetDetail() throws Exception {
-       this.requestGet(FUNCTIONAL_CASE_DETAIL + "relate_case_1").andExpect(status().is5xxServerError());
+        this.requestGet(FUNCTIONAL_CASE_DETAIL + "relate_case_1").andExpect(status().is5xxServerError());
         MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL + "gyq_disassociate_case_4");
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -330,5 +335,19 @@ public class TestPlanCaseControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<User> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), User.class);
         Assertions.assertFalse(list.isEmpty());
+    }
+
+
+    @Test
+    @Order(17)
+    public void testFunctionalAssociate() throws Exception {
+        Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
+        List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
+        BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
+        baseCollectionAssociateRequest.setCollectionId("wxxx_1");
+        baseCollectionAssociateRequest.setIds(List.of("fc_1"));
+        baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
+        collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
+        testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, "wx");
     }
 }

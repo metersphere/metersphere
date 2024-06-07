@@ -134,6 +134,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         return copyList.size();
     }
+
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         if (CollectionUtils.isNotEmpty(testPlanIdList)) {
@@ -149,8 +150,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
 
     @Override
-    public long getNextOrder(String projectId) {
-        return 0;
+    public long getNextOrder(String collectionId) {
+        Long maxPos = extTestPlanFunctionalCaseMapper.getMaxPosByCollectionId(collectionId);
+        if (maxPos == null) {
+            return 0;
+        } else {
+            return maxPos + DEFAULT_NODE_INTERVAL_POS;
+        }
     }
 
     @Override
@@ -649,8 +655,37 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
-        List<BaseCollectionAssociateRequest> functionals = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
-        // TODO: 调用具体的关联接口用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
+        List<TestPlanFunctionalCase> testPlanFunctionalCaseList = new ArrayList<>();
+        List<BaseCollectionAssociateRequest> functionalList = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
+        functionalList.forEach(functional -> {
+            buildTestPlanFunctionalCase(planId, functional, userId, testPlanFunctionalCaseList);
+        });
+        testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
+    }
+
+    /**
+     * 构建测试计划功能用例对象
+     *
+     * @param planId
+     * @param functional
+     * @param userId
+     * @param testPlanFunctionalCaseList
+     */
+    private void buildTestPlanFunctionalCase(String planId, BaseCollectionAssociateRequest functional, String userId, List<TestPlanFunctionalCase> testPlanFunctionalCaseList) {
+        List<String> functionalIds = functional.getIds();
+        if (CollectionUtils.isNotEmpty(functionalIds)) {
+            functionalIds.forEach(functionalId -> {
+                TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
+                testPlanFunctionalCase.setId(IDGenerator.nextStr());
+                testPlanFunctionalCase.setTestPlanCollectionId(functional.getCollectionId());
+                testPlanFunctionalCase.setTestPlanId(planId);
+                testPlanFunctionalCase.setFunctionalCaseId(functionalId);
+                testPlanFunctionalCase.setCreateUser(userId);
+                testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
+                testPlanFunctionalCase.setPos(getNextOrder(functional.getCollectionId()));
+                testPlanFunctionalCaseList.add(testPlanFunctionalCase);
+            });
+        }
     }
 }

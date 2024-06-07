@@ -95,7 +95,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     @Override
     public long getNextOrder(String collectionId) {
-        Long maxPos = extTestPlanApiCaseMapper.getMaxPosByTestPlanId(collectionId);
+        Long maxPos = extTestPlanApiCaseMapper.getMaxPosByCollectionId(collectionId);
         if (maxPos == null) {
             return 0;
         } else {
@@ -468,8 +468,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
-                List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).collect(Collectors.toList());
-                buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+                if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).collect(Collectors.toList());
+                    buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+                }
             });
         }
     }
@@ -482,8 +484,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
-                List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).collect(Collectors.toList());
-                buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+                if(CollectionUtils.isNotEmpty(apiCaseIds)){
+                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).collect(Collectors.toList());
+                    buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+                }
             });
         }
     }

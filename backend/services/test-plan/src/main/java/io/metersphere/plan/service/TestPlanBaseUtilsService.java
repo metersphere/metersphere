@@ -77,6 +77,7 @@ public class TestPlanBaseUtilsService {
      *
      * @param request
      */
+    //TODO 后续删除此方法以及调用controlle   后续改成通过计划集保存用例
     public void association(TestPlanAssociationRequest request, String operator) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         handleAssociateCase(request, operator, testPlan);
