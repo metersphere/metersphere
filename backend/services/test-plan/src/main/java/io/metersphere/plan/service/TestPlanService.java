@@ -508,9 +508,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> allCollections) {
         // 批处理旧数据
         List<TestPlanCollectionDTO> defaultCollections = new ArrayList<>();
-        allCollections.forEach(allCollection -> {
-            defaultCollections.addAll(allCollection.getChildren());
-        });
+        allCollections.forEach(allCollection -> defaultCollections.addAll(allCollection.getChildren()));
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
         beansOfType.forEach((k, v) -> v.initResourceDefaultCollection(planId, defaultCollections));
     }
@@ -860,7 +858,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         defaultCollection.setStopOnFail(false);
         defaultCollection.setCreateUser(currentUser);
         defaultCollection.setCreateTime(System.currentTimeMillis());
-        Long initPos = 1L;
+        long initPos = 1L;
         for (CaseType caseType : CaseType.values()) {
             // 测试集分类
             TestPlanCollectionDTO parentCollectionDTO = new TestPlanCollectionDTO();

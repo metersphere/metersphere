@@ -38,6 +38,18 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
   ('oasis_fc_4', 10004, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'BLOCKED', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL),
   ('oasis_fc_5', 10005, 'TEST_MODULE_ID', 'project-associate-case-test', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'FAKE_ERROR', b'0', b'0', b'1', 'admin', 'admin', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL);
 
+INSERT INTO test_plan_api_case(`id`, `test_plan_id`, `api_case_id`, `environment_id`, `last_exec_result`, `last_exec_report_id`, `execute_user`, `create_time`, `create_user`, `pos`, `test_plan_collection_id`) VALUES
+    ('oasis_1', 'wx_test_plan_id_7', 'oasis_ac_1', '1', 'PASSED', NULL, 'admin', 1716370415311, 'admin', 1, '123');
+
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted) VALUES
+    ('oasis_ac_1', 'oasis_ac', 'P0', 1001, null, 'Underway', 'PENDING', null, 100, 'project-associate-case-test', 'oasis_ac_definition', 'oasis_ac_version_id', 'oasis_ac_env_id', 1698058347559, 'admin', 1698058347559, 'admin', null, null, false);
+
+INSERT INTO test_plan_api_scenario (id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped) VALUES
+    ('oasis_1', 'wx_test_plan_id_7', 'oasis_as_1', '1', 'admin', 'PASSED', NULL, 1716370415311, 'admin', 1, '123', false);
+
+INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time, deleted) VALUES
+    ('oasis_as_1', 'oasis_as', 'P0', 'Underway',  'PENDING', null, 1000001, 1, 'oasis_as_version_id', 'as-rid', 'test-associate-pro', 'root', null, null, 'admin',  UNIX_TIMESTAMP() * 1000, null, null, 'admin', UNIX_TIMESTAMP() * 1000, false);
+
 
 INSERT INTO `test_plan_module`(`id`, `project_id`, `name`, `parent_id`, `pos`, `create_time`, `update_time`, `create_user`, `update_user`)
 VALUES ('1', 'songtianyang-fix-wx', 'wx_测试模块名称', 'ROOT', 1, 1714980158000, 1714980158000, 'admin', 'admin');
@@ -72,3 +84,4 @@ INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `enviro
 ('init_collection-delete-2', 'init_plan_id', '接口功能点', 'API', '1', '1', 1, 'admin', unix_timestamp() * 1000),
 ('init_collection-delete-3', 'init_plan_id', '场景功能点', 'SCENARIO', '1', '1', 1, 'admin', unix_timestamp() * 1000),
 ('init_collection-delete-4', 'init_plan_id', '未知的功能点', 'UNKNOWN', '1', '1', 1, 'admin', unix_timestamp() * 1000);
+
