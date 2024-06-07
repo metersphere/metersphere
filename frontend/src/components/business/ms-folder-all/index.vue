@@ -27,7 +27,7 @@
   import { addCommasToNumber } from '@/utils';
 
   const props = defineProps<{
-    activeFolder: string; // 选中的节点
+    activeFolder?: string; // 选中的节点
     folderName: string; // 名称
     allCount: number; // 总数
   }>();

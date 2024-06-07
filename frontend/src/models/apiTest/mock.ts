@@ -91,4 +91,5 @@ export interface BatchEditMockParams extends BatchApiParams {
   tags: string[]; // 标签
   append: boolean; // 是否追加
   enable: boolean; // 是否启用
+  protocols: string[]; // 协议集合
 }

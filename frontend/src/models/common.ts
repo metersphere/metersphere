@@ -50,6 +50,7 @@ export interface BatchApiParams {
   moduleIds?: (string | number)[]; // 模块 ID 集合
   versionId?: string; // 版本 ID
   refId?: string; // 版本来源
+  protocols?: string[]; // 协议集合
 }
 
 // 移动模块树

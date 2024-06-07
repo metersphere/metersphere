@@ -20,7 +20,7 @@
             :module-tree="folderTree"
             :active-module="activeModule"
             :offspring-ids="offspringIds"
-            :protocol="protocol"
+            :selected-protocols="selectedProtocols"
           />
         </div>
       </template>
@@ -44,14 +44,14 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});
   const offspringIds = ref<string[]>([]);
-  const protocol = ref('HTTP');
+  const selectedProtocols = ref<string[]>([]);
   const activeApi = ref<RequestParam>();
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
 
-  function handleModuleInit(tree: ModuleTreeNode[], _protocol: string, pathMap: Record<string, any>) {
+  function handleModuleInit(tree: ModuleTreeNode[], _protocol: string[], pathMap: Record<string, any>) {
     folderTree.value = tree;
-    protocol.value = _protocol;
+    selectedProtocols.value = _protocol;
     folderTreePathMap.value = pathMap;
   }
 
@@ -60,8 +60,8 @@
     offspringIds.value = _offspringIds;
   }
 
-  function handleProtocolChange(val: string) {
-    protocol.value = val;
+  function handleProtocolChange(val: string[]) {
+    selectedProtocols.value = val;
   }
 
   function refreshModuleTree() {

@@ -41,7 +41,7 @@
     v-model:api-tabs="apiTabs"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
-    :protocol="props.protocol"
+    :selected-protocols="props.selectedProtocols"
     :module-tree="props.moduleTree"
     :current-tab="currentTab"
     :member-options="memberOptions"
@@ -54,7 +54,7 @@
     v-model:api-tabs="apiTabs"
     v-model:active-api-tab="activeApiTab"
     :active-module="props.activeModule"
-    :protocol="props.protocol"
+    :selected-protocols="props.selectedProtocols"
     :module-tree="props.moduleTree"
     :current-tab="currentTab"
     :offspring-ids="props.offspringIds"
@@ -65,7 +65,7 @@
     v-if="activeApiTab.id === 'all' && currentTab === 'mock'"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
-    :protocol="props.protocol"
+    :selected-protocols="props.selectedProtocols"
     :definition-detail="activeApiTab"
     @debug="handleMockDebug"
   />
@@ -108,7 +108,7 @@
   const props = defineProps<{
     activeModule: string;
     offspringIds: string[];
-    protocol: string;
+    selectedProtocols: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
   }>();
   const emit = defineEmits<{

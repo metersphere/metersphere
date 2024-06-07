@@ -37,8 +37,8 @@
 
   const colorMaps = [
     {
-      color: 'rgb(var(--success-6))',
-      includes: [RequestMethods.GET, RequestMethods.HEAD],
+      color: 'rgb(var(--success-7))',
+      includes: [RequestMethods.GET, RequestMethods.HEAD, 'HTTP'],
     },
     {
       color: 'rgb(var(--warning-7))',

@@ -6,6 +6,34 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "40628129",
+      "name": "icon_title-top-align_outlined",
+      "font_class": "icon_title-top-align_outlined1",
+      "unicode": "e7be",
+      "unicode_decimal": 59326
+    },
+    {
+      "icon_id": "40628128",
+      "name": "icon_title-left-align_outlined",
+      "font_class": "icon_title-left-align_outlined1",
+      "unicode": "e7bf",
+      "unicode_decimal": 59327
+    },
+    {
+      "icon_id": "40547513",
+      "name": "icon_protocol",
+      "font_class": "icon_protocol",
+      "unicode": "e7bd",
+      "unicode_decimal": 59325
+    },
+    {
+      "icon_id": "40530999",
+      "name": "icon_info_outlined",
+      "font_class": "icon_info_outlined1",
+      "unicode": "e7bc",
+      "unicode_decimal": 59324
+    },
+    {
       "icon_id": "40529317",
       "name": "icon_github",
       "font_class": "icon_github",
