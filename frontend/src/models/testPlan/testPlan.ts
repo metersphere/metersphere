@@ -257,24 +257,48 @@ export interface BatchMoveParams extends TableQueryParams {
   targetId?: string | number;
 }
 
-// TODO: 联调
+// 计划详情-接口用例
+export interface PlanDetailApiCaseQueryParams extends TableQueryParams, TestPlanBaseParams {
+  apiDefinitionId?: string;
+  protocols: string[];
+  moduleIds?: string[];
+  versionId?: string;
+  refId?: string;
+  collectionId?: string;
+}
+
+export interface PlanDetailApiCaseTreeParams {
+  testPlanId: string;
+  treeType: 'MODULE' | 'COLLECTION';
+}
+
 export interface PlanDetailApiCaseItem {
   id: string;
-  num: string;
+  num: number;
   name: string;
   moduleId: string;
-  versionName: string;
   createUser: string;
   createUserName: string;
   lastExecResult: LastExecuteResults;
   lastExecTime: number;
+  lastExecResultReportId: string;
   executeUser: string;
   executeUserName: string;
-  bugCount: number;
-  customFields: customFieldsItem[]; // 自定义字段集合
-  caseId: string;
+  priority: string;
+  path: string;
+  projectId: string;
+  projectName: string;
+  environmentId: string;
+  environmentName: string;
+  testPlanCollectionId: string;
+  collectEnvironmentId: string;
+}
+
+export interface BatchApiCaseParams extends BatchActionQueryParams {
   testPlanId: string;
-  lastExecResultReportId: string;
+  moduleIds?: string[];
+  collectionId?: string;
+  protocols: string[];
 }
 
 // TODO: 联调

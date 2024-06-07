@@ -108,9 +108,11 @@
       @refresh="initDetail"
     />
     <BugManagement v-if="activeTab === 'defectList'" :can-edit="detail.status !== 'ARCHIVED'" @refresh="initDetail" />
+    <!-- TODO 切换模块视图 -->
     <ApiCase
       v-if="activeTab === 'apiCase'"
       ref="apiCaseRef"
+      tree-type="MODULE"
       :repeat-case="detail.repeatCase"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
