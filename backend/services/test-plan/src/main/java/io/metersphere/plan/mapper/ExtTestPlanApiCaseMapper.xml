@@ -662,6 +662,6 @@
     <select id="getMaxPosByCollectionId" resultType="java.lang.Long">
         SELECT max(pos)
         FROM test_plan_api_case
-        WHERE test_plan_collection_id = #{collectionId}
+        WHERE test_plan_collection_id = #{0}
     </select>
 </mapper>

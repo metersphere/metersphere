@@ -38,14 +38,16 @@ public class TestPlanExecuteService {
     public static final String QUEUE_PREFIX_TEST_PLAN_GROUP = "test-plan-group-execute:";
     public static final String QUEUE_PREFIX_TEST_COLLECTION = "test-collection-execute:";
 
-    public void executeTestPlan(TestPlan testPlan, String executionSource, String userId) {
+    public String executeTestPlan(TestPlan testPlan, String executionSource, String userId) {
         //todo 查询执行配置,配置下一步的队列
+
+        return "报告ID";
     }
 
     /**
      * 预执行执行测试计划
      */
-    private void prepareExecuteTestPlan(TestPlan testPlan, String parentQueueId, String runMode, String executionSource, String userId) {
+    private String prepareExecuteTestPlan(TestPlan testPlan, String parentQueueId, String runMode, String executionSource, String userId) {
         if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
             throw new MSException("test_plan.error");
         }
@@ -72,16 +74,17 @@ public class TestPlanExecuteService {
                     executeTestPlan(testPlanMapper.selectByPrimaryKey(childQueue.getTestPlanId()), childQueue.getExecutionSource(), childQueue.getCreateUser());
                 });
             }
+            return "";
         } else {
-            this.executeTestPlan(testPlan, executionSource, userId);
+            return this.executeTestPlan(testPlan, executionSource, userId);
         }
     }
 
     /**
      * 单个执行测试计划
      */
-    public void singleExecuteTestPlan(TestPlanExecuteRequest request, String userId) {
-        prepareExecuteTestPlan(testPlanMapper.selectByPrimaryKey(request.getExecuteId()), null, request.getRunMode(), request.getExecutionSource(), userId);
+    public String singleExecuteTestPlan(TestPlanExecuteRequest request, String userId) {
+        return prepareExecuteTestPlan(testPlanMapper.selectByPrimaryKey(request.getExecuteId()), null, request.getRunMode(), request.getExecutionSource(), userId);
     }
 
     /**

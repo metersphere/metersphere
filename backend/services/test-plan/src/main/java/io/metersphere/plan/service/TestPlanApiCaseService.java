@@ -13,11 +13,7 @@ import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TreeTypeEnums;
 import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.ApiCaseModuleDTO;
-import io.metersphere.plan.dto.ResourceLogInsertModule;
-import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
-import io.metersphere.plan.dto.TestPlanCollectionDTO;
-import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -549,7 +545,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanApiCase dragNode = testPlanApiCaseMapper.selectByPrimaryKey(request.getMoveId());
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestCollectionId());
         if (dragNode == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
@@ -562,6 +557,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         );
         super.sort(sortDTO);
         response.setOperationCount(1);
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(dragNode.getTestPlanId());
         testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
         return response;
     }

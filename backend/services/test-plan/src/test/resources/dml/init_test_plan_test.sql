@@ -44,7 +44,7 @@ VALUES ('1', 'songtianyang-fix-wx', 'wx_测试模块名称', 'ROOT', 1, 17149801
 
 
 INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`,
-                               'case_run_mode')
+                               `case_run_mode`)
 VALUES ('wx_test_plan_id_1', b'0', b'0', 100, 'PARALLEL'),
        ('wx_test_plan_id_4', b'0', b'0', 100, 'PARALLEL'),
        ('wx_test_plan_id_7', b'0', b'0', 100, 'PARALLEL');

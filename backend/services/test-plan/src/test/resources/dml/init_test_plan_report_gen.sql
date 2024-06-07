@@ -3,7 +3,7 @@ INSERT INTO `test_plan`(`id`, `num`, `project_id`, `group_id`, `module_id`, `nam
 ('plan_id_for_gen_report', 100001, '100001100001', 'NONE', '1', 'gen-report-plan', 'PREPARED', 'TEST_PLAN', NULL, CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '11'),
 ('plan_id_for_gen_report_1', 100001, '100001100001', 'NONE', '1', 'gen-report-plan-1', 'PREPARED', 'TEST_PLAN', NULL, CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '11');
 INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`,
-                               'case_run_mode')
+                               `case_run_mode`)
 VALUES ('plan_id_for_gen_report', b'0', b'0', 100.00, 'PARALLEL'),
        ('plan_id_for_gen_report_1', b'0', b'0', 0.00, 'PARALLEL');
 

@@ -15,7 +15,7 @@ public interface ExtTestPlanApiScenarioMapper {
 
     List<String> selectIdByTestPlanIdOrderByPos(String testPlanId);
 
-    Long getMaxPosByRangeId(String testPlanId);
+    Long getMaxPosByRangeId(String rangeId);
 
     List<String> getIdByParam(ResourceSelectParam resourceSelectParam);
 

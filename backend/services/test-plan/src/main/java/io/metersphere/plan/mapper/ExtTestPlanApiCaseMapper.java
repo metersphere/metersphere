@@ -56,5 +56,5 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
 
-    Long getMaxPosByCollectionId(@Param("collectionId") String collectionId);
+    Long getMaxPosByCollectionId(String collectionId);
 }

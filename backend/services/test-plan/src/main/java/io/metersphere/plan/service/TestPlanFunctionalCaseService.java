@@ -200,7 +200,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getMoveId());
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestCollectionId());
         if (dragNode == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
@@ -213,6 +212,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         );
         super.sort(sortDTO);
         response.setOperationCount(1);
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(dragNode.getTestPlanId());
         testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, logInsertModule));
         return response;
     }

@@ -17,7 +17,6 @@ public class TestPlanExecutionQueue {
     private String runMode;
     //执行来源
     private String executionSource;
-    //预生成的报告ID (不一定会用到)
     private String prepareReportId;
     private String createUser;
     private long createTime;

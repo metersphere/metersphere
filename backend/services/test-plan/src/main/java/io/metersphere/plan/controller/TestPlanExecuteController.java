@@ -39,9 +39,9 @@ public class TestPlanExecuteController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getExecuteId()", resourceType = "test_plan")
     @Log(type = OperationLogType.EXECUTE, expression = "#msClass.executeLog(#request)", msClass = TestPlanLogService.class)
-    public void startExecute(@Validated @RequestBody TestPlanExecuteRequest request) {
+    public String startExecute(@Validated @RequestBody TestPlanExecuteRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getExecuteId(), TestPlanResourceConfig.CONFIG_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        testPlanExecuteService.singleExecuteTestPlan(request, SessionUtils.getUserId());
+        return testPlanExecuteService.singleExecuteTestPlan(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch")
