@@ -40,7 +40,11 @@
                 #{excludeId}
             </foreach>
         </if>
-
+        <if test="!isRepeat and testPlanId != null">
+            AND api_scenario.id not in (
+            select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where test_plan_api_scenario.test_plan_id = #{testPlanId}
+            )
+        </if>
 
     </select>
     <select id="getIds" resultType="java.lang.String">
@@ -553,6 +557,11 @@
         FROM api_scenario
         where api_scenario.deleted =#{deleted}
         <include refid="queryWhereCondition"/>
+        <if test="request.testPlanId != null and request.testPlanId != ''">
+            AND api_scenario.id not in (
+            select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where test_plan_api_scenario.test_plan_id = #{request.testPlanId}
+            )
+        </if>
         GROUP BY api_scenario.module_id
     </select>
 

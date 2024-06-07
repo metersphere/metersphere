@@ -174,10 +174,10 @@ public class ApiScenarioService extends MoveNodeService {
     private static final String SCENARIO = "SCENARIO";
 
 
-    public List<ApiScenarioDTO> getScenarioPage(ApiScenarioPageRequest request) {
+    public List<ApiScenarioDTO> getScenarioPage(ApiScenarioPageRequest request, boolean isRepeat, String testPlanId) {
         //CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         //TODO  场景的自定义字段 等设计 不一定会有
-        List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
+        List<ApiScenarioDTO> list = extApiScenarioMapper.list(request, isRepeat, testPlanId);
         if (CollectionUtils.isNotEmpty(list)) {
             processApiScenario(list);
         }

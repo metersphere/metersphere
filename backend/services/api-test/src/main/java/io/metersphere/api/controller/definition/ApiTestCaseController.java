@@ -162,7 +162,7 @@ public class ApiTestCaseController {
     public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "pos desc, id desc");
-        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false, true));
+        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false, true,null));
     }
 
     @PostMapping("/batch/delete")
@@ -204,7 +204,7 @@ public class ApiTestCaseController {
     public Pager<List<ApiTestCaseDTO>> pageTrash(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "delete_time desc, id desc");
-        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, true, true));
+        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, true, true, null));
     }
 
     @PostMapping("/edit/pos")

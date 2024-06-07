@@ -33,4 +33,7 @@ public class ApiScenarioModuleRequest extends BaseCondition {
     @Schema(description = "版本引用fk")
     @Size(max = 50, message = "{api_definition.ref_id.length_range}")
     private String refId;
+
+    @Schema(description = "测试计划id")
+    private String testPlanId;
 }

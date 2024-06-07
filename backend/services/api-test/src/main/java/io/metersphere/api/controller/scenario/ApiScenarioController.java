@@ -65,7 +65,7 @@ public class ApiScenarioController {
     public Pager<List<ApiScenarioDTO>> getPage(@Validated @RequestBody ApiScenarioPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "pos desc, id desc");
-        return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request));
+        return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request, true, null));
     }
 
     @PostMapping("/trash/page")
@@ -76,7 +76,7 @@ public class ApiScenarioController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "delete_time desc, id desc");
         request.setDeleted(true);
-        return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request));
+        return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request, true, null));
     }
 
     @GetMapping("follow/{id}")

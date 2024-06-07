@@ -12,6 +12,8 @@ import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioModuleMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiScenarioModuleMapper;
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;
@@ -23,6 +25,7 @@ import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -53,6 +56,8 @@ public class ApiScenarioModuleService extends ModuleTreeService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
 
     public List<BaseTreeNode> getTree(ApiScenarioModuleRequest request) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
@@ -245,6 +250,9 @@ public class ApiScenarioModuleService extends ModuleTreeService {
     }
 
     public Map<String, Long> moduleCount(ApiScenarioModuleRequest request, boolean deleted) {
+        if (StringUtils.isNotEmpty(request.getTestPlanId())) {
+            this.checkTestPlanRepeatCase(request);
+        }
         request.setModuleIds(null);
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
         List<ModuleCountDTO> moduleCountDTOList = extApiScenarioMapper.countModuleIdByRequest(request, deleted);
@@ -254,6 +262,14 @@ public class ApiScenarioModuleService extends ModuleTreeService {
         Map<String, Long> moduleCountMap = getModuleCountMap(request, moduleCountDTOList);
         moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
+    }
+
+    private void checkTestPlanRepeatCase(ApiScenarioModuleRequest request) {
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
+        if (testPlanConfig != null && BooleanUtils.isTrue(testPlanConfig.getRepeatCase())) {
+            //测试计划允许重复用例，意思就是统计不受测试计划影响。去掉这个条件，
+            request.setTestPlanId(null);
+        }
     }
 
     public List<BaseTreeNode> getTrashTree(ApiScenarioModuleRequest request) {

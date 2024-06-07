@@ -315,11 +315,11 @@ public class ApiTestCaseService extends MoveNodeService {
         apiTestCaseMapper.updateByPrimaryKeySelective(update);
     }
 
-    public List<ApiTestCaseDTO> page(ApiTestCasePageRequest request, boolean deleted, boolean isRepeat) {
+    public List<ApiTestCaseDTO> page(ApiTestCasePageRequest request, boolean deleted, boolean isRepeat, String testPlanId) {
         if (CollectionUtils.isEmpty(request.getProtocols())) {
             return new ArrayList<>();
         }
-        List<ApiTestCaseDTO> apiCaseLists = extApiTestCaseMapper.listByRequest(request, deleted, isRepeat);
+        List<ApiTestCaseDTO> apiCaseLists = extApiTestCaseMapper.listByRequest(request, deleted, isRepeat, testPlanId);
         buildApiTestCaseDTO(apiCaseLists);
         return apiCaseLists;
     }
