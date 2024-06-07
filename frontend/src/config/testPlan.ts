@@ -1,5 +1,7 @@
+import { cloneDeep } from 'lodash-es';
+
 import type { PassRateCountDetail, planStatusType, TestPlanDetail } from '@/models/testPlan/testPlan';
-import type { PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
+import type { countDetail, PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
 import { LastExecuteResults } from '@/enums/caseEnum';
 // TODO: 对照后端字段
 // 测试计划详情
@@ -55,6 +57,14 @@ export const defaultExecuteForm = {
   planCommentFileIds: [],
   notifier: [] as string[],
 };
+
+export const defaultCount: countDetail = {
+  success: 0,
+  error: 0,
+  fakeError: 0,
+  block: 0,
+  pending: 0,
+};
 // 报告详情
 export const defaultReportDetail: PlanReportDetail = {
   id: '',
@@ -68,20 +78,10 @@ export const defaultReportDetail: PlanReportDetail = {
   executeRate: 0, // 执行完成率
   bugCount: 0,
   caseTotal: 0,
-  executeCount: {
-    success: 0,
-    error: 0,
-    fakeError: 0,
-    block: 0,
-    pending: 0,
-  },
-  functionalCount: {
-    success: 0,
-    error: 0,
-    fakeError: 0,
-    block: 0,
-    pending: 0,
-  },
+  executeCount: cloneDeep(defaultCount),
+  functionalCount: cloneDeep(defaultCount),
+  apiCaseCount: cloneDeep(defaultCount),
+  apiScenarioCount: cloneDeep(defaultCount),
 };
 
 export const statusConfig: StatusListType[] = [
@@ -102,15 +102,14 @@ export const statusConfig: StatusListType[] = [
     key: 'SUCCESS',
   },
   // TODO 这个版本不展示误报
-  // {
-  //   label: 'common.fakeError',
-  //   value: 'fakeError',
-  //   color: '#FFC14E',
-  //   class: 'bg-[rgb(var(--warning-6))]',
-  //   rateKey: 'requestFakeErrorRate',
-  //   key: 'FAKE_ERROR',
-  // },
-
+  {
+    label: 'common.fakeError',
+    value: 'fakeError',
+    color: '#FFC14E',
+    class: 'bg-[rgb(var(--warning-6))]',
+    rateKey: 'requestFakeErrorRate',
+    key: 'FAKE_ERROR',
+  },
   {
     label: 'common.block',
     value: 'block',

@@ -3,8 +3,8 @@
     <div class="mb-4 flex items-center justify-between">
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
         <a-radio value="All">{{ t('report.all') }}</a-radio>
-        <a-radio value="INDEPENDENT">{{ t('report.independent') }}</a-radio>
-        <a-radio value="INTEGRATED">{{ t('report.collection') }}</a-radio>
+        <a-radio value="INDEPENDENT">{{ t('report.detail.testReport') }}</a-radio>
+        <a-radio value="INTEGRATED">{{ t('report.detail.testPlanGroupReport') }}</a-radio>
       </a-radio-group>
       <div class="items-right flex gap-[8px]">
         <a-input-search

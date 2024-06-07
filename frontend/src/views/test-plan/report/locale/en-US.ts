@@ -40,4 +40,6 @@ export default {
   'report.detail.apiCaseDetails': 'Api use case details',
   'report.detail.scenarioCaseDetails': 'Scenario use case details',
   'report.detail.oneClickSummary': 'One click report summary',
+  'report.detail.testPlanTotal': 'Total plan',
+  'report.detail.testPlanCaseTotal': 'Total use cases',
 };

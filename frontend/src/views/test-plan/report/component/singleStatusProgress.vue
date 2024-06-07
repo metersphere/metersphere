@@ -65,6 +65,18 @@
               {{ statusExecuteRate.blockRateResult }}
             </td>
           </tr>
+          <tr v-if="props.status === 'fakeError'" class="popover-tr">
+            <td class="popover-label-td">
+              <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--warning-6))]"></div>
+              <div>{{ t('common.fail') }}</div>
+            </td>
+            <td class="popover-value-td-count">
+              {{ addCommasToNumber(countDetailData.fakeError) }}
+            </td>
+            <td class="popover-value-td-pass">
+              {{ statusExecuteRate.errorRateResult }}
+            </td>
+          </tr>
           <tr v-if="props.status === 'error'" class="popover-tr">
             <td class="popover-label-td">
               <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[rgb(var(--danger-6))]"></div>
@@ -88,16 +100,18 @@
 
   import MsColorLine from '@/components/pure/ms-color-line/index.vue';
 
-  import { statusConfig } from '@/config/testPlan';
+  import { defaultCount, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
 
-  import type { countDetail, PlanReportDetail } from '@/models/testPlan/testPlanReport';
+  import type { AnalysisType, countDetail, PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
   const { t } = useI18n();
+
   const props = defineProps<{
     detail: PlanReportDetail;
     status: keyof countDetail;
+    type: AnalysisType;
   }>();
 
   const defaultStatus = {
@@ -113,8 +127,15 @@
     return statusConfig.find((e) => e.value === props.status) || defaultStatus;
   });
 
+  const analysisTypeMap: Record<AnalysisType, keyof PlanReportDetail> = {
+    FUNCTIONAL: 'functionalCount',
+    API: 'apiCaseCount',
+    SCENARIO: 'apiScenarioCount',
+  };
+
   const countDetailData = computed(() => {
-    return props.detail.functionalCount;
+    const countKey = analysisTypeMap[props.type] as keyof PlanReportDetail;
+    return props.detail[countKey] ? (props.detail[countKey] as countDetail) : defaultCount;
   });
 
   const colorData = computed(() => {

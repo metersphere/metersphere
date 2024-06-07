@@ -123,4 +123,6 @@ export default {
   'testPlan.testPlanGroup.batchArchivedGroup': '确认归档：{count} 个测试计划组吗',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': '确认删除 {count} 个测试计划组吗？',
   'testPlan.testPlanGroup.deleteScheduleTaskSuccess': '删除定时任务成功',
+  'testPlan.testPlanGroup.enableScheduleTaskSuccess': '开启定时任务成功',
+  'testPlan.testPlanGroup.closeScheduleTaskSuccess': '关闭定时任务成功',
 };
