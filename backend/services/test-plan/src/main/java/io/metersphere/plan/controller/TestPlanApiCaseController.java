@@ -96,7 +96,7 @@ public class TestPlanApiCaseController {
 
 
     @PostMapping("/batch/update/executor")
-    @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
+    @Operation(summary = "测试计划-计划详情-接口用例列表-批量更新执行人")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiCaseLogService.class)
@@ -105,5 +105,5 @@ public class TestPlanApiCaseController {
     }
 
 
-    //TODO 计划集  type
+    //TODO 批量移动 （计划集内）
 }

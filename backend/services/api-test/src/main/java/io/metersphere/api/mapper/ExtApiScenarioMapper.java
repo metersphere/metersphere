@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtApiScenarioMapper {
-    List<ApiScenarioDTO> list(@Param("request") ApiScenarioPageRequest request);
+    List<ApiScenarioDTO> list(@Param("request") ApiScenarioPageRequest request, @Param("isRepeat") boolean isRepeat, @Param("testPlanId") String testPlanId);
 
     List<String> getIds(@Param("request") ApiScenarioBatchRequest request, @Param("deleted") boolean deleted);
 
@@ -62,18 +62,20 @@ public interface ExtApiScenarioMapper {
 
     /**
      * 获取缺陷未关联的场景用例列表
+     *
      * @param request provider参数
      * @param deleted 是否删除状态
-     * @param sort 排序
+     * @param sort    排序
      * @return 通用的列表Case集合
      */
     List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     /**
      * 根据关联条件获取关联的用例ID
+     *
      * @param request 关联参数
      * @param deleted 是否删除状态
      * @return 关联的用例ID集合
      */
-    List<String> getSelectIdsByAssociateParam(@Param("request")AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+    List<String> getSelectIdsByAssociateParam(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 }

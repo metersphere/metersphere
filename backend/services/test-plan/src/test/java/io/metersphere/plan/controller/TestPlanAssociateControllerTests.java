@@ -3,6 +3,7 @@ package io.metersphere.plan.controller;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -24,6 +25,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_ASSOCIATION_URL = "/test-plan/association/page";
     public static final String API_ASSOCIATION_URL = "/test-plan/association/api/page";
     public static final String API_CASE_ASSOCIATION_URL = "/test-plan/association/api/case/page";
+    public static final String API_SCENARIO_URL = "/test-plan/association/api/scenario/page";
 
     @Test
     @Order(1)
@@ -86,6 +88,27 @@ public class TestPlanAssociateControllerTests extends BaseTest {
             put("createTime", "desc");
         }});
         MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_ASSOCIATION_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+    }
+
+    @Test
+    @Order(4)
+    public void testApiScenarioPageList() throws Exception {
+        TestPlanApiScenarioRequest request = new TestPlanApiScenarioRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setTestPlanId("wxx_1");
+        request.setProjectId("1234567");
+        this.requestPost(API_SCENARIO_URL, request);
+        request.setProjectId("wx_1234");
+        this.requestPost(API_SCENARIO_URL, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_URL, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);

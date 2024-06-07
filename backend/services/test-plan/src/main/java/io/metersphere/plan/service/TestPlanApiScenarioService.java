@@ -1,11 +1,14 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.dto.scenario.ApiScenarioDTO;
+import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
@@ -38,6 +41,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ApiScenarioService apiScenarioService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -101,7 +106,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
         List<BaseCollectionAssociateRequest> apiScenarios = collectionAssociates.get(AssociateCaseType.API_SCENARIO);
         // TODO: 调用具体的关联场景用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
     }
@@ -117,5 +122,18 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         TestPlanApiScenarioExample scenarioCaseExample = new TestPlanApiScenarioExample();
         scenarioCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
         scenarioBatchMapper.updateByExampleSelective(record, scenarioCaseExample);
+    }
+
+
+    /**
+     * 未关联接口场景列表
+     *
+     * @param request
+     * @param isRepeat
+     * @return
+     */
+    public List<ApiScenarioDTO> getApiScenarioPage(TestPlanApiScenarioRequest request, boolean isRepeat) {
+        List<ApiScenarioDTO> scenarioPage = apiScenarioService.getScenarioPage(request, isRepeat, request.getTestPlanId());
+        return scenarioPage;
     }
 }

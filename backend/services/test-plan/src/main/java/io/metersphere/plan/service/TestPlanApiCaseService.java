@@ -181,7 +181,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         if (CollectionUtils.isEmpty(request.getProtocols())) {
             return new ArrayList<>();
         }
-        return apiTestCaseService.page(request, isRepeat, false);
+        return apiTestCaseService.page(request, isRepeat, false, request.getTestPlanId());
     }
 
 
