@@ -292,6 +292,7 @@ public class FunctionalCaseMinderService {
         List<FunctionalCaseDTO> updateNoticeList = new ArrayList<>();
         List<LogDTO> updateLogDTOS = new ArrayList<>();
         Map<String, String> newModuleMap = new HashMap<>();
+
         //处理模块
         dealModule(request, userId, moduleMapper, newModuleMap);
 
@@ -370,6 +371,11 @@ public class FunctionalCaseMinderService {
 
         //处理空白节点
         dealAdditionalNode(request, userId, additionalNodeMapper, newModuleMap);
+
+        //TODO:删除转换的空白节点
+
+
+
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -1060,14 +1066,14 @@ public class FunctionalCaseMinderService {
     }
 
 
-    public List<BaseTreeNode> getTree(String projectId) {
-        List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
-        List<BaseTreeNode> baseTreeNodes = extFunctionalCaseMapper.selectBaseMindNodeByProjectId(projectId);
+    public List<BaseTreeNode> getTree(FunctionalCaseMindRequest request) {
+        List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(request.getProjectId());
+        List<BaseTreeNode> baseTreeNodes = extFunctionalCaseMapper.selectBaseMindNodeByProjectId(request.getProjectId());
         functionalModuleList.addAll(baseTreeNodes);
-        return buildTreeAndCountResource(functionalModuleList, true, Translator.get("functional_case.module.default.name"));
+        return buildTreeAndCountResource(functionalModuleList, true, Translator.get("functional_case.module.default.name"), request.getModuleId());
     }
 
-    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode, String virtualRootName) {
+    public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode, String virtualRootName, String moduleId) {
 
         List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
         if (haveVirtualRootNode) {
@@ -1097,7 +1103,25 @@ public class FunctionalCaseMinderService {
             }
             traverseList = notMatchedList;
         }
-        return baseTreeNodeList;
+
+        if (StringUtils.isNotBlank(moduleId)) {
+            List<BaseTreeNode> filterList = new ArrayList<>();
+            getFilterList(moduleId, baseTreeNodeList, filterList);
+            return filterList;
+        } else {
+            return baseTreeNodeList;
+        }
+    }
+
+    private static void getFilterList(String moduleId, List<BaseTreeNode> baseTreeNodeList, List<BaseTreeNode> filterList) {
+        for (BaseTreeNode baseTreeNode : baseTreeNodeList) {
+            if (StringUtils.equalsIgnoreCase(baseTreeNode.getId(), moduleId)) {
+                filterList.add(baseTreeNode);
+                break;
+            } else {
+                getFilterList(moduleId, baseTreeNode.getChildren(), filterList);
+            }
+        }
     }
 
     public BaseTreeNode getDefaultModule(String name) {
