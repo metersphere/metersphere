@@ -17,6 +17,7 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
@@ -648,12 +649,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates) {
-        List<BaseCollectionAssociateRequest> functionalAssociates = collectionAssociates.stream().filter(associate -> StringUtils.equals(associate.getType(), CaseType.FUNCTIONAL_CASE.getKey())).toList();
-        if (CollectionUtils.isNotEmpty(functionalAssociates)) {
-            functionalAssociates.forEach(functionalAssociate -> {
-                // TODO: 调用具体的关联接口用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
-            });
-        }
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
+        List<BaseCollectionAssociateRequest> functionals = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
+        // TODO: 调用具体的关联接口用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
     }
 }

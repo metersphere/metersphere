@@ -8,12 +8,10 @@ import java.util.List;
 @Data
 public class BaseCollectionAssociateRequest {
 
-	@Schema(description = "测试集ID")
-	private String collectionId;
+    @Schema(description = "测试集ID")
+    private String collectionId;
 
-	@Schema(description = "关联的用例ID集合")
-	private List<String> ids;
+    @Schema(description = "关联的用例ID集合")
+    private List<String> ids;
 
-	@Schema(description = "测试集类型")
-	private String type;
 }
