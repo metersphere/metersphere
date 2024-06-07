@@ -57,8 +57,9 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     /**
      * 关联用例
-     * @param planId 计划ID
+     *
+     * @param planId               计划ID
      * @param collectionAssociates 测试集关联用例参数
      */
-    public abstract void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates);
+    public abstract void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId);
 }

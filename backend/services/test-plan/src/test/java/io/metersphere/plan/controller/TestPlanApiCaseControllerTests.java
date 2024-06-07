@@ -1,9 +1,12 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,8 +15,10 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -26,6 +31,9 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String API_CASE_DISASSOCIATE = "/test-plan/api/case/disassociate";
     public static final String API_CASE_BATCH_DISASSOCIATE = "/test-plan/api/case/batch/disassociate";
     public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/api/case/batch/update/executor";
+
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
 
     @Test
     @Order(1)
@@ -130,6 +138,31 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+
+    }
+
+    @Test
+    @Order(6)
+    public void testApiCaseAssociate() throws Exception {
+        // api
+        Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
+        List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
+        BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
+        baseCollectionAssociateRequest.setCollectionId("wxxx_1");
+        baseCollectionAssociateRequest.setIds(List.of("wxxx_api_1"));
+        baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
+        collectionAssociates.put(AssociateCaseType.API, baseCollectionAssociateRequests);
+        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates, "wx");
+
+        //api case
+        Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates1 = new HashMap<>();
+        List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests1 = new ArrayList<>();
+        BaseCollectionAssociateRequest baseCollectionAssociateRequest1 = new BaseCollectionAssociateRequest();
+        baseCollectionAssociateRequest1.setCollectionId("wxxx_1");
+        baseCollectionAssociateRequest1.setIds(List.of("wxxx_api_case_1"));
+        baseCollectionAssociateRequests1.add(baseCollectionAssociateRequest1);
+        collectionAssociates1.put(AssociateCaseType.API_CASE, baseCollectionAssociateRequests1);
+        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates1, "wx");
 
     }
 }

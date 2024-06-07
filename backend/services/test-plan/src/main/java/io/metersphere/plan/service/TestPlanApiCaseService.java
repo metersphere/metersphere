@@ -1,12 +1,16 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.domain.ApiTestCaseExample;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TreeTypeEnums;
 import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
@@ -79,6 +83,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -88,8 +94,13 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
     @Override
-    public long getNextOrder(String projectId) {
-        return 0;
+    public long getNextOrder(String collectionId) {
+        Long maxPos = extTestPlanApiCaseMapper.getMaxPosByTestPlanId(collectionId);
+        if (maxPos == null) {
+            return 0;
+        } else {
+            return maxPos + DEFAULT_NODE_INTERVAL_POS;
+        }
     }
 
     @Override
@@ -441,12 +452,64 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates) {
-        List<BaseCollectionAssociateRequest> apiAssociates = collectionAssociates.stream().filter(associate -> StringUtils.equals(associate.getType(), CaseType.API_CASE.getKey())).toList();
-        if (CollectionUtils.isNotEmpty(apiAssociates)) {
-            apiAssociates.forEach(apiAssociate -> {
-                // TODO: 调用具体的关联功能用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
+        List<TestPlanApiCase> testPlanApiCaseList = new ArrayList<>();
+        //处理数据
+        handleApiData(collectionAssociates.get(AssociateCaseType.API), userId, testPlanApiCaseList, planId);
+        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), userId, testPlanApiCaseList, planId);
+        testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
+    }
+
+    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {
+        if (CollectionUtils.isNotEmpty(apiCaseList)) {
+            List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
+            apiCaseList.forEach(apiCase -> {
+                List<String> apiCaseIds = apiCase.getIds();
+                List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).collect(Collectors.toList());
+                buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
             });
         }
+    }
+
+    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {
+        if (CollectionUtils.isNotEmpty(apiCaseList)) {
+            List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            example.createCriteria().andApiDefinitionIdIn(ids);
+            List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
+            apiCaseList.forEach(apiCase -> {
+                List<String> apiCaseIds = apiCase.getIds();
+                List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).collect(Collectors.toList());
+                buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+            });
+        }
+    }
+
+
+    /**
+     * 构建测试计划接口用例对象
+     *
+     * @param planId
+     * @param apiTestCases
+     * @param collectionId
+     * @param userId
+     * @param testPlanApiCaseList
+     */
+    private void buildTestPlanApiCase(String planId, List<ApiTestCase> apiTestCases, String collectionId, String userId, List<TestPlanApiCase> testPlanApiCaseList) {
+        apiTestCases.forEach(apiTestCase -> {
+            TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
+            testPlanApiCase.setId(IDGenerator.nextStr());
+            testPlanApiCase.setTestPlanCollectionId(collectionId);
+            testPlanApiCase.setTestPlanId(planId);
+            testPlanApiCase.setApiCaseId(apiTestCase.getId());
+            testPlanApiCase.setEnvironmentId(apiTestCase.getEnvironmentId());
+            testPlanApiCase.setCreateTime(System.currentTimeMillis());
+            testPlanApiCase.setCreateUser(userId);
+            testPlanApiCase.setPos(getNextOrder(collectionId));
+            testPlanApiCaseList.add(testPlanApiCase);
+        });
     }
 }

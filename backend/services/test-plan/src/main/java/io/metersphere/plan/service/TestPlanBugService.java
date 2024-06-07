@@ -118,7 +118,7 @@ public class TestPlanBugService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, List<BaseCollectionAssociateRequest> collectionAssociates) {
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
         // TODO: 暂不支持缺陷关联测试集
     }
 }
