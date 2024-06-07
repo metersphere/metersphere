@@ -34,4 +34,34 @@ public class TestPlanCollectionMinderTreeNodeDTO {
     @Schema(description = "节点状态")
     private String expandState = "expand";
 
+    @Schema(description = "测试集类型(功能/接口/场景)", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String type;
+
+    @Schema(description = "是否继承", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean extended;
+
+    @Schema(description = "是否使用环境组", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean grouped;
+
+    @Schema(description = "环境ID/环境组ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String environmentId;
+
+    @Schema(description = "测试资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String testResourcePoolId;
+
+    @Schema(description = "是否失败重试", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean retryOnFail;
+
+    @Schema(description = "失败重试类型(步骤/场景)", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String retryType;
+
+    @Schema(description = "失败重试次数", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer retryTimes;
+
+    @Schema(description = "失败重试间隔(单位: ms)", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer retryInterval;
+
+    @Schema(description = "是否失败停止", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean stopOnFail;
+
 }

@@ -294,9 +294,10 @@ public class FunctionalCaseMinderService {
         Map<String, String> newModuleMap = new HashMap<>();
 
         //处理模块
-        dealModule(request, userId, moduleMapper, newModuleMap);
+        List<String> moduleNodeIds = dealModule(request, userId, moduleMapper, newModuleMap);
 
         //处理用例
+        List<String> caseNodeIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(request.getUpdateCaseList())) {
             Map<String, List<FunctionalCaseChangeRequest>> resourceMap = request.getUpdateCaseList().stream().collect(Collectors.groupingBy(FunctionalCaseChangeRequest::getType));
             //处理新增
@@ -310,6 +311,7 @@ public class FunctionalCaseMinderService {
                     FunctionalCase functionalCase = addCase(request, userId, functionalCaseChangeRequest, caseMapper, newModuleMap);
                     String caseId = functionalCase.getId();
                     //附属表
+                    caseNodeIds.add(caseId);
                     FunctionalCaseBlob functionalCaseBlob = addCaseBlob(functionalCaseChangeRequest, caseId, caseBlobMapper);
                     //保存自定义字段
                     List<FunctionalCaseCustomField> functionalCaseCustomFields = addCustomFields(functionalCaseChangeRequest, caseId, caseCustomFieldMapper, defaultValueMap);
@@ -366,16 +368,14 @@ public class FunctionalCaseMinderService {
             }
             //批量排序
             batchSort(updatePosList, caseMapper);
-
         }
-
         //处理空白节点
         dealAdditionalNode(request, userId, additionalNodeMapper, newModuleMap);
 
-        //TODO:删除转换的空白节点
-
-
-
+        moduleNodeIds.addAll(caseNodeIds);
+        if (CollectionUtils.isNotEmpty(moduleNodeIds)) {
+            dealMindAdditionalMode(moduleNodeIds);
+        }
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -553,7 +553,8 @@ public class FunctionalCaseMinderService {
 
     }
 
-    private void dealModule(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseModuleMapper moduleMapper, Map<String, String> newModuleMap) {
+    private List<String> dealModule(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseModuleMapper moduleMapper, Map<String, String> newModuleMap) {
+        List<String> nodeIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(request.getUpdateModuleList())) {
             List<FunctionalCaseModule> updatePosList = new ArrayList<>();
             //处理新增
@@ -573,6 +574,7 @@ public class FunctionalCaseMinderService {
                     if (StringUtils.isNotBlank(newModuleMap.get(module.getParentId()))) {
                         module.setParentId(newModuleMap.get(module.getParentId()));
                     }
+                    nodeIds.add(module.getId());
                     moduleMapper.insert(module);
                 }
                 parentModuleMap.forEach((k, v) -> {
@@ -584,7 +586,7 @@ public class FunctionalCaseMinderService {
             List<FunctionalCaseModuleEditRequest> updateList = resourceMap.get(OperationLogType.UPDATE.toString());
             if (CollectionUtils.isNotEmpty(updateList)) {
                 List<FunctionalCaseModule> modules = new ArrayList<>();
-                Map<String, List<FunctionalCaseModule>> parentModuleMap = getParentModuleMap(addList);
+                Map<String, List<FunctionalCaseModule>> parentModuleMap = getParentModuleMap(updateList);
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : updateList) {
                     checkModules(functionalCaseModuleEditRequest, parentModuleMap);
                     FunctionalCaseModule updateModule = updateModule(userId, functionalCaseModuleEditRequest, moduleMapper);
@@ -604,6 +606,7 @@ public class FunctionalCaseMinderService {
             //批量排序
             batchSortModule(updatePosList, moduleMapper);
         }
+        return nodeIds;
     }
 
     private static void batchSortModule(List<FunctionalCaseModule> updatePosList, FunctionalCaseModuleMapper moduleMapper) {
@@ -1038,11 +1041,15 @@ public class FunctionalCaseMinderService {
             List<MinderOptionDTO> additionalOptionDTOS = resourceMap.get(ModuleConstants.ROOT_NODE_PARENT_ID);
             if (CollectionUtils.isNotEmpty(additionalOptionDTOS)) {
                 List<String> mindAdditionalNodeIds = caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-                MindAdditionalNodeExample mindAdditionalNodeExample = new MindAdditionalNodeExample();
-                mindAdditionalNodeExample.createCriteria().andIdIn(mindAdditionalNodeIds);
-                mindAdditionalNodeMapper.deleteByExample(mindAdditionalNodeExample);
+                dealMindAdditionalMode(mindAdditionalNodeIds);
             }
         }
+    }
+
+    private void dealMindAdditionalMode(List<String> mindAdditionalNodeIds) {
+        MindAdditionalNodeExample mindAdditionalNodeExample = new MindAdditionalNodeExample();
+        mindAdditionalNodeExample.createCriteria().andIdIn(mindAdditionalNodeIds);
+        mindAdditionalNodeMapper.deleteByExample(mindAdditionalNodeExample);
     }
 
 

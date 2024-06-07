@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.ExtTestPlanCollectionMapper">
+
+    <select id="getList" resultType="io.metersphere.plan.dto.TestPlanCollectionConfigDTO">
+        SELECT
+        tpc.id, tpc.test_plan_id, tpc.parent_id,
+        tpc.`name`, tpc.`type`, tpc.execute_method,
+        tpc.extended, tpc.grouped, tpc.environment_id,
+        tpc.test_resource_pool_id, tpc.retry_on_fail, tpc.retry_type,
+        tpc.retry_times, tpc.retry_interval, tpc.stop_on_fail,
+        tpc.create_user, tpc.create_time, tpc.pos,
+        trp.name as poolName,
+        IF(env.name is not null, env.name, envg.name) as envName
+        FROM
+        test_plan_collection tpc
+        LEFT JOIN test_resource_pool trp ON tpc.test_resource_pool_id = trp.id
+        LEFT JOIN environment env ON tpc.environment_id = env.id
+        LEFT JOIN environment_group envg ON tpc.test_resource_pool_id = envg.id
+        WHERE tpc.test_plan_id = #{planId}
+    </select>
+
+</mapper>
