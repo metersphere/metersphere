@@ -1465,8 +1465,10 @@
 
   watch(
     () => showType.value,
-    () => {
-      initData();
+    (val) => {
+      if (val === 'list') {
+        initData();
+      }
     }
   );
 

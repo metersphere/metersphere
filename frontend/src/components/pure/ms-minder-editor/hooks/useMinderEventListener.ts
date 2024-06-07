@@ -10,6 +10,7 @@ export interface UseEventListenerProps {
   handleSelectionChange?: (node: MinderJsonNode) => void;
   handleMinderEvent?: (event: MinderCustomEvent) => void;
   handleBeforeExecCommand?: (event: MinderEvent) => void;
+  handleViewChange?: (event: MinderEvent) => void;
 }
 
 export default function useEventListener(listener: UseEventListenerProps) {
@@ -35,21 +36,21 @@ export default function useEventListener(listener: UseEventListenerProps) {
     }, 300)
   );
 
-  // minder.on('dragStart', () => {
-  //   const node: MinderJsonNode = minder.getSelectedNode();
-  //   console.log('dragStart', node);
-  // });
-
-  // minder.on('dragFinish', () => {
-  //   console.log('dragFinish', minder.history);
-  // });
-
   // 监听脑图执行命令前（可通过e.stopPropagation拦截命令执行）
   minder.on('beforeExecCommand', (e: MinderEvent) => {
     if (listener.handleBeforeExecCommand) {
       listener.handleBeforeExecCommand(e);
     }
   });
+
+  minder.on(
+    'viewchange',
+    debounce((e: MinderEvent) => {
+      if (listener.handleViewChange) {
+        listener.handleViewChange(e);
+      }
+    }, 300)
+  );
 
   // 监听脑图自定义事件
   watch(

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 
-import type { MinderEventName } from '@/enums/minderEnum';
+import { MinderEventName } from '@/enums/minderEnum';
 
 import { MinderNodePosition, MinderState } from './types';
 
@@ -12,14 +12,16 @@ const useMinderStore = defineStore('minder', {
     event: {
       name: '' as MinderEventName,
       timestamp: 0,
+      params: '',
       nodePosition: {
         x: 0,
         y: 0,
-      },
+      } as MinderNodePosition,
       nodeDom: undefined,
       nodes: undefined,
     },
     mold: 0,
+    clipboard: [],
   }),
   actions: {
     /**
@@ -31,20 +33,28 @@ const useMinderStore = defineStore('minder', {
      */
     dispatchEvent(
       name: MinderEventName,
+      params?: string,
       position?: MinderNodePosition,
       nodeDom?: HTMLElement,
       nodes?: MinderJsonNode[]
     ) {
       this.event = {
         name,
+        params,
         timestamp: Date.now(),
         nodePosition: position,
         nodeDom,
         nodes,
       };
+      if ([MinderEventName.COPY_NODE, MinderEventName.CUT_NODE].includes(name)) {
+        this.setClipboard(nodes);
+      }
     },
     setMold(val: number) {
       this.mold = val;
+    },
+    setClipboard(nodes?: MinderJsonNode[]) {
+      this.clipboard = nodes || [];
     },
   },
 });

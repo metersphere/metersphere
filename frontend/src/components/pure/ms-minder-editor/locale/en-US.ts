@@ -101,8 +101,8 @@ export default {
     hotboxMenu: {
       expand: 'Expand/Collapse',
       insetParent: 'Insert one level up',
-      insetSon: 'Insert next level',
-      insetBrother: 'Insert sibling',
+      insetSon: 'Add next level',
+      insetBrother: 'Add sibling',
       copy: 'Copy',
       cut: 'Cut',
       paste: 'Paste',
@@ -110,5 +110,6 @@ export default {
       enterNode: 'Enter the current node',
     },
     loading: 'Mind map loading...',
+    unSavedEnterNodeTip: 'There are currently unsaved changes, please save before entering the node',
   },
 };

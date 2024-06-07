@@ -42,6 +42,7 @@ import {
   GetAssociationPublicCasePageUrl,
   GetAssociationPublicModuleTreeUrl,
   GetCaseListUrl,
+  GetCaseMinderTreeUrl,
   GetCaseMinderUrl,
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
@@ -189,6 +190,11 @@ export function saveCaseMinder(data: FeatureCaseMinderUpdateParams) {
 // 获取脑图
 export function getCaseMinder(data: { projectId: string; moduleId: string }) {
   return MSR.post<MinderJsonNode[]>({ url: `${GetCaseMinderUrl}`, data });
+}
+
+// 获取脑图模块树（包含文本节点）
+export function getCaseMinderTree(data: { projectId: string; moduleId: string }) {
+  return MSR.post<MinderJsonNode[]>({ url: `${GetCaseMinderTreeUrl}`, data });
 }
 
 // 回收站

@@ -16,14 +16,9 @@ function HotboxRuntime(this: any) {
 
   function handleHotBoxShow() {
     const node = minder.getSelectedNode();
-    let position: MinderNodePosition | undefined;
     if (node) {
       const box = node.getRenderBox();
-      position = {
-        x: box.cx,
-        y: box.cy,
-      };
-      minderStore.dispatchEvent(MinderEventName.HOTBOX, position, node.rc.node);
+      minderStore.dispatchEvent(MinderEventName.HOTBOX, undefined, box, node.rc.node);
     }
   }
 

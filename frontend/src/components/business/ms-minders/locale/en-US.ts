@@ -8,4 +8,5 @@ export default {
   'ms.minders.caseName': 'Test Case Name',
   'ms.minders.caseNameNotNull': 'Test Case Name cannot be empty',
   'ms.minders.commentTotal': '{num} Comments in Total',
+  'ms.minders.text': 'Text',
 };
