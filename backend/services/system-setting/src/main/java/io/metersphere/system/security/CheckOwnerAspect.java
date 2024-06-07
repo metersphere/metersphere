@@ -7,8 +7,13 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.ExtCheckOwnerMapper;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.web.util.WebUtils;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -20,6 +25,8 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -42,6 +49,17 @@ public class CheckOwnerAspect {
 
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
+
+        // apikey 过来的请求
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+            if (ApiKeyHandler.isApiKeyCall(request) && !SecurityUtils.getSubject().isAuthenticated()) {
+                String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
+                SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, "no_pass"));
+            }
+        }
+
         //从切面织入点处通过反射机制获取织入点处的方法
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         //获取切入点所在的方法
@@ -67,13 +85,23 @@ public class CheckOwnerAspect {
 
         String resourceId = checkOwner.resourceId();
         String resourceType = checkOwner.resourceType();
+        String relationType = checkOwner.relationType();
         Expression titleExp = parser.parseExpression(resourceId);
         Object v = titleExp.getValue(context, Object.class);
+        // 归属组织的资源
         if (orgResources.contains(resourceType)) {
             handleOrganizationResource(v, resourceType);
-        } else if (StringUtils.equals(resourceType, "organization")) {
+        }
+        // 组织自身
+        else if (StringUtils.equals(resourceType, "organization")) {
             handleOrganization(v);
-        } else {
+        }
+        // 中间表
+        else if (StringUtils.isNotBlank(relationType)) {
+            handleProjectResource(v, resourceType, relationType);
+        }
+        // 归属项目的资源
+        else {
             handleProjectResource(v, resourceType);
         }
     }
@@ -104,6 +132,20 @@ public class CheckOwnerAspect {
         }
     }
 
+    private void handleProjectResource(Object v, String resourceType, String relationType) {
+        if (v instanceof String id) {
+            if (!extCheckOwnerMapper.checkoutRelationOwner(resourceType, relationType, SessionUtils.getUserId(), List.of(id))) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
+        }
+        if (v instanceof List ids) {
+            if (!extCheckOwnerMapper.checkoutRelationOwner(resourceType, relationType, SessionUtils.getUserId(), ids)) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
+        }
+    }
+
+
     private void handleOrganizationResource(Object v, String resourceType) {
         if (v instanceof String id) {
             if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getUserId(), List.of(id))) {
@@ -117,4 +159,16 @@ public class CheckOwnerAspect {
         }
     }
 
+    @After("pointcut()")
+    public void after() {
+        // apikey 过来的请求
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+            // apikey 退出
+            if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request)) && SecurityUtils.getSubject().isAuthenticated()) {
+                SecurityUtils.getSubject().logout();
+            }
+        }
+    }
 }

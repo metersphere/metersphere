@@ -13,6 +13,19 @@
         AND user_id = #{userId}
     </select>
 
+    <select id="checkoutRelationOwner" resultType="boolean">
+        SELECT count(1) > 0
+        FROM user_role_relation
+        WHERE source_id IN (SELECT project_id
+        FROM ${table} JOIN ${relationTable} ON ${table}.id = ${relationTable}.${table}_id
+            JOIN project ON ${table}.project_id = project.id AND project.enable = TRUE
+        WHERE ${table}.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>)
+        AND user_id = #{userId}
+    </select>
+
     <select id="checkoutOrganizationOwner" resultType="boolean">
         SELECT count(1) > 0
         FROM user_role_relation
