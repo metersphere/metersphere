@@ -70,7 +70,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
         List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
         List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
-        if (!containRequest) {
+        if (!containRequest || CollectionUtils.isEmpty(request.getProtocols())) {
             return baseTreeNodes;
         }
         List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
@@ -263,6 +263,9 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     }
 
     public Map<String, Long> moduleCount(ApiModuleRequest request, boolean deleted) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return Collections.emptyMap();
+        }
         boolean isRepeat = true;
         if (StringUtils.isNotEmpty(request.getTestPlanId())) {
             isRepeat = this.checkTestPlanRepeatCase(request);
@@ -282,6 +285,9 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     }
 
     public List<BaseTreeNode> getTrashTree(ApiModuleRequest request) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new ArrayList<>();
+        }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria()
                 .andProjectIdEqualTo(request.getProjectId())

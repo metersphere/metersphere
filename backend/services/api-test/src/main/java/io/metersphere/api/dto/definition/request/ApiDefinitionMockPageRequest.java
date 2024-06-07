@@ -3,7 +3,6 @@ package io.metersphere.api.dto.definition.request;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,8 +34,7 @@ public class ApiDefinitionMockPageRequest extends BasePageRequest {
     private String apiDefinitionId;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty
-    private List<@NotBlank String> protocols = new ArrayList<>();
+    private List<String> protocols = new ArrayList<>();
 
     @Schema(description = "模块ID")
     private List<@NotBlank String> moduleIds;

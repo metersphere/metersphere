@@ -3,7 +3,6 @@ package io.metersphere.api.dto.definition;
 import io.metersphere.system.dto.sdk.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -16,8 +15,7 @@ public class ApiModuleRequest extends BaseCondition {
     private List<@NotBlank String> moduleIds;
 
     @Schema(description = "协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "{api_definition_module.protocol.not_blank}")
-    private List<@NotBlank String> protocols = new ArrayList<>();
+    private List<String> protocols = new ArrayList<>();
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_module.project_id.not_blank}")
     @Size(min = 1, max = 50, message = "{api_definition_module.project_id.length_range}")

@@ -2154,6 +2154,9 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private void getCaseStep(ApiScenarioSystemRequest request, ScenarioSystemRequest caseRequest, List<ApiScenarioStepDTO> steps) {
+        if (CollectionUtils.isEmpty(caseRequest.getProtocols())) {
+            return;
+        }
         if (CollectionUtils.isNotEmpty(caseRequest.getModuleIds())) {
             caseRequest.getSelectedIds().addAll(extApiTestCaseMapper.getIdsByModules(caseRequest));
         }
@@ -2178,6 +2181,9 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private void getApiStep(ApiScenarioSystemRequest request, ScenarioSystemRequest apiRequest, List<ApiScenarioStepDTO> steps) {
+        if (CollectionUtils.isEmpty(apiRequest.getProtocols())) {
+            return;
+        }
         if (CollectionUtils.isNotEmpty(apiRequest.getModuleIds())) {
             apiRequest.getSelectedIds().addAll(extApiDefinitionMapper.getIdsByModules(apiRequest));
         }
@@ -2332,7 +2338,8 @@ public class ApiScenarioService extends MoveNodeService {
                         resourceInfo.setDelete(apiTestCase.getDeleted());
                         resourceInfo.setProjectId(apiTestCase.getProjectId());
                     });
-            default -> {}
+            default -> {
+            }
         }
         Optional.ofNullable(apiStepResourceInfo).ifPresent(resourceInfo -> {
             Project project = projectMapper.selectByPrimaryKey(resourceInfo.getProjectId());

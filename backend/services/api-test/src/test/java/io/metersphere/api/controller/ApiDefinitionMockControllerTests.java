@@ -517,6 +517,13 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
     public void getPage() throws Exception {
         doApiDefinitionPage("KEYWORD");
         doApiDefinitionPage("FILTER");
+        ApiDefinitionMockPageRequest request = new ApiDefinitionMockPageRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setApiDefinitionId(apiDefinitionMock.getApiDefinitionId());
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(Map.of("createTime", "asc"));
+        this.requestPostWithOkAndReturn(PAGE, request);
     }
 
     private void doApiDefinitionPage(String search) throws Exception {
@@ -601,8 +608,9 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setType("Tags");
         request.setAppend(true);
         request.setSelectAll(true);
-        request.setProtocols(List.of("HTTP"));
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+        request.setProtocols(List.of("HTTP"));
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         ApiDefinitionMockExample example = new ApiDefinitionMockExample();
         List<String> ids = extApiDefinitionMockMapper.getIds(request);

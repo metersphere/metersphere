@@ -2,6 +2,7 @@ package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -92,6 +93,7 @@ public class ApiTestCaseController {
         ids.add(id);
         request.setSelectIds(ids);
         request.setProjectId(SessionUtils.getCurrentProjectId());
+        request.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
         apiTestCaseRecoverService.batchRecover(request, SessionUtils.getUserId());
     }
 
