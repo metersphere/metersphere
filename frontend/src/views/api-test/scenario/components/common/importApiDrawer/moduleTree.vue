@@ -121,7 +121,7 @@
       loading.value = true;
       const params = {
         keyword: moduleKeyword.value,
-        protocol: props.protocol,
+        protocols: [props.protocol],
         projectId: props.projectId,
         moduleIds: [],
       };
@@ -144,7 +144,7 @@
     try {
       const params = {
         keyword: moduleKeyword.value,
-        protocol: props.protocol,
+        protocols: [props.protocol],
         projectId: props.projectId,
         moduleIds: [],
       };

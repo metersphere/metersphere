@@ -38,6 +38,9 @@
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_STATUS]="{ filterContent }">
         <apiStatus :status="filterContent.value" />
       </template>
+      <template #protocol="{ record }">
+        <apiMethodName :method="record.protocol" />
+      </template>
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
         <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
@@ -102,6 +105,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
@@ -128,7 +132,7 @@
   const props = defineProps<{
     activeModule: string;
     offspringIds: string[];
-    protocol: string; // 查看的协议类型
+    selectedProtocols: string[];
     memberOptions: { label: string; value: string }[];
   }>();
 
@@ -184,6 +188,7 @@
     {
       title: 'apiTestManagement.protocol',
       dataIndex: 'protocol',
+      slotName: 'protocol',
       showTooltip: true,
       width: 200,
       showDrag: true,
@@ -380,7 +385,7 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: moduleIds.value,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
     };
     setLoadListParams(params);
     loadList();
@@ -390,19 +395,9 @@
     loadCaseList();
   }
 
-  watch(
-    () => props.activeModule,
-    () => {
-      loadCaseListAndResetSelector();
-    }
-  );
-
-  watch(
-    () => props.protocol,
-    () => {
-      loadCaseListAndResetSelector();
-    }
-  );
+  watch([() => props.activeModule, () => props.selectedProtocols], () => {
+    loadCaseListAndResetSelector();
+  });
 
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
   const batchParams = ref<BatchActionQueryParams>({
@@ -469,7 +464,7 @@
       selectIds: batchParams.value.selectedIds as string[],
       moduleIds: moduleIds.value,
       projectId: appStore.currentProjectId,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
       condition: {
         keyword: keyword.value,
         filter: propsRes.value.filter,

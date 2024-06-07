@@ -19,6 +19,7 @@
       </div>
     </div>
     <ms-base-table
+      ref="apiTableRef"
       v-bind="propsRes"
       :action-config="batchActions"
       :first-column-width="44"
@@ -28,7 +29,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template v-if="props.protocol === 'HTTP'" #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
+      <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
         <apiMethodName :method="filterContent.value" />
       </template>
       <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_API_STATUS]="{ filterContent }">
@@ -49,6 +50,9 @@
       </template>
       <template #deleteUserName="{ record }">
         <span type="text" class="px-0">{{ record.deleteUserName || '-' }}</span>
+      </template>
+      <template #protocol="{ record }">
+        <apiMethodName :method="record.protocol" />
       </template>
       <template #method="{ record }">
         <apiMethodName :method="record.method" is-tag />
@@ -92,6 +96,7 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
+  import { getProtocolList } from '@/api/modules/api-test/common';
   import {
     batchCleanOutDefinition,
     batchRecoverDefinition,
@@ -105,6 +110,7 @@
   import useAppStore from '@/store/modules/app';
   import { characterLimit, operationWidth } from '@/utils';
 
+  import { ProtocolItem } from '@/models/apiTest/common';
   import {
     ApiDefinitionDetail,
     ApiDefinitionGetModuleParams,
@@ -112,13 +118,13 @@
   } from '@/models/apiTest/management';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import {FilterSlotNameEnum} from "@/enums/tableFilterEnum";
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const props = defineProps<{
     class?: string;
     activeModule: string;
     offspringIds: string[];
-    protocol: string; // 查看的协议类型
+    selectedProtocols: string[];
     readOnly?: boolean; // 是否是只读模式
     memberOptions: { label: string; value: string }[];
   }>();
@@ -132,13 +138,43 @@
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const refreshModuleTreeCount: ((data: ApiDefinitionGetModuleParams) => Promise<any>) | undefined =
     inject('refreshModuleTreeCount');
+
+  // TODO: 后期优化 放store里
+  const protocolList = ref<ProtocolItem[]>([]);
+  async function initProtocolList() {
+    try {
+      const res = await getProtocolList(appStore.currentOrgId);
+      protocolList.value = res.map((e) => ({
+        protocol: e.protocol,
+        polymorphicName: e.polymorphicName,
+        pluginId: e.pluginId,
+      }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  onBeforeMount(() => {
+    initProtocolList();
+  });
+
+  // TODO 后期提到apiTest公用里
   const requestMethodsOptions = computed(() => {
-    return Object.values(RequestMethods).map((e) => {
+    const otherMethods = protocolList.value
+      .filter((e) => e.protocol !== 'HTTP')
+      .map((item) => {
+        return {
+          value: item.protocol,
+          key: item.protocol,
+        };
+      });
+    const httpMethods = Object.values(RequestMethods).map((e) => {
       return {
         value: e,
         key: e,
       };
     });
+    return [...httpMethods, ...otherMethods];
   });
   const requestApiStatus = computed(() => {
     return Object.values(RequestDefinitionStatus).map((e) => {
@@ -148,7 +184,7 @@
       };
     });
   });
-  const columns: MsTableColumn = [
+  let columns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -176,6 +212,7 @@
     {
       title: 'apiTestManagement.protocol',
       dataIndex: 'protocol',
+      slotName: 'protocol',
       showTooltip: true,
       width: 200,
       showDrag: true,
@@ -309,7 +346,7 @@
       projectId: appStore.currentProjectId,
       moduleIds: props.activeModule === 'all' ? [] : queryModuleIds,
       deleted: true,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
       filter: {
         status: statusFilters.value,
         method: methodFilters.value,
@@ -325,7 +362,7 @@
           deleteUser: deleteUserFilters.value,
         },
         moduleIds: [],
-        protocol: props.protocol,
+        protocols: props.selectedProtocols,
         projectId: appStore.currentProjectId,
       });
     }
@@ -347,8 +384,9 @@
     }
   );
 
+  // 第一次初始化会触发，所以不需要onBeforeMount再次调用
   watch(
-    () => props.protocol,
+    () => props.selectedProtocols,
     () => {
       resetSelector();
       loadApiList(true);
@@ -377,10 +415,6 @@
     statusFilterVisible.value = false;
     loadApiList(false);
   }
-
-  onBeforeMount(() => {
-    loadApiList(true);
-  });
 
   const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
@@ -424,7 +458,7 @@
       selectIds: batchParams.value.selectedIds as string[],
       moduleIds: props.activeModule === 'all' ? [] : queryModuleIds,
       projectId: appStore.currentProjectId,
-      protocol: props.protocol,
+      protocols: props.selectedProtocols,
       condition: {
         keyword: keyword.value,
         filter: {
@@ -535,7 +569,6 @@
       await recoverDefinition({
         id: record.id,
         projectId: record.projectId,
-        protocol: props.protocol,
       });
       Message.success(t('apiTestManagement.recycle.recoveredSuccessfully'));
       resetSelector();
@@ -552,7 +585,31 @@
     loadApiList,
   });
 
+  function initFilterColumn() {
+    columns = columns.map((item) => {
+      if (item.dataIndex === 'method') {
+        return {
+          ...item,
+          filterConfig: {
+            ...item.filterConfig,
+            options: requestMethodsOptions.value,
+          },
+        };
+      }
+      return item;
+    });
+  }
+
+  await initFilterColumn();
   await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
+  const apiTableRef = ref();
+  watch(
+    () => requestMethodsOptions.value,
+    () => {
+      initFilterColumn();
+      apiTableRef.value.initColumn(columns);
+    }
+  );
 </script>
 
 <style lang="less" scoped>

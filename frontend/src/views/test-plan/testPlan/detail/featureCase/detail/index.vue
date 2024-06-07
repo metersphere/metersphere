@@ -462,12 +462,10 @@
         // 当前是最后一个，刷新数据
         loadCaseDetail();
         loadCaseList();
-        // TODO 更新历史列表
       }
     } else {
       // 不自动下一个才请求详情
       loadCase();
-      // TODO 更新历史列表
     }
   }
 

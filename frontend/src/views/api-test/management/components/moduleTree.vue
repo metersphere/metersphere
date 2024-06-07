@@ -9,10 +9,7 @@
         />
         <template v-if="!props.readOnly && !props.trash">
           <a-dropdown-button
-            v-if="
-              selectedProtocols.includes('HTTP') &&
-              hasAllPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])
-            "
+            v-if="hasAllPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])"
             type="primary"
             @click="handleSelect('newApi')"
           >
@@ -28,7 +25,6 @@
           </a-dropdown-button>
           <a-button
             v-else-if="
-              selectedProtocols.includes('HTTP') &&
               !hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) &&
               hasAnyPermission(['PROJECT_API_DEFINITION:READ+IMPORT'])
             "

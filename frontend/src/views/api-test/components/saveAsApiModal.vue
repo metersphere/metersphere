@@ -105,7 +105,7 @@
     try {
       apiModuleTree.value = await getModuleTreeOnlyModules({
         keyword: '',
-        protocol,
+        protocols: [protocol],
         projectId: appStore.currentProjectId,
         moduleIds: [],
       });

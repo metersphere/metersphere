@@ -100,8 +100,7 @@ export interface ApiDefinitionGetModuleParams {
   filter?: Record<string, any>;
   combine?: Record<string, any>;
   moduleIds: string[];
-  protocols?: string[]; // TODO 协议 必填
-  protocol?: string; // TODO 协议 改完回收站删除这行
+  protocols: string[];
   projectId: string;
   versionId?: string;
   refId?: string;
@@ -181,8 +180,7 @@ export interface mockParams {
 }
 // 批量操作参数
 export interface ApiDefinitionBatchParams extends BatchApiParams {
-  protocols?: string[]; // TODO 协议 必填
-  protocol?: string; // TODO 协议 改完回收站删除这行
+  protocols: string[];
 }
 // 批量更新定义参数
 export interface ApiDefinitionBatchUpdateParams extends ApiDefinitionBatchParams {
@@ -281,7 +279,6 @@ export interface DefinitionReferencePageParams extends TableQueryParams {
 export interface ApiDefinitionDeleteParams {
   id: string;
   projectId: string;
-  protocol: string;
   deleteAll?: boolean;
 }
 
@@ -334,8 +331,7 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
 }
 // 批量操作参数
 export interface ApiCaseBatchParams extends BatchApiParams {
-  protocols?: string[]; // TODO 协议 必填
-  protocol?: string; // TODO 协议 改完回收站删除这行
+  protocols: string[];
   apiDefinitionId?: string;
   versionId?: string;
 }
