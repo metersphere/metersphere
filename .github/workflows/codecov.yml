@@ -32,7 +32,7 @@ jobs:
           cache-dependency-path: '**/pom.xml' # optional
           check-latest: true
       - name: Build with Maven - other
-        run: mvn -T 1C -B package -DskipAntRunForJenkins --file pom.xml -pl '!frontend'
+        run: mvn -B package -DskipAntRunForJenkins --file pom.xml -pl '!frontend'
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
