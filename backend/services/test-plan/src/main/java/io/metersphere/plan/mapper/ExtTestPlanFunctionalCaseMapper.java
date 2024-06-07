@@ -58,4 +58,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 
     List<TestPlanCaseRunResultCount> selectCaseExecResultCount(String testPlanId);
+
+    Long getMaxPosByCollectionId(@Param("collectionId") String collectionId);
 }

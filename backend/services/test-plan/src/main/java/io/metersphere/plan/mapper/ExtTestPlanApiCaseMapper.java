@@ -55,4 +55,6 @@ public interface ExtTestPlanApiCaseMapper {
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 
     List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
+
+    Long getMaxPosByCollectionId(@Param("collectionId") String collectionId);
 }
