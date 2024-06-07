@@ -7,13 +7,8 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.ExtCheckOwnerMapper;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.web.util.WebUtils;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -25,8 +20,6 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -49,16 +42,6 @@ public class CheckOwnerAspect {
 
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
-
-        // apikey 过来的请求
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes != null) {
-            HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
-            if (ApiKeyHandler.isApiKeyCall(request) && !SecurityUtils.getSubject().isAuthenticated()) {
-                String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
-                SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, "no_pass"));
-            }
-        }
 
         //从切面织入点处通过反射机制获取织入点处的方法
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -155,19 +138,6 @@ public class CheckOwnerAspect {
         if (v instanceof List ids) {
             if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getUserId(), ids)) {
                 throw new MSException(Translator.get("check_owner_case"));
-            }
-        }
-    }
-
-    @After("pointcut()")
-    public void after() {
-        // apikey 过来的请求
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes != null) {
-            HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
-            // apikey 退出
-            if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request)) && SecurityUtils.getSubject().isAuthenticated()) {
-                SecurityUtils.getSubject().logout();
             }
         }
     }
