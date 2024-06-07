@@ -99,7 +99,7 @@
     }
     window.minder.execCommand('resource', origin);
     const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-    minderStore.dispatchEvent(MinderEventName.SET_TAG, undefined, undefined, nodes);
+    minderStore.dispatchEvent(MinderEventName.SET_TAG, undefined, undefined, undefined, nodes);
     if (props.replaceableTags) {
       tagList.value = props.replaceableTags(nodes);
     }

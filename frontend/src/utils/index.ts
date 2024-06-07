@@ -315,16 +315,17 @@ export function filterTree<T>(
 export function findNodeByKey<T>(
   trees: TreeNode<T>[],
   targetKey: string | number,
-  customKey = 'key'
+  customKey = 'key',
+  dataKey: string | undefined = undefined
 ): TreeNode<T> | T | null {
   for (let i = 0; i < trees.length; i++) {
     const node = trees[i];
-    if (node[customKey] === targetKey) {
+    if (dataKey ? node[dataKey]?.[customKey] === targetKey : node[customKey] === targetKey) {
       return node; // 如果当前节点的 key 与目标 key 匹配，则返回当前节点
     }
 
     if (Array.isArray(node.children) && node.children.length > 0) {
-      const _node = findNodeByKey(node.children, targetKey, customKey); // 递归在子节点中查找
+      const _node = findNodeByKey(node.children, targetKey, customKey, dataKey); // 递归在子节点中查找
       if (_node) {
         return _node; // 如果在子节点中找到了匹配的节点，则返回该节点
       }
@@ -389,6 +390,34 @@ export function findNodePathByKey<T>(
 
   return null;
 }
+
+/**
+ * 根据customKey替换树节点
+ */
+export function replaceNodeInTree<T>(
+  tree: TreeNode<T>[],
+  targetKey: string,
+  newNode: TreeNode<T>,
+  dataKey?: string,
+  customKey = 'key'
+): boolean {
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    if (dataKey ? node[dataKey]?.[customKey] === targetKey : node[customKey] === targetKey) {
+      // 找到目标节点，进行替换
+      tree[i] = newNode;
+      return true;
+    }
+    if (node.children && node.children.length > 0) {
+      // 如果当前节点有子节点，递归查找
+      if (replaceNodeInTree(node.children, targetKey, newNode, dataKey, customKey)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 /**
  * 在某个节点前/后插入单个新节点
  * @param treeArr 目标树

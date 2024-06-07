@@ -47,6 +47,15 @@
             {{ props.reviewDetail.underReviewedCount }}
           </td>
         </tr>
+        <tr>
+          <td class="popover-label-td">
+            <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-4)]"></div>
+            <div>{{ t('caseManagement.caseReview.unReview') }}</div>
+          </td>
+          <td class="popover-value-td">
+            {{ props.reviewDetail.unReviewCount }}
+          </td>
+        </tr>
       </table>
     </template>
   </MsColorLine>

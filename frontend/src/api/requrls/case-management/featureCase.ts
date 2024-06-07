@@ -28,6 +28,7 @@ export const GetSearchCustomFieldsUrl = '/functional/case/custom/field';
 export const GetAssociatedFilePageUrl = '/attachment/page';
 export const SaveCaseMinderUrl = '/functional/mind/case/edit'; // 保存用例脑图
 export const GetCaseMinderUrl = '/functional/mind/case/list'; // 获取脑图数据
+export const GetCaseMinderTreeUrl = '/functional/mind/case/tree'; // 获取脑图模块树（含文本节点）
 
 // 获取模块树
 export const GetCaseModuleTreeUrl = '/functional/case/module/tree';

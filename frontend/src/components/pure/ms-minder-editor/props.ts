@@ -29,13 +29,14 @@ export interface MinderJsonNode {
   data?: MinderJsonNodeData;
   parent?: MinderJsonNode;
   children?: MinderJsonNode[];
+  type?: string; // 节点类型，root为根节点，其他为普通节点
   [key: string]: any; // minder 内置字段
 }
 
 export interface MinderJson {
   root: MinderJsonNode;
   template: string;
-  treePath: Record<string, MinderJsonNode>[];
+  treePath: MinderJsonNode[];
 }
 // 脑图类
 export interface MinderClass {
@@ -53,16 +54,6 @@ export interface MinderEvent extends MinderClass {
 }
 
 export const mainEditorProps = {
-  importJson: {
-    type: Object as PropType<MinderJson>,
-    default() {
-      return {
-        root: {},
-        template: 'default',
-        treePath: [] as any[],
-      };
-    },
-  },
   height: {
     type: Number,
     default: 500,
@@ -98,6 +89,10 @@ export const priorityProps = {
   },
   priorityDisableCheck: Function as PropType<(node: MinderJsonNode) => boolean>,
   operators: [],
+  priorityTooltip: {
+    type: String,
+    default: '',
+  },
 };
 
 export interface MinderReplaceTag {
@@ -130,9 +125,54 @@ export const tagProps = {
   afterTagEdit: Function as PropType<(nodes: MinderJsonNode[], tag: string) => void>,
 };
 
+export interface InsertMenuItem {
+  value: string;
+  label: string;
+}
+export const floatMenuProps = {
+  // 插入同级选项
+  insertSiblingMenus: {
+    type: Array as PropType<InsertMenuItem[]>,
+    default() {
+      return [];
+    },
+  },
+  // 插入子级选项
+  insertSonMenus: {
+    type: Array as PropType<InsertMenuItem[]>,
+    default() {
+      return [];
+    },
+  },
+  // 是否显示更多菜单
+  canShowMoreMenu: {
+    type: Boolean,
+    default: true,
+  },
+  // 是否显示进入节点
+  canShowEnterNode: {
+    type: Boolean,
+    default: false,
+  },
+  // 是否显示粘贴菜单
+  canShowPasteMenu: {
+    type: Boolean,
+    default: true,
+  },
+  // 是否显示等级菜单
+  canShowPriorityMenu: {
+    type: Boolean,
+    default: true,
+  },
+  // 节点可选标签集合
+  replaceableTags: {
+    type: Function as PropType<(nodes: MinderJsonNode[]) => string[]>,
+  },
+};
+
 export const insertProps = {
   insertNode: {
-    type: Function as PropType<(node: MinderJsonNode, type: string) => void>,
+    type: Function as PropType<(node: MinderJsonNode, type: string, value?: string) => void>,
     default: undefined,
   },
 };

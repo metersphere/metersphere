@@ -178,6 +178,7 @@ export interface ReviewItem {
   unPassCount: number;
   reReviewedCount: number;
   underReviewedCount: number;
+  unReviewCount: number;
   reviewedCount: number;
   followFlag: boolean; // 关注标识
 }

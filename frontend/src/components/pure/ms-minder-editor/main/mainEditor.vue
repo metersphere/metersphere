@@ -1,68 +1,7 @@
 <template>
-  <div ref="mec" class="minder-container">
-    <a-button type="primary" :disabled="props.disabled" class="save-btn bottom-[30px] right-[30px]" @click="save">
-      {{ t('minder.main.main.save') }}
-    </a-button>
+  <div ref="mec" class="ms-minder-container">
+    <minderHeader :icon-buttons="props.iconButtons" @save="save" />
     <Navigator />
-    <a-dropdown
-      v-model:popup-visible="menuVisible"
-      class="minder-dropdown"
-      position="bl"
-      :popup-translate="menuPopupOffset"
-      @select="handleMinderMenuSelect"
-    >
-      <span></span>
-      <template #content>
-        <a-doption value="expand">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.expand') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">( / )</div>
-          </div>
-        </a-doption>
-        <a-doption value="insetSon">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.insetSon') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Tab)</div>
-          </div>
-        </a-doption>
-        <a-doption value="insetBrother">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.insetBrother') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Enter)</div>
-          </div>
-        </a-doption>
-        <a-doption value="copy">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.copy') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div>
-          </div>
-        </a-doption>
-        <a-doption value="cut">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.cut') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div>
-          </div>
-        </a-doption>
-        <a-doption value="paste">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.paste') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + V)</div>
-          </div>
-        </a-doption>
-        <a-doption value="delete">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.delete') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Backspace)</div>
-          </div>
-        </a-doption>
-        <a-doption value="enterNode">
-          <div class="flex items-center">
-            <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div>
-          </div>
-        </a-doption>
-      </template>
-    </a-dropdown>
     <div
       v-if="innerImportJson.treePath?.length > 1"
       class="absolute left-[50%] top-[24px] z-50 translate-x-[-50%] bg-white p-[8px]"
@@ -73,23 +12,30 @@
         </a-breadcrumb-item>
       </a-breadcrumb>
     </div>
+    <nodeFloatMenu v-bind="props">
+      <template #extractMenu>
+        <slot name="extractMenu"></slot>
+      </template>
+    </nodeFloatMenu>
   </div>
 </template>
 
 <script lang="ts" name="minderContainer" setup>
   import { onMounted, ref, watch } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
+  import nodeFloatMenu from '../menu/nodeFloatMenu.vue';
+  import minderHeader from './header.vue';
   import Navigator from './navigator.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor';
-  import { findNodePathByKey, getGenerateId } from '@/utils';
+  import { findNodePathByKey, replaceNodeInTree } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
   import {
     editMenuProps,
+    floatMenuProps,
+    headerProps,
     insertProps,
     mainEditorProps,
     MinderJson,
@@ -102,21 +48,32 @@
   import { markChangeNode, markDeleteNode } from '../script/tool/utils';
   import type { Ref } from 'vue';
 
-  const { t } = useI18n();
-  const props = defineProps({ ...editMenuProps, ...insertProps, ...mainEditorProps, ...tagProps, ...priorityProps });
-
+  const props = defineProps({
+    ...headerProps,
+    ...floatMenuProps,
+    ...editMenuProps,
+    ...insertProps,
+    ...mainEditorProps,
+    ...tagProps,
+    ...priorityProps,
+  });
   const emit = defineEmits<{
+    (e: 'save', data: MinderJson, callback: () => void): void;
     (e: 'afterMount'): void;
-    (e: 'save', json: MinderJson): void;
   }>();
 
   const minderStore = useMinderStore();
   const mec: Ref<HTMLDivElement | null> = ref(null);
-  const innerImportJson = ref<any>({});
+  const importJson = defineModel<MinderJson>('importJson', {
+    required: true,
+  });
+  const innerImportJson = ref<MinderJson>({
+    root: {},
+    template: 'default',
+    treePath: [],
+  });
+  const minderUnsaved = ref(false);
 
-  function save() {
-    emit('save', window.minder.exportJson());
-  }
   function handlePriorityButton() {
     const { priorityPrefix } = props;
     const { priorityStartWithZero } = props;
@@ -162,8 +119,8 @@
       moveEnable: props.moveEnable,
     });
     const { editor } = window;
-    if (Object.keys(props.importJson || {}).length > 0) {
-      editor.minder.importJson(props.importJson);
+    if (Object.keys(importJson.value || {}).length > 0) {
+      editor.minder.importJson(importJson.value);
     }
     window.km = editor.minder;
     window.minder = window.km;
@@ -189,11 +146,10 @@
         'zoom',
         'zoomIn',
         'zoomOut',
-        'append',
-        'appendchildnode',
-        'appendsiblingnode',
       ]);
       if (selectNodes && !notChangeCommands.has(env.commandName.toLocaleLowerCase())) {
+        minderUnsaved.value = true;
+        minderStore.dispatchEvent(MinderEventName.MINDER_CHANGED);
         selectNodes.forEach((node: MinderJsonNode) => {
           markChangeNode(node);
         });
@@ -223,15 +179,25 @@
    * @param node 切换的节点
    */
   function switchNode(node: MinderJsonNode | MinderJsonNodeData) {
-    if (node.data) {
-      innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.data.id, 'data', 'id'));
-    } else {
-      innerImportJson.value = cloneDeep(findNodePathByKey([props.importJson.root], node.id, 'data', 'id'));
+    if (minderUnsaved.value) {
+      // 切换前，如果脑图未保存，先把更改的节点信息同步一次
+      replaceNodeInTree(
+        [importJson.value.root],
+        innerImportJson.value.root.data?.id || '',
+        window.minder.exportJson()?.root,
+        'data',
+        'id'
+      );
     }
-    innerImportJson.value.data.expandState = 'expand';
+    if (node.data) {
+      innerImportJson.value = findNodePathByKey([importJson.value.root], node.data.id, 'data', 'id') as MinderJson;
+    } else {
+      innerImportJson.value = findNodePathByKey([importJson.value.root], node.id, 'data', 'id') as MinderJson;
+    }
     window.minder.importJson(innerImportJson.value);
     setTimeout(() => {
-      window.minder.execCommand('camera', window.minder.getRoot(), 600);
+      window.minder.select(window.minder.getRoot());
+      window.minder.execCommand('camera', window.minder.getRoot());
     }, 100); // TODO:暂未知渲染时机，临时延迟解决
   }
 
@@ -252,83 +218,23 @@
     }
   );
 
-  /**
-   * 执行插入
-   * @param command 插入命令
-   */
-  function execInsertCommand(command: string) {
-    const node: MinderJsonNode = window.minder.getSelectedNode();
-    if (props.insertNode) {
-      props.insertNode(node, command);
-      return;
+  function save() {
+    let data = importJson.value;
+    if (innerImportJson.value.treePath?.length > 1) {
+      replaceNodeInTree(
+        [importJson.value.root],
+        innerImportJson.value.root.data?.id || '',
+        window.minder.exportJson()?.root,
+        'data',
+        'id'
+      );
+    } else {
+      data = window.minder.exportJson();
     }
-    if (window.minder.queryCommandState(command) !== -1) {
-      window.minder.execCommand(command);
-      nextTick(() => {
-        const newNode: MinderJsonNode = window.minder.getSelectedNode();
-        if (!newNode.data) {
-          newNode.data = {
-            id: getGenerateId(),
-            text: '',
-          };
-        }
-        newNode.data.isNew = true; // 新建的节点标记为新建
-      });
-    }
-  }
-
-  /**
-   * 处理快捷菜单选择
-   * @param val 选择的菜单项
-   */
-  function handleMinderMenuSelect(val: string | number | Record<string, any> | undefined) {
-    const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-    if (selectedNodes.length > 0) {
-      switch (val) {
-        case 'expand':
-          if (selectedNodes.some((node) => node.data?.expandState === 'collapse')) {
-            window.minder.execCommand('Expand');
-          } else {
-            window.minder.execCommand('Collapse');
-          }
-          minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, selectedNodes);
-          break;
-        case 'insetParent':
-          execInsertCommand('AppendParentNode');
-          minderStore.dispatchEvent(MinderEventName.INSERT_PARENT, undefined, undefined, selectedNodes);
-          break;
-        case 'insetSon':
-          execInsertCommand('AppendChildNode');
-          minderStore.dispatchEvent(MinderEventName.INSERT_CHILD, undefined, undefined, selectedNodes);
-          break;
-        case 'insetBrother':
-          execInsertCommand('AppendSiblingNode');
-          minderStore.dispatchEvent(MinderEventName.INSERT_SIBLING, undefined, undefined, selectedNodes);
-          break;
-        case 'copy':
-          window.minder.execCommand('Copy');
-          minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, selectedNodes);
-          break;
-        case 'cut':
-          window.minder.execCommand('Cut');
-          minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, selectedNodes);
-          break;
-        case 'paste':
-          window.minder.execCommand('Paste');
-          minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, selectedNodes);
-          break;
-        case 'delete':
-          window.minder.execCommand('RemoveNode');
-          minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, selectedNodes);
-          break;
-        case 'enterNode':
-          switchNode(selectedNodes[0]);
-          minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, [selectedNodes[0]]);
-          break;
-        default:
-          break;
-      }
-    }
+    emit('save', data, () => {
+      minderUnsaved.value = false;
+      menuVisible.value = false;
+    });
   }
 </script>
 
@@ -337,12 +243,13 @@
   .save-btn {
     @apply !absolute;
   }
-  .minder-container {
-    @apply relative !bg-white;
+  .ms-minder-container {
+    @apply relative overflow-hidden !bg-white;
 
+    padding: 16px 0;
     height: calc(100% - 60px);
   }
-  .minder-dropdown {
+  .ms-minder-dropdown {
     .arco-dropdown-list-wrapper {
       max-height: none;
     }

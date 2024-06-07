@@ -11,7 +11,7 @@ export interface UseFullScreen {
  * @param domRef dom ref
  */
 export default function useFullScreen(
-  domRef: Ref<HTMLElement | null | undefined> | HTMLElement | Element | null | undefined
+  domRef: Ref<HTMLElement | Element | null | undefined> | HTMLElement | Element | null | undefined
 ): UseFullScreen {
   const isFullScreen = ref(false);
   const originalStyle = ref('');

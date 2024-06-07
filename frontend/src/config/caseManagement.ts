@@ -82,6 +82,7 @@ export const reviewDefaultDetail: ReviewItem = {
   unPassCount: 0,
   reviewedCount: 0,
   underReviewedCount: 0,
+  unReviewCount: 0,
   pos: 5000,
   startTime: 0,
   endTime: 0,

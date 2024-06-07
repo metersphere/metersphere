@@ -95,8 +95,8 @@ export default {
     hotboxMenu: {
       expand: '展开/收起',
       insetParent: '插入上一级',
-      insetSon: '插入下一级',
-      insetBrother: '插入同级',
+      insetSon: '添加子级',
+      insetBrother: '添加同级',
       copy: '复制',
       cut: '剪切',
       paste: '粘贴',
@@ -104,5 +104,6 @@ export default {
       enterNode: '进入当前节点',
     },
     loading: '脑图加载中...',
+    unSavedEnterNodeTip: '当前有未保存的改动，请先保存后再进入节点',
   },
 };

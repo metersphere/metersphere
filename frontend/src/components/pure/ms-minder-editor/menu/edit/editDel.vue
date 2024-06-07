@@ -60,18 +60,13 @@
       return;
     }
     const nodes: MinderJsonNode[] = minder.getSelectedNodes();
-    let position: MinderNodePosition | undefined;
     if (nodes.length > 0) {
       if (props.delConfirm) {
         props.delConfirm(nodes);
         return;
       }
       const box = nodes[0].getRenderBox();
-      position = {
-        x: box.cx,
-        y: box.cy,
-      };
-      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, position, nodes[0].rc.node, nodes);
+      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, box, nodes[0].rc.node, nodes);
     }
     minder.forceRemoveNode();
   }

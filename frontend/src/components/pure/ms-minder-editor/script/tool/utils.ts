@@ -1,3 +1,5 @@
+import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
+
 import type { MinderJsonNode } from '../../props';
 
 export function isDisableNode(minder: any) {
@@ -117,6 +119,21 @@ export function resetNodes(nodes: MinderJsonNode[]) {
 export function isDisableForNode(node: MinderJsonNode) {
   if (node && node.data?.disabled === true) {
     return true;
+  }
+  return false;
+}
+
+/**
+ * 判断脑图节点是否在脑图视图框内
+ * @param node 目标节点
+ */
+export function isNodeInMinderView(node?: MinderJsonNode, nodePosition?: MinderNodePosition, offsetX?: number) {
+  const containerWidth = document.querySelector('.ms-minder-container')?.clientWidth || 0;
+  if (node) {
+    nodePosition = (node || window.minder.getSelectedNode())?.getRenderBox();
+  }
+  if (nodePosition) {
+    return nodePosition.x >= 0 && nodePosition.x + (offsetX || 0) <= containerWidth;
   }
   return false;
 }
