@@ -9,4 +9,6 @@ public @interface CheckOwner {
     String resourceId();
 
     String resourceType();
+
+    String relationType() default "";
 }
