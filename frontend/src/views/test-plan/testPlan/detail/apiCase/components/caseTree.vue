@@ -15,6 +15,7 @@
       :all-count="allCount"
       :show-expand-api="false"
       @set-active-folder="setActiveFolder"
+      @selected-protocols-change="selectedProtocolsChange"
     />
     <a-divider class="my-[8px]" />
     <a-spin class="min-h-[200px] w-full" :loading="loading">
@@ -48,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
   import { useVModel } from '@vueuse/core';
 
@@ -56,7 +57,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
 
-  import { getFeatureCaseModule } from '@/api/modules/test-plan/testPlan';
+  import { getApiCaseModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { mapTree } from '@/utils';
 
@@ -65,10 +66,12 @@
   const props = defineProps<{
     modulesCount?: Record<string, number>; // 模块数量统计对象
     selectedKeys: string[]; // 选中的节点 key
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
   const emit = defineEmits<{
     (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], nodeName?: string): void;
     (e: 'init', params: ModuleTreeNode[]): void;
+    (e: 'changeProtocol', selectedProtocols: string[]): void;
   }>();
 
   const route = useRoute();
@@ -102,8 +105,7 @@
   async function initModules() {
     try {
       loading.value = true;
-      // TODO 联调
-      const res = await getFeatureCaseModule(route.query.id as string);
+      const res = await getApiCaseModule({ testPlanId: route.query.id as string, treeType: props.treeType });
       folderTree.value = mapTree<ModuleTreeNode>(res, (node) => {
         return {
           ...node,
@@ -130,10 +132,6 @@
     emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name);
   }
 
-  onBeforeMount(() => {
-    initModules();
-  });
-
   // 初始化模块文件数量
   watch(
     () => props.modulesCount,
@@ -147,6 +145,11 @@
       allCount.value = obj?.all || 0;
     }
   );
+
+  function selectedProtocolsChange() {
+    emit('changeProtocol', selectedProtocols.value);
+    initModules();
+  }
 
   defineExpose({
     initModules,

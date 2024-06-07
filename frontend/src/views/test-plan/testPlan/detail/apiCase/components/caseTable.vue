@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeMount, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
@@ -105,8 +105,8 @@
 
   import {
     associationCaseToPlan,
-    batchDisassociateCase,
-    disassociateCase,
+    batchDisassociateApiCase,
+    disassociateApiCase,
     getPlanDetailApiCaseList,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
@@ -118,7 +118,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailApiCaseItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type { PlanDetailApiCaseItem, PlanDetailApiCaseQueryParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -139,10 +139,11 @@
     moduleTree: ModuleTreeNode[];
     repeatCase: boolean;
     canEdit: boolean;
+    selectedProtocols: string[];
   }>();
 
   const emit = defineEmits<{
-    (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
+    (e: 'getModuleCount', params: PlanDetailApiCaseQueryParams): void;
     (e: 'refresh'): void;
     (e: 'initModules'): void;
   }>();
@@ -352,6 +353,8 @@
       testPlanId: props.planId,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
+      protocols: props.selectedProtocols,
+      collectionId: props.activeModule,
     };
     if (isBatch) {
       return {
@@ -379,12 +382,9 @@
       pageSize: propsRes.value.msPagination?.pageSize,
     });
   }
-  watch(
-    () => props.activeModule,
-    () => {
-      loadCaseList();
-    }
-  );
+  watch([() => props.activeModule, () => props.selectedProtocols], () => {
+    loadCaseList();
+  });
 
   async function getModuleCount() {
     const tableParams = await getTableParams(false);
@@ -400,7 +400,7 @@
   const reportId = ref('');
   function showReport(record: PlanDetailApiCaseItem) {
     reportVisible.value = true;
-    reportId.value = record.lastExecResultReportId; // TODO 联调
+    reportId.value = record.lastExecResultReportId;
   }
 
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
@@ -439,7 +439,7 @@
     try {
       // TODO 联调
       await associationCaseToPlan({
-        functionalSelectIds: [record.caseId],
+        functionalSelectIds: [record.id],
         testPlanId: props.planId,
       });
       Message.success(t('ms.case.associate.associateSuccess'));
@@ -456,8 +456,7 @@
   async function handleDisassociateCase(record: PlanDetailApiCaseItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
-      // TODO 联调
-      await disassociateCase({ testPlanId: props.planId, id: record.id });
+      await disassociateApiCase({ testPlanId: props.planId, id: record.id });
       if (done) {
         done();
       }
@@ -486,8 +485,7 @@
       onBeforeOk: async () => {
         try {
           const tableParams = await getTableParams(true);
-          // TODO 联调
-          await batchDisassociateCase({
+          await batchDisassociateApiCase({
             selectIds: tableSelected.value as string[],
             selectAll: batchParams.value.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
@@ -524,10 +522,6 @@
         break;
     }
   }
-
-  onBeforeMount(() => {
-    loadCaseList();
-  });
 
   defineExpose({
     resetSelector,

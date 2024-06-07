@@ -5,8 +5,10 @@
         ref="caseTreeRef"
         :modules-count="modulesCount"
         :selected-keys="selectedKeys"
+        :tree-type="props.treeType"
         @folder-node-select="handleFolderNodeSelect"
         @init="initModuleTree"
+        @change-protocol="handleProtocolChange"
       />
     </template>
     <template #second>
@@ -20,6 +22,7 @@
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
         :can-edit="props.canEdit"
+        :selected-protocols="selectedProtocols"
         @get-module-count="getModuleCount"
         @refresh="emit('refresh')"
         @init-modules="initModules"
@@ -36,14 +39,15 @@
   import CaseTable from './components/caseTable.vue';
   import CaseTree from './components/caseTree.vue';
 
-  import { getFeatureCaseModuleCount } from '@/api/modules/test-plan/testPlan';
+  import { getApiCaseModuleCount } from '@/api/modules/test-plan/testPlan';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type { PlanDetailApiCaseQueryParams } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
     repeatCase: boolean;
     canEdit: boolean;
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -54,10 +58,13 @@
 
   const planId = ref(route.query.id as string);
   const modulesCount = ref<Record<string, any>>({});
-  async function getModuleCount(params: PlanDetailFeatureCaseListQueryParams) {
+  const selectedProtocols = ref<string[]>([]);
+  function handleProtocolChange(val: string[]) {
+    selectedProtocols.value = val;
+  }
+  async function getModuleCount(params: PlanDetailApiCaseQueryParams) {
     try {
-      // TODO 联调
-      modulesCount.value = await getFeatureCaseModuleCount(params);
+      modulesCount.value = await getApiCaseModuleCount(params);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

@@ -21,7 +21,11 @@
             <a-dsubmenu>
               <template #default>{{ t('ms.paramsInput.protocol') }}</template>
               <template #content>
-                <a-checkbox :model-value="isCheckedAll" :indeterminate="indeterminate" @change="handleChangeAll"
+                <a-checkbox
+                  class="checkbox-all"
+                  :model-value="isCheckedAll"
+                  :indeterminate="indeterminate"
+                  @change="handleChangeAll"
                   >{{ t('common.all') }}
                 </a-checkbox>
                 <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
@@ -34,7 +38,11 @@
           </template>
           <!-- 没有 展开请求的开关 -->
           <template v-else>
-            <a-checkbox :model-value="isCheckedAll" :indeterminate="indeterminate" @change="handleChangeAll"
+            <a-checkbox
+              class="checkbox-all"
+              :model-value="isCheckedAll"
+              :indeterminate="indeterminate"
+              @change="handleChangeAll"
               >{{ t('common.all') }}
             </a-checkbox>
             <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
@@ -141,7 +149,17 @@
   .arco-dropdown {
     padding: 8px;
     .arco-dropdown-list .arco-dropdown-option {
-      margin: 0;
+      width: 107px;
+    }
+    .checkbox-all {
+      border-bottom: 1px solid var(--color-text-n8);
+    }
+    .arco-checkbox {
+      padding: 6px 12px;
+      line-height: 24px;
+    }
+    .arco-switch {
+      margin-left: 8px;
     }
   }
   .api-expend {
