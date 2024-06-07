@@ -2154,10 +2154,7 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private void getCaseStep(ApiScenarioSystemRequest request, ScenarioSystemRequest caseRequest, List<ApiScenarioStepDTO> steps) {
-        if (CollectionUtils.isEmpty(caseRequest.getProtocols())) {
-            return;
-        }
-        if (CollectionUtils.isNotEmpty(caseRequest.getModuleIds())) {
+        if (CollectionUtils.isNotEmpty(caseRequest.getModuleIds()) && CollectionUtils.isNotEmpty(caseRequest.getProtocols())) {
             caseRequest.getSelectedIds().addAll(extApiTestCaseMapper.getIdsByModules(caseRequest));
         }
         caseRequest.getSelectedIds().removeAll(caseRequest.getUnselectedIds());
@@ -2181,10 +2178,7 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private void getApiStep(ApiScenarioSystemRequest request, ScenarioSystemRequest apiRequest, List<ApiScenarioStepDTO> steps) {
-        if (CollectionUtils.isEmpty(apiRequest.getProtocols())) {
-            return;
-        }
-        if (CollectionUtils.isNotEmpty(apiRequest.getModuleIds())) {
+        if (CollectionUtils.isNotEmpty(apiRequest.getModuleIds()) && CollectionUtils.isNotEmpty(apiRequest.getProtocols())) {
             apiRequest.getSelectedIds().addAll(extApiDefinitionMapper.getIdsByModules(apiRequest));
         }
         apiRequest.getSelectedIds().removeAll(apiRequest.getUnselectedIds());

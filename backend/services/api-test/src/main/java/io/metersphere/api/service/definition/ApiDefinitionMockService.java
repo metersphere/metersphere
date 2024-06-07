@@ -372,9 +372,6 @@ public class ApiDefinitionMockService {
     }
 
     public void batchDelete(ApiTestCaseBatchRequest request, String userId) {
-        if (CollectionUtils.isEmpty(request.getProtocols())) {
-            return;
-        }
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
             SubListUtils.dealForSubList(ids, 500, subList -> deleteResourceByIds(subList, request.getProjectId(), userId));
@@ -400,9 +397,7 @@ public class ApiDefinitionMockService {
     }
 
     public void batchEdit(ApiMockBatchEditRequest request, String userId) {
-        if (CollectionUtils.isEmpty(request.getProtocols())) {
-            return;
-        }
+
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
             SubListUtils.dealForSubList(ids, 500, subList -> batchEditByType(request, subList, userId, request.getProjectId()));
@@ -468,7 +463,7 @@ public class ApiDefinitionMockService {
     }
 
     public List<String> doSelectIds(ApiTestCaseBatchRequest request) {
-        if (request.isSelectAll()) {
+        if (request.isSelectAll() && CollectionUtils.isNotEmpty(request.getProtocols())) {
             List<String> ids = extApiDefinitionMockMapper.getIds(request);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());

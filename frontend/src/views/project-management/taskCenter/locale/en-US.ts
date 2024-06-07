@@ -41,8 +41,8 @@ export default {
   'project.taskCenter.delScheduleSuccess': 'Delete scheduled task successfully',
   'project.taskCenter.delSchedule.tip':
     'Deleting the scheduled task will cause the task to stop. Do you want to continue?',
-  'project.taskCenter.enableScheduleSuccess': 'Enable scheduled task successfully',
-  'project.taskCenter.disableScheduleSuccess': 'Disable scheduled task successfully',
+  'project.taskCenter.enableScheduleSuccess': 'Enable successfully',
+  'project.taskCenter.disableScheduleSuccess': 'Disable successfully',
   'project.belongProject': 'Project',
   'project.belongOrganization': 'Organization',
   'project.taskCenter.batchEnable': 'Batch enable',

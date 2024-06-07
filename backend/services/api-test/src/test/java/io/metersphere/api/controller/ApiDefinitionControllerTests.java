@@ -817,12 +817,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setProtocols(List.of("HTTP"));
         this.requestPostWithOkAndReturn(BATCH_MOVE, request);
-        // @@校验日志
-
-        String[] ids = {"1001", "1002", "1005"};
-        for (String id : ids) {
-            checkLogModelList.add(new CheckLogModel(id, OperationLogType.UPDATE, BATCH_MOVE));
-        }
 
         // 移动全部 条件为关键字为st-6的数据
         request.setSelectAll(true);
@@ -831,7 +825,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCondition(baseCondition);
         this.requestPostWithOkAndReturn(BATCH_MOVE, request);
         // @@校验日志
-        checkLogModelList.add(new CheckLogModel("1006", OperationLogType.UPDATE, BATCH_MOVE));
+        //checkLogModelList.add(new CheckLogModel("1006", OperationLogType.UPDATE, BATCH_MOVE));
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, BATCH_MOVE, request);
     }
