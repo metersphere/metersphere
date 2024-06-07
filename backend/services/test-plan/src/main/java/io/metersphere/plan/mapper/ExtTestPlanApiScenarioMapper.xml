@@ -373,4 +373,17 @@
               (SELECT api_scenario.module_id FROM api_scenario LEFT JOIN test_plan_api_scenario ON api_scenario.id = test_plan_api_scenario.api_scenario_id WHERE test_plan_api_scenario.test_plan_id = #{testPlanId} AND api_scenario.deleted = false)
         ORDER BY pos
     </select>
+
+    <select id="getPlanApiScenarioByIds" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+        select tpas.test_plan_id testPlanId, tpas.api_scenario_id apiScenarioId, tpas.last_exec_result lastExecResult
+        from test_plan_api_scenario tpas join api_scenario asce on asce.id = tpas.api_scenario_id
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                tpas.test_plan_id in
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

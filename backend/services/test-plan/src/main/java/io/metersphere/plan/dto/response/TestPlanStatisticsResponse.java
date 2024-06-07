@@ -30,7 +30,7 @@ public class TestPlanStatisticsResponse {
 	private Double executeRate;
 
 	/**
-	 * 执行进度中的用例数量统计 (暂定)
+	 * 执行进度中的用例数量统计
 	 */
 	@Schema(description = "成功用例数量")
 	private Integer successCount = 0;
@@ -44,7 +44,7 @@ public class TestPlanStatisticsResponse {
 	private Integer pendingCount = 0;
 
 	/**
-	 * 用例数中用例数量统计 (暂定)
+	 * 用例数中用例数量统计
 	 */
 	@Schema(description = "用例总数")
 	private Integer caseTotal = 0;

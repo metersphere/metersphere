@@ -1,13 +1,9 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.domain.TestPlanConfig;
-import io.metersphere.plan.domain.TestPlanConfigExample;
-import io.metersphere.plan.domain.TestPlanFunctionalCase;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
-import io.metersphere.plan.mapper.ExtTestPlanBugMapper;
-import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ScheduleResourceType;
@@ -35,52 +31,52 @@ public class TestPlanStatisticsService {
 	@Resource
 	private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
 	@Resource
+	private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+	@Resource
+	private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+	@Resource
 	private ExtTestPlanBugMapper extTestPlanBugMapper;
 	@Resource
 	private ScheduleMapper scheduleMapper;
 
 	/**
-	 * 计划的用例统计数据
+	 * 计划/计划组的用例统计数据
 	 *
 	 * @param plans 计划集合
 	 */
 	public void calculateCaseCount(List<? extends TestPlanStatisticsResponse> plans) {
-		// TODO 计算计划下各种维度的用例统计数目 (待定)
 		/*
-		 * 1. 查询计划下的用例数据集合(目前只有功能用例)
-		 * 2. 根据执行结果统计(结果小数保留两位)
+		 * 1. 查询计划下的用例数据集合
 		 */
-
 		List<String> planIds = plans.stream().map(TestPlanStatisticsResponse::getId).toList();
-		// 计划-功能用例的关联数据
-		List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
-		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
+		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = getFunctionalCaseMapByPlanIds(planIds);
+		Map<String, List<TestPlanApiCase>> planApiCaseMap = getApiCaseMapByPlanIds(planIds);
+		Map<String, List<TestPlanApiScenario>> planApiScenarioMap = getApiScenarioByPlanIds(planIds);
+		// 计划-缺陷的关联数据
 		List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.countBugByIds(planIds);
 		Map<String, List<TestPlanBugPageResponse>> planBugMap = planBugs.stream().collect(Collectors.groupingBy(TestPlanBugPageResponse::getTestPlanId));
-		// TODO: 计划-接口用例的关联数据
 		plans.forEach(plan -> {
-			// 功能用例统计开始
 			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(plan.getId());
 			plan.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
+			List<TestPlanApiCase> apiCases = planApiCaseMap.get(plan.getId());
+			plan.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
+			List<TestPlanApiScenario> apiScenarios = planApiScenarioMap.get(plan.getId());
+			plan.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
 			List<TestPlanBugPageResponse> bugs = planBugMap.get(plan.getId());
 			plan.setBugCount(CollectionUtils.isNotEmpty(bugs) ? bugs.size() : 0);
-			// TODO: 接口用例统计开始
-
-			// FIXME: CaseTotal后续会补充接口用例及场景的统计数据
-			plan.setCaseTotal(plan.getFunctionalCaseCount());
+			plan.setCaseTotal(plan.getFunctionalCaseCount() + plan.getApiCaseCount() + plan.getApiScenarioCount());
 		});
 	}
 
 	/**
-	 * 计划的{通过率, 执行进度}统计数据
+	 * 计划/计划组的{通过率, 执行进度}统计数据
 	 *
 	 * @param planIds 计划ID集合
 	 */
 	public List<TestPlanStatisticsResponse> calculateRate(List<String> planIds) {
 		List<TestPlanStatisticsResponse> planStatisticsResponses = new ArrayList<>();
-		// TODO 计算计划下的用例通过率, 执行进度 (待定)
 		/*
-		 * 1. 查询计划下的用例数据集合(目前只有功能用例)
+		 * 1. 查询计划下的用例数据集合
 		 * 2. 根据执行结果统计(结果小数保留两位)
 		 */
 
@@ -89,9 +85,10 @@ public class TestPlanStatisticsService {
 		example.createCriteria().andTestPlanIdIn(planIds);
 		List<TestPlanConfig> testPlanConfigList = testPlanConfigMapper.selectByExample(example);
 		Map<String, TestPlanConfig> planConfigMap = testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, p -> p));
-		// 计划-功能用例的关联数据
-		List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
-		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
+		// 关联的用例数据
+		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = getFunctionalCaseMapByPlanIds(planIds);
+		Map<String, List<TestPlanApiCase>> planApiCaseMap = getApiCaseMapByPlanIds(planIds);
+		Map<String, List<TestPlanApiScenario>> planApiScenarioMap = getApiScenarioByPlanIds(planIds);
 
 		//查询定时任务
 		ScheduleExample scheduleExample = new ScheduleExample();
@@ -99,34 +96,32 @@ public class TestPlanStatisticsService {
 		List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
 		Map<String, Schedule> scheduleMap = schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
 
-		// TODO: 计划-接口用例的关联数据
 		planIds.forEach(planId -> {
 			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
 			statisticsResponse.setId(planId);
 			statisticsResponse.setPassThreshold(planConfigMap.get(planId).getPassThreshold());
-			int success = 0, error = 0, fakeError = 0, block = 0, pending = 0;
-			// 功能用例统计开始
+			// 功能用例分组统计开始 (为空时, 默认为未执行)
 			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);
 			statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
-			// 根据执行结果分组(为空, 默认为未执行)
-			Map<String, List<TestPlanFunctionalCase>> functionalCaseResultMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
-					Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name())));
-			success += functionalCaseResultMap.containsKey(ExecStatus.SUCCESS.name()) ? functionalCaseResultMap.get(ExecStatus.SUCCESS.name()).size() : 0;
-			error += functionalCaseResultMap.containsKey(ExecStatus.ERROR.name()) ? functionalCaseResultMap.get(ExecStatus.ERROR.name()).size() : 0;
-			fakeError += functionalCaseResultMap.containsKey(ExecStatus.FAKE_ERROR.name()) ? functionalCaseResultMap.get(ExecStatus.FAKE_ERROR.name()).size() : 0;
-			block += functionalCaseResultMap.containsKey(ExecStatus.BLOCKED.name()) ? functionalCaseResultMap.get(ExecStatus.BLOCKED.name()).size() : 0;
-			pending += functionalCaseResultMap.containsKey(ExecStatus.PENDING.name()) ? functionalCaseResultMap.get(ExecStatus.PENDING.name()).size() : 0;
-			// TODO: 接口用例统计开始
-
-
+			Map<String, Long> functionalCaseResultCountMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
+					Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+			// 接口用例分组统计开始 (为空时, 默认为未执行)
+			List<TestPlanApiCase> apiCases = planApiCaseMap.get(planId);
+			statisticsResponse.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
+			Map<String, Long> apiCaseResultCountMap = CollectionUtils.isEmpty(apiCases) ? new HashMap<>(16) : apiCases.stream().collect(
+					Collectors.groupingBy(apiCase -> Optional.ofNullable(apiCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+			// 接口场景用例分组统计开始 (为空时, 默认为未执行)
+			List<TestPlanApiScenario> apiScenarios = planApiScenarioMap.get(planId);
+			statisticsResponse.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
+			Map<String, Long> apiScenarioResultCountMap = CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
+					Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
 			// 用例数据汇总
-			statisticsResponse.setSuccessCount(success);
-			statisticsResponse.setErrorCount(error);
-			statisticsResponse.setFakeErrorCount(fakeError);
-			statisticsResponse.setBlockCount(block);
-			statisticsResponse.setPendingCount(pending);
-			// FIXME: CaseTotal后续会补充接口用例及场景的统计数据
-			statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount());
+			statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.SUCCESS.name()));
+			statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.ERROR.name()));
+			statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.FAKE_ERROR.name()));
+			statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.BLOCKED.name()));
+			statisticsResponse.setPendingCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
+			statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount() + statisticsResponse.getApiCaseCount() + statisticsResponse.getApiScenarioCount());
 			// 通过率 {通过用例数/总用例数} && 执行进度 {非未执行的用例数/总用例数}
 			statisticsResponse.setPassRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getSuccessCount(), statisticsResponse.getCaseTotal(), 2));
 			statisticsResponse.setExecuteRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount(), statisticsResponse.getCaseTotal(), 2));
@@ -150,5 +145,38 @@ public class TestPlanStatisticsService {
 
 		});
 		return planStatisticsResponses;
+	}
+
+
+	private Map<String, List<TestPlanFunctionalCase>> getFunctionalCaseMapByPlanIds(List<String> planIds) {
+		// 计划或者组-功能用例的关联数据
+		List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
+		return planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getTestPlanId));
+	}
+
+	private Map<String, List<TestPlanApiCase>> getApiCaseMapByPlanIds(List<String> planIds) {
+		// 计划或者组-接口用例的关联数据
+		List<TestPlanApiCase> planApiCases = extTestPlanApiCaseMapper.getPlanApiCaseByIds(planIds);
+		return planApiCases.stream().collect(Collectors.groupingBy(TestPlanApiCase::getTestPlanId));
+	}
+
+	private Map<String, List<TestPlanApiScenario>> getApiScenarioByPlanIds(List<String> planIds) {
+		// 计划或者组-场景用例的关联数据
+		List<TestPlanApiScenario> planApiScenarios = extTestPlanApiScenarioMapper.getPlanApiScenarioByIds(planIds);
+		return planApiScenarios.stream().collect(Collectors.groupingBy(TestPlanApiScenario::getTestPlanId));
+	}
+
+	/**
+	 * 汇总计划下所有的用例的集合
+	 * @param functionalCaseMap 功能用例
+	 * @param apiCaseMap 接口用例
+	 * @param apiScenarioMap 接口场景
+	 * @param countKey 汇总的key
+	 * @return 总数
+	 */
+	private Integer countCaseMap(Map<String, Long> functionalCaseMap, Map<String, Long> apiCaseMap, Map<String, Long> apiScenarioMap, String countKey) {
+		return (functionalCaseMap.containsKey(countKey) ? functionalCaseMap.get(countKey).intValue() : 0) +
+				(apiCaseMap.containsKey(countKey) ? apiCaseMap.get(countKey).intValue() : 0) +
+				(apiScenarioMap.containsKey(countKey) ? apiScenarioMap.get(countKey).intValue() : 0);
 	}
 }

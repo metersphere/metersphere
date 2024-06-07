@@ -77,28 +77,6 @@ CREATE INDEX idx_pos ON test_plan_api_scenario(pos);
 ALTER TABLE test_plan_functional_case ADD COLUMN test_plan_collection_id VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '测试计划集id';
 CREATE INDEX idx_test_plan_collection_id ON test_plan_functional_case(test_plan_collection_id);
 
--- 修改测试规划配置表
-ALTER TABLE test_plan_allocation DROP `run_mode_config`;
-ALTER TABLE test_plan_allocation ADD `test_resource_pool_id` VARCHAR(50) NOT NULL COMMENT '资源池ID';
-ALTER TABLE test_plan_allocation ADD `retry_on_fail` BIT NOT NULL  DEFAULT 0 COMMENT '是否失败重试' ;
-ALTER TABLE test_plan_allocation ADD `retry_type` VARCHAR(50) NOT NULL   COMMENT '失败重试类型(步骤/场景)' ;
-ALTER TABLE test_plan_allocation ADD `retry_times` INT NOT NULL  DEFAULT 1 COMMENT '失败重试次数' ;
-ALTER TABLE test_plan_allocation ADD `retry_interval` INT NOT NULL  DEFAULT 1000 COMMENT '失败重试间隔(单位: ms)' ;
-ALTER TABLE test_plan_allocation ADD `stop_on_fail` BIT NOT NULL  DEFAULT 0 COMMENT '是否失败停止' ;
-CREATE INDEX idx_resource_pool_id ON test_plan_allocation(test_resource_pool_id);
-
--- 测试规划集类型
-CREATE TABLE IF NOT EXISTS test_plan_allocation_type(
-    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
-    `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
-    `name` VARCHAR(255) NOT NULL   COMMENT '测试集类型名称' ,
-    `type` VARCHAR(50) NOT NULL   COMMENT '测试集类型(功能/接口/场景)' ,
-    `execute_method` VARCHAR(50) NOT NULL   COMMENT '执行方式(串行/并行)' ,
-    `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔为2的N次幂' ,
-    PRIMARY KEY (id)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试集类型';
-CREATE INDEX idx_test_plan_id ON test_plan_allocation_type(test_plan_id);
-
 -- 测试集
 CREATE TABLE IF NOT EXISTS test_plan_collection(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
