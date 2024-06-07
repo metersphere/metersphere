@@ -25,7 +25,7 @@ public class TestPlanCollectionMinderController {
 
     @GetMapping("/data/{planId}")
     @Operation(summary = "测试规划脑图列表")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#planId", resourceType = "test_plan")
     public List<TestPlanCollectionMinderTreeDTO> getMindTestPlanCase(@PathVariable String planId) {
         return testPlanCollectionMinderService.getMindTestPlanCase(planId);
