@@ -382,9 +382,7 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchDelete(ApiTestCaseBatchRequest request, String userId) {
-        if (CollectionUtils.isEmpty(request.getProtocols())) {
-            return;
-        }
+
         List<String> ids = doSelectIds(request, true);
         if (CollectionUtils.isEmpty(ids)) {
             return;
@@ -424,7 +422,7 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public List<String> doSelectIds(ApiTestCaseBatchRequest request, boolean deleted) {
-        if (request.isSelectAll()) {
+        if (request.isSelectAll() && CollectionUtils.isNotEmpty(request.getProtocols())) {
             List<String> ids = extApiTestCaseMapper.getIds(request, deleted);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
@@ -437,9 +435,6 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchMoveGc(ApiTestCaseBatchRequest request, String userId) {
-        if (CollectionUtils.isEmpty(request.getProtocols())) {
-            return;
-        }
         List<String> ids = doSelectIds(request, false);
         batchDeleteToGc(ids, userId, request.getProjectId(), true);
     }
@@ -462,9 +457,7 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchEdit(ApiCaseBatchEditRequest request, String userId) {
-        if (CollectionUtils.isEmpty(request.getProtocols())) {
-            return;
-        }
+
         List<String> ids = doSelectIds(request, false);
         if (CollectionUtils.isEmpty(ids)) {
             return;

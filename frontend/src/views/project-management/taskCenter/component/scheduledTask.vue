@@ -503,7 +503,7 @@
       onBeforeOk: async () => {
         try {
           await loadRealMap.value[props.group].delete(props.moduleType, record?.id as string);
-          Message.success(t('project.taskCenter.delScheduleSuccess'));
+          Message.success(t('project.basicInfo.deleted'));
           initData();
         } catch (error) {
           // eslint-disable-next-line no-console
