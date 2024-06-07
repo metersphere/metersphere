@@ -508,6 +508,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiRunModeRequest.setIntegratedReportName("aaaa");
         apiRunModeRequest.setPoolId("poolId");
         request.setRunModeConfig(apiRunModeRequest);
+        this.requestPostWithOk(BATCH_RUN, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPostWithOk(BATCH_RUN, request);
 
@@ -834,6 +835,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
         pageRequest.setCurrent(1);
+        requestPostWithOkAndReturn(PAGE, pageRequest);
         pageRequest.setProtocols(List.of("HTTP"));
         MvcResult mvcResult = requestPostWithOkAndReturn(PAGE, pageRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
@@ -914,8 +916,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setType("Tags");
         request.setAppend(true);
         request.setSelectAll(true);
-        request.setProtocols(List.of("HTTP"));
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+        request.setProtocols(List.of("HTTP"));
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         List<String> ids = extApiTestCaseMapper.getIds(request, false);
@@ -1057,8 +1060,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(false);
+        requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
+        request.setProtocols(List.of("HTTP"));
         requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
 
         request.setSelectAll(true);
@@ -1089,6 +1094,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);
         pageRequest.setPageSize(10);
         pageRequest.setCurrent(1);
+        requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         pageRequest.setProtocols(List.of("HTTP"));
         MvcResult mvcResult = requestPostWithOkAndReturn(TRASH_PAGE, pageRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
@@ -1139,9 +1145,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(false);
+        requestPostWithOkAndReturn(BATCH_RECOVER, request);
+        request.setProtocols(List.of("HTTP"));
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
-        request.setProtocols(List.of("HTTP"));
         requestPostWithOkAndReturn(BATCH_RECOVER, request);
 
         ApiDefinition apiDefinition = new ApiDefinition();
@@ -1214,9 +1221,15 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(false);
+        requestPostWithOkAndReturn(BATCH_DELETE, request);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
+        request.setProtocols(List.of("HTTP"));
         requestPostWithOkAndReturn(BATCH_DELETE, request);
+        request.setSelectAll(true);
+        request.setExcludeIds(new ArrayList<>());
+        request.setApiDefinitionId("apiDefinitionId");
+        requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
         request.setApiDefinitionId("apiDefinitionId");

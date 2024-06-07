@@ -44,6 +44,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setTestPlanId("wxxx_1");
         request.setProjectId("wxx_1234");
+        this.requestPost(API_CASE_PAGE, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPost(API_CASE_PAGE, request);
         request.setSort(new HashMap<>() {{
@@ -118,6 +119,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         request.setUserId("test_user");
         request.setTestPlanId("wxxx_2");
         request.setSelectAll(true);
+        this.requestPostWithOk(API_CASE_BATCH_UPDATE_EXECUTOR_URL, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPostWithOk(API_CASE_BATCH_UPDATE_EXECUTOR_URL, request);
         request.setTestPlanId("wxxx_1");
@@ -132,8 +134,9 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public void testApiCaseBatchDisassociate() throws Exception {
         TestPlanApiCaseBatchRequest request = new TestPlanApiCaseBatchRequest();
         request.setTestPlanId("wxxx_2");
-        request.setProtocols(List.of("HTTP"));
         request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(API_CASE_BATCH_DISASSOCIATE, request);
+        request.setProtocols(List.of("HTTP"));
         MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_BATCH_DISASSOCIATE, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

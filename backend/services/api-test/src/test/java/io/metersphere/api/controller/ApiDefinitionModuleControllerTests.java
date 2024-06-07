@@ -814,6 +814,9 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Order(8)
     public void TestModuleCountSuccess() throws Exception {
         this.preliminaryData();
+        this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, new ApiModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
         ApiModuleRequest request = new ApiModuleRequest() {{
             this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
@@ -878,6 +881,9 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         ApiDefinition apiDefinition = new ApiDefinition();
         apiDefinition.setDeleted(true);
         apiDefinitionMapper.updateByExampleSelective(apiDefinition, example);
+        this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiModuleRequest() {{
             this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
@@ -891,6 +897,10 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Test
     @Order(12)
     public void getModuleTrashTreeCount() throws Exception {
+
+        this.requestPostWithOkAndReturn(URL_MODULE_TRASH_COUNT, new ApiModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
         ApiModuleRequest request = new ApiModuleRequest() {{
             this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
             this.setProjectId(project.getId());
@@ -953,8 +963,14 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
 
 
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
+        this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiModuleRequest() {{
             this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
+            this.setProjectId(project.getId());
+        }});
+        this.requestPostWithOkAndReturn(URL_MODULE_ONLY_TREE, new ApiModuleRequest() {{
             this.setProjectId(project.getId());
         }});
         this.requestPostWithOkAndReturn(URL_MODULE_ONLY_TREE, new ApiModuleRequest() {{

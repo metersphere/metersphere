@@ -161,6 +161,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @return
      */
     public List<ApiDefinitionDTO> getApiPage(TestPlanApiRequest request, boolean isRepeat) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new ArrayList<>();
+        }
         List<ApiDefinitionDTO> list = extTestPlanApiCaseMapper.list(request, isRepeat);
         apiDefinitionService.processApiDefinitions(list);
         return list;
@@ -175,8 +178,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @return
      */
     public List<ApiTestCaseDTO> getApiCasePage(TestPlanApiCaseRequest request, boolean isRepeat) {
-        List<ApiTestCaseDTO> apiCaseLists = apiTestCaseService.page(request, isRepeat, false);
-        return apiCaseLists;
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new ArrayList<>();
+        }
+        return apiTestCaseService.page(request, isRepeat, false);
     }
 
 
@@ -188,6 +193,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @return
      */
     public List<TestPlanApiCasePageResponse> hasRelateApiCaseList(TestPlanApiCaseRequest request, boolean deleted) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new ArrayList<>();
+        }
         List<TestPlanApiCasePageResponse> list = extTestPlanApiCaseMapper.relateApiCaseList(request, deleted);
         buildApiCaseResponse(list);
         return list;
@@ -410,6 +418,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @return
      */
     public TestPlanAssociationResponse disassociate(TestPlanApiCaseBatchRequest request, LogInsertModule logInsertModule) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new TestPlanAssociationResponse();
+        }
         List<String> selectIds = doSelectIds(request);
         return super.disassociate(
                 TestPlanResourceConstants.RESOURCE_API_CASE,
@@ -485,7 +496,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
-                if(CollectionUtils.isNotEmpty(apiCaseIds)){
+                if (CollectionUtils.isNotEmpty(apiCaseIds)) {
                     List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).collect(Collectors.toList());
                     buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
                 }

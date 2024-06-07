@@ -2,7 +2,6 @@ package io.metersphere.api.dto.definition;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -33,8 +32,7 @@ public class ApiDefinitionDocRequest implements Serializable {
     private String projectId;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "{api_definition.protocol.not_blank}")
-    private List<@NotBlank String> protocols = new ArrayList<>();
+    private List<String> protocols = new ArrayList<>();
 
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<@NotBlank String> moduleIds;

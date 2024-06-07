@@ -55,6 +55,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setTestPlanId("wxx_1");
         request.setProjectId("1234567");
+        this.requestPost(API_ASSOCIATION_URL, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPost(API_ASSOCIATION_URL, request);
         request.setProjectId("wx_1234");
@@ -76,6 +77,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setProjectId("1234567");
         request.setTestPlanId("wxx_1");
+        this.requestPost(API_CASE_ASSOCIATION_URL, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPost(API_CASE_ASSOCIATION_URL, request);
         request.setProjectId("wx_1234");

@@ -892,6 +892,13 @@ public class ApiDefinitionControllerTests extends BaseTest {
         //doApiDefinitionPage("FILTER", PAGE);
         assertPateDate(doApiDefinitionPage("COMBINE", PAGE));
         assertPateDate(doApiDefinitionPage("DELETED", PAGE));
+        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setDeleted(false);
+        request.setSort(Map.of("createTime", "asc"));
+        this.requestPostWithOkAndReturn(PAGE, request);
     }
 
     private void assertPateDate(Pager pageData) {
@@ -1022,6 +1029,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         request.setApiId(apiDefinition.getId());
         request.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostWithOkAndReturn(DOC, request);
         request.setProtocols(List.of("HTTP"));
         request.setType(ApiDefinitionDocType.API.name());
         // @@请求成功
@@ -1115,9 +1123,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@模块查看文档
         request.setApiId(null);
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setProtocols(List.of("HTTP"));
         request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("1001001"));
+        this.requestPostWithOkAndReturn(DOC, request);
+        request.setProtocols(List.of("HTTP"));
         MvcResult mvcResultModule = this.requestPostWithOkAndReturn(DOC, request);
         ApiDefinitionDocDTO moduleApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultModule).get("data")), ApiDefinitionDocDTO.class);
         // 校验数据是否正确
@@ -1330,6 +1339,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1004"));
         request.setDeleteAllVersion(false);
         request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPostWithOkAndReturn(BATCH_DELETE_TO_GC, request);
         // @@校验日志
@@ -1405,12 +1415,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("batch recover api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setProtocols(List.of("HTTP"));
         // 恢复选中
         request.setSelectIds(List.of("1002", "1004", "1005"));
         request.setExcludeIds(List.of("1005"));
         request.setSelectAll(false);
         this.requestPostWithOk(BATCH_RESTORE, request);
+        request.setProtocols(List.of("HTTP"));
+        this.requestPostWithOk(BATCH_RESTORE, request);
+
 
         // 效验数据结果
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
@@ -1487,11 +1499,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("batch trash delete api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setProtocols(List.of("HTTP"));
 
         // 删除选中
         request.setSelectIds(List.of("1003"));
         request.setSelectAll(false);
+        this.requestPostWithOk(BATCH_DELETE, request);
+        request.setProtocols(List.of("HTTP"));
         this.requestPostWithOk(BATCH_DELETE, request);
         // 效验数据结果
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();

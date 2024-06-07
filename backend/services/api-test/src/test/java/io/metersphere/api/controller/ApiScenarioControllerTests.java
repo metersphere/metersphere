@@ -2837,6 +2837,16 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiScenarioSystemRequest.setScenarioRequest(scenarioSystemRequest);
         apiScenarioSystemRequest.setRefType(ApiScenarioStepRefType.COPY.name());
         this.requestPostWithOkAndReturn("/get/system-request", apiScenarioSystemRequest);
+
+        scenarioSystemRequest = new ScenarioSystemRequest();
+        scenarioSystemRequest.setProjectId(DEFAULT_PROJECT_ID);
+        scenarioSystemRequest.setModuleIds(List.of("test-default"));
+        apiScenarioSystemRequest = new ApiScenarioSystemRequest();
+        apiScenarioSystemRequest.setApiRequest(scenarioSystemRequest);
+        apiScenarioSystemRequest.setCaseRequest(scenarioSystemRequest);
+        apiScenarioSystemRequest.setScenarioRequest(scenarioSystemRequest);
+        apiScenarioSystemRequest.setRefType(ApiScenarioStepRefType.COPY.name());
+        this.requestPostWithOkAndReturn("/get/system-request", apiScenarioSystemRequest);
     }
 
     @Test

@@ -2,7 +2,6 @@ package io.metersphere.api.dto.scenario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,8 +23,7 @@ public class ScenarioSystemRequest {
     @Size(min = 1, max = 50, message = "{api_scenario.project_id.length_range}")
     private String projectId;
     @Schema(description = "协议  接口和用例的时候  是必传的", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty
-    private List<@NotBlank String> protocols = new ArrayList<>();
+    private List<String> protocols = new ArrayList<>();
     @Schema(description = "版本id")
     private String versionId;
 }

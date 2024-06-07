@@ -316,6 +316,9 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public List<ApiTestCaseDTO> page(ApiTestCasePageRequest request, boolean deleted, boolean isRepeat) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new ArrayList<>();
+        }
         List<ApiTestCaseDTO> apiCaseLists = extApiTestCaseMapper.listByRequest(request, deleted, isRepeat);
         buildApiTestCaseDTO(apiCaseLists);
         return apiCaseLists;
@@ -379,6 +382,9 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchDelete(ApiTestCaseBatchRequest request, String userId) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return;
+        }
         List<String> ids = doSelectIds(request, true);
         if (CollectionUtils.isEmpty(ids)) {
             return;
@@ -431,6 +437,9 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchMoveGc(ApiTestCaseBatchRequest request, String userId) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return;
+        }
         List<String> ids = doSelectIds(request, false);
         batchDeleteToGc(ids, userId, request.getProjectId(), true);
     }
@@ -453,6 +462,9 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchEdit(ApiCaseBatchEditRequest request, String userId) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return;
+        }
         List<String> ids = doSelectIds(request, false);
         if (CollectionUtils.isEmpty(ids)) {
             return;
@@ -881,7 +893,7 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void moveNode(PosRequest posRequest) {
-        NodeMoveRequest request = super.getNodeMoveRequest(posRequest,true);
+        NodeMoveRequest request = super.getNodeMoveRequest(posRequest, true);
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 posRequest.getProjectId(),
                 request,
