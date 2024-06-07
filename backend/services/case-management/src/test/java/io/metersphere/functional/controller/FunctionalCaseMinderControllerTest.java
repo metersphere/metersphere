@@ -39,7 +39,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_EDIT_URL = "/functional/mind/case/edit";
 
-    public static final String FUNCTIONAL_CASE_NODE_MODULE_URL = "/functional/mind/case/tree/";
+    public static final String FUNCTIONAL_CASE_NODE_MODULE_URL = "/functional/mind/case/tree";
 
 
 
@@ -265,12 +265,19 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     @Test
     @Order(3)
     public void testGetCaseModuleNodeList() throws Exception {
-        MvcResult mvcResultPage = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_NODE_MODULE_URL+"project-case-minder-test");
+        FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
+        request.setProjectId("project-case-minder-test");
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_NODE_MODULE_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<BaseTreeNode> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
         Assertions.assertNotNull(baseTreeNodes);
-        System.out.println(baseTreeNodes);
+        request.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
+        mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_NODE_MODULE_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
+        Assertions.assertNotNull(baseTreeNodes);
     }
 
     @Test

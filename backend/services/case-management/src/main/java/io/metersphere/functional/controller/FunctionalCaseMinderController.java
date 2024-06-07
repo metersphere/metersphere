@@ -32,12 +32,12 @@ public class FunctionalCaseMinderController {
     @Resource
     private FunctionalCaseMinderService functionalCaseMinderService;
 
-    @GetMapping("/tree/{projectId}")
+    @PostMapping("/tree")
     @Operation(summary = "用例管理-功能用例-脑图-获取空白节点和模块的组合树")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<BaseTreeNode> getTree(@PathVariable String projectId) {
-        return functionalCaseMinderService.getTree(projectId);
+    public List<BaseTreeNode> getTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
+        return functionalCaseMinderService.getTree(request);
     }
 
     @PostMapping("/list")
