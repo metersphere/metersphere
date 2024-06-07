@@ -161,7 +161,7 @@
             await configSchedule(params);
             handleCancel();
             emit('handleSuccess');
-            Message.success(t('common.createSuccess'));
+            Message.success(props.taskConfig ? t('common.updateSuccess') : t('common.createSuccess'));
           }
         } catch (error) {
           // eslint-disable-next-line no-console

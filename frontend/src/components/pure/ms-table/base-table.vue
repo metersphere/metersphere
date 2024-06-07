@@ -46,6 +46,7 @@
               v-if="attrs.selectorType === 'checkbox'"
               :value="getChecked(record)"
               :indeterminate="getIndeterminate(record)"
+              :disabled="isDisabledChildren(record)"
               @click.stop
               @change="rowSelectChange(record)"
             />
@@ -329,6 +330,10 @@
     excludeKeys: Set<string>;
     selectorStatus: SelectAllEnum;
     actionConfig?: BatchActionConfig;
+    disabledConfig?: {
+      disabledChildren?: boolean;
+      parentKey?: string;
+    };
     noDisable?: boolean;
     showSetting?: boolean;
     columns: MsTableColumn;
@@ -735,6 +740,14 @@
       return true;
     }
     return false;
+  }
+
+  function isDisabledChildren(record: TableData) {
+    if (!props.disabledConfig?.disabledChildren) {
+      return false;
+    }
+    // 子级禁用
+    return !!record[props.disabledConfig.parentKey || 'parent'];
   }
 
   onMounted(async () => {

@@ -19,10 +19,11 @@ export interface PlanReportDetail {
   caseTotal: number;
   executeCount: countDetail;
   functionalCount: countDetail;
-  // TOTO 这个版本不展示场景和接口
-  // apiCaseCount: countDetail; // 接口场景用例分析-用例数
-  // apiScenarioCount: countDetail; // 接口场景用例分析-用例数
+  apiCaseCount: countDetail; // 接口场景用例分析-用例数
+  apiScenarioCount: countDetail; // 接口场景用例分析-用例数
 }
+
+export type AnalysisType = 'FUNCTIONAL' | 'API' | 'SCENARIO';
 
 export interface ReportMetricsItemModel {
   unit: string;

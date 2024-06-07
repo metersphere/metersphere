@@ -134,4 +134,6 @@ export default {
   'testPlan.testPlanGroup.batchArchivedGroup': 'Confirm archive: {count} test plan groups',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': 'Are you sure to delete {count} test plan groups?',
   'testPlan.testPlanGroup.deleteScheduleTaskSuccess': 'Delete the scheduled task successfully',
+  'testPlan.testPlanGroup.enableScheduleTaskSuccess': 'Start the scheduled task successfully',
+  'testPlan.testPlanGroup.closeScheduleTaskSuccess': 'Scheduled mission closed successfully',
 };

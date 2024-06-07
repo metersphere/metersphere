@@ -39,6 +39,10 @@
     :selectable="hasOperationPermission && showType !== testPlanTypeEnum.ALL"
     filter-icon-align-left
     :expanded-keys="expandedKeys"
+    :disabled-config="{
+      disabledChildren: true,
+      parentKey: 'parent',
+    }"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
     @filter-change="filterChange"
@@ -365,6 +369,7 @@
     batchArchivedPlan,
     batchCopyPlan,
     batchDeletePlan,
+    batchEditTestPlan,
     batchMovePlan,
     deletePlan,
     deleteScheduleTask,
@@ -383,7 +388,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { DragSortParams, ModuleTreeNode } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type {
     AddTestPlanParams,
     BatchMoveParams,
@@ -993,9 +998,41 @@
   }
 
   /**
-   * 打开关闭定时任务 TODO 待联调
+   * 打开关闭定时任务
    */
-  function handleStatusTimingTask(enable: boolean) {}
+  async function handleStatusTimingTask(enable: boolean) {
+    const filterParams = {
+      ...propsRes.value.filter,
+    };
+    if (isArchived.value) {
+      filterParams.status = ['ARCHIVED'];
+    }
+    try {
+      const { selectedIds, selectAll, excludeIds } = batchParams.value;
+      const params: TableQueryParams = {
+        selectIds: selectedIds || [],
+        selectAll: !!selectAll,
+        excludeIds: excludeIds || [],
+        projectId: appStore.currentProjectId,
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+        condition: {
+          filter: filterParams,
+          keyword: keyword.value,
+        },
+        type: showType.value,
+        scheduleOpen: enable,
+      };
+      await batchEditTestPlan(params);
+      Message.success(
+        enable
+          ? t('testPlan.testPlanGroup.enableScheduleTaskSuccess')
+          : t('testPlan.testPlanGroup.closeScheduleTaskSuccess')
+      );
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * 归档测试计划以及计划组

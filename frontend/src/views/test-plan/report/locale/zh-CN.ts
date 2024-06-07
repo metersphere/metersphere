@@ -40,4 +40,8 @@ export default {
   'report.detail.apiCaseDetails': '接口用例明细',
   'report.detail.scenarioCaseDetails': '场景用例明细',
   'report.detail.oneClickSummary': '一键填写报告总结',
+  'report.detail.testReport': '测试报告',
+  'report.detail.testPlanGroupReport': '测试组报告',
+  'report.detail.testPlanTotal': '计划总数',
+  'report.detail.testPlanCaseTotal': '用例总数',
 };

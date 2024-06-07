@@ -1,16 +1,5 @@
 <template>
-  <MsCard v-if="!props.isDrawer" class="mb-[16px]" hide-back hide-footer auto-height no-content-padding hide-divider>
-    <template #headerLeft>
-      <div class="flex items-center font-medium">
-        <a-tooltip :content="detail.name" :mouse-enter-delay="300"
-          ><div class="one-line-text max-w-[300px]">{{ detail.name }}</div>
-        </a-tooltip>
-      </div>
-    </template>
-    <template #headerRight>
-      <PlanDetailHeaderRight :share-id="shareId" :detail="detail" />
-    </template>
-  </MsCard>
+  <ReportHeader v-if="!props.isDrawer" :detail="detail" :share-id="shareId" />
   <div class="analysis-wrapper">
     <div class="analysis min-w-[238px]">
       <div class="block-title">{{ t('report.detail.api.reportAnalysis') }}</div>
@@ -30,16 +19,16 @@
       />
     </div>
   </div>
-  <!-- TODO 接口用例&场景用例待联调 -->
+
   <div class="analysis-wrapper">
     <div class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.useCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
-          <SingleStatusProgress :detail="detail" status="pending" />
-          <SingleStatusProgress :detail="detail" status="success" />
-          <SingleStatusProgress :detail="detail" status="block" />
-          <SingleStatusProgress :detail="detail" status="error" />
+          <SingleStatusProgress :detail="detail" type="FUNCTIONAL" status="pending" />
+          <SingleStatusProgress :detail="detail" type="FUNCTIONAL" status="success" />
+          <SingleStatusProgress :detail="detail" type="FUNCTIONAL" status="block" />
+          <SingleStatusProgress :detail="detail" type="FUNCTIONAL" status="error" />
         </div>
         <div class="relative w-[30%] min-w-[150px]">
           <div class="charts absolute w-full text-center">
@@ -62,14 +51,15 @@
         </div>
       </div>
     </div>
+    <!-- TODO 接口用例&场景用例待联调 -->
     <div class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.apiUseCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
-          <SingleStatusProgress :detail="detail" status="pending" />
-          <SingleStatusProgress :detail="detail" status="success" />
-          <SingleStatusProgress :detail="detail" status="block" />
-          <SingleStatusProgress :detail="detail" status="error" />
+          <SingleStatusProgress type="API" :detail="detail" status="pending" />
+          <SingleStatusProgress type="API" :detail="detail" status="success" />
+          <SingleStatusProgress type="API" :detail="detail" status="fakeError" />
+          <SingleStatusProgress type="API" :detail="detail" status="error" />
         </div>
         <div class="relative w-[30%] min-w-[150px]">
           <div class="charts absolute w-full text-center">
@@ -96,10 +86,10 @@
       <div class="block-title">{{ t('report.detail.scenarioUseCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
-          <SingleStatusProgress :detail="detail" status="pending" />
-          <SingleStatusProgress :detail="detail" status="success" />
-          <SingleStatusProgress :detail="detail" status="block" />
-          <SingleStatusProgress :detail="detail" status="error" />
+          <SingleStatusProgress type="SCENARIO" :detail="detail" status="pending" />
+          <SingleStatusProgress type="SCENARIO" :detail="detail" status="success" />
+          <SingleStatusProgress type="SCENARIO" :detail="detail" status="fakeError" />
+          <SingleStatusProgress type="SCENARIO" :detail="detail" status="error" />
         </div>
         <div class="relative w-[30%] min-w-[150px]">
           <div class="charts absolute w-full text-center">
@@ -123,35 +113,14 @@
       </div>
     </div>
   </div>
-  <MsCard class="mb-[16px]" simple auto-height auto-width>
-    <div class="font-medium">{{ t('report.detail.reportSummary') }}</div>
-    <div
-      :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`"
-    >
-      <MsRichText
-        v-model:raw="richText.summary"
-        v-model:filedIds="richText.richTextTmpFileIds"
-        :upload-image="handleUploadImage"
-        :preview-url="PreviewEditorImageUrl"
-        class="mt-[8px] w-full"
-        :editable="!!shareId"
-      />
-      <MsFormItemSub
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && showButton"
-        :text="t('report.detail.oneClickSummary')"
-        :show-fill-icon="true"
-        @fill="handleSummary"
-      />
-    </div>
-
-    <div
-      v-show="showButton && hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId"
-      class="mt-[16px] flex items-center gap-[12px]"
-    >
-      <a-button type="primary" @click="handleUpdateReportDetail">{{ t('common.save') }}</a-button>
-      <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-    </div>
-  </MsCard>
+  <Summary
+    v-model:richText="richText"
+    :share-id="shareId"
+    :show-button="showButton"
+    @update-summary="handleUpdateReportDetail"
+    @cancel="handleCancel"
+    @handle-summary="handleSummary"
+  />
   <MsCard simple auto-height auto-width>
     <MsTab
       v-model:active-key="activeTab"
@@ -176,27 +145,29 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
-  import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
-  import PlanDetailHeaderRight from './planDetailHeaderRight.vue';
   import ReportMetricsItem from './ReportMetricsItem.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import ApiCaseTable from '@/views/test-plan/report/detail/component/apiCaseTable.vue';
   import BugTable from '@/views/test-plan/report/detail/component/bugTable.vue';
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/featureCaseTable.vue';
+  import ReportHeader from '@/views/test-plan/report/detail/component/reportHeader.vue';
   import ScenarioCaseTable from '@/views/test-plan/report/detail/component/scenarioCaseTable.vue';
+  import Summary from '@/views/test-plan/report/detail/component/summary.vue';
 
-  import { editorUploadFile, updateReportDetail } from '@/api/modules/test-plan/report';
-  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
+  import { updateReportDetail } from '@/api/modules/test-plan/report';
   import { defaultReportDetail, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import type { LegendData } from '@/models/apiTest/report';
-  import type { PlanReportDetail, ReportMetricsItemModel, StatusListType } from '@/models/testPlan/testPlanReport';
+  import type {
+    countDetail,
+    PlanReportDetail,
+    ReportMetricsItemModel,
+    StatusListType,
+  } from '@/models/testPlan/testPlanReport';
 
   import { getIndicators } from '@/views/api-test/report/utils';
 
@@ -213,7 +184,7 @@
   }>();
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
-  const showButton = ref(false);
+  const showButton = ref<boolean>(false);
   const richText = ref<{ summary: string; richTextTmpFileIds?: string[] }>({
     summary: '',
   });
@@ -373,13 +344,6 @@
     });
   }
 
-  async function handleUploadImage(file: File) {
-    const { data } = await editorUploadFile({
-      fileList: [file],
-    });
-    return data;
-  }
-
   async function handleUpdateReportDetail() {
     try {
       await updateReportDetail({
@@ -394,10 +358,6 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  }
-  function handleCancel() {
-    richText.value = { summary: detail.value.summary };
-    showButton.value = false;
   }
 
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
@@ -471,10 +431,68 @@
     });
   });
 
-  const summaryContent = ref<string>(`
-  <p style=""><span color="" fontsize="">本次完成 测试计划名称，功能测试，接口测试；共 300条 用例，已执行 285 条，未执行 15 条，执行率为 95%，通过用例 270 条，通过率为 90%，达到/未达到通过阈值（通过阈值为85%），xxx计划满足/不满足发布要求。<br>（1）本次测试包含100条功能测试用例，执行了95条，未执行5条，执行率为95%，通过用例90条，通过率为90%。共发现缺陷0个。<br>（2）本次测试包含100条接口测试用例，执行了95条，未执行5条，执行率为95%，通过用例90条，通过率为90%。共发现缺陷0个。<br>（3）本次测试包含100条场景测试用例，执行了95条，未执行5条，执行率为95%，通过用例90条，通过率为90%。共发现缺陷0个</span></p>
-  `);
-  // 一键总结 TODO 待联调
+  function getSummaryDetail(detailCount: countDetail) {
+    if (detailCount) {
+      const { success, error, fakeError, pending, block } = detailCount;
+      // 已执行用例
+      const hasExecutedCase = success + error + fakeError + block;
+      // 用例总数
+      const caseTotal = hasExecutedCase + pending;
+      // 执行率
+      const executedCount = (hasExecutedCase / caseTotal) * 100;
+      const apiExecutedRate = `${Number.isNaN(executedCount) ? 0 : executedCount.toFixed(2)}%`;
+      // 通过率
+      const successCount = (success / caseTotal) * 100;
+      const successRate = `${Number.isNaN(successCount) ? 0 : successCount.toFixed(2)}%`;
+      return {
+        hasExecutedCase,
+        caseTotal,
+        apiExecutedRate,
+        successRate,
+        pending,
+        success,
+      };
+    }
+    return {
+      hasExecutedCase: 0,
+      caseTotal: 0,
+      apiExecutedRate: 0,
+      successRate: 0,
+      pending: 0,
+      success: 0,
+    };
+  }
+
+  const summaryContent = computed(() => {
+    const { functionalCount, apiCaseCount, apiScenarioCount } = detail.value;
+    const functionalCaseDetail = getSummaryDetail(functionalCount);
+    const apiCaseDetail = getSummaryDetail(apiCaseCount);
+    const apiScenarioDetail = getSummaryDetail(apiScenarioCount);
+    const allCaseTotal = functionalCaseDetail.caseTotal + apiCaseDetail.caseTotal + apiScenarioDetail.caseTotal;
+    const allHasExecutedCase =
+      functionalCaseDetail.hasExecutedCase + apiCaseDetail.hasExecutedCase + apiScenarioDetail.hasExecutedCase;
+    const allPendingCase = functionalCaseDetail.pending + apiCaseDetail.pending + apiScenarioDetail.pending;
+    const allSuccessCase = functionalCaseDetail.success + apiCaseDetail.success + apiScenarioDetail.success;
+
+    const allExecutedCount = (allHasExecutedCase / allCaseTotal) * 100;
+    const allExecutedRate = `${Number.isNaN(allExecutedCount) ? 0 : allExecutedCount.toFixed(2)}%`;
+
+    // 通过率
+    const allSuccessCount = (allSuccessCase / allCaseTotal) * 100;
+    const allSuccessRate = `${Number.isNaN(allSuccessCount) ? 0 : allSuccessCount.toFixed(2)}%`;
+    // 接口用例通过率
+    return `<p style=""><span color="" fontsize="">本次完成 ${detail.value.name}的功能测试，接口测试；共 ${allCaseTotal}条 用例，已执行 ${allHasExecutedCase} 条，未执行 ${allPendingCase} 条，执行率为 ${allExecutedRate}%，通过用例 ${allSuccessCase} 条，通过率为 ${allSuccessRate}，达到/未达到通过阈值（通过阈值为${detail.value.passThreshold}%），xxx计划满足/不满足发布要求。<br>
+      （1）本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共发现缺陷0个。<br>
+      （2）本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共发现缺陷0个。<br>
+      （3）本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}%，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共发现缺陷0个</span></p>
+  `;
+  });
+
+  function handleCancel() {
+    richText.value = { summary: detail.value.summary };
+    showButton.value = false;
+  }
+
   function handleSummary() {
     richText.value.summary = summaryContent.value;
   }
