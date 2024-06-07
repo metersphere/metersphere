@@ -7,10 +7,12 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
@@ -59,7 +61,7 @@ import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiTestCaseService extends MoveNodeService {
+public class ApiTestCaseService extends MoveNodeService implements GetRunScriptService {
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -107,6 +109,10 @@ public class ApiTestCaseService extends MoveNodeService {
     private ExtApiReportMapper extApiReportMapper;
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
+
+    public ApiTestCaseService() {
+        GetRunScriptServiceRegister.register(ApiExecuteResourceType.API_CASE, this);
+    }
 
     private static final String CASE_TABLE = "api_test_case";
     private static final int MAX_TAG_SIZE = 10;
@@ -204,7 +210,7 @@ public class ApiTestCaseService extends MoveNodeService {
         return requestStr;
     }
 
-    private ApiTestCase checkResourceExist(String id) {
+    public ApiTestCase checkResourceExist(String id) {
         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(id);
         if (testCase == null) {
             throw new MSException(Translator.get("api_test_case_not_exist"));
@@ -736,7 +742,7 @@ public class ApiTestCaseService extends MoveNodeService {
         return doExecute(taskRequest, runRequest, request.getApiDefinitionId(), request.getEnvironmentId());
     }
 
-    private TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String apiDefinitionId, String envId) {
+    public TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String apiDefinitionId, String envId) {
 
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getTaskItem().getReportId(), taskRequest.getTaskInfo().getProjectId());
 
@@ -753,11 +759,16 @@ public class ApiTestCaseService extends MoveNodeService {
     /**
      * 获取执行脚本
      */
+    @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
+        return getRunScript(request, apiTestCase);
+    }
+
+    public GetRunScriptResult getRunScript(GetRunScriptRequest request, ApiTestCase apiTestCase) {
         TaskItem taskItem = request.getTaskItem();
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(taskItem.getResourceId());
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
-        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(taskItem.getResourceId());
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskItem.getReportId(), apiTestCase.getProjectId());
 
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
@@ -804,14 +815,7 @@ public class ApiTestCaseService extends MoveNodeService {
     public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
 
         // 初始化报告
-        ApiReport apiReport = getApiReport(userId);
-        apiReport.setId(reportId);
-        apiReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
-        apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        apiReport.setPoolId(poolId);
-        apiReport.setEnvironmentId(apiTestCase.getEnvironmentId());
-        apiReport.setProjectId(apiTestCase.getProjectId());
+        ApiReport apiReport = getApiReport(apiTestCase, reportId, poolId, userId);
 
         // 创建报告和用例的关联关系
         ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
@@ -822,7 +826,19 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiTestCaseRecord;
     }
 
-    private ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId, long sort) {
+    public ApiReport getApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
+        ApiReport apiReport = getApiReport(userId);
+        apiReport.setId(reportId);
+        apiReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
+        apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        apiReport.setPoolId(poolId);
+        apiReport.setEnvironmentId(apiTestCase.getEnvironmentId());
+        apiReport.setProjectId(apiTestCase.getProjectId());
+        return apiReport;
+    }
+
+    public ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId, long sort) {
         ApiReportStep apiReportStep = new ApiReportStep();
         apiReportStep.setReportId(reportId);
         apiReportStep.setStepId(apiTestCase.getId());
@@ -862,7 +878,7 @@ public class ApiTestCaseService extends MoveNodeService {
 
     public TaskInfo getTaskInfo(String projectId, String runModule) {
         TaskInfo taskInfo = apiExecuteService.getTaskInfo(projectId);
-        taskInfo.setResourceType(ApiResourceType.API_CASE.name());
+        taskInfo.setResourceType(ApiExecuteResourceType.API_CASE.name());
         taskInfo.setRunMode(runModule);
         taskInfo.setNeedParseScript(false);
         return taskInfo;

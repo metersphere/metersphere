@@ -6,6 +6,5 @@ package io.metersphere.sdk.constants;
  * @CreateTime: 2023-12-08  10:53
  */
 public enum ApiExecuteResourceType {
-    API_DEBUG, API, API_CASE, API_SCENARIO
-    // todo plan api
+    API_DEBUG, API, API_CASE, API_SCENARIO, TEST_PLAN_API_CASE, TEST_PLAN_API_SCENARIO
 }

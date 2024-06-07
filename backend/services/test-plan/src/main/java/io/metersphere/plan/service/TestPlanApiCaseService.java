@@ -1,12 +1,15 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.domain.ApiTestCaseExample;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.service.ApiExecuteService;
+import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
+import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
@@ -27,12 +30,11 @@ import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.TestPlanResourceConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -40,6 +42,7 @@ import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -60,7 +63,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanApiCaseService extends TestPlanResourceService {
+public class TestPlanApiCaseService extends TestPlanResourceService implements GetRunScriptService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
@@ -73,6 +76,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
+    private ApiReportService apiReportService;
+    @Resource
     private ProjectMapper projectMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
@@ -84,11 +89,17 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
-    private TestPlanCollectionMapper testPlanCollectionMapper;
+    private ApiExecuteService apiExecuteService;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
+
+    public TestPlanApiCaseService() {
+        GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_CASE, this);
+    }
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -505,7 +516,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         }
     }
 
-
     /**
      * 构建测试计划接口用例对象
      *
@@ -560,5 +570,85 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(dragNode.getTestPlanId());
         testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
         return response;
+    }
+
+    public TaskRequestDTO run(String id, String reportId, String userId) {
+        TestPlanApiCase testPlanApiCase = checkResourceExist(id);
+        ApiTestCase apiTestCase = apiTestCaseService.checkResourceExist(testPlanApiCase.getApiCaseId());
+
+        String poolId = "todo";
+        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+        // todo 设置 runModeConfig 配置
+        TaskRequestDTO taskRequest = getTaskRequest(reportId, id, apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        TaskItem taskItem = taskRequest.getTaskItem();
+        taskInfo.setRunModeConfig(runModeConfig);
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(true);
+
+        if (StringUtils.isEmpty(taskItem.getReportId())) {
+            taskInfo.setRealTime(false);
+            reportId = IDGenerator.nextStr();
+            taskItem.setReportId(reportId);
+        } else {
+            // 如果传了报告ID，则实时获取结果
+            taskInfo.setRealTime(true);
+        }
+
+        // 初始化报告
+        initApiReport(apiTestCase, testPlanApiCase, reportId, poolId, userId);
+
+        return apiExecuteService.execute(taskRequest);
+    }
+
+    public TestPlanApiCase checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(testPlanApiCaseMapper.selectByPrimaryKey(id), "api_test_case_not_exist");
+    }
+
+    /**
+     * 获取执行脚本
+     */
+    @Override
+    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
+        TaskItem taskItem = request.getTaskItem();
+        TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(taskItem.getResourceId());
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+        return apiTestCaseService.getRunScript(request, apiTestCase);
+    }
+
+    /**
+     * 预生成用例的执行报告
+     *
+     * @param apiTestCase
+     * @param poolId
+     * @param userId
+     * @return
+     */
+    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, String reportId, String poolId, String userId) {
+        // 初始化报告
+        ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, poolId, userId);
+        apiReport.setTestPlanCaseId(testPlanApiCase.getTestPlanId());
+
+        // 创建报告和用例的关联关系
+        ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
+
+        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
+
+        //初始化步骤
+        apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase, reportId)));
+        return apiTestCaseRecord;
+    }
+
+    public ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId) {
+        ApiReportStep apiReportStep = apiTestCaseService.getApiReportStep(apiTestCase, reportId, 1L);
+        apiReportStep.setStepType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+        return apiReportStep;
+    }
+
+    public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
+        TaskRequestDTO taskRequest = apiTestCaseService.getTaskRequest(reportId, resourceId, projectId, runModule);
+        taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+        taskRequest.getTaskInfo().setNeedParseScript(true);
+        return taskRequest;
     }
 }

@@ -57,10 +57,10 @@ public class MessageListener {
                 } else {
                     ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, dto.getResourceType());
                     boolean isStop = switch (resourceType) {
-                        case API_CASE ->
+                        case API_CASE, TEST_PLAN_API_CASE ->
                                 StringUtils.equals(apiReportMapper.selectByPrimaryKey(dto.getReportId()).getExecStatus(), ExecStatus.STOPPED.name())
                                         && deleteQueue(dto.getQueueId());
-                        case API_SCENARIO ->
+                        case API_SCENARIO, TEST_PLAN_API_SCENARIO ->
                                 StringUtils.equals(apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId()).getExecStatus(), ExecStatus.STOPPED.name())
                                         && deleteQueue(dto.getQueueId());
                         default -> false;

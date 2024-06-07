@@ -1,6 +1,12 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
+import io.metersphere.api.invoker.GetRunScriptServiceRegister;
+import io.metersphere.api.service.ApiExecuteService;
+import io.metersphere.api.service.GetRunScriptService;
+import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlan;
@@ -15,13 +21,14 @@ import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.dto.MoveNodeSortDTO;
-import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.TestPlanResourceConstants;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -38,7 +45,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanApiScenarioService extends TestPlanResourceService {
+public class TestPlanApiScenarioService extends TestPlanResourceService implements GetRunScriptService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -46,13 +53,19 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
-    private TestPlanCollectionMapper testPlanCollectionMapper;
-    @Resource
     private ApiScenarioService apiScenarioService;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
+    @Resource
+    private ApiScenarioRunService apiScenarioRunService;
+    @Resource
+    private ApiExecuteService apiExecuteService;
+
+    public TestPlanApiScenarioService() {
+        GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
+    }
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -137,7 +150,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         scenarioBatchMapper.updateByExampleSelective(record, scenarioCaseExample);
     }
 
-
     /**
      * 未关联接口场景列表
      *
@@ -166,5 +178,60 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(dragNode.getTestPlanId());
         testPlanResourceLogService.saveSortLog(testPlan, request.getMoveId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
         return response;
+    }
+
+
+    public TaskRequestDTO run(String id, String reportId, String userId) {
+        TestPlanApiScenario testPlanApiScenario = checkResourceExist(id);
+        ApiScenario apiScenario = apiScenarioService.checkResourceExist(testPlanApiScenario.getApiScenarioId());
+
+        String poolId = "todo";
+        String envId = "todo";
+        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+        // todo 设置 runModeConfig 配置
+        TaskRequestDTO taskRequest = getTaskRequest(reportId, id, apiScenario.getProjectId(), ApiExecuteRunMode.RUN.name());
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        TaskItem taskItem = taskRequest.getTaskItem();
+        taskInfo.setRunModeConfig(runModeConfig);
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(true);
+
+        if (StringUtils.isEmpty(taskItem.getReportId())) {
+            taskInfo.setRealTime(false);
+            reportId = IDGenerator.nextStr();
+            taskItem.setReportId(reportId);
+        } else {
+            // 如果传了报告ID，则实时获取结果
+            taskInfo.setRealTime(true);
+        }
+
+        ApiScenarioReport scenarioReport = apiScenarioRunService.getScenarioReport(userId);
+        scenarioReport.setId(reportId);
+        scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        scenarioReport.setPoolId(poolId);
+        scenarioReport.setEnvironmentId(envId);
+        scenarioReport.setTestPlanScenarioId(testPlanApiScenario.getId());
+        apiScenarioRunService.initApiReport(apiScenario, scenarioReport);
+
+        return apiExecuteService.execute(taskRequest);
+    }
+
+    public TestPlanApiScenario checkResourceExist(String id) {
+        return ServiceUtils.checkResourceExist(testPlanApiScenarioMapper.selectByPrimaryKey(id), "permission.system_api_scenario.name");
+    }
+
+    public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
+        TaskRequestDTO taskRequest = apiScenarioRunService.getTaskRequest(reportId, resourceId, projectId, runModule);
+        taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+        taskRequest.getTaskInfo().setNeedParseScript(true);
+        return taskRequest;
+    }
+
+    @Override
+    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
+        TaskItem taskItem = request.getTaskItem();
+        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
+        return apiScenarioRunService.getRunScript(request, testPlanApiScenario.getApiScenarioId());
     }
 }

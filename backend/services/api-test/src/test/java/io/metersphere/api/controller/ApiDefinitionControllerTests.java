@@ -350,7 +350,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
-    private ApiDefinitionAddRequest createApiDefinitionAddRequest() {
+    public static ApiDefinitionAddRequest createApiDefinitionAddRequest() {
+        ExtBaseProjectVersionMapper extBaseProjectVersionMapper = CommonBeanFactory.getBean(ExtBaseProjectVersionMapper.class);
         // 创建并返回一个 ApiDefinitionAddRequest 对象，用于测试
         String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID);
         ApiDefinitionAddRequest request = new ApiDefinitionAddRequest();
@@ -369,7 +370,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         return request;
     }
 
-    private List<ApiDefinitionCustomField> createCustomFields() {
+    private static List<ApiDefinitionCustomField> createCustomFields() {
         List<ApiDefinitionCustomField> list = new ArrayList<>();
         ApiDefinitionCustomField customField = new ApiDefinitionCustomField();
         customField.setFieldId("custom-field");
