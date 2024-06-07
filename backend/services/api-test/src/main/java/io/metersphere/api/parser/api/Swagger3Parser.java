@@ -1,5 +1,6 @@
 package io.metersphere.api.parser.api;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.HttpResponse;
@@ -61,6 +62,13 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             }
         } else {
             String apiTestStr = getApiTestStr(source);
+            Map<String, Object> o = ApiDataUtils.parseObject(apiTestStr, Map.class);
+            // 判断属性 swagger的值是不是3.0开头
+            if (o instanceof Map map) {
+                if (map.containsKey("swagger") && !map.get("swagger").toString().startsWith("3.0")) {
+                    throw new MSException(Translator.get("swagger_version_error"));
+                }
+            }
             result = new OpenAPIParser().readContents(apiTestStr, null, null);
             if (result == null || result.getOpenAPI() == null || !result.getOpenAPI().getOpenapi().startsWith("3.0") || result.isOpenapi31()) {
                 throw new MSException(Translator.get("swagger_parse_error"));
@@ -119,18 +127,18 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                     parseParameters(operation, request);
                     parseParameters(pathItem, request);
                     //构建请求体
-                    parseRequestBody(operation.getRequestBody(), request.getBody());
+                    parseRequestBody(operation.getRequestBody(), request);
                     //构造 children
                     LinkedList<AbstractMsTestElement> children = new LinkedList<>();
                     children.add(new MsCommonElement());
                     request.setChildren(children);
                     //认证
                     request.setAuthConfig(new NoAuth());
-                    apiDefinitionDTO.setRequest(request);
 
 
                     //解析请求内容
-                    parseResponse(operation.getResponses(), apiDefinitionDTO.getResponse());
+                    parseResponse(operation.getResponses(), apiDefinitionDTO.getResponse(), request.getHeaders());
+                    apiDefinitionDTO.setRequest(request);
                     results.add(apiDefinitionDTO);
                 }
             }
@@ -139,20 +147,28 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         return results;
     }
 
-    private void parseRequestBody(RequestBody requestBody, Body body) {
+    private void parseRequestBody(RequestBody requestBody, MsHTTPElement request) {
         if (requestBody != null) {
             Content content = requestBody.getContent();
             if (content != null) {
+                List<MsHeader> headers = request.getHeaders();
                 content.forEach((key, value) -> {
-                    setRequestBodyData(key, value, body);
+                    setRequestBodyData(key, value, request.getBody());
+                    // 如果key不包含Content-Type  则默认添加Content-Type
+                    if (headers.stream().noneMatch(header -> StringUtils.equals(header.getKey(), ApiConstants.CONTENT_TYPE))) {
+                        MsHeader header = new MsHeader();
+                        header.setKey(ApiConstants.CONTENT_TYPE);
+                        header.setValue(key);
+                        headers.add(header);
+                    }
                 });
             } else {
-                body.setBodyType(Body.BodyType.NONE.name());
-                body.setNoneBody(new NoneBody());
+                request.getBody().setBodyType(Body.BodyType.NONE.name());
+                request.getBody().setNoneBody(new NoneBody());
             }
         } else {
-            body.setBodyType(Body.BodyType.NONE.name());
-            body.setNoneBody(new NoneBody());
+            request.getBody().setBodyType(Body.BodyType.NONE.name());
+            request.getBody().setNoneBody(new NoneBody());
         }
     }
 
@@ -206,7 +222,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         body.setFormDataBody(formDataBody);
     }
 
-    private void parseResponse(ApiResponses responseBody, List<HttpResponse> response) {
+    private void parseResponse(ApiResponses responseBody, List<HttpResponse> response, List<MsHeader> requestHeaders) {
         if (responseBody != null) {
             responseBody.forEach((key, value) -> {
                 HttpResponse httpResponse = new HttpResponse();
@@ -227,7 +243,13 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
                 }
                 if (value.getContent() != null) {
                     value.getContent().forEach((k, v) -> {
-                        setRequestBodyData(k, v, body);
+                        setResponseBodyData(k, v, body);
+                        if (requestHeaders.stream().noneMatch(header -> StringUtils.equals(header.getKey(), ApiConstants.ACCEPT))) {
+                            MsHeader header = new MsHeader();
+                            header.setKey(ApiConstants.ACCEPT);
+                            header.setValue(k);
+                            requestHeaders.add(header);
+                        }
                     });
                 } else {
                     body.setBodyType(Body.BodyType.NONE.name());
@@ -250,7 +272,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
 
     }
 
-    private void setRequestBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
+    private void setResponseBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
         //TODO body  默认如果json格式
         JsonSchemaItem jsonSchemaItem = parseSchema(value.getSchema());
         switch (k) {
@@ -373,14 +395,13 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             return;
         }
         parameters.forEach(parameter -> {
-            if (parameter instanceof QueryParameter queryParameter) {
-                parseQueryParameters(queryParameter, request.getQuery());
-            } else if (parameter instanceof PathParameter pathParameter) {
-                parsePathParameters(pathParameter, request.getRest());
-            } else if (parameter instanceof HeaderParameter headerParameter) {
-                parseHeaderParameters(headerParameter, request.getHeaders());
-            } else if (parameter instanceof CookieParameter cookieParameter) {
-                parseCookieParameters(cookieParameter, request.getHeaders());
+            switch (parameter) {
+                case QueryParameter queryParameter -> parseQueryParameters(queryParameter, request.getQuery());
+                case PathParameter pathParameter -> parsePathParameters(pathParameter, request.getRest());
+                case HeaderParameter headerParameter -> parseHeaderParameters(headerParameter, request.getHeaders());
+                case CookieParameter cookieParameter -> parseCookieParameters(cookieParameter, request.getHeaders());
+                default -> {
+                }
             }
         });
     }
