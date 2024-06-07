@@ -10,6 +10,7 @@ import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
@@ -19,15 +20,13 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -102,6 +101,16 @@ public class TestPlanApiCaseController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiCaseLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanApiCaseUpdateRequest request) {
         testPlanApiCaseService.batchUpdateExecutor(request);
+    }
+
+    @GetMapping("/run/{id}")
+    @Operation(summary = "用例执行")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+//    @CheckOwner(resourceId = "#id", resourceType = "test_plan_api_case") todo
+    public TaskRequestDTO run(@PathVariable String id,
+                              @Schema(description = "报告ID，传了可以实时获取结果，不传则不支持实时获取")
+                              @RequestParam(required = false) String reportId) {
+        return testPlanApiCaseService.run(id, reportId, SessionUtils.getUserId());
     }
 
 

@@ -47,7 +47,7 @@ VALUES ('CASE_REVIEW_REAL_MODULE_ID', 'project-gyq-case-review-test', '用例评
 
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
                  last_project_id, create_user, update_user, deleted)
-VALUES ('gyq_review_test', 'gyq_review_test', 'PROJECT@fit2cloud.com', MD5('metersphere'),UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false),
+VALUES ('gyq_review_test', 'gyq_review_test', 'gyq_review_test@fit2cloud.com', MD5('metersphere'),UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false),
        ('gyq_review_test2', 'default-Administrator-1', 'admin-default-user@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false);
 
 

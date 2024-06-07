@@ -1289,7 +1289,7 @@ public class ApiScenarioService extends MoveNodeService {
         }
     }
 
-    private ApiScenario checkResourceExist(String id) {
+    public ApiScenario checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(apiScenarioMapper.selectByPrimaryKey(id), "permission.system_api_scenario.name");
     }
 

@@ -1,8 +1,28 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.api.constants.ApiConstants;
+import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.api.controller.result.ApiResultCode;
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.body.Body;
+import io.metersphere.api.dto.request.http.body.RawBody;
+import io.metersphere.api.service.definition.ApiDefinitionService;
+import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
+import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
+import io.metersphere.sdk.dto.api.task.TaskItem;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -15,25 +35,41 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestPlanApiCaseControllerTests extends BaseTest {
 
-    public static final String API_CASE_PAGE = "/test-plan/api/case/page";
-    public static final String API_CASE_TREE_COUNT = "/test-plan/api/case/module/count";
-    public static final String API_CASE_TREE_MODULE_TREE = "/test-plan/api/case/tree";
-    public static final String API_CASE_DISASSOCIATE = "/test-plan/api/case/disassociate";
-    public static final String API_CASE_BATCH_DISASSOCIATE = "/test-plan/api/case/batch/disassociate";
-    public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "/test-plan/api/case/batch/update/executor";
+    private static final String BASE_PATH = "/test-plan/api/case/";
+    public static final String API_CASE_PAGE = "page";
+    public static final String API_CASE_TREE_COUNT = "module/count";
+    public static final String API_CASE_TREE_MODULE_TREE = "tree";
+    public static final String API_CASE_DISASSOCIATE = "disassociate";
+    public static final String API_CASE_BATCH_DISASSOCIATE = "batch/disassociate";
+    public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
+    public static final String RUN = "run/{0}";
+    public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
 
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
+
+    private static ApiTestCase apiTestCase;
+    private static TestPlanApiCase testPlanApiCase;
+
+    @Override
+    public String getBasePath() {
+        return BASE_PATH;
+    }
 
     @Test
     @Order(1)
@@ -55,7 +91,6 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
     }
-
 
     @Test
     @Order(2)
@@ -146,7 +181,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
     @Test
     @Order(6)
-    public void testApiCaseAssociate() throws Exception {
+    public void testApiCaseAssociate() {
         // api
         Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
@@ -167,5 +202,83 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         collectionAssociates1.put(AssociateCaseType.API_CASE, baseCollectionAssociateRequests1);
         testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates1, "wx");
 
+        apiTestCase = initApiData();
+        TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
+        testPlanApiCase.setApiCaseId(apiTestCase.getId());
+        testPlanApiCase.setTestPlanId("wxxx_1");
+        testPlanApiCase.setTestPlanCollectionId("wxxx_1");
+        testPlanApiCase.setId(UUID.randomUUID().toString());
+        testPlanApiCase.setCreateTime(System.currentTimeMillis());
+        testPlanApiCase.setCreateUser("admin");
+        testPlanApiCase.setPos(0L);
+        testPlanApiCaseMapper.insert(testPlanApiCase);
+        this.testPlanApiCase = testPlanApiCase;
+        // todo 关联的接口测试
+    }
+
+    @Test
+    @Order(7)
+    public void run() throws Exception {
+        assertErrorCode(this.requestGet(RUN, testPlanApiCase.getId()), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        assertErrorCode(this.requestGet(RUN_WITH_REPORT_ID, testPlanApiCase.getId(), "reportId"), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        assertErrorCode(this.requestGet(RUN, "11"), NOT_FOUND);
+        GetRunScriptRequest request = new GetRunScriptRequest();
+        TaskItem taskItem = new TaskItem();
+        taskItem.setResourceId(testPlanApiCase.getId());
+        taskItem.setReportId("reportId");
+        request.setTaskItem(taskItem);
+        testPlanApiCaseService.getRunScript(request);
+
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, RUN, testPlanApiCase.getId());
+    }
+
+    public ApiTestCase initApiData() {
+        ApiDefinitionAddRequest apiDefinitionAddRequest = createApiDefinitionAddRequest();
+        MsHTTPElement msHttpElement = new MsHTTPElement();
+        msHttpElement.setPath("/test");
+        msHttpElement.setMethod("GET");
+        msHttpElement.setName("name");
+        msHttpElement.setEnable(true);
+        Body body = new Body();
+        body.setBodyType(Body.BodyType.RAW.name());
+        body.setRawBody(new RawBody());
+        msHttpElement.setBody(body);
+        apiDefinitionAddRequest.setRequest(getTestElementParam(msHttpElement));
+        ApiDefinition apiDefinition = apiDefinitionService.create(apiDefinitionAddRequest, "admin");
+        apiDefinitionAddRequest.setName(UUID.randomUUID().toString());
+
+        ApiTestCaseAddRequest caseAddRequest = new ApiTestCaseAddRequest();
+        caseAddRequest.setApiDefinitionId(apiDefinition.getId());
+        caseAddRequest.setName(UUID.randomUUID().toString());
+        caseAddRequest.setProjectId(DEFAULT_PROJECT_ID);
+        caseAddRequest.setPriority("P0");
+        caseAddRequest.setStatus(ApiDefinitionStatus.PROCESSING.name());
+        caseAddRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
+        caseAddRequest.setEnvironmentId("envId");
+        caseAddRequest.setRequest(getTestElementParam(msHttpElement));
+        return apiTestCaseService.addCase(caseAddRequest, "admin");
+    }
+
+    public static ApiDefinitionAddRequest createApiDefinitionAddRequest() {
+        ExtBaseProjectVersionMapper extBaseProjectVersionMapper = CommonBeanFactory.getBean(ExtBaseProjectVersionMapper.class);
+        String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID);
+        ApiDefinitionAddRequest request = new ApiDefinitionAddRequest();
+        request.setName(UUID.randomUUID().toString());
+        request.setProtocol(ApiConstants.HTTP_PROTOCOL);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setMethod("POST");
+        request.setPath("/api/admin/posts");
+        request.setStatus(ApiDefinitionStatus.PROCESSING.name());
+        request.setModuleId("default");
+        request.setVersionId(defaultVersion);
+        request.setDescription("描述内容");
+        request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
+        request.setCustomFields(List.of());
+        return request;
+    }
+
+
+    private Object getTestElementParam(MsHTTPElement msHttpElement) {
+        return JSON.parseObject(ApiDataUtils.toJSONString(msHttpElement));
     }
 }

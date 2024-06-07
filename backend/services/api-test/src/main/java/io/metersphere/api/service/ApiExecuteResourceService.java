@@ -1,9 +1,8 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.service.definition.ApiReportService;
-import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
-import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
@@ -31,10 +30,6 @@ public class ApiExecuteResourceService {
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
-    private ApiScenarioRunService apiScenarioRunService;
-    @Resource
-    private ApiTestCaseService apiTestCaseService;
-    @Resource
     private StringRedisTemplate stringRedisTemplate;
 
 
@@ -45,17 +40,17 @@ public class ApiExecuteResourceService {
         LogUtils.info("生成并获取执行脚本: {}", key);
 
         ApiExecuteResourceType apiExecuteResourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, request.getResourceType());
+
         switch (apiExecuteResourceType) {
-            case API_SCENARIO -> {
-                apiScenarioReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
-                return apiScenarioRunService.getRunScript(request);
-            }
-            case API_CASE -> {
-                apiReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
-                return apiTestCaseService.getRunScript(request);
-            }
+            case API_SCENARIO, TEST_PLAN_API_SCENARIO ->
+                    apiScenarioReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
+            case API_CASE, TEST_PLAN_API_CASE ->
+                    apiReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
             default -> throw new MSException("不支持的资源类型: " + request.getResourceType());
         }
+
+        GetRunScriptService getRunScriptService = GetRunScriptServiceRegister.getRunScriptService(apiExecuteResourceType);
+        return getRunScriptService.getRunScript(request);
     }
 
     public String getRunScript(String reportId, String testId) {
