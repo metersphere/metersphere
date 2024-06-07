@@ -483,7 +483,7 @@
         keyword: keyword.value,
         projectId: props.projectId,
         moduleIds: ids || props.moduleIds,
-        protocol: props.protocol,
+        protocols: [props.protocol],
         filter: {
           status: statusFilters.value,
           method: methodFilters.value,

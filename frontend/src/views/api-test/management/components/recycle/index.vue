@@ -21,7 +21,6 @@
       </template>
     </MsEditableTab>
   </div>
-  <!-- TODO 协议 -->
   <api
     v-show="currentTab === 'api'"
     ref="apiRef"
@@ -29,15 +28,14 @@
     :module-tree="props.moduleTree"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
-    :protocol="props.selectedProtocols[0]"
+    :selected-protocols="props.selectedProtocols"
   />
-  <!-- TODO 协议 -->
   <api-case
     v-show="currentTab === 'case'"
     :member-options="memberOptions"
     :active-module="props.activeModule"
     :offspring-ids="props.offspringIds"
-    :protocol="props.selectedProtocols[0]"
+    :selected-protocols="props.selectedProtocols"
   ></api-case>
 </template>
 
