@@ -1197,9 +1197,10 @@ public class ApiScenarioControllerTests extends BaseTest {
         requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, RUN_REAL_TIME, addApiScenario.getId(), "reportId");
     }
 
+    @Test
     @Order(6)
     public void batchRun() throws Exception {
-        mockPost("/api/run", "");
+        mockPost("/api/batch/run", "");
 
         ApiScenarioBatchRunRequest request = new ApiScenarioBatchRunRequest();
         List<String> ids = new ArrayList<>();

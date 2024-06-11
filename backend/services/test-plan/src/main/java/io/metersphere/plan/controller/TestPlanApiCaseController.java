@@ -6,6 +6,7 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.service.TestPlanApiCaseBatchRunService;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.service.TestPlanApiCaseLogService;
 import io.metersphere.plan.service.TestPlanApiCaseService;
@@ -42,6 +43,8 @@ public class TestPlanApiCaseController {
 
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private TestPlanApiCaseBatchRunService testPlanApiCaseBatchRunService;
     @Resource
     private TestPlanManagementService testPlanManagementService;
     @Resource
@@ -127,6 +130,14 @@ public class TestPlanApiCaseController {
         return testPlanApiCaseService.run(id, reportId, SessionUtils.getUserId());
     }
 
+
+    @PostMapping("/batch/run")
+    @Operation(summary = "批量执行")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+//    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_api_case") todo
+    public void batchRun(@Validated @RequestBody TestPlanApiCaseBatchRunRequest request) {
+        testPlanApiCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
+    }
 
     //TODO 批量移动 （计划集内）
 }

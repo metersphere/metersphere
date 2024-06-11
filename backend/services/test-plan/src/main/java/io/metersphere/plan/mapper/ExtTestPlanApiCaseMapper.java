@@ -65,4 +65,6 @@ public interface ExtTestPlanApiCaseMapper {
 	 * @return 计划功能用例集合
 	 */
 	List<TestPlanApiCase> getPlanApiCaseByIds(@Param("planIds") List<String> planIds);
+
+    List<TestPlanApiCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
 }

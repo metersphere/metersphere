@@ -670,4 +670,13 @@
             </if>
         </where>
     </select>
+
+    <select id="getApiCaseExecuteInfoByIds" resultType="io.metersphere.plan.domain.TestPlanApiCase">
+        select id, test_plan_id, api_case_id, environment_id
+        from test_plan_api_case
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

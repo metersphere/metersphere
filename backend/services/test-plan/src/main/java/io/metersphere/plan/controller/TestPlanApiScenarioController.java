@@ -7,6 +7,10 @@ import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioTreeRequest;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
+import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRunRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
+import io.metersphere.plan.service.TestPlanApiCaseBatchRunService;
+import io.metersphere.plan.service.TestPlanApiScenarioBatchRunService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -33,15 +37,8 @@ public class TestPlanApiScenarioController {
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
-
-    @GetMapping("/run/{id}")
-    @Operation(summary = "接口测试-接口场景管理-场景执行")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-//    @CheckOwner(resourceId = "#id", resourceType = "test_plan_api_scenario")
-    public TaskRequestDTO run(@PathVariable String id, @RequestParam(required = false) String reportId) {
-        return testPlanApiScenarioService.run(id, reportId, SessionUtils.getUserId());
-    }
-
+    @Resource
+    private TestPlanApiScenarioBatchRunService testPlanApiScenarioBatchRunService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联场景用例列表分页查询")
@@ -67,5 +64,21 @@ public class TestPlanApiScenarioController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanApiScenarioTreeRequest request) {
         return testPlanApiScenarioService.getTree(request);
+    }
+
+    @GetMapping("/run/{id}")
+    @Operation(summary = "接口测试-接口场景管理-场景执行")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+//    @CheckOwner(resourceId = "#id", resourceType = "test_plan_api_scenario")
+    public TaskRequestDTO run(@PathVariable String id, @RequestParam(required = false) String reportId) {
+        return testPlanApiScenarioService.run(id, reportId, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/run")
+    @Operation(summary = "批量执行")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+//    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_api_case") todo
+    public void batchRun(@Validated @RequestBody TestPlanApiScenarioBatchRunRequest request) {
+        testPlanApiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 }

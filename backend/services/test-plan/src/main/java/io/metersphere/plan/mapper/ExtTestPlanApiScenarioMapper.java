@@ -55,4 +55,6 @@ public interface ExtTestPlanApiScenarioMapper {
      * @return 计划功能用例集合
      */
     List<TestPlanApiScenario> getPlanApiScenarioByIds(@Param("planIds") List<String> planIds);
+
+    List<TestPlanApiScenario> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
 }

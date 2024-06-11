@@ -386,4 +386,13 @@
             </if>
         </where>
     </select>
+
+    <select id="getScenarioExecuteInfoByIds" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+        SELECT id, test_plan_id, api_scenario_id, environment_id
+        FROM test_plan_api_scenario
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

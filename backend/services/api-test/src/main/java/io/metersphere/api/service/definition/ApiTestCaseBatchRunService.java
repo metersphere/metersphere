@@ -311,15 +311,10 @@ public class ApiTestCaseBatchRunService {
         return taskRequest;
     }
 
-    private TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
+    public TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskInfo taskInfo = apiTestCaseService.getTaskInfo(projectId, ApiExecuteRunMode.RUN.name());
-        taskInfo.setSaveResult(true);
-        taskInfo.setRealTime(false);
-        taskInfo.setNeedParseScript(true);
-        taskInfo.setRunModeConfig(runModeConfig);
-        return taskInfo;
+        return apiBatchRunBaseService.setBatchRunTaskInfoParam(runModeConfig, taskInfo);
     }
-
 
     /**
      * 预生成用例的执行报告
@@ -346,8 +341,7 @@ public class ApiTestCaseBatchRunService {
         return apiTestCaseRecords;
     }
 
-
-    private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase, String userId) {
+    public ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase, String userId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
         apiReport.setEnvironmentId(apiTestCaseService.getEnvId(runModeConfig, apiTestCase));
         apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
