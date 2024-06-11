@@ -24,6 +24,7 @@ import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -78,7 +80,7 @@ public class ApiScenarioBatchRunService {
      */
     private void batchRun(ApiScenarioBatchRunRequest request, String userId) {
         try {
-            if (StringUtils.equals(request.getRunModeConfig().getRunMode(), ApiBatchRunMode.PARALLEL.name())) {
+            if (isParallel(request.getRunModeConfig().getRunMode())) {
                 parallelExecute(request, userId);
             } else {
                 serialExecute(request, userId);
@@ -86,6 +88,10 @@ public class ApiScenarioBatchRunService {
         } catch (Exception e) {
             LogUtils.error("批量执行用例失败: ", e);
         }
+    }
+
+    private boolean isParallel(String runMode) {
+        return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
     }
 
     /**
@@ -149,42 +155,32 @@ public class ApiScenarioBatchRunService {
 
 
     private Map<String, String> initReport(List<String> ids, ApiRunModeConfigDTO runModeConfig, String userId) {
-        Map<String, String> scenarioReportMap = new HashMap<>();
-        Boolean isIntegratedReport = runModeConfig.isIntegratedReport();
-        AtomicInteger sort = new AtomicInteger(1);
-
-        List<ApiScenarioReportStep> apiScenarioReportSteps = new ArrayList<>(ids.size());
-
         List<ApiScenario> apiScenarios = new ArrayList<>(ids.size());
         // 分批查询
-        SubListUtils.dealForSubList(ids, 100, subIds -> apiScenarios.addAll(extApiScenarioMapper.getScenarioExecuteInfoByIds(subIds)));
+        List<ApiScenario> finalApiScenarios = apiScenarios;
+        SubListUtils.dealForSubList(ids, 100, subIds -> finalApiScenarios.addAll(extApiScenarioMapper.getScenarioExecuteInfoByIds(subIds)));
 
         Map<String, ApiScenario> apiScenarioMap = apiScenarios.stream()
                 .collect(Collectors.toMap(ApiScenario::getId, Function.identity()));
+        apiScenarios = new ArrayList<>(ids.size());
 
-        // 这里ID顺序和队列的ID顺序保持一致
         for (String id : ids) {
+            // 按照ID顺序排序
             ApiScenario apiScenario = apiScenarioMap.get(id);
             if (apiScenario == null) {
                 break;
             }
-
-            if (runModeConfig.isIntegratedReport()) {
-                // 集合报告初始化一级步骤
-                ApiScenarioReportStep apiScenarioReportStep = getApiScenarioReportStep(apiScenario, runModeConfig.getCollectionReport().getReportId(), sort.getAndIncrement());
-                apiScenarioReportSteps.add(apiScenarioReportStep);
-            } else {
-                // 非集合报告，初始化独立报告，执行时初始化步骤
-                String reportId = initScenarioReport(runModeConfig, apiScenario, userId).getApiScenarioReportId();
-                scenarioReportMap.put(id, reportId);
-            }
+            apiScenarios.add(apiScenario);
         }
 
-        if (CollectionUtils.isNotEmpty(apiScenarioReportSteps)) {
-            apiScenarioReportService.insertApiScenarioReportStep(apiScenarioReportSteps);
+        if (runModeConfig.isIntegratedReport()) {
+            // 集合报告初始化一级步骤
+            initApiScenarioReportStep(apiScenarios, runModeConfig.getCollectionReport().getReportId());
+            return null;
+        } else {
+            // 非集合报告，初始化独立报告，执行时初始化步骤
+            return initScenarioReport(runModeConfig, apiScenarios, userId);
         }
-
-        return isIntegratedReport ? null : scenarioReportMap;
     }
 
 
@@ -199,14 +195,21 @@ public class ApiScenarioBatchRunService {
         }
     }
 
-    private ApiScenarioReportStep getApiScenarioReportStep(ApiScenario apiScenario, String reportId, long sort) {
-        ApiScenarioReportStep apiReportStep = new ApiScenarioReportStep();
-        apiReportStep.setReportId(reportId);
-        apiReportStep.setStepId(apiScenario.getId());
-        apiReportStep.setSort(sort);
-        apiReportStep.setName(apiScenario.getName());
-        apiReportStep.setStepType(ApiExecuteResourceType.API_SCENARIO.name());
-        return apiReportStep;
+    public void initApiScenarioReportStep(List<ApiScenario> apiScenarios, String reportId) {
+        AtomicLong sort = new AtomicLong(1);
+        List<ApiScenarioReportStep> apiScenarioReportSteps = new ArrayList<>(apiScenarios.size());
+        for (ApiScenario apiScenario : apiScenarios) {
+            ApiScenarioReportStep apiReportStep = new ApiScenarioReportStep();
+            apiReportStep.setReportId(reportId);
+            apiReportStep.setStepId(apiScenario.getId());
+            apiReportStep.setSort(sort.getAndIncrement());
+            apiReportStep.setName(apiScenario.getName());
+            apiReportStep.setStepType(ApiExecuteResourceType.API_SCENARIO.name());
+            apiScenarioReportSteps.add(apiReportStep);
+        }
+        if (CollectionUtils.isNotEmpty(apiScenarioReportSteps)) {
+            apiScenarioReportService.insertApiScenarioReportStep(apiScenarioReportSteps);
+        }
     }
 
     private ApiRunModeConfigDTO getRunModeConfig(ApiScenarioBatchRunRequest request) {
@@ -289,13 +292,25 @@ public class ApiScenarioBatchRunService {
         return taskRequest;
     }
 
-    private TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
+    public TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskInfo taskInfo = apiScenarioRunService.getTaskInfo(projectId, ApiExecuteRunMode.RUN.name());
-        taskInfo.setSaveResult(true);
-        taskInfo.setRealTime(false);
-        taskInfo.setNeedParseScript(true);
-        taskInfo.setRunModeConfig(runModeConfig);
-        return taskInfo;
+        return apiBatchRunBaseService.setBatchRunTaskInfoParam(runModeConfig, taskInfo);
+    }
+
+    public Map<String, String> initScenarioReport(ApiRunModeConfigDTO runModeConfig, List<ApiScenario> apiScenarios, String userId) {
+        List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(apiScenarios.size());
+        List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(apiScenarios.size());
+        for (ApiScenario apiScenario : apiScenarios) {
+            // 初始化报告
+            ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, apiScenario, userId);
+            apiScenarioReport.setId(IDGenerator.nextStr());
+            apiScenarioReports.add(apiScenarioReport);
+            // 创建报告和用例的关联关系
+            ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(apiScenario, apiScenarioReport);
+            apiScenarioRecords.add(apiScenarioRecord);
+        }
+        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
+        return apiScenarioRecords.stream().collect(Collectors.toMap(ApiScenarioRecord::getApiScenarioId, ApiScenarioRecord::getApiScenarioReportId));
     }
 
     /**
@@ -335,9 +350,11 @@ public class ApiScenarioBatchRunService {
     }
 
 
-
     public void updateStopOnFailureReport(ExecutionQueue queue) {
         ApiRunModeConfigDTO runModeConfig = queue.getRunModeConfig();
+        if (BooleanUtils.isFalse(runModeConfig.isIntegratedReport())) {
+            return;
+        }
         try {
             ExecutionQueueDetail queueDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
             if (queueDetail == null) {
@@ -361,19 +378,18 @@ public class ApiScenarioBatchRunService {
 
                 queueDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
             }
-            if (runModeConfig.isIntegratedReport()) {
-                // 获取未执行的请求数，更新统计指标
-                String reportId = runModeConfig.getCollectionReport().getReportId();
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-                Long pendingCount = requestCount + report.getPendingCount();
-                report.setPendingCount(pendingCount);
-                // 计算各种通过率
-                long total = apiScenarioReportService.getRequestTotal(report);
-                report = apiBatchRunBaseService.computeRequestRate(report, total);
-                report.setStatus(ReportStatus.ERROR.name());
-                report.setExecStatus(ExecStatus.COMPLETED.name());
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            }
+
+            // 获取未执行的请求数，更新统计指标
+            String reportId = runModeConfig.getCollectionReport().getReportId();
+            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+            Long pendingCount = requestCount + report.getPendingCount();
+            report.setPendingCount(pendingCount);
+            // 计算各种通过率
+            long total = apiScenarioReportService.getRequestTotal(report);
+            report = apiBatchRunBaseService.computeRequestRate(report, total);
+            report.setStatus(ReportStatus.ERROR.name());
+            report.setExecStatus(ExecStatus.COMPLETED.name());
+            apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         } catch (Exception e) {
             LogUtils.error("失败停止，补充报告步骤失败：", e);
         }

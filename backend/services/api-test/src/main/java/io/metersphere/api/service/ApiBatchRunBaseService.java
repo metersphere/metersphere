@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
+import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.LogUtils;
@@ -91,5 +92,13 @@ public class ApiBatchRunBaseService {
     // 格式化概率，保留两位小数
     private static String formatRate(double rate) {
         return String.format("%.2f", rate * 100);
+    }
+
+    public TaskInfo setBatchRunTaskInfoParam(ApiRunModeConfigDTO runModeConfig, TaskInfo taskInfo) {
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(false);
+        taskInfo.setNeedParseScript(true);
+        taskInfo.setRunModeConfig(runModeConfig);
+        return taskInfo;
     }
 }

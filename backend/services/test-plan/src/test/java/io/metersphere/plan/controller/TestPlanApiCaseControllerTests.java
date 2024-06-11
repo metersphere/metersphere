@@ -5,6 +5,7 @@ import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -21,6 +22,7 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
@@ -56,6 +58,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
     private static final String URL_POST_RESOURCE_API_CASE_SORT = "/sort";
     public static final String RUN = "run/{0}";
+    public static final String BATCH_RUN = "batch/run";
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
 
     @Resource
@@ -272,6 +275,35 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         testPlanApiCaseService.getRunScript(request);
 
         requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, RUN, testPlanApiCase.getId());
+    }
+
+    @Test
+    @Order(7)
+    public void batchRun() throws Exception {
+        TestPlanApiCaseBatchRunRequest request = new TestPlanApiCaseBatchRunRequest();
+        request.setSelectIds(List.of(testPlanApiCase.getId()));
+        request.setTestPlanId(testPlanApiCase.getTestPlanId());
+        ApiRunModeRequest apiRunModeRequest = new ApiRunModeRequest();
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        apiRunModeRequest.setStopOnFailure(false);
+        apiRunModeRequest.setPoolId("poolId");
+        request.setRunModeConfig(apiRunModeRequest);
+        this.requestPostWithOk(BATCH_RUN, request);
+        request.setProtocols(List.of("HTTP"));
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(false);
+        apiRunModeRequest.setStopOnFailure(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.SERIAL.name());
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, BATCH_RUN, request);
     }
 
     public ApiTestCase initApiData() {

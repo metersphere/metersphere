@@ -5,17 +5,16 @@ import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.RawBody;
-import io.metersphere.api.dto.scenario.ApiScenarioAddRequest;
-import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
-import io.metersphere.api.dto.scenario.ScenarioConfig;
-import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
+import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioTreeRequest;
@@ -24,7 +23,9 @@ import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.JSON;
@@ -40,10 +41,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
@@ -58,6 +56,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String API_SCENARIO_PAGE = "page";
     public static final String API_SCENARIO_TREE_COUNT = "module/count";
     public static final String API_SCENARIO_TREE = "tree";
+    public static final String BATCH_RUN = "batch/run";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -105,6 +104,40 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         taskItem.setReportId("reportId");
         request.setTaskItem(taskItem);
         testPlanApiScenarioService.getRunScript(request);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, RUN, testPlanApiScenario.getId());
+    }
+
+    @Test
+    @Order(2)
+    public void batchRun() throws Exception {
+        mockPost("/api/batch/run", "");
+
+        TestPlanApiScenarioBatchRunRequest request = new TestPlanApiScenarioBatchRunRequest();
+        request.setSelectIds(List.of(testPlanApiScenario.getId()));
+        request.setTestPlanId(testPlanApiScenario.getTestPlanId());
+        ApiRunModeRequest apiRunModeRequest = new ApiRunModeRequest();
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        apiRunModeRequest.setIntegratedReport(true);
+        apiRunModeRequest.setStopOnFailure(false);
+        apiRunModeRequest.setIntegratedReportName("aaaa");
+        apiRunModeRequest.setPoolId("poolId");
+        request.setRunModeConfig(apiRunModeRequest);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(false);
+        apiRunModeRequest.setStopOnFailure(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setRunMode(ApiBatchRunMode.SERIAL.name());
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        apiRunModeRequest.setIntegratedReport(true);
+        this.requestPostWithOk(BATCH_RUN, request);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, BATCH_RUN, request);
     }
 
     public ApiScenario initApiData() {
