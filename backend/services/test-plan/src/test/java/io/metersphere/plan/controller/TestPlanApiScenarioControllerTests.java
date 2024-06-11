@@ -18,6 +18,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioTreeRequest;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
@@ -56,6 +57,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
     public static final String API_SCENARIO_PAGE = "page";
     public static final String API_SCENARIO_TREE_COUNT = "module/count";
+    public static final String API_SCENARIO_TREE = "tree";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -202,7 +204,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
 
     @Test
     @Order(4)
-    public void testApiCaseCount() throws Exception {
+    public void testApiScenarioCount() throws Exception {
         TestPlanApiScenarioModuleRequest request = new TestPlanApiScenarioModuleRequest();
         request.setTestPlanId("wxxx_plan_1");
         request.setProjectId("wxx_project_1234");
@@ -217,5 +219,26 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         request.setTreeType("COLLECTION");
         this.requestPostWithOkAndReturn(API_SCENARIO_TREE_COUNT, request);
 
+    }
+
+    @Test
+    @Order(5)
+    public void testApiScenarioModuleTree() throws Exception {
+        TestPlanApiScenarioTreeRequest request = new TestPlanApiScenarioTreeRequest();
+        request.setTestPlanId("wxxx_plan_1");
+        request.setTreeType("MODULE");
+        this.requestPostWithOkAndReturn(API_SCENARIO_TREE, request);
+        request.setTestPlanId("wxxx_plan_2");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_TREE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        request.setTestPlanId("wxxx_plan_2");
+        request.setTreeType("COLLECTION");
+        MvcResult mvcResult1 = this.requestPostWithOkAndReturn(API_SCENARIO_TREE, request);
+        String returnData1 = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder1 = JSON.parseObject(returnData1, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder1);
     }
 }

@@ -2,12 +2,15 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.plan.dto.request.TestPlanApiCaseTreeRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioTreeRequest;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -56,5 +59,13 @@ public class TestPlanApiScenarioController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanApiScenarioModuleRequest request) {
         return testPlanApiScenarioService.moduleCount(request);
+    }
+
+    @PostMapping("/tree")
+    @Operation(summary = "测试计划-已关联接口用例列表模块树")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanApiScenarioTreeRequest request) {
+        return testPlanApiScenarioService.getTree(request);
     }
 }
