@@ -1,11 +1,14 @@
 package io.metersphere.plan.mapper;
 
+import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,4 +33,12 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanApiScenario> selectByTestPlanIdAndNotDeleted(String testPlanId);
 
     List<TestPlanApiScenarioPageResponse> relateApiScenarioList(@Param("request") TestPlanApiScenarioRequest request, @Param("deleted") boolean deleted);
+
+    List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") TestPlanApiScenarioModuleRequest request, @Param("deleted") boolean deleted);
+
+    long caseCount(@Param("request") TestPlanApiScenarioModuleRequest request, @Param("deleted") boolean deleted);
+
+    List<String> selectIdByProjectIdAndTestPlanId(@Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
+
+    List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
 }

@@ -2,6 +2,7 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
@@ -20,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "测试计划场景用例")
 @RestController
@@ -46,5 +48,13 @@ public class TestPlanApiScenarioController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "create_time desc");
         return PageUtils.setPageInfo(page, testPlanApiScenarioService.hasRelateApiScenarioList(request, false));
+    }
+
+    @PostMapping("/module/count")
+    @Operation(summary = "测试计划-已关联场景用例模块数量")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanApiScenarioModuleRequest request) {
+        return testPlanApiScenarioService.moduleCount(request);
     }
 }
