@@ -15,4 +15,7 @@ public class TestPlanApiScenarioRequest extends ApiScenarioPageRequest {
     @NotBlank(message = "{test_plan.id.not_blank}")
     private String testPlanId;
 
+    @Schema(description = "计划集id")
+    private String collectionId;
+
 }
