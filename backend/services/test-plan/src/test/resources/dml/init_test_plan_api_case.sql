@@ -29,10 +29,12 @@ VALUES
 
 
 INSERT INTO `test_plan_api_case`(`id`, `test_plan_id`, `api_case_id`, `environment_id`, `last_exec_result`, `last_exec_report_id`, `execute_user`, `create_time`, `create_user`, `pos`, `test_plan_collection_id`, `last_exec_time`)
-VALUES
-    ('wxxx_1', 'wxxx_1', 'wxxx_api_case_1', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_1', 1716370415311),
-    ('wxxx_2', 'wxxx_1', 'wxxx_api_case_2', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311),
-    ('wxxx_3', 'wxxx_2', 'wxxx_api_case_3', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'wxxx_2', 1716370415311);
+VALUES ('wxxx_1', 'wxxx_1', 'wxxx_api_case_1', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 4096, 'wxxx_1',
+        1716370415311),
+       ('wxxx_2', 'wxxx_2', 'wxxx_api_case_2', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 4096, 'wxxx_2',
+        1716370415311),
+       ('wxxx_3', 'wxxx_2', 'wxxx_api_case_3', '1', NULL, NULL, 'admin', 1716370415311, 'admin', 8192, 'wxxx_2',
+        1716370415311);
 
 INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `environment_id`, `test_resource_pool_id`, `pos`, `create_user`, `create_time`, `parent_id`)
 VALUES
