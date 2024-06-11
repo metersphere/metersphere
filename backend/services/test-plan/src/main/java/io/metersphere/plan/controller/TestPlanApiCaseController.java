@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -105,6 +106,9 @@ public class TestPlanApiCaseController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody TestPlanApiCaseBatchRequest request) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return new TestPlanAssociationResponse();
+        }
         TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/batch/disassociate", HttpMethodConstants.POST.name()));
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;

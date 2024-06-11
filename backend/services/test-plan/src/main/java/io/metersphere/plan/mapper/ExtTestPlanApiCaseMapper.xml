@@ -419,7 +419,8 @@
             t.last_exec_result,
             t.execute_user,
             t.last_exec_time,
-            t.last_exec_report_id
+            t.last_exec_report_id,
+            atc.status
         FROM
             api_test_case atc
                 INNER JOIN api_definition a ON atc.api_definition_id = a.id
@@ -489,8 +490,8 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='caseStatus' or key=='case_status'">
-                            and atc.case_status in
+                        <when test="key=='lastExecResult'">
+                            and t.last_exec_result in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
