@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Schedule;
@@ -39,9 +40,14 @@ public class BaseScheduleService {
     }
 
     private void doHandleSchedule(List<Schedule> schedules) {
+        List<String> resourceTypes = List.of(ScheduleResourceType.API_IMPORT.name(), ScheduleResourceType.API_SCENARIO.name(), ScheduleResourceType.TEST_PLAN.name(), ScheduleResourceType.BUG_SYNC.name());
         schedules.forEach(schedule -> {
             try {
                 if (schedule.getEnable()) {
+                    if (resourceTypes.contains(schedule.getResourceType())) {
+                        // 删除关闭的job
+                        removeJob(schedule);
+                    }
                     LogUtils.info("初始化任务：" + JSON.toJSONString(schedule));
                     scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getJob()),
                             new TriggerKey(schedule.getKey(), schedule.getJob()), Class.forName(schedule.getJob()), schedule.getValue(),
