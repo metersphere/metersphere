@@ -30,6 +30,6 @@ public class TestPlanExecutionQueue {
     private String executionSource;
     //预生成报告ID
     private String prepareReportId;
-    
-    private boolean isLastNode;
+
+    private boolean lastFinished = false;
 }

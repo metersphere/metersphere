@@ -21,11 +21,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -42,12 +44,15 @@ public class TestPlanExecuteService {
 
     @Resource
     private RedisTemplate<String, String> redisTemplate;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
-    public static final String QUEUE_PREFIX_TEST_PLAN_BATCH = "test-plan-batch-execute:";
     public static final String QUEUE_PREFIX_TEST_PLAN_GROUP = "test-plan-group-execute:";
+    public static final String QUEUE_PREFIX_TEST_PLAN = "test-plan-execute:";
+    public static final String QUEUE_PREFIX_TEST_PLAN_CASE_TYPE = "test-plan-case-type:";
     public static final String QUEUE_PREFIX_TEST_PLAN_COLLECTION = "test-plan-collection-execute:";
-    public static final String QUEUE_PREFIX_TEST_CASE = "test-plan-collection-execute:";
 
+    public static final String LAST_QUEUE_PREFIX = "last-queue:";
     //单独执行测试计划
     /**
      * 单个执行测试计划
@@ -62,13 +67,13 @@ public class TestPlanExecuteService {
         return executeTestPlanOrGroup(executionQueue);
     }
 
-    //批量执行测试计划
+    //批量执行测试计划组
     public void batchExecuteTestPlan(TestPlanBatchExecuteRequest request, String userId) {
         List<String> rightfulIds = testPlanService.selectRightfulIds(request.getExecuteIds());
         if (CollectionUtils.isNotEmpty(rightfulIds)) {
             String runMode = request.getRunMode();
             String queueId = IDGenerator.nextStr();
-            String queueType = QUEUE_PREFIX_TEST_PLAN_BATCH;
+            String queueType = QUEUE_PREFIX_TEST_PLAN_GROUP;
             long pos = 0;
             List<TestPlanExecutionQueue> testPlanExecutionQueues = new ArrayList<>();
 
@@ -87,8 +92,7 @@ public class TestPlanExecuteService {
                                     testPlanId,
                                     runMode,
                                     request.getExecutionSource(),
-                                    IDGenerator.nextStr(),
-                                    false
+                                    IDGenerator.nextStr(), false
                             )
                     );
                 }
@@ -120,7 +124,7 @@ public class TestPlanExecuteService {
             long pos = 0;
             List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
             String queueId = IDGenerator.nextStr();
-            String queueType = QUEUE_PREFIX_TEST_PLAN_GROUP;
+            String queueType = QUEUE_PREFIX_TEST_PLAN;
             for (TestPlan child : children) {
                 childrenQueue.add(
                         new TestPlanExecutionQueue(
@@ -134,8 +138,7 @@ public class TestPlanExecuteService {
                                 child.getId(),
                                 executionQueue.getRunMode(),
                                 executionQueue.getExecutionSource(),
-                                IDGenerator.nextStr(),
-                                false
+                                IDGenerator.nextStr(), false
                         )
                 );
             }
@@ -145,11 +148,11 @@ public class TestPlanExecuteService {
             if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                 //串行
                 TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
-                executeTestPlan(nextQueue);
+                executeTestPlanOrGroup(nextQueue);
             } else {
                 //并行
                 childrenQueue.forEach(childQueue -> {
-                    executeTestPlan(childQueue);
+                    executeTestPlanOrGroup(childQueue);
                 });
             }
             return executionQueue.getPrepareReportId();
@@ -158,7 +161,7 @@ public class TestPlanExecuteService {
         }
     }
 
-    //执行测试计划
+    //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
     public String executeTestPlan(TestPlanExecutionQueue executionQueue) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(executionQueue.getSourceID());
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
@@ -174,7 +177,7 @@ public class TestPlanExecuteService {
         String runMode = StringUtils.isBlank(testPlanConfig.getCaseRunMode()) ? ApiBatchRunMode.SERIAL.name() : testPlanConfig.getCaseRunMode();
 
         String queueId = IDGenerator.nextStr();
-        String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
+        String queueType = QUEUE_PREFIX_TEST_PLAN_CASE_TYPE;
         List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
         for (TestPlanCollection collection : testPlanCollectionList) {
             childrenQueue.add(
@@ -189,8 +192,7 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             executionQueue.getRunMode(),
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr(),
-                            false)
+                            IDGenerator.nextStr(), false)
             );
         }
         childrenQueue.forEach(childQueue -> {
@@ -213,7 +215,7 @@ public class TestPlanExecuteService {
         return executionQueue.getPrepareReportId();
     }
 
-    //执行测试集
+    //执行测试集 -- 回调：collectionExecuteQueueFinish
     private void executeByTestPlanCollection(TestPlanExecutionQueue executionQueue) {
         TestPlanCollection parentCollection = testPlanCollectionMapper.selectByPrimaryKey(executionQueue.getParentQueueId());
         TestPlanCollectionExample example = new TestPlanCollectionExample();
@@ -224,7 +226,7 @@ public class TestPlanExecuteService {
         List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
 
         String queueId = IDGenerator.nextStr();
-        String queueType = QUEUE_PREFIX_TEST_CASE;
+        String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
         for (TestPlanCollection collection : childrenList) {
             childrenQueue.add(
                     new TestPlanExecutionQueue(
@@ -238,8 +240,7 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             executionQueue.getRunMode(),
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr(),
-                            false)
+                            IDGenerator.nextStr(), false)
             );
         }
         childrenQueue.forEach(childQueue -> {
@@ -259,56 +260,116 @@ public class TestPlanExecuteService {
 
     // todo  @Chen jianxing 执行用例
     private void executeCase(TestPlanExecutionQueue testPlanExecutionQueue) {
-
+        String queueId = testPlanExecutionQueue.getQueueId();
+        String queueType = testPlanExecutionQueue.getQueueType();
+        TestPlanCollection collection = testPlanCollectionMapper.selectByPrimaryKey(testPlanExecutionQueue.getSourceID());
+        String runMode = collection.getExecuteMethod();
+        String environmentId = collection.getEnvironmentId();
+        if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.API_CASE.getKey())) {
+            // todo 执行API用例
+        } else if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.SCENARIO_CASE.getKey())) {
+            // todo 执行场景用例
+        }
+        //执行完成之后需要回调：  collectionExecuteQueueFinish
     }
 
 
-    //todo 测试用例执行完成中的某一条
-    private void TestCaseExecuteQueueFinish(String queueID, String queueType) {
-        /**
-         * 当队列全部执行完时，nextQueue将不会再查到。
-         * 此时如何调用父类队列的执行方式？
-         */
+    //测试集执行完成
+    public void collectionExecuteQueueFinish(String queueID, String queueType) {
         TestPlanExecutionQueue nextQueue = getNextQueue(queueID, queueType);
-        if (nextQueue != null) {
-            try {
-                executeCase(nextQueue);
-            } catch (Exception e) {
-                this.testPlanCollectionExecuteQueueFinish(nextQueue.getParentQueueId(), nextQueue.getParentQueueType());
+        if (StringUtils.isNotBlank(nextQueue.getQueueId())) {
+            if (!nextQueue.isLastFinished()) {
+                try {
+                    this.executeNextNode(nextQueue);
+                } catch (Exception e) {
+                    this.collectionExecuteQueueFinish(nextQueue.getQueueId(), nextQueue.getQueueType());
+                }
+            } else {
+                //当前测试集执行完毕
+                this.caseTypeExecuteQueueFinish(nextQueue.getParentQueueId(), nextQueue.getParentQueueType());
             }
-        } else {
-            //            testPlanCollectionExecuteQueueFinish(queueID, queueType);
+
         }
     }
 
-    //todo 测试集执行完成中的某一条
-    private void testPlanCollectionExecuteQueueFinish(String queueID, String queueType) {
-
+    //测试计划中当前用例类型的全部执行完成
+    private void caseTypeExecuteQueueFinish(String queueID, String queueType) {
+        TestPlanExecutionQueue nextQueue = getNextQueue(queueID, queueType);
+        if (StringUtils.isNotBlank(nextQueue.getQueueId())) {
+            if (!nextQueue.isLastFinished()) {
+                try {
+                    this.executeNextNode(nextQueue);
+                } catch (Exception e) {
+                    this.caseTypeExecuteQueueFinish(nextQueue.getQueueId(), nextQueue.getQueueType());
+                }
+            } else {
+                //当前测试计划执行完毕
+                this.testPlanExecuteQueueFinish(nextQueue.getParentQueueId(), nextQueue.getParentQueueType());
+            }
+        }
     }
 
-    //todo 测试计划执行完成中的某一条
-    private void TestPlanGroupExecuteQueueFinish(String queueID, String queueType) {
+    //测试计划执行完成
+    private void testPlanExecuteQueueFinish(String queueID, String queueType) {
+        TestPlanExecutionQueue nextQueue = getNextQueue(queueID, queueType);
+        if (StringUtils.isNotBlank(nextQueue.getQueueId())) {
+            if (!nextQueue.isLastFinished()) {
+                try {
+                    this.executeNextNode(nextQueue);
+                } catch (Exception e) {
+                    this.testPlanExecuteQueueFinish(nextQueue.getQueueId(), nextQueue.getQueueType());
+                }
+            } else {
+                this.testPlanGroupQueueFinish(nextQueue.getParentQueueId(), nextQueue.getParentQueueType());
+            }
+        }
     }
 
     //测试计划批量执行队列节点执行完成
-    private void batchTestPlanExecuteQueueFinish(String queueId, String queueType) {
+    private void testPlanGroupQueueFinish(String queueId, String queueType) {
         TestPlanExecutionQueue nextQueue = getNextQueue(queueId, queueType);
         if (nextQueue != null) {
             try {
-                executeTestPlanOrGroup(nextQueue);
+                this.executeNextNode(nextQueue);
             } catch (Exception e) {
-                this.batchTestPlanExecuteQueueFinish(queueId, queueType);
+                this.testPlanGroupQueueFinish(queueId, queueType);
             }
         }
     }
 
+    private void executeNextNode(TestPlanExecutionQueue queue) {
+        if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP)) {
+            this.executeTestPlanOrGroup(queue);
+        } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN)) {
+            this.executeTestPlan(queue);
+        } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
+            this.executeByTestPlanCollection(queue);
+        } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_COLLECTION)) {
+            this.executeCase(queue);
+        }
+    }
+
+    private void queueExecuteFinish(TestPlanExecutionQueue queue) {
+        if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP)) {
+            this.testPlanGroupQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
+        } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN)) {
+            this.testPlanExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
+        } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
+            this.caseTypeExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
+        }
+    }
 
     /**
      * 获取下一个队列节点
      */
     private TestPlanExecutionQueue getNextQueue(String queueId, String queueType) {
+        if (StringUtils.isAnyBlank(queueId, queueType)) {
+            return null;
+        }
+
         String queueKey = this.genQueueKey(queueId, queueType);
         ListOperations<String, String> listOps = redisTemplate.opsForList();
+
         String queueDetail = listOps.leftPop(queueKey);
         if (StringUtils.isBlank(queueDetail)) {
             // 重试3次获取
@@ -328,17 +389,25 @@ public class TestPlanExecuteService {
             TestPlanExecutionQueue returnQueue = JSON.parseObject(queueDetail, TestPlanExecutionQueue.class);
             Long size = getQueueSize(queueId);
             if (size == null || size == 0) {
-                returnQueue.setLastNode(true);
                 // 最后一个节点清理队列
                 deleteQueue(queueKey);
+                redisTemplate.opsForValue().setIfAbsent(genQueueKey(LAST_QUEUE_PREFIX, queueKey), JSON.toJSONString(returnQueue), 1, TimeUnit.DAYS);
             }
             return returnQueue;
+        } else {
+            String lastQueueJson = redisTemplate.opsForValue().getAndDelete(genQueueKey(LAST_QUEUE_PREFIX, queueKey));
+            if (StringUtils.isNotBlank(lastQueueJson)) {
+                TestPlanExecutionQueue nextQueue = JSON.parseObject(lastQueueJson, TestPlanExecutionQueue.class);
+                nextQueue.setLastFinished(true);
+                return nextQueue;
+            }
         }
 
         // 整体获取完，清理队列
         deleteQueue(queueKey);
         return null;
     }
+
 
     private void deleteQueue(String queueKey) {
         redisTemplate.delete(queueKey);
