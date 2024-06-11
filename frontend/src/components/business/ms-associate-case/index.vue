@@ -215,7 +215,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
-  import { FormInstance, Message, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
+  import { FormInstance, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -226,7 +226,7 @@
   import CaseTree from './caseTree.vue';
   import ScenarioCaseTable from './scenarioCaseTable.vue';
 
-  import { getAssociatedProjectOptions, getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
+  import { getAssociatedProjectOptions } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 

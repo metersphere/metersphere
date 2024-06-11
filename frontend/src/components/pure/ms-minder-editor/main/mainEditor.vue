@@ -12,7 +12,7 @@
         </a-breadcrumb-item>
       </a-breadcrumb>
     </div>
-    <nodeFloatMenu v-bind="props">
+    <nodeFloatMenu v-if="props.canShowFloatMenu" v-bind="props">
       <template #extractMenu>
         <slot name="extractMenu"></slot>
       </template>

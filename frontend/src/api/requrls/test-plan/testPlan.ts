@@ -110,3 +110,5 @@ export const DisassociateApiCaseUrl = '/test-plan/api/case/disassociate';
 export const BatchDisassociateApiCaseUrl = '/test-plan/api/case/batch/disassociate';
 // 计划详情-接口用例列表-批量更新执行人
 export const BatchUpdateApiCaseExecutorUrl = '/test-plan/api/case/batch/update/executor';
+// 测试规划脑图
+export const GetPlanMinderUrl = '/test-plan/mind/data';

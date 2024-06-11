@@ -187,4 +187,5 @@ export default {
   'common.noMatchData': 'No matching data',
   'common.name': 'name',
   'common.stopped': 'Stopped',
+  'common.config': 'Config',
 };

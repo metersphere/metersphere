@@ -1,10 +1,11 @@
+import type { MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
 import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
 import { LastExecuteResults } from '@/enums/caseEnum';
-import { testPlanTypeEnum } from '@/enums/testPlanEnum';
+import { type FailRetry, type RunMode, testPlanTypeEnum, type TestSetType } from '@/enums/testPlanEnum';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
 
@@ -352,4 +353,26 @@ export interface ExecutePlan {
   executeIds: string[];
   executeMode: RunModeType;
 }
-export default {};
+
+export interface PlanMinderNodeData extends MinderJsonNodeData {
+  id: string;
+  pos: number;
+  text: string;
+  num: number; // 关联用例数量
+  priority: string; // 串行/并行
+  executeMethod: RunMode; // 串行/并行值
+  type: TestSetType; // 测试集类型(功能/接口/场景)
+  extended: boolean;
+  grouped: boolean; // 是否使用环境组
+  environmentId: string;
+  testResourcePoolId: string;
+  retryOnFail: boolean;
+  retryType: FailRetry; // 失败重试类型(步骤/场景)
+  retryTimes: number;
+  retryInterval: number;
+  stopOnFail: boolean;
+}
+export interface PlanMinderNode {
+  data: PlanMinderNodeData;
+  children: PlanMinderNode[];
+}

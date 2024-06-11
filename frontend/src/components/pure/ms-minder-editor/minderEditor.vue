@@ -7,16 +7,14 @@
         </template>
       </mainEditor>
     </div>
-    <template v-if="props.extractContentTabList?.length">
-      <div class="ms-minder-editor-extra" :class="[extraVisible ? 'ms-minder-editor-extra--visible' : '']">
-        <div class="pl-[16px] pt-[16px]">
-          <MsTab v-model:activeKey="activeExtraKey" :content-tab-list="props.extractContentTabList" mode="button" />
-        </div>
-        <div class="ms-minder-editor-extra-content">
-          <slot name="extractTabContent"></slot>
-        </div>
+    <div class="ms-minder-editor-extra" :class="[extraVisible ? 'ms-minder-editor-extra--visible' : '']">
+      <div v-if="props.extractContentTabList?.length" class="pl-[16px] pt-[16px]">
+        <MsTab v-model:activeKey="activeExtraKey" :content-tab-list="props.extractContentTabList" mode="button" />
       </div>
-    </template>
+      <div class="ms-minder-editor-extra-content">
+        <slot name="extractTabContent"></slot>
+      </div>
+    </div>
   </a-spin>
 </template>
 

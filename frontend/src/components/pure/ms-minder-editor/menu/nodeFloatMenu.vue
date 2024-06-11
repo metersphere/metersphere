@@ -233,6 +233,9 @@
       } else {
         menuVisible.value = false;
       }
+    },
+    {
+      immediate: true,
     }
   );
 
@@ -376,7 +379,7 @@
   onMounted(() => {
     nextTick(() => {
       const freshFuc = setPriorityView;
-      if (window.minder) {
+      if (window.minder && !props.customPriority) {
         window.minder.on('contentchange', () => {
           // 异步执行，否则执行完，还会被重置
           setTimeout(() => {

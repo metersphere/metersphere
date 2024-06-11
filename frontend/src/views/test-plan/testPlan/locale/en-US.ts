@@ -137,4 +137,7 @@ export default {
   'testPlan.testPlanGroup.deleteScheduleTaskSuccess': 'Delete the scheduled task successfully',
   'testPlan.testPlanGroup.enableScheduleTaskSuccess': 'Start the scheduled task successfully',
   'testPlan.testPlanGroup.closeScheduleTaskSuccess': 'Scheduled mission closed successfully',
+  'testPlan.plan': 'Test plan',
+  'testPlan.planTip':
+    '1. Create a test set for business classification testing; 2. Select the test set associated use case',
 };

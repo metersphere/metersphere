@@ -33,6 +33,7 @@ import {
   GetFeatureCaseModuleUrl,
   GetPlanDetailApiCaseListUrl,
   GetPlanDetailFeatureCaseListUrl,
+  GetPlanMinderUrl,
   getStatisticalCountUrl,
   GetTestPlanCaseListUrl,
   GetTestPlanDetailUrl,
@@ -86,6 +87,7 @@ import type {
   PlanDetailExecuteHistoryItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
+  PlanMinderNode,
   RunFeatureCaseParams,
   SortApiCaseParams,
   SortFeatureCaseParams,
@@ -337,4 +339,8 @@ export function executePlanOrGroup(data: ExecutePlan) {
 // 测试计划-计划&计划组-执行&批量执行
 export function deleteScheduleTask(testPlanId: string) {
   return MSR.get({ url: `${DeleteScheduleTaskUrl}/${testPlanId}` });
+}
+// 获取测试规划脑图
+export function getPlanMinder(testPlanId: string) {
+  return MSR.get<PlanMinderNode[]>({ url: GetPlanMinderUrl, params: testPlanId });
 }
