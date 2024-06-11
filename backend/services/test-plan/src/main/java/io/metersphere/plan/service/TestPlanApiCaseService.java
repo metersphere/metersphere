@@ -485,7 +485,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         //处理数据
         handleApiData(collectionAssociates.get(AssociateCaseType.API), userId, testPlanApiCaseList, planId);
         handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), userId, testPlanApiCaseList, planId);
-        testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
+        if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
+            testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
+        }
     }
 
     private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {

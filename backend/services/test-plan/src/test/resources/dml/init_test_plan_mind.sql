@@ -13,6 +13,12 @@ VALUES ('gyq_plan_project', null, 'organization-associate-case-test', '用例评
 INSERT INTO test_plan_api_case(id, test_plan_id, api_case_id, environment_id, last_exec_result, last_exec_report_id, execute_user, create_time, create_user, pos, test_plan_collection_id, last_exec_time)
 VALUES ('gyq_wxxx_1', 'gyq_plan_1', 'wxxx_api_case_1', 'gyq_123', NULL, NULL, 'admin', 1716370415311, 'admin', 2, 'gyq_wxxx_4', 1716370415311);
 
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted)
+VALUES ('gyq_plan_api-case-associate-1','test4938131', 'P0', 10000023131, null, 'Underway', 'PENDING', null, 1, 'gyq_plan_project', 'gyq_plan_api_definition_id_1', '100570499574136985', 'test_associate_env_id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', null, null, false);
+
+INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
+VALUES ('gyq_plan_api_definition_id_1', 'gyq_associate_api_definition_id_1', 'HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, 'gyq_plan_project' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, UNIX_TIMESTAMP() * 1000,'admin', UNIX_TIMESTAMP() * 1000,'admin', null,null,false);
+
 INSERT INTO `test_plan_functional_case`(id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, last_exec_result, pos, test_plan_collection_id)
 VALUES('gyq_functional_case_1', 'gyq_plan_1', 'functional_case_id', 1716797474979, 'admin', 'admin', 1716866691313, 'SUCCESS', 4096, 'gyq_wxxx_5');
 

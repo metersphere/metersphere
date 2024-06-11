@@ -23,7 +23,7 @@ public class TestPlanCollectionMinderTreeNodeDTO {
     private int num;
 
     @Schema(description = "串并行")
-    private String priority;
+    private int priority;
 
     @Schema(description = "串并行值")
     private String executeMethod;

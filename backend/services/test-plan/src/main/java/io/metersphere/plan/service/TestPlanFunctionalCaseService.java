@@ -662,10 +662,12 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
         List<TestPlanFunctionalCase> testPlanFunctionalCaseList = new ArrayList<>();
         List<BaseCollectionAssociateRequest> functionalList = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
-        functionalList.forEach(functional -> {
-            buildTestPlanFunctionalCase(planId, functional, userId, testPlanFunctionalCaseList);
-        });
-        testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
+        if (CollectionUtils.isNotEmpty(functionalList)) {
+            functionalList.forEach(functional -> buildTestPlanFunctionalCase(planId, functional, userId, testPlanFunctionalCaseList));
+        }
+        if (CollectionUtils.isNotEmpty(testPlanFunctionalCaseList)) {
+            testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
+        }
     }
 
     /**
