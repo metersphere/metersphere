@@ -15,7 +15,9 @@ import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiCase;
+import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -26,6 +28,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -51,6 +54,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String API_CASE_DISASSOCIATE = "disassociate";
     public static final String API_CASE_BATCH_DISASSOCIATE = "batch/disassociate";
     public static final String API_CASE_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
+    private static final String URL_POST_RESOURCE_API_CASE_SORT = "/sort";
     public static final String RUN = "run/{0}";
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
 
@@ -109,6 +113,44 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
         request.setTreeType("COLLECTION");
         this.requestPostWithOkAndReturn(API_CASE_TREE_COUNT, request);
+
+        this.testSort();
+    }
+
+    public void testSort() throws Exception {
+        TestPlanApiCaseExample testPlanApiCaseExample = new TestPlanApiCaseExample();
+        testPlanApiCaseExample.createCriteria().andTestPlanCollectionIdEqualTo("wxxx_2");
+        testPlanApiCaseExample.setOrderByClause("pos asc");
+        List<TestPlanApiCase> apiList = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
+
+        //最后一个移动到第一位之前
+        ResourceSortRequest request = new ResourceSortRequest();
+        request.setTestCollectionId("wxxx_2");
+        request.setProjectId("wxx_1234");
+        request.setMoveId(apiList.getLast().getId());
+        request.setTargetId(apiList.getFirst().getId());
+        request.setMoveMode(MoveTypeEnum.AFTER.name());
+
+        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        TestPlanOperationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
+        apiList = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
+        Assertions.assertEquals(apiList.get(0).getId(), request.getMoveId());
+        Assertions.assertEquals(apiList.get(1).getId(), request.getTargetId());
+
+        //将这时的第30个放到第一位之后
+        request.setTargetId(apiList.getLast().getId());
+        request.setMoveId(apiList.getFirst().getId());
+        request.setMoveMode(MoveTypeEnum.BEFORE.name());
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
+        apiList = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
+        Assertions.assertEquals(apiList.get(0).getId(), request.getTargetId());
+        Assertions.assertEquals(apiList.get(1).getId(), request.getMoveId());
+
     }
 
     @Test

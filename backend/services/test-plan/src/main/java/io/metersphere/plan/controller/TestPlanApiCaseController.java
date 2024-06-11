@@ -2,11 +2,14 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.service.TestPlanApiCaseLogService;
 import io.metersphere.plan.service.TestPlanApiCaseService;
+import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -28,6 +31,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +43,18 @@ public class TestPlanApiCaseController {
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
+    private TestPlanManagementService testPlanManagementService;
+    @Resource
     private TestPlanService testPlanService;
 
+    @PostMapping(value = "/sort")
+    @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public TestPlanOperationResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getTestCollectionId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
+        return testPlanApiCaseService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/sort", HttpMethodConstants.POST.name()));
+    }
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联接口用例列表分页查询")
