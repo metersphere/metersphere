@@ -242,6 +242,7 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             apiReport.setEnvironmentId("api-environment-id" + i);
             apiReport.setRunMode("api-run-mode" + i);
             if (i % 2 == 0) {
+                apiReport.setTestPlanCaseId("task-api-resource-id" + i);
                 apiReport.setStatus(ExecStatus.PENDING.name());
             } else {
                 apiReport.setStatus(ExecStatus.RUNNING.name());
@@ -266,6 +267,7 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 2 == 0) {
+                scenarioReport.setTestPlanScenarioId("task-api-resource-id" + i);
                 scenarioReport.setStatus(ExecStatus.PENDING.name());
             } else {
                 scenarioReport.setStatus(ExecStatus.RUNNING.name());

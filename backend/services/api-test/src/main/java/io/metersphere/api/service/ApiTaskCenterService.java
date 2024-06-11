@@ -275,6 +275,8 @@ public class ApiTaskCenterService {
                 .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getIntegrated));
         Map<String, String> resourceIdMap = reports.stream()
                 .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getResourceId));
+        Map<String, String> testPlanIdMap = reports.stream()
+                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getTestPlanId));
         nodesList.parallelStream().forEach(node -> {
             String endpoint = TaskRunnerClient.getEndpoint(node.getIp(), node.getPort());
             //需要去除取消勾选的report
@@ -300,10 +302,17 @@ public class ApiTaskCenterService {
                         TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
                         TaskItem taskItem = new TaskItem();
                         taskItem.setReportId(reportId);
-                        taskItem.setResourceId(resourceIdMap.getOrDefault(reportId, null));
-                        // TODO  这里需要兼容测试计划批量执行的类型
-
                         taskInfo.setResourceType(request.getModuleType());
+                        taskItem.setResourceId(resourceIdMap.getOrDefault(reportId, null));
+                        // 这里需要兼容测试计划批量执行的类型
+                        if (StringUtils.isNotEmpty(testPlanIdMap.get(reportId))
+                                && !StringUtils.equals(testPlanIdMap.get(reportId), "NONE")) {
+                            if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_CASE.toString())) {
+                                taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+                            } else if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_SCENARIO.toString())) {
+                                taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+                            }
+                        }
                         taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
                         if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
                             taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
