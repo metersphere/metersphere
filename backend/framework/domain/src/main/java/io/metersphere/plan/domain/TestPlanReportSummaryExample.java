@@ -483,6 +483,66 @@ public class TestPlanReportSummaryExample {
             addCriterion("test_plan_report_id not between", value1, value2, "testPlanReportId");
             return (Criteria) this;
         }
+
+        public Criteria andPlanCountIsNull() {
+            addCriterion("plan_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountIsNotNull() {
+            addCriterion("plan_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountEqualTo(Long value) {
+            addCriterion("plan_count =", value, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountNotEqualTo(Long value) {
+            addCriterion("plan_count <>", value, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountGreaterThan(Long value) {
+            addCriterion("plan_count >", value, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("plan_count >=", value, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountLessThan(Long value) {
+            addCriterion("plan_count <", value, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountLessThanOrEqualTo(Long value) {
+            addCriterion("plan_count <=", value, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountIn(List<Long> values) {
+            addCriterion("plan_count in", values, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountNotIn(List<Long> values) {
+            addCriterion("plan_count not in", values, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountBetween(Long value1, Long value2) {
+            addCriterion("plan_count between", value1, value2, "planCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPlanCountNotBetween(Long value1, Long value2) {
+            addCriterion("plan_count not between", value1, value2, "planCount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

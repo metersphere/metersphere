@@ -8,9 +8,14 @@
     <result column="api_scenario_count" jdbcType="BIGINT" property="apiScenarioCount" />
     <result column="bug_count" jdbcType="BIGINT" property="bugCount" />
     <result column="test_plan_report_id" jdbcType="VARCHAR" property="testPlanReportId" />
+    <result column="plan_count" jdbcType="BIGINT" property="planCount" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.plan.domain.TestPlanReportSummary">
     <result column="summary" jdbcType="LONGVARCHAR" property="summary" />
+    <result column="functional_execute_result" jdbcType="LONGVARBINARY" property="functionalExecuteResult" />
+    <result column="api_execute_result" jdbcType="LONGVARBINARY" property="apiExecuteResult" />
+    <result column="scenario_execute_result" jdbcType="LONGVARBINARY" property="scenarioExecuteResult" />
+    <result column="execute_result" jdbcType="LONGVARBINARY" property="executeResult" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,10 +76,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, functional_case_count, api_case_count, api_scenario_count, bug_count, test_plan_report_id
+    id, functional_case_count, api_case_count, api_scenario_count, bug_count, test_plan_report_id, 
+    plan_count
   </sql>
   <sql id="Blob_Column_List">
-    summary
+    summary, functional_execute_result, api_execute_result, scenario_execute_result, 
+    execute_result
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanReportSummaryExample" resultMap="ResultMapWithBLOBs">
     select
@@ -127,10 +134,14 @@
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanReportSummary">
     insert into test_plan_report_summary (id, functional_case_count, api_case_count, 
       api_scenario_count, bug_count, test_plan_report_id, 
-      summary)
+      plan_count, summary, functional_execute_result, 
+      api_execute_result, scenario_execute_result, 
+      execute_result)
     values (#{id,jdbcType=VARCHAR}, #{functionalCaseCount,jdbcType=BIGINT}, #{apiCaseCount,jdbcType=BIGINT}, 
       #{apiScenarioCount,jdbcType=BIGINT}, #{bugCount,jdbcType=BIGINT}, #{testPlanReportId,jdbcType=VARCHAR}, 
-      #{summary,jdbcType=LONGVARCHAR})
+      #{planCount,jdbcType=BIGINT}, #{summary,jdbcType=LONGVARCHAR}, #{functionalExecuteResult,jdbcType=LONGVARBINARY}, 
+      #{apiExecuteResult,jdbcType=LONGVARBINARY}, #{scenarioExecuteResult,jdbcType=LONGVARBINARY}, 
+      #{executeResult,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportSummary">
     insert into test_plan_report_summary
@@ -153,8 +164,23 @@
       <if test="testPlanReportId != null">
         test_plan_report_id,
       </if>
+      <if test="planCount != null">
+        plan_count,
+      </if>
       <if test="summary != null">
         summary,
+      </if>
+      <if test="functionalExecuteResult != null">
+        functional_execute_result,
+      </if>
+      <if test="apiExecuteResult != null">
+        api_execute_result,
+      </if>
+      <if test="scenarioExecuteResult != null">
+        scenario_execute_result,
+      </if>
+      <if test="executeResult != null">
+        execute_result,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -176,8 +202,23 @@
       <if test="testPlanReportId != null">
         #{testPlanReportId,jdbcType=VARCHAR},
       </if>
+      <if test="planCount != null">
+        #{planCount,jdbcType=BIGINT},
+      </if>
       <if test="summary != null">
         #{summary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="functionalExecuteResult != null">
+        #{functionalExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="apiExecuteResult != null">
+        #{apiExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="scenarioExecuteResult != null">
+        #{scenarioExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="executeResult != null">
+        #{executeResult,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -208,8 +249,23 @@
       <if test="record.testPlanReportId != null">
         test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
       </if>
+      <if test="record.planCount != null">
+        plan_count = #{record.planCount,jdbcType=BIGINT},
+      </if>
       <if test="record.summary != null">
         summary = #{record.summary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.functionalExecuteResult != null">
+        functional_execute_result = #{record.functionalExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.apiExecuteResult != null">
+        api_execute_result = #{record.apiExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.scenarioExecuteResult != null">
+        scenario_execute_result = #{record.scenarioExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.executeResult != null">
+        execute_result = #{record.executeResult,jdbcType=LONGVARBINARY},
       </if>
     </set>
     <if test="_parameter != null">
@@ -224,7 +280,12 @@
       api_scenario_count = #{record.apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{record.bugCount,jdbcType=BIGINT},
       test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
-      summary = #{record.summary,jdbcType=LONGVARCHAR}
+      plan_count = #{record.planCount,jdbcType=BIGINT},
+      summary = #{record.summary,jdbcType=LONGVARCHAR},
+      functional_execute_result = #{record.functionalExecuteResult,jdbcType=LONGVARBINARY},
+      api_execute_result = #{record.apiExecuteResult,jdbcType=LONGVARBINARY},
+      scenario_execute_result = #{record.scenarioExecuteResult,jdbcType=LONGVARBINARY},
+      execute_result = #{record.executeResult,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -236,7 +297,8 @@
       api_case_count = #{record.apiCaseCount,jdbcType=BIGINT},
       api_scenario_count = #{record.apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{record.bugCount,jdbcType=BIGINT},
-      test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR}
+      test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
+      plan_count = #{record.planCount,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -259,8 +321,23 @@
       <if test="testPlanReportId != null">
         test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
       </if>
+      <if test="planCount != null">
+        plan_count = #{planCount,jdbcType=BIGINT},
+      </if>
       <if test="summary != null">
         summary = #{summary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="functionalExecuteResult != null">
+        functional_execute_result = #{functionalExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="apiExecuteResult != null">
+        api_execute_result = #{apiExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="scenarioExecuteResult != null">
+        scenario_execute_result = #{scenarioExecuteResult,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="executeResult != null">
+        execute_result = #{executeResult,jdbcType=LONGVARBINARY},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -272,7 +349,12 @@
       api_scenario_count = #{apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{bugCount,jdbcType=BIGINT},
       test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
-      summary = #{summary,jdbcType=LONGVARCHAR}
+      plan_count = #{planCount,jdbcType=BIGINT},
+      summary = #{summary,jdbcType=LONGVARCHAR},
+      functional_execute_result = #{functionalExecuteResult,jdbcType=LONGVARBINARY},
+      api_execute_result = #{apiExecuteResult,jdbcType=LONGVARBINARY},
+      scenario_execute_result = #{scenarioExecuteResult,jdbcType=LONGVARBINARY},
+      execute_result = #{executeResult,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanReportSummary">
@@ -281,18 +363,22 @@
       api_case_count = #{apiCaseCount,jdbcType=BIGINT},
       api_scenario_count = #{apiScenarioCount,jdbcType=BIGINT},
       bug_count = #{bugCount,jdbcType=BIGINT},
-      test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR}
+      test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
+      plan_count = #{planCount,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_summary
     (id, functional_case_count, api_case_count, api_scenario_count, bug_count, test_plan_report_id, 
-      summary)
+      plan_count, summary, functional_execute_result, api_execute_result, scenario_execute_result, 
+      execute_result)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.functionalCaseCount,jdbcType=BIGINT}, #{item.apiCaseCount,jdbcType=BIGINT}, 
         #{item.apiScenarioCount,jdbcType=BIGINT}, #{item.bugCount,jdbcType=BIGINT}, #{item.testPlanReportId,jdbcType=VARCHAR}, 
-        #{item.summary,jdbcType=LONGVARCHAR})
+        #{item.planCount,jdbcType=BIGINT}, #{item.summary,jdbcType=LONGVARCHAR}, #{item.functionalExecuteResult,jdbcType=LONGVARBINARY}, 
+        #{item.apiExecuteResult,jdbcType=LONGVARBINARY}, #{item.scenarioExecuteResult,jdbcType=LONGVARBINARY}, 
+        #{item.executeResult,jdbcType=LONGVARBINARY})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -323,8 +409,23 @@
         <if test="'test_plan_report_id'.toString() == column.value">
           #{item.testPlanReportId,jdbcType=VARCHAR}
         </if>
+        <if test="'plan_count'.toString() == column.value">
+          #{item.planCount,jdbcType=BIGINT}
+        </if>
         <if test="'summary'.toString() == column.value">
           #{item.summary,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'functional_execute_result'.toString() == column.value">
+          #{item.functionalExecuteResult,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'api_execute_result'.toString() == column.value">
+          #{item.apiExecuteResult,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'scenario_execute_result'.toString() == column.value">
+          #{item.scenarioExecuteResult,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'execute_result'.toString() == column.value">
+          #{item.executeResult,jdbcType=LONGVARBINARY}
         </if>
       </foreach>
       )
