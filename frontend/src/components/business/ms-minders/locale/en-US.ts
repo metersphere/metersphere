@@ -9,4 +9,5 @@ export default {
   'ms.minders.caseNameNotNull': 'Test Case Name cannot be empty',
   'ms.minders.commentTotal': '{num} Comments in Total',
   'ms.minders.text': 'Text',
+  'ms.minders.leaveUnsavedTip': 'The mind map has unsaved changes, are you sure you want to exit?',
 };

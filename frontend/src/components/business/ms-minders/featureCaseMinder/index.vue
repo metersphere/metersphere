@@ -198,7 +198,7 @@
     }
   }
 
-  watchEffect(() => {
+  onMounted(() => {
     initCaseTree();
   });
 

@@ -20,7 +20,7 @@
             <a-radio value="list" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_view-list_outlined" />
             </a-radio>
-            <a-radio value="xMind" class="show-type-icon !m-[2px]">
+            <a-radio value="minder" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
             </a-radio>
           </a-radio-group>
@@ -191,11 +191,17 @@
           </template>
         </a-popover>
         <div class="flex items-center gap-[12px]">
-          <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
+          <a-radio-group
+            v-model:model-value="showType"
+            type="button"
+            size="small"
+            class="list-show-type"
+            @change="handleShowTypeChange"
+          >
             <a-radio value="list" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_view-list_outlined" />
             </a-radio>
-            <a-radio value="xMind" class="show-type-icon !m-[2px]">
+            <a-radio value="minder" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
             </a-radio>
           </a-radio-group>
@@ -203,7 +209,7 @@
       </div>
       <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
         <!-- 脑图开始 -->
-        <MsMinder
+        <MsFeatureCaseMinder
           minder-type="FeatureCase"
           :module-id="props.activeFolder"
           :modules-count="props.modulesCount"
@@ -313,10 +319,9 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteStatusTag from '@/components/business/ms-case-associate/executeResult.vue';
-  import MsMinder from '@/components/business/ms-minders/index.vue';
+  import MsFeatureCaseMinder from '@/components/business/ms-minders/featureCaseMinder/index.vue';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
@@ -343,6 +348,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import useMinderStore from '@/store/modules/components/minder-editor';
   import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -382,18 +388,33 @@
     (e: 'import', type: 'Excel' | 'Xmind'): void;
   }>();
 
+  const minderStore = useMinderStore();
+
   const keyword = ref<string>('');
   const filterRowCount = ref(0);
   const groupKeyword = ref<string>('');
 
   const showType = ref<string>('list');
 
-  const versionOptions = ref([
-    {
-      id: '1001',
-      name: 'v_1.0',
-    },
-  ]);
+  function handleShowTypeChange(val: string | number | boolean) {
+    if (minderStore.minderUnsaved && val === 'list') {
+      showType.value = 'minder';
+      openModal({
+        type: 'warning',
+        title: t('common.tip'),
+        content: t('ms.minders.leaveUnsavedTip'),
+        okText: t('common.confirm'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'normal',
+        },
+        onBeforeOk: async () => {
+          showType.value = 'list';
+        },
+        hideCancel: false,
+      });
+    }
+  }
 
   const caseTreeData = computed(() => {
     return mapTree<ModuleTreeNode>(featureCaseStore.caseTree, (e) => {
