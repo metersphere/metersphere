@@ -16,7 +16,7 @@ export interface MinderJsonNodeData {
   text: string;
   resource?: string[];
   expandState?: 'collapse' | 'expand';
-  priority?: number;
+  priority?: number | string;
   // 前端渲染字段
   isNew?: boolean; // 是否脑图新增节点，需要在初始化脑图数据时标记已存在节点为 false 以区分是否新增节点
   changed?: boolean; // 脑图节点是否发生过变化
@@ -167,6 +167,16 @@ export const floatMenuProps = {
   // 节点可选标签集合
   replaceableTags: {
     type: Function as PropType<(nodes: MinderJsonNode[]) => string[]>,
+  },
+  // 是否显示浮动菜单
+  canShowFloatMenu: {
+    type: Boolean,
+    default: true,
+  },
+  // 是否自定义优先级
+  customPriority: {
+    type: Boolean,
+    default: false,
   },
 };
 

@@ -1,11 +1,6 @@
 <template>
   <div>
-    <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" type="warning" closable @close="addVisited">
-      {{ t('apiScenario.historyListTip') }}
-      <template #close-element>
-        <span class="text-[14px]">{{ t('common.notRemind') }}</span>
-      </template>
-    </a-alert>
+    <MsNotRemind tip="apiScenario.historyListTip" class="mb-[16px]" type="warning" visited-key="scenarioHistoryTip" />
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent"></ms-base-table>
   </div>
 </template>
@@ -16,17 +11,15 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsNotRemind from '@/components/business/ms-not-remind/index.vue';
 
   import { getScenarioHistory } from '@/api/modules/api-test/scenario';
   import { operationTypeOptions } from '@/config/common';
   import { useI18n } from '@/hooks/useI18n';
-  import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
 
   const appStore = useAppStore();
   const { t } = useI18n();
-  const visitedKey = 'scenarioHistoryTip';
-  const { addVisited, getIsVisited } = useVisit(visitedKey);
   const props = defineProps<{
     sourceId?: string | number;
   }>();

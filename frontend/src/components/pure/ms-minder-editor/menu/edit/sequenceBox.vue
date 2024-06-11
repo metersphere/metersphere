@@ -36,7 +36,7 @@
 
   const commandValue = ref('');
   const commandDisabled = ref(true);
-  let minder = reactive<any>({});
+  const minder = reactive<any>({});
 
   const isDisable = (): boolean => {
     if (Object.keys(minder).length === 0) return true;
@@ -58,23 +58,23 @@
     return !!minder.queryCommandState && minder.queryCommandState('priority') === -1;
   };
 
-  onMounted(() => {
-    nextTick(() => {
-      minder = window.minder;
-      const freshFuc = setPriorityView;
-      if (minder.on) {
-        minder.on('contentchange', () => {
-          // 异步执行，否则执行完，还会被重置
-          setTimeout(() => {
-            freshFuc(props.priorityStartWithZero, props.priorityPrefix);
-          }, 0);
-        });
-        minder.on('selectionchange', () => {
-          commandDisabled.value = isDisable();
-        });
-      }
-    });
-  });
+  // onMounted(() => {
+  //   nextTick(() => {
+  //     minder = window.minder;
+  //     const freshFuc = setPriorityView;
+  //     if (minder.on) {
+  //       minder.on('contentchange', () => {
+  //         // 异步执行，否则执行完，还会被重置
+  //         setTimeout(() => {
+  //           freshFuc(props.priorityStartWithZero, props.priorityPrefix);
+  //         }, 0);
+  //       });
+  //       minder.on('selectionchange', () => {
+  //         commandDisabled.value = isDisable();
+  //       });
+  //     }
+  //   });
+  // });
 
   function execCommand(index?: number) {
     if (index && minder.execCommand) {

@@ -100,6 +100,26 @@ export function setPriorityView(priorityStartWithZero: boolean, priorityPrefix: 
 }
 
 /**
+ * 设置自定义优先级文本
+ * @param valueMap 优先级数字与文本映射
+ */
+export function setCustomPriorityView(valueMap: Record<any, string>) {
+  const items = document.getElementsByTagName('text');
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (isPriority(item)) {
+        const content = item.innerHTML;
+        if (valueMap[content]) {
+          // 检查当前节点内优先级文本是否在映射中，如果在则替换；否则代表已经被替换过了，不再处理
+          item.innerHTML = valueMap[content];
+        }
+      }
+    }
+  }
+}
+
+/**
  * 将节点及其子节点id置为null，changed 标记为true
  * @param node
  */

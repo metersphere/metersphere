@@ -1,11 +1,11 @@
 <template>
   <div>
-    <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" type="warning" closable @close="addVisited">
-      {{ t('apiTestManagement.historyListTip') }}
-      <template #close-element>
-        <span class="text-[14px]">{{ t('common.notRemind') }}</span>
-      </template>
-    </a-alert>
+    <MsNotRemind
+      tip="apiTestManagement.historyListTip"
+      class="mb-[16px]"
+      type="warning"
+      visited-key="messageManagementRobotListTip"
+    />
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <!-- <template #action="{ record }">
         <div class="flex items-center">
@@ -23,11 +23,11 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsNotRemind from '@/components/business/ms-not-remind/index.vue';
 
   import { operationHistory } from '@/api/modules/api-test/management';
   import { operationTypeOptions } from '@/config/common';
   import { useI18n } from '@/hooks/useI18n';
-  import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
 
   const props = defineProps<{
@@ -36,8 +36,6 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
-  const visitedKey = 'messageManagementRobotListTip';
-  const { addVisited, getIsVisited } = useVisit(visitedKey);
 
   const columns: MsTableColumn = [
     {

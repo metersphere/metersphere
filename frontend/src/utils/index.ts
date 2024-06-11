@@ -233,7 +233,7 @@ export function traverseTree<T>(
  */
 export function mapTree<T>(
   tree: TreeNode<T> | TreeNode<T>[] | T | T[],
-  customNodeFn: (node: TreeNode<T>, path: string) => TreeNode<T> | null = (node) => node,
+  customNodeFn: (node: TreeNode<T>, path: string, _level: number) => TreeNode<T> | null = (node) => node,
   customChildrenKey = 'children',
   parentPath = '',
   level = 0,
@@ -258,7 +258,7 @@ export function mapTree<T>(
         const fullPath = node.path ? `${_parentPath}/${node.path}`.replace(/\/+/g, '/') : '';
         node.sort = i + 1; // sort 从 1 开始
         node.parent = _parent || undefined; // 没有父节点说明是树的第一层
-        const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath) : node;
+        const newNode = typeof customNodeFn === 'function' ? customNodeFn(node, fullPath, _level) : node;
         if (newNode) {
           newNode.level = _level;
           if (newNode[customChildrenKey] && newNode[customChildrenKey].length > 0) {

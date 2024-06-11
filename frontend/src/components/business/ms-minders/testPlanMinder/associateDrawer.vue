@@ -26,7 +26,6 @@
 
   import type { AssociateCaseRequest, AssociateCaseRequestType } from '@/models/testPlan/testPlan';
   import { CaseCountApiTypeEnum, CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
-  import { CaseLinkEnum } from '@/enums/caseEnum';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -49,29 +48,24 @@
   const planId = ref(route.query.id as string);
 
   async function saveHandler(params: AssociateCaseRequest) {
-    try {
-      confirmLoading.value = true;
-      if (typeof props.saveApi !== 'function') {
+    if (typeof props.saveApi !== 'function') {
+      emit('success', { ...params, functionalSelectIds: params.selectIds });
+    } else {
+      try {
+        confirmLoading.value = true;
+        await props.saveApi({
+          functionalSelectIds: params.selectIds,
+          testPlanId: planId.value,
+        });
         emit('success', { ...params, functionalSelectIds: params.selectIds });
-      } else {
-        try {
-          await props.saveApi({
-            functionalSelectIds: params.selectIds,
-            testPlanId: planId.value,
-          });
-          emit('success', { ...params, functionalSelectIds: params.selectIds });
-          Message.success(t('ms.case.associate.associateSuccess'));
-          confirmLoading.value = false;
-        } catch (error) {
-          console.log(error);
-        }
+        Message.success(t('ms.case.associate.associateSuccess'));
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        confirmLoading.value = false;
       }
-      innerVisible.value = false;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      confirmLoading.value = false;
     }
+    innerVisible.value = false;
   }
 </script>

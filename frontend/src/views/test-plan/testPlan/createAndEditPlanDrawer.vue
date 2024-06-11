@@ -70,34 +70,6 @@
       <a-form-item field="tags" :label="t('common.tag')" class="w-[436px]">
         <MsTagsInput v-model:model-value="form.tags" :max-tag-count="10" />
       </a-form-item>
-      <a-form-item v-if="!props.planId?.length">
-        <template #label>
-          <div class="flex items-center">
-            {{ t('testPlan.planForm.pickCases') }}
-            <a-divider margin="4px" direction="vertical" />
-            <MsButton
-              type="text"
-              :disabled="form.baseAssociateCaseRequest?.selectIds.length === 0"
-              @click="clearSelectedCases"
-            >
-              {{ t('caseManagement.caseReview.clearSelectedCases') }}
-            </MsButton>
-          </div>
-        </template>
-        <div class="flex w-[436px] items-center rounded bg-[var(--color-text-n9)] p-[12px]">
-          <div class="text-[var(--color-text-2)]">
-            {{
-              t('caseManagement.caseReview.selectedCases', {
-                count: getSelectedCount,
-              })
-            }}
-          </div>
-          <a-divider margin="8px" direction="vertical" />
-          <MsButton type="text" class="font-medium" @click="caseAssociateVisible = true">
-            {{ t('ms.case.associate.title') }}
-          </MsButton>
-        </div>
-      </a-form-item>
       <MsMoreSettingCollapse>
         <template #content>
           <div v-for="item in switchList" :key="item.key" class="mb-[24px] flex items-center gap-[8px]">
@@ -134,11 +106,6 @@
       </MsMoreSettingCollapse>
     </a-form>
   </MsDrawer>
-  <AssociateDrawer
-    v-model:visible="caseAssociateVisible"
-    :has-not-associated-ids="form.baseAssociateCaseRequest?.selectIds"
-    @success="writeAssociateCases"
-  />
 </template>
 
 <script setup lang="ts">
@@ -147,18 +114,16 @@
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsMoreSettingCollapse from '@/components/pure/ms-more-setting-collapse/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import AssociateDrawer from './components/associateDrawer.vue';
 
   import { addTestPlan, getTestPlanDetail, updateTestPlan } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { AddTestPlanParams, AssociateCaseRequest, SwitchListModel } from '@/models/testPlan/testPlan';
+  import type { AddTestPlanParams, SwitchListModel } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import { DisabledTimeProps } from '@arco-design/web-vue/es/date-picker/interface';
@@ -267,14 +232,6 @@
     },
   ];
 
-  const caseAssociateVisible = ref(false);
-  function clearSelectedCases() {
-    form.value.baseAssociateCaseRequest = cloneDeep(initForm.baseAssociateCaseRequest);
-  }
-  function writeAssociateCases(param: AssociateCaseRequest) {
-    form.value.baseAssociateCaseRequest = { ...param };
-  }
-
   function handleCancel() {
     innerVisible.value = false;
     formRef.value?.resetFields();
@@ -350,14 +307,5 @@
 
   const okText = computed(() => {
     return props.planId ? t('common.update') : t('common.create');
-  });
-
-  const getSelectedCount = computed(() => {
-    if (props.planId) {
-      return form.value?.functionalCaseCount || 0;
-    }
-    return form.value.baseAssociateCaseRequest?.selectAll
-      ? form.value.baseAssociateCaseRequest?.totalCount
-      : form.value.baseAssociateCaseRequest?.selectIds.length;
   });
 </script>

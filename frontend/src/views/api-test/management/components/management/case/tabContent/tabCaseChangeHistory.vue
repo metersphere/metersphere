@@ -1,11 +1,11 @@
 <template>
   <div class="history-container">
-    <a-alert v-if="!getIsVisited()" :show-icon="false" class="mb-[16px]" type="warning" closable @close="addVisited">
-      {{ t('apiTestManagement.historyListTip') }}
-      <template #close-element>
-        <span class="text-[14px]">{{ t('common.notRemind') }}</span>
-      </template>
-    </a-alert>
+    <MsNotRemind
+      tip="apiTestManagement.historyListTip"
+      class="mb-[16px]"
+      type="warning"
+      visited-key="apiTestCaseChangeHistoryTip"
+    />
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent" @filter-change="filterChange"> </ms-base-table>
   </div>
 </template>
@@ -16,11 +16,11 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsNotRemind from '@/components/business/ms-not-remind/index.vue';
 
   import { getApiCaseChangeHistory } from '@/api/modules/api-test/management';
   import { operationTypeOptions } from '@/config/common';
   import { useI18n } from '@/hooks/useI18n';
-  import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -33,8 +33,6 @@
 
   const appStore = useAppStore();
   const { t } = useI18n();
-  const visitedKey = 'messageManagementRobotListTip';
-  const { addVisited, getIsVisited } = useVisit(visitedKey);
 
   const typeOptions = [
     {

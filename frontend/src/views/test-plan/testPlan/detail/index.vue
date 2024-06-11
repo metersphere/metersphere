@@ -29,15 +29,6 @@
         @change="loadActiveTabList"
       />
       <span class="mr-[14px]">{{ t('testPlan.testPlanDetail.moduleView') }}</span>
-      <MsButton
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION']) && detail.status !== 'ARCHIVED'"
-        type="button"
-        status="default"
-        @click="linkCase"
-      >
-        <MsIcon type="icon-icon_link-record_outlined1" class="mr-[8px]" />
-        {{ t('ms.case.associate.title') }}
-      </MsButton>
       <MsButton v-if="isEnableEdit" type="button" status="default" @click="editorCopyHandler(false)">
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
@@ -110,6 +101,7 @@
   </MsCard>
   <!-- special-height的174: 上面卡片高度158 + mt的16 -->
   <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding>
+    <Plan v-if="activeTab === 'plan'" :plan-id="planId" />
     <FeatureCase
       v-if="activeTab === 'featureCase'"
       ref="featureCaseRef"
@@ -135,15 +127,6 @@
     />
     <ExecuteHistory v-if="activeTab === 'executeHistory'" />
   </MsCard>
-  <!-- TODO  待联调关联用例 目前可以暂时关联功能用例 -->
-  <AssociateDrawer
-    v-model:visible="caseAssociateVisible"
-    :associated-ids="detail.repeatCase ? hasSelectedIds : []"
-    :save-api="associationCaseToPlan"
-    :test-plan-id="planId"
-    @success="handleSuccess"
-  />
-
   <CreateAndEditPlanDrawer
     v-model:visible="showPlanDrawer"
     :plan-id="planId"
@@ -167,18 +150,17 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import ActionModal from '../components/actionModal.vue';
-  import AssociateDrawer from '../components/associateDrawer.vue';
   import StatusProgress from '../components/statusProgress.vue';
   import ApiCase from './apiCase/index.vue';
   import ApiScenario from './apiScenario/index.vue';
   import BugManagement from './bugManagement/index.vue';
   import ExecuteHistory from './executeHistory/index.vue';
   import FeatureCase from './featureCase/index.vue';
+  import Plan from './plan/index.vue';
   import CreateAndEditPlanDrawer from '@/views/test-plan/testPlan/createAndEditPlanDrawer.vue';
 
   import {
     archivedPlan,
-    associationCaseToPlan,
     followPlanRequest,
     generateReport,
     getPlanPassRate,
@@ -317,8 +299,12 @@
     }
   }
 
-  const activeTab = ref('featureCase');
+  const activeTab = ref('plan');
   const tabList = ref([
+    {
+      value: 'plan',
+      label: t('testPlan.plan'),
+    },
     {
       value: 'featureCase',
       label: t('menu.caseManagement.featureCase'),
@@ -358,12 +344,7 @@
         return '';
     }
   }
-  const hasSelectedIds = ref<string[]>([]);
-  const caseAssociateVisible = ref(false);
-  // 关联用例
-  function linkCase() {
-    caseAssociateVisible.value = true;
-  }
+
   const showPlanDrawer = ref(false);
 
   // 生成报告
