@@ -18,6 +18,6 @@ public class TestPlanApiCaseRequest extends ApiTestCasePageRequest {
     private String testPlanId;
 
     @Schema(description = "计划集id")
-    private List<String> collectionIds;
+    private String collectionId;
 
 }

@@ -20,4 +20,16 @@
         WHERE tpc.test_plan_id = #{planId}
     </select>
 
+    <select id="selectSecondCollectionEnv" resultType="io.metersphere.plan.dto.TestPlanCollectionEnvDTO">
+        SELECT
+            tpc.id,
+            tpc.environment_id,
+            e.`name` as environmentName
+        FROM
+            test_plan_collection tpc
+                LEFT JOIN environment e ON tpc.environment_id = e.id
+        WHERE
+            tpc.type = #{type}
+          and tpc.parent_id <![CDATA[<>]]> #{parentId}
+    </select>
 </mapper>
