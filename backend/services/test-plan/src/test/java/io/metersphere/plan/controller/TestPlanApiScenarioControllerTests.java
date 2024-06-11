@@ -16,6 +16,8 @@ import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
@@ -26,15 +28,17 @@ import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +54,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     private static final String BASE_PATH = "/test-plan/api/scenario/";
     public static final String RUN = "run/{0}";
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
+    public static final String API_SCENARIO_PAGE = "page";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -171,5 +176,26 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
 
     private Object getMsHttpElementStr(MsHTTPElement msHTTPElement) {
         return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
+    }
+
+
+
+    @Test
+    @Order(3)
+    @Sql(scripts = {"/dml/init_test_plan_api_scenario.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testApiCasePageList() throws Exception {
+        TestPlanApiScenarioRequest request = new TestPlanApiScenarioRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setTestPlanId("wxxx_plan_1");
+        request.setProjectId("wxx_project_1234");
+        this.requestPost(API_SCENARIO_PAGE, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_PAGE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
     }
 }

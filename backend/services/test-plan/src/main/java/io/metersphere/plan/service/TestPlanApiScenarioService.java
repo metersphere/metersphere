@@ -15,21 +15,31 @@ import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
+import io.metersphere.plan.dto.TestPlanCollectionEnvDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
+import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.MoveNodeSortDTO;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -62,6 +72,14 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
     private ApiScenarioRunService apiScenarioRunService;
     @Resource
     private ApiExecuteService apiExecuteService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private UserLoginService userLoginService;
+    @Resource
+    private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
+    @Resource
+    private EnvironmentMapper environmentMapper;
 
     public TestPlanApiScenarioService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
@@ -132,7 +150,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
     }
 
     @Override
-    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
         List<BaseCollectionAssociateRequest> apiScenarios = collectionAssociates.get(AssociateCaseType.API_SCENARIO);
         // TODO: 调用具体的关联场景用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
     }
@@ -161,6 +179,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         List<ApiScenarioDTO> scenarioPage = apiScenarioService.getScenarioPage(request, isRepeat, request.getTestPlanId());
         return scenarioPage;
     }
+
     public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanApiScenario dragNode = testPlanApiScenarioMapper.selectByPrimaryKey(request.getMoveId());
         if (dragNode == null) {
@@ -233,5 +252,86 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         TaskItem taskItem = request.getTaskItem();
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
         return apiScenarioRunService.getRunScript(request, testPlanApiScenario.getApiScenarioId());
+    }
+
+
+    /**
+     * 已关联接口场景列表
+     *
+     * @param request
+     * @param deleted
+     * @return
+     */
+    public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted) {
+        List<TestPlanApiScenarioPageResponse> list = extTestPlanApiScenarioMapper.relateApiScenarioList(request, deleted);
+        buildApiScenarioResponse(list);
+        return list;
+    }
+
+    private void buildApiScenarioResponse(List<TestPlanApiScenarioPageResponse> apiScenarioList) {
+        if (CollectionUtils.isNotEmpty(apiScenarioList)) {
+            Map<String, String> projectMap = getProject(apiScenarioList);
+            Map<String, String> userMap = getUserMap(apiScenarioList);
+            handleScenarioAndEnv(apiScenarioList, projectMap, userMap);
+        }
+    }
+
+    private void handleScenarioAndEnv(List<TestPlanApiScenarioPageResponse> apiScenarioList, Map<String, String> projectMap, Map<String, String> userMap) {
+        //获取二级节点环境
+        List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.SCENARIO_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID);
+        Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
+        //当前用例环境
+        List<String> caseEnvIds = apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getEnvironmentId).toList();
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andIdIn(caseEnvIds);
+        List<Environment> caseEnv = environmentMapper.selectByExample(environmentExample);
+        Map<String, String> caseEnvMap = caseEnv.stream().collect(Collectors.toMap(Environment::getId, Environment::getName));
+        apiScenarioList.forEach(item -> {
+            item.setProjectName(projectMap.get(item.getProjectId()));
+            item.setCreateUserName(userMap.get(item.getCreateUser()));
+            TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
+            if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                //计划集 == 默认环境   处理默认环境
+                doHandleDefaultEnv(item, caseEnvMap);
+            } else {
+                //计划集 != 默认环境
+                doHandleEnv(item, collectEnv);
+            }
+        });
+    }
+
+    private void doHandleEnv(TestPlanApiScenarioPageResponse item, TestPlanCollectionEnvDTO collectEnv) {
+        if (StringUtils.isNotBlank(collectEnv.getEnvironmentName())) {
+            item.setEnvironmentId(collectEnv.getEnvironmentId());
+            item.setEnvironmentName(collectEnv.getEnvironmentName());
+        } else {
+            item.setEnvironmentId(null);
+            item.setEnvironmentName(null);
+        }
+    }
+
+    private void doHandleDefaultEnv(TestPlanApiScenarioPageResponse item, Map<String, String> caseEnvMap) {
+        if (caseEnvMap.containsKey(item.getEnvironmentId())) {
+            item.setEnvironmentName(caseEnvMap.get(item.getEnvironmentId()));
+        } else {
+            item.setEnvironmentId(null);
+            item.setEnvironmentName(null);
+        }
+    }
+
+    private Map<String, String> getUserMap(List<TestPlanApiScenarioPageResponse> apiScenarioList) {
+        List<String> userIds = new ArrayList<>();
+        userIds.addAll(apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getCreateUser).toList());
+        userIds.addAll(apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getExecuteUser).toList());
+        return userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
+    }
+
+
+    private Map<String, String> getProject(List<TestPlanApiScenarioPageResponse> apiScenarioList) {
+        List<String> projectIds = apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getProjectId).toList();
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(projectIds);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        return projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
     }
 }
