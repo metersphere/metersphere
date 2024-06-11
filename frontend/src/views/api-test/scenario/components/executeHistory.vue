@@ -2,7 +2,21 @@
   <div>
     <ms-base-table v-bind="propsRes" no-disable filter-icon-align-left v-on="propsEvent">
       <template #num="{ record }">
-        <span type="text" class="px-0">{{ record.num }}</span>
+        <div class="flex items-center justify-start">
+          <span type="text" class="px-0">{{ record.num }}</span>
+          <a-tooltip v-if="record.testPlanNum" :content="record.testPlanNum">
+            <MsTag
+              class="ml-2"
+              :self-style="{
+                border: `1px solid ${color}`,
+                color: color,
+                backgroundColor: 'white',
+              }"
+            >
+              {{ record.testPlanNum }}
+            </MsTag>
+          </a-tooltip>
+        </div>
       </template>
 
       <template #triggerMode="{ record }">
@@ -60,6 +74,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecStatus from '@/views/api-test/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
@@ -108,7 +123,7 @@
       dataIndex: 'id',
       slotName: 'num',
       fixed: 'left',
-      width: 150,
+      width: 180,
     },
     {
       title: 'apiScenario.executeHistory.execution.triggerMode',
@@ -205,6 +220,8 @@
 
   const showScenarioReportVisible = ref(false);
   const reportId = ref('');
+
+  const color = 'rgb(var(--primary-7))';
 
   function showResult(record: ExecuteHistoryItem) {
     reportId.value = record.id;

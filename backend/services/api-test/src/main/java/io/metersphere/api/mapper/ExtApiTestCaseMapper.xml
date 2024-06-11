@@ -257,7 +257,8 @@
         api_report.trigger_mode,
         api_report.test_plan_case_id,
         api_report.deleted,
-        api_report.integrated
+        api_report.integrated,
+        api_report.test_plan_case_id as test_plan_id
         from api_report
         left join api_test_case_record atc on atc.api_report_id = api_report.id
         where
@@ -389,6 +390,18 @@
         select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
         )
         <include refid="queryByAssociateParam"/>
+    </select>
+    <select id="getTestPlanNum" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
+        select ar.id, test_plan.num as testPlanNum
+        from api_report ar
+        inner join test_plan_api_case tpac on ar.test_plan_case_id = tpac.id
+        inner join test_plan on tpac.test_plan_id = test_plan.id
+        <if test="ids != null and ids.size() > 0">
+            where ar.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
     </select>
 
     <sql id="report_filters">

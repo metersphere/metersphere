@@ -26,7 +26,7 @@ public class ExecuteReportDTO implements Serializable {
 
     @Schema(description = "报告结果/SUCCESS/ERROR")
     private String status;
-    
+
     @Schema(description = "报告状态")
     private String execStatus;
 
@@ -41,6 +41,12 @@ public class ExecuteReportDTO implements Serializable {
 
     @Schema(description = "是否集成")
     private boolean integrated;
+
+    @Schema(description = "测试计划id")
+    private String testPlanId;
+
+    @Schema(description = "测试计划Num")
+    private String testPlanNum;
 
     private static final long serialVersionUID = 1L;
 
