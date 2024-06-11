@@ -28,4 +28,5 @@ export interface MinderState {
   event: MinderCustomEvent;
   mold: number;
   clipboard: MinderJsonNode[]; // 剪切板
+  minderUnsaved: boolean; // 脑图是否有未保存的内容
 }

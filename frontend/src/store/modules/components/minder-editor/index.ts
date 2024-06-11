@@ -22,7 +22,13 @@ const useMinderStore = defineStore('minder', {
     },
     mold: 0,
     clipboard: [],
+    minderUnsaved: false,
   }),
+  getters: {
+    getMinderUnsaved(): boolean {
+      return this.minderUnsaved;
+    },
+  },
   actions: {
     /**
      * 脑图组件派发事件
@@ -55,6 +61,9 @@ const useMinderStore = defineStore('minder', {
     },
     setClipboard(nodes?: MinderJsonNode[]) {
       this.clipboard = nodes || [];
+    },
+    setMinderUnsaved(val: boolean) {
+      this.minderUnsaved = val;
     },
   },
 });

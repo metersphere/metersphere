@@ -13,7 +13,7 @@ export interface LeaveProps {
 const leaveProps: LeaveProps = {
   leaveTitle: 'common.unSaveLeaveTitle',
   leaveContent: 'common.unSaveLeaveContent',
-  tipType: 'error',
+  tipType: 'warning',
 };
 
 // 离开页面确认提示

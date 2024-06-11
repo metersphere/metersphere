@@ -27,6 +27,7 @@
   import minderHeader from './header.vue';
   import Navigator from './navigator.vue';
 
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useMinderStore from '@/store/modules/components/minder-editor';
   import { findNodePathByKey, replaceNodeInTree } from '@/utils';
 
@@ -63,6 +64,11 @@
   }>();
 
   const minderStore = useMinderStore();
+  const { setIsSave } = useLeaveUnSaveTip({
+    leaveContent: 'ms.minders.leaveUnsavedTip',
+    leaveTitle: 'common.unSaveLeaveTitle',
+    tipType: 'warning',
+  });
   const mec: Ref<HTMLDivElement | null> = ref(null);
   const importJson = defineModel<MinderJson>('importJson', {
     required: true,
@@ -72,7 +78,6 @@
     template: 'default',
     treePath: [],
   });
-  const minderUnsaved = ref(false);
 
   function handlePriorityButton() {
     const { priorityPrefix } = props;
@@ -148,7 +153,7 @@
         'zoomOut',
       ]);
       if (selectNodes && !notChangeCommands.has(env.commandName.toLocaleLowerCase())) {
-        minderUnsaved.value = true;
+        minderStore.setMinderUnsaved(true);
         minderStore.dispatchEvent(MinderEventName.MINDER_CHANGED);
         selectNodes.forEach((node: MinderJsonNode) => {
           markChangeNode(node);
@@ -179,7 +184,7 @@
    * @param node 切换的节点
    */
   function switchNode(node: MinderJsonNode | MinderJsonNodeData) {
-    if (minderUnsaved.value) {
+    if (minderStore.minderUnsaved) {
       // 切换前，如果脑图未保存，先把更改的节点信息同步一次
       replaceNodeInTree(
         [importJson.value.root],
@@ -232,10 +237,17 @@
       data = window.minder.exportJson();
     }
     emit('save', data, () => {
-      minderUnsaved.value = false;
+      minderStore.setMinderUnsaved(false);
       menuVisible.value = false;
     });
   }
+
+  watch(
+    () => minderStore.getMinderUnsaved,
+    (val) => {
+      setIsSave(!val);
+    }
+  );
 </script>
 
 <style lang="less">

@@ -9,4 +9,5 @@ export default {
   'ms.minders.caseNameNotNull': '用例名称不能为空',
   'ms.minders.commentTotal': '共 {num} 评论',
   'ms.minders.text': '文本',
+  'ms.minders.leaveUnsavedTip': '脑图有未保存的更改，确认离开吗？',
 };
