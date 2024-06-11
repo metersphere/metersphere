@@ -21,10 +21,7 @@ import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
-import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
-import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
-import io.metersphere.plan.mapper.TestPlanCollectionMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -96,6 +93,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
 
     public TestPlanApiCaseService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_CASE, this);
@@ -216,13 +215,51 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     private void buildApiCaseResponse(List<TestPlanApiCasePageResponse> apiCaseList) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             Map<String, String> projectMap = getProject(apiCaseList);
-            Map<String, String> envMap = getEnvironmentMap(apiCaseList);
             Map<String, String> userMap = getUserMap(apiCaseList);
-            apiCaseList.forEach(apiCase -> {
-                apiCase.setProjectName(projectMap.get(apiCase.getProjectId()));
-                apiCase.setEnvironmentName(envMap.get(apiCase.getId()));
-                apiCase.setCreateUserName(userMap.get(apiCase.getCreateUser()));
-            });
+            handleCaseAndEnv(apiCaseList, projectMap, userMap);
+        }
+    }
+
+    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap) {
+        //获取二级节点环境
+        List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.API_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID);
+        Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
+        //当前用例环境
+        List<String> caseEnvIds = apiCaseList.stream().map(TestPlanApiCasePageResponse::getEnvironmentId).toList();
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andIdIn(caseEnvIds);
+        List<Environment> caseEnv = environmentMapper.selectByExample(environmentExample);
+        Map<String, String> caseEnvMap = caseEnv.stream().collect(Collectors.toMap(Environment::getId, Environment::getName));
+        apiCaseList.forEach(item -> {
+            item.setProjectName(projectMap.get(item.getProjectId()));
+            item.setCreateUserName(userMap.get(item.getCreateUser()));
+            TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
+            if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                //计划集 == 默认环境   处理默认环境
+                doHandleDefaultEnv(item, caseEnvMap);
+            } else {
+                //计划集 != 默认环境
+                doHandleEnv(item, collectEnv);
+            }
+        });
+    }
+
+    private void doHandleEnv(TestPlanApiCasePageResponse item, TestPlanCollectionEnvDTO collectEnv) {
+        if (StringUtils.isNotBlank(collectEnv.getEnvironmentName())) {
+            item.setEnvironmentId(collectEnv.getEnvironmentId());
+            item.setEnvironmentName(collectEnv.getEnvironmentName());
+        } else {
+            item.setEnvironmentId(null);
+            item.setEnvironmentName(null);
+        }
+    }
+
+    private void doHandleDefaultEnv(TestPlanApiCasePageResponse item, Map<String, String> caseEnvMap) {
+        if (caseEnvMap.containsKey(item.getEnvironmentId())) {
+            item.setEnvironmentName(caseEnvMap.get(item.getEnvironmentId()));
+        } else {
+            item.setEnvironmentId(null);
+            item.setEnvironmentName(null);
         }
     }
 
@@ -231,39 +268,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         userIds.addAll(apiCaseList.stream().map(TestPlanApiCasePageResponse::getCreateUser).toList());
         userIds.addAll(apiCaseList.stream().map(TestPlanApiCasePageResponse::getExecuteUser).toList());
         return userLoginService.getUserNameMap(userIds.stream().filter(StringUtils::isNotBlank).distinct().toList());
-    }
-
-    private Map<String, String> getEnvironmentMap(List<TestPlanApiCasePageResponse> apiCaseList) {
-        Map<String, String> envMap = new HashMap<>();
-        //默认环境
-        List<TestPlanApiCasePageResponse> defaultEnv = apiCaseList.stream().filter(item -> StringUtils.equalsIgnoreCase(ModuleConstants.ROOT_NODE_PARENT_ID, item.getCollectEnvironmentId())).toList();
-        if (CollectionUtils.isNotEmpty(defaultEnv)) {
-            List<String> defaultEnvIds = defaultEnv.stream().map(TestPlanApiCasePageResponse::getEnvironmentId).distinct().toList();
-            Map<String, TestPlanApiCasePageResponse> defaultEnvMap = defaultEnv.stream().collect(Collectors.toMap(TestPlanApiCasePageResponse::getEnvironmentId, testPlanApiCasePageResponse -> testPlanApiCasePageResponse));
-            EnvironmentExample environmentExample = new EnvironmentExample();
-            environmentExample.createCriteria().andIdIn(defaultEnvIds);
-            List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-            environments.forEach(item -> {
-                TestPlanApiCasePageResponse testPlanApiCasePageResponse = defaultEnvMap.get(item.getId());
-                envMap.put(testPlanApiCasePageResponse.getId(), item.getName());
-            });
-        }
-        //非默认环境
-        List<TestPlanApiCasePageResponse> collectEnv = apiCaseList.stream().filter(item -> !StringUtils.equalsIgnoreCase(ModuleConstants.ROOT_NODE_PARENT_ID, item.getCollectEnvironmentId())).toList();
-        if (CollectionUtils.isNotEmpty(collectEnv)) {
-            List<String> collectEnvIds = collectEnv.stream().map(TestPlanApiCasePageResponse::getCollectEnvironmentId).distinct().toList();
-            Map<String, List<TestPlanApiCasePageResponse>> collectEnvMap = collectEnv.stream().collect(Collectors.groupingBy(TestPlanApiCasePageResponse::getCollectEnvironmentId));
-            EnvironmentExample environmentExample = new EnvironmentExample();
-            environmentExample.createCriteria().andIdIn(collectEnvIds);
-            List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-            environments.forEach(item -> {
-                List<TestPlanApiCasePageResponse> list = collectEnvMap.get(item.getId());
-                list.forEach(response -> {
-                    envMap.put(response.getId(), item.getName());
-                });
-            });
-        }
-        return envMap;
     }
 
     private Map<String, String> getProject(List<TestPlanApiCasePageResponse> apiCaseList) {

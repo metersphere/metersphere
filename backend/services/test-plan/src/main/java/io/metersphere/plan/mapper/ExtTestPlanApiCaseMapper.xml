@@ -419,13 +419,11 @@
             t.last_exec_result,
             t.execute_user,
             t.last_exec_time,
-            t.last_exec_report_id,
-            tpc.environment_id as collectEnvironmentId
+            t.last_exec_report_id
         FROM
             api_test_case atc
                 INNER JOIN api_definition a ON atc.api_definition_id = a.id
         inner join test_plan_api_case t on atc.id = t.api_case_id
-        left join test_plan_collection tpc on tpc.id = t.test_plan_collection_id
         WHERE atc.deleted =#{deleted}
         and t.test_plan_id = #{request.testPlanId}
      <include refid="queryApiCaseWhereCondition"/>
@@ -463,11 +461,8 @@
                 #{nodeId}
             </foreach>
         </if>
-        <if test="request.collectionIds != null and request.collectionIds.size() > 0">
-            and t.test_plan_collection_id in
-            <foreach collection="request.collectionIds" item="collectionId" separator="," open="(" close=")">
-                #{collectionId}
-            </foreach>
+        <if test="request.collectionId != null and request.collectionId != ''">
+            and t.test_plan_collection_id = #{request.collectionId}
         </if>
         <include refid="apiCaseFilters">
             <property name="filter" value="request.filter"/>
@@ -625,11 +620,8 @@
                 #{nodeId}
             </foreach>
         </if>
-        <if test="request.collectionIds != null and request.collectionIds.size() > 0">
-            and t.test_plan_collection_id in
-            <foreach collection="request.collectionIds" item="collectionId" separator="," open="(" close=")">
-                #{collectionId}
-            </foreach>
+        <if test="request.collectionId != null and request.collectionId != ''">
+            and t.test_plan_collection_id = #{request.collectionId}
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
