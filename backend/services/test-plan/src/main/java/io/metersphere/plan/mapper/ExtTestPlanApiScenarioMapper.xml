@@ -354,4 +354,23 @@
         GROUP BY
             test_plan_api_scenario.test_plan_collection_id
     </select>
+
+    <select id="selectRootIdByTestPlanId" resultType="io.metersphere.functional.dto.ProjectOptionDTO">
+        SELECT api_scenario.module_id as id, api_scenario.project_id as name, p.name as projectName
+        FROM test_plan_api_scenario
+                 INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
+                 LEFT JOIN project p ON api_scenario.project_id = p.id
+        WHERE test_plan_api_scenario.test_plan_id = #{testPlanId}
+          AND api_scenario.deleted = false AND api_scenario.module_id = 'root'
+        ORDER BY api_scenario.pos
+    </select>
+
+    <select id="selectBaseByProjectIdAndTestPlanId" resultType="io.metersphere.plan.dto.ApiScenarioModuleDTO">
+        SELECT asm.id, asm.project_id, p.name as projectName
+        FROM api_scenario_module asm
+                 LEFT JOIN project p ON asm.project_id = p.id
+        WHERE asm.id IN
+              (SELECT api_scenario.module_id FROM api_scenario LEFT JOIN test_plan_api_scenario ON api_scenario.id = test_plan_api_scenario.api_scenario_id WHERE test_plan_api_scenario.test_plan_id = #{testPlanId} AND api_scenario.deleted = false)
+        ORDER BY pos
+    </select>
 </mapper>

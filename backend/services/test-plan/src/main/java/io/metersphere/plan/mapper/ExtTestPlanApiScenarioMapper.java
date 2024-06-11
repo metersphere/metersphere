@@ -1,7 +1,10 @@
 package io.metersphere.plan.mapper;
 
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
+import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.dto.ApiCaseModuleDTO;
+import io.metersphere.plan.dto.ApiScenarioModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
@@ -41,4 +44,8 @@ public interface ExtTestPlanApiScenarioMapper {
     List<String> selectIdByProjectIdAndTestPlanId(@Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
 
     List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
+
+    List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
+
+    List<ApiScenarioModuleDTO> selectBaseByProjectIdAndTestPlanId(@Param("testPlanId") String testPlanId);
 }

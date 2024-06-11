@@ -23,7 +23,7 @@ VALUES
 INSERT INTO `api_scenario`(`id`, `name`, `priority`, `status`, `step_total`, `request_pass_rate`, `last_report_status`, `last_report_id`, `num`, `deleted`, `pos`, `version_id`, `ref_id`, `latest`, `project_id`, `module_id`, `description`, `tags`, `grouped`, `environment_id`, `create_user`, `create_time`, `delete_time`, `delete_user`, `update_user`, `update_time`)
 VALUES
     ('wxxx_api_scenario_1', 'axx', 'P0', 'UNDERWAY', 3, '0.46', 'ERROR', '971160841641984', 100027, b'0', 5568, '718273150722066', '1023696881426432', b'1', 'wxx_project_1234', 'root', '', '[]', b'0', 'wx_env_123', '714940256100352', 1717489987182, NULL, NULL, '714940256100352', 1717557159805),
-    ('wxxx_api_scenario_2', 'xww', 'P0', 'UNDERWAY', 3, '0.46', 'ERROR', '971160841641984', 100027, b'0', 5568, '718273150722066', '1023696881426432', b'1', 'wxx_project_1234', 'root', '', '[]', b'0', 'wx_env_123', '714940256100352', 1717489987182, NULL, NULL, '714940256100352', 1717557159805);
+    ('wxxx_api_scenario_2', 'xww', 'P0', 'UNDERWAY', 3, '0.46', 'ERROR', '971160841641984', 100027, b'0', 5568, '718273150722066', '1023696881426432', b'1', 'wxx_project_1234', 'wx_scenario_module_123', '', '[]', b'0', 'wx_env_123', '714940256100352', 1717489987182, NULL, NULL, '714940256100352', 1717557159805);
 
 
 
@@ -41,3 +41,5 @@ VALUES
     ('wx_env_223', '测试环境', 'wxx_project_1234', 'admin', 'admin', 1716175907000, 1716175907000, b'1', NULL, 128);
 
 
+INSERT INTO `api_scenario_module`(`id`, `name`, `pos`, `create_time`, `update_time`, `update_user`, `create_user`, `project_id`, `parent_id`)
+VALUES ('wx_scenario_module_123', '测试CSV', 64, 1716196253511, 1716196253511, '714940256100352', '714940256100352', '718255970852864', 'NONE');
