@@ -26,6 +26,10 @@ import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
@@ -179,6 +183,10 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiScenarioReportService scenarioReportService;
     @Resource
     private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     private static String fileMetadataId;
     private static String fileMetadataStepId;
@@ -2643,6 +2651,20 @@ public class ApiScenarioControllerTests extends BaseTest {
         ApiScenario first = apiScenarioMapper.selectByExample(new ApiScenarioExample()).getFirst();
         List<ApiScenarioReport> reports = new ArrayList<>();
         List<ApiScenarioRecord> records = new ArrayList<>();
+
+        String planId = testPlanMapper.selectByExample(new TestPlanExample()).getFirst().getId();
+        TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+        testPlanApiScenario.setTestPlanId(first.getId());
+        testPlanApiScenario.setId(IDGenerator.nextStr());
+        testPlanApiScenario.setApiScenarioId(first.getId());
+        testPlanApiScenario.setCreateUser("admin");
+        testPlanApiScenario.setCreateTime(System.currentTimeMillis());
+        testPlanApiScenario.setLastExecTime(System.currentTimeMillis());
+        testPlanApiScenario.setLastExecReportId(IDGenerator.nextStr());
+        testPlanApiScenario.setLastExecResult(ExecStatus.SUCCESS.name());
+        testPlanApiScenario.setPos(1024l);
+        testPlanApiScenario.setTestPlanCollectionId(planId);
+        testPlanApiScenarioMapper.insert(testPlanApiScenario);
         for (int i = 0; i < 10; i++) {
             ApiScenarioReport apiReport = new ApiScenarioReport();
             apiReport.setId(IDGenerator.nextStr());
@@ -2658,6 +2680,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             if (i % 2 == 0) {
                 apiReport.setStatus(ReportStatus.SUCCESS.name());
             } else {
+                apiReport.setTestPlanScenarioId(testPlanApiScenario.getId());
                 apiReport.setStatus(ReportStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);

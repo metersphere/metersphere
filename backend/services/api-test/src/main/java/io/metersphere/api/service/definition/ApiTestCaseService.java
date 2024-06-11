@@ -579,12 +579,26 @@ public class ApiTestCaseService extends MoveNodeService implements GetRunScriptS
             List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
             historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
         }
+
+        Map<String, String> testPlanIdMap = executeList.stream()
+                .filter(apiReport -> !StringUtils.equals(apiReport.getTestPlanId(), "NONE"))
+                .collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanId));
+        List<String> testPlanIds = new ArrayList<>(testPlanIdMap.keySet());
+        Map<String, String> testPlanNumMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(testPlanIds)) {
+            List<ExecuteReportDTO> testPlanNameLists = extApiTestCaseMapper.getTestPlanNum(testPlanIds);
+            testPlanNumMap = testPlanNameLists.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanNum));
+        }
         Map<String, ExecuteReportDTO> finalHistoryDeletedMap = historyDeletedMap;
+        Map<String, String> finalTestPlanNumMap = testPlanNumMap;
         executeList.forEach(apiReport -> {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
             apiReport.setHistoryDeleted(MapUtils.isNotEmpty(finalHistoryDeletedMap) && !finalHistoryDeletedMap.containsKey(apiReport.getId()));
+            if (MapUtils.isNotEmpty(testPlanIdMap) && testPlanIdMap.containsKey(apiReport.getId())) {
+                apiReport.setTestPlanNum(StringUtils.join(Translator.get("test_plan"), ": ", finalTestPlanNumMap.get(apiReport.getId())));
+            }
         });
         return executeList;
     }
@@ -630,7 +644,7 @@ public class ApiTestCaseService extends MoveNodeService implements GetRunScriptS
                         return apiDefinitionExecuteInfo;
                     }
                 })
-                .filter(item -> item != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 

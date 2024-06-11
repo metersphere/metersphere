@@ -2243,16 +2243,29 @@ public class ApiScenarioService extends MoveNodeService {
         if (CollectionUtils.isNotEmpty(reportIds)) {
             List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
             historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
-
         }
+        Map<String, String> testPlanIdMap = executeList.stream()
+                .filter(apiReport -> !StringUtils.equals(apiReport.getTestPlanId(), "NONE"))
+                .collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanId));
+        List<String> testPlanIds = new ArrayList<>(testPlanIdMap.keySet());
+        Map<String, String> testPlanNumMap = new HashMap<>();
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(testPlanIds)) {
+            List<ExecuteReportDTO> testPlanNameLists = extApiScenarioReportMapper.getTestPlanNum(testPlanIds);
+            testPlanNumMap = testPlanNameLists.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanNum));
+        }
+
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         Map<String, ExecuteReportDTO> finalHistoryDeletedMap = historyDeletedMap;
+        Map<String, String> finalTestPlanNumMap = testPlanNumMap;
         executeList.forEach(apiReport -> {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
             apiReport.setHistoryDeleted(MapUtils.isNotEmpty(finalHistoryDeletedMap) && !finalHistoryDeletedMap.containsKey(apiReport.getId()));
+            if (MapUtils.isNotEmpty(testPlanIdMap) && testPlanIdMap.containsKey(apiReport.getId())) {
+                apiReport.setTestPlanNum(StringUtils.join(Translator.get("test_plan"), ": ", finalTestPlanNumMap.get(apiReport.getId())));
+            }
         });
         return executeList;
     }

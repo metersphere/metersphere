@@ -57,4 +57,6 @@ public interface ExtApiScenarioReportMapper {
 
 
     List<ExecuteReportDTO> getHistoryDeleted(@Param("ids") List<String> ids);
+
+    List<ExecuteReportDTO> getTestPlanNum(@Param("ids") List<String> ids);
 }
