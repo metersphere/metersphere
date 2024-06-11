@@ -6,9 +6,12 @@ import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.GetRunScriptService;
+import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
+import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.constants.TreeTypeEnums;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
@@ -18,12 +21,14 @@ import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanCollectionEnvDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
@@ -35,6 +40,7 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -49,6 +55,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,6 +87,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
     private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
+    private static final String CASE_MODULE_COUNT_ALL = "all";
+    @Resource
+    private ApiScenarioModuleService apiScenarioModuleService;
 
     public TestPlanApiScenarioService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
@@ -334,4 +344,80 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         List<Project> projectList = projectMapper.selectByExample(projectExample);
         return projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
     }
+
+    public Map<String, Long> moduleCount(TestPlanApiScenarioModuleRequest request) {
+        switch (request.getTreeType()) {
+            case TreeTypeEnums.MODULE:
+                return getModuleCount(request);
+            case TreeTypeEnums.COLLECTION:
+                return getCollectionCount(request);
+            default:
+                return new HashMap<>();
+        }
+    }
+
+    /**
+     * 已关联场景 规划视图统计
+     *
+     * @param request
+     * @return
+     */
+    private Map<String, Long> getCollectionCount(TestPlanApiScenarioModuleRequest request) {
+        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        List<ModuleCountDTO> list = extTestPlanApiScenarioMapper.collectionCountByRequest(request.getTestPlanId());
+        list.forEach(item -> {
+            projectModuleCountMap.put(item.getModuleId(), (long) item.getDataCount());
+        });
+        long allCount = extTestPlanApiScenarioMapper.caseCount(request, false);
+        projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return projectModuleCountMap;
+    }
+
+    /**
+     * 已关联场景 模块树统计
+     *
+     * @param request
+     * @return
+     */
+    private Map<String, Long> getModuleCount(TestPlanApiScenarioModuleRequest request) {
+        request.setModuleIds(null);
+        List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanApiScenarioMapper.countModuleIdByRequest(request, false);
+        Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
+        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        projectCountMap.forEach((projectId, moduleCountDTOList) -> {
+            List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
+            for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {
+                ModuleCountDTO moduleCountDTO = new ModuleCountDTO();
+                BeanUtils.copyBean(moduleCountDTO, functionalCaseModuleCountDTO);
+                moduleCountDTOS.add(moduleCountDTO);
+            }
+            int sum = moduleCountDTOList.stream().mapToInt(FunctionalCaseModuleCountDTO::getDataCount).sum();
+            Map<String, Long> moduleCountMap = getModuleCountMap(projectId, request.getTestPlanId(), moduleCountDTOS);
+            moduleCountMap.forEach((k, v) -> {
+                if (projectModuleCountMap.get(k) == null || projectModuleCountMap.get(k) == 0L) {
+                    projectModuleCountMap.put(k, v);
+                }
+            });
+            projectModuleCountMap.put(projectId, (long) sum);
+        });
+        //查出全部用例数量
+        long allCount = extTestPlanApiScenarioMapper.caseCount(request, false);
+        projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return projectModuleCountMap;
+    }
+
+    private Map<String, Long> getModuleCountMap(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
+        //构建模块树，并计算每个节点下的所有数量（包含子节点）
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, testPlanId, moduleCountDTOList);
+        //通过广度遍历的方式构建返回值
+        return apiScenarioModuleService.getIdCountMapByBreadth(treeNodeList);
+    }
+
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String testPlanId, List<ModuleCountDTO> moduleCountDTOList) {
+        //节点内容只有Id和parentId
+        List<String> moduleIds = extTestPlanApiScenarioMapper.selectIdByProjectIdAndTestPlanId(projectId, testPlanId);
+        List<BaseTreeNode> nodeByNodeIds = apiScenarioModuleService.getNodeByNodeIds(moduleIds);
+        return apiScenarioModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
+    }
+
 }

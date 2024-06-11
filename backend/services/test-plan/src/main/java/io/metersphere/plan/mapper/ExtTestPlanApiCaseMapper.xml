@@ -559,8 +559,8 @@
             resultType="java.lang.Long">
         SELECT count(atc.id)
         FROM test_plan_api_case t
-        LEFT JOIN api_test_case atc ON t.api_case_id = atc.id
-        LEFT JOIN api_definition a on atc.api_definition_id = a.id
+        INNER JOIN api_test_case atc ON t.api_case_id = atc.id
+        INNER JOIN api_definition a on atc.api_definition_id = a.id
         WHERE t.test_plan_id = #{request.testPlanId}
         AND atc.deleted = #{deleted}
         <include refid="queryApiCaseWhereCondition"/>

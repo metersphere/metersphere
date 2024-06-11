@@ -16,7 +16,7 @@ import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiScenario;
-import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
@@ -55,6 +55,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String RUN = "run/{0}";
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
     public static final String API_SCENARIO_PAGE = "page";
+    public static final String API_SCENARIO_TREE_COUNT = "module/count";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -179,7 +180,6 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     }
 
 
-
     @Test
     @Order(3)
     @Sql(scripts = {"/dml/init_test_plan_api_scenario.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
@@ -197,5 +197,25 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(4)
+    public void testApiCaseCount() throws Exception {
+        TestPlanApiScenarioModuleRequest request = new TestPlanApiScenarioModuleRequest();
+        request.setTestPlanId("wxxx_plan_1");
+        request.setProjectId("wxx_project_1234");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setTreeType("MODULE");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_TREE_COUNT, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        request.setTreeType("COLLECTION");
+        this.requestPostWithOkAndReturn(API_SCENARIO_TREE_COUNT, request);
+
     }
 }
