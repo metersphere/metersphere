@@ -233,6 +233,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         apiCaseList.forEach(item -> {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
+            item.setExecuteUserName(userMap.get(item.getExecuteUser()));
             TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
             if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
                 //计划集 == 默认环境   处理默认环境
@@ -434,9 +435,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
      * @return
      */
     public TestPlanAssociationResponse disassociate(TestPlanApiCaseBatchRequest request, LogInsertModule logInsertModule) {
-        if (CollectionUtils.isEmpty(request.getProtocols())) {
-            return new TestPlanAssociationResponse();
-        }
         List<String> selectIds = doSelectIds(request);
         return super.disassociate(
                 TestPlanResourceConstants.RESOURCE_API_CASE,
@@ -507,8 +505,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
+            //todo 优化，重复关联问题？
             ApiTestCaseExample example = new ApiTestCaseExample();
-            example.createCriteria().andApiDefinitionIdIn(ids);
+            example.createCriteria().andApiDefinitionIdIn(ids).andDeletedEqualTo(false);
             List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();

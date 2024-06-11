@@ -2,18 +2,16 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.plan.dto.request.TestPlanApiCaseTreeRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioTreeRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
-import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRunRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
-import io.metersphere.plan.service.TestPlanApiCaseBatchRunService;
+import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioBatchRunService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
+import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
@@ -39,6 +37,8 @@ public class TestPlanApiScenarioController {
     private TestPlanApiScenarioService testPlanApiScenarioService;
     @Resource
     private TestPlanApiScenarioBatchRunService testPlanApiScenarioBatchRunService;
+    @Resource
+    private TestPlanService testPlanService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联场景用例列表分页查询")
@@ -59,7 +59,7 @@ public class TestPlanApiScenarioController {
     }
 
     @PostMapping("/tree")
-    @Operation(summary = "测试计划-已关联接口用例列表模块树")
+    @Operation(summary = "测试计划-已关联场景用例列表模块树")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanApiScenarioTreeRequest request) {
@@ -80,5 +80,18 @@ public class TestPlanApiScenarioController {
 //    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_api_case") todo
     public void batchRun(@Validated @RequestBody TestPlanApiScenarioBatchRunRequest request) {
         testPlanApiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/disassociate")
+    @Operation(summary = "测试计划-计划详情-场景用例列表-取消关联用例")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public TestPlanAssociationResponse disassociate(@Validated @RequestBody TestPlanDisassociationRequest request) {
+        BasePlanCaseBatchRequest batchRequest = new BasePlanCaseBatchRequest();
+        batchRequest.setTestPlanId(request.getTestPlanId());
+        batchRequest.setSelectIds(List.of(request.getId()));
+        TestPlanAssociationResponse response = testPlanApiScenarioService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/disassociate", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
+        return response;
     }
 }

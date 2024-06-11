@@ -514,12 +514,6 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='caseStatus' or key=='case_status'">
-                            and atc.case_status in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
                         <when test="key=='lastReportStatus'">
                             and atc.last_report_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">

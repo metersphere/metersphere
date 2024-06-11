@@ -17,6 +17,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
+import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
@@ -47,6 +48,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -295,6 +297,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         apiScenarioList.forEach(item -> {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
+            item.setExecuteUserName(userMap.get(item.getExecuteUser()));
             TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
             if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
                 //计划集 == 默认环境   处理默认环境
@@ -478,5 +481,42 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
             }
         });
         return returnList;
+    }
+
+
+    /**
+     * 取消关联
+     *
+     * @param request
+     * @param logInsertModule
+     * @return
+     */
+    public TestPlanAssociationResponse disassociate(BasePlanCaseBatchRequest request, LogInsertModule logInsertModule) {
+        List<String> selectIds = doSelectIds(request);
+        return super.disassociate(
+                TestPlanResourceConstants.RESOURCE_API_SCENARIO,
+                request,
+                logInsertModule,
+                selectIds,
+                this::deleteTestPlanResource);
+    }
+
+
+    public void deleteTestPlanResource(@Validated TestPlanResourceAssociationParam associationParam) {
+        TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
+        testPlanApiScenarioExample.createCriteria().andIdIn(associationParam.getResourceIdList());
+        testPlanApiScenarioMapper.deleteByExample(testPlanApiScenarioExample);
+    }
+
+    public List<String> doSelectIds(BasePlanCaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extTestPlanApiScenarioMapper.getIds(request, false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }

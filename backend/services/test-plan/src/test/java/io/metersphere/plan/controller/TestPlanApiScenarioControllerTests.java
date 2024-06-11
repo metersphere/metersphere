@@ -14,10 +14,7 @@ import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiScenario;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
-import io.metersphere.plan.dto.request.TestPlanApiScenarioTreeRequest;
+import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
@@ -57,6 +54,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String API_SCENARIO_TREE_COUNT = "module/count";
     public static final String API_SCENARIO_TREE = "tree";
     public static final String BATCH_RUN = "batch/run";
+    public static final String API_SCENARIO_DISASSOCIATE = "disassociate";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -273,5 +271,19 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         String returnData1 = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder1 = JSON.parseObject(returnData1, ResultHolder.class);
         Assertions.assertNotNull(resultHolder1);
+    }
+
+    @Test
+    @Order(6)
+    public void testApiScenarioDisassociate() throws Exception {
+        TestPlanDisassociationRequest request = new TestPlanDisassociationRequest();
+        request.setTestPlanId("wxxx_plan_2");
+        request.setId("wxxx_plan_scenario_3");
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_DISASSOCIATE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
     }
 }
