@@ -40,8 +40,24 @@ public class TestPlanReportSummary implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_summary.test_plan_report_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanReportId;
 
-    @Schema(description = "总结")
+    @Schema(description = "计划数量", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_summary.plan_count.not_blank}", groups = {Created.class})
+    private Long planCount;
+
+    @Schema(title = "总结")
     private String summary;
+
+    @Schema(description = "功能用例执行结果")
+    private byte[] functionalExecuteResult;
+
+    @Schema(description = "接口执行结果")
+    private byte[] apiExecuteResult;
+
+    @Schema(description = "场景执行结果")
+    private byte[] scenarioExecuteResult;
+
+    @Schema(description = "执行结果")
+    private byte[] executeResult;
 
     private static final long serialVersionUID = 1L;
 
@@ -52,7 +68,12 @@ public class TestPlanReportSummary implements Serializable {
         apiScenarioCount("api_scenario_count", "apiScenarioCount", "BIGINT", false),
         bugCount("bug_count", "bugCount", "BIGINT", false),
         testPlanReportId("test_plan_report_id", "testPlanReportId", "VARCHAR", false),
-        summary("summary", "summary", "LONGVARCHAR", false);
+        planCount("plan_count", "planCount", "BIGINT", false),
+        summary("summary", "summary", "LONGVARCHAR", false),
+        functionalExecuteResult("functional_execute_result", "functionalExecuteResult", "LONGVARBINARY", false),
+        apiExecuteResult("api_execute_result", "apiExecuteResult", "LONGVARBINARY", false),
+        scenarioExecuteResult("scenario_execute_result", "scenarioExecuteResult", "LONGVARBINARY", false),
+        executeResult("execute_result", "executeResult", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

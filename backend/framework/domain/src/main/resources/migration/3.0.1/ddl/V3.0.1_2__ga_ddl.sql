@@ -44,10 +44,18 @@ alter table test_plan
 -- 修改计划配置表
 ALTER TABLE test_plan_config DROP `test_planning`;
 
+-- 移除规划配置表
+DROP TABLE `test_plan_allocation`;
+
 -- 修改计划报告详情表字段
 UPDATE test_plan_report_summary SET bug_count = 0 WHERE bug_count IS NULL;
 ALTER TABLE test_plan_report_summary MODIFY `bug_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '缺陷数量';
 ALTER TABLE test_plan_report_summary DROP `report_count`;
+ALTER TABLE test_plan_report_summary ADD `plan_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '计划数量';
+ALTER TABLE test_plan_report_summary ADD `functional_execute_result` BLOB COMMENT '功能用例执行结果';
+ALTER TABLE test_plan_report_summary ADD `api_execute_result` BLOB COMMENT '接口执行结果';
+ALTER TABLE test_plan_report_summary ADD `scenario_execute_result` BLOB COMMENT '场景执行结果';
+ALTER TABLE test_plan_report_summary ADD `execute_result` BLOB COMMENT '执行结果';
 
 -- 修改计划报告功能用例表字段
 UPDATE test_plan_report_function_case SET function_case_bug_count = 0 WHERE function_case_bug_count IS NULL;
