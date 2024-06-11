@@ -269,7 +269,7 @@ export interface PlanDetailApiCaseQueryParams extends TableQueryParams, TestPlan
 
 export interface PlanDetailApiCaseTreeParams {
   testPlanId: string;
-  treeType: 'MODULE' | 'COLLECTION';
+  treeType: 'MODULE' | 'COLLECTION'; // 视图类型：模块是MODULE，测试集是COLLECTION
 }
 
 export interface PlanDetailApiCaseItem {
@@ -281,7 +281,7 @@ export interface PlanDetailApiCaseItem {
   createUserName: string;
   lastExecResult: LastExecuteResults;
   lastExecTime: number;
-  lastExecResultReportId: string;
+  lastExecReportId: string; // 报告id
   executeUser: string;
   executeUserName: string;
   priority: string;
@@ -290,15 +290,22 @@ export interface PlanDetailApiCaseItem {
   projectName: string;
   environmentId: string;
   environmentName: string;
-  testPlanCollectionId: string;
-  collectEnvironmentId: string;
+  testPlanCollectionId: string; // 测试集id
 }
 
 export interface BatchApiCaseParams extends BatchActionQueryParams {
   testPlanId: string;
   moduleIds?: string[];
-  collectionId?: string;
+  collectionId?: string; // 测试集id
   protocols: string[];
+}
+
+export interface BatchUpdateApiCaseExecutorParams extends BatchApiCaseParams {
+  userId: string; // 执行人id
+}
+
+export interface SortApiCaseParams extends DragSortParams {
+  testCollectionId: string; // 测试集id
 }
 
 // TODO: 联调

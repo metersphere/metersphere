@@ -19,6 +19,16 @@
       </a-tooltip>
     </template>
     <template #headerRight>
+      <a-switch
+        v-model="treeType"
+        size="small"
+        type="line"
+        checked-value="COLLECTION"
+        unchecked-value="MODULE"
+        class="mr-[4px]"
+        @change="loadActiveTabList"
+      />
+      <span class="mr-[14px]">{{ t('testPlan.testPlanDetail.moduleView') }}</span>
       <MsButton
         v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION']) && detail.status !== 'ARCHIVED'"
         type="button"
@@ -108,11 +118,10 @@
       @refresh="initDetail"
     />
     <BugManagement v-if="activeTab === 'defectList'" :can-edit="detail.status !== 'ARCHIVED'" @refresh="initDetail" />
-    <!-- TODO 切换模块视图 -->
     <ApiCase
       v-if="activeTab === 'apiCase'"
       ref="apiCaseRef"
-      tree-type="MODULE"
+      :tree-type="treeType"
       :repeat-case="detail.repeatCase"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
@@ -198,6 +207,7 @@
   const detail = ref<TestPlanDetail>({
     ...testPlanDefaultDetail,
   });
+  const treeType = ref<'MODULE' | 'COLLECTION'>('MODULE');
 
   const countDetail = ref<PassRateCountDetail>({ ...defaultDetailCount });
 
@@ -419,8 +429,7 @@
   const featureCaseRef = ref<InstanceType<typeof FeatureCase>>();
   const apiCaseRef = ref<InstanceType<typeof ApiCase>>();
   const apiScenarioRef = ref<InstanceType<typeof ApiScenario>>();
-  function handleSuccess() {
-    initDetail();
+  function loadActiveTabList() {
     switch (activeTab.value) {
       case 'featureCase':
         featureCaseRef.value?.getCaseTableList();
@@ -434,6 +443,10 @@
       default:
         return '';
     }
+  }
+  function handleSuccess() {
+    initDetail();
+    loadActiveTabList();
   }
 
   onBeforeMount(() => {

@@ -65,24 +65,17 @@
             {{ t('common.cancelLink') }}
           </MsButton>
         </MsPopconfirm>
-        <a-divider
-          v-if="props.repeatCase"
-          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
-        <MsButton
-          v-if="props.repeatCase"
-          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
-          type="text"
-          class="!mr-0"
-          @click="handleCopyCase(record)"
-        >
-          {{ t('common.copy') }}
-        </MsButton>
       </template>
     </MsBaseTable>
     <ReportDrawer v-model:visible="reportVisible" :report-id="reportId" />
+    <!-- 批量修改执行人 -->
+    <BatchUpdateExecutorModal
+      v-model:visible="batchUpdateExecutorModalVisible"
+      :count="batchParams.currentSelectCount || tableSelected.length"
+      :params="batchUpdateExecutorParams"
+      :batch-update-executor="batchUpdateApiScenarioExecutor"
+      @load-list="resetSelectorAndCaseList"
+    />
   </div>
 </template>
 
@@ -104,11 +97,12 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
   import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import {
-    associationCaseToPlan,
     batchDisassociateCase,
+    batchUpdateApiScenarioExecutor,
     disassociateCase,
     getPlanDetailApiScenarioList,
     sortFeatureCase,
@@ -142,7 +136,6 @@
     offspringIds: string[];
     planId: string;
     moduleTree: ModuleTreeNode[];
-    repeatCase: boolean;
     canEdit: boolean;
   }>();
 
@@ -421,6 +414,11 @@
     loadList();
   }
 
+  function resetSelectorAndCaseList() {
+    resetSelector();
+    loadList();
+  }
+
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
@@ -428,23 +426,6 @@
       await sortFeatureCase({ ...params, testPlanId: props.planId });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadCaseList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  // 复制用例
-  async function handleCopyCase(record: PlanDetailApiScenarioItem) {
-    try {
-      // TODO 联调
-      await associationCaseToPlan({
-        functionalSelectIds: [record.caseId],
-        testPlanId: props.planId,
-      });
-      Message.success(t('ms.case.associate.associateSuccess'));
-      resetCaseList();
-      emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -506,10 +487,15 @@
     });
   }
 
+  // 批量修改执行人
+  const batchUpdateExecutorModalVisible = ref(false);
+  const batchUpdateExecutorParams = ref();
+
   // 处理表格选中后批量操作
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = { ...params, selectIds: params?.selectedIds };
+    const tableParams = await getTableParams(true);
     switch (event.eventTag) {
       case 'execute':
         break;
@@ -517,6 +503,13 @@
         handleBatchDisassociateCase();
         break;
       case 'changeExecutor':
+        batchUpdateExecutorParams.value = {
+          selectIds: tableSelected.value as string[],
+          selectAll: batchParams.value.selectAll,
+          excludeIds: batchParams.value?.excludeIds || [],
+          ...tableParams,
+        };
+        batchUpdateExecutorModalVisible.value = true;
         break;
       case 'move':
         break;

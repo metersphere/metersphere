@@ -8,7 +8,13 @@
   >
     <template #expandLeft>
       <a-dropdown v-model:popup-visible="visible" :hide-on-select="false">
-        <MsButton type="icon" status="secondary" class="!mr-[4px] p-[4px]" @click="visible = !visible">
+        <MsButton
+          v-show="typeof isExpandAll !== 'undefined'"
+          type="icon"
+          status="secondary"
+          class="!mr-[4px] p-[4px]"
+          @click="visible = !visible"
+        >
           <MsIcon :type="`${showExpandApi ? 'icon-icon_more_outlined' : 'icon-icon_protocol'}`" />
         </MsButton>
         <template #content>
@@ -83,7 +89,8 @@
   }>();
 
   const isExpandAll = defineModel<boolean>('isExpandAll', {
-    required: true,
+    required: false,
+    default: undefined,
   });
   const isExpandApi = defineModel<boolean>('isExpandApi', {
     required: false,

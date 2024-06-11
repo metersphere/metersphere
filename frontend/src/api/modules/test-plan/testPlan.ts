@@ -12,6 +12,7 @@ import {
   BatchEditTestPlanUrl,
   batchMovePlanUrl,
   BatchRunCaseUrl,
+  BatchUpdateApiCaseExecutorUrl,
   BatchUpdateCaseExecutorUrl,
   ConfigScheduleUrl,
   copyTestPlanUrl,
@@ -44,6 +45,7 @@ import {
   PlanDetailExecuteHistoryUrl,
   planPassRateUrl,
   RunFeatureCaseUrl,
+  SortApiCaseUrl,
   SortFeatureCaseUrl,
   TestPlanAndGroupCopyUrl,
   TestPlanApiAssociatedPageUrl,
@@ -67,6 +69,7 @@ import type {
   BatchApiCaseParams,
   BatchExecuteFeatureCaseParams,
   BatchFeatureCaseParams,
+  BatchUpdateApiCaseExecutorParams,
   BatchUpdateCaseExecutorParams,
   CreateTask,
   DisassociateCaseParams,
@@ -84,6 +87,7 @@ import type {
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
   RunFeatureCaseParams,
+  SortApiCaseParams,
   SortFeatureCaseParams,
   TestPlanBaseParams,
   TestPlanDetail,
@@ -273,6 +277,10 @@ export function getApiCaseModule(data: PlanDetailApiCaseTreeParams) {
 export function getApiCaseModuleCount(data: PlanDetailApiCaseQueryParams) {
   return MSR.post({ url: GetApiCaseModuleCountUrl, data });
 }
+// 计划详情-接口用例列表-拖拽排序
+export const sortApiCase = (data: SortApiCaseParams) => {
+  return MSR.post({ url: SortApiCaseUrl, data });
+};
 // 计划详情-接口用例列表-取消关联用例
 export function disassociateApiCase(data: DisassociateCaseParams) {
   return MSR.post({ url: DisassociateApiCaseUrl, data });
@@ -281,9 +289,17 @@ export function disassociateApiCase(data: DisassociateCaseParams) {
 export function batchDisassociateApiCase(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchDisassociateApiCaseUrl, data });
 }
+// 计划详情-接口用例列表-批量更新执行人
+export function batchUpdateApiCaseExecutor(data: BatchUpdateApiCaseExecutorParams) {
+  return MSR.post({ url: BatchUpdateApiCaseExecutorUrl, data });
+}
 // 计划详情-接口场景列表 TODO 联调
 export function getPlanDetailApiScenarioList(data: PlanDetailFeatureCaseListQueryParams) {
   return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailFeatureCaseListUrl, data });
+}
+// 计划详情-接口场景列表-批量更新执行人 TODO 联调
+export function batchUpdateApiScenarioExecutor(data: BatchUpdateApiCaseExecutorParams) {
+  return MSR.post({ url: BatchUpdateApiCaseExecutorUrl, data });
 }
 // 计划详情-执行历史 TODO 联调
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {

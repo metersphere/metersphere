@@ -27,7 +27,7 @@
         <CaseLevel :case-level="filterContent.value" />
       </template>
       <template #caseLevel="{ record }">
-        <CaseLevel :case-level="record.caseLevel" />
+        <CaseLevel :case-level="record.priority" />
       </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
         <ExecuteResult :execute-result="filterContent.key" />
@@ -62,24 +62,17 @@
             {{ t('common.cancelLink') }}
           </MsButton>
         </MsPopconfirm>
-        <a-divider
-          v-if="props.repeatCase"
-          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
-        <MsButton
-          v-if="props.repeatCase"
-          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
-          type="text"
-          class="!mr-0"
-          @click="handleCopyCase(record)"
-        >
-          {{ t('common.copy') }}
-        </MsButton>
       </template>
     </MsBaseTable>
     <ReportDrawer v-model:visible="reportVisible" :report-id="reportId" />
+    <!-- 批量修改执行人 -->
+    <BatchUpdateExecutorModal
+      v-model:visible="batchUpdateExecutorModalVisible"
+      :count="batchParams.currentSelectCount || tableSelected.length"
+      :params="batchUpdateExecutorParams"
+      :batch-update-executor="batchUpdateApiCaseExecutor"
+      @load-list="resetSelectorAndCaseList"
+    />
   </div>
 </template>
 
@@ -101,14 +94,15 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
   import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import {
-    associationCaseToPlan,
     batchDisassociateApiCase,
+    batchUpdateApiCaseExecutor,
     disassociateApiCase,
     getPlanDetailApiCaseList,
-    sortFeatureCase,
+    sortApiCase,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -124,11 +118,7 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
-  import {
-    executionResultMap,
-    getCaseLevels,
-    getModules,
-  } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { executionResultMap, getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
@@ -137,9 +127,9 @@
     offspringIds: string[];
     planId: string;
     moduleTree: ModuleTreeNode[];
-    repeatCase: boolean;
     canEdit: boolean;
     selectedProtocols: string[];
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -188,7 +178,7 @@
     },
     {
       title: 'case.caseLevel',
-      dataIndex: 'caseLevel',
+      dataIndex: 'priority',
       slotName: 'caseLevel',
       filterConfig: {
         options: casePriorityOptions,
@@ -242,7 +232,7 @@
     },
     {
       title: 'report.detail.api.executeEnv',
-      dataIndex: 'executeEnv',
+      dataIndex: 'environmentName',
       width: 150,
       showInTable: false,
       showDrag: true,
@@ -288,21 +278,11 @@
       return {
         ...record,
         lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
-        caseLevel: getCaseLevels(record.customFields),
         moduleId: getModules(record.moduleId, props.moduleTree),
       };
     }
   );
 
-  watch(
-    () => props.canEdit,
-    (val) => {
-      tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val;
-    },
-    {
-      immediate: true,
-    }
-  );
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   watch(
     () => hasOperationPermission.value,
@@ -347,6 +327,7 @@
     }
     return moduleIds;
   }
+  const collectionId = computed(() => (props.activeModule === 'all' ? '' : props.activeModule));
   async function getTableParams(isBatch: boolean) {
     const selectModules = await getModuleIds();
     const commonParams = {
@@ -354,7 +335,7 @@
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
       protocols: props.selectedProtocols,
-      collectionId: props.activeModule,
+      collectionId: collectionId.value,
     };
     if (isBatch) {
       return {
@@ -371,6 +352,20 @@
       ...commonParams,
     };
   }
+
+  watch(
+    [() => props.canEdit, () => props.treeType, () => collectionId.value.length],
+    () => {
+      tableProps.value.draggableCondition =
+        hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) &&
+        props.canEdit &&
+        props.treeType === 'COLLECTION' &&
+        !!collectionId.value.length;
+    },
+    {
+      immediate: true,
+    }
+  );
 
   async function loadCaseList() {
     const tableParams = await getTableParams(false);
@@ -400,7 +395,7 @@
   const reportId = ref('');
   function showReport(record: PlanDetailApiCaseItem) {
     reportVisible.value = true;
-    reportId.value = record.lastExecResultReportId;
+    reportId.value = record.lastExecReportId;
   }
 
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
@@ -421,30 +416,17 @@
     loadList();
   }
 
+  function resetSelectorAndCaseList() {
+    resetSelector();
+    loadList();
+  }
+
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
-      // TODO 联调
-      await sortFeatureCase({ ...params, testPlanId: props.planId });
+      await sortApiCase({ ...params, testCollectionId: collectionId.value });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadCaseList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  // 复制用例
-  async function handleCopyCase(record: PlanDetailApiCaseItem) {
-    try {
-      // TODO 联调
-      await associationCaseToPlan({
-        functionalSelectIds: [record.id],
-        testPlanId: props.planId,
-      });
-      Message.success(t('ms.case.associate.associateSuccess'));
-      resetCaseList();
-      emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -504,10 +486,15 @@
     });
   }
 
+  // 批量修改执行人
+  const batchUpdateExecutorModalVisible = ref(false);
+  const batchUpdateExecutorParams = ref();
+
   // 处理表格选中后批量操作
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = { ...params, selectIds: params?.selectedIds };
+    const tableParams = await getTableParams(true);
     switch (event.eventTag) {
       case 'execute':
         break;
@@ -515,6 +502,13 @@
         handleBatchDisassociateCase();
         break;
       case 'changeExecutor':
+        batchUpdateExecutorParams.value = {
+          selectIds: tableSelected.value as string[],
+          selectAll: batchParams.value.selectAll,
+          excludeIds: batchParams.value?.excludeIds || [],
+          ...tableParams,
+        };
+        batchUpdateExecutorModalVisible.value = true;
         break;
       case 'move':
         break;

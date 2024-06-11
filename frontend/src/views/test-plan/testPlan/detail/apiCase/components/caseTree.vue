@@ -88,7 +88,18 @@
 
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
-  const isExpandAll = ref(false);
+  const isExpandAll = ref<boolean | undefined>(false);
+
+  watch(
+    () => props.treeType,
+    (val) => {
+      if (val === 'COLLECTION') {
+        isExpandAll.value = undefined;
+      } else {
+        isExpandAll.value = false;
+      }
+    }
+  );
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;

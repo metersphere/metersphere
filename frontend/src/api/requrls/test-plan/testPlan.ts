@@ -100,9 +100,13 @@ export const DeleteScheduleTaskUrl = 'test-plan/schedule-config-delete';
 export const GetPlanDetailApiCaseListUrl = '/test-plan/api/case/page';
 // 计划详情-接口用例模块树
 export const GetApiCaseModuleUrl = '/test-plan/api/case/tree';
+// 计划详情-接口用例-获取模块数量
+export const GetApiCaseModuleCountUrl = '/test-plan/api/case/module/count';
+// 计划详情-接口用例列表-拖拽排序
+export const SortApiCaseUrl = '/test-plan/api/case/sort';
 // 计划详情-接口用例列表-取消关联用例
 export const DisassociateApiCaseUrl = '/test-plan/api/case/disassociate';
 // 计划详情-接口用例列表-批量取消关联用例
 export const BatchDisassociateApiCaseUrl = '/test-plan/api/case/batch/disassociate';
-// 计划详情-接口用例-获取模块数量
-export const GetApiCaseModuleCountUrl = '/test-plan/api/case/module/count';
+// 计划详情-接口用例列表-批量更新执行人
+export const BatchUpdateApiCaseExecutorUrl = '/test-plan/api/case/batch/update/executor';

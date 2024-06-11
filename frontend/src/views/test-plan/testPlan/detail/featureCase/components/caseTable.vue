@@ -78,21 +78,6 @@
             {{ t('common.cancelLink') }}
           </MsButton>
         </MsPopconfirm>
-        <a-divider
-          v-if="props.repeatCase"
-          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
-        <MsButton
-          v-if="props.repeatCase"
-          v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']"
-          type="text"
-          class="!mr-0"
-          @click="handleCopyCase(record)"
-        >
-          {{ t('common.copy') }}
-        </MsButton>
       </template>
     </MsBaseTable>
     <!-- 批量执行 -->
@@ -120,54 +105,20 @@
       <ExecuteForm v-model:form="batchExecuteForm" />
     </a-modal>
     <!-- 批量修改执行人 -->
-    <a-modal
+    <BatchUpdateExecutorModal
       v-model:visible="batchUpdateExecutorModalVisible"
-      title-align="start"
-      body-class="p-0"
-      :cancel-button-props="{ disabled: batchLoading }"
-      :ok-loading="batchLoading"
-      :ok-button-props="{ disabled: batchUpdateExecutorDisabled }"
-      :ok-text="t('common.update')"
-      @before-ok="handleBatchUpdateExecutor"
-      @close="resetBatchForm"
-    >
-      <template #title>
-        {{ t('testPlan.featureCase.batchChangeExecutor') }}
-        <div class="text-[var(--color-text-4)]">
-          {{
-            t('testPlan.testPlanIndex.selectedCount', {
-              count: batchParams.currentSelectCount || tableSelected.length,
-            })
-          }}
-        </div>
-      </template>
-      <a-form ref="batchUpdateExecutorFormRef" :model="batchUpdateExecutorForm" layout="vertical">
-        <a-form-item
-          field="userId"
-          :label="t('testPlan.featureCase.executor')"
-          :rules="[{ required: true, message: t('testPlan.featureCase.requestExecutorRequired') }]"
-          asterisk-position="end"
-          class="mb-0"
-        >
-          <MsSelect
-            v-model:modelValue="batchUpdateExecutorForm.userId"
-            mode="static"
-            :placeholder="t('common.pleaseSelect')"
-            :loading="executorLoading"
-            :options="userOptions"
-            :search-keys="['label']"
-            allow-search
-          />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+      :count="batchParams.currentSelectCount || tableSelected.length"
+      :params="batchUpdateExecutorParams"
+      :batch-update-executor="batchUpdateCaseExecutor"
+      @load-list="resetSelectorAndCaseList"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -182,18 +133,16 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
-  import MsSelect from '@/components/business/ms-select';
   import BugCountPopover from './bugCountPopover.vue';
+  import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
   import {
-    associationCaseToPlan,
     batchDisassociateCase,
     batchExecuteCase,
     batchUpdateCaseExecutor,
     disassociateCase,
     getPlanDetailFeatureCaseList,
-    GetTestPlanUsers,
     runFeatureCase,
     sortFeatureCase,
   } from '@/api/modules/test-plan/testPlan';
@@ -205,7 +154,6 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ReviewUserItem } from '@/models/caseManagement/caseReview';
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type {
     ExecuteFeatureCaseFormParams,
@@ -231,7 +179,6 @@
     offspringIds: string[];
     planId: string;
     moduleTree: ModuleTreeNode[];
-    repeatCase: boolean;
     canEdit: boolean;
   }>();
 
@@ -492,28 +439,17 @@
     loadList();
   }
 
+  function resetSelectorAndCaseList() {
+    resetSelector();
+    loadList();
+  }
+
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
       await sortFeatureCase({ ...params, testPlanId: props.planId });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadCaseList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  // 复制用例
-  async function handleCopyCase(record: PlanDetailFeatureCaseItem) {
-    try {
-      await associationCaseToPlan({
-        functionalSelectIds: [record.caseId],
-        testPlanId: props.planId,
-      });
-      Message.success(t('ms.case.associate.associateSuccess'));
-      resetCaseList();
-      emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -619,61 +555,19 @@
     }
   }
 
-  // 批量修改执行人
-  const batchUpdateExecutorFormRef = ref<FormInstance>();
-  const batchUpdateExecutorModalVisible = ref(false);
-  const batchUpdateExecutorForm = ref<{ userId: string }>({ userId: '' });
-  const batchUpdateExecutorDisabled = computed(() => !batchUpdateExecutorForm.value.userId.length);
-  const userOptions = ref<SelectOptionData[]>([]);
-  const executorLoading = ref(false);
-  async function initUserOptions() {
-    try {
-      executorLoading.value = true;
-      const res = await GetTestPlanUsers(appStore.currentProjectId, '');
-      userOptions.value = res.map((e: ReviewUserItem) => ({ label: e.name, value: e.id }));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      executorLoading.value = false;
-    }
-  }
-
-  async function handleBatchUpdateExecutor() {
-    batchUpdateExecutorFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        try {
-          batchLoading.value = true;
-          const tableParams = await getTableParams(true);
-          await batchUpdateCaseExecutor({
-            selectIds: tableSelected.value as string[],
-            selectAll: batchParams.value.selectAll,
-            excludeIds: batchParams.value?.excludeIds || [],
-            ...tableParams,
-            ...batchUpdateExecutorForm.value,
-          });
-          Message.success(t('common.updateSuccess'));
-          resetSelector();
-          loadList();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          batchLoading.value = false;
-        }
-      }
-    });
-  }
-
   function resetBatchForm() {
     batchExecuteForm.value = { ...defaultExecuteForm };
-    batchUpdateExecutorForm.value = { userId: '' };
   }
 
+  // 批量修改执行人
+  const batchUpdateExecutorModalVisible = ref(false);
+  const batchUpdateExecutorParams = ref();
+
   // 处理表格选中后批量操作
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = { ...params, selectIds: params?.selectedIds };
+    const tableParams = await getTableParams(true);
     switch (event.eventTag) {
       case 'execute':
         batchExecuteModalVisible.value = true;
@@ -682,6 +576,12 @@
         handleBatchDisassociateCase();
         break;
       case 'changeExecutor':
+        batchUpdateExecutorParams.value = {
+          selectIds: tableSelected.value as string[],
+          selectAll: batchParams.value.selectAll,
+          excludeIds: batchParams.value?.excludeIds || [],
+          ...tableParams,
+        };
         batchUpdateExecutorModalVisible.value = true;
         break;
       default:
@@ -707,7 +607,6 @@
 
   onBeforeMount(() => {
     loadCaseList();
-    initUserOptions();
   });
 
   defineExpose({

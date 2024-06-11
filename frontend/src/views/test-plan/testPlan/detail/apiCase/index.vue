@@ -15,6 +15,7 @@
       <CaseTable
         ref="caseTableRef"
         :plan-id="planId"
+        :tree-type="props.treeType"
         :modules-count="modulesCount"
         :module-name="moduleName"
         :repeat-case="props.repeatCase"
@@ -97,8 +98,10 @@
   }
 
   function getCaseTableList() {
-    initModules();
-    caseTableRef.value?.loadCaseList();
+    nextTick(() => {
+      initModules();
+      caseTableRef.value?.loadCaseList();
+    });
   }
 
   defineExpose({

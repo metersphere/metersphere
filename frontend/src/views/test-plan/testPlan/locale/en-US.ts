@@ -89,6 +89,7 @@ export default {
   'testPlan.planForm.pickCases': 'Select cases',
   'testPlan.testPlanDetail.executed': 'Executed',
   'testPlan.testPlanDetail.generateReport': 'Generate report',
+  'testPlan.testPlanDetail.moduleView': 'Module View',
   'testPlan.testPlanDetail.successfullyGenerated': 'Successfully generated',
   'testPlan.bugManagement.bug': 'Defect list',
   'testPlan.bugManagement.bugName': 'name',
