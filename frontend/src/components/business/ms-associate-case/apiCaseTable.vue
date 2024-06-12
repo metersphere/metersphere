@@ -265,6 +265,7 @@
       excludeIds: [...excludeKeys].concat(...(props.associatedIds || [])),
       selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
       selectAll: selectorStatus === 'all',
+      associateApiType: 'API_CASE',
     };
   }
 

@@ -20,15 +20,7 @@
         <MsButton type="text" @click="handleShowDetail(record.id)">{{ record.num }}</MsButton>
       </template>
       <template #name="{ record }">
-        <a-tooltip :content="record.title">
-          <div class="one-line-text max-w-[calc(100%-32px)]"> {{ record.title }}</div>
-        </a-tooltip>
-        <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
-          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-          <template #content>
-            <div v-dompurify-html="record.content" class="markdown-body bug-content"> </div>
-          </template>
-        </a-popover>
+        <BugNamePopover :name="record.title" :content="record.content" />
       </template>
       <template #linkCase="{ record }">
         <CaseCountPopover :bug-item="record" />
@@ -54,6 +46,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseCountPopover from './caseCountPopover.vue';
   import BugDetailDrawer from '@/views/bug-management/components/bug-detail-drawer.vue';
+  import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
   import { getCustomOptionHeader, getPlatform } from '@/api/modules/bug-management';
   import { planDetailBugPage } from '@/api/modules/test-plan/testPlan';

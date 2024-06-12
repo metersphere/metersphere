@@ -4,9 +4,13 @@
  * @param {stafileInfotus} 文件file
  */
 
+import { FormRuleItem } from '@/components/pure/ms-form-create/types';
 import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import { MsFileItem } from '@/components/pure/ms-upload/types';
 
+import { findParents, Option } from '@/utils/recursion';
+
+import { BugEditCustomFieldItem } from '@/models/bug-management';
 import { AssociatedList } from '@/models/caseManagement/featureCase';
 
 export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
@@ -67,4 +71,23 @@ export function convertToFileByDetail(fileInfo: AssociatedList): MsFileItem {
     isUpdateFlag,
     associateId,
   };
+}
+
+export function makeCustomFieldsParams(formItem: FormRuleItem[]) {
+  const customFields: BugEditCustomFieldItem[] = [];
+  if (formItem && formItem.length) {
+    formItem.forEach((item: FormRuleItem) => {
+      let itemVal = item.value;
+      if (item.sourceType === 'CASCADER') {
+        itemVal = findParents(item.options as Option[], item.value as string, []) || '';
+      }
+      customFields.push({
+        id: item.field as string,
+        name: item.title as string,
+        type: item.sourceType as string,
+        value: Array.isArray(itemVal) ? JSON.stringify(itemVal) : (itemVal as string),
+      });
+    });
+  }
+  return customFields;
 }

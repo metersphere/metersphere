@@ -368,7 +368,6 @@
     activeFolderName.value = name ?? '';
   }
 
-  const isAddAssociatedCase = ref<boolean>(false);
   const functionalTableRef = ref<InstanceType<typeof CaseTable>>();
   const apiTableRef = ref<InstanceType<typeof ApiTable>>();
   const caseTableRef = ref<InstanceType<typeof ApiCaseTable>>();
