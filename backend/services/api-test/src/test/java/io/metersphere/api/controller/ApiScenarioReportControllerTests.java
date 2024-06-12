@@ -362,7 +362,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        mockMvc.perform(getRequestBuilder(GET + "scenario-report-id2000"))
+        mockMvc.perform(getRequestBuilder(GET + "scenario-report-id200000"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 

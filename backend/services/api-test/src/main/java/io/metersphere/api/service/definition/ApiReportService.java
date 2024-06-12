@@ -15,6 +15,7 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -194,7 +195,8 @@ public class ApiReportService {
             apiReportDTO.setConsole(String.join("\n", consoleList));
         }
         //查询资源池名称
-        apiReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId()).getName());
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(apiReportDTO.getPoolId());
+        apiReportDTO.setPoolName(testResourcePool != null ? testResourcePool.getName() : null);
         //查询环境名称
         String environmentName = null;
         if (StringUtils.isNoneBlank(apiReportDTO.getEnvironmentId())) {
