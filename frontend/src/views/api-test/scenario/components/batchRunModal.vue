@@ -105,7 +105,8 @@
 
   import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
-  import { getEnvList, getPoolId, getPoolOption } from '@/api/modules/api-test/management';
+  import { getEnvList } from '@/api/modules/api-test/common';
+  import { getPoolId, getPoolOption } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 

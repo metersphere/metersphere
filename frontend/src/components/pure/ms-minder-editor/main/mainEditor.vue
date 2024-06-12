@@ -12,7 +12,7 @@
         </a-breadcrumb-item>
       </a-breadcrumb>
     </div>
-    <nodeFloatMenu v-if="props.canShowFloatMenu" v-bind="props">
+    <nodeFloatMenu v-if="props.canShowFloatMenu" v-bind="props" @close="emit('floatMenuClose')">
       <template #extractMenu>
         <slot name="extractMenu"></slot>
       </template>
@@ -33,6 +33,7 @@
 
   import { MinderEventName } from '@/enums/minderEnum';
 
+  import useEventListener from '../hooks/useMinderEventListener';
   import {
     editMenuProps,
     floatMenuProps,
@@ -61,6 +62,7 @@
   const emit = defineEmits<{
     (e: 'save', data: MinderJson, callback: () => void): void;
     (e: 'afterMount'): void;
+    (e: 'floatMenuClose'): void;
   }>();
 
   const minderStore = useMinderStore();
@@ -78,43 +80,6 @@
     template: 'default',
     treePath: [],
   });
-
-  function handlePriorityButton() {
-    const { priorityPrefix } = props;
-    const { priorityStartWithZero } = props;
-    let start = priorityStartWithZero ? 0 : 1;
-    let res = '';
-    for (let i = 0; i < props.priorityCount; i++) {
-      res += start++;
-    }
-    const priority = window.minder.hotbox.state('priority');
-    res.replace(/./g, (p) => {
-      priority.button({
-        position: 'ring',
-        label: priorityPrefix + p,
-        key: p,
-        action() {
-          const pVal = parseInt(p, 10);
-          window.minder.execCommand('Priority', priorityStartWithZero ? pVal + 1 : pVal);
-        },
-      });
-      // 需要返回字符串
-      return '';
-    });
-  }
-  function handleTagButton() {
-    const tag = window.minder.hotbox.state('tag');
-    props.tags?.forEach((item) => {
-      tag.button({
-        position: 'ring',
-        label: item,
-        key: item,
-        action() {
-          window.minder.execCommand('resource', item);
-        },
-      });
-    });
-  }
 
   async function init() {
     window.editor = new Editor(mec.value, {
@@ -137,43 +102,42 @@
       window.minder.execCommand('RemoveNode');
     };
 
-    window.minder.on('preExecCommand', (env: any) => {
-      const selectNodes = env.minder.getSelectedNodes();
-      const notChangeCommands = new Set([
-        'camera',
-        'copy',
-        'expand',
-        'expandToLevel',
-        'hand',
-        'layout',
-        'template',
-        'theme',
-        'zoom',
-        'zoomIn',
-        'zoomOut',
-      ]);
-      if (selectNodes && !notChangeCommands.has(env.commandName.toLocaleLowerCase())) {
-        minderStore.setMinderUnsaved(true);
-        minderStore.dispatchEvent(MinderEventName.MINDER_CHANGED);
-        selectNodes.forEach((node: MinderJsonNode) => {
-          markChangeNode(node);
-        });
-      }
-      if (env.commandName === 'movetoparent') {
-        setTimeout(() => {
-          const targetNode = window.minder.getSelectedNode();
-          targetNode.parent.renderTree();
-        }, 100);
-      }
-    });
-
-    handlePriorityButton();
-    handleTagButton();
     emit('afterMount');
   }
 
-  onMounted(async () => {
+  onMounted(() => {
     init();
+    useEventListener({
+      handleBeforeExecCommand(event) {
+        const selectNodes: MinderJsonNode[] = event.minder.getSelectedNodes();
+        const notChangeCommands = new Set([
+          'camera',
+          'copy',
+          'expand',
+          'expandToLevel',
+          'hand',
+          'layout',
+          'template',
+          'theme',
+          'zoom',
+          'zoomIn',
+          'zoomOut',
+        ]);
+        if (selectNodes.length > 0 && !notChangeCommands.has(event.commandName.toLocaleLowerCase())) {
+          minderStore.setMinderUnsaved(true);
+          minderStore.dispatchEvent(MinderEventName.MINDER_CHANGED);
+          selectNodes.forEach((node: MinderJsonNode) => {
+            markChangeNode(node);
+          });
+        }
+        if (event.commandName === 'movetoparent') {
+          setTimeout(() => {
+            const targetNode = window.minder.getSelectedNode();
+            targetNode.parent.renderTree();
+          }, 100);
+        }
+      },
+    });
   });
 
   const menuVisible = ref(false);
@@ -206,23 +170,6 @@
     }, 100); // TODO:暂未知渲染时机，临时延迟解决
   }
 
-  watch(
-    () => minderStore.event.timestamp,
-    () => {
-      if (minderStore.event.name === MinderEventName.HOTBOX && minderStore.event.nodePosition) {
-        const nodeDomWidth = minderStore.event.nodeDom?.getBoundingClientRect().width || 0;
-        menuPopupOffset.value = [
-          minderStore.event.nodePosition.x + nodeDomWidth / 2,
-          minderStore.event.nodePosition.y - nodeDomWidth / 4,
-        ];
-        menuVisible.value = true;
-      }
-      if (minderStore.event.name === MinderEventName.ENTER_NODE && minderStore.event.nodes) {
-        switchNode(minderStore.event.nodes[0]);
-      }
-    }
-  );
-
   function save() {
     let data = importJson.value;
     if (innerImportJson.value.treePath?.length > 1) {
@@ -243,6 +190,26 @@
   }
 
   watch(
+    () => minderStore.event.timestamp,
+    () => {
+      if (minderStore.event.name === MinderEventName.HOTBOX && minderStore.event.nodePosition) {
+        const nodeDomWidth = minderStore.event.nodeDom?.getBoundingClientRect().width || 0;
+        menuPopupOffset.value = [
+          minderStore.event.nodePosition.x + nodeDomWidth / 2,
+          minderStore.event.nodePosition.y - nodeDomWidth / 4,
+        ];
+        menuVisible.value = true;
+      }
+      if (minderStore.event.name === MinderEventName.ENTER_NODE && minderStore.event.nodes) {
+        switchNode(minderStore.event.nodes[0]);
+      }
+      if (minderStore.event.name === MinderEventName.SAVE_MINDER) {
+        save();
+      }
+    }
+  );
+
+  watch(
     () => minderStore.getMinderUnsaved,
     (val) => {
       setIsSave(!val);
@@ -256,10 +223,9 @@
     @apply !absolute;
   }
   .ms-minder-container {
-    @apply relative overflow-hidden !bg-white;
+    @apply relative h-full overflow-hidden !bg-white;
 
     padding: 16px 0;
-    height: calc(100% - 60px);
   }
   .ms-minder-dropdown {
     .arco-dropdown-list-wrapper {

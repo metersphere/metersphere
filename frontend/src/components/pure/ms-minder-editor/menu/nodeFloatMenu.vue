@@ -166,6 +166,11 @@
           </a-doption>
         </template>
       </a-dropdown>
+      <a-tooltip v-else-if="props.canShowDeleteMenu" :content="t('common.delete')">
+        <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="handleMinderMenuSelect('delete')">
+          <MsIcon type="icon-icon_delete-trash_outlined" class="text-[var(--color-text-4)]" />
+        </MsButton>
+      </a-tooltip>
     </template>
   </a-trigger>
 </template>
@@ -179,7 +184,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
-  import { getGenerateId } from '@/utils';
+  import { getGenerateId, sleep } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
@@ -192,6 +197,9 @@
     ...tagProps,
     ...priorityProps,
   });
+  const emit = defineEmits<{
+    (e: 'close'): void;
+  }>();
 
   const { t } = useI18n();
   const minderStore = useMinderStore();
@@ -204,34 +212,37 @@
 
   watch(
     () => minderStore.event.timestamp,
-    () => {
-      let nodePosition: MinderNodePosition | undefined;
-      const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-      if (minderStore.event.name === MinderEventName.NODE_SELECT) {
-        nodePosition = minderStore.event.nodePosition;
-        currentNodeTags.value = minderStore.event.nodes?.[0].data?.resource || [];
-        if (props.replaceableTags) {
-          tags.value = props.replaceableTags(selectedNodes);
-        } else {
-          tags.value = [];
+    async () => {
+      if (window.minder) {
+        let nodePosition: MinderNodePosition | undefined;
+        const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+        if (minderStore.event.name === MinderEventName.NODE_SELECT) {
+          nodePosition = minderStore.event.nodePosition;
+          currentNodeTags.value = minderStore.event.nodes?.[0].data?.resource || [];
+          if (props.replaceableTags) {
+            tags.value = props.replaceableTags(selectedNodes);
+          } else {
+            tags.value = [];
+          }
         }
-      }
-      if (selectedNodes.length > 1) {
-        // 多选时隐藏悬浮菜单 TODO:支持批量操作
-        menuVisible.value = false;
-        return;
-      }
-      if (minderStore.event.name === MinderEventName.VIEW_CHANGE) {
-        // 脑图画布移动时，重新计算节点位置
-        nodePosition = window.minder.getSelectedNode()?.getRenderBox();
-      }
-      if (nodePosition && isNodeInMinderView(undefined, nodePosition, nodePosition.width / 2)) {
-        // 判断节点在脑图可视区域内且遮挡的节点不超过节点宽度的一半，则显示菜单
-        const nodeDomHeight = nodePosition.height || 0;
-        menuPopupOffset.value = [nodePosition.x, nodePosition.y + nodeDomHeight + 4]; // 菜单显示在节点下方4px处
-        menuVisible.value = true;
-      } else {
-        menuVisible.value = false;
+        if (selectedNodes.length > 1) {
+          // 多选时隐藏悬浮菜单 TODO:支持批量操作
+          menuVisible.value = false;
+          return;
+        }
+        if ([MinderEventName.VIEW_CHANGE, MinderEventName.DRAG_FINISH].includes(minderStore.event.name)) {
+          // 脑图画布移动时，重新计算节点位置
+          await sleep(300); // 拖拽完毕后会有 300ms 的动画，等待动画结束后再计算
+          nodePosition = window.minder.getSelectedNode()?.getRenderBox();
+        }
+        if (nodePosition && isNodeInMinderView(undefined, nodePosition, nodePosition.width / 2)) {
+          // 判断节点在脑图可视区域内且遮挡的节点不超过节点宽度的一半，则显示菜单
+          const nodeDomHeight = nodePosition.height || 0;
+          menuPopupOffset.value = [nodePosition.x, nodePosition.y + nodeDomHeight + 4]; // 菜单显示在节点下方4px处
+          menuVisible.value = true;
+        } else {
+          menuVisible.value = false;
+        }
       }
     },
     {
@@ -375,6 +386,15 @@
       menuVisible.value = true;
     });
   }
+
+  watch(
+    () => menuVisible.value,
+    (val) => {
+      if (!val) {
+        emit('close');
+      }
+    }
+  );
 
   onMounted(() => {
     nextTick(() => {

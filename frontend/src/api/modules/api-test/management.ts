@@ -40,7 +40,6 @@ import {
   GetDefinitionDetailUrl,
   GetDefinitionScheduleUrl,
   GetDependencyUrl,
-  GetEnvListUrl,
   GetEnvModuleUrl,
   GetExecuteHistoryUrl,
   GetMockUrlUrl,
@@ -48,13 +47,13 @@ import {
   GetModuleOnlyTreeUrl,
   GetModuleTreeUrl,
   GetPoolId,
+  GetPoolOptionUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   ImportDefinitionUrl,
   MockDetailUrl,
   MoveModuleUrl,
   OperationHistoryUrl,
-  PoolOption,
   RecoverCaseUrl,
   RecoverDefinitionUrl,
   RecoverOperationHistoryUrl,
@@ -519,11 +518,6 @@ export function batchExecuteCase(data: ApiCaseBatchExecuteParams) {
   return MSR.post({ url: BatchExecuteCaseUrl, data });
 }
 
-// 获取接口测试-环境列表
-export function getEnvList(projectId: string) {
-  return MSR.get<Environment[]>({ url: GetEnvListUrl, params: projectId });
-}
-
 // 获取接口用例-执行历史
 export function getApiCaseExecuteHistory(data: ApiCaseExecuteHistoryParams) {
   return MSR.post<CommonList<ApiCaseExecuteHistoryItem>>({ url: GetExecuteHistoryUrl, data });
@@ -541,7 +535,7 @@ export function getApiCaseDependency(data: ApiCaseDependencyParams) {
 
 // 获取接口的资源池列表
 export function getPoolOption(projectId: string) {
-  return MSR.get<ResourcePoolItem[]>({ url: PoolOption + projectId });
+  return MSR.get<ResourcePoolItem[]>({ url: GetPoolOptionUrl, params: projectId });
 }
 
 export function getPoolId(projectId: string) {

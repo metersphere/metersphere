@@ -149,6 +149,11 @@ export const floatMenuProps = {
     type: Boolean,
     default: true,
   },
+  // 不显示更多菜单时，是否显示删除菜单
+  canShowDeleteMenu: {
+    type: Boolean,
+    default: false,
+  },
   // 是否显示进入节点
   canShowEnterNode: {
     type: Boolean,

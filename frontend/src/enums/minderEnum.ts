@@ -13,6 +13,8 @@ export enum MinderEventName {
   'NODE_UNSELECT' = 'NODE_UNSELECT', // 取消选中节点
   'VIEW_CHANGE' = 'VIEW_CHANGE', // 脑图视图移动
   'MINDER_CHANGED' = 'MINDER_CHANGED', // 脑图更改事件
+  'SAVE_MINDER' = 'SAVE_MINDER', // 脑图保存事件
+  'DRAG_FINISH' = 'DRAG_FINISH', // 脑图节点拖拽结束事件
 }
 
 export default {};

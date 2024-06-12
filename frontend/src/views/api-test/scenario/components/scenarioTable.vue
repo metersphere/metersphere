@@ -506,7 +506,8 @@
   import BatchRunModal from '@/views/api-test/scenario/components/batchRunModal.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
 
-  import { getEnvList, getPoolId, getPoolOption } from '@/api/modules/api-test/management';
+  import { getEnvList } from '@/api/modules/api-test/common';
+  import { getPoolId, getPoolOption } from '@/api/modules/api-test/management';
   import {
     batchEditScenario,
     batchOptionScenario,

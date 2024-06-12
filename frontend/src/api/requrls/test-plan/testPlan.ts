@@ -143,3 +143,5 @@ export const BatchMoveApiScenarioUrl = '/test-plan/api/scenario/batch/move';
 
 // 测试规划脑图
 export const GetPlanMinderUrl = '/test-plan/mind/data';
+// 修改测试规划脑图
+export const EditPlanMinderUrl = '/test-plan/mind/data/edit';

@@ -16,6 +16,7 @@ import { useI18n } from '@/hooks/useI18n';
 import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
+import type { EnvironmentItem } from '@/models/projectManagement/environmental';
 import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
 import { ProjectListItem } from '@/models/setting/project';
 
@@ -107,6 +108,9 @@ const useAppStore = defineStore('app', {
     },
     getCurrentEnvId(state: AppState): string {
       return state.currentEnvConfig?.id || '';
+    },
+    getEnvList(state: AppState): EnvironmentItem[] {
+      return state.envList;
     },
   },
   actions: {

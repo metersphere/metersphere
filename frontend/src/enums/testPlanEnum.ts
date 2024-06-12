@@ -9,13 +9,21 @@ export enum RunMode {
   PARALLEL = 'PARALLEL', // 并行
 }
 
-export enum TestSetType {
-  FUNCTIONAL_CASE = 'FUNCTIONAL_CASE',
+export enum FailRetry {
+  STEP = 'STEP',
+  SCENARIO = 'SCENARIO',
+}
+
+// 功能：FUNCTIONAL_CASE/接口定义：API/接口用例：API_CASE/场景：SCENARIO_CASE
+export enum PlanMinderAssociateType {
+  FUNCTIONAL_CASE = 'FUNCTIONAL',
+  API = 'API',
   API_CASE = 'API_CASE',
   SCENARIO_CASE = 'SCENARIO_CASE',
 }
-
-export enum FailRetry {
-  STEP = 'STEP',
+// 测试集类型(功能：FUNCTIONAL/接口用例：API/场景：SCENARIO)
+export enum PlanMinderCollectionType {
+  FUNCTIONAL = 'FUNCTIONAL',
+  API = 'API',
   SCENARIO = 'SCENARIO',
 }

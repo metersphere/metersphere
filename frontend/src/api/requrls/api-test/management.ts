@@ -77,7 +77,6 @@ export const TransferFileCaseUrl = '/api/case/transfer'; // 文件转存
 export const TransferFileModuleOptionCaseUrl = '/api/case/transfer/options'; // 文件转存目录
 export const UploadTempFileCaseUrl = '/api/case/upload/temp/file'; // 临时文件上传
 export const GetCaseDetailUrl = '/api/case/get-detail'; // 获取接口用例详情
-export const GetEnvListUrl = '/api/test/env-list'; // 接口测试-环境列表
 export const BatchExecuteCaseUrl = '/api/case/batch/run'; // 批量执行接口用例
 export const ExecuteCaseUrl = '/api/case/run'; // 单独执行接口用例
 export const GetExecuteHistoryUrl = '/api/case/execute/page'; // 获取用的执行历史
@@ -98,5 +97,5 @@ export const DeleteRecycleCaseUrl = '/api/case/delete'; // 接口用例彻底删
 export const BatchDeleteRecycleCaseUrl = '/api/case/batch/delete'; // 接口用例批量彻底删除
 export const AddCaseUrl = '/api/case/add'; // 添加用例
 
-export const PoolOption = '/api/test/pool-option/'; // 获取接口资源池
+export const GetPoolOptionUrl = '/api/test/pool-option'; // 获取接口资源池
 export const GetPoolId = '/api/test/get-pool/'; // 获取项目应用设置的资源池id

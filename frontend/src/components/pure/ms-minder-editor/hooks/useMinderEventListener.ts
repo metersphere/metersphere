@@ -11,6 +11,7 @@ export interface UseEventListenerProps {
   handleMinderEvent?: (event: MinderCustomEvent) => void;
   handleBeforeExecCommand?: (event: MinderEvent) => void;
   handleViewChange?: (event: MinderEvent) => void;
+  handleDragFinish?: (event: MinderEvent) => void;
 }
 
 export default function useEventListener(listener: UseEventListenerProps) {
@@ -43,6 +44,14 @@ export default function useEventListener(listener: UseEventListenerProps) {
     }
   });
 
+  // 监听脑图节点拖拽结束事件
+  minder.on('dragFinish', (e: MinderEvent) => {
+    if (listener.handleDragFinish) {
+      listener.handleDragFinish(e);
+    }
+  });
+
+  // 监听脑图画布位移等视图变化
   minder.on(
     'viewchange',
     debounce((e: MinderEvent) => {
