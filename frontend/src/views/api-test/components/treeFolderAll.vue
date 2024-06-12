@@ -9,7 +9,7 @@
     <template #expandLeft>
       <a-dropdown v-model:popup-visible="visible" :hide-on-select="false">
         <MsButton
-          v-show="typeof isExpandAll !== 'undefined'"
+          v-show="!props.notShowOperation"
           type="icon"
           status="secondary"
           class="!mr-[4px] p-[4px]"
@@ -81,6 +81,7 @@
     folderName: string; // 名称
     allCount: number; // 总数
     showExpandApi?: boolean; // 展示 展开请求的开关
+    notShowOperation?: boolean; // 是否展示操作按钮
   }>();
   const emit = defineEmits<{
     (e: 'setActiveFolder', val: string): void;
@@ -88,7 +89,7 @@
     (e: 'selectedProtocolsChange'): void;
   }>();
 
-  const isExpandAll = defineModel<boolean>('isExpandAll', {
+  const isExpandAll = defineModel<boolean | undefined>('isExpandAll', {
     required: false,
     default: undefined,
   });
@@ -144,6 +145,17 @@
     (val) => {
       selectedProtocols.value = val.map((e) => e.value as string);
       emit('selectedProtocolsChange');
+    }
+  );
+
+  watch(
+    () => props.notShowOperation,
+    (val) => {
+      if (val) {
+        isExpandAll.value = undefined;
+      } else {
+        isExpandAll.value = false;
+      }
     }
   );
 
