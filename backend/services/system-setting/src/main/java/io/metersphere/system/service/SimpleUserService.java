@@ -43,7 +43,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -226,25 +225,20 @@ public class SimpleUserService {
             this.checkProcessUserAndThrowException(request.getSelectIds(), operatorId, operatorName, Translator.get("user.not.disable"));
         }
 
-        TableBatchProcessResponse response = new TableBatchProcessResponse();
-        response.setTotalCount(request.getSelectIds().size());
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(
-                request.getSelectIds()
-        );
+        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).guessWhatHowToChangeUser(request.getSelectIds(), request.isEnable(), operatorName);
 
-        User updateUser = new User();
-        updateUser.setEnable(request.isEnable());
-        updateUser.setUpdateUser(operatorId);
-        updateUser.setUpdateTime(System.currentTimeMillis());
-        response.setSuccessCount(userMapper.updateByExampleSelective(updateUser, userExample));
-
-        if (BooleanUtils.isFalse(request.isEnable())) {
-            //如果是禁用，批量踢出用户
-            request.getSelectIds().forEach(SessionUtils::kickOutUser);
+        if (responseCode == 0) {
+            TableBatchProcessResponse response = new TableBatchProcessResponse();
+            response.setTotalCount(request.getSelectIds().size());
+            response.setSuccessCount(request.getSelectIds().size());
+            return response;
+        } else {
+            if (responseCode == -1) {
+                throw new MSException(SystemResultCode.USER_TOO_MANY, Translator.getWithArgs("user_open_source_max", 30));
+            } else {
+                throw new MSException(SystemResultCode.DEPT_USER_TOO_MANY, Translator.getWithArgs("user_dept_max", responseCode));
+            }
         }
-
-        return response;
     }
 
     private void checkUserInDb(List<String> userIdList) {
