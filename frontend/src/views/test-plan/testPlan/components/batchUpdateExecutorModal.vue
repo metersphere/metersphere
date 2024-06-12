@@ -12,7 +12,7 @@
   >
     <template #title>
       {{ t('testPlan.featureCase.batchChangeExecutor') }}
-      <div class="text-[var(--color-text-4)]">
+      <div class="ml-1 text-[var(--color-text-4)]">
         {{
           t('testPlan.testPlanIndex.selectedCount', {
             count: props.count,

@@ -106,6 +106,7 @@ export default {
   'testPlan.featureCase.richTextDblclickPlaceholder': '双击可快速输入',
   'testPlan.featureCase.autoNextTip1': '开启：提交结果后，跳转至下一条用例',
   'testPlan.featureCase.autoNextTip2': '关闭：提交结果后，还在当前',
+  'testPlan.api.testSetRequired': '测试集不能为空',
   'testPlan.executeHistory.executionStartAndEndTime': '执行起止时间',
   'testPlan.testPlanGroup.seeArchived': '只看已归档',
   'testPlan.testPlanGroup.planNamePlaceholder': '请输入测试计划组名称',
