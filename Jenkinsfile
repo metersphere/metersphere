@@ -66,7 +66,8 @@ pipeline {
                         LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                         rm -rf $LOCAL_REPOSITORY/io/metersphere/metersphere-jmeter-assertions/*
                         rm -rf $LOCAL_REPOSITORY/io/metersphere/metersphere-jmeter-functions/*
-                        
+                        rm -rf $LOCAL_REPOSITORY/io/metersphere/monitoring-engine/*
+
                         ./mvnw clean install -Drevision=${REVISION} -DskipTests --settings ./settings.xml
                         mkdir -p backend/app/target/dependency && (cd backend/app/target/dependency && jar -xf ../*.jar);
                     '''
