@@ -9,7 +9,7 @@
     show-full-screen
   >
     <template #tbutton>
-      <a-dropdown position="br" @select="shareHandler">
+      <a-dropdown v-if="!props.doNotShowShare" position="br" @select="shareHandler">
         <MsButton
           v-permission="['PROJECT_API_REPORT:READ+SHARE']"
           type="icon"
@@ -53,6 +53,7 @@
   const props = defineProps<{
     reportId: string;
     isScenario?: boolean;
+    doNotShowShare?: boolean; // 不展示分享按钮
   }>();
 
   const appStore = useAppStore();

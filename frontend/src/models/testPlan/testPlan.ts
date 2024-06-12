@@ -287,6 +287,7 @@ export interface PlanDetailApiCaseItem {
   executeUser: string;
   executeUserName: string;
   priority: string;
+  protocol: string;
   path: string;
   projectId: string;
   projectName: string;

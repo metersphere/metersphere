@@ -23,6 +23,9 @@
       @selected-change="handleTableSelect"
       @filter-change="getModuleCount"
     >
+      <template #protocol="{ record }">
+        <ApiMethodName :method="record.protocol" />
+      </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
         <CaseLevel :case-level="filterContent.value" />
       </template>
@@ -46,7 +49,12 @@
         <apiStatus :status="record.status" />
       </template>
       <template v-if="props.canEdit" #operation="{ record }">
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']" type="text" class="!mr-0">
+        <MsButton
+          v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+          type="text"
+          class="!mr-0"
+          @click="handleRun(record)"
+        >
           {{ t('common.execute') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
@@ -64,7 +72,7 @@
         </MsPopconfirm>
       </template>
     </MsBaseTable>
-    <ReportDrawer v-model:visible="reportVisible" :report-id="reportId" />
+    <CaseAndScenarioReportDrawer v-model:visible="reportVisible" :report-id="reportId" do-not-show-share />
     <!-- 批量修改执行人 -->
     <BatchUpdateExecutorModal
       v-model:visible="batchUpdateExecutorModalVisible"
@@ -93,15 +101,18 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import ApiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
-  import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import {
     batchDisassociateApiCase,
+    batchRunApiCase,
     batchUpdateApiCaseExecutor,
     disassociateApiCase,
     getPlanDetailApiCaseList,
+    runApiCase,
     sortApiCase,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -175,6 +186,13 @@
       width: 150,
       showTooltip: true,
       columnSelectorDisabled: true,
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      slotName: 'protocol',
+      width: 150,
+      showDrag: true,
     },
     {
       title: 'case.caseLevel',
@@ -271,7 +289,7 @@
     selectable: hasOperationPermission.value,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setLoading } = useTable(
     getPlanDetailApiCaseList,
     tableProps.value,
     (record) => {
@@ -455,6 +473,44 @@
     }
   }
 
+  // 执行
+  async function handleRun(record: PlanDetailApiCaseItem) {
+    try {
+      setLoading(true);
+      await runApiCase(record.id);
+      Message.success(t('common.executionSuccess'));
+      resetSelectorAndCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 批量执行
+  async function handleBatchRun() {
+    try {
+      setLoading(true);
+      const tableParams = await getTableParams(true);
+      await batchRunApiCase({
+        selectIds: tableSelected.value as string[],
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        ...tableParams,
+      });
+      Message.success(t('common.executionSuccess'));
+      resetSelectorAndCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // 批量取消关联用例
   function handleBatchDisassociateCase() {
     openModal({
@@ -498,6 +554,7 @@
     const tableParams = await getTableParams(true);
     switch (event.eventTag) {
       case 'execute':
+        handleBatchRun();
         break;
       case 'disassociate':
         handleBatchDisassociateCase();

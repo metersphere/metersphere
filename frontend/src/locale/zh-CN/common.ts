@@ -57,6 +57,7 @@ export default {
   'common.operationFailed': '操作失败',
   'common.removeSuccess': '移除成功',
   'common.removeFailed': '移除失败',
+  'common.executionSuccess': '执行成功',
   'common.admin': '管理员',
   'common.revokeDelete': '撤销删除',
   'common.revokeDeleteSuccess': '已撤销删除',

@@ -49,7 +49,7 @@
         <apiStatus :status="record.status" />
       </template>
       <template v-if="props.canEdit" #operation="{ record }">
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']" type="text" class="!mr-0">
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']" type="text" class="!mr-0" @click="handleRun">
           {{ t('common.execute') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
@@ -67,7 +67,7 @@
         </MsPopconfirm>
       </template>
     </MsBaseTable>
-    <ReportDrawer v-model:visible="reportVisible" :report-id="reportId" />
+    <CaseAndScenarioReportDrawer v-model:visible="reportVisible" :report-id="reportId" do-not-show-share />
     <!-- 批量修改执行人 -->
     <BatchUpdateExecutorModal
       v-model:visible="batchUpdateExecutorModalVisible"
@@ -97,14 +97,16 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
-  import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import {
     batchDisassociateApiScenario,
+    batchRunApiScenario,
     batchUpdateApiScenarioExecutor,
     disassociateApiScenario,
     getPlanDetailApiScenarioList,
+    runApiScenario,
     sortApiScenario,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -270,7 +272,7 @@
     selectable: hasOperationPermission.value,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setLoading } = useTable(
     getPlanDetailApiScenarioList,
     tableProps.value,
     (record) => {
@@ -456,6 +458,44 @@
     }
   }
 
+  // 执行
+  async function handleRun(record: PlanDetailApiScenarioItem) {
+    try {
+      setLoading(true);
+      await runApiScenario(record.id);
+      Message.success(t('common.executionSuccess'));
+      resetSelectorAndCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 批量执行
+  async function handleBatchRun() {
+    try {
+      setLoading(true);
+      const tableParams = await getTableParams(true);
+      await batchRunApiScenario({
+        selectIds: tableSelected.value as string[],
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        ...tableParams,
+      });
+      Message.success(t('common.executionSuccess'));
+      resetSelectorAndCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // 批量取消关联用例
   function handleBatchDisassociateCase() {
     openModal({
@@ -499,6 +539,7 @@
     const tableParams = await getTableParams(true);
     switch (event.eventTag) {
       case 'execute':
+        handleBatchRun();
         break;
       case 'disassociate':
         handleBatchDisassociateCase();
