@@ -60,7 +60,6 @@
     unmount-on-close
     :footer="currentItem.scopeId !== 'global'"
     :title="currentItem.name"
-    :mask="false"
     @cancel="authVisible = false"
   >
     <AuthTable

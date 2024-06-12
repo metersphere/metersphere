@@ -1,7 +1,6 @@
 <template>
   <MsDrawer
     v-model:visible="showSettingVisible"
-    :mask="false"
     :title="t('caseManagement.featureCase.detailDisplaySetting')"
     :width="480"
     unmount-on-close
