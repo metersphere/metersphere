@@ -115,6 +115,13 @@
     }
   );
 
+  function reset(val: boolean) {
+    if (!val) {
+      form.value.field = '';
+      formRef.value?.resetFields();
+    }
+  }
+
   function beforeConfirm(done?: (closed: boolean) => void) {
     if (loading.value) return;
     formRef.value?.validate(async (errors) => {
@@ -129,6 +136,7 @@
               name: form.value.field,
             });
             Message.success(t('project.fileManagement.addSubModuleSuccess'));
+            reset(false);
             emit('addFinish', form.value.field);
           } else if (props.mode === 'rename') {
             // 模块重命名
@@ -137,6 +145,7 @@
               name: form.value.field,
             });
             Message.success(t('project.fileManagement.renameSuccess'));
+            reset(false);
             emit('renameFinish', form.value.field);
           }
           if (done) {
@@ -162,13 +171,6 @@
   function validateName(value: any, callback: (error?: string | undefined) => void) {
     if (props.allNames.includes(value)) {
       callback(t('project.fileManagement.nameExist'));
-    }
-  }
-
-  function reset(val: boolean) {
-    if (!val) {
-      form.value.field = '';
-      formRef.value?.resetFields();
     }
   }
 </script>

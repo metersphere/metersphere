@@ -303,7 +303,6 @@
       form: DetailCase;
       allowEdit?: boolean; // 是否允许编辑
       formRules?: FormRuleItem[]; // 编辑表单
-      formApi?: any;
       isTestPlan?: boolean; // 测试计划页面的
       isDisabledTestPlan?: boolean; // 测试计划页面-已归档
     }>(),
@@ -485,16 +484,12 @@
     caseFormRef.value?.validate().then(async (res: any) => {
       if (!res) {
         try {
-          props.formApi?.validate().then(async (valid: any) => {
-            if (valid === true) {
-              confirmLoading.value = true;
-              await updateCaseRequest(getParams());
-              confirmLoading.value = false;
-              Message.success(t('caseManagement.featureCase.editSuccess'));
-              isEditPreposition.value = false;
-              emit('updateSuccess');
-            }
-          });
+          confirmLoading.value = true;
+          await updateCaseRequest(getParams());
+          confirmLoading.value = false;
+          Message.success(t('caseManagement.featureCase.editSuccess'));
+          isEditPreposition.value = false;
+          emit('updateSuccess');
         } catch (error) {
           console.log(error);
         } finally {

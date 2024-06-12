@@ -2,7 +2,7 @@
   <MsDetailDrawer
     ref="detailDrawerRef"
     v-model:visible="showDrawerVisible"
-    :width="1200"
+    :width="900"
     :footer="false"
     :title="t('bugManagement.detail.title', { id: detailInfo?.num, name: detailInfo?.title })"
     :tooltip-text="(detailInfo && detailInfo.title) || null"
@@ -91,7 +91,7 @@
         </MsButton>
       </div>
     </template>
-    <template #default="{ loading }">
+    <template #default="{ detail }">
       <div
         ref="wrapperRef"
         :class="[
@@ -113,106 +113,43 @@
             class="no-content relative border-b"
           />
         </div>
-        <MsSplitBox
-          expand-direction="right"
-          :size="0.8"
-          :max="0.7"
-          :min="0.6"
-          direction="horizontal"
-          class="!h-[calc(100%-48px)]"
-          :class="{ 'left-bug-detail': activeTab === 'comment' }"
-        >
-          <template #first>
-            <div class="leftWrapper h-full">
-              <a-spin :loading="detailLoading" class="w-full">
-                <div class="tab-pane-container p-4">
-                  <BugDetailTab
-                    v-if="activeTab === 'detail'"
-                    ref="bugDetailTabRef"
-                    :form-item="formItem"
-                    :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                    :detail-info="detailInfo"
-                    :is-platform-default-template="isPlatformDefaultTemplate"
-                    :platform-system-fields="platformSystemFields"
-                    :current-platform="props.currentPlatform"
-                    @update-success="detailDrawerRef?.initDetail()"
-                  />
+        <div class="leftWrapper h-full">
+          <a-spin :loading="detailLoading" class="w-full">
+            <div class="tab-pane-container">
+              <BugDetailTab
+                v-if="activeTab === 'detail'"
+                ref="bugDetailTabRef"
+                :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                :detail-info="detailInfo"
+                :is-platform-default-template="isPlatformDefaultTemplate"
+                :platform-system-fields="platformSystemFields"
+                :current-platform="props.currentPlatform"
+                @update-success="detailDrawerRef?.initDetail()"
+              />
+              <BasicInfo
+                v-if="activeTab === 'basicInfo'"
+                v-model:tags="tags"
+                :form-rule="formRules"
+                :detail="detail"
+                :current-platform="props.currentPlatform"
+                :is-platform-default-template="isPlatformDefaultTemplate"
+                :loading="rightLoading"
+                :platform-system-fields="platformSystemFields"
+                @update-success="detailDrawerRef?.initDetail()"
+              />
 
-                  <BugCaseTab
-                    v-else-if="activeTab === 'case'"
-                    :bug-id="detailInfo.id"
-                    @update-case-success="updateSuccess"
-                  />
+              <BugCaseTab
+                v-else-if="activeTab === 'case'"
+                :bug-id="detailInfo.id"
+                @update-case-success="updateSuccess"
+              />
 
-                  <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
+              <CommentTab v-else-if="activeTab === 'comment'" ref="commentRef" :bug-id="detailInfo.id" />
 
-                  <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
-                </div>
-              </a-spin>
+              <BugHistoryTab v-else-if="activeTab === 'history'" :bug-id="detailInfo.id" />
             </div>
-          </template>
-          <template #second>
-            <a-spin :loading="rightLoading" class="w-full">
-              <!-- 所属平台一致, 详情展示 -->
-              <div v-if="props.currentPlatform === detailInfo.platform" class="rightWrapper h-full p-4">
-                <!-- 自定义字段开始 -->
-                <div class="inline-block w-full break-words">
-                  <a-skeleton v-if="rightLoading" class="w-full" :loading="rightLoading" :animation="true">
-                    <a-space direction="vertical" class="w-[100%]" size="large">
-                      <a-skeleton-line :rows="14" :line-height="30" :line-spacing="30" />
-                    </a-space>
-                  </a-skeleton>
-                  <div v-if="!rightLoading" class="mb-4 font-medium">
-                    <strong>
-                      {{ t('bugManagement.detail.basicInfo') }}
-                    </strong>
-                  </div>
-                  <MsFormCreate
-                    v-if="!rightLoading"
-                    ref="formCreateRef"
-                    v-model:form-item="formItem"
-                    v-model:api="fApi"
-                    :form-rule="formRules"
-                    class="w-full"
-                    :option="options"
-                    @change="handelFormCreateChange"
-                  />
-                  <!-- 自定义字段结束 -->
-                  <div
-                    v-if="!isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) && !loading"
-                    class="baseItem"
-                  >
-                    <a-form
-                      :model="{}"
-                      :label-col-props="{
-                        span: 9,
-                      }"
-                      :wrapper-col-props="{
-                        span: 15,
-                      }"
-                      label-align="left"
-                      content-class="tags-class"
-                    >
-                      <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-                        <MsTagsInput
-                          v-model:model-value="tags"
-                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-                          @blur="changeTag"
-                        />
-                      </a-form-item>
-                    </a-form>
-                  </div>
-                </div>
-
-                <!-- 内置基础信息结束 -->
-              </div>
-              <!-- 所属平台不一致, 详情不展示, 展示空面板 -->
-              <div v-else>
-                <a-empty> {{ $t('messageBox.noContent') }} </a-empty>
-              </div>
-            </a-spin>
-          </template>
-        </MsSplitBox>
+          </a-spin>
+        </div>
       </div>
       <CommentInput
         v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
@@ -235,20 +172,17 @@
   import { useRoute, useRouter } from 'vue-router';
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
-  import { debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
-  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
+  import type { FormItem } from '@/components/pure/ms-form-create/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import CommentInput from '@/components/business/ms-comment/input.vue';
   import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
+  import BasicInfo from './basicInfo.vue';
   import BugCaseTab from './bugCaseTab.vue';
   import BugDetailTab from './bugDetailTab.vue';
   import BugHistoryTab from './bugHistoryTab.vue';
@@ -302,9 +236,8 @@
   const commentContent = ref('');
   const commentRef = ref();
   const noticeUserIds = ref<string[]>([]); // 通知人ids
-  const fApi = ref();
   const formRules = ref<FormItem[]>([]); // 表单规则
-  const formItem = ref<FormRuleItem[]>([]); // 表单项
+
   const currentProjectId = computed(() => appStore.currentProjectId);
   const showDrawerVisible = defineModel<boolean>('visible', { default: false });
   const bugDetailTabRef = ref();
@@ -464,6 +397,10 @@
 
   const tabList = [
     {
+      value: 'basicInfo',
+      label: t('bugManagement.detail.basicInfo'),
+    },
+    {
       value: 'detail',
       label: t('bugManagement.detail.detail'),
     },
@@ -577,54 +514,6 @@
     });
   }
 
-  /**
-   * 单独更新字段
-   */
-  async function updateFieldHandler() {
-    try {
-      rightLoading.value = true;
-      await bugDetailTabRef.value?.handleSave();
-      rightLoading.value = false;
-    } catch (error) {
-      console.log(error);
-    } finally {
-      rightLoading.value = false;
-    }
-  }
-
-  const handelFormCreateChange = debounce(() => {
-    updateFieldHandler();
-  }, 300);
-
-  const changeTag = debounce(() => {
-    detailInfo.value.tags = tags.value;
-    updateFieldHandler();
-  }, 300);
-
-  // 表单配置项
-  const options = {
-    resetBtn: false, // 不展示默认配置的重置和提交
-    submitBtn: false,
-    on: false, // 取消绑定on事件
-    form: {
-      layout: 'horizontal',
-      labelAlign: 'left',
-      labelColProps: {
-        span: 9,
-      },
-      wrapperColProps: {
-        span: 15,
-      },
-    },
-    // 暂时默认
-    row: {
-      gutter: 0,
-    },
-    wrap: {
-      'asterisk-position': 'end',
-      'validate-trigger': ['change'],
-    },
-  };
   const uploadFileIds = ref<string[]>([]);
   async function publishHandler(currentContent: string) {
     try {
@@ -794,14 +683,9 @@
     justify-content: flex-start !important;
   }
   .tab-pane-container {
-    @apply flex-1 overflow-y-auto px-4;
+    @apply flex-1 overflow-y-auto p-4;
     .ms-scroll-bar();
   }
-  //:deep(.w-full .arco-form-item-label) {
-  //  display: inline-block;
-  //  width: 100%;
-  //  word-wrap: break-word;
-  //}
   :deep(.arco-form-item-content) {
     overflow-wrap: anywhere;
   }

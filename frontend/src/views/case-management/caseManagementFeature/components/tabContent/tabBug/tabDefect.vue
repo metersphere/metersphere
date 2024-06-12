@@ -67,21 +67,14 @@
       :load-params="{
         caseId: props.caseId,
       }"
+      :can-edit="true"
       @link="linkDefect"
       @new="createDefect"
       @cancel-link="cancelLink"
     />
     <ms-base-table v-else v-bind="testPlanPropsRes" ref="planTableRef" v-on="testPlanTableEvent">
       <template #name="{ record }">
-        <div class="flex flex-nowrap items-center">
-          <div class="one-line-text">{{ characterLimit(record.name) }}</div>
-          <a-popover title="" position="right" style="width: 480px">
-            <div class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</div>
-            <template #content>
-              <div v-dompurify-html="record.content" class="markdown-body" style="margin-left: 48px"> </div>
-            </template>
-          </a-popover>
-        </div>
+        <BugNamePopover :name="record.name" :content="record.content" />
       </template>
       <template #handleUserName="{ record }">
         <a-tooltip :content="record.handleUserName">
@@ -145,6 +138,7 @@
   import AddDefectDrawer from './addDefectDrawer.vue';
   import BugList from './bugList.vue';
   import LinkDefectDrawer from './linkDefectDrawer.vue';
+  import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';
@@ -194,20 +188,14 @@
       title: 'caseManagement.featureCase.tableColumnID',
       dataIndex: 'num',
       width: 100,
-      showInTable: true,
       showTooltip: true,
-      showDrag: false,
       fixed: 'left',
     },
     {
       title: 'caseManagement.featureCase.defectName',
       slotName: 'name',
       dataIndex: 'name',
-      showInTable: true,
-      showTooltip: false,
       width: 300,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.defectState',
@@ -217,19 +205,13 @@
         options: [],
         labelKey: 'text',
       },
-      showInTable: true,
       width: 150,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'common.creator',
       slotName: 'createUserName',
       dataIndex: 'createUserName',
-      showInTable: true,
-      showTooltip: true,
       width: 200,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.updateUser',
@@ -239,19 +221,14 @@
         options: [],
         labelKey: 'text',
       },
-      showInTable: true,
       width: 200,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.defectSource',
       slotName: 'source',
       dataIndex: 'source',
-      showInTable: true,
       showTooltip: true,
       width: 100,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',
@@ -259,8 +236,6 @@
       dataIndex: 'operation',
       fixed: 'right',
       width: 100,
-      showInTable: true,
-      showDrag: false,
     },
   ]);
 
@@ -278,31 +253,21 @@
       title: 'caseManagement.featureCase.defectName',
       slotName: 'name',
       dataIndex: 'name',
-      showInTable: true,
-      showTooltip: true,
       width: 250,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.planName',
       slotName: 'testPlanName',
       dataIndex: 'testPlanName',
-      showInTable: true,
       showTooltip: true,
       width: 200,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.defectState',
       slotName: 'defectState',
       dataIndex: 'defectState',
-      showInTable: true,
       showTooltip: true,
       width: 150,
-      ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.updateUser',
@@ -312,10 +277,8 @@
         options: [],
         labelKey: 'text',
       },
-      showInTable: true,
       showTooltip: true,
       width: 200,
-      ellipsis: true,
     },
   ];
 

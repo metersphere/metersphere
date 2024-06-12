@@ -6,13 +6,13 @@
           v-if="caseEnable"
           v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
           type="primary"
+          class="mr-2"
           @click="associatedDemand"
         >
           {{ t('caseManagement.featureCase.associatedDemand') }}</a-button
         >
         <a-button
           v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
-          class="mx-3"
           type="outline"
           @click="addDemand"
         >

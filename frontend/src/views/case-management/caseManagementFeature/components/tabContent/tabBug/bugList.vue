@@ -4,15 +4,7 @@
       <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ record.num }}</span>
     </template>
     <template #name="{ record }">
-      <a-tooltip :content="record.name">
-        <div class="one-line-text max-w-[calc(100%-32px)]"> {{ record.name }}</div>
-      </a-tooltip>
-      <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
-        <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
-        <template #content>
-          <div v-dompurify-html="record.content" class="markdown-body bug-content"> </div>
-        </template>
-      </a-popover>
+      <BugNamePopover :name="record.name" :content="record.content" />
     </template>
     <template #statusName="{ record }">
       <div class="one-line-text">{{ record.statusName || '-' }}</div>
@@ -59,6 +51,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
@@ -157,7 +150,7 @@
   });
 </script>
 
-<style lang="less">
+<!-- <style lang="less">
   .bug-content-popover {
     .arco-popover-content {
       overflow: auto;
@@ -165,4 +158,4 @@
       .ms-scroll-bar();
     }
   }
-</style>
+</style> -->

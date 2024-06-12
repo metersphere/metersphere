@@ -1,22 +1,14 @@
 <template>
   <TreeFolderAll
-    v-if="props.activeTab === CaseLinkEnum.API"
     v-model:selectedProtocols="selectedProtocols"
     :active-folder="activeFolder"
     :folder-name="props.folderName"
     :all-count="allCount"
     :show-expand-api="false"
+    :not-show-operation="props.activeTab !== 'API'"
     @set-active-folder="setActiveFolder"
     @selected-protocols-change="selectedProtocolsChange"
   />
-  <MsFolderAll
-    v-else
-    :active-folder="activeFolder"
-    :folder-name="props.folderName"
-    :all-count="allCount"
-    @set-active-folder="setActiveFolder"
-  >
-  </MsFolderAll>
   <a-divider class="my-[8px] mt-0" />
   <div class="mb-[8px] flex items-center gap-[8px]">
     <a-input

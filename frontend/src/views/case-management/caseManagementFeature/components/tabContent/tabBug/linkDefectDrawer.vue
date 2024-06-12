@@ -38,17 +38,7 @@
         v-on="propsEvent"
       >
         <template #name="{ record }">
-          <div class="flex flex-nowrap items-center">
-            <div class="one-line-text max-w-[200px] flex-auto items-center"> {{ characterLimit(record.name) }}</div>
-            <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
-              <div class="ml-1 flex-auto text-[rgb(var(--primary-5))]">{{
-                t('caseManagement.featureCase.preview')
-              }}</div>
-              <template #content>
-                <div v-dompurify-html="record.content" class="markdown-body"> </div>
-              </template>
-            </a-popover>
-          </div>
+          <BugNamePopover :name="record.name" :content="record.content" />
         </template>
       </ms-base-table>
     </div>
@@ -62,11 +52,11 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
   import { getDrawerDebugPage } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { characterLimit } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -104,10 +94,7 @@
       title: 'caseManagement.featureCase.defectName',
       slotName: 'name',
       dataIndex: 'name',
-      showInTable: true,
-      showTooltip: true,
       width: 300,
-      ellipsis: true,
       showDrag: false,
     },
 
