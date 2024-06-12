@@ -30,7 +30,7 @@
         <CaseLevel :case-level="filterContent.value" />
       </template>
       <template #caseLevel="{ record }">
-        <CaseLevel :case-level="record.caseLevel" />
+        <CaseLevel :case-level="record.priority" />
       </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
         <ExecuteResult :execute-result="filterContent.key" />
@@ -101,11 +101,11 @@
   import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import {
-    batchDisassociateCase,
+    batchDisassociateApiScenario,
     batchUpdateApiScenarioExecutor,
-    disassociateCase,
+    disassociateApiScenario,
     getPlanDetailApiScenarioList,
-    sortFeatureCase,
+    sortApiScenario,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -116,18 +116,14 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailApiScenarioItem, PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type { PlanDetailApiScenarioItem, PlanDetailApiScenarioQueryParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
-  import {
-    executionResultMap,
-    getCaseLevels,
-    getModules,
-  } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { executionResultMap, getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
@@ -137,10 +133,11 @@
     planId: string;
     moduleTree: ModuleTreeNode[];
     canEdit: boolean;
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
-    (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
+    (e: 'getModuleCount', params: PlanDetailApiScenarioQueryParams): void;
     (e: 'refresh'): void;
     (e: 'initModules'): void;
   }>();
@@ -187,7 +184,7 @@
     },
     {
       title: 'case.caseLevel',
-      dataIndex: 'caseLevel',
+      dataIndex: 'priority',
       slotName: 'caseLevel',
       filterConfig: {
         options: casePriorityOptions,
@@ -234,7 +231,7 @@
     },
     {
       title: 'report.detail.api.executeEnv',
-      dataIndex: 'executeEnv',
+      dataIndex: 'environmentName',
       width: 150,
       showDrag: true,
     },
@@ -280,21 +277,11 @@
       return {
         ...record,
         lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
-        caseLevel: getCaseLevels(record.customFields),
         moduleId: getModules(record.moduleId, props.moduleTree),
       };
     }
   );
 
-  watch(
-    () => props.canEdit,
-    (val) => {
-      tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val;
-    },
-    {
-      immediate: true,
-    }
-  );
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   watch(
     () => hasOperationPermission.value,
@@ -339,12 +326,14 @@
     }
     return moduleIds;
   }
+  const collectionId = computed(() => (props.activeModule === 'all' ? '' : props.activeModule));
   async function getTableParams(isBatch: boolean) {
     const selectModules = await getModuleIds();
     const commonParams = {
       testPlanId: props.planId,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
+      collectionId: collectionId.value,
     };
     if (isBatch) {
       return {
@@ -356,11 +345,26 @@
       };
     }
     return {
+      treeType: props.treeType,
       keyword: keyword.value,
       filter: propsRes.value.filter,
       ...commonParams,
     };
   }
+
+  watch(
+    [() => props.canEdit, () => props.treeType, () => collectionId.value.length],
+    () => {
+      tableProps.value.draggableCondition =
+        hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) &&
+        props.canEdit &&
+        props.treeType === 'COLLECTION' &&
+        !!collectionId.value.length;
+    },
+    {
+      immediate: true,
+    }
+  );
 
   async function loadCaseList() {
     const tableParams = await getTableParams(false);
@@ -393,7 +397,7 @@
   const reportId = ref('');
   function showReport(record: PlanDetailApiScenarioItem) {
     reportVisible.value = true;
-    reportId.value = record.lastExecResultReportId; // TODO 联调
+    reportId.value = record.lastExecReportId;
   }
 
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
@@ -422,8 +426,7 @@
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
-      // TODO 联调
-      await sortFeatureCase({ ...params, testPlanId: props.planId });
+      await sortApiScenario({ ...params, testCollectionId: collectionId.value });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadCaseList();
     } catch (error) {
@@ -437,8 +440,7 @@
   async function handleDisassociateCase(record: PlanDetailApiScenarioItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
-      // TODO 联调
-      await disassociateCase({ testPlanId: props.planId, id: record.id });
+      await disassociateApiScenario({ testPlanId: props.planId, id: record.id });
       if (done) {
         done();
       }
@@ -467,8 +469,7 @@
       onBeforeOk: async () => {
         try {
           const tableParams = await getTableParams(true);
-          // TODO 联调
-          await batchDisassociateCase({
+          await batchDisassociateApiScenario({
             selectIds: tableSelected.value as string[],
             selectAll: batchParams.value.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],

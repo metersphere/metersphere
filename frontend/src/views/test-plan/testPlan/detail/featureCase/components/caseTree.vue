@@ -63,6 +63,7 @@
   const props = defineProps<{
     modulesCount?: Record<string, number>; // 模块数量统计对象
     selectedKeys: string[]; // 选中的节点 key
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
   const emit = defineEmits<{
     (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], nodeName?: string): void;
@@ -83,7 +84,18 @@
 
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
-  const isExpandAll = ref(false);
+  const isExpandAll = ref<boolean | undefined>(false);
+
+  watch(
+    () => props.treeType,
+    (val) => {
+      if (val === 'COLLECTION') {
+        isExpandAll.value = undefined;
+      } else {
+        isExpandAll.value = false;
+      }
+    }
+  );
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;
@@ -102,7 +114,7 @@
   async function initModules() {
     try {
       loading.value = true;
-      const res = await getFeatureCaseModule(route.query.id as string);
+      const res = await getFeatureCaseModule({ testPlanId: route.query.id as string, treeType: props.treeType });
       folderTree.value = mapTree<ModuleTreeNode>(res, (node) => {
         return {
           ...node,

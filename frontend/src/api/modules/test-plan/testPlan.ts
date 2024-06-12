@@ -8,11 +8,13 @@ import {
   batchCopyPlanUrl,
   batchDeletePlanUrl,
   BatchDisassociateApiCaseUrl,
+  BatchDisassociateApiScenarioUrl,
   BatchDisassociateCaseUrl,
   BatchEditTestPlanUrl,
   batchMovePlanUrl,
   BatchRunCaseUrl,
   BatchUpdateApiCaseExecutorUrl,
+  BatchUpdateApiScenarioExecutorUrl,
   BatchUpdateCaseExecutorUrl,
   ConfigScheduleUrl,
   copyTestPlanUrl,
@@ -20,6 +22,7 @@ import {
   DeleteScheduleTaskUrl,
   DeleteTestPlanModuleUrl,
   DisassociateApiCaseUrl,
+  DisassociateApiScenarioUrl,
   DisassociateCaseUrl,
   dragPlanOnGroupUrl,
   ExecuteHistoryUrl,
@@ -28,10 +31,13 @@ import {
   GenerateReportUrl,
   GetApiCaseModuleCountUrl,
   GetApiCaseModuleUrl,
+  GetApiScenarioModuleCountUrl,
+  GetApiScenarioModuleUrl,
   GetAssociatedBugUrl,
   GetFeatureCaseModuleCountUrl,
   GetFeatureCaseModuleUrl,
   GetPlanDetailApiCaseListUrl,
+  GetPlanDetailApiScenarioListUrl,
   GetPlanDetailFeatureCaseListUrl,
   GetPlanMinderUrl,
   getStatisticalCountUrl,
@@ -47,6 +53,7 @@ import {
   planPassRateUrl,
   RunFeatureCaseUrl,
   SortApiCaseUrl,
+  SortApiScenarioUrl,
   SortFeatureCaseUrl,
   TestPlanAndGroupCopyUrl,
   TestPlanApiAssociatedPageUrl,
@@ -83,6 +90,7 @@ import type {
   PlanDetailApiCaseQueryParams,
   PlanDetailApiCaseTreeParams,
   PlanDetailApiScenarioItem,
+  PlanDetailApiScenarioQueryParams,
   PlanDetailBugItem,
   PlanDetailExecuteHistoryItem,
   PlanDetailFeatureCaseItem,
@@ -216,8 +224,8 @@ export function getFeatureCaseModuleCount(data: PlanDetailFeatureCaseListQueryPa
   return MSR.post({ url: GetFeatureCaseModuleCountUrl, data });
 }
 // 计划详情-功能用例模块树
-export function getFeatureCaseModule(planId: string) {
-  return MSR.get<ModuleTreeNode[]>({ url: `${GetFeatureCaseModuleUrl}/${planId}` });
+export function getFeatureCaseModule(data: PlanDetailApiCaseTreeParams) {
+  return MSR.post<ModuleTreeNode[]>({ url: GetFeatureCaseModuleUrl, data });
 }
 // 计划详情-功能用例列表-取消关联用例
 export function disassociateCase(data: DisassociateCaseParams) {
@@ -295,13 +303,33 @@ export function batchDisassociateApiCase(data: BatchApiCaseParams) {
 export function batchUpdateApiCaseExecutor(data: BatchUpdateApiCaseExecutorParams) {
   return MSR.post({ url: BatchUpdateApiCaseExecutorUrl, data });
 }
-// 计划详情-接口场景列表 TODO 联调
-export function getPlanDetailApiScenarioList(data: PlanDetailFeatureCaseListQueryParams) {
-  return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailFeatureCaseListUrl, data });
+// 计划详情-接口场景列表
+export function getPlanDetailApiScenarioList(data: PlanDetailApiScenarioQueryParams) {
+  return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailApiScenarioListUrl, data });
 }
-// 计划详情-接口场景列表-批量更新执行人 TODO 联调
+// 计划详情-接口场景模块树
+export function getApiScenarioModule(data: PlanDetailApiCaseTreeParams) {
+  return MSR.post<ModuleTreeNode[]>({ url: GetApiScenarioModuleUrl, data });
+}
+// 计划详情-接口场景-获取模块数量
+export function getApiScenarioModuleCount(data: PlanDetailApiScenarioQueryParams) {
+  return MSR.post({ url: GetApiScenarioModuleCountUrl, data });
+}
+// 计划详情-接口场景列表-拖拽排序
+export const sortApiScenario = (data: SortApiCaseParams) => {
+  return MSR.post({ url: SortApiScenarioUrl, data });
+};
+// 计划详情-接口场景列表-取消关联用例
+export function disassociateApiScenario(data: DisassociateCaseParams) {
+  return MSR.post({ url: DisassociateApiScenarioUrl, data });
+}
+// 计划详情-接口场景列表-批量取消关联用例
+export function batchDisassociateApiScenario(data: BatchApiCaseParams) {
+  return MSR.post({ url: BatchDisassociateApiScenarioUrl, data });
+}
+// 计划详情-接口场景列表-批量更新执行人
 export function batchUpdateApiScenarioExecutor(data: BatchUpdateApiCaseExecutorParams) {
-  return MSR.post({ url: BatchUpdateApiCaseExecutorUrl, data });
+  return MSR.post({ url: BatchUpdateApiScenarioExecutorUrl, data });
 }
 // 计划详情-执行历史 TODO 联调
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {

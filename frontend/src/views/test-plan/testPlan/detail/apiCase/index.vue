@@ -18,7 +18,6 @@
         :tree-type="props.treeType"
         :modules-count="modulesCount"
         :module-name="moduleName"
-        :repeat-case="props.repeatCase"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
@@ -46,7 +45,6 @@
   import type { PlanDetailApiCaseQueryParams } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
-    repeatCase: boolean;
     canEdit: boolean;
     treeType: 'MODULE' | 'COLLECTION';
   }>();

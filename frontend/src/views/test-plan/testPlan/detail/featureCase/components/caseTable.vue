@@ -180,6 +180,7 @@
     planId: string;
     moduleTree: ModuleTreeNode[];
     canEdit: boolean;
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -321,16 +322,6 @@
     }
   );
 
-  watch(
-    () => props.canEdit,
-    (val) => {
-      tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val;
-    },
-    {
-      immediate: true,
-    }
-  );
-
   const batchActions = {
     baseAction: [
       {
@@ -372,12 +363,14 @@
     }
     return moduleIds;
   }
+  const collectionId = computed(() => (props.activeModule === 'all' ? '' : props.activeModule));
   async function getTableParams(isBatch: boolean) {
     const selectModules = await getModuleIds();
     const commonParams = {
       testPlanId: props.planId,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
+      collectionId: collectionId.value,
     };
     if (isBatch) {
       return {
@@ -391,9 +384,24 @@
     return {
       keyword: keyword.value,
       filter: propsRes.value.filter,
+      treeType: props.treeType,
       ...commonParams,
     };
   }
+
+  watch(
+    [() => props.canEdit, () => props.treeType, () => collectionId.value.length],
+    () => {
+      tableProps.value.draggableCondition =
+        hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) &&
+        props.canEdit &&
+        props.treeType === 'COLLECTION' &&
+        !!collectionId.value.length;
+    },
+    {
+      immediate: true,
+    }
+  );
 
   async function loadCaseList() {
     const tableParams = await getTableParams(false);
