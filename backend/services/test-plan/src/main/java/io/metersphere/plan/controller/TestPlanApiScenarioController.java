@@ -2,10 +2,16 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
+import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
-import io.metersphere.plan.service.*;
+import io.metersphere.plan.service.TestPlanApiScenarioBatchRunService;
+import io.metersphere.plan.service.TestPlanApiScenarioLogService;
+import io.metersphere.plan.service.TestPlanApiScenarioService;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -39,6 +45,8 @@ public class TestPlanApiScenarioController {
     private TestPlanApiScenarioBatchRunService testPlanApiScenarioBatchRunService;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联场景用例列表分页查询")
@@ -113,5 +121,24 @@ public class TestPlanApiScenarioController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiScenarioLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanApiScenarioUpdateRequest request) {
         testPlanApiScenarioService.batchUpdateExecutor(request);
+    }
+
+    @GetMapping("/report/get/{id}")
+    @Operation(summary = "测试计划-计划详情-场景用例列表-查看执行结果")
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public ApiScenarioReportDTO get(@PathVariable String id) {
+        testPlanApiScenarioService.checkReportIsTestPlan(id);
+        return apiScenarioReportService.get(id);
+    }
+
+    @GetMapping("report/get/detail/{reportId}/{stepId}")
+    @Operation(summary = "测试计划-计划详情-场景用例列表-执行结果详情获取")
+    @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String reportId,
+                                                      @PathVariable String stepId) {
+        testPlanApiScenarioService.checkReportIsTestPlan(reportId);
+        return apiScenarioReportService.getDetail(reportId, stepId);
     }
 }

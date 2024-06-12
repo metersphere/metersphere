@@ -4,6 +4,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.invoker.GetRunScriptServiceRegister;
+import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.GetRunScriptService;
@@ -97,6 +98,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
     @Resource
     private TestPlanConfigService testPlanConfigService;
+    @Resource
+    private ApiReportMapper apiReportMapper;
 
     public TestPlanApiCaseService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_CASE, this);
@@ -655,5 +658,13 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
         taskRequest.getTaskInfo().setNeedParseScript(true);
         return taskRequest;
+    }
+
+    public void checkReportIsTestPlan(String id) {
+        ApiReportExample example = new ApiReportExample();
+        example.createCriteria().andIdEqualTo(id).andTestPlanCaseIdNotEqualTo("NONE");
+        if (apiReportMapper.countByExample(example) == 0) {
+            throw new MSException("api_case_report_not_exist");
+        }
     }
 }
