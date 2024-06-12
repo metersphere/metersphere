@@ -97,4 +97,11 @@
         SET password = MD5(#{password})
         WHERE id = #{userId}
     </update>
+
+    <select id="gaInstalledTime" resultType="java.lang.Long">
+        SELECT
+            UNIX_TIMESTAMP(installed_on) * 1000  as installed_on
+        FROM metersphere_version
+        WHERE version ='3.0.1.2'
+    </select>
 </mapper>

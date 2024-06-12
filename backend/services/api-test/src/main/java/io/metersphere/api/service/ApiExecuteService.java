@@ -10,6 +10,7 @@ import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.engine.MsHttpClient;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
@@ -33,7 +34,6 @@ import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.service.*;
-import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -149,7 +149,7 @@ public class ApiExecuteService {
         }
 
         try {
-           return execute(taskRequest);
+            return execute(taskRequest);
         } catch (Exception e) {
             // 调用失败清理脚本
             stringRedisTemplate.delete(scriptRedisKey);
@@ -168,6 +168,7 @@ public class ApiExecuteService {
 
         return taskInfo;
     }
+
     /**
      * 给 taskRequest 设置当前项目相关的文件信息
      *
@@ -219,12 +220,12 @@ public class ApiExecuteService {
                 taskInfo.setMsUrl(testResourcePoolDTO.getServerUrl());
             }
             taskInfo.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
-            String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
+            String endpoint = MsHttpClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
             LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskItem.getReportId(), taskItem.getResourceId(), endpoint);
             if (StringUtils.equalsAny(taskInfo.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name())) {
-                TaskRunnerClient.debugApi(endpoint, taskRequest);
+                MsHttpClient.debugApi(endpoint, taskRequest);
             } else {
-                TaskRunnerClient.runApi(endpoint, taskRequest);
+                MsHttpClient.runApi(endpoint, taskRequest);
             }
 
         } catch (HttpServerErrorException e) {
@@ -254,7 +255,6 @@ public class ApiExecuteService {
 
     /**
      * 发送执行任务
-     *
      */
     public void batchExecute(TaskBatchRequestDTO taskRequest) {
         setTaskRequestParams(taskRequest.getTaskInfo());
@@ -289,14 +289,14 @@ public class ApiExecuteService {
             // todo 优化某个资源池不可用的情况，以及清理 executionSet
             TestResourceNodeDTO testResourceNode = nodesList.get(i);
             TaskBatchRequestDTO subTaskRequest = distributeTasks.get(i);
-            String endpoint = TaskRunnerClient.getEndpoint(testResourceNode.getIp(), testResourceNode.getPort());
+            String endpoint = MsHttpClient.getEndpoint(testResourceNode.getIp(), testResourceNode.getPort());
             try {
                 List<String> taskKeys = subTaskRequest.getTaskItems().stream()
                         .map(taskItem -> taskItem.getReportId() + "_" + taskItem.getResourceId())
                         .toList();
                 LogUtils.info("开始发送批量任务到 {} 节点执行:\n" + taskKeys, endpoint);
 
-                TaskRunnerClient.batchRunApi(endpoint, subTaskRequest);
+                MsHttpClient.batchRunApi(endpoint, subTaskRequest);
             } catch (Exception e) {
                 LogUtils.error("发送批量任务到 {} 节点执行失败", endpoint);
                 LogUtils.error(e);
@@ -304,7 +304,24 @@ public class ApiExecuteService {
         }
     }
 
+    protected static boolean validate() {
+        try {
+            LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
+            return Optional.ofNullable(licenseService)
+                    .map(LicenseService::validate)
+                    .map(dto -> StringUtils.equals(dto.getStatus(), "valid"))
+                    .orElse(false);
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private TestResourceNodeDTO getNextExecuteNode(TestResourcePoolReturnDTO resourcePoolDTO) {
+        if (!validate()) {
+            return resourcePoolDTO.getTestResourceReturnDTO().getNodesList().getFirst();
+        }
+
         roundRobinService.initializeNodes(resourcePoolDTO.getId(), resourcePoolDTO.getTestResourceReturnDTO().getNodesList());
         try {
             TestResourceNodeDTO node = roundRobinService.getNextNode(resourcePoolDTO.getId());
@@ -337,8 +354,8 @@ public class ApiExecuteService {
      * @param taskInfo 执行参数
      */
     private void setServerInfoParam(TaskInfo taskInfo) {
-        taskInfo.setKafkaConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(KafkaConfig.getKafkaConfig())));
-        taskInfo.setMinioConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(getMinio())));
+        taskInfo.setKafkaConfig(JSON.toJSONString(KafkaConfig.getKafkaConfig()));
+        taskInfo.setMinioConfig(JSON.toJSONString(getMinio()));
         taskInfo.setMsUrl(systemParameterService.getBaseInfo().getUrl());
     }
 
@@ -383,7 +400,7 @@ public class ApiExecuteService {
     /**
      * 给 taskRequest 设置文件相关参数
      *
-     * @param runRequest  请求参数
+     * @param runRequest 请求参数
      */
     public void setTaskItemFileParam(ApiResourceRunRequest runRequest, TaskItem taskItem) {
         // 接口执行相关的文件
