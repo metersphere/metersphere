@@ -8,6 +8,7 @@ import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioBatchRunService;
 import io.metersphere.plan.service.TestPlanApiScenarioLogService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
@@ -140,5 +141,12 @@ public class TestPlanApiScenarioController {
                                                       @PathVariable String stepId) {
         testPlanApiScenarioService.checkReportIsTestPlan(reportId);
         return apiScenarioReportService.getDetail(reportId, stepId);
+    }
+
+    @PostMapping(value = "/sort")
+    @Operation(summary = "测试计划-场景用例拖拽排序")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    public TestPlanOperationResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
+        return testPlanApiScenarioService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/sort", HttpMethodConstants.POST.name()));
     }
 }

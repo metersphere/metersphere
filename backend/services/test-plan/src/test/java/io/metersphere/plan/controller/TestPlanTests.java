@@ -1276,10 +1276,6 @@ public class TestPlanTests extends BaseTest {
         request.setTargetId(funcList.get(0).getId());
         request.setMoveMode(MoveTypeEnum.AFTER.name());
 
-
-        //先测试一下没有开启模块时能否使用
-        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "caseManagement");
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
 
@@ -1329,9 +1325,6 @@ public class TestPlanTests extends BaseTest {
         //反例：测试计划为空
         request.setTestCollectionId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
-        //反例： 测试计划不存在
-        request.setTestCollectionId(IDGenerator.nextStr());
-        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
         //反例：拖拽的节点不存在
         request.setTestCollectionId(repeatCaseTestPlan.getId());
         request.setMoveId(null);

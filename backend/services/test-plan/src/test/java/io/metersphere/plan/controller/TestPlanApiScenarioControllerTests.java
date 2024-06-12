@@ -19,7 +19,9 @@ import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
@@ -34,6 +36,7 @@ import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -66,6 +69,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String API_SCENARIO_DISASSOCIATE = "disassociate";
     public static final String API_SCENARIO_BATCH_DISASSOCIATE = "batch/disassociate";
     public static final String API_SCENARIO_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
+    private static final String URL_POST_RESOURCE_API_SCENARIO_SORT = "/sort";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -270,6 +274,43 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
 
         request.setTreeType("COLLECTION");
         this.requestPostWithOkAndReturn(API_SCENARIO_TREE_COUNT, request);
+
+        this.testSort();
+    }
+
+    public void testSort() throws Exception {
+        TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
+        testPlanApiScenarioExample.createCriteria().andTestPlanCollectionIdEqualTo("wxxx_collection_2");
+        testPlanApiScenarioExample.setOrderByClause("pos asc");
+        List<TestPlanApiScenario> scenarioList = testPlanApiScenarioMapper.selectByExample(testPlanApiScenarioExample);
+
+        //最后一个移动到第一位之前
+        ResourceSortRequest request = new ResourceSortRequest();
+        request.setTestCollectionId("wxxx_collection_2");
+        request.setProjectId("wxx_project_1234");
+        request.setMoveId(scenarioList.getLast().getId());
+        request.setTargetId(scenarioList.getFirst().getId());
+        request.setMoveMode(MoveTypeEnum.AFTER.name());
+
+        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        TestPlanOperationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
+        scenarioList = testPlanApiScenarioMapper.selectByExample(testPlanApiScenarioExample);
+        Assertions.assertEquals(scenarioList.get(0).getId(), request.getMoveId());
+        Assertions.assertEquals(scenarioList.get(1).getId(), request.getTargetId());
+
+        //将这时的第30个放到第一位之后
+        request.setTargetId(scenarioList.getLast().getId());
+        request.setMoveId(scenarioList.getFirst().getId());
+        request.setMoveMode(MoveTypeEnum.BEFORE.name());
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
+        Assertions.assertEquals(response.getOperationCount(), 1);
+        scenarioList = testPlanApiScenarioMapper.selectByExample(testPlanApiScenarioExample);
+        Assertions.assertEquals(scenarioList.get(0).getId(), request.getTargetId());
+        Assertions.assertEquals(scenarioList.get(1).getId(), request.getMoveId());
 
     }
 
