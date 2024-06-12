@@ -30,8 +30,8 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
-import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.dto.api.task.*;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -95,6 +95,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
     private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
+    @Resource
+    private TestPlanConfigService testPlanConfigService;
 
     public TestPlanApiCaseService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_CASE, this);
@@ -507,10 +509,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
-            //todo 优化，重复关联问题？
-            ApiTestCaseExample example = new ApiTestCaseExample();
-            example.createCriteria().andApiDefinitionIdIn(ids).andDeletedEqualTo(false);
-            List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
+            boolean isRepeat = testPlanConfigService.isRepeatCase(planId);
+            List<ApiTestCase> apiTestCaseList = extTestPlanApiCaseMapper.selectApiCaseByDefinitionIds(ids, isRepeat);
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {

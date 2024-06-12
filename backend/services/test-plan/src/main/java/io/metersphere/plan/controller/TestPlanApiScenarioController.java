@@ -94,4 +94,15 @@ public class TestPlanApiScenarioController {
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
+
+
+    @PostMapping("/batch/disassociate")
+    @Operation(summary = "测试计划-计划详情-列表-批量取消关联用例")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody BasePlanCaseBatchRequest request) {
+        TestPlanAssociationResponse response = testPlanApiScenarioService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/batch/disassociate", HttpMethodConstants.POST.name()));
+        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
+        return response;
+    }
 }
