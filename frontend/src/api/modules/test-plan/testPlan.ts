@@ -345,7 +345,7 @@ export function getTestPlanAssociationApiList(data: TableQueryParams) {
 export function getTestPlanAssociationCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<ApiCaseDetail>>({ url: TestPlanCaseAssociatedPageUrl, data });
 }
-// 功能用例-关联用例-接口用例-CASE
+// 功能用例-关联用例-场景用例
 export function getPlanScenarioAssociatedList(data: TableQueryParams) {
   return MSR.post<CommonList<ApiCaseDetail>>({ url: TestPlanScenarioAssociatedPageUrl, data });
 }
