@@ -1,7 +1,7 @@
 <template>
   <a-radio-group v-model:active-key="activeName" type="button" class="tabPlatform" @change="handleClick">
     <a-radio v-for="item of orgOptions" :key="item.value" :value="item.value" :v-show="item.label">
-      {{ t('project.messageManagement' + item.value) }}
+      {{ t('project.messageManagement.' + item.value) }}
     </a-radio>
     <!--    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
     <a-tab-pane key="larksuite" :title="t('project.messageManagement.LARK_SUITE')"></a-tab-pane>-->
