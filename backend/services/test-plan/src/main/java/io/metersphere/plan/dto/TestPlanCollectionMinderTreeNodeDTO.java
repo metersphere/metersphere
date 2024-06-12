@@ -23,7 +23,7 @@ public class TestPlanCollectionMinderTreeNodeDTO {
     private int num;
 
     @Schema(description = "串并行")
-    private int priority;
+    private Integer priority;
 
     @Schema(description = "串并行值")
     private String executeMethod;
@@ -41,7 +41,7 @@ public class TestPlanCollectionMinderTreeNodeDTO {
     private Boolean extended;
 
     @Schema(description = "是否使用环境组", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Boolean grouped;
+    private Boolean grouped = false;
 
     @Schema(description = "环境ID/环境组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String environmentId;

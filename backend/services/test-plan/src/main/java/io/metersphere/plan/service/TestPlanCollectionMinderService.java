@@ -104,6 +104,9 @@ public class TestPlanCollectionMinderService {
         } else {
             typeTreeNodeDTO.setPriority(3);
         }
+        if (StringUtils.equalsIgnoreCase(CaseType.FUNCTIONAL_CASE.getKey(),testPlanCollection.getType())) {
+            typeTreeNodeDTO.setPriority(null);
+        }
         return typeTreeNodeDTO;
     }
 
@@ -209,7 +212,7 @@ public class TestPlanCollectionMinderService {
         buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList);
         TestPlanCollectionMinderTreeDTO envTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO envTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(envTreeNodeDTO, planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList);
+        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(),ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName() , "test_plan.mind.environment", envTreeDTO, endList);
         TestPlanCollectionMinderTreeDTO poolTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO poolTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
         buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList);
