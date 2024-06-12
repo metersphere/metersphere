@@ -1,6 +1,7 @@
 package io.metersphere.sdk.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.Cipher;
 import java.io.ByteArrayOutputStream;
@@ -177,7 +178,11 @@ public class RsaUtils {
         try {
             Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            return new String(rsaSplitCodec(cipher, Cipher.DECRYPT_MODE, Base64.decodeBase64(cipherText), privateKey.getModulus().bitLength()), CHARSET);
+            String v = new String(rsaSplitCodec(cipher, Cipher.DECRYPT_MODE, Base64.decodeBase64(cipherText), privateKey.getModulus().bitLength()), CHARSET);
+            if (StringUtils.isBlank(v)) {
+                return cipherText;
+            }
+            return v;
         } catch (Exception e) {
             throw new RuntimeException("解密字符串[" + cipherText + "]时遇到异常", e);
         }
@@ -198,7 +203,11 @@ public class RsaUtils {
         try {
             Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, publicKey);
-            return new String(rsaSplitCodec(cipher, Cipher.DECRYPT_MODE, Base64.decodeBase64(cipherText), publicKey.getModulus().bitLength()), CHARSET);
+            String v = new String(rsaSplitCodec(cipher, Cipher.DECRYPT_MODE, Base64.decodeBase64(cipherText), publicKey.getModulus().bitLength()), CHARSET);
+            if (StringUtils.isBlank(v)) {
+                return cipherText;
+            }
+            return v;
         } catch (Exception e) {
             throw new RuntimeException("解密字符串[" + cipherText + "]时遇到异常", e);
         }
