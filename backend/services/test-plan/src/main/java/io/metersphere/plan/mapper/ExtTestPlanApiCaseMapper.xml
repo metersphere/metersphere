@@ -680,4 +680,26 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectApiCaseByDefinitionIds" resultType="io.metersphere.api.domain.ApiTestCase">
+        SELECT
+        api_test_case.id,
+        api_test_case.api_definition_id
+        FROM
+        api_test_case
+        WHERE
+        api_test_case.deleted = false
+        and api_test_case.api_definition_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="!isRepeat">
+            AND api_test_case.id NOT IN (
+            SELECT
+            api_case_id
+            FROM
+            test_plan_api_case
+            )
+        </if>
+    </select>
 </mapper>

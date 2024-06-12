@@ -55,6 +55,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String API_SCENARIO_TREE = "tree";
     public static final String BATCH_RUN = "batch/run";
     public static final String API_SCENARIO_DISASSOCIATE = "disassociate";
+    public static final String API_SCENARIO_BATCH_DISASSOCIATE = "batch/disassociate";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -281,6 +282,20 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         request.setId("wxxx_plan_scenario_3");
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_DISASSOCIATE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+    }
+
+
+    @Test
+    @Order(7)
+    public void testApiScenarioBatchDisassociate() throws Exception {
+        BasePlanCaseBatchRequest request = new BasePlanCaseBatchRequest();
+        request.setTestPlanId("wxxx_plan_2");
+        request.setSelectAll(true);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_BATCH_DISASSOCIATE, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);

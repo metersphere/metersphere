@@ -417,9 +417,6 @@
             or api_scenario.tags like concat('%', #{request.condition.keyword},'%')
             )
         </if>
-        <if test="request.scenarioId != null and request.scenarioId != ''">
-            and api_scenario.id = #{request.scenarioId}
-        </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and api_scenario.module_id in
             <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
@@ -432,7 +429,7 @@
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>
-        <if test="request.combine != null and request.combine != ''">
+        <if test="request.condition.combine != null and request.condition.combine != ''">
             <include refid="combine">
                 <property name="condition" value="request.condition.combine"/>
                 <property name="name" value="request.name"/>
