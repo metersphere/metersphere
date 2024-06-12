@@ -42,12 +42,20 @@
   const emit = defineEmits<{
     (e: 'click', eventTag: string): void;
     (e: 'save'): void;
+    (e: 'toggleFullScreen', isFullScreen: boolean): void;
   }>();
 
   const { t } = useI18n();
 
   const containerRef = ref<Element | null>(null);
   const { toggleFullScreen, isFullScreen } = useFullScreen(containerRef);
+
+  watch(
+    () => isFullScreen.value,
+    (value) => {
+      emit('toggleFullScreen', value);
+    }
+  );
 
   onMounted(() => {
     containerRef.value = document.querySelector('.ms-minder-editor-container');

@@ -95,6 +95,7 @@
       v-model:active-key="activeTab"
       :get-text-func="getTabBadge"
       :content-tab-list="tabList"
+      :change-interceptor="changeTabInterceptor"
       no-content
       class="relative mx-[16px] border-b"
     />
@@ -424,6 +425,29 @@
         return '';
     }
   }
+
+  function changeTabInterceptor(newVal: string, oldVal: string, done: () => void) {
+    console.log('changeTabInterceptor', newVal, oldVal);
+    if (oldVal === 'plan') {
+      openModal({
+        type: 'warning',
+        title: t('common.tip'),
+        content: t('ms.minders.leaveUnsavedTip'),
+        okText: t('common.confirm'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'normal',
+        },
+        onBeforeOk: async () => {
+          done();
+        },
+        hideCancel: false,
+      });
+      return;
+    }
+    done();
+  }
+
   function handleSuccess() {
     initDetail();
     loadActiveTabList();

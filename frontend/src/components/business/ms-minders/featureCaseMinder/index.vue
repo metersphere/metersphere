@@ -25,6 +25,7 @@
     @action="handleAction"
     @before-exec-command="handleBeforeExecCommand"
     @save="handleMinderSave"
+    @float-menu-close="handleBaseInfoCancel"
   >
     <template #extractMenu>
       <a-tooltip v-if="showDetailMenu" :content="t('common.detail')">
@@ -256,69 +257,6 @@
           ? parent?.children?.[1]?.data?.id
           : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data?.id,
     };
-  }
-
-  /**
-   * 生成脑图保存的入参
-   */
-  function makeMinderParams(fullJson: MinderJson): FeatureCaseMinderUpdateParams {
-    filterTree(fullJson.root.children, (node, nodeIndex, parent) => {
-      if (node.data.isNew !== false || node.data.changed === true) {
-        if (node.data.resource?.includes(moduleTag)) {
-          // 处理模块节点
-          tempMinderParams.value.updateModuleList.push({
-            id: node.data.id,
-            name: node.data.text,
-            parentId: parent?.data.id || 'NONE',
-            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
-            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
-          });
-        } else if (node.data.resource?.includes(caseTag)) {
-          // 处理用例节点
-          const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
-          const caseBaseInfo = baseInfoRef.value?.makeParams();
-          tempMinderParams.value.updateCaseList.push({
-            id: node.data.id,
-            moduleId: parent?.data.id || '',
-            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
-            templateId: templateId.value,
-            tags: caseBaseInfo?.tags || [],
-            customFields: caseBaseInfo?.customFields || [],
-            name: caseBaseInfo?.name || node.data.text,
-            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
-            ...caseNodeInfo,
-          });
-          return false; // 用例的子孙节点已经处理过，跳过
-        } else if (!node.data.resource || node.data.resource.length === 0) {
-          // 处理文本节点
-          tempMinderParams.value.additionalNodeList.push({
-            id: node.data.id,
-            parentId: parent?.data.id || 'NONE',
-            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
-            name: node.data.text,
-            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
-          });
-        }
-      }
-
-      return true;
-    });
-    return tempMinderParams.value;
-  }
-
-  async function handleMinderSave(fullJson: MinderJson, callback: () => void) {
-    try {
-      loading.value = true;
-      await saveCaseMinder(makeMinderParams(fullJson));
-      Message.success(t('common.saveSuccess'));
-      initCaseTree();
-      callback();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
   }
 
   /**
@@ -906,6 +844,31 @@
     }
   }
 
+  /**
+   * 切换用例详情显示
+   */
+  async function toggleDetail(val?: boolean) {
+    extraVisible.value = val !== undefined ? val : !extraVisible.value;
+    const node: MinderJsonNode = window.minder.getSelectedNode();
+    const { data } = node;
+    if (extraVisible.value) {
+      if (data?.resource && data.resource.includes(caseTag)) {
+        activeExtraKey.value = 'baseInfo';
+        resetExtractInfo();
+        if (data.isNew === false) {
+          // 非新用例节点才能加载详情
+          initCaseDetail(data);
+        } else {
+          activeCase.value = {
+            id: data.id,
+            name: data.text,
+            isNew: true,
+          };
+        }
+      }
+    }
+  }
+
   const showDetailMenu = ref(false);
   const canShowEnterNode = ref(false);
   /**
@@ -929,6 +892,9 @@
     if (data?.resource && data.resource.includes(caseTag)) {
       // 用例节点才展示详情按钮
       showDetailMenu.value = true;
+      if (extraVisible.value) {
+        toggleDetail(true);
+      }
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       try {
@@ -1010,31 +976,6 @@
         node.expand();
         node.renderTree();
         window.minder.layout();
-      }
-    }
-  }
-
-  /**
-   * 切换用例详情显示
-   */
-  async function toggleDetail() {
-    extraVisible.value = !extraVisible.value;
-    const node: MinderJsonNode = window.minder.getSelectedNode();
-    const { data } = node;
-    if (extraVisible.value) {
-      if (data?.resource && data.resource.includes(caseTag)) {
-        activeExtraKey.value = 'baseInfo';
-        resetExtractInfo();
-        if (data.isNew === false) {
-          // 非新用例节点才能加载详情
-          initCaseDetail(data);
-        } else {
-          activeCase.value = {
-            id: data.id,
-            name: data.text,
-            isNew: true,
-          };
-        }
       }
     }
   }
@@ -1332,6 +1273,70 @@
           node.parent.parent.data.changed = true;
         }
       });
+    }
+  }
+
+  /**
+   * 生成脑图保存的入参
+   */
+  function makeMinderParams(fullJson: MinderJson): FeatureCaseMinderUpdateParams {
+    filterTree(fullJson.root.children, (node, nodeIndex, parent) => {
+      if (node.data.isNew !== false || node.data.changed === true) {
+        if (node.data.resource?.includes(moduleTag)) {
+          // 处理模块节点
+          tempMinderParams.value.updateModuleList.push({
+            id: node.data.id,
+            name: node.data.text,
+            parentId: parent?.data.id || 'NONE',
+            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
+          });
+        } else if (node.data.resource?.includes(caseTag)) {
+          // 处理用例节点
+          const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
+          const caseBaseInfo = baseInfoRef.value?.makeParams();
+          tempMinderParams.value.updateCaseList.push({
+            id: node.data.id,
+            moduleId: parent?.data.id || '',
+            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
+            templateId: templateId.value,
+            tags: caseBaseInfo?.tags || [],
+            customFields: caseBaseInfo?.customFields || [],
+            name: caseBaseInfo?.name || node.data.text,
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
+            ...caseNodeInfo,
+          });
+          return false; // 用例的子孙节点已经处理过，跳过
+        } else if (!node.data.resource || node.data.resource.length === 0) {
+          // 处理文本节点
+          tempMinderParams.value.additionalNodeList.push({
+            id: node.data.id,
+            parentId: parent?.data.id || 'NONE',
+            type: node.data.isNew !== false ? 'ADD' : 'UPDATE',
+            name: node.data.text,
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
+          });
+        }
+      }
+
+      return true;
+    });
+    return tempMinderParams.value;
+  }
+
+  async function handleMinderSave(fullJson: MinderJson, callback: () => void) {
+    try {
+      loading.value = true;
+      await saveCaseMinder(makeMinderParams(fullJson));
+      extraVisible.value = false;
+      Message.success(t('common.saveSuccess'));
+      initCaseTree();
+      callback();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 </script>

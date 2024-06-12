@@ -1,7 +1,13 @@
 <template>
   <a-spin :loading="loading" class="ms-minder-editor-container">
-    <div class="flex-1">
-      <mainEditor v-model:import-json="importJson" v-bind="props" @after-mount="() => emit('afterMount')" @save="save">
+    <div class="relative flex-1 overflow-hidden">
+      <mainEditor
+        v-model:import-json="importJson"
+        v-bind="props"
+        @after-mount="() => emit('afterMount')"
+        @save="save"
+        @float-menu-close="emit('floatMenuClose')"
+      >
         <template #extractMenu>
           <slot name="extractMenu"></slot>
         </template>
@@ -52,6 +58,7 @@
     (e: 'action', event: MinderCustomEvent): void;
     (e: 'beforeExecCommand', event: MinderEvent): void;
     (e: 'nodeUnselect'): void;
+    (e: 'floatMenuClose'): void;
   }>();
 
   const props = defineProps({
@@ -126,6 +133,9 @@
       handleViewChange() {
         minderStore.dispatchEvent(MinderEventName.VIEW_CHANGE);
       },
+      handleDragFinish() {
+        minderStore.dispatchEvent(MinderEventName.DRAG_FINISH);
+      },
     });
   });
 </script>
@@ -134,7 +144,7 @@
   .ms-minder-editor-container {
     @apply relative flex h-full w-full;
     .ms-minder-editor-extra {
-      @apply flex flex-col overflow-hidden;
+      @apply flex flex-col overflow-hidden  bg-white;
 
       width: 0;
       transition: all 300ms ease-in-out;

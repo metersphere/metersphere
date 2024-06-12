@@ -29,6 +29,7 @@ import {
   DisassociateApiScenarioUrl,
   DisassociateCaseUrl,
   dragPlanOnGroupUrl,
+  EditPlanMinderUrl,
   ExecuteHistoryUrl,
   ExecutePlanUrl,
   followPlanUrl,
@@ -103,6 +104,7 @@ import type {
   PlanDetailExecuteHistoryItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
+  PlanMinderEditParams,
   PlanMinderNode,
   RunFeatureCaseParams,
   SortApiCaseParams,
@@ -407,4 +409,8 @@ export function deleteScheduleTask(testPlanId: string) {
 // 获取测试规划脑图
 export function getPlanMinder(testPlanId: string) {
   return MSR.get<PlanMinderNode[]>({ url: GetPlanMinderUrl, params: testPlanId });
+}
+// 更新测试规划脑图
+export function editPlanMinder(data: PlanMinderEditParams) {
+  return MSR.post({ url: EditPlanMinderUrl, data });
 }

@@ -12,4 +12,11 @@ export default {
   'ms.minders.executeMethod': '运行方式',
   'ms.minders.serial': '串',
   'ms.minders.parallel': '并',
+  'ms.minders.defaultTestSet': '默认测试集',
+  'ms.minders.caseCount': '用例数',
+  'ms.minders.resourcePool': '资源池',
+  'ms.minders.defaultResourcePool': '默认资源池',
+  'ms.minders.env': '环境',
+  'ms.minders.item': '{count}条',
+  'ms.minders.unsavedTip': '请先保存您更改的配置！',
 };

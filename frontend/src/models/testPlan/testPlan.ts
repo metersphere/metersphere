@@ -1,11 +1,17 @@
-import type { MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
+import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
 import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
 import { LastExecuteResults } from '@/enums/caseEnum';
-import { type FailRetry, type RunMode, testPlanTypeEnum, type TestSetType } from '@/enums/testPlanEnum';
+import {
+  type FailRetry,
+  type PlanMinderAssociateType,
+  type PlanMinderCollectionType,
+  type RunMode,
+  testPlanTypeEnum,
+} from '@/enums/testPlanEnum';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
 
@@ -375,9 +381,9 @@ export interface PlanMinderNodeData extends MinderJsonNodeData {
   pos: number;
   text: string;
   num: number; // 关联用例数量
-  priority: string; // 串行/并行
-  executeMethod: RunMode; // 串行/并行值
-  type: TestSetType; // 测试集类型(功能/接口/场景)
+  priority?: number; // 串行/并行
+  executeMethod?: RunMode; // 串行/并行值
+  type: PlanMinderCollectionType; // 测试集类型(功能/接口/场景)
   extended: boolean;
   grouped: boolean; // 是否使用环境组
   environmentId: string;
@@ -388,7 +394,23 @@ export interface PlanMinderNodeData extends MinderJsonNodeData {
   retryInterval: number;
   stopOnFail: boolean;
 }
-export interface PlanMinderNode {
+export interface PlanMinderNode extends MinderJsonNode {
   data: PlanMinderNodeData;
   children: PlanMinderNode[];
+}
+
+export interface PlanMinderAssociateDTO {
+  ids: string[];
+  associateType: PlanMinderAssociateType; // 关联关系的type(功能：FUNCTIONAL_CASE/接口定义：API/接口用例：API_CASE/场景：SCENARIO_CASE)
+}
+export interface PlanMinderEditListItem extends PlanMinderNodeData {
+  name: string;
+  collectionType: PlanMinderCollectionType; // 测试集类型(功能：FUNCTIONAL_CASE/接口用例：API_CASE/场景：SCENARIO_CASE)
+  associateDTOS: PlanMinderAssociateDTO[];
+}
+
+export interface PlanMinderEditParams {
+  planId: string;
+  editList: PlanMinderEditListItem[];
+  deletedIds: string[];
 }
