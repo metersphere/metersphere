@@ -304,7 +304,11 @@ public class TestPlanCollectionMinderService {
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setType(testPlanCollectionMinderEditDTO.getCollectionType());
         TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getCollectionType()).get(0);
-        testPlanCollection.setParentId(parent.getId());
+        if (StringUtils.equalsIgnoreCase(parent.getId(), testPlanCollectionMinderEditDTO.getId())) {
+            testPlanCollection.setParentId(parent.getParentId());
+        } else {
+            testPlanCollection.setParentId(parent.getId());
+        }
         testPlanCollection.setCreateUser(userId);
         testPlanCollection.setCreateTime(null);
         testPlanCollection.setPos(testPlanCollectionMinderEditDTO.getNum());

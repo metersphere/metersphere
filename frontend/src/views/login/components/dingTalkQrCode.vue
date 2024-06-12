@@ -28,7 +28,7 @@
   const initActive = async () => {
     const data = await getDingInfo();
     await load(true);
-    const url = encodeURIComponent(data.callBack ? data.callBack : '');
+    const url = encodeURIComponent(window.location.origin);
     window.DTFrameLogin(
       {
         id: 'ding-talk-qr',
@@ -45,8 +45,6 @@
       },
       async (loginResult) => {
         const { redirectUrl, authCode, state } = loginResult;
-        console.log('authCode');
-        console.log(authCode);
         const dingCallback = getDingCallback(authCode);
         userStore.qrCodeLogin(await dingCallback);
         Message.success(t('login.form.login.success'));

@@ -74,7 +74,7 @@
         </div>
       </a-form>
       <div v-if="showQrCodeTab">
-        <tab-qr-code tab-name="wecom"></tab-qr-code>
+        <tab-qr-code tab-name="WE_COM"></tab-qr-code>
       </div>
       <a-divider
         v-if="isShowLDAP || isShowOIDC || isShowOAUTH || (isShowQRCode && orgOptions.length > 0)"
@@ -117,7 +117,6 @@
   import { useStorage } from '@vueuse/core';
   import { Message, SelectOptionData } from '@arco-design/web-vue';
 
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
