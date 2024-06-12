@@ -60,4 +60,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanApiScenario> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
 
     List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
+
+    void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 }

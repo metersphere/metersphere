@@ -437,4 +437,14 @@
             </include>
         </if>
     </sql>
+
+
+    <update id="batchUpdateExecutor">
+        update test_plan_api_scenario
+        set execute_user = #{userId}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>
