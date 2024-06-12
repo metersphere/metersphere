@@ -10,6 +10,7 @@ import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.project.dto.DropNode;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -60,4 +61,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     List<TestPlanCaseRunResultCount> selectCaseExecResultCount(String testPlanId);
 
     Long getMaxPosByCollectionId(String collectionId);
+
+    List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
 }

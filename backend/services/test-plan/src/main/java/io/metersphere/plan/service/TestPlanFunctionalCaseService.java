@@ -18,6 +18,7 @@ import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.constants.TreeTypeEnums;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
@@ -33,10 +34,7 @@ import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
-import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.TestPlanResourceConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -269,7 +267,42 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 .collect(Collectors.toSet());
     }
 
-    public List<BaseTreeNode> getTree(String testPlanId) {
+    public List<BaseTreeNode> getTree(TestPlanTreeRequest request) {
+        switch (request.getTreeType()) {
+            case TreeTypeEnums.MODULE:
+                return getModuleTree(request.getTestPlanId());
+            case TreeTypeEnums.COLLECTION:
+                return getCollectionTree(request.getTestPlanId());
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 已关联接口用例规划视图树
+     *
+     * @param testPlanId
+     * @return
+     */
+    private List<BaseTreeNode> getCollectionTree(String testPlanId) {
+        List<BaseTreeNode> returnList = new ArrayList<>();
+        TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
+        collectionExample.createCriteria().andTypeEqualTo(CaseType.FUNCTIONAL_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
+        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
+        testPlanCollections.forEach(item -> {
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.FUNCTIONAL_CASE.getKey());
+            returnList.add(baseTreeNode);
+        });
+        return returnList;
+    }
+
+    /**
+     * 模块树
+     *
+     * @param testPlanId
+     * @return
+     */
+    private List<BaseTreeNode> getModuleTree(String testPlanId) {
         List<BaseTreeNode> returnList = new ArrayList<>();
         List<ProjectOptionDTO> rootIds = extTestPlanFunctionalCaseMapper.selectRootIdByTestPlanId(testPlanId);
         Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
@@ -299,7 +332,41 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
 
-    public Map<String, Long> moduleCount(TestPlanCaseRequest request) {
+    public Map<String, Long> moduleCount(TestPlanCaseModuleRequest request) {
+        switch (request.getTreeType()) {
+            case TreeTypeEnums.MODULE:
+                return getModuleCount(request);
+            case TreeTypeEnums.COLLECTION:
+                return getCollectionCount(request);
+            default:
+                return new HashMap<>();
+        }
+    }
+
+    /**
+     * 已关联接口用例规划视图统计
+     *
+     * @param request
+     * @return
+     */
+    private Map<String, Long> getCollectionCount(TestPlanCaseModuleRequest request) {
+        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        List<ModuleCountDTO> list = extTestPlanFunctionalCaseMapper.collectionCountByRequest(request.getTestPlanId());
+        list.forEach(item -> {
+            projectModuleCountMap.put(item.getModuleId(), (long) item.getDataCount());
+        });
+        long allCount = extTestPlanFunctionalCaseMapper.caseCount(request, false);
+        projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return projectModuleCountMap;
+    }
+
+    /**
+     * 已关联接口用例模块树统计
+     *
+     * @param request
+     * @return
+     */
+    private Map<String, Long> getModuleCount(TestPlanCaseModuleRequest request) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         request.setModuleIds(null);
         List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanFunctionalCaseMapper.countModuleIdByRequest(request, false);

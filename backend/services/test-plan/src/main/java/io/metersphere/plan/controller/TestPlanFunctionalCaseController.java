@@ -65,19 +65,19 @@ public class TestPlanFunctionalCaseController {
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false));
     }
 
-    @GetMapping("/tree/{testPlanId}")
+    @PostMapping("/tree")
     @Operation(summary = "测试计划-已关联功能用例列表模块树")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
-    public List<BaseTreeNode> getTree(@PathVariable String testPlanId) {
-        return testPlanFunctionalCaseService.getTree(testPlanId);
+    public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanTreeRequest request) {
+        return testPlanFunctionalCaseService.getTree(request);
     }
 
     @PostMapping("/module/count")
     @Operation(summary = "测试计划-已关联功能用例模块数量")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseRequest request) {
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanCaseModuleRequest request) {
         return testPlanFunctionalCaseService.moduleCount(request);
     }
 

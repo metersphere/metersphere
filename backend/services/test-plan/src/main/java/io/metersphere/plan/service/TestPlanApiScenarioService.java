@@ -423,7 +423,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         return apiScenarioModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
     }
 
-    public List<BaseTreeNode> getTree(TestPlanApiScenarioTreeRequest request) {
+    public List<BaseTreeNode> getTree(TestPlanTreeRequest request) {
         switch (request.getTreeType()) {
             case TreeTypeEnums.MODULE:
                 return getModuleTree(request.getTestPlanId());
