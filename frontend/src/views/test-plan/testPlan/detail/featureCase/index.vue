@@ -4,6 +4,7 @@
       <div class="p-[16px]">
         <CaseTree
           ref="caseTreeRef"
+          :tree-type="props.treeType"
           :modules-count="modulesCount"
           :selected-keys="selectedKeys"
           @folder-node-select="handleFolderNodeSelect"
@@ -14,10 +15,10 @@
     <template #second>
       <CaseTable
         ref="caseTableRef"
+        :tree-type="props.treeType"
         :plan-id="planId"
         :modules-count="modulesCount"
         :module-name="moduleName"
-        :repeat-case="props.repeatCase"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
@@ -44,8 +45,8 @@
   import type { PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
-    repeatCase: boolean;
     canEdit: boolean;
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -91,8 +92,10 @@
   }
 
   function getCaseTableList() {
-    initModules();
-    caseTableRef.value?.loadCaseList();
+    nextTick(() => {
+      initModules();
+      caseTableRef.value?.loadCaseList();
+    });
   }
 
   defineExpose({

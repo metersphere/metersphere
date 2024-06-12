@@ -349,6 +349,7 @@
     return {
       keyword: keyword.value,
       filter: propsRes.value.filter,
+      treeType: props.treeType,
       ...commonParams,
     };
   }

@@ -146,7 +146,7 @@
 
   function showReport(record: PlanDetailApiScenarioItem) {
     reportVisible.value = true;
-    apiReportId.value = record.lastExecResultReportId; // TODO 联调
+    apiReportId.value = record.lastExecReportId;
   }
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_REPORT_DETAIL_BUG, columns, 'drawer');

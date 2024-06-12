@@ -105,7 +105,7 @@
     <FeatureCase
       v-if="activeTab === 'featureCase'"
       ref="featureCaseRef"
-      :repeat-case="detail.repeatCase"
+      :tree-type="treeType"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
@@ -114,14 +114,13 @@
       v-if="activeTab === 'apiCase'"
       ref="apiCaseRef"
       :tree-type="treeType"
-      :repeat-case="detail.repeatCase"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <ApiScenario
       v-if="activeTab === 'apiScenario'"
       ref="apiScenarioRef"
-      :repeat-case="detail.repeatCase"
+      :tree-type="treeType"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />

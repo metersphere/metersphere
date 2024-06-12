@@ -266,6 +266,7 @@ export interface PlanDetailApiCaseQueryParams extends TableQueryParams, TestPlan
   versionId?: string;
   refId?: string;
   collectionId?: string;
+  treeType?: 'MODULE' | 'COLLECTION'; // 视图类型：模块是MODULE，测试集是COLLECTION
 }
 
 export interface PlanDetailApiCaseTreeParams {
@@ -298,7 +299,7 @@ export interface BatchApiCaseParams extends BatchActionQueryParams {
   testPlanId: string;
   moduleIds?: string[];
   collectionId?: string; // 测试集id
-  protocols: string[];
+  protocols?: string[]; // 接口用例传protocols 接口场景不传
 }
 
 export interface BatchUpdateApiCaseExecutorParams extends BatchApiCaseParams {
@@ -309,24 +310,34 @@ export interface SortApiCaseParams extends DragSortParams {
   testCollectionId: string; // 测试集id
 }
 
-// TODO: 联调
+// 计划详情-接口场景
+export interface PlanDetailApiScenarioQueryParams extends TableQueryParams, TestPlanBaseParams {
+  scenarioId?: string;
+  moduleIds?: string[];
+  versionId?: string;
+  refId?: string;
+  collectionId?: string;
+  treeType?: 'MODULE' | 'COLLECTION'; // 视图类型：模块是MODULE，测试集是COLLECTION
+}
+
 export interface PlanDetailApiScenarioItem {
   id: string;
   num: string;
   name: string;
+  priority: string;
+  projectId: string;
+  projectName: string;
+  environmentId: string;
+  environmentName: string;
   moduleId: string;
-  versionName: string;
   createUser: string;
   createUserName: string;
   lastExecResult: LastExecuteResults;
   lastExecTime: number;
   executeUser: string;
   executeUserName: string;
-  bugCount: number;
-  customFields: customFieldsItem[]; // 自定义字段集合
-  caseId: string;
-  testPlanId: string;
-  lastExecResultReportId: string;
+  lastExecReportId: string; // 报告id
+  testPlanCollectionId: string; // 测试集id
 }
 
 // 执行历史 TODO 联调

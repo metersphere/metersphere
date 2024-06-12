@@ -5,6 +5,7 @@
         ref="caseTreeRef"
         :modules-count="modulesCount"
         :selected-keys="selectedKeys"
+        :tree-type="props.treeType"
         @folder-node-select="handleFolderNodeSelect"
         @init="initModuleTree"
       />
@@ -13,9 +14,9 @@
       <CaseTable
         ref="caseTableRef"
         :plan-id="planId"
+        :tree-type="props.treeType"
         :modules-count="modulesCount"
         :module-name="moduleName"
-        :repeat-case="props.repeatCase"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
@@ -36,14 +37,14 @@
   import CaseTable from './components/scenarioTable.vue';
   import CaseTree from './components/scenarioTree.vue';
 
-  import { getFeatureCaseModuleCount } from '@/api/modules/test-plan/testPlan';
+  import { getApiScenarioModuleCount } from '@/api/modules/test-plan/testPlan';
 
   import { ModuleTreeNode } from '@/models/common';
-  import type { PlanDetailFeatureCaseListQueryParams } from '@/models/testPlan/testPlan';
+  import type { PlanDetailApiScenarioQueryParams } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
-    repeatCase: boolean;
     canEdit: boolean;
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -54,10 +55,9 @@
 
   const planId = ref(route.query.id as string);
   const modulesCount = ref<Record<string, any>>({});
-  async function getModuleCount(params: PlanDetailFeatureCaseListQueryParams) {
+  async function getModuleCount(params: PlanDetailApiScenarioQueryParams) {
     try {
-      // TODO 联调
-      modulesCount.value = await getFeatureCaseModuleCount(params);
+      modulesCount.value = await getApiScenarioModuleCount(params);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -90,8 +90,10 @@
   }
 
   function getCaseTableList() {
-    initModules();
-    caseTableRef.value?.loadCaseList();
+    nextTick(() => {
+      initModules();
+      caseTableRef.value?.loadCaseList();
+    });
   }
 
   defineExpose({
