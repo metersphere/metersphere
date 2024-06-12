@@ -119,7 +119,7 @@ public class SystemOrganizationController {
 
     @PostMapping("/option/all")
     @Operation(summary = "系统设置-系统-组织与项目-组织-获取系统所有组织下拉选项")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.ORGANIZATION_PROJECT_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.ORGANIZATION_PROJECT_READ, PermissionConstants.PROJECT_BASE_INFO_READ}, logical = Logical.OR)
     public List<OptionDTO> listAll() {
         return organizationService.listAll();
     }
