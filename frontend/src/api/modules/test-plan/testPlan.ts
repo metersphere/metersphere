@@ -11,6 +11,8 @@ import {
   BatchDisassociateApiScenarioUrl,
   BatchDisassociateCaseUrl,
   BatchEditTestPlanUrl,
+  BatchMoveApiCaseUrl,
+  BatchMoveApiScenarioUrl,
   batchMovePlanUrl,
   BatchRunApiCaseUrl,
   BatchRunApiScenarioUrl,
@@ -82,6 +84,7 @@ import type {
   BatchApiCaseParams,
   BatchExecuteFeatureCaseParams,
   BatchFeatureCaseParams,
+  BatchMoveApiCaseParams,
   BatchUpdateApiCaseExecutorParams,
   BatchUpdateCaseExecutorParams,
   CreateTask,
@@ -316,6 +319,10 @@ export function batchUpdateApiCaseExecutor(data: BatchUpdateApiCaseExecutorParam
 export function batchRunApiCase(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchRunApiCaseUrl, data });
 }
+// 计划详情-接口用例列表-批量移动
+export function batchMoveApiCase(data: BatchMoveApiCaseParams) {
+  return MSR.post({ url: BatchMoveApiCaseUrl, data });
+}
 // 计划详情-接口场景列表
 export function getPlanDetailApiScenarioList(data: PlanDetailApiScenarioQueryParams) {
   return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailApiScenarioListUrl, data });
@@ -351,6 +358,10 @@ export function batchUpdateApiScenarioExecutor(data: BatchUpdateApiCaseExecutorP
 // 计划详情-接口场景列表-批量执行
 export function batchRunApiScenario(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchRunApiScenarioUrl, data });
+}
+// 计划详情-接口场景列表-批量移动
+export function batchMoveApiScenario(data: BatchMoveApiCaseParams) {
+  return MSR.post({ url: BatchMoveApiScenarioUrl, data });
 }
 // 计划详情-执行历史 TODO 联调
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {

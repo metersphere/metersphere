@@ -77,9 +77,18 @@
     <BatchUpdateExecutorModal
       v-model:visible="batchUpdateExecutorModalVisible"
       :count="batchParams.currentSelectCount || tableSelected.length"
-      :params="batchUpdateExecutorParams"
+      :params="batchUpdateParams"
       :batch-update-executor="batchUpdateApiCaseExecutor"
       @load-list="resetSelectorAndCaseList"
+    />
+    <!-- 批量移动 -->
+    <BatchApiMoveModal
+      v-model:visible="batchMoveModalVisible"
+      :module-tree="props.moduleTree"
+      :count="batchParams.currentSelectCount || tableSelected.length"
+      :params="batchUpdateParams"
+      :batch-move="batchMoveApiCase"
+      @load-list="resetCaseList"
     />
   </div>
 </template>
@@ -104,10 +113,12 @@
   import ApiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
+  import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
 
   import {
     batchDisassociateApiCase,
+    batchMoveApiCase,
     batchRunApiCase,
     batchUpdateApiCaseExecutor,
     disassociateApiCase,
@@ -309,30 +320,30 @@
     }
   );
 
-  const batchActions = {
-    baseAction: [
-      {
-        label: 'common.execute',
-        eventTag: 'execute',
-        permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
-      },
-      {
-        label: 'testPlan.featureCase.changeExecutor',
-        eventTag: 'changeExecutor',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-      {
-        label: 'common.move',
-        eventTag: 'move',
-        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
-      },
-      {
-        label: 'common.cancelLink',
-        eventTag: 'disassociate',
-        permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
-      },
-    ],
-  };
+  const batchActions = computed(() => {
+    return {
+      baseAction: [
+        {
+          label: 'common.execute',
+          eventTag: 'execute',
+          permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+        },
+        {
+          label: 'testPlan.featureCase.changeExecutor',
+          eventTag: 'changeExecutor',
+          permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+        },
+        ...(props.treeType === 'COLLECTION'
+          ? [{ label: 'common.move', eventTag: 'move', permission: ['PROJECT_TEST_PLAN:READ+UPDATE'] }]
+          : []),
+        {
+          label: 'common.cancelLink',
+          eventTag: 'disassociate',
+          permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
+        },
+      ],
+    };
+  });
 
   async function getModuleIds() {
     let moduleIds: string[] = [];
@@ -543,15 +554,22 @@
     });
   }
 
-  // 批量修改执行人
+  // 批量修改执行人 和 批量移动
+  const batchUpdateParams = ref();
   const batchUpdateExecutorModalVisible = ref(false);
-  const batchUpdateExecutorParams = ref();
+  const batchMoveModalVisible = ref(false);
 
   // 处理表格选中后批量操作
   async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = { ...params, selectIds: params?.selectedIds };
     const tableParams = await getTableParams(true);
+    batchUpdateParams.value = {
+      selectIds: tableSelected.value as string[],
+      selectAll: batchParams.value.selectAll,
+      excludeIds: batchParams.value?.excludeIds || [],
+      ...tableParams,
+    };
     switch (event.eventTag) {
       case 'execute':
         handleBatchRun();
@@ -560,15 +578,10 @@
         handleBatchDisassociateCase();
         break;
       case 'changeExecutor':
-        batchUpdateExecutorParams.value = {
-          selectIds: tableSelected.value as string[],
-          selectAll: batchParams.value.selectAll,
-          excludeIds: batchParams.value?.excludeIds || [],
-          ...tableParams,
-        };
         batchUpdateExecutorModalVisible.value = true;
         break;
       case 'move':
+        batchMoveModalVisible.value = true;
         break;
       default:
         break;

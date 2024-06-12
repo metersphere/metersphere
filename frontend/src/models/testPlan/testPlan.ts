@@ -307,6 +307,10 @@ export interface BatchUpdateApiCaseExecutorParams extends BatchApiCaseParams {
   userId: string; // 执行人id
 }
 
+export interface BatchMoveApiCaseParams extends BatchApiCaseParams {
+  targetCollectionId: string; // 测试集id
+}
+
 export interface SortApiCaseParams extends DragSortParams {
   testCollectionId: string; // 测试集id
 }

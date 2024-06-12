@@ -117,6 +117,8 @@ export const BatchDisassociateApiCaseUrl = '/test-plan/api/case/batch/disassocia
 export const BatchUpdateApiCaseExecutorUrl = '/test-plan/api/case/batch/update/executor';
 // 计划详情-接口用例列表-批量执行
 export const BatchRunApiCaseUrl = '/test-plan/api/case/batch/run';
+// 计划详情-接口用例列表-批量移动
+export const BatchMoveApiCaseUrl = '/test-plan/api/case/batch/move';
 
 // 计划详情-接口场景列表
 export const GetPlanDetailApiScenarioListUrl = '/test-plan/api/scenario/page';
@@ -136,6 +138,8 @@ export const BatchDisassociateApiScenarioUrl = '/test-plan/api/scenario/batch/di
 export const BatchUpdateApiScenarioExecutorUrl = '/test-plan/api/scenario/batch/update/executor';
 // 计划详情-接口场景列表-批量执行
 export const BatchRunApiScenarioUrl = '/test-plan/api/scenario/batch/run';
+// 计划详情-接口场景列表-批量移动
+export const BatchMoveApiScenarioUrl = '/test-plan/api/scenario/batch/move';
 
 // 测试规划脑图
 export const GetPlanMinderUrl = '/test-plan/mind/data';
