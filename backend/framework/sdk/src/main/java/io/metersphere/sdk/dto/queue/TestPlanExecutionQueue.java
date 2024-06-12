@@ -31,5 +31,22 @@ public class TestPlanExecutionQueue {
     //预生成报告ID
     private String prepareReportId;
 
-    private boolean lastFinished = false;
+    // 是否是队列的最后一个
+    private boolean isLastOne = false;
+    // 是否执行完毕
+    private boolean executeFinish = false;
+
+    public TestPlanExecutionQueue(long pos, String createUser, long createTime, String queueId, String queueType, String parentQueueId, String parentQueueType, String sourceID, String runMode, String executionSource, String prepareReportId) {
+        this.pos = pos;
+        this.createUser = createUser;
+        this.createTime = createTime;
+        this.queueId = queueId;
+        this.queueType = queueType;
+        this.parentQueueId = parentQueueId;
+        this.parentQueueType = parentQueueType;
+        this.sourceID = sourceID;
+        this.runMode = runMode;
+        this.executionSource = executionSource;
+        this.prepareReportId = prepareReportId;
+    }
 }

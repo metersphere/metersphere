@@ -105,6 +105,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      */
     public TestPlan add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator);
+        //自动生成测试规划
+        this.initDefaultPlanCollection(testPlan.getId(), operator);
         testPlanLogService.saveAddLog(testPlan, operator, requestUrl, requestMethod);
         return testPlan;
     }
@@ -139,7 +141,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanConfig.setRepeatCase(createOrCopyRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(createOrCopyRequest.getPassThreshold());
 
-        handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
+        //正式版本不再支持这种操作
+        //        handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
 
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insertSelective(testPlanConfig);
