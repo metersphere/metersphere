@@ -119,8 +119,6 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_BATCH_DELETE = "/test-plan/batch-delete";
     private static final String URL_POST_TEST_PLAN_SCHEDULE = "/test-plan/schedule-config";
     private static final String URL_POST_TEST_PLAN_SCHEDULE_DELETE = "/test-plan/schedule-config-delete/%s";
-    private static final String URL_POST_TEST_PLAN_SINGLE_EXECUTE = "/test-plan-execute/single";
-    private static final String URL_POST_TEST_PLAN_BATCH_EXECUTE = "/test-plan-execute/batch";
 
     //测试计划资源-功能用例
     private static final String URL_POST_RESOURCE_CASE_ASSOCIATION = "/test-plan/association";
@@ -531,7 +529,6 @@ public class TestPlanTests extends BaseTest {
         assert a1Node != null & a2Node != null & a3Node != null & a1a1Node != null & a1b1Node != null;
         TestPlanCreateRequest request = new TestPlanCreateRequest();
         request.setProjectId(project.getId());
-        request.setTestPlanning(false);
 
         BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
         request.setBaseAssociateCaseRequest(associateCaseRequest);
@@ -1483,26 +1480,6 @@ public class TestPlanTests extends BaseTest {
     }
 
     @Test
-    @Order(71)
-    public void executeTest() throws Exception {
-        TestPlanExecuteRequest executeRequest = new TestPlanExecuteRequest();
-        executeRequest.setExecuteId(groupTestPlanId7);
-        //串行
-        this.requestPostWithOk(URL_POST_TEST_PLAN_SINGLE_EXECUTE, executeRequest);
-        //并行
-        executeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        this.requestPostWithOk(URL_POST_TEST_PLAN_SINGLE_EXECUTE, executeRequest);
-
-        TestPlanBatchExecuteRequest batchExecuteRequest = new TestPlanBatchExecuteRequest();
-        batchExecuteRequest.setExecuteIds(Collections.singletonList(groupTestPlanId7));
-        batchExecuteRequest.setProjectId(project.getId());
-        //串行
-        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_EXECUTE, batchExecuteRequest);
-        //并行
-        batchExecuteRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_EXECUTE, batchExecuteRequest);
-    }
-    @Test
     @Order(81)
     public void copyTestPlan() throws Exception {
         BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-b1");
@@ -2139,7 +2116,6 @@ public class TestPlanTests extends BaseTest {
     public void testAdd() throws Exception {
         TestPlanCreateRequest request = new TestPlanCreateRequest();
         request.setProjectId(project.getId());
-        request.setTestPlanning(false);
         BaseAssociateCaseRequest associateCaseRequest = new BaseAssociateCaseRequest();
         associateCaseRequest.setFunctionalSelectIds(Arrays.asList("wx_fc_1", "wx_fc_2"));
         request.setBaseAssociateCaseRequest(associateCaseRequest);

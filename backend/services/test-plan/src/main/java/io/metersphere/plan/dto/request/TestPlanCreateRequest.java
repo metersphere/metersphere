@@ -49,9 +49,6 @@ public class TestPlanCreateRequest {
     @Schema(description = "描述")
     private String description;
 
-    @Schema(description = "是否开启测试规划", requiredMode = Schema.RequiredMode.REQUIRED)
-    private boolean testPlanning;
-
     @Schema(description =  "是否自定更新功能用例状态", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean automaticStatusUpdate;
 
