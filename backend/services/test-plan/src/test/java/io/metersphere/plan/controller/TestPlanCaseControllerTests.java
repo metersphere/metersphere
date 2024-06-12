@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TestPlanCaseControllerTests extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_LIST_URL = "/test-plan/functional/case/page";
-    public static final String FUNCTIONAL_CASE_TREE_URL = "/test-plan/functional/case/tree/";
+    public static final String FUNCTIONAL_CASE_TREE_URL = "/test-plan/functional/case/tree";
     public static final String FUNCTIONAL_CASE_TREE_COUNT_URL = "/test-plan/functional/case/module/count";
     public static final String FUNCTIONAL_CASE_DISASSOCIATE_URL = "/test-plan/functional/case/disassociate";
     public static final String FUNCTIONAL_CASE_BATCH_DISASSOCIATE_URL = "/test-plan/functional/case/batch/disassociate";
@@ -98,26 +98,40 @@ public class TestPlanCaseControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void testGetFunctionalCaseTree() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL + "plan_1");
+        TestPlanTreeRequest request = new TestPlanTreeRequest();
+        request.setTestPlanId("plan_1");
+        request.setTreeType("MODULE");
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL, request);
+        request.setTestPlanId("plan_2");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
-        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL + "plan_2");
+        request.setTestPlanId("plan_2");
+        request.setTreeType("COLLECTION");
+        MvcResult mvcResult1 = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_TREE_URL, request);
+        String returnData1 = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder1 = JSON.parseObject(returnData1, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder1);
     }
 
     @Test
     @Order(3)
     public void testGetFunctionalCaseTreeCount() throws Exception {
-        TestPlanCaseRequest request = new TestPlanCaseRequest();
+        TestPlanCaseModuleRequest request = new TestPlanCaseModuleRequest();
         request.setProjectId("123");
         request.setCurrent(1);
         request.setPageSize(10);
         request.setTestPlanId("plan_1");
+        request.setTreeType("MODULE");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_TREE_COUNT_URL, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+
+        request.setTreeType("COLLECTION");
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_TREE_COUNT_URL, request);
     }
 
 

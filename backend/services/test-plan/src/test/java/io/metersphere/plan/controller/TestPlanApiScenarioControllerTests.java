@@ -317,7 +317,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void testApiScenarioModuleTree() throws Exception {
-        TestPlanApiScenarioTreeRequest request = new TestPlanApiScenarioTreeRequest();
+        TestPlanTreeRequest request = new TestPlanTreeRequest();
         request.setTestPlanId("wxxx_plan_1");
         request.setTreeType("MODULE");
         this.requestPostWithOkAndReturn(API_SCENARIO_TREE, request);

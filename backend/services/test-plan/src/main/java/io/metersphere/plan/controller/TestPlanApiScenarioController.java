@@ -71,7 +71,7 @@ public class TestPlanApiScenarioController {
     @Operation(summary = "测试计划-已关联场景用例列表模块树")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanApiScenarioTreeRequest request) {
+    public List<BaseTreeNode> getTree(@Validated @RequestBody TestPlanTreeRequest request) {
         return testPlanApiScenarioService.getTree(request);
     }
 
