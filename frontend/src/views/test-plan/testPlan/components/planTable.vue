@@ -108,13 +108,11 @@
           />
           <span :class="getIconClass(record)">{{ record.childrenCount || 0 }}</span>
         </div>
-        <div
-          :class="`${
-            record.type === testPlanTypeEnum.TEST_PLAN ? 'text-[rgb(var(--primary-5))]' : ''
-          } one-line-text ${hasIndent(record)}`"
-          @click="openDetail(record.id)"
-          >{{ record.num }}</div
+
+        <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" :class="`one-line-text ${hasIndent(record)}`"
+          ><MsButton type="text" @click="openDetail(record.id)">{{ record.num }}</MsButton></div
         >
+        <div v-else :class="`one-line-text ${hasIndent(record)}`">{{ record.num }}</div>
         <a-tooltip position="right" :disabled="!getSchedule(record.id)" :mouse-enter-delay="300">
           <MsTag
             v-if="getSchedule(record.id)"

@@ -218,6 +218,7 @@
         v-if="activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT'])"
         ref="commentInputRef"
         v-model:notice-user-ids="noticeUserIds"
+        v-model:filed-ids="uploadFileIds"
         :content="commentContent"
         is-show-avatar
         :upload-image="handleUploadImage"
@@ -624,7 +625,7 @@
       'validate-trigger': ['change'],
     },
   };
-
+  const uploadFileIds = ref<string[]>([]);
   async function publishHandler(currentContent: string) {
     try {
       const params = {
@@ -634,6 +635,7 @@
         parentId: '',
         content: currentContent,
         event: noticeUserIds.value.join(';') ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLY‘;)
+        uploadFileIds: uploadFileIds.value,
       };
       await createOrUpdateComment(params as CommentParams);
       Message.success(t('common.publishSuccessfully'));

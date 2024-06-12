@@ -210,7 +210,6 @@
     return {
       keyword: props.keyword,
       projectId: props.currentProject,
-      protocol: 'HTTP',
       moduleIds: props.activeModule === 'all' || !props.activeModule ? [] : [props.activeModule, ...props.offspringIds],
       excludeIds: [...(props.associatedIds || [])], // 已经存在的关联的id列表
       condition: {
@@ -243,28 +242,18 @@
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
 
   watch(
-    () => props.activeSourceType,
-    (val) => {
-      if (val) {
-        tableRef.value?.initColumn(columns);
-        resetSelector();
-        resetFilterParams();
-        setPagination({
-          current: 1,
-        });
-      }
+    () => () => props.currentProject,
+    () => {
+      loadCaseList();
     }
   );
 
   watch(
-    () => props.currentProject,
+    () => props.activeModule,
     (val) => {
       if (val) {
         loadCaseList();
       }
-    },
-    {
-      immediate: true,
     }
   );
 

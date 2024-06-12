@@ -44,4 +44,7 @@ export default {
   'report.detail.testPlanGroupReport': '测试组报告',
   'report.detail.testPlanTotal': '计划总数',
   'report.detail.testPlanCaseTotal': '用例总数',
+  'report.detail.testPlanGroup.result': '结果',
+  'report.detail.testPlanGroup.useCasesCount': '用例数',
+  'report.detail.testPlanGroup.viewReport': '查看报告',
 };

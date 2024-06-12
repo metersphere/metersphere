@@ -17,4 +17,8 @@ export default {
   'ms.case.associate.testSet': 'Set of tests',
   'ms.case.associate.addAssociatedCase': 'Add associated use case',
   'ms.case.associate.automaticallyAddApiCase': 'Automatically adds associated interface use cases',
+  'ms.case.associate.project': 'project',
+  'ms.case.associate.gotIt': 'I got it',
+  'ms.case.associate.switchProject': 'Switch project?',
+  'ms.case.associate.switchProjectPopTip': 'After switching, the selected data will be cleared',
 };

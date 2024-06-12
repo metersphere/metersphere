@@ -65,6 +65,7 @@
     showType: string;
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
+    protocols: string[];
   }>();
 
   const emit = defineEmits<{
@@ -174,7 +175,7 @@
     return {
       keyword: props.keyword,
       projectId: props.currentProject,
-      protocol: 'HTTP',
+      protocols: props.protocols,
       moduleIds: props.activeModule === 'all' || !props.activeModule ? [] : [props.activeModule, ...props.offspringIds],
       excludeIds: [...(props.associatedIds || [])], // 已经存在的关联的id列表
       condition: {
@@ -205,35 +206,27 @@
   }
 
   watch(
-    () => props.activeSourceType,
-    (val) => {
-      if (val) {
-        resetSelector();
-        resetFilterParams();
-        setPagination({
-          current: 1,
-        });
-      }
+    () => [() => props.currentProject, () => props.protocols],
+    () => {
+      loadApiList();
     }
   );
 
-  watch(
-    () => props.currentProject,
-    (val) => {
-      if (val) {
-        loadApiList();
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
   watch(
     () => props.showType,
     (val) => {
       if (val === 'API') {
         resetSelector();
         resetFilterParams();
+        loadApiList();
+      }
+    }
+  );
+
+  watch(
+    () => props.activeModule,
+    (val) => {
+      if (val) {
         loadApiList();
       }
     }

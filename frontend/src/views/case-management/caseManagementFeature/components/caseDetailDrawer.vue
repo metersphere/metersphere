@@ -230,6 +230,7 @@
           ref="commentInputRef"
           v-model:content="content"
           v-model:notice-user-ids="noticeUserIds"
+          v-model:filed-ids="uploadFileIds"
           v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
           :preview-url="PreviewEditorImageUrl"
           :is-active="isActive"
@@ -593,6 +594,7 @@
   const isActive = ref<boolean>(false);
 
   const noticeUserIds = ref<string[]>([]);
+  const uploadFileIds = ref<string[]>([]);
   async function publishHandler(currentContent: string) {
     try {
       const params: CommentParams = {
@@ -602,6 +604,7 @@
         parentId: '',
         content: currentContent,
         event: noticeUserIds.value.join(';') ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+        uploadFileIds: uploadFileIds.value,
       };
       await createCommentList(params);
       if (activeTab.value === 'comments') {

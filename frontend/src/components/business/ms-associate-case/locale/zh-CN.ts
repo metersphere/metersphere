@@ -17,4 +17,8 @@ export default {
   'ms.case.associate.testSet': '测试集',
   'ms.case.associate.addAssociatedCase': '添加已关联用例',
   'ms.case.associate.automaticallyAddApiCase': '自动添加已关联的接口用例',
+  'ms.case.associate.project': '项目',
+  'ms.case.associate.gotIt': '知道了',
+  'ms.case.associate.switchProject': '切换项目？',
+  'ms.case.associate.switchProjectPopTip': '切换后，已选数据将清空',
 };

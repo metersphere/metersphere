@@ -55,6 +55,7 @@ import {
   TestPlanCaseAssociatedPageUrl,
   TestPlanCaseDetailUrl,
   TestPlanGroupOptionsUrl,
+  TestPlanScenarioAssociatedPageUrl,
   updateTestPlanModuleUrl,
   UpdateTestPlanUrl,
 } from '@/api/requrls/test-plan/testPlan';
@@ -315,6 +316,10 @@ export function getTestPlanAssociationApiList(data: TableQueryParams) {
 // 功能用例-关联用例-接口用例-CASE
 export function getTestPlanAssociationCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<ApiCaseDetail>>({ url: TestPlanCaseAssociatedPageUrl, data });
+}
+// 功能用例-关联用例-接口用例-CASE
+export function getPlanScenarioAssociatedList(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiCaseDetail>>({ url: TestPlanScenarioAssociatedPageUrl, data });
 }
 // 测试计划-复制测试计划&测试计划组
 export function testPlanAndGroupCopy(id: string) {

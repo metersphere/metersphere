@@ -110,7 +110,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 150,
       showTooltip: true,
       columnSelectorDisabled: true,
     },
@@ -288,6 +288,15 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => props.activeModule,
+    (val) => {
+      if (val) {
+        loadCaseList();
+      }
     }
   );
 

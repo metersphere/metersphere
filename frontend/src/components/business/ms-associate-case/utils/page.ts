@@ -1,6 +1,7 @@
 import { getUnAssociatedList } from '@/api/modules/bug-management';
 import { getCaseList, getPublicLinkCaseList } from '@/api/modules/case-management/featureCase';
 import {
+  getPlanScenarioAssociatedList,
   getTestPlanAssociationApiList,
   getTestPlanAssociationCaseList,
   getTestPlanCaseList,
@@ -13,8 +14,11 @@ import { CaseLinkEnum } from '@/enums/caseEnum';
 export const getPublicLinkCaseListMap: Record<string, any> = {
   // 功能用例 目前只有接口用例、场景用例
   [CasePageApiTypeEnum.FUNCTIONAL_CASE_PAGE]: {
-    [CaseLinkEnum.API]: getPublicLinkCaseList,
-    [CaseLinkEnum.SCENARIO]: getPublicLinkCaseList,
+    [CaseLinkEnum.FUNCTIONAL]: getPublicLinkCaseList,
+    [CaseLinkEnum.API]: {
+      API: getPublicLinkCaseList,
+      CASE: getPublicLinkCaseList,
+    },
   },
   // 用例评审 目前只有功能用例
   [CasePageApiTypeEnum.CASE_REVIEW_CASE_PAGE]: {
@@ -31,6 +35,7 @@ export const getPublicLinkCaseListMap: Record<string, any> = {
       API: getTestPlanAssociationApiList,
       CASE: getTestPlanAssociationCaseList,
     },
+    [CaseLinkEnum.SCENARIO]: getPlanScenarioAssociatedList,
   },
 };
 

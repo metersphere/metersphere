@@ -204,6 +204,7 @@
         font-size: 14px;
         border-radius: 4px;
         cursor: pointer;
+        line-height: 38px;
         &.active {
           color: rgb(var(--primary-5));
           background: rgb(var(--primary-1));

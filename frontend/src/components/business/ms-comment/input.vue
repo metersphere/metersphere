@@ -19,6 +19,7 @@
           v-if="props.mode === 'rich'"
           v-model:raw="currentContent"
           v-model:commentIds="commentIds"
+          v-model:filed-ids="uploadFileIds"
           :upload-image="props.uploadImage"
           :preview-url="props.previewUrl"
           class="w-full"
@@ -66,6 +67,7 @@
 
   const currentContent = defineModel<string>('defaultValue', { default: '' });
   const commentIds = defineModel<string[]>('noticeUserIds', { default: [] });
+  const uploadFileIds = defineModel<string[]>('filedIds', { default: [] });
   const userStore = useUserStore();
   const emit = defineEmits<{
     (event: 'publish', value: string): void;
