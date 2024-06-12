@@ -104,7 +104,7 @@ public class TestReviewTestCaseController {
     @GetMapping("/get/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public TestReviewCaseDTO get(@PathVariable String reviewId) {
-        return testReviewTestCaseService.get(reviewId, SessionUtils.getCurrentProjectId());
+        return testReviewTestCaseService.get(reviewId, SessionUtils.getUserId());
     }
 
     @GetMapping("/reviewer/status/{id}")

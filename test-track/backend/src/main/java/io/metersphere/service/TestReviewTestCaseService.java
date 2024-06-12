@@ -459,9 +459,9 @@ public class TestReviewTestCaseService {
         return comments;
     }
 
-    public TestReviewCaseDTO get(String testReviewTestCaseId, String currentProjectId) {
+    public TestReviewCaseDTO get(String testReviewTestCaseId, String currentUserId) {
         TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(testReviewTestCaseId);
-        checkReviewCaseOwner(testReviewCaseDTO.getCaseId(), currentProjectId);
+        checkReviewCaseOwner(testReviewCaseDTO.getCaseId(), currentUserId);
         testReviewCaseDTO.setFields(testCaseService.getCustomFieldByCaseId(testReviewCaseDTO.getCaseId()));
         return testReviewCaseDTO;
     }
@@ -881,8 +881,8 @@ public class TestReviewTestCaseService {
         }
     }
 
-    private void checkReviewCaseOwner(String caseId, String currentProjectId) {
-        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", currentProjectId, List.of(caseId));
+    private void checkReviewCaseOwner(String caseId, String currentUserId) {
+        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", currentUserId, List.of(caseId));
         if (!hasPermission) {
             MSException.throwException(Translator.get("check_owner_case"));
         }
