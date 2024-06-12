@@ -149,6 +149,7 @@ CREATE INDEX idx_plan ON api_scenario_report(`plan`);
 -- 测试计划配置 增加运行模式
 ALTER table test_plan_config
     ADD COLUMN `case_run_mode` VARCHAR(50) NOT NULL DEFAULT 'PARALLEL' COMMENT '不同用例之间的执行方式(串行/并行)';
+
 -- 修改默认资源池id
 UPDATE project_test_resource_pool AS ptrp
     JOIN test_resource_pool AS trp ON ptrp.test_resource_pool_id = trp.id
