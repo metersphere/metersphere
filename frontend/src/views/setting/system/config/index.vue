@@ -40,7 +40,7 @@
     {
       key: 'qrCodeConfig',
       title: t('system.config.qrCodeConfig'),
-      permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'],
+      permission: ['SYSTEM_PARAMETER_SETTING_QRCODE:READ'],
     },
     { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
     {
