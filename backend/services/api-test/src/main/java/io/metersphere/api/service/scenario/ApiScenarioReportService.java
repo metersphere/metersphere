@@ -9,7 +9,6 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
-import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.domain.Environment;
@@ -19,6 +18,7 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -224,7 +224,8 @@ public class ApiScenarioReportService {
             scenarioReportDTO.setConsole(String.join("\n", consoleList));
         }
         //查询资源池名称
-        scenarioReportDTO.setPoolName(testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId()).getName());
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(scenarioReport.getPoolId());
+        scenarioReportDTO.setPoolName(testResourcePool != null ? testResourcePool.getName() : null);
         //查询环境名称
         String environmentName = null;
         if (StringUtils.isNotBlank(scenarioReport.getEnvironmentId())) {
@@ -353,7 +354,7 @@ public class ApiScenarioReportService {
             ApiScenarioReportDetailDTO apiScenarioReportDetail = apiReportDetails.get(Integer.parseInt(index) - 1);
             apiReportDetails = Collections.singletonList(apiScenarioReportDetail);
         }
-         return apiReportDetails;
+        return apiReportDetails;
     }
 
     private List<ApiScenarioReportDetailDTO> checkResourceStep(String stepId, String reportId) {

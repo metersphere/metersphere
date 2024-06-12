@@ -16,7 +16,7 @@ export default {
   'project.taskCenter.batchExecution': 'Batch execution',
   'project.taskCenter.stop': 'stop',
   'project.taskCenter.execution': 'execution',
-  'project.taskCenter.viewReport': 'View report',
+  'project.taskCenter.viewReport': 'Execution Result',
   'project.taskCenter.batchStopTask': 'Are you sure to stop {num} tasks?',
   'project.taskCenter.stopTask': 'Are you sure to stop {name} task?',
   'project.taskCenter.stopTaskContent':
