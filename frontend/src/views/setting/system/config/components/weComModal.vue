@@ -149,6 +149,7 @@
     loading.value = true;
     try {
       await validateWeComConfig(weComForm.value);
+      weComForm.value.valid = true;
       Message.success(t('organization.service.testLinkStatusTip'));
     } catch (error) {
       console.log(error);

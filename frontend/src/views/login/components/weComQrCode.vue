@@ -16,7 +16,7 @@
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import * as ww from '@wecom/jssdk';
-  import { WWLoginRedirectType, WWLoginType } from '@wecom/jssdk';
+  import { WWLoginPanelSizeType, WWLoginRedirectType, WWLoginType } from '@wecom/jssdk';
 
   const { t } = useI18n();
 
@@ -27,6 +27,10 @@
 
   const wwLogin = ref({});
 
+  const obj = ref<any>({
+    isWeComLogin: false,
+  });
+
   const init = async () => {
     const data = await getWeComInfo();
     wwLogin.value = ww.createWWLoginPanel({
@@ -35,13 +39,12 @@
         login_type: WWLoginType.corpApp,
         appid: data.corpId ? data.corpId : '',
         agentid: data.agentId,
-        redirect_uri: data.callBack ? data.callBack : '',
+        redirect_uri: window.location.origin,
         state: 'fit2cloud-wecom-qr',
         redirect_type: WWLoginRedirectType.callback,
+        panel_size: WWLoginPanelSizeType.small,
       },
-      onCheckWeComLogin({ isWeComLogin }: any) {
-        console.log(isWeComLogin);
-      },
+      onCheckWeComLogin: obj.value,
       async onLoginSuccess({ code }: any) {
         const weComCallback = getWeComCallback(code);
         userStore.qrCodeLogin(await weComCallback);
