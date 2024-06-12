@@ -56,6 +56,7 @@ export default {
   'common.operationFailed': 'Operation failed',
   'common.removeSuccess': 'Remove success',
   'common.removeFailed': 'Remove failed',
+  'common.executionSuccess': 'Execution success',
   'common.admin': 'Admin',
   'common.revokeDelete': 'Revoke delete',
   'common.revokeDeleteSuccess': 'Revoke delete success',

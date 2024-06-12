@@ -107,12 +107,16 @@ export const GetApiCaseModuleUrl = '/test-plan/api/case/tree';
 export const GetApiCaseModuleCountUrl = '/test-plan/api/case/module/count';
 // 计划详情-接口用例列表-拖拽排序
 export const SortApiCaseUrl = '/test-plan/api/case/sort';
+// 计划详情-接口用例列表-执行
+export const RunApiCaseUrl = '/test-plan/api/case/run';
 // 计划详情-接口用例列表-取消关联用例
 export const DisassociateApiCaseUrl = '/test-plan/api/case/disassociate';
 // 计划详情-接口用例列表-批量取消关联用例
 export const BatchDisassociateApiCaseUrl = '/test-plan/api/case/batch/disassociate';
 // 计划详情-接口用例列表-批量更新执行人
 export const BatchUpdateApiCaseExecutorUrl = '/test-plan/api/case/batch/update/executor';
+// 计划详情-接口用例列表-批量执行
+export const BatchRunApiCaseUrl = '/test-plan/api/case/batch/run';
 
 // 计划详情-接口场景列表
 export const GetPlanDetailApiScenarioListUrl = '/test-plan/api/scenario/page';
@@ -122,12 +126,16 @@ export const GetApiScenarioModuleUrl = '/test-plan/api/scenario/tree';
 export const GetApiScenarioModuleCountUrl = '/test-plan/api/scenario/module/count';
 // 计划详情-接口场景列表-拖拽排序
 export const SortApiScenarioUrl = '/test-plan/api/scenario/sort';
+// 计划详情-接口场景列表-执行
+export const RunApiScenarioUrl = '/test-plan/api/scenario/run';
 // 计划详情-接口场景列表-取消关联用例
 export const DisassociateApiScenarioUrl = '/test-plan/api/scenario/disassociate';
 // 计划详情-接口场景列表-批量取消关联用例
 export const BatchDisassociateApiScenarioUrl = '/test-plan/api/scenario/batch/disassociate';
 // 计划详情-接口场景列表-批量更新执行人
 export const BatchUpdateApiScenarioExecutorUrl = '/test-plan/api/scenario/batch/update/executor';
+// 计划详情-接口场景列表-批量执行
+export const BatchRunApiScenarioUrl = '/test-plan/api/scenario/batch/run';
 
 // 测试规划脑图
 export const GetPlanMinderUrl = '/test-plan/mind/data';

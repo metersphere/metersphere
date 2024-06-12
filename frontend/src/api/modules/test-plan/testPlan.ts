@@ -12,6 +12,8 @@ import {
   BatchDisassociateCaseUrl,
   BatchEditTestPlanUrl,
   batchMovePlanUrl,
+  BatchRunApiCaseUrl,
+  BatchRunApiScenarioUrl,
   BatchRunCaseUrl,
   BatchUpdateApiCaseExecutorUrl,
   BatchUpdateApiScenarioExecutorUrl,
@@ -51,6 +53,8 @@ import {
   planDetailBugPageUrl,
   PlanDetailExecuteHistoryUrl,
   planPassRateUrl,
+  RunApiCaseUrl,
+  RunApiScenarioUrl,
   RunFeatureCaseUrl,
   SortApiCaseUrl,
   SortApiScenarioUrl,
@@ -296,6 +300,10 @@ export const sortApiCase = (data: SortApiCaseParams) => {
 export function disassociateApiCase(data: DisassociateCaseParams) {
   return MSR.post({ url: DisassociateApiCaseUrl, data });
 }
+// 计划详情-接口用例列表-执行
+export function runApiCase(id: string, reportId?: string) {
+  return MSR.get({ url: `${RunApiCaseUrl}/${id}`, params: reportId });
+}
 // 计划详情-接口用例列表-批量取消关联用例
 export function batchDisassociateApiCase(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchDisassociateApiCaseUrl, data });
@@ -303,6 +311,10 @@ export function batchDisassociateApiCase(data: BatchApiCaseParams) {
 // 计划详情-接口用例列表-批量更新执行人
 export function batchUpdateApiCaseExecutor(data: BatchUpdateApiCaseExecutorParams) {
   return MSR.post({ url: BatchUpdateApiCaseExecutorUrl, data });
+}
+// 计划详情-接口用例列表-批量执行
+export function batchRunApiCase(data: BatchApiCaseParams) {
+  return MSR.post({ url: BatchRunApiCaseUrl, data });
 }
 // 计划详情-接口场景列表
 export function getPlanDetailApiScenarioList(data: PlanDetailApiScenarioQueryParams) {
@@ -320,6 +332,10 @@ export function getApiScenarioModuleCount(data: PlanDetailApiScenarioQueryParams
 export const sortApiScenario = (data: SortApiCaseParams) => {
   return MSR.post({ url: SortApiScenarioUrl, data });
 };
+// 计划详情-接口场景列表-执行
+export function runApiScenario(id: string, reportId?: string) {
+  return MSR.get({ url: `${RunApiScenarioUrl}/${id}`, params: reportId });
+}
 // 计划详情-接口场景列表-取消关联用例
 export function disassociateApiScenario(data: DisassociateCaseParams) {
   return MSR.post({ url: DisassociateApiScenarioUrl, data });
@@ -331,6 +347,10 @@ export function batchDisassociateApiScenario(data: BatchApiCaseParams) {
 // 计划详情-接口场景列表-批量更新执行人
 export function batchUpdateApiScenarioExecutor(data: BatchUpdateApiCaseExecutorParams) {
   return MSR.post({ url: BatchUpdateApiScenarioExecutorUrl, data });
+}
+// 计划详情-接口场景列表-批量执行
+export function batchRunApiScenario(data: BatchApiCaseParams) {
+  return MSR.post({ url: BatchRunApiScenarioUrl, data });
 }
 // 计划详情-执行历史 TODO 联调
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {
