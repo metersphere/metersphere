@@ -1,5 +1,6 @@
 package io.metersphere.plan.mapper;
 
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
@@ -67,4 +68,6 @@ public interface ExtTestPlanApiCaseMapper {
 	List<TestPlanApiCase> getPlanApiCaseByIds(@Param("planIds") List<String> planIds);
 
     List<TestPlanApiCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
+
+    List<ApiTestCase> selectApiCaseByDefinitionIds(@Param("ids") List<String> ids, @Param("isRepeat") boolean isRepeat);
 }
