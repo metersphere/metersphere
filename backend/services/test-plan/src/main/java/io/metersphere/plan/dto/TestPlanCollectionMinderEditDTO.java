@@ -33,7 +33,7 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
     @NotBlank(message = "{test_plan_collection.execute_method.not_blank}")
     private String executeMethod;
 
-    @Schema(description = "测试集类型(功能：FUNCTIONAL_CASE/接口用例：API_CASE/场景：SCENARIO_CASE)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "测试集类型(功能：FUNCTIONAL/接口用例：API/场景：SCENARIO)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_collection_minder_edit.collection_type.not_blank}")
     private String collectionType;
 
@@ -43,7 +43,7 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
 
     @Schema(description = "是否使用环境组", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{test_plan_collection.grouped.not_blank}")
-    private Boolean grouped;
+    private Boolean grouped = false;
 
     @Schema(description = "环境ID/环境组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_collection.environment_id.not_blank}")
