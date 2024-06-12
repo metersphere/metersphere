@@ -519,4 +519,11 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
             return request.getSelectIds();
         }
     }
+
+    public void batchUpdateExecutor(TestPlanApiScenarioUpdateRequest request) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            extTestPlanApiScenarioMapper.batchUpdateExecutor(ids, request.getUserId());
+        }
+    }
 }

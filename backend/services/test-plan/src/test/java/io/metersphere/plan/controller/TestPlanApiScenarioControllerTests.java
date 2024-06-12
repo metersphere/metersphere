@@ -56,6 +56,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String BATCH_RUN = "batch/run";
     public static final String API_SCENARIO_DISASSOCIATE = "disassociate";
     public static final String API_SCENARIO_BATCH_DISASSOCIATE = "batch/disassociate";
+    public static final String API_SCENARIO_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -300,5 +301,19 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
+    }
+
+    @Test
+    @Order(5)
+    public void testBatchUpdateExecutor() throws Exception {
+        TestPlanApiScenarioUpdateRequest request = new TestPlanApiScenarioUpdateRequest();
+        request.setUserId("test_user");
+        request.setTestPlanId("wxxx_plan_2");
+        request.setSelectAll(true);
+        this.requestPostWithOk(API_SCENARIO_BATCH_UPDATE_EXECUTOR_URL, request);
+        request.setTestPlanId("wxxx_plan_1");
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wxxx_plan_scenario_1"));
+        this.requestPostWithOk(API_SCENARIO_BATCH_UPDATE_EXECUTOR_URL, request);
     }
 }
