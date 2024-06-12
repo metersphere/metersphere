@@ -1,5 +1,7 @@
 <template>
   <PlanDetail :detail-info="detail" @update-success="getDetail()" />
+  <!-- TODO 待联调计划组报告 -->
+  <!-- <PlanGroupDetail :detail-info="detail" @update-success="getDetail()" /> -->
 </template>
 
 <script setup lang="ts">
@@ -8,6 +10,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import PlanDetail from '@/views/test-plan/report/detail/component/planDetail.vue';
+  import PlanGroupDetail from '@/views/test-plan/report/detail/component/planGroupDetail.vue';
 
   import { getReportDetail } from '@/api/modules/test-plan/report';
   import { defaultReportDetail } from '@/config/testPlan';

@@ -29,6 +29,11 @@
         :script-identifier="record.scriptIdentifier"
       />
     </template>
+    <template #createUserName="{ record }">
+      <a-tooltip :content="`${record.createUserName}`" position="tl">
+        <div class="one-line-text">{{ record.createUserName }}</div>
+      </a-tooltip>
+    </template>
   </MsBaseTable>
 </template>
 
@@ -46,6 +51,7 @@
   import useAppStore from '@/store/modules/app';
 
   import type { TableQueryParams } from '@/models/common';
+  import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -57,13 +63,14 @@
 
   const props = defineProps<{
     associationType: string; // 关联类型 项目 | 测试计划 | 用例评审
-    modulesCount: Record<string, number>; // 模块数量统计对象
     activeModule: string;
     offspringIds: string[];
     currentProject: string;
     associatedIds?: string[]; // 已关联ids
     activeSourceType: keyof typeof CaseLinkEnum;
     keyword: string;
+    getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
+    extraTableParams?: TableQueryParams; // 查询表格的额外参数
   }>();
 
   const emit = defineEmits<{
@@ -169,9 +176,11 @@
       showDrag: true,
     },
   ];
-
+  const getPageList = computed(() => {
+    return getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType];
+  });
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setPagination, resetFilterParams } =
-    useTable(undefined, {
+    useTable(getPageList.value, {
       columns,
       showSetting: false,
       selectable: true,
@@ -188,7 +197,9 @@
       excludeIds: [...(props.associatedIds || [])], // 已经存在的关联的id列表
       condition: {
         keyword: props.keyword,
+        filter: propsRes.value.filter,
       },
+      ...props.extraTableParams,
     };
   }
 
@@ -237,6 +248,15 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => props.activeModule,
+    (val) => {
+      if (val) {
+        loadScenarioList();
+      }
     }
   );
 

@@ -42,4 +42,7 @@ export default {
   'report.detail.oneClickSummary': 'One click report summary',
   'report.detail.testPlanTotal': 'Total plan',
   'report.detail.testPlanCaseTotal': 'Total use cases',
+  'report.detail.testPlanGroup.result': 'Result',
+  'report.detail.testPlanGroup.useCasesCount': 'Use cases',
+  'report.detail.testPlanGroup.viewReport': 'View Report',
 };

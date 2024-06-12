@@ -38,4 +38,5 @@ export interface CommentParams extends WriteCommentProps {
   notifier?: string; // 通知人
   fetchType?: FetchType; // 发送后端请求类型 编辑还是新增
   commentType?: CommentType; // 评论类型
+  uploadFileIds: string[]; // 评论上传文件
 }

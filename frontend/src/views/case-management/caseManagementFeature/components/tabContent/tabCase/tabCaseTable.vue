@@ -50,6 +50,7 @@
         {{ caseTypeOptions.find((e) => e.value === record.sourceType)?.label }}
       </template>
     </ms-base-table>
+    <!-- TODO: 涉及接口调整放到下一个版本再替换暂时还是使用原来的 -->
     <MsCaseAssociate
       v-model:visible="innerVisible"
       v-model:currentSelectCase="currentSelectCase"

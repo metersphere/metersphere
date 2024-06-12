@@ -11,10 +11,9 @@
       <div class="float-left">
         <a-select
           v-if="props?.moduleOptions"
-          v-model:model-value="caseType"
+          v-model="caseType"
           class="ml-2 max-w-[100px]"
           :placeholder="t('caseManagement.featureCase.PleaseSelect')"
-          @change="changeCaseTypeHandler"
         >
           <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">
             {{ t(item.label) }}
@@ -788,18 +787,20 @@
     }
   );
 
-  function changeCaseTypeHandler(
-    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
-  ) {
-    caseType.value = value as keyof typeof CaseLinkEnum;
-    if (!props.hideProjectSelect) {
-      initProjectList(true);
+  watch(
+    () => caseType.value,
+    (val) => {
+      if (val) {
+        if (!props.hideProjectSelect) {
+          initProjectList(true);
+        }
+        resetFilterParams();
+        initModules(true);
+        searchCase();
+        initFilter();
+      }
     }
-    resetFilterParams();
-    initModules(true);
-    searchCase();
-    initFilter();
-  }
+  );
 
   watch(
     () => innerProject.value,

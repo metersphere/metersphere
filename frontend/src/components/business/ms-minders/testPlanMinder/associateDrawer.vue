@@ -9,7 +9,11 @@
     :extra-table-params="{
       testPlanId: props?.testPlanId,
     }"
+    :extra-modules-params="{
+      testPlanId: props?.testPlanId,
+    }"
     :associated-ids="props.hasNotAssociatedIds || []"
+    :associated-type="associationType"
     @save="saveHandler"
   >
   </MsCaseAssociate>
@@ -26,6 +30,7 @@
 
   import type { AssociateCaseRequest, AssociateCaseRequestType } from '@/models/testPlan/testPlan';
   import { CaseCountApiTypeEnum, CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -68,4 +73,7 @@
     }
     innerVisible.value = false;
   }
+
+  // TODO 关联用例脑图待替换关联类型
+  const associationType = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
 </script>

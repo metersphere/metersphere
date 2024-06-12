@@ -47,6 +47,7 @@ export default defineComponent({
     const expendedIds = ref<string[]>([]); // 展开的评论id
     // 被@的用户id
     const noticeUserIds = ref<string[]>([]);
+    const uploadFileIds = ref<string[]>([]);
     const { t } = useI18n();
 
     const resetCurrentItem = () => {
@@ -79,6 +80,7 @@ export default defineComponent({
         notifier: noticeUserIds.value.join(';'),
         replyUser: currentItem.replyId || item.createUser,
         parentId,
+        uploadFileIds: uploadFileIds.value,
       };
       if (currentItem.commentType === 'EDIT') {
         params.id = item.id;
@@ -135,6 +137,10 @@ export default defineComponent({
           noticeUserIds={noticeUserIds.value}
           onUpdate:noticeUserIds={(ids: string[]) => {
             noticeUserIds.value = ids;
+          }}
+          filedIds={uploadFileIds.value}
+          onUpdate:filedIds={(ids: string[]) => {
+            uploadFileIds.value = ids;
           }}
           uploadImage={uploadImage.value}
           previewUrl={previewUrl.value}

@@ -57,7 +57,6 @@
   const featureCaseStore = useFeatureCaseStore();
   const router = useRouter();
   const route = useRoute();
-  // const activeTab = computed(() => featureCaseStore.activeTab);
   const { openModal } = useModal();
   const { t } = useI18n();
 

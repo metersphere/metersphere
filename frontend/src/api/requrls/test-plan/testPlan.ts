@@ -84,6 +84,8 @@ export const PlanDetailExecuteHistoryUrl = '/api/scenario/execute/page';
 export const TestPlanApiAssociatedPageUrl = '/test-plan/association/api/page';
 // 功能用例-关联用例-接口用例-CASE
 export const TestPlanCaseAssociatedPageUrl = '/test-plan/association/api/case/page';
+// 功能用例-关联用例-接口用例-CASE
+export const TestPlanScenarioAssociatedPageUrl = '/test-plan/association/api/scenario/page';
 // 测试计划-复制
 export const TestPlanAndGroupCopyUrl = '/test-plan/copy';
 // 测试计划-计划组下拉

@@ -27,8 +27,8 @@
     @cancel="handleCancel"
     @handle-summary="handleSummary"
   />
-  <MsCard>
-    <div class="flex items-center justify-between">
+  <MsCard simple auto-height auto-width>
+    <div class="mb-[16px] flex items-center justify-between">
       <div class="block-title">{{ t('report.detail.api.reportDetail') }}</div>
       <a-radio-group class="mb-2" :model-value="currentMode" type="button" @change="handleModeChange">
         <a-radio value="drawer">
@@ -45,33 +45,31 @@
         </a-radio>
       </a-radio-group>
     </div>
+    <ReportDetailTable :current-mode="currentMode" :report-id="detail.id" :share-id="shareId" />
   </MsCard>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
+  import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
+  import ReportDetailTable from '@/views/test-plan/report/detail/component/reportDetailTable.vue';
   import ReportHeader from '@/views/test-plan/report/detail/component/reportHeader.vue';
   import ReportMetricsItem from '@/views/test-plan/report/detail/component/ReportMetricsItem.vue';
   import Summary from '@/views/test-plan/report/detail/component/summary.vue';
 
   import { updateReportDetail } from '@/api/modules/test-plan/report';
-  import { defaultReportDetail, statusConfig } from '@/config/testPlan';
+  import { defaultReportDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
 
   import type { LegendData } from '@/models/apiTest/report';
-  import type {
-    countDetail,
-    PlanReportDetail,
-    ReportMetricsItemModel,
-    StatusListType,
-  } from '@/models/testPlan/testPlanReport';
+  import type { PlanReportDetail, ReportMetricsItemModel } from '@/models/testPlan/testPlanReport';
 
   import { getIndicators } from '@/views/api-test/report/utils';
 
@@ -216,10 +214,19 @@
     richText.value.summary = summaryContent.value;
   }
 
-  const currentMode = ref('');
+  const currentMode = ref<string>('drawer');
   const handleModeChange = (value: string | number | boolean) => {
     currentMode.value = value as string;
   };
+
+  onMounted(async () => {
+    nextTick(() => {
+      const editorContent = document.querySelector('.editor-content');
+      useEventListener(editorContent, 'click', () => {
+        showButton.value = true;
+      });
+    });
+  });
 </script>
 
 <style scoped lang="less">
