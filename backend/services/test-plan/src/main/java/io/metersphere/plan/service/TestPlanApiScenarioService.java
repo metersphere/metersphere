@@ -2,8 +2,10 @@ package io.metersphere.plan.service;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.domain.ApiScenarioReportExample;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.invoker.GetRunScriptServiceRegister;
+import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
@@ -88,6 +90,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
     private ApiScenarioModuleService apiScenarioModuleService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public TestPlanApiScenarioService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
@@ -525,5 +529,14 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         if (CollectionUtils.isNotEmpty(ids)) {
             extTestPlanApiScenarioMapper.batchUpdateExecutor(ids, request.getUserId());
         }
+    }
+
+    public void checkReportIsTestPlan(String id) {
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andIdEqualTo(id).andTestPlanScenarioIdNotEqualTo("NONE");
+        if (apiScenarioReportMapper.countByExample(example) == 0) {
+            throw new MSException(Translator.get("api_scenario_report_not_exist"));
+        }
+
     }
 }

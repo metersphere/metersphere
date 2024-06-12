@@ -3,15 +3,19 @@ package io.metersphere.plan.controller;
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
-import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
+import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.RawBody;
+import io.metersphere.api.mapper.ApiReportDetailMapper;
+import io.metersphere.api.mapper.ApiReportLogMapper;
+import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.service.definition.ApiDefinitionService;
+import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.constants.AssociateCaseType;
@@ -23,7 +27,9 @@ import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -31,10 +37,12 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,6 +51,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -69,6 +79,14 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private ApiReportService apiReportService;
+    @Resource
+    private ApiReportMapper apiReportMapper;
+    @Resource
+    private ApiReportLogMapper apiReportLogMapper;
+    @Resource
+    private ApiReportDetailMapper apiReportDetailMapper;
 
     private static ApiTestCase apiTestCase;
     private static TestPlanApiCase testPlanApiCase;
@@ -355,4 +373,89 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     private Object getTestElementParam(MsHTTPElement msHttpElement) {
         return JSON.parseObject(ApiDataUtils.toJSONString(msHttpElement));
     }
+
+
+    @Test
+    @Order(10)
+    public void testGet() throws Exception {
+
+        List<ApiReport> reports = new ArrayList<>();
+        ApiReport apiReport = new ApiReport();
+        apiReport.setId("plan-test-report-id");
+        apiReport.setProjectId(DEFAULT_PROJECT_ID);
+        apiReport.setName("plan-test-report-name");
+        apiReport.setStartTime(System.currentTimeMillis());
+        apiReport.setCreateUser("admin");
+        apiReport.setUpdateUser("admin");
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReport.setPoolId("resource_pool");
+        apiReport.setEnvironmentId("test-env");
+        apiReport.setRunMode("api-run-mode");
+        apiReport.setTestPlanCaseId("test-plan-case-id");
+        apiReport.setStatus(ReportStatus.SUCCESS.name());
+        apiReport.setTriggerMode("api-trigger-mode");
+        apiReport.setIntegrated(true);
+        reports.add(apiReport);
+        ApiTestCaseRecord record = new ApiTestCaseRecord();
+        record.setApiTestCaseId("api-resource-id");
+        record.setApiReportId(apiReport.getId());
+        apiReportService.insertApiReport(reports, List.of(record));
+        List<ApiReportStep> steps = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            ApiReportStep apiReportStep = new ApiReportStep();
+            apiReportStep.setStepId("plan-test-report-step-id" + i);
+            apiReportStep.setReportId("plan-test-report-id");
+            apiReportStep.setSort((long) i);
+            apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
+            steps.add(apiReportStep);
+        }
+
+        apiReportService.insertApiReportStep(steps);
+        ApiReportLog apiReportLog = new ApiReportLog();
+        apiReportLog.setReportId("plan-test-report-id");
+        apiReportLog.setId(IDGenerator.nextStr());
+        apiReportLog.setConsole("test-console".getBytes());
+        apiReportLogMapper.insert(apiReportLog);
+
+        MvcResult mvcResult = this.requestGetWithOk("/report/get/plan-test-report-id")
+                .andReturn();
+        ApiReportDTO apiReportDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiReportDTO.class);
+
+        Assertions.assertNotNull(apiReportDTO);
+        Assertions.assertEquals(apiReportDTO.getId(), "plan-test-report-id");
+        ApiReport apiReport1 = apiReportMapper.selectByPrimaryKey("plan-test-report-id");
+        apiReport1.setTestPlanCaseId("NONE");
+        apiReportMapper.updateByPrimaryKey(apiReport1);
+
+        mockMvc.perform(getRequestBuilder("/report/get/plan-test-report-id"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+
+        apiReport1.setTestPlanCaseId("test-plan-case-id");
+        apiReportMapper.updateByPrimaryKey(apiReport1);
+
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/plan-test-report-id");
+
+        List<ApiReportDetail> reportsDetail = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            ApiReportDetail apiReportDetail = new ApiReportDetail();
+            apiReportDetail.setId("test-report-detail-id" + i);
+            apiReportDetail.setReportId("plan-test-report-id");
+            apiReportDetail.setStepId("plan-test-report-step-id1");
+            apiReportDetail.setStatus("success");
+            apiReportDetail.setResponseSize(0L);
+            apiReportDetail.setRequestTime((long) i);
+            apiReportDetail.setContent("{\"resourceId\":\"\",\"stepId\":null,\"threadName\":\"Thread Group\",\"name\":\"HTTP Request1\",\"url\":\"https://www.baidu.com/\",\"requestSize\":195,\"startTime\":1705570589125,\"endTime\":1705570589310,\"error\":1,\"headers\":\"Connection: keep-alive\\nContent-Length: 0\\nContent-Type: application/x-www-form-urlencoded; charset=UTF-8\\nHost: www.baidu.com\\nUser-Agent: Apache-HttpClient/4.5.14 (Java/21)\\n\",\"cookies\":\"\",\"body\":\"POST https://www.baidu.com/\\n\\nPOST data:\\n\\n\\n[no cookies]\\n\",\"status\":\"ERROR\",\"method\":\"POST\",\"assertionTotal\":1,\"passAssertionsTotal\":0,\"subRequestResults\":[],\"responseResult\":{\"responseCode\":\"200\",\"responseMessage\":\"OK\",\"responseTime\":185,\"latency\":180,\"responseSize\":2559,\"headers\":\"HTTP/1.1 200 OK\\nContent-Length: 2443\\nContent-Type: text/html\\nServer: bfe\\nDate: Thu, 18 Jan 2024 09:36:29 GMT\\n\",\"body\":\"<!DOCTYPE html>\\r\\n<!--STATUS OK--><html> <head><meta http-equiv=content-type content=text/html;charset=utf-8><meta http-equiv=X-UA-Compatible content=IE=Edge><meta content=always name=referrer><link rel=stylesheet type=text/css href=https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/bdorz/baidu.min.css><title>百度一下，你就知道</title></head> <body link=#0000cc> <div id=wrapper> <div id=head> <div class=head_wrapper> <div class=s_form> <div class=s_form_wrapper> <div id=lg> <img hidefocus=true src=//www.baidu.com/img/bd_logo1.png width=270 height=129> </div> <form id=form name=f action=//www.baidu.com/s class=fm> <input type=hidden name=bdorz_come value=1> <input type=hidden name=ie value=utf-8> <input type=hidden name=f value=8> <input type=hidden name=rsv_bp value=1> <input type=hidden name=rsv_idx value=1> <input type=hidden name=tn value=baidu><span class=\\\"bg s_ipt_wr\\\"><input id=kw name=wd class=s_ipt value maxlength=255 autocomplete=off autofocus=autofocus></span><span class=\\\"bg s_btn_wr\\\"><input type=submit id=su value=百度一下 class=\\\"bg s_btn\\\" autofocus></span> </form> </div> </div> <div id=u1> <a href=http://news.baidu.com name=tj_trnews class=mnav>新闻</a> <a href=https://www.hao123.com name=tj_trhao123 class=mnav>hao123</a> <a href=http://map.baidu.com name=tj_trmap class=mnav>地图</a> <a href=http://v.baidu.com name=tj_trvideo class=mnav>视频</a> <a href=http://tieba.baidu.com name=tj_trtieba class=mnav>贴吧</a> <noscript> <a href=http://www.baidu.com/bdorz/login.gif?login&amp;tpl=mn&amp;u=http%3A%2F%2Fwww.baidu.com%2f%3fbdorz_come%3d1 name=tj_login class=lb>登录</a> </noscript> <script>document.write('<a href=\\\"http://www.baidu.com/bdorz/login.gif?login&tpl=mn&u='+ encodeURIComponent(window.location.href+ (window.location.search === \\\"\\\" ? \\\"?\\\" : \\\"&\\\")+ \\\"bdorz_come=1\\\")+ '\\\" name=\\\"tj_login\\\" class=\\\"lb\\\">登录</a>');\\r\\n                </script> <a href=//www.baidu.com/more/ name=tj_briicon class=bri style=\\\"display: block;\\\">更多产品</a> </div> </div> </div> <div id=ftCon> <div id=ftConw> <p id=lh> <a href=http://home.baidu.com>关于百度</a> <a href=http://ir.baidu.com>About Baidu</a> </p> <p id=cp>&copy;2017&nbsp;Baidu&nbsp;<a href=http://www.baidu.com/duty/>使用百度前必读</a>&nbsp; <a href=http://jianyi.baidu.com/ class=cp-feedback>意见反馈</a>&nbsp;京ICP证030173号&nbsp; <img src=//www.baidu.com/img/gs.gif> </p> </div> </div> </div> </body> </html>\\r\\n\",\"contentType\":\"text/html\",\"vars\":null,\"imageUrl\":null,\"socketInitTime\":14,\"dnsLookupTime\":0,\"tcpHandshakeTime\":0,\"sslHandshakeTime\":0,\"transferStartTime\":166,\"downloadTime\":5,\"bodySize\":2443,\"headerSize\":116,\"assertions\":[{\"name\":\"JSON Assertion\",\"content\":null,\"script\":null,\"message\":\"Expected to find an object with property ['test'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.\",\"pass\":false}]},\"isSuccessful\":false,\"fakeErrorMessage\":\"\",\"fakeErrorCode\":null}\n".getBytes());
+            reportsDetail.add(apiReportDetail);
+        }
+        apiReportDetailMapper.batchInsert(reportsDetail);
+
+        this.requestGetWithOk("/report/get/detail/plan-test-report-id" + "/" + "plan-test-report-step-id1")
+                .andReturn();
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/detail/plan-test-report-id" + "/" + "plan-test-report-step-id1");
+    }
+
+
 }

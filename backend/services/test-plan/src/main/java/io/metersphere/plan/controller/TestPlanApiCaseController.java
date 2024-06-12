@@ -2,16 +2,15 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.definition.ApiReportDTO;
+import io.metersphere.api.dto.definition.ApiReportDetailDTO;
+import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
-import io.metersphere.plan.service.TestPlanApiCaseBatchRunService;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
-import io.metersphere.plan.service.TestPlanApiCaseLogService;
-import io.metersphere.plan.service.TestPlanApiCaseService;
-import io.metersphere.plan.service.TestPlanManagementService;
-import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -50,6 +49,8 @@ public class TestPlanApiCaseController {
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private ApiReportService apiReportService;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
@@ -144,4 +145,23 @@ public class TestPlanApiCaseController {
     }
 
     //TODO 批量移动 （计划集内）
+
+    @GetMapping("/report/get/{id}")
+    @Operation(summary = "测试计划-用例列表-执行结果获取")
+    @CheckOwner(resourceId = "#id", resourceType = "api_report")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public ApiReportDTO get(@PathVariable String id) {
+        testPlanApiCaseService.checkReportIsTestPlan(id);
+        return apiReportService.get(id);
+    }
+
+    @GetMapping("/report/get/detail/{reportId}/{stepId}")
+    @Operation(summary = "测试计划-用例列表-执行结果获取-报告详情获取")
+    @CheckOwner(resourceId = "#reportId", resourceType = "api_report")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public List<ApiReportDetailDTO> getDetail(@PathVariable String reportId,
+                                              @PathVariable String stepId) {
+        testPlanApiCaseService.checkReportIsTestPlan(reportId);
+        return apiReportService.getDetail(reportId, stepId);
+    }
 }
