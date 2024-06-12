@@ -14,9 +14,11 @@
     <div v-else style="height: 150px;overflow: auto">
       <el-menu-item :key="i.id" v-for="i in items" @click="change(i.id)">
         <template slot="title">
-          <div class="title">
-            {{ i.name }}
-          </div>
+          <el-tooltip effect="light" placement="right">
+            <div slot="content">{{ i.name }}</div>
+            <span class="title"> {{ i.name }}
+          </span>
+          </el-tooltip>
           <i class="el-icon-check" v-if="i.id === getCurrentProjectID()"></i>
         </template>
       </el-menu-item>
