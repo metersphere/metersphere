@@ -2,8 +2,6 @@ package io.metersphere.system.utils;
 
 import com.bastiaanjansen.otp.TOTPGenerator;
 import io.metersphere.sdk.constants.MsHttpHeaders;
-import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
-import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
@@ -21,17 +19,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.List;
 
 @Component
 public class TaskRunnerClient {
     private static TOTPGenerator totpGenerator;
 
-    private static final String API_DEBUG = "/api/debug";
-    private static final String API_RUN = "/api/run";
-    private static final String BATCH_API_RUN = "/api/batch/run";
     private static final String HTTP_BATH = "http://%s:%s";
-    private static final String API_STOP = "/api/stop";
 
     private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
     private final static int RETRY_COUNT = 3;
@@ -42,22 +35,6 @@ public class TaskRunnerClient {
         httpRequestFactory.setConnectionRequestTimeout(2000);
         httpRequestFactory.setConnectTimeout(2000);
         restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
-    }
-
-    public static void debugApi(String endpoint, TaskRequestDTO taskRequest) throws Exception {
-        post(endpoint + API_DEBUG, taskRequest);
-    }
-
-    public static void runApi(String endpoint, TaskRequestDTO taskRequest) throws Exception {
-        post(endpoint + API_RUN, taskRequest);
-    }
-
-    public static void batchRunApi(String endpoint, TaskBatchRequestDTO taskRequest) throws Exception {
-        post(endpoint + BATCH_API_RUN, taskRequest);
-    }
-
-    public static void stopApi(String endpoint, List<String> reportIds) throws Exception {
-        post(endpoint + API_STOP, reportIds);
     }
 
     public static String getEndpoint(String ip, String port) {
@@ -76,20 +53,6 @@ public class TaskRunnerClient {
         };
 
         return retry(url, null, action);
-    }
-
-    public static ResultHolder post(String url, Object requestBody, Object... uriVariables) throws Exception {
-        // 定义action
-        Action action = (u, b) -> {
-            String token = totpGenerator.now();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(MsHttpHeaders.OTP_TOKEN, token);
-            HttpEntity<Object> httpEntity = new HttpEntity<>(b, headers);
-            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.POST, httpEntity, ResultHolder.class, uriVariables);
-            return entity.getBody();
-        };
-
-        return retry(url, requestBody, action);
     }
 
     private static ResultHolder retry(String url, Object requestBody, Action action) throws Exception {

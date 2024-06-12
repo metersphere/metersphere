@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
+import io.metersphere.engine.MsHttpClient;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
@@ -36,7 +37,6 @@ import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -278,7 +278,7 @@ public class ApiTaskCenterService {
         Map<String, String> testPlanIdMap = reports.stream()
                 .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getTestPlanId));
         nodesList.parallelStream().forEach(node -> {
-            String endpoint = TaskRunnerClient.getEndpoint(node.getIp(), node.getPort());
+            String endpoint = MsHttpClient.getEndpoint(node.getIp(), node.getPort());
             //需要去除取消勾选的report
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 reportList.removeAll(request.getExcludeIds());
@@ -294,7 +294,7 @@ public class ApiTaskCenterService {
             SubListUtils.dealForSubList(reportList, 100, (subList) -> {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
-                    TaskRunnerClient.stopApi(endpoint, subList);
+                    MsHttpClient.stopApi(endpoint, subList);
                 } catch (Exception e) {
                     LogUtils.error(e);
                 } finally {

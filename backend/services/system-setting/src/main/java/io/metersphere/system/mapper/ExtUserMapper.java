@@ -39,4 +39,11 @@ public interface ExtUserMapper {
     long countByIdAndPassword(@Param("userId") String id, @Param("password") String password);
 
     long updatePasswordByUserId(@Param("userId") String id, @Param("password") String password);
+
+    /**
+     * 获取用户的安装时间，兼容历史用户使用问题
+     * @return 安装时间
+     */
+    long gaInstalledTime();
+
 }
