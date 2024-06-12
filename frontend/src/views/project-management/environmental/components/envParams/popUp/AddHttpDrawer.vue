@@ -3,7 +3,6 @@
     :width="891"
     :visible="visible"
     unmount-on-close
-    :mask="false"
     destroy-on-close
     @confirm="handleAddOrUpdate"
     @cancel="handleCancel"

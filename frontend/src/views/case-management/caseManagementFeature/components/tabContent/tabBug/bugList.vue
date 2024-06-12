@@ -77,7 +77,7 @@
       bugTotal: number; // 平台缺陷总数决定是否新建还是关联
       loadParams?: Record<string, any>;
       loadBugListApi: (params: TableQueryParams) => Promise<CommonList<Record<string, any>>>; // 获取列表请求函数
-      canEdit: boolean;
+      canEdit?: boolean;
     }>(),
     {
       canEdit: true,
