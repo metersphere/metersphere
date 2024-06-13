@@ -2,7 +2,9 @@ package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
 import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
+import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
@@ -42,4 +44,5 @@ public interface ExtTestPlanReportMapper {
     List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request, @Param("projectIds") List<String> projectIds,
                                        @Param("startTime") long startTime, @Param("endTime") long endTime);
 
+    List<TestPlanReportDetailResponse> getPlanReportListById(@Param("request") TestPlanReportDetailPageRequest request);
 }

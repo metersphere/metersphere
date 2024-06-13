@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -52,6 +53,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE = "/test-plan/report/detail/functional/case/page";
     private static final String GET_PLAN_REPORT_DETAIL_API_PAGE = "/test-plan/report/detail/api/case/page";
     private static final String GET_PLAN_REPORT_DETAIL_SCENARIO_PAGE = "/test-plan/report/detail/scenario/case/page";
+    private static final String GET_PLAN_REPORT_DETAIL_PLAN_PAGE = "/test-plan/report/detail/plan/report/page";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
     private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
@@ -60,6 +62,9 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_SHARE_REPORT_FUNCTIONAL_LIST = "/test-plan/report/share/detail/functional/case/page";
     private static final String GET_SHARE_REPORT_API_LIST = "/test-plan/report/share/detail/api/case/page";
     private static final String GET_SHARE_REPORT_SCENARIO_LIST = "/test-plan/report/share/detail/scenario/case/page";
+    private static final String GET_SHARE_REPORT_PLAN_LIST = "/test-plan/report/share/detail/plan/report/page";
+    private static final String GET_SHARE_REPORT_API_REPORT_LIST = "/test-plan/report/share/detail/api-report";
+    private static final String GET_SHARE_REPORT_SCENARIO_REPORT_LIST = "/test-plan/report/share/detail/scenario-report";
 
     @Autowired
     private TestPlanReportMapper testPlanReportMapper;
@@ -175,7 +180,7 @@ public class TestPlanReportControllerTests extends BaseTest {
 
     @Test
     @Order(8)
-    void testGetShareReportTableList() throws Exception{
+    void testGetShareReportTableList() throws Exception {
         TestPlanShareReportDetailRequest request = new TestPlanShareReportDetailRequest();
         request.setCurrent(1);
         request.setPageSize(10);
@@ -186,16 +191,33 @@ public class TestPlanReportControllerTests extends BaseTest {
         this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST, request);
         this.requestPostWithOk(GET_SHARE_REPORT_API_LIST, request);
         this.requestPostWithOk(GET_SHARE_REPORT_SCENARIO_LIST, request);
+        this.requestPostWithOk(GET_SHARE_REPORT_PLAN_LIST, request);
         request.setSort(Map.of("num", "asc"));
         this.requestPostWithOk(GET_SHARE_REPORT_BUG_LIST, request);
         this.requestPostWithOk(GET_SHARE_REPORT_FUNCTIONAL_LIST, request);
         this.requestPostWithOk(GET_SHARE_REPORT_API_LIST, request);
         this.requestPostWithOk(GET_SHARE_REPORT_SCENARIO_LIST, request);
+
+        mockMvc.perform(getRequestBuilder(GET_SHARE_REPORT_API_REPORT_LIST + "/" + GEN_SHARE_ID + "/" + "test"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+
+        mockMvc.perform(getRequestBuilder(GET_SHARE_REPORT_API_REPORT_LIST + "/get/" + GEN_SHARE_ID + "/" + "test" + "/111"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(getRequestBuilder(GET_SHARE_REPORT_SCENARIO_REPORT_LIST + "/" + GEN_SHARE_ID + "/" + "test"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+
+        mockMvc.perform(getRequestBuilder(GET_SHARE_REPORT_SCENARIO_REPORT_LIST + "/get/" + GEN_SHARE_ID + "/" + "test" + "/111"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
     @Order(9)
-    void testGetShareReport() throws Exception{
+    void testGetShareReport() throws Exception {
         // 获取分享的报告
         this.requestGet(GET_SHARE_REPORT + "/" + GEN_SHARE_ID + "/test-plan-report-id-1");
         ProjectApplicationExample example = new ProjectApplicationExample();
@@ -287,6 +309,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_API_PAGE, request);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_SCENARIO_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_PLAN_PAGE, request);
         request.setSort(Map.of("num", "asc"));
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_API_PAGE, request);
@@ -368,6 +391,7 @@ public class TestPlanReportControllerTests extends BaseTest {
 
     /**
      * 获取生成的报告ID
+     *
      * @param planId 计划ID
      * @return 报告ID
      */

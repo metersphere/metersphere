@@ -96,6 +96,39 @@
         </if>
         <include refid="filter"/>
     </select>
+    <select id="getPlanReportListById"
+            resultType="io.metersphere.plan.dto.response.TestPlanReportDetailResponse">
+
+        SELECT tpr.id,
+               tp.name,
+               tpr.result_status,
+               tpr.pass_rate,
+               tpc.pass_threshold,
+        (tprs.functional_case_count + tprs.api_case_count + tprs.api_scenario_count + tprs.bug_count) as caseTotal,
+        tpr.create_time,
+        tpr.deleted
+
+        from test_plan_report tpr
+                 INNER JOIN test_plan tp on tpr.test_plan_id = tp.id
+                 INNER JOIN test_plan_report_summary tprs on tpr.id = tprs.id
+        INNER JOIN test_plan_config tpc on tp.id = tpc.test_plan_id
+
+        <include refid="queryWhereConditionByParentId"/>
+    </select>
+
+    <sql id="queryWhereConditionByParentId">
+        <where>
+            <if test="request.reportId != null and request.reportId != ''">
+                and tpr.parent_id = #{request.reportId}
+            </if>
+            <include refid="filter"/>
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+                <property name="searchMode" value="request.searchMode"/>
+                <property name="combineTag" value="request.combine.tag"/>
+            </include>
+        </where>
+    </sql>
 
     <sql id="queryWhereCondition">
         <where>

@@ -84,14 +84,14 @@ public class TestPlanReportController {
         testPlanReportService.batchSetReportDelete(request, SessionUtils.getUserId());
     }
 
-	@PostMapping("/gen")
-	@Operation(summary = "测试计划-详情-生成报告")
-	@RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-	@CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-	public void genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
+    @PostMapping("/gen")
+    @Operation(summary = "测试计划-详情-生成报告")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public void genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
         testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
-	}
+    }
 
     // 报告详情开始
 
@@ -157,5 +157,15 @@ public class TestPlanReportController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.api_scenario_num, tpras.id desc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
+    }
+
+    @PostMapping("/detail/plan/report/page")
+    @Operation(summary = "测试计划-报告-集合报告详情")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
+    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
+    public Pager<List<TestPlanReportDetailResponse>> planReportPage(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpr.create_time desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.planReportList(request));
     }
 }
