@@ -1,6 +1,6 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.invoker.GetRunScriptServiceRegister;
+import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
@@ -49,8 +49,7 @@ public class ApiExecuteResourceService {
             default -> throw new MSException("不支持的资源类型: " + request.getResourceType());
         }
 
-        GetRunScriptService getRunScriptService = GetRunScriptServiceRegister.getRunScriptService(apiExecuteResourceType);
-        return getRunScriptService.getRunScript(request);
+        return ApiExecuteCallbackServiceInvoker.getRunScript(request.getResourceType(), request);
     }
 
     public String getRunScript(String reportId, String testId) {

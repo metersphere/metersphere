@@ -2,12 +2,14 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,19 @@ public class ApiBatchRunBaseService {
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
+        apiExecutionQueueService.insertQueue(queue, queueDetails);
+        return queue;
+    }
+
+    /**
+     * 初始化执行队列
+     *
+     * @param resourceIds
+     * @return
+     */
+    public ExecutionQueue initExecutionqueue(List<String> resourceIds, String resourceType, String userId) {
+        ExecutionQueue queue = getExecutionQueue(null, resourceType, userId);
         List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
         return queue;
@@ -100,5 +115,9 @@ public class ApiBatchRunBaseService {
         taskInfo.setNeedParseScript(true);
         taskInfo.setRunModeConfig(runModeConfig);
         return taskInfo;
+    }
+
+    public boolean isParallel(String runMode) {
+        return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
     }
 }

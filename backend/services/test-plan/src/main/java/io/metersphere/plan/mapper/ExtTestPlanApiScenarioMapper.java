@@ -7,6 +7,7 @@ import io.metersphere.plan.dto.ApiScenarioModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
@@ -62,4 +63,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
+
+    List<TestPlanApiScenario> getSelectIdAndCollectionId(@Param("request")  TestPlanApiScenarioBatchRunRequest request);
 }

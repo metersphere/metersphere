@@ -703,4 +703,12 @@
             )
         </if>
     </select>
+    <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.domain.TestPlanApiCase">
+        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id
+        FROM test_plan_api_case t
+        INNER JOIN api_test_case atc ON t.api_case_id = atc.id
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        WHERE t.test_plan_id = #{request.testPlanId} AND atc.deleted = false
+        <include refid="queryWhereConditionByBatchQueryRequest"/>
+    </select>
 </mapper>

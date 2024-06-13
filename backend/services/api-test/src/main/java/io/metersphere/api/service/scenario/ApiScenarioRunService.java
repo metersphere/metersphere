@@ -10,7 +10,6 @@ import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.scenario.*;
-import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.mapper.ApiScenarioBlobMapper;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
@@ -18,7 +17,6 @@ import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
-import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
@@ -32,7 +30,10 @@ import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.project.service.EnvironmentService;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
+import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.JSON;
@@ -54,7 +55,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiScenarioRunService implements GetRunScriptService {
+public class ApiScenarioRunService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
@@ -83,10 +84,6 @@ public class ApiScenarioRunService implements GetRunScriptService {
     private ApiScenarioBlobMapper apiScenarioBlobMapper;
     @Resource
     private ApiExecutionSetService apiExecutionSetService;
-
-    public ApiScenarioRunService() {
-        GetRunScriptServiceRegister.register(ApiExecuteResourceType.API_SCENARIO, this);
-    }
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);

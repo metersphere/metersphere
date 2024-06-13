@@ -1,6 +1,7 @@
 package io.metersphere.api.listener;
 
 import io.metersphere.api.event.ApiEventSource;
+import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiReportSendNoticeService;
@@ -48,13 +49,7 @@ public class MessageListener {
             if (ObjectUtils.isNotEmpty(record.value())) {
                 ApiNoticeDTO dto = JSON.parseObject(record.value(), ApiNoticeDTO.class);
                 LogUtils.info("接收到发送通知信息：{}", dto.getReportId());
-                // 集合报告不发送通知
-                if (!BooleanUtils.isTrue(dto.getIntegratedReport())) {
-                    apiReportSendNoticeService.sendNotice(dto);
-                    // TODO 通知测试计划处理后续
-                    LogUtils.info("发送通知给测试计划：{}", record.key());
-                    apiEventSource.fireEvent(ApplicationScope.API_TEST, record.value());
-                } else {
+                if (BooleanUtils.isTrue(dto.getIntegratedReport())) {
                     ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, dto.getResourceType());
                     boolean isStop = switch (resourceType) {
                         case API_CASE, TEST_PLAN_API_CASE ->
@@ -68,6 +63,14 @@ public class MessageListener {
 
                     if (isStop) {
                         return;
+                    }
+                    // 集合报告不发送通知
+                } else {
+                    apiReportSendNoticeService.sendNotice(dto);
+                    if (StringUtils.isNotBlank(dto.getParentQueueId())
+                            && BooleanUtils.isTrue(dto.getChildCollectionExecuteOver())) {
+                        // 执行下一个测试集
+                        ApiExecuteCallbackServiceInvoker.executeNextCollection(dto.getResourceType(), dto.getParentQueueId());
                     }
                 }
 
@@ -106,12 +109,8 @@ public class MessageListener {
             }
 
             ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(dto.getQueueId());
-            switch (resourceType) {
-                case API_CASE -> apiTestCaseBatchRunService.executeNextTask(queue, nextDetail);
-                case API_SCENARIO -> apiScenarioBatchRunService.executeNextTask(queue, nextDetail);
-                default -> {
-                }
-            }
+
+            ApiExecuteCallbackServiceInvoker.executeNextTask(queue.getResourceType(), queue, nextDetail);
         } catch (Exception e) {
             LogUtils.error("执行任务失败：", e);
         }

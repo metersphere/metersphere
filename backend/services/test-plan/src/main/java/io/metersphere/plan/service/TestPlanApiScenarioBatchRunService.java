@@ -13,17 +13,21 @@ import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanCollectionExample;
+import io.metersphere.plan.dto.request.ApiExecutionMapService;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
@@ -33,9 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,12 @@ public class TestPlanApiScenarioBatchRunService {
     private ApiScenarioRunService apiScenarioRunService;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
+    @Resource
+    private ApiExecutionMapService apiExecutionMapService;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
 
     /**
      * 异步批量执行
@@ -86,27 +94,103 @@ public class TestPlanApiScenarioBatchRunService {
      */
     private void batchRun(TestPlanApiScenarioBatchRunRequest request, String userId) {
         try {
-            if (StringUtils.equals(request.getRunModeConfig().getRunMode(), ApiBatchRunMode.PARALLEL.name())) {
-                parallelExecute(request, userId);
+            List<TestPlanApiScenario> testPlanApiCases = testPlanApiScenarioService.getSelectIdAndCollectionId(request);
+            // 按照 testPlanCollectionId 分组, value 为测试计划用例 ID 列表
+            Map<String, List<String>> collectionMap = getCollectionMap(testPlanApiCases);
+
+            List<TestPlanCollection> testPlanCollections = getTestPlanCollections(request.getTestPlanId());
+            Iterator<TestPlanCollection> iterator = testPlanCollections.iterator();
+            TestPlanCollection rootCollection = new TestPlanCollection();
+            while (iterator.hasNext()) {
+                TestPlanCollection collection = iterator.next();
+                if (StringUtils.equals(collection.getParentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+                    // 获取根测试集
+                    rootCollection = collection;
+                    iterator.remove();
+                } else if (!collectionMap.containsKey(collection.getId())) {
+                    // 过滤掉没用的测试集
+                    iterator.remove();
+                }
+            }
+
+            // 测试集排序
+            testPlanCollections = testPlanCollections.stream()
+                    .sorted(Comparator.comparingLong(TestPlanCollection::getPos))
+                    .collect(Collectors.toList());
+
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+
+            if (apiBatchRunBaseService.isParallel(rootCollection.getExecuteMethod())) {
+                // 并行执行测试集
+                for (TestPlanCollection collection : testPlanCollections) {
+                    List<String> ids = collectionMap.get(collection.getId());
+                    ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(rootCollection, collection);
+                    if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
+                        //  并行执行测试集中的用例
+                        parallelExecute(ids, runModeConfig, testPlan.getProjectId(), userId);
+                    } else {
+                        // 串行执行测试集中的用例
+                        serialExecute(ids, runModeConfig, userId);
+                    }
+                }
             } else {
-                serialExecute(request, userId);
+                // 串行执行测试集
+                List<String> serialCollectionIds = testPlanCollections.stream().map(TestPlanCollection::getId).toList();
+                // 生成测试集队列
+                ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(serialCollectionIds,
+                        ApiExecuteResourceType.API_CASE.name(), userId);
+                // 记录各测试集中要执行的用例
+                apiExecutionMapService.initMap(collectionQueue.getQueueId(), collectionMap);
+
+                executeNextCollection(collectionQueue.getQueueId());
             }
         } catch (Exception e) {
             LogUtils.error("批量执行用例失败: ", e);
         }
     }
 
+    private List<TestPlanCollection> getTestPlanCollections(String testPlanId) {
+        TestPlanCollectionExample example = new TestPlanCollectionExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(testPlanId)
+                .andTypeEqualTo(CaseType.SCENARIO_CASE.getKey());
+        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(example);
+        return testPlanCollections;
+    }
+
+    private Map<String, List<String>> getCollectionMap(List<TestPlanApiScenario> testPlanApiScenarios) {
+        Map<String, List<String>> collectionMap = new HashMap<>();
+        for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+            collectionMap.putIfAbsent(testPlanApiScenario.getTestPlanCollectionId(), new ArrayList<>());
+            List<String> ids = collectionMap.get(testPlanApiScenario.getTestPlanCollectionId());
+            ids.add(testPlanApiScenario.getId());
+        }
+        return collectionMap;
+    }
+
+    public void executeNextCollection(String collectionQueueId) {
+        ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
+        String userId = collectionQueue.getUserId();
+        String queueId = collectionQueue.getQueueId();
+        ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queueId);
+        String collectionId = nextDetail.getResourceId();
+        List<String> ids = apiExecutionMapService.getAndRemove(queueId, collectionId);
+        TestPlanCollection collection = testPlanCollectionMapper.selectByPrimaryKey(collectionId);
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
+        if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
+            String testPlanId = collection.getTestPlanId();
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+            parallelExecute(ids, runModeConfig, testPlan.getProjectId(), userId);
+        } else {
+            serialExecute(ids, runModeConfig, userId);
+        }
+    }
+
     /**
      * 串行批量执行
      *
-     * @param request
      */
-    public void serialExecute(TestPlanApiScenarioBatchRunRequest request, String userId) throws Exception {
-//        List<String> ids = testPlanApiScenarioService.doSelectIds(request, false); //todo
-        List<String> ids = request.getSelectIds();
-        // todo 查询测试规划
-        ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
-
+    public void serialExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String userId) {
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), userId);
         // 执行第一个任务
@@ -117,31 +201,18 @@ public class TestPlanApiScenarioBatchRunService {
     /**
      * 并行批量执行
      *
-     * @param request
      */
-    public void parallelExecute(TestPlanApiScenarioBatchRunRequest request, String userId) {
-//        List<String> ids = testPlanApiScenarioService.doSelectIds(request, false); //todo
-        List<String> ids = request.getSelectIds();
-
-        // todo 查询测试规划
-        ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
+    public void parallelExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String projectId, String userId) {
 
         Map<String, String> scenarioReportMap = initReport(ids, runModeConfig, userId);
 
         List<TaskItem> taskItems = ids.stream()
                 .map(id -> apiExecuteService.getTaskItem(scenarioReportMap.get(id), id)).toList();
 
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
-
-        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
+        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(projectId, runModeConfig);
         taskRequest.setTaskItems(taskItems);
 
         apiExecuteService.batchExecute(taskRequest);
-    }
-
-    private ApiRunModeConfigDTO getRunModeConfig(TestPlanApiScenarioBatchRunRequest request) {
-        ApiRunModeConfigDTO runModeConfig = BeanUtils.copyBean(new ApiRunModeConfigDTO(), request.getRunModeConfig());
-        return runModeConfig;
     }
 
     private Map<String, String> initReport(List<String> ids, ApiRunModeConfigDTO runModeConfig, String userId) {

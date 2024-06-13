@@ -414,6 +414,17 @@
         AND api_scenario.deleted = #{deleted}
         <include refid="queryWhereConditionByBatchQueryRequest"/>
     </select>
+    <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+        SELECT
+        test_plan_api_scenario.id as id, test_plan_api_scenario.test_plan_collection_id as testPlanCollectionId
+        FROM
+        test_plan_api_scenario
+        INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
+        WHERE
+        test_plan_api_scenario.test_plan_id = #{request.testPlanId}
+        AND api_scenario.deleted = false
+        <include refid="queryWhereConditionByBatchQueryRequest"/>
+    </select>
 
 
     <sql id="queryWhereConditionByBatchQueryRequest">

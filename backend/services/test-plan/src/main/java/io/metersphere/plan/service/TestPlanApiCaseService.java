@@ -3,11 +3,9 @@ package io.metersphere.plan.service;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.ApiExecuteService;
-import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiReportService;
@@ -62,7 +60,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanApiCaseService extends TestPlanResourceService implements GetRunScriptService {
+public class TestPlanApiCaseService extends TestPlanResourceService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
@@ -102,9 +100,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     @Resource
     private ApiReportMapper apiReportMapper;
 
-    public TestPlanApiCaseService() {
-        GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_CASE, this);
-    }
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -470,6 +465,20 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         }
     }
 
+    public List<TestPlanApiCase> getSelectIdAndCollectionId(TestPlanApiCaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.getSelectIdAndCollectionId(request);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                testPlanApiCases.removeAll(request.getExcludeIds());
+            }
+            return testPlanApiCases;
+        } else {
+            TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+            example.createCriteria().andIdIn(request.getSelectIds());
+            return testPlanApiCaseMapper.selectByExample(example);
+        }
+    }
+
 
     /**
      * 批量更新执行人
@@ -619,7 +628,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
     /**
      * 获取执行脚本
      */
-    @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         TaskItem taskItem = request.getTaskItem();
         TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(taskItem.getResourceId());

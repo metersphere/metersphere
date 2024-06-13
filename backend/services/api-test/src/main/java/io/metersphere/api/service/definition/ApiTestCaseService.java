@@ -7,12 +7,10 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
-import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
@@ -61,7 +59,7 @@ import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiTestCaseService extends MoveNodeService implements GetRunScriptService {
+public class ApiTestCaseService extends MoveNodeService {
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -110,9 +108,6 @@ public class ApiTestCaseService extends MoveNodeService implements GetRunScriptS
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
 
-    public ApiTestCaseService() {
-        GetRunScriptServiceRegister.register(ApiExecuteResourceType.API_CASE, this);
-    }
 
     private static final String CASE_TABLE = "api_test_case";
     private static final int MAX_TAG_SIZE = 10;
@@ -773,7 +768,6 @@ public class ApiTestCaseService extends MoveNodeService implements GetRunScriptS
     /**
      * 获取执行脚本
      */
-    @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
         return getRunScript(request, apiTestCase);

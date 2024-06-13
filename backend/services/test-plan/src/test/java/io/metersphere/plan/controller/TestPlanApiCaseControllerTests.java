@@ -306,7 +306,6 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         apiRunModeRequest.setRunMode(ApiBatchRunMode.PARALLEL.name());
         apiRunModeRequest.setStopOnFailure(false);
         apiRunModeRequest.setPoolId("poolId");
-        request.setRunModeConfig(apiRunModeRequest);
         this.requestPostWithOk(BATCH_RUN, request);
         request.setProtocols(List.of("HTTP"));
         this.requestPostWithOk(BATCH_RUN, request);
