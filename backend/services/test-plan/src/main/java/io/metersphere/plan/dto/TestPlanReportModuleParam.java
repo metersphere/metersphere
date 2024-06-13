@@ -13,10 +13,12 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestPlanReportModuleParam {
-
+	@Builder.Default
 	private Map<String, String> functionalModuleMap = new HashMap<>();
 
+	@Builder.Default
 	private Map<String, String> apiModuleMap = new HashMap<>();
 
+	@Builder.Default
 	private Map<String, String> scenarioModuleMap = new HashMap<>();
 }
