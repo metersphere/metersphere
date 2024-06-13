@@ -158,6 +158,7 @@ export default {
   'apiTestManagement.variable': '变量',
   'apiTestManagement.regex': '正则表达式',
   'apiTestManagement.caseTotal': '用例数',
+  'apiTestManagement.requestTypeTip': '注：批量修改请求类型仅对HTTP协议的请求生效',
   'case.execute.selectEnv': '环境选择',
   'case.execute.defaultEnv': '默认环境',
   'case.execute.newEnv': '新环境',

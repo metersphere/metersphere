@@ -134,6 +134,7 @@
         :rules="[{ required: true, message: t('apiTestManagement.attrRequired') }]"
         asterisk-position="end"
       >
+        <template v-if="batchForm.attr === 'method'" #extra>{{ t('apiTestManagement.requestTypeTip') }}</template>
         <a-select v-model="batchForm.attr" :placeholder="t('common.pleaseSelect')">
           <a-option v-for="item of attrOptions" :key="item.value" :value="item.value">
             {{ t(item.name) }}
