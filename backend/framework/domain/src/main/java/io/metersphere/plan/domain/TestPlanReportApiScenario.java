@@ -24,6 +24,17 @@ public class TestPlanReportApiScenario implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_api_scenario.test_plan_report_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanReportId;
 
+    @Schema(description = "测试集ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_report_api_scenario.test_plan_collection_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_report_api_scenario.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
+    private String testPlanCollectionId;
+
+    @Schema(description = "是否环境组")
+    private Boolean grouped;
+
+    @Schema(description = "环境ID")
+    private String environmentId;
+
     @Schema(description = "测试计划场景用例关联ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report_api_scenario.test_plan_api_scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_report_api_scenario.test_plan_api_scenario_id.length_range}", groups = {Created.class, Updated.class})
@@ -52,16 +63,20 @@ public class TestPlanReportApiScenario implements Serializable {
     @Schema(description = "场景用例执行人")
     private String apiScenarioExecuteUser;
 
-    @Schema(description = "场景用例执行结果", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_report_api_scenario.api_scenario_execute_result.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_report_api_scenario.api_scenario_execute_result.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "场景用例执行结果")
     private String apiScenarioExecuteResult;
+
+    @Schema(description = "场景用例执行报告ID")
+    private String apiScenarioExecuteReportId;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         testPlanReportId("test_plan_report_id", "testPlanReportId", "VARCHAR", false),
+        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
+        grouped("grouped", "grouped", "BIT", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false),
         testPlanApiScenarioId("test_plan_api_scenario_id", "testPlanApiScenarioId", "VARCHAR", false),
         apiScenarioId("api_scenario_id", "apiScenarioId", "VARCHAR", false),
         apiScenarioNum("api_scenario_num", "apiScenarioNum", "BIGINT", false),
@@ -69,7 +84,8 @@ public class TestPlanReportApiScenario implements Serializable {
         apiScenarioModule("api_scenario_module", "apiScenarioModule", "VARCHAR", false),
         apiScenarioPriority("api_scenario_priority", "apiScenarioPriority", "VARCHAR", false),
         apiScenarioExecuteUser("api_scenario_execute_user", "apiScenarioExecuteUser", "VARCHAR", false),
-        apiScenarioExecuteResult("api_scenario_execute_result", "apiScenarioExecuteResult", "VARCHAR", false);
+        apiScenarioExecuteResult("api_scenario_execute_result", "apiScenarioExecuteResult", "VARCHAR", false),
+        apiScenarioExecuteReportId("api_scenario_execute_report_id", "apiScenarioExecuteReportId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

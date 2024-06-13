@@ -122,7 +122,7 @@ public class TestPlanReportController {
     @PostMapping("/detail/bug/page")
     @Operation(summary = "测试计划-报告-详情-缺陷分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
@@ -132,7 +132,7 @@ public class TestPlanReportController {
     @PostMapping("/detail/functional/case/page")
     @Operation(summary = "测试计划-报告-详情-功能用例分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.function_case_num, tprfc.id desc");
@@ -142,7 +142,7 @@ public class TestPlanReportController {
     @PostMapping("/detail/api/case/page")
     @Operation(summary = "测试计划-报告-详情-接口用例分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.api_case_num, tprac.id desc");
@@ -152,7 +152,7 @@ public class TestPlanReportController {
     @PostMapping("/detail/scenario/case/page")
     @Operation(summary = "测试计划-报告-详情-场景用例分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
-    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.api_scenario_num, tpras.id desc");

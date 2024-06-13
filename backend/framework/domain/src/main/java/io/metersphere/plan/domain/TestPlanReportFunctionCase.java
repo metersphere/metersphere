@@ -24,7 +24,7 @@ public class TestPlanReportFunctionCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_function_case.test_plan_report_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanReportId;
 
-    @Schema(description = "测试计划功能用例关联ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "测试计划功能用例关联ID(同一计划下可重复关联, 暂时保留)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report_function_case.test_plan_function_case_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_report_function_case.test_plan_function_case_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanFunctionCaseId;
@@ -60,6 +60,11 @@ public class TestPlanReportFunctionCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_function_case.function_case_execute_result.length_range}", groups = {Created.class, Updated.class})
     private String functionCaseExecuteResult;
 
+    @Schema(description = "测试集ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_report_function_case.test_plan_collection_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_report_function_case.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
+    private String testPlanCollectionId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -73,7 +78,8 @@ public class TestPlanReportFunctionCase implements Serializable {
         functionCasePriority("function_case_priority", "functionCasePriority", "VARCHAR", false),
         functionCaseExecuteUser("function_case_execute_user", "functionCaseExecuteUser", "VARCHAR", false),
         functionCaseBugCount("function_case_bug_count", "functionCaseBugCount", "BIGINT", false),
-        functionCaseExecuteResult("function_case_execute_result", "functionCaseExecuteResult", "VARCHAR", false);
+        functionCaseExecuteResult("function_case_execute_result", "functionCaseExecuteResult", "VARCHAR", false),
+        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

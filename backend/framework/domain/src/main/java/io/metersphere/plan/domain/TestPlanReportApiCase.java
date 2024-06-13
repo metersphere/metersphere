@@ -24,6 +24,14 @@ public class TestPlanReportApiCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_api_case.test_plan_report_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanReportId;
 
+    @Schema(description = "测试集ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_report_api_case.test_plan_collection_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_report_api_case.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
+    private String testPlanCollectionId;
+
+    @Schema(description = "环境ID")
+    private String environmentId;
+
     @Schema(description = "测试计划接口用例关联ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_report_api_case.test_plan_api_case_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_report_api_case.test_plan_api_case_id.length_range}", groups = {Created.class, Updated.class})
@@ -52,16 +60,19 @@ public class TestPlanReportApiCase implements Serializable {
     @Schema(description = "接口用例执行人")
     private String apiCaseExecuteUser;
 
-    @Schema(description = "接口用例执行结果", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_report_api_case.api_case_execute_result.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_report_api_case.api_case_execute_result.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "接口用例执行结果")
     private String apiCaseExecuteResult;
+
+    @Schema(description = "接口用例执行报告ID")
+    private String apiCaseExecuteReportId;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         testPlanReportId("test_plan_report_id", "testPlanReportId", "VARCHAR", false),
+        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false),
         testPlanApiCaseId("test_plan_api_case_id", "testPlanApiCaseId", "VARCHAR", false),
         apiCaseId("api_case_id", "apiCaseId", "VARCHAR", false),
         apiCaseNum("api_case_num", "apiCaseNum", "BIGINT", false),
@@ -69,7 +80,8 @@ public class TestPlanReportApiCase implements Serializable {
         apiCaseModule("api_case_module", "apiCaseModule", "VARCHAR", false),
         apiCasePriority("api_case_priority", "apiCasePriority", "VARCHAR", false),
         apiCaseExecuteUser("api_case_execute_user", "apiCaseExecuteUser", "VARCHAR", false),
-        apiCaseExecuteResult("api_case_execute_result", "apiCaseExecuteResult", "VARCHAR", false);
+        apiCaseExecuteResult("api_case_execute_result", "apiCaseExecuteResult", "VARCHAR", false),
+        apiCaseExecuteReportId("api_case_execute_report_id", "apiCaseExecuteReportId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

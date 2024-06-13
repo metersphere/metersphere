@@ -244,6 +244,146 @@ public class TestPlanReportApiCaseExample {
             return (Criteria) this;
         }
 
+        public Criteria andTestPlanCollectionIdIsNull() {
+            addCriterion("test_plan_collection_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIsNotNull() {
+            addCriterion("test_plan_collection_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdEqualTo(String value) {
+            addCriterion("test_plan_collection_id =", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotEqualTo(String value) {
+            addCriterion("test_plan_collection_id <>", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdGreaterThan(String value) {
+            addCriterion("test_plan_collection_id >", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_plan_collection_id >=", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLessThan(String value) {
+            addCriterion("test_plan_collection_id <", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLessThanOrEqualTo(String value) {
+            addCriterion("test_plan_collection_id <=", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLike(String value) {
+            addCriterion("test_plan_collection_id like", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotLike(String value) {
+            addCriterion("test_plan_collection_id not like", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIn(List<String> values) {
+            addCriterion("test_plan_collection_id in", values, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotIn(List<String> values) {
+            addCriterion("test_plan_collection_id not in", values, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdBetween(String value1, String value2) {
+            addCriterion("test_plan_collection_id between", value1, value2, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotBetween(String value1, String value2) {
+            addCriterion("test_plan_collection_id not between", value1, value2, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNull() {
+            addCriterion("environment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNotNull() {
+            addCriterion("environment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdEqualTo(String value) {
+            addCriterion("environment_id =", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotEqualTo(String value) {
+            addCriterion("environment_id <>", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThan(String value) {
+            addCriterion("environment_id >", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_id >=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThan(String value) {
+            addCriterion("environment_id <", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_id <=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLike(String value) {
+            addCriterion("environment_id like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotLike(String value) {
+            addCriterion("environment_id not like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIn(List<String> values) {
+            addCriterion("environment_id in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotIn(List<String> values) {
+            addCriterion("environment_id not in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdBetween(String value1, String value2) {
+            addCriterion("environment_id between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
+            addCriterion("environment_id not between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
         public Criteria andTestPlanApiCaseIdIsNull() {
             addCriterion("test_plan_api_case_id is null");
             return (Criteria) this;
@@ -791,6 +931,76 @@ public class TestPlanReportApiCaseExample {
 
         public Criteria andApiCaseExecuteResultNotBetween(String value1, String value2) {
             addCriterion("api_case_execute_result not between", value1, value2, "apiCaseExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdIsNull() {
+            addCriterion("api_case_execute_report_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdIsNotNull() {
+            addCriterion("api_case_execute_report_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdEqualTo(String value) {
+            addCriterion("api_case_execute_report_id =", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdNotEqualTo(String value) {
+            addCriterion("api_case_execute_report_id <>", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdGreaterThan(String value) {
+            addCriterion("api_case_execute_report_id >", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("api_case_execute_report_id >=", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdLessThan(String value) {
+            addCriterion("api_case_execute_report_id <", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdLessThanOrEqualTo(String value) {
+            addCriterion("api_case_execute_report_id <=", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdLike(String value) {
+            addCriterion("api_case_execute_report_id like", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdNotLike(String value) {
+            addCriterion("api_case_execute_report_id not like", value, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdIn(List<String> values) {
+            addCriterion("api_case_execute_report_id in", values, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdNotIn(List<String> values) {
+            addCriterion("api_case_execute_report_id not in", values, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdBetween(String value1, String value2) {
+            addCriterion("api_case_execute_report_id between", value1, value2, "apiCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseExecuteReportIdNotBetween(String value1, String value2) {
+            addCriterion("api_case_execute_report_id not between", value1, value2, "apiCaseExecuteReportId");
             return (Criteria) this;
         }
     }

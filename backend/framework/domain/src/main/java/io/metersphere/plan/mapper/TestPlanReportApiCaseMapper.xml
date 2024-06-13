@@ -4,6 +4,8 @@
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanReportApiCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_plan_report_id" jdbcType="VARCHAR" property="testPlanReportId" />
+    <result column="test_plan_collection_id" jdbcType="VARCHAR" property="testPlanCollectionId" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="test_plan_api_case_id" jdbcType="VARCHAR" property="testPlanApiCaseId" />
     <result column="api_case_id" jdbcType="VARCHAR" property="apiCaseId" />
     <result column="api_case_num" jdbcType="BIGINT" property="apiCaseNum" />
@@ -12,6 +14,7 @@
     <result column="api_case_priority" jdbcType="VARCHAR" property="apiCasePriority" />
     <result column="api_case_execute_user" jdbcType="VARCHAR" property="apiCaseExecuteUser" />
     <result column="api_case_execute_result" jdbcType="VARCHAR" property="apiCaseExecuteResult" />
+    <result column="api_case_execute_report_id" jdbcType="VARCHAR" property="apiCaseExecuteReportId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +75,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_report_id, test_plan_api_case_id, api_case_id, api_case_num, api_case_name, 
-    api_case_module, api_case_priority, api_case_execute_user, api_case_execute_result
+    id, test_plan_report_id, test_plan_collection_id, environment_id, test_plan_api_case_id, 
+    api_case_id, api_case_num, api_case_name, api_case_module, api_case_priority, api_case_execute_user, 
+    api_case_execute_result, api_case_execute_report_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportApiCaseExample" resultMap="BaseResultMap">
     select
@@ -106,14 +110,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanReportApiCase">
-    insert into test_plan_report_api_case (id, test_plan_report_id, test_plan_api_case_id, 
-      api_case_id, api_case_num, api_case_name, 
-      api_case_module, api_case_priority, api_case_execute_user, 
-      api_case_execute_result)
-    values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{testPlanApiCaseId,jdbcType=VARCHAR}, 
-      #{apiCaseId,jdbcType=VARCHAR}, #{apiCaseNum,jdbcType=BIGINT}, #{apiCaseName,jdbcType=VARCHAR}, 
-      #{apiCaseModule,jdbcType=VARCHAR}, #{apiCasePriority,jdbcType=VARCHAR}, #{apiCaseExecuteUser,jdbcType=VARCHAR}, 
-      #{apiCaseExecuteResult,jdbcType=VARCHAR})
+    insert into test_plan_report_api_case (id, test_plan_report_id, test_plan_collection_id, 
+      environment_id, test_plan_api_case_id, api_case_id, 
+      api_case_num, api_case_name, api_case_module, 
+      api_case_priority, api_case_execute_user, api_case_execute_result, 
+      api_case_execute_report_id)
+    values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{testPlanCollectionId,jdbcType=VARCHAR}, 
+      #{environmentId,jdbcType=VARCHAR}, #{testPlanApiCaseId,jdbcType=VARCHAR}, #{apiCaseId,jdbcType=VARCHAR}, 
+      #{apiCaseNum,jdbcType=BIGINT}, #{apiCaseName,jdbcType=VARCHAR}, #{apiCaseModule,jdbcType=VARCHAR}, 
+      #{apiCasePriority,jdbcType=VARCHAR}, #{apiCaseExecuteUser,jdbcType=VARCHAR}, #{apiCaseExecuteResult,jdbcType=VARCHAR}, 
+      #{apiCaseExecuteReportId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportApiCase">
     insert into test_plan_report_api_case
@@ -123,6 +129,12 @@
       </if>
       <if test="testPlanReportId != null">
         test_plan_report_id,
+      </if>
+      <if test="testPlanCollectionId != null">
+        test_plan_collection_id,
+      </if>
+      <if test="environmentId != null">
+        environment_id,
       </if>
       <if test="testPlanApiCaseId != null">
         test_plan_api_case_id,
@@ -148,6 +160,9 @@
       <if test="apiCaseExecuteResult != null">
         api_case_execute_result,
       </if>
+      <if test="apiCaseExecuteReportId != null">
+        api_case_execute_report_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +170,12 @@
       </if>
       <if test="testPlanReportId != null">
         #{testPlanReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanCollectionId != null">
+        #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
       </if>
       <if test="testPlanApiCaseId != null">
         #{testPlanApiCaseId,jdbcType=VARCHAR},
@@ -180,6 +201,9 @@
       <if test="apiCaseExecuteResult != null">
         #{apiCaseExecuteResult,jdbcType=VARCHAR},
       </if>
+      <if test="apiCaseExecuteReportId != null">
+        #{apiCaseExecuteReportId,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanReportApiCaseExample" resultType="java.lang.Long">
@@ -196,6 +220,12 @@
       </if>
       <if test="record.testPlanReportId != null">
         test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testPlanCollectionId != null">
+        test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
       </if>
       <if test="record.testPlanApiCaseId != null">
         test_plan_api_case_id = #{record.testPlanApiCaseId,jdbcType=VARCHAR},
@@ -221,6 +251,9 @@
       <if test="record.apiCaseExecuteResult != null">
         api_case_execute_result = #{record.apiCaseExecuteResult,jdbcType=VARCHAR},
       </if>
+      <if test="record.apiCaseExecuteReportId != null">
+        api_case_execute_report_id = #{record.apiCaseExecuteReportId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -230,6 +263,8 @@
     update test_plan_report_api_case
     set id = #{record.id,jdbcType=VARCHAR},
       test_plan_report_id = #{record.testPlanReportId,jdbcType=VARCHAR},
+      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
       test_plan_api_case_id = #{record.testPlanApiCaseId,jdbcType=VARCHAR},
       api_case_id = #{record.apiCaseId,jdbcType=VARCHAR},
       api_case_num = #{record.apiCaseNum,jdbcType=BIGINT},
@@ -237,7 +272,8 @@
       api_case_module = #{record.apiCaseModule,jdbcType=VARCHAR},
       api_case_priority = #{record.apiCasePriority,jdbcType=VARCHAR},
       api_case_execute_user = #{record.apiCaseExecuteUser,jdbcType=VARCHAR},
-      api_case_execute_result = #{record.apiCaseExecuteResult,jdbcType=VARCHAR}
+      api_case_execute_result = #{record.apiCaseExecuteResult,jdbcType=VARCHAR},
+      api_case_execute_report_id = #{record.apiCaseExecuteReportId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -247,6 +283,12 @@
     <set>
       <if test="testPlanReportId != null">
         test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanCollectionId != null">
+        test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
       </if>
       <if test="testPlanApiCaseId != null">
         test_plan_api_case_id = #{testPlanApiCaseId,jdbcType=VARCHAR},
@@ -272,12 +314,17 @@
       <if test="apiCaseExecuteResult != null">
         api_case_execute_result = #{apiCaseExecuteResult,jdbcType=VARCHAR},
       </if>
+      <if test="apiCaseExecuteReportId != null">
+        api_case_execute_report_id = #{apiCaseExecuteReportId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanReportApiCase">
     update test_plan_report_api_case
     set test_plan_report_id = #{testPlanReportId,jdbcType=VARCHAR},
+      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
       test_plan_api_case_id = #{testPlanApiCaseId,jdbcType=VARCHAR},
       api_case_id = #{apiCaseId,jdbcType=VARCHAR},
       api_case_num = #{apiCaseNum,jdbcType=BIGINT},
@@ -285,21 +332,23 @@
       api_case_module = #{apiCaseModule,jdbcType=VARCHAR},
       api_case_priority = #{apiCasePriority,jdbcType=VARCHAR},
       api_case_execute_user = #{apiCaseExecuteUser,jdbcType=VARCHAR},
-      api_case_execute_result = #{apiCaseExecuteResult,jdbcType=VARCHAR}
+      api_case_execute_result = #{apiCaseExecuteResult,jdbcType=VARCHAR},
+      api_case_execute_report_id = #{apiCaseExecuteReportId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_api_case
-    (id, test_plan_report_id, test_plan_api_case_id, api_case_id, api_case_num, api_case_name, 
-      api_case_module, api_case_priority, api_case_execute_user, api_case_execute_result
-      )
+    (id, test_plan_report_id, test_plan_collection_id, environment_id, test_plan_api_case_id, 
+      api_case_id, api_case_num, api_case_name, api_case_module, api_case_priority, api_case_execute_user, 
+      api_case_execute_result, api_case_execute_report_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanReportId,jdbcType=VARCHAR}, #{item.testPlanApiCaseId,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanReportId,jdbcType=VARCHAR}, #{item.testPlanCollectionId,jdbcType=VARCHAR}, 
+        #{item.environmentId,jdbcType=VARCHAR}, #{item.testPlanApiCaseId,jdbcType=VARCHAR}, 
         #{item.apiCaseId,jdbcType=VARCHAR}, #{item.apiCaseNum,jdbcType=BIGINT}, #{item.apiCaseName,jdbcType=VARCHAR}, 
         #{item.apiCaseModule,jdbcType=VARCHAR}, #{item.apiCasePriority,jdbcType=VARCHAR}, 
-        #{item.apiCaseExecuteUser,jdbcType=VARCHAR}, #{item.apiCaseExecuteResult,jdbcType=VARCHAR}
-        )
+        #{item.apiCaseExecuteUser,jdbcType=VARCHAR}, #{item.apiCaseExecuteResult,jdbcType=VARCHAR}, 
+        #{item.apiCaseExecuteReportId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -317,6 +366,12 @@
         </if>
         <if test="'test_plan_report_id'.toString() == column.value">
           #{item.testPlanReportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_plan_collection_id'.toString() == column.value">
+          #{item.testPlanCollectionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
         </if>
         <if test="'test_plan_api_case_id'.toString() == column.value">
           #{item.testPlanApiCaseId,jdbcType=VARCHAR}
@@ -341,6 +396,9 @@
         </if>
         <if test="'api_case_execute_result'.toString() == column.value">
           #{item.apiCaseExecuteResult,jdbcType=VARCHAR}
+        </if>
+        <if test="'api_case_execute_report_id'.toString() == column.value">
+          #{item.apiCaseExecuteReportId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
