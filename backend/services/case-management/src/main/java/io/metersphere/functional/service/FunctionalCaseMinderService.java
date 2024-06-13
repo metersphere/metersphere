@@ -564,7 +564,7 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCaseModule> modules = new ArrayList<>();
                 Map<String, List<FunctionalCaseModule>> parentModuleMap = getParentModuleMap(addList);
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : addList) {
-                    checkModules(functionalCaseModuleEditRequest, parentModuleMap);
+                    checkModules(functionalCaseModuleEditRequest, parentModuleMap, OperationLogType.ADD.toString());
                     FunctionalCaseModule functionalCaseModule = buildModule(request, userId, functionalCaseModuleEditRequest, moduleMapper);
                     modules.add(functionalCaseModule);
                     newModuleMap.put(functionalCaseModuleEditRequest.getId(), functionalCaseModule.getId());
@@ -588,7 +588,7 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCaseModule> modules = new ArrayList<>();
                 Map<String, List<FunctionalCaseModule>> parentModuleMap = getParentModuleMap(updateList);
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : updateList) {
-                    checkModules(functionalCaseModuleEditRequest, parentModuleMap);
+                    checkModules(functionalCaseModuleEditRequest, parentModuleMap, OperationLogType.UPDATE.toString());
                     FunctionalCaseModule updateModule = updateModule(userId, functionalCaseModuleEditRequest, moduleMapper);
                     modules.add(updateModule);
                     reSetModuleMap(functionalCaseModuleEditRequest, parentModuleMap, updateModule);
@@ -630,14 +630,21 @@ public class FunctionalCaseMinderService {
         }
     }
 
-    private static void checkModules(FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest, Map<String, List<FunctionalCaseModule>> parentModuleMap) {
+    private static void checkModules(FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest, Map<String, List<FunctionalCaseModule>> parentModuleMap, String type) {
         List<FunctionalCaseModule> functionalCaseModules = parentModuleMap.get(functionalCaseModuleEditRequest.getParentId());
         if (CollectionUtils.isEmpty(functionalCaseModules)) {
             return;
         }
-        List<FunctionalCaseModule> sameNameList = functionalCaseModules.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getName(), functionalCaseModuleEditRequest.getName())).toList();
-        if (CollectionUtils.isNotEmpty(sameNameList)) {
-            throw new MSException(Translator.get("node.name.repeat"));
+        if (StringUtils.equalsIgnoreCase(type, OperationLogType.ADD.toString())) {
+            List<FunctionalCaseModule> sameNameList = functionalCaseModules.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getName(), functionalCaseModuleEditRequest.getName())).toList();
+            if (CollectionUtils.isNotEmpty(sameNameList)) {
+                throw new MSException(Translator.get("node.name.repeat"));
+            }
+        } else {
+            List<FunctionalCaseModule> sameNameList = functionalCaseModules.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getName(), functionalCaseModuleEditRequest.getName()) && !StringUtils.equalsIgnoreCase(t.getId(), functionalCaseModuleEditRequest.getId())).toList();
+            if (CollectionUtils.isNotEmpty(sameNameList)) {
+                throw new MSException(Translator.get("node.name.repeat"));
+            }
         }
     }
 
