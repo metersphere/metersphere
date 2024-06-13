@@ -15,6 +15,7 @@ import {
   BatchDisassociateApiScenarioUrl,
   BatchDisassociateCaseUrl,
   BatchEditTestPlanUrl,
+  BatchExecutePlanUrl,
   BatchMoveApiCaseUrl,
   BatchMoveApiScenarioUrl,
   BatchMoveFeatureCaseUrl,
@@ -36,7 +37,7 @@ import {
   dragPlanOnGroupUrl,
   EditPlanMinderUrl,
   ExecuteHistoryUrl,
-  ExecutePlanUrl,
+  ExecuteSinglePlanUrl,
   followPlanUrl,
   GenerateReportUrl,
   GetApiCaseModuleCountUrl,
@@ -90,6 +91,7 @@ import type {
   AssociateCaseRequestType,
   BatchApiCaseParams,
   BatchExecuteFeatureCaseParams,
+  BatchExecutePlan,
   BatchFeatureCaseParams,
   BatchMoveApiCaseParams,
   BatchUpdateApiCaseExecutorParams,
@@ -423,9 +425,13 @@ export function dragPlanOnGroup(data: DragSortParams) {
 export function configSchedule(data: CreateTask) {
   return MSR.post({ url: ConfigScheduleUrl, data });
 }
+// 测试计划-计划&计划组-执行
+export function executeSinglePlan(data: ExecutePlan) {
+  return MSR.post({ url: ExecuteSinglePlanUrl, data });
+}
 // 测试计划-计划&计划组-执行&批量执行
-export function executePlanOrGroup(data: ExecutePlan) {
-  return MSR.post({ url: ExecutePlanUrl, data });
+export function executePlanOrGroup(data: BatchExecutePlan) {
+  return MSR.post({ url: BatchExecutePlanUrl, data });
 }
 // 测试计划-计划&计划组-执行&批量执行
 export function deleteScheduleTask(testPlanId: string) {

@@ -131,7 +131,7 @@
               <TabTestPlan :case-id="detail.id" />
             </template>
             <template v-if="activeTab === 'comments'">
-              <TabComment ref="commentRef" :case-id="detail.id" />
+              <TabComment ref="commentRef" :case-id="detail.id" :comment-value="detail.commentList" />
             </template>
             <template v-if="activeTab === 'changeHistory'">
               <TabChangeHistory :case-id="detail.id" />

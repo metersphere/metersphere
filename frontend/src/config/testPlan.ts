@@ -128,4 +128,36 @@ export const statusConfig: StatusListType[] = [
   },
 ];
 
+export const commonConfig = {
+  tooltip: {
+    show: false,
+    trigger: 'item',
+  },
+  legend: {
+    show: false,
+  },
+};
+
+export const seriesConfig = {
+  name: '',
+  type: 'pie',
+  radius: ['62%', '80%'],
+  center: ['50%', '50%'],
+  avoidLabelOverlap: false,
+  label: {
+    show: false,
+    position: 'center',
+  },
+  emphasis: {
+    label: {
+      show: false,
+      fontSize: 40,
+      fontWeight: 'bold',
+    },
+  },
+  labelLine: {
+    show: false,
+  },
+};
+
 export default {};

@@ -3,7 +3,12 @@ import * as reportUrl from '@/api/requrls/test-plan/report';
 
 import type { GetShareId } from '@/models/apiTest/report';
 import { CommonList, TableQueryParams } from '@/models/common';
-import { FeatureCaseItem, ReportBugItem, UpdateReportDetailParams } from '@/models/testPlan/report';
+import {
+  ApiOrScenarioCaseItem,
+  FeatureCaseItem,
+  ReportBugItem,
+  UpdateReportDetailParams,
+} from '@/models/testPlan/report';
 
 // 报告列表
 export function reportList(data: TableQueryParams) {
@@ -78,6 +83,22 @@ export function planGetShareHref(id: string) {
 // 测试计划-报告-获取分享链接时效
 export function getShareValidity(id: string) {
   return MSR.get({ url: `${reportUrl.GetShareValidityUrl}/${id}` });
+}
+// 测试计划-独立报告-接口用例
+export function getApiPage(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportIndependentApiUrl, data });
+}
+// 测试计划-报告-获取分享链接时效
+export function getScenarioPage(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportIndependentScenarioUrl, data });
+}
+// 测试计划-独立报告-接口用例
+export function getShareApiPage(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareApiUrl, data });
+}
+// 测试计划-报告-获取分享链接时效
+export function getShareScenarioPage(data: TableQueryParams) {
+  return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareScenarioUrl, data });
 }
 
 export default {};

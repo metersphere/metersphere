@@ -28,3 +28,11 @@ export const PlanGetShareHrefDetailUrl = '/test-plan/report/share/get';
 export const GetShareValidityUrl = '/test-plan/report/share/get-share-time';
 // 测试计划-报告-详情-富文本编辑器上传图片文件
 export const EditorUploadFileUrl = '/test-plan/report/upload/md/file';
+// 测试计划-独立报告-接口用例
+export const ReportIndependentApiUrl = '/test-plan/report/detail/api/case/page';
+// 测试计划-独立报告-场景用例
+export const ReportIndependentScenarioUrl = '/test-plan/report/detail/scenario/case/page';
+// 测试计划-独立报告-接口用例-分享
+export const ReportShareApiUrl = '/test-plan/report/share/detail/api/case/page';
+// 测试计划-独立报告-场景用例-分享
+export const ReportShareScenarioUrl = '/test-plan/report/share/detail/scenario/case/page';
