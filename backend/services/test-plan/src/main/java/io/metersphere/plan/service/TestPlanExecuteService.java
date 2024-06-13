@@ -1,5 +1,6 @@
 package io.metersphere.plan.service;
 
+import com.esotericsoftware.minlog.Log;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
@@ -64,6 +65,10 @@ public class TestPlanExecuteService {
         return executeTestPlanOrGroup(executionQueue);
     }
 
+    private void setRedisForList(String key, List<String> list) {
+        redisTemplate.opsForList().rightPushAll(key, list);
+        redisTemplate.expire(key, 1, TimeUnit.DAYS);
+    }
     //批量执行测试计划组
     public void batchExecuteTestPlan(TestPlanBatchExecuteRequest request, String userId) {
         List<String> rightfulIds = testPlanService.selectRightfulIds(request.getExecuteIds());
@@ -94,9 +99,8 @@ public class TestPlanExecuteService {
                     );
                 }
             }
-            testPlanExecutionQueues.forEach(testPlanExecutionQueue -> {
-                redisTemplate.opsForList().rightPush(testPlanExecutionQueue.getQueueType() + testPlanExecutionQueue.getQueueId(), JSON.toJSONString(testPlanExecutionQueue));
-            });
+            this.setRedisForList(genQueueKey(queueId, queueType), testPlanExecutionQueues.stream().map(JSON::toJSONString).toList());
+
             if (StringUtils.equalsIgnoreCase(request.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                 //串行
                 TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
@@ -143,9 +147,7 @@ public class TestPlanExecuteService {
                 //本次的测试计划组执行完成
                 this.testPlanGroupQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
             } else {
-                childrenQueue.forEach(childQueue -> {
-                    redisTemplate.opsForList().rightPush(childQueue.getQueueType() + childQueue.getQueueId(), JSON.toJSONString(childQueue));
-                });
+                this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
                 // todo Song-cc  这里是否要生成测试计划组的集合报告，并且记录测试计划里用例的执行信息？
 
@@ -206,10 +208,7 @@ public class TestPlanExecuteService {
             //本次的测试计划组执行完成
             this.testPlanExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
         } else {
-            childrenQueue.forEach(childQueue -> {
-                redisTemplate.opsForList().rightPush(childQueue.getQueueType() + childQueue.getQueueId(), JSON.toJSONString(childQueue));
-            });
-
+            this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
             // todo Song-cc  这里是否要生成测试计划报告，并且记录测试计划里用例的执行信息？
 
             //开始根据测试计划集合执行测试用例
@@ -253,16 +252,16 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             collection.getExecuteMethod(),
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr())
+                            IDGenerator.nextStr()) {{
+                        this.setTestPlanCollectionJson(JSON.toJSONString(collection));
+                    }}
             );
         }
         if (CollectionUtils.isEmpty(childrenQueue)) {
             //本次的测试集执行完成
             this.caseTypeExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
         } else {
-            childrenQueue.forEach(childQueue -> {
-                redisTemplate.opsForList().rightPush(childQueue.getQueueType() + childQueue.getQueueId(), JSON.toJSONString(childQueue));
-            });
+            this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
             if (StringUtils.equalsIgnoreCase(parentCollection.getExecuteMethod(), ApiBatchRunMode.SERIAL.name())) {
                 //串行
                 TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
@@ -281,20 +280,28 @@ public class TestPlanExecuteService {
     private void executeCase(TestPlanExecutionQueue testPlanExecutionQueue) {
         String queueId = testPlanExecutionQueue.getQueueId();
         String queueType = testPlanExecutionQueue.getQueueType();
-        TestPlanCollection collection = testPlanCollectionMapper.selectByPrimaryKey(testPlanExecutionQueue.getSourceID());
-        String runMode = collection.getExecuteMethod();
-        String environmentId = collection.getEnvironmentId();
-        if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.API_CASE.getKey())) {
-            // todo 执行API用例
-        } else if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.SCENARIO_CASE.getKey())) {
-            // todo 执行场景用例
+
+        try {
+            TestPlanCollection collection = JSON.parseObject(testPlanExecutionQueue.getTestPlanCollectionJson(), TestPlanCollection.class);
+            String runMode = collection.getExecuteMethod();
+            String environmentId = collection.getEnvironmentId();
+            if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.API_CASE.getKey())) {
+                // todo 执行API用例    预生成报告时会将要执行的用例记录在test_plan_report_api_case表中，通过它查询
+            } else if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.SCENARIO_CASE.getKey())) {
+                // todo 执行场景用例  预生成报告时会将要执行的用例记录在test_plan_report_api_scenario表中，通过它查询
+            }
+            //执行完成之后需要回调：  collectionExecuteQueueFinish
+            //如果没有要执行的用例（可能会出现空测试集的情况），直接调用collectionExecuteQueueFinish(queueId)
+        } catch (Exception e) {
+            Log.error("按测试集执行失败!", e);
+            collectionExecuteQueueFinish(queueId);
         }
-        //执行完成之后需要回调：  collectionExecuteQueueFinish
     }
 
 
     //测试集执行完成
-    public void collectionExecuteQueueFinish(String queueID, String queueType) {
+    public void collectionExecuteQueueFinish(String queueID) {
+        String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
         TestPlanExecutionQueue nextQueue = getNextQueue(queueID, queueType);
         if (StringUtils.equalsIgnoreCase(nextQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
             //串行时，由于是先拿出节点再判断执行，所以要判断节点的isExecuteFinish
@@ -302,7 +309,7 @@ public class TestPlanExecuteService {
                 try {
                     this.executeNextNode(nextQueue);
                 } catch (Exception e) {
-                    this.collectionExecuteQueueFinish(nextQueue.getQueueId(), nextQueue.getQueueType());
+                    this.collectionExecuteQueueFinish(nextQueue.getQueueId());
                 }
             } else {
                 //当前测试集执行完毕
