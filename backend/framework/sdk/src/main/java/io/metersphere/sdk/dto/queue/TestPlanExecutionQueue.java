@@ -30,6 +30,8 @@ public class TestPlanExecutionQueue {
     private String executionSource;
     //预生成报告ID
     private String prepareReportId;
+    // 测试集Json
+    private String testPlanCollectionJson;
 
     // 是否是队列的最后一个
     private boolean isLastOne = false;

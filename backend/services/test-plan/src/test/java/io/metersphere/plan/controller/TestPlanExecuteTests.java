@@ -270,7 +270,7 @@ public class TestPlanExecuteTests extends BaseTest {
 
             String collectionFinishQueueIds = collectionQueueIdList.getFirst();
             //模拟执行完成之后的回调
-            testPlanExecuteService.collectionExecuteQueueFinish(collectionFinishQueueIds, QUEUE_PREFIX_TEST_PLAN_COLLECTION);
+            testPlanExecuteService.collectionExecuteQueueFinish(collectionFinishQueueIds);
 
             allQueueIds = new ArrayList<>();
             collectionQueueIdList = new ArrayList<>();
