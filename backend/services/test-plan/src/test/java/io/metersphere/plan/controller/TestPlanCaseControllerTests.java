@@ -61,6 +61,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
 
     public static final String FUNCTIONAL_CASE_EXEC_HISTORY_URL = "/test-plan/functional/case/exec/history";
     public static final String USER_URL = "/test-plan/functional/case/user-option/";
+    public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/test-plan/functional/case/batch/move";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -364,4 +365,15 @@ public class TestPlanCaseControllerTests extends BaseTest {
         collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
         testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, "wx");
     }
+
+    @Test
+    @Order(18)
+    public void testFunctionalBatchMove() throws Exception {
+        BaseBatchMoveRequest request = new BaseBatchMoveRequest();
+        request.setTestPlanId("plan_1");
+        request.setTargetCollectionId("wxxx_1");
+        request.setSelectAll(true);
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_MOVE_URL, request);
+    }
+
 }

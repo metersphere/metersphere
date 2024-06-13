@@ -191,4 +191,13 @@ public class TestPlanFunctionalCaseController {
     @RequestParam(value = "keyword", required = false) String keyword) {
         return testPlanFunctionalCaseService.getExecUserList(projectId, keyword);
     }
+
+    @PostMapping("/batch/move")
+    @Operation(summary = "测试计划-计划详情-功能用例-批量移动")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanCaseLogService.class)
+    public void batchMove(@Validated @RequestBody BaseBatchMoveRequest request) {
+        testPlanFunctionalCaseService.batchMove(request);
+    }
 }

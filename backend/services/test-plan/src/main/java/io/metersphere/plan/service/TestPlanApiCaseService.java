@@ -559,6 +559,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
         apiCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
         apiBatchMapper.updateByExampleSelective(record, apiCaseExample);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     public TestPlanOperationResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
