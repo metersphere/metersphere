@@ -29,13 +29,15 @@ public class ApiExecutionQueueService {
         // 保存队列信息
         redisTemplate.opsForValue().setIfAbsent(QUEUE_PREFIX + queue.getQueueId(), JSON.toJSONString(queue), 1, TimeUnit.DAYS);
         // 保存队列详情信息
-        queues.forEach(n -> redisTemplate.opsForList().rightPush(QUEUE_DETAIL_PREFIX + queue.getQueueId(), JSON.toJSONString(n)));
+        List<String> queueStrItems = queues.stream().map(JSON::toJSONString).toList();
+        redisTemplate.opsForList().rightPushAll(QUEUE_DETAIL_PREFIX + queue.getQueueId(), queueStrItems);
+        redisTemplate.expire(QUEUE_DETAIL_PREFIX + queue.getQueueId(), 1, TimeUnit.DAYS);
     }
 
     /**
      * 获取下一个节点
      */
-    public ExecutionQueueDetail getNextDetail(String queueId) throws Exception {
+    public ExecutionQueueDetail getNextDetail(String queueId) {
         String queueKey = QUEUE_DETAIL_PREFIX + queueId;
         ListOperations<String, String> listOps = redisTemplate.opsForList();
         String queueDetail = listOps.leftPop(queueKey);
@@ -46,7 +48,11 @@ public class ApiExecutionQueueService {
                 if (StringUtils.isNotBlank(queueDetail)) {
                     break;
                 }
-                Thread.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

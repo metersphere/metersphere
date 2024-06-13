@@ -24,14 +24,9 @@ public class ExecutionQueue implements Serializable {
     private Long createTime;
 
     /**
-     * 开启重试
+     * 父队列 ID，即测试集队列 ID
      */
-    private Boolean retryEnable;
-
-    /**
-     * 重试次数
-     */
-    private Long retryNumber;
+    private String parentQueueId;
 
     /**
      * 资源类型 / API，CASE，PLAN_CASE,PLAN_SCENARIO，API_SCENARIO

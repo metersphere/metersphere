@@ -70,4 +70,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<TestPlanApiCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
 
     List<ApiTestCase> selectApiCaseByDefinitionIds(@Param("ids") List<String> ids, @Param("isRepeat") boolean isRepeat);
+
+    List<TestPlanApiCase> getSelectIdAndCollectionId(@Param("request") TestPlanApiCaseBatchRequest request);
 }

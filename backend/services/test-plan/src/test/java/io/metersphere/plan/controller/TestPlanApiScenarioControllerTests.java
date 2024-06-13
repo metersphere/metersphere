@@ -149,7 +149,6 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         apiRunModeRequest.setStopOnFailure(false);
         apiRunModeRequest.setIntegratedReportName("aaaa");
         apiRunModeRequest.setPoolId("poolId");
-        request.setRunModeConfig(apiRunModeRequest);
         this.requestPostWithOk(BATCH_RUN, request);
 
         apiRunModeRequest.setIntegratedReport(false);

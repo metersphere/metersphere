@@ -5,11 +5,9 @@ import io.metersphere.api.domain.ApiScenarioExample;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.domain.ApiScenarioReportExample;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
-import io.metersphere.api.invoker.GetRunScriptServiceRegister;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiExecuteService;
-import io.metersphere.api.service.GetRunScriptService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
@@ -63,7 +61,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanApiScenarioService extends TestPlanResourceService implements GetRunScriptService {
+public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -97,10 +95,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
-
-    public TestPlanApiScenarioService() {
-        GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
-    }
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -310,7 +304,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         return taskRequest;
     }
 
-    @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         TaskItem taskItem = request.getTaskItem();
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
@@ -617,5 +610,19 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public List<TestPlanApiScenario> getSelectIdAndCollectionId(TestPlanApiScenarioBatchRunRequest request) {
+        if (request.isSelectAll()) {
+            List<TestPlanApiScenario> testPlanApiCases = extTestPlanApiScenarioMapper.getSelectIdAndCollectionId(request);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                testPlanApiCases.removeAll(request.getExcludeIds());
+            }
+            return testPlanApiCases;
+        } else {
+            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+            example.createCriteria().andIdIn(request.getSelectIds());
+            return testPlanApiScenarioMapper.selectByExample(example);
+        }
     }
 }

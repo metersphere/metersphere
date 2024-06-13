@@ -47,8 +47,6 @@ public class ApiExecutionQueueServiceTest {
         runModeConfig.setEnvironmentId("envId");
         queue.setRunModeConfig(runModeConfig);
         queue.setCreateTime(System.currentTimeMillis());
-        queue.setRetryEnable(true);
-        queue.setRetryNumber(3L);
 
         ExecutionQueueDetail queueDetail1 = new ExecutionQueueDetail();
         queueDetail1.setResourceId("resourceId1");

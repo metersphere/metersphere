@@ -50,6 +50,16 @@ public class ApiRunModeConfigDTO implements Serializable {
      */
     private String environmentId;
 
+    /**
+     * 是否失败重试
+     */
+    private Boolean retryOnFail = false;
+
+    /**
+     * 失败重试配置
+     */
+    private ApiRunRetryConfig retryConfig;
+
     public Boolean isParallel() {
         return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
     }

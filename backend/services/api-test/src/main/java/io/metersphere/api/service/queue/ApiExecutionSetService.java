@@ -22,11 +22,9 @@ public class ApiExecutionSetService {
      * @param resourceIds
      */
     public void initSet(String setId, List<String> resourceIds) {
-        resourceIds.forEach(resourceId -> {
-            String key = getKey(setId);
-            redisTemplate.opsForSet().add(key, resourceId);
-            redisTemplate.expire(key, 1, TimeUnit.DAYS);
-        });
+        String key = getKey(setId);
+        redisTemplate.opsForSet().add(key, resourceIds.toArray(new String[0]));
+        redisTemplate.expire(key, 1, TimeUnit.DAYS);
     }
 
     private String getKey(String setId) {

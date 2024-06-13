@@ -25,6 +25,10 @@ public class TaskInfo implements Serializable {
      */
     private String queueId;
     /**
+     * 父队列 ID，即测试集队列 ID
+     */
+    private String parentQueueId;
+    /**
      * 是否需要实时接收单个步骤的结果
      */
     private Boolean realTime = false;

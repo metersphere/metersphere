@@ -30,10 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,7 +78,7 @@ public class ApiScenarioBatchRunService {
      */
     private void batchRun(ApiScenarioBatchRunRequest request, String userId) {
         try {
-            if (isParallel(request.getRunModeConfig().getRunMode())) {
+            if (apiBatchRunBaseService.isParallel(request.getRunModeConfig().getRunMode())) {
                 parallelExecute(request, userId);
             } else {
                 serialExecute(request, userId);
@@ -88,10 +86,6 @@ public class ApiScenarioBatchRunService {
         } catch (Exception e) {
             LogUtils.error("批量执行用例失败: ", e);
         }
-    }
-
-    private boolean isParallel(String runMode) {
-        return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
     }
 
     /**

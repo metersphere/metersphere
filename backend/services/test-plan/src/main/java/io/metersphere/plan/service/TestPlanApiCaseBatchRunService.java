@@ -12,28 +12,32 @@ import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanApiCase;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanCollectionExample;
+import io.metersphere.plan.dto.request.ApiExecutionMapService;
 import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRunRequest;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import jakarta.annotation.Resource;
+import jodd.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,9 +55,15 @@ public class TestPlanApiCaseBatchRunService {
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
     private ApiExecuteService apiExecuteService;
     @Resource
+    private ApiExecutionSetService apiExecutionSetService;
+    @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private ApiExecutionMapService apiExecutionMapService;
     @Resource
     private ApiReportService apiReportService;
     @Resource
@@ -62,6 +72,8 @@ public class TestPlanApiCaseBatchRunService {
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
     @Resource
     private TestPlanMapper testPlanMapper;
 
@@ -83,28 +95,105 @@ public class TestPlanApiCaseBatchRunService {
      */
     private void batchRun(TestPlanApiCaseBatchRunRequest request, String userId) {
         try {
-            if (StringUtils.equals(request.getRunModeConfig().getRunMode(), ApiBatchRunMode.PARALLEL.name())) {
-                parallelExecute(request, userId);
+            List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseService.getSelectIdAndCollectionId(request);
+            // 按照 testPlanCollectionId 分组, value 为测试计划用例 ID 列表
+            Map<String, List<String>> collectionMap = getCollectionMap(testPlanApiCases);
+
+            List<TestPlanCollection> testPlanCollections = getTestPlanCollections(request.getTestPlanId());
+            Iterator<TestPlanCollection> iterator = testPlanCollections.iterator();
+            TestPlanCollection rootCollection = new TestPlanCollection();
+            while (iterator.hasNext()) {
+                TestPlanCollection collection = iterator.next();
+                if (StringUtils.equals(collection.getParentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+                    // 获取根测试集
+                    rootCollection = collection;
+                    iterator.remove();
+                } else if (!collectionMap.containsKey(collection.getId())) {
+                    // 过滤掉没用的测试集
+                    iterator.remove();
+                }
+            }
+
+            // 测试集排序
+            testPlanCollections = testPlanCollections.stream()
+                    .sorted(Comparator.comparingLong(TestPlanCollection::getPos))
+                    .collect(Collectors.toList());
+
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+
+            if (apiBatchRunBaseService.isParallel(rootCollection.getExecuteMethod())) {
+                // 并行执行测试集
+                for (TestPlanCollection collection : testPlanCollections) {
+                    List<String> ids = collectionMap.get(collection.getId());
+                    ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(rootCollection, collection);
+                    if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
+                        //  并行执行测试集中的用例
+                        parallelExecute(ids, runModeConfig, null, testPlan.getProjectId(), userId);
+                    } else {
+                        // 串行执行测试集中的用例
+                        serialExecute(ids, runModeConfig, null, userId);
+                    }
+                }
             } else {
-                serialExecute(request, userId);
+                // 串行执行测试集
+                List<String> serialCollectionIds = testPlanCollections.stream().map(TestPlanCollection::getId).toList();
+                // 生成测试集队列
+                ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(serialCollectionIds,
+                        ApiExecuteResourceType.API_CASE.name(), userId);
+                // 记录各测试集中要执行的用例
+                apiExecutionMapService.initMap(collectionQueue.getQueueId(), collectionMap);
+
+                executeNextCollection(collectionQueue.getQueueId());
             }
         } catch (Exception e) {
             LogUtils.error("批量执行用例失败: ", e);
         }
     }
 
+    public void executeNextCollection(String collectionQueueId) {
+        ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
+        String userId = collectionQueue.getUserId();
+        String queueId = collectionQueue.getQueueId();
+        ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queueId);
+        String collectionId = nextDetail.getResourceId();
+        List<String> ids = apiExecutionMapService.getAndRemove(queueId, collectionId);
+        TestPlanCollection collection = testPlanCollectionMapper.selectByPrimaryKey(collectionId);
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
+        if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
+            String testPlanId = collection.getTestPlanId();
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+            parallelExecute(ids, runModeConfig, queueId, testPlan.getProjectId(), userId);
+        } else {
+            serialExecute(ids, runModeConfig, queueId, userId);
+        }
+    }
+
+    private Map<String, List<String>> getCollectionMap(List<TestPlanApiCase> testPlanApiCases) {
+        Map<String, List<String>> collectionMap = new HashMap<>();
+        for (TestPlanApiCase testPlanApiCase : testPlanApiCases) {
+            collectionMap.putIfAbsent(testPlanApiCase.getTestPlanCollectionId(), new ArrayList<>());
+            List<String> ids = collectionMap.get(testPlanApiCase.getTestPlanCollectionId());
+            ids.add(testPlanApiCase.getId());
+        }
+        return collectionMap;
+    }
+
+    private List<TestPlanCollection> getTestPlanCollections(String testPlanId) {
+        TestPlanCollectionExample example = new TestPlanCollectionExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(testPlanId)
+                .andTypeEqualTo(CaseType.API_CASE.getKey());
+        return testPlanCollectionMapper.selectByExample(example);
+    }
+
     /**
      * 串行批量执行
      *
-     * @param request
      */
-    public void serialExecute(TestPlanApiCaseBatchRunRequest request, String userId) throws Exception {
-        List<String> ids = testPlanApiCaseService.doSelectIds(request);
-        // todo 查询测试规划
-        ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
-
+    public void serialExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String parentQueueId, String userId) {
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.API_CASE.name(), userId);
+        queue.setParentQueueId(parentQueueId);
 
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
@@ -115,13 +204,8 @@ public class TestPlanApiCaseBatchRunService {
     /**
      * 并行批量执行
      *
-     * @param request
      */
-    public void parallelExecute(TestPlanApiCaseBatchRunRequest request, String userId) {
-        List<String> ids = testPlanApiCaseService.doSelectIds(request);
-
-        // todo 查询测试规划
-        ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
+    public void parallelExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String parentQueueId, String projectId, String userId) {
 
         List<TestPlanApiCase> testPlanApiCases = new ArrayList<>(ids.size());
         List<ApiTestCase> apiTestCases = new ArrayList<>(ids.size());
@@ -144,17 +228,28 @@ public class TestPlanApiCaseBatchRunService {
         List<TaskItem> taskItems = new ArrayList<>(ids.size());
 
         // 这里ID顺序和队列的ID顺序保持一致
-        for (String id : ids) {
+
+        Iterator<String> iterator = ids.stream().iterator();
+        while (iterator.hasNext()) {
+            String id = iterator.next();
             String reportId = caseReportMap.get(id);
+            if (StringUtil.isBlank(reportId)) {
+                iterator.remove();
+                continue;
+            }
             TaskItem taskItem = apiExecuteService.getTaskItem(reportId, id);
             taskItem.setRequestCount(1L);
             taskItems.add(taskItem);
         }
 
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        if (StringUtils.isNotBlank(parentQueueId)) {
+            // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
+            apiExecutionSetService.initSet(parentQueueId, ids);
+        }
 
-        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
+        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(projectId, runModeConfig);
         taskRequest.setTaskItems(taskItems);
+        taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
         apiExecuteService.batchExecute(taskRequest);
     }
 
@@ -165,19 +260,14 @@ public class TestPlanApiCaseBatchRunService {
                 .collect(Collectors.toMap(ApiTestCaseRecord::getApiTestCaseId, ApiTestCaseRecord::getApiReportId));
     }
 
-    private ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId, long sort) {
+    private ApiReportStep getApiReportStep(TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase, String reportId, long sort) {
         ApiReportStep apiReportStep = new ApiReportStep();
         apiReportStep.setReportId(reportId);
-        apiReportStep.setStepId(apiTestCase.getId());
+        apiReportStep.setStepId(testPlanApiCase.getId());
         apiReportStep.setSort(sort);
         apiReportStep.setName(apiTestCase.getName());
         apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
         return apiReportStep;
-    }
-
-    private ApiRunModeConfigDTO getRunModeConfig(TestPlanApiCaseBatchRunRequest request) {
-        ApiRunModeConfigDTO runModeConfig = BeanUtils.copyBean(new ApiRunModeConfigDTO(), request.getRunModeConfig());
-        return runModeConfig;
     }
 
     /**
@@ -201,16 +291,17 @@ public class TestPlanApiCaseBatchRunService {
 
         // 独立报告，执行到当前任务时初始化报告
         String reportId = initApiReport(runModeConfig, List.of(testPlanApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(0).getApiReportId();
-        TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, apiTestCase, runModeConfig);
+        TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, testPlanApiCase, apiTestCase, runModeConfig);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskItem().setRequestCount(1L);
 
         apiExecuteService.execute(taskRequest);
     }
 
-    private TaskRequestDTO getTaskRequestDTO(String reportId, ApiTestCase apiTestCase, ApiRunModeConfigDTO runModeConfig) {
+    private TaskRequestDTO getTaskRequestDTO(String reportId, TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase, ApiRunModeConfigDTO runModeConfig) {
         TaskRequestDTO taskRequest = new TaskRequestDTO();
-        TaskItem taskItem = apiExecuteService.getTaskItem(reportId, apiTestCase.getId());
+        TaskItem taskItem = apiExecuteService.getTaskItem(reportId, testPlanApiCase.getId());
         TaskInfo taskInfo = getTaskInfo(apiTestCase.getProjectId(), runModeConfig);
         taskRequest.setTaskInfo(taskInfo);
         taskRequest.setTaskItem(taskItem);
@@ -250,7 +341,7 @@ public class TestPlanApiCaseBatchRunService {
             // 创建报告和用例的关联关系
             ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
             apiTestCaseRecords.add(apiTestCaseRecord);
-            apiReportSteps.add(getApiReportStep(apiTestCase, apiReport.getId(), 1));
+            apiReportSteps.add(getApiReportStep(testPlanApiCase, apiTestCase, apiReport.getId(), 1));
         }
         apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
         apiReportService.insertApiReportStep(apiReportSteps);
