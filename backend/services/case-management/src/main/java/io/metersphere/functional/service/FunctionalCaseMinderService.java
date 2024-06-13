@@ -183,7 +183,7 @@ public class FunctionalCaseMinderService {
             rootData.setId(functionalCaseMindDTO.getId());
             rootData.setPos(functionalCaseMindDTO.getPos());
             rootData.setText(functionalCaseMindDTO.getName());
-            rootData.setPriority(functionalCaseMindDTO.getPriority());
+            rootData.setPriority(StringUtils.isNotBlank(functionalCaseMindDTO.getPriority()) ? Integer.parseInt(functionalCaseMindDTO.getPriority().substring(1)) : 0);
             rootData.setStatus(functionalCaseMindDTO.getReviewStatus());
             rootData.setResource(List.of(Translator.get("minder_extra_node.case")));
             List<FunctionalMinderTreeDTO> children = buildChildren(functionalCaseMindDTO);
