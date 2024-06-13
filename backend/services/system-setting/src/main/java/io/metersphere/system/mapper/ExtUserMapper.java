@@ -46,4 +46,5 @@ public interface ExtUserMapper {
      */
     long gaInstalledTime();
 
+    void updateInstalled();
 }

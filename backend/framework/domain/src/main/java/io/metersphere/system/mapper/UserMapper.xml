@@ -17,6 +17,7 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="cft_token" jdbcType="VARCHAR" property="cftToken" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -78,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, email, `password`, `enable`, create_time, update_time, `language`, last_organization_id, 
-    phone, `source`, last_project_id, create_user, update_user, deleted
+    phone, `source`, last_project_id, create_user, update_user, deleted, cft_token
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserExample" resultMap="BaseResultMap">
     select
@@ -115,14 +116,14 @@
       `password`, `enable`, create_time, 
       update_time, `language`, last_organization_id, 
       phone, `source`, last_project_id, 
-      create_user, update_user, deleted
-      )
+      create_user, update_user, deleted, 
+      cft_token)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastOrganizationId,jdbcType=VARCHAR}, 
       #{phone,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, #{lastProjectId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}
-      )
+      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
+      #{cftToken,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.User">
     insert into user
@@ -172,6 +173,9 @@
       <if test="deleted != null">
         deleted,
       </if>
+      <if test="cftToken != null">
+        cft_token,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -218,6 +222,9 @@
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
+      </if>
+      <if test="cftToken != null">
+        #{cftToken,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -275,6 +282,9 @@
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
+      <if test="record.cftToken != null">
+        cft_token = #{record.cftToken,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -296,7 +306,8 @@
       last_project_id = #{record.lastProjectId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
-      deleted = #{record.deleted,jdbcType=BIT}
+      deleted = #{record.deleted,jdbcType=BIT},
+      cft_token = #{record.cftToken,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -346,6 +357,9 @@
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
+      <if test="cftToken != null">
+        cft_token = #{cftToken,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -364,21 +378,22 @@
       last_project_id = #{lastProjectId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_user = #{updateUser,jdbcType=VARCHAR},
-      deleted = #{deleted,jdbcType=BIT}
+      deleted = #{deleted,jdbcType=BIT},
+      cft_token = #{cftToken,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into user
     (id, `name`, email, `password`, `enable`, create_time, update_time, `language`, last_organization_id, 
-      phone, `source`, last_project_id, create_user, update_user, deleted)
+      phone, `source`, last_project_id, create_user, update_user, deleted, cft_token)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.email,jdbcType=VARCHAR}, 
         #{item.password,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.updateTime,jdbcType=BIGINT}, #{item.language,jdbcType=VARCHAR}, #{item.lastOrganizationId,jdbcType=VARCHAR}, 
         #{item.phone,jdbcType=VARCHAR}, #{item.source,jdbcType=VARCHAR}, #{item.lastProjectId,jdbcType=VARCHAR}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}
-        )
+        #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
+        #{item.cftToken,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -435,6 +450,9 @@
         </if>
         <if test="'deleted'.toString() == column.value">
           #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'cft_token'.toString() == column.value">
+          #{item.cftToken,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

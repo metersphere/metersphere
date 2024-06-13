@@ -1113,6 +1113,76 @@ public class UserExample {
             addCriterion("deleted not between", value1, value2, "deleted");
             return (Criteria) this;
         }
+
+        public Criteria andCftTokenIsNull() {
+            addCriterion("cft_token is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenIsNotNull() {
+            addCriterion("cft_token is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenEqualTo(String value) {
+            addCriterion("cft_token =", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenNotEqualTo(String value) {
+            addCriterion("cft_token <>", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenGreaterThan(String value) {
+            addCriterion("cft_token >", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenGreaterThanOrEqualTo(String value) {
+            addCriterion("cft_token >=", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenLessThan(String value) {
+            addCriterion("cft_token <", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenLessThanOrEqualTo(String value) {
+            addCriterion("cft_token <=", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenLike(String value) {
+            addCriterion("cft_token like", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenNotLike(String value) {
+            addCriterion("cft_token not like", value, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenIn(List<String> values) {
+            addCriterion("cft_token in", values, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenNotIn(List<String> values) {
+            addCriterion("cft_token not in", values, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenBetween(String value1, String value2) {
+            addCriterion("cft_token between", value1, value2, "cftToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andCftTokenNotBetween(String value1, String value2) {
+            addCriterion("cft_token not between", value1, value2, "cftToken");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
