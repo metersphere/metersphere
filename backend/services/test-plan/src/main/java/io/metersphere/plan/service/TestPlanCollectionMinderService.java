@@ -334,6 +334,9 @@ public class TestPlanCollectionMinderService {
 
     private static void setAssociateMap(TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<BaseCollectionAssociateRequest>> associateMap, TestPlanCollection testPlanCollection) {
         List<TestPlanCollectionAssociateDTO> associateDTOS = testPlanCollectionMinderEditDTO.getAssociateDTOS();
+        if (CollectionUtils.isEmpty(associateDTOS)) {
+            return;
+        }
         for (TestPlanCollectionAssociateDTO associateDTO : associateDTOS) {
             String associateType = associateDTO.getAssociateType();
             List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = associateMap.get(associateType);
