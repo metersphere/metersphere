@@ -383,7 +383,7 @@ export interface PlanMinderNodeData extends MinderJsonNodeData {
   num: number; // 关联用例数量
   priority?: number; // 串行/并行
   executeMethod?: RunMode; // 串行/并行值
-  type: PlanMinderCollectionType; // 测试集类型(功能/接口/场景)
+  type: PlanMinderCollectionType; // 测试集类型(功能：FUNCTIONAL_CASE/接口用例：API_CASE/场景：SCENARIO_CASE)
   extended: boolean;
   grouped: boolean; // 是否使用环境组
   environmentId: string;
@@ -405,7 +405,6 @@ export interface PlanMinderAssociateDTO {
 }
 export interface PlanMinderEditListItem extends PlanMinderNodeData {
   name: string;
-  collectionType: PlanMinderCollectionType; // 测试集类型(功能：FUNCTIONAL_CASE/接口用例：API_CASE/场景：SCENARIO_CASE)
   associateDTOS: PlanMinderAssociateDTO[];
 }
 

@@ -70,7 +70,7 @@ export default {
         amplification: '放大',
         narrow: '缩小',
         drag: '拖拽',
-        locating_root: '定位根节点',
+        locating_root: '回到中心节点',
         navigator: '导航器',
       },
       history: {
@@ -104,6 +104,8 @@ export default {
       enterNode: '进入当前节点',
     },
     loading: '脑图加载中...',
-    unSavedEnterNodeTip: '当前有未保存的改动，请先保存后再进入节点',
+    shortcut: '快捷键',
+    shortcutTitle: '快捷键说明',
+    expand: '展开/收起',
   },
 };

@@ -1,53 +1,141 @@
 <template>
-  <div class="navigator">
-    <div class="nav-bar">
-      <div
-        class="nav-btn zoom-in"
-        :title="t('minder.main.navigator.amplification')"
-        :class="{ active: zoomRadioIn }"
-        @click="zoomIn"
+  <div class="ms-minder-navigator">
+    <div class="ms-minder-navigator-bar">
+      <a-slider
+        v-model:model-value="zoomPercent"
+        :min="0"
+        :max="150"
+        :step="1"
+        :style="{ width: '100px' }"
+        :format-tooltip="formatter"
+        :marks="{
+          50: '',
+        }"
+        class="ml-[8px]"
+        @change="changeZoom"
+      />
+      <a-tooltip :content="t('minder.main.navigator.drag')">
+        <MsButton
+          type="icon"
+          class="ms-minder-navigator-bar-icon-button"
+          :class="enableHand ? 'ms-minder-navigator-bar-icon-button--focus' : ''"
+          @click="hand"
+        >
+          <icon-drag-arrow class="text-[var(--color-text-4)]" />
+        </MsButton>
+      </a-tooltip>
+      <a-tooltip :content="t('minder.main.navigator.navigator')">
+        <MsButton
+          type="icon"
+          class="ms-minder-navigator-bar-icon-button"
+          :class="isNavOpen ? 'ms-minder-navigator-bar-icon-button--focus' : ''"
+          @click="toggleNavOpen"
+        >
+          <MsIcon type="icon-icon_frame_select" class="text-[var(--color-text-4)]" />
+        </MsButton>
+      </a-tooltip>
+      <a-tooltip :content="t('minder.main.navigator.locating_root')">
+        <MsButton type="icon" class="ms-minder-navigator-bar-icon-button" @click="locateToOrigin">
+          <MsIcon type="icon-icon_aiming" class="text-[var(--color-text-4)]" />
+        </MsButton>
+      </a-tooltip>
+      <a-trigger
+        :popup-translate="[5, -105]"
+        position="right"
+        class="ms-minder-shortcut-trigger"
+        @popup-visible-change="(val) => (shortcutTriggerVisible = val)"
       >
-        <div class="icon" />
-      </div>
-      <div ref="zoomPan" class="zoom-pan">
-        <div class="origin" :style="{ transform: 'translate(0, ' + getHeight(100) + 'px)' }" @click="RestoreSize" />
-        <div
-          class="indicator"
-          :style="{
-            transform: 'translate(0, ' + getHeight(zoom) + 'px)',
-            transition: 'transform 200ms',
-          }"
-        />
-      </div>
-      <div
-        class="nav-btn zoom-out"
-        :title="t('minder.main.navigator.narrow')"
-        :class="{ active: zoomRadioOut }"
-        @click="zoomOut"
-      >
-        <div class="icon" />
-      </div>
-      <div class="nav-btn hand" :title="t('minder.main.navigator.drag')" :class="{ active: enableHand }" @click="hand">
-        <div class="icon" />
-      </div>
-      <div class="nav-btn camera" :title="t('minder.main.navigator.locating_root')" @click="locateToOrigin">
-        <div class="icon" />
-      </div>
-      <div
-        class="nav-btn nav-trigger"
-        :class="{ active: isNavOpen }"
-        :title="t('minder.main.navigator.navigator')"
-        @click="toggleNavOpen"
-      >
-        <div class="icon" />
-      </div>
+        <MsButton
+          type="icon"
+          class="ms-minder-navigator-bar-icon-button"
+          :class="shortcutTriggerVisible ? 'ms-minder-navigator-bar-icon-button--focus' : ''"
+          @click="locateToOrigin"
+        >
+          <MsIcon type="icon-icon_keyboard" class="text-[var(--color-text-4)]" />
+        </MsButton>
+        <template #content>
+          <div class="mb-[4px] text-[14px] font-medium">{{ t('minder.shortcutTitle') }}</div>
+          <div class="ms-minder-shortcut-trigger-list">
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.expand') }}</div>
+              <div class="ms-minder-shortcut-trigger-listitem-icon">/</div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('common.copy') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <icon-command :size="14" />
+                </div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">C</div>
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.hotboxMenu.insetBrother') }}</div>
+              <div class="ms-minder-shortcut-trigger-listitem-icon">
+                <MsIcon type="icon-icon_carriage_return2" />
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.hotboxMenu.paste') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <icon-command :size="14" />
+                </div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">V</div>
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.hotboxMenu.insetSon') }}</div>
+              <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto">
+                Shift+Tab
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.main.history.undo') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <icon-command :size="14" />
+                </div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">Z</div>
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <icon-command :size="14" />
+                </div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <MsIcon type="icon-icon_carriage_return2" />
+                </div>
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.main.history.redo') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <icon-command :size="14" />
+                </div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">Y</div>
+              </div>
+            </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('common.delete') }}</div>
+              <div class="ms-minder-shortcut-trigger-listitem-icon">
+                <MsIcon type="icon-icon_carriage_return1" />
+              </div>
+            </div>
+          </div>
+        </template>
+      </a-trigger>
     </div>
-    <div v-show="isNavOpen" ref="navPreviewer" class="nav-previewer" />
+    <div v-show="isNavOpen" ref="navPreviewer" class="ms-minder-navigator-previewer" />
   </div>
 </template>
 
-<script lang="ts" name="navigator" setup>
-  import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+<script lang="ts" setup>
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -56,10 +144,8 @@
 
   const { t } = useI18n();
 
-  const zoomPan: Ref<HTMLDivElement | null> = ref(null);
   const navPreviewer: Ref<HTMLDivElement | null> = ref(null);
 
-  const zoom = ref(100);
   const isNavOpen = ref(true);
   const previewNavigator: Ref<HTMLDivElement | null> = ref(null);
   const contentView = ref('');
@@ -71,69 +157,41 @@
   let paper = reactive<any>({});
   let minder = reactive<any>({});
 
-  const config = reactive({
-    // 右侧面板最小宽度
-    ctrlPanelMin: 250,
-    // 右侧面板宽度
-    ctrlPanelWidth: parseInt(window.localStorage.getItem('__dev_minder_ctrlPanelWidth') || '', 10) || 250,
-    // 分割线宽度
-    dividerWidth: 3,
-    // 默认语言
-    defaultLang: 'zh-cn',
-    // 放大缩小比例
-    zoom: [10, 20, 30, 50, 80, 100, 120, 150, 200],
-  });
-
-  const enableHand = ref(minder && minder.queryCommandState && minder.queryCommandState('hand') === 1);
   // 避免缓存
   function getNavOpenState() {
     return getLocalStorage('navigator-hidden');
   }
-  function zoomIn() {
+
+  const zoomPercent = ref(50); // 默认 100%缩放（滑动条是从 50% 开始，所以减 50）
+  /**
+   * 缩放
+   * @param value 缩放值
+   */
+  function changeZoom(value: number | [number, number]) {
     if (minder && minder.execCommand) {
-      minder.execCommand('zoomIn');
+      minder.execCommand('zoom', (value as number) + 50);
     }
   }
-  function RestoreSize() {
-    if (minder && minder.execCommand) {
-      minder.execCommand('zoom', 100);
-    }
+
+  function formatter(value: number) {
+    // 滑动条 0 开始就是 50%，所以+ 50
+    return `${value + 50}%`;
   }
-  function zoomOut() {
-    if (minder && minder.execCommand) {
-      minder.execCommand('zoomOut');
-    }
-  }
+
+  const enableHand = ref(false);
+  /**
+   * 开启拖拽模式
+   */
   function hand() {
     if (minder && minder.execCommand) {
       minder.execCommand('hand');
       enableHand.value = minder.queryCommandState && minder.queryCommandState('hand') === 1;
     }
   }
-  function getZoomRadio(value: number) {
-    try {
-      if (!minder) return 2;
-    } catch (e) {
-      // 如果window的还没挂载minder，先捕捉undefined异常
-      return 2;
-    }
-    const zoomStack = minder && minder.getOption && minder.getOption('zoom');
-    if (!zoomStack) {
-      return 2;
-    }
-    const minValue = zoomStack[0];
-    const maxValue = zoomStack[zoomStack.length - 1];
-    const valueRange = maxValue - minValue;
 
-    return 1 - (value - minValue) / valueRange;
-  }
-  const zoomRadioIn = computed(() => getZoomRadio(zoom.value) === 0);
-  const zoomRadioOut = computed(() => getZoomRadio(zoom.value) === 1);
-
-  function getHeight(value: number) {
-    const totalHeight = Number(zoomPan.value?.style.height);
-    return getZoomRadio(value) * totalHeight;
-  }
+  /**
+   * 回到根节点
+   */
   function locateToOrigin() {
     if (minder && minder.execCommand && minder.getRoot) {
       minder.execCommand('camera', minder.getRoot(), 600);
@@ -166,6 +224,9 @@
     }
   }
 
+  /**
+   * 更新导航器视图
+   */
   function updateContentView() {
     if (!minder.getRenderContainer || !paper.setViewBox || !minder.getRoot) return;
     const view = minder.getRenderContainer().getBoundaryBox();
@@ -264,6 +325,8 @@
     });
   }
 
+  const shortcutTriggerVisible = ref(false);
+
   onMounted(() => {
     nextTick(() => {
       minder = window.minder;
@@ -285,14 +348,9 @@
       visibleView = new kity.Box();
 
       pathHandler = getPathHandler(minder.getTheme ? minder.getTheme() : '');
-      if (minder.setDefaultOptions) {
-        minder.setDefaultOptions({
-          zoom: config.zoom,
-        });
-      }
 
       minder.on('zoom', (e: any) => {
-        zoom.value = e.zoom;
+        zoomPercent.value = e.zoom - 50;
       });
       if (isNavOpen.value) {
         bind();
@@ -311,8 +369,99 @@
   });
 </script>
 
+<style lang="less">
+  .ms-minder-shortcut-trigger {
+    .arco-trigger-content {
+      @apply w-auto  bg-white;
+
+      padding: 16px;
+      border-radius: var(--border-radius-small);
+      box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
+      .ms-minder-shortcut-trigger-list {
+        @apply grid grid-cols-2;
+
+        gap: 8px 12px;
+        .ms-minder-shortcut-trigger-listitem {
+          @apply flex items-center justify-between;
+
+          padding: 4px 8px;
+          width: 190px;
+          font-size: 12px;
+          border-radius: var(--border-radius-small);
+          background-color: var(--color-text-n9);
+          line-height: 16px;
+          .ms-minder-shortcut-trigger-listitem-icon {
+            @apply flex items-center justify-center font-medium;
+
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            border: 1px solid var(--color-text-n8);
+            border-radius: var(--border-radius-small);
+            color: var(--color-text-4);
+            line-height: 16px;
+          }
+          .ms-minder-shortcut-trigger-listitem-icon-auto {
+            padding: 2px 4px;
+            width: auto;
+          }
+        }
+      }
+    }
+  }
+</style>
+
 <style lang="less" scoped>
-  .nav-btn .icon {
-    background-image: url('@/assets/images/minder/icons.png');
+  .ms-minder-navigator {
+    @apply absolute;
+
+    bottom: 6px;
+    left: 6px;
+    box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
+    .ms-minder-navigator-bar {
+      @apply flex w-auto items-center bg-white;
+
+      padding: 4px 8px;
+      gap: 8px;
+      border-radius: var(--border-radius-small);
+      .ms-minder-navigator-bar-icon-button {
+        @apply !mr-0;
+        &:hover {
+          background-color: rgb(var(--primary-1)) !important;
+          .arco-icon {
+            color: rgb(var(--primary-4)) !important;
+          }
+        }
+      }
+      .ms-minder-navigator-bar-icon-button--focus {
+        background-color: rgb(var(--primary-1)) !important;
+        .arco-icon {
+          color: rgb(var(--primary-5)) !important;
+        }
+      }
+      :deep(.arco-slider-with-marks) {
+        @apply mb-0 p-0;
+      }
+    }
+    .ms-minder-navigator-previewer {
+      @apply absolute cursor-crosshair bg-white;
+
+      bottom: 36px;
+      left: 45px;
+      z-index: 9;
+      padding: 8px;
+      width: 240px;
+      height: 160px;
+      border-radius: var(--border-radius-small);
+      box-shadow: 0 5px 5px -3px rgb(0 0 0 / 10%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 3px 14px 2px rgb(0 0 0 / 5%);
+      transition: -webkit-transform 0.7s 0.1s ease;
+      transition: transform 0.7s 0.1s ease;
+      .grab {
+        @apply cursor-grabbing;
+      }
+      :deep(svg) {
+        background-color: white !important;
+      }
+    }
   }
 </style>

@@ -76,7 +76,7 @@ export default {
         amplification: 'Amplification',
         narrow: 'Narrow',
         drag: 'Drag',
-        locating_root: 'Locating root node',
+        locating_root: 'Back to the central node',
         navigator: 'Navigator',
       },
       history: {
@@ -110,6 +110,8 @@ export default {
       enterNode: 'Enter the current node',
     },
     loading: 'Mind map loading...',
-    unSavedEnterNodeTip: 'There are currently unsaved changes, please save before entering the node',
+    shortcut: 'Shortcut',
+    shortcutTitle: 'Shortcut information',
+    expand: 'Expand/Collapse',
   },
 };
