@@ -43,7 +43,6 @@
         state: 'fit2cloud-wecom-qr',
         redirect_type: WWLoginRedirectType.callback,
         panel_size: WWLoginPanelSizeType.small,
-        scope: 'snsapi_privateinfo',
       },
       onCheckWeComLogin: obj.value,
       async onLoginSuccess({ code }: any) {
