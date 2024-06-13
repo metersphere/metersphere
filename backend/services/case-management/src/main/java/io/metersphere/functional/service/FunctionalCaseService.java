@@ -428,16 +428,30 @@ public class FunctionalCaseService {
         }
 
         //获取评论总数量数量
-        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
-        long reviewComment = caseReviewHistoryMapper.countByExample(caseReviewHistoryExample);
+        List<OptionDTO>commentList = new ArrayList<>();
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
         long caseComment = functionalCaseCommentMapper.countByExample(functionalCaseCommentExample);
+        OptionDTO caseOption = new OptionDTO();
+        caseOption.setId("caseComment");
+        caseOption.setName(String.valueOf(caseComment));
+        commentList.add(0,caseOption);
+        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        long reviewComment = caseReviewHistoryMapper.countByExample(caseReviewHistoryExample);
+        OptionDTO reviewOption = new OptionDTO();
+        reviewOption.setId("reviewComment");
+        reviewOption.setName(String.valueOf(reviewComment));
+        commentList.add(1,reviewOption);
         //获取关联测试计划的执行评论数量
         TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
         testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
         long testPlanExecuteComment = testPlanCaseExecuteHistoryMapper.countByExample(testPlanCaseExecuteHistoryExample);
+        OptionDTO executeOption = new OptionDTO();
+        executeOption.setId("executiveComment");
+        executeOption.setName(String.valueOf(reviewComment));
+        commentList.add(2,executeOption);
+        functionalCaseDetailDTO.setCommentList(commentList);
         long commentCount = caseComment + reviewComment + testPlanExecuteComment;
         functionalCaseDetailDTO.setCommentCount((int) commentCount);
         //获取变更历史数量数量

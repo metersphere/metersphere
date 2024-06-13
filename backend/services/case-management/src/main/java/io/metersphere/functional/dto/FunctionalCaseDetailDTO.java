@@ -1,5 +1,6 @@
 package io.metersphere.functional.dto;
 
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -115,6 +116,9 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description = "评论总数量")
     private Integer commentCount;
+
+    @Schema(description = "各种评论数量集合")
+    private List<OptionDTO> commentList;
 
     @Schema(description = "变更历史数量")
     private Integer historyCount;
