@@ -1,4 +1,4 @@
-name: SonarCloud
+name: SonarCloud Build and analyze
 on:
   push:
     branches:
@@ -13,7 +13,6 @@ on:
       - "pom.xml"
 jobs:
   build:
-    name: Build and analyze
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

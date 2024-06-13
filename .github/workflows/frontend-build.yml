@@ -17,7 +17,6 @@ permissions:
 
 jobs:
   generic_handler:
-    name: 前端代码校验
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
