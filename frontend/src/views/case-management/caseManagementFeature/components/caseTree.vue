@@ -183,13 +183,20 @@
       });
       featureCaseStore.setModulesTree(caseTree.value);
       featureCaseStore.setModuleId(['all']);
+
       if (isSetDefaultKey) {
         selectedNodeKeys.value = [caseTree.value[0].id];
+        const offspringIds: string[] = [];
+        mapTree(caseTree.value[0].children || [], (e) => {
+          offspringIds.push(e.id);
+          return e;
+        });
+
+        emits('caseNodeSelect', selectedNodeKeys.value, offspringIds);
       }
       emits(
         'init',
-        caseTree.value.map((e) => e.name),
-        isSetDefaultKey
+        caseTree.value.map((e) => e.name)
       );
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -214,7 +221,11 @@
         try {
           await deleteCaseModuleTree(node.id);
           Message.success(t('caseManagement.featureCase.deleteSuccess'));
-          initModules(true);
+          emits(
+            'init',
+            caseTree.value.map((e) => e.name),
+            true
+          );
         } catch (error) {
           console.log(error);
         }
@@ -368,15 +379,6 @@
       buffer: 15,
     };
   });
-
-  watch(
-    () => props.activeFolder,
-    (val) => {
-      if (val === 'all') {
-        initModules();
-      }
-    }
-  );
 
   /**
    * 初始化模块文件数量

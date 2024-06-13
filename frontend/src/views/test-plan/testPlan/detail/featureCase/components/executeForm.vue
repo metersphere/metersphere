@@ -15,6 +15,7 @@
           v-model:filedIds="form.planCommentFileIds"
           :upload-image="handleUploadImage"
           :preview-url="PreviewEditorImageUrl"
+          :auto-height="false"
           class="w-full"
           :placeholder="
             props.isDblclickPlaceholder

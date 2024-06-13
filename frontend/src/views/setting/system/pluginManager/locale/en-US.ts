@@ -58,7 +58,7 @@ export default {
   'system.plugin.selectOrganizeTip': 'Please Choose Organization',
   'system.plugin.selectOrganization': 'Choose Organization',
   'system.plugin.infoTip': 'Jump to the Github download plug-in',
-  'system.plugin.getPlugin': 'Gets the open source plug-in',
+  'system.plugin.getPlugin': 'Get more plugins',
   'system.plugin.afterSecond': 'Return to the list of plug-ins after the second',
   'system.plugin.uploadSuccess': 'Upload Success!',
   'system.plugin.uploadSuccessAfter': 'After successful upload, must arrive',

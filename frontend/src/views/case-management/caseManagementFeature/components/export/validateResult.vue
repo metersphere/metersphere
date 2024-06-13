@@ -74,6 +74,7 @@
           v-if="validateResultInfo.successCount"
           type="text"
           class="ml-[8px]"
+          :disabled="props.importLoading"
           :loading="props.importLoading"
           @click="confirmImport"
         >

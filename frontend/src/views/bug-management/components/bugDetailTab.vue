@@ -17,7 +17,7 @@
             {{ t('bugManagement.edit.content') }}
           </strong>
         </div>
-        <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
+        <div class="mb-4 mt-[16px]">
           <MsRichText
             v-if="contentEditAble"
             v-model:raw="form.description"
@@ -25,6 +25,7 @@
             :disabled="!contentEditAble"
             :placeholder="t('editor.placeholder')"
             :upload-image="handleUploadImage"
+            :auto-height="false"
             :preview-url="EditorPreviewFileUrl"
           />
           <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
@@ -43,12 +44,13 @@
             <h1 class="header-title">
               <strong>{{ item.fieldName }}</strong>
             </h1>
-            <div class="mb-4 mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
+            <div class="mb-4 mt-[16px]">
               <MsRichText
                 v-if="contentEditAble"
                 v-model:raw="item.defaultValue"
                 v-model:filed-ids="descriptionFileIdMap[item.fieldId]"
                 :disabled="!contentEditAble"
+                :auto-height="false"
                 :placeholder="t('editor.placeholder')"
                 :upload-image="handleUploadImage"
                 :preview-url="EditorPreviewFileUrl"

@@ -83,6 +83,7 @@
       raw?: string;
       uploadImage?: (file: File) => Promise<any>;
       maxHeight?: string;
+      autoHeight?: boolean;
       filedIds?: string[];
       commentIds?: string[];
       wrapperClass?: string;
@@ -96,6 +97,7 @@
       uploadImage: undefined,
       placeholder: 'editor.placeholder',
       draggable: false,
+      autoHeight: true,
     }
   );
 
@@ -438,7 +440,7 @@
 
   const contentStyles = computed(() => {
     return {
-      maxHeight: props.maxHeight || '200px',
+      maxHeight: props.autoHeight ? '800px' : props.maxHeight || '260px',
       overflow: 'auto',
     };
   });
@@ -520,7 +522,7 @@
     @apply relative overflow-hidden;
     :deep(.halo-rich-text-editor .ProseMirror) {
       padding: 16px !important;
-      height: 130px;
+      min-height: 130px;
       p:first-child {
         margin-top: 0;
       }

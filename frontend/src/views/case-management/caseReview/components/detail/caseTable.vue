@@ -180,6 +180,7 @@
               v-model:raw="dialogForm.reason"
               v-model:commentIds="dialogForm.commentIds"
               :upload-image="handleUploadImage"
+              :auto-height="false"
               :preview-url="PreviewEditorImageUrl"
               class="w-full"
             />

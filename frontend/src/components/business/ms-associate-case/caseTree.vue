@@ -17,7 +17,7 @@
       allow-clear
       :max-length="255"
     />
-    <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('apiScenario.expandAllStep')">
+    <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
       <a-button
         type="outline"
         class="expand-btn arco-btn-outline--secondary"

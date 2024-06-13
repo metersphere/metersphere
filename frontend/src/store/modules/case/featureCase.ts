@@ -50,7 +50,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     // 设置选择moduleId
     setModuleId(currentModuleId: string[]) {
       if (['all', 'recycle'].includes(currentModuleId[0])) {
-        this.moduleId = ['root'];
+        this.moduleId = [];
       } else {
         this.moduleId = currentModuleId;
       }
