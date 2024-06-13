@@ -315,16 +315,16 @@
       label: t('menu.caseManagement.featureCase'),
     },
     {
-      value: 'defectList',
-      label: t('caseManagement.featureCase.defectList'),
-    },
-    {
       value: 'apiCase',
       label: t('testPlan.testPlanIndex.apiCase'),
     },
     {
       value: 'apiScenario',
       label: t('testPlan.testPlanIndex.apiScenarioCase'),
+    },
+    {
+      value: 'defectList',
+      label: t('caseManagement.featureCase.defectList'),
     },
     {
       value: 'executeHistory',

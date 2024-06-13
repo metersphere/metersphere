@@ -98,7 +98,11 @@
   function getCaseTableList() {
     nextTick(() => {
       initModules();
-      caseTableRef.value?.loadCaseList();
+      if (activeFolderId.value !== 'all') {
+        caseTreeRef.value?.setActiveFolder('all');
+      } else {
+        caseTableRef.value?.loadCaseList();
+      }
     });
   }
 
