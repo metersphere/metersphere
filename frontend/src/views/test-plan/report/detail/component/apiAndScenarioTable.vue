@@ -24,7 +24,12 @@
       /> -->
     </template>
   </MsBaseTable>
-  <CaseAndScenarioReportDrawer v-model:visible="reportVisible" :report-id="apiReportId" do-not-show-share />
+  <CaseAndScenarioReportDrawer
+    v-model:visible="reportVisible"
+    :is-scenario="props.activeTab === 'scenarioCase'"
+    :report-id="apiReportId"
+    do-not-show-share
+  />
 </template>
 
 <script setup lang="ts">
@@ -36,7 +41,7 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
 
-  import { getApiPage, getShareApiPage } from '@/api/modules/test-plan/report';
+  import { getApiPage, getScenarioPage, getShareApiPage, getShareScenarioPage } from '@/api/modules/test-plan/report';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
   import { LastExecuteResults } from '@/enums/caseEnum';
@@ -49,6 +54,7 @@
   const props = defineProps<{
     reportId: string;
     shareId?: string;
+    activeTab: string;
   }>();
 
   const columns: MsTableColumn = [
@@ -121,6 +127,9 @@
     },
   ];
   const reportApiList = () => {
+    if (props.activeTab === 'scenarioCase') {
+      return !props.shareId ? getShareScenarioPage : getScenarioPage;
+    }
     return !props.shareId ? getShareApiPage : getApiPage;
   };
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
@@ -159,4 +168,11 @@
     reportVisible.value = true;
     apiReportId.value = record.reportId;
   }
+
+  watch(
+    () => props.activeTab,
+    () => {
+      loadCaseList();
+    }
+  );
 </script>

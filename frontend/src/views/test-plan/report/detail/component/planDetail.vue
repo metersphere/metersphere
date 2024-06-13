@@ -131,8 +131,12 @@
     />
     <BugTable v-if="activeTab === 'bug'" :report-id="detail.id" :share-id="shareId" />
     <FeatureCaseTable v-if="activeTab === 'featureCase'" :report-id="detail.id" :share-id="shareId" />
-    <ApiCaseTable v-if="activeTab === 'apiCase'" :report-id="detail.id" :share-id="shareId" />
-    <ScenarioCaseTable v-if="activeTab === 'scenarioCase'" :report-id="detail.id" :share-id="shareId" />
+    <ApiAndScenarioTable
+      v-if="activeTab === 'apiCase'"
+      :report-id="detail.id"
+      :share-id="shareId"
+      :active-tab="activeTab"
+    />
   </MsCard>
 </template>
 
@@ -149,11 +153,10 @@
   import ReportMetricsItem from './ReportMetricsItem.vue';
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
-  import ApiCaseTable from '@/views/test-plan/report/detail/component/apiCaseTable.vue';
+  import ApiAndScenarioTable from '@/views/test-plan/report/detail/component/apiAndScenarioTable.vue';
   import BugTable from '@/views/test-plan/report/detail/component/bugTable.vue';
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/featureCaseTable.vue';
   import ReportHeader from '@/views/test-plan/report/detail/component/reportHeader.vue';
-  import ScenarioCaseTable from '@/views/test-plan/report/detail/component/scenarioCaseTable.vue';
   import Summary from '@/views/test-plan/report/detail/component/summary.vue';
 
   import { updateReportDetail } from '@/api/modules/test-plan/report';
