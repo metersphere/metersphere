@@ -17,6 +17,13 @@ public interface ExtTestPlanReportBugMapper {
 	List<TestPlanReportBug> getPlanBugs(@Param("id") String planId);
 
 	/**
+	 * 获取计划的缺陷集合
+	 * @param planIds 计划ID集合
+	 * @return 缺陷集合
+	 */
+	List<TestPlanReportBug> getGroupBugs(@Param("ids") List<String> planIds);
+
+	/**
 	 * 分页查询报告关联的缺陷
 	 * @param request 请求参数
 	 * @return 关联的缺陷集合

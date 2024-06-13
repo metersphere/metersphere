@@ -244,6 +244,206 @@ public class TestPlanReportApiScenarioExample {
             return (Criteria) this;
         }
 
+        public Criteria andTestPlanCollectionIdIsNull() {
+            addCriterion("test_plan_collection_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIsNotNull() {
+            addCriterion("test_plan_collection_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdEqualTo(String value) {
+            addCriterion("test_plan_collection_id =", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotEqualTo(String value) {
+            addCriterion("test_plan_collection_id <>", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdGreaterThan(String value) {
+            addCriterion("test_plan_collection_id >", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_plan_collection_id >=", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLessThan(String value) {
+            addCriterion("test_plan_collection_id <", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLessThanOrEqualTo(String value) {
+            addCriterion("test_plan_collection_id <=", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdLike(String value) {
+            addCriterion("test_plan_collection_id like", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotLike(String value) {
+            addCriterion("test_plan_collection_id not like", value, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdIn(List<String> values) {
+            addCriterion("test_plan_collection_id in", values, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotIn(List<String> values) {
+            addCriterion("test_plan_collection_id not in", values, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdBetween(String value1, String value2) {
+            addCriterion("test_plan_collection_id between", value1, value2, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanCollectionIdNotBetween(String value1, String value2) {
+            addCriterion("test_plan_collection_id not between", value1, value2, "testPlanCollectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedIsNull() {
+            addCriterion("grouped is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedIsNotNull() {
+            addCriterion("grouped is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedEqualTo(Boolean value) {
+            addCriterion("grouped =", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedNotEqualTo(Boolean value) {
+            addCriterion("grouped <>", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedGreaterThan(Boolean value) {
+            addCriterion("grouped >", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("grouped >=", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedLessThan(Boolean value) {
+            addCriterion("grouped <", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedLessThanOrEqualTo(Boolean value) {
+            addCriterion("grouped <=", value, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedIn(List<Boolean> values) {
+            addCriterion("grouped in", values, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedNotIn(List<Boolean> values) {
+            addCriterion("grouped not in", values, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedBetween(Boolean value1, Boolean value2) {
+            addCriterion("grouped between", value1, value2, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andGroupedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("grouped not between", value1, value2, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNull() {
+            addCriterion("environment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNotNull() {
+            addCriterion("environment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdEqualTo(String value) {
+            addCriterion("environment_id =", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotEqualTo(String value) {
+            addCriterion("environment_id <>", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThan(String value) {
+            addCriterion("environment_id >", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_id >=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThan(String value) {
+            addCriterion("environment_id <", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_id <=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLike(String value) {
+            addCriterion("environment_id like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotLike(String value) {
+            addCriterion("environment_id not like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIn(List<String> values) {
+            addCriterion("environment_id in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotIn(List<String> values) {
+            addCriterion("environment_id not in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdBetween(String value1, String value2) {
+            addCriterion("environment_id between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
+            addCriterion("environment_id not between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
         public Criteria andTestPlanApiScenarioIdIsNull() {
             addCriterion("test_plan_api_scenario_id is null");
             return (Criteria) this;
@@ -791,6 +991,76 @@ public class TestPlanReportApiScenarioExample {
 
         public Criteria andApiScenarioExecuteResultNotBetween(String value1, String value2) {
             addCriterion("api_scenario_execute_result not between", value1, value2, "apiScenarioExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdIsNull() {
+            addCriterion("api_scenario_execute_report_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdIsNotNull() {
+            addCriterion("api_scenario_execute_report_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdEqualTo(String value) {
+            addCriterion("api_scenario_execute_report_id =", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdNotEqualTo(String value) {
+            addCriterion("api_scenario_execute_report_id <>", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdGreaterThan(String value) {
+            addCriterion("api_scenario_execute_report_id >", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("api_scenario_execute_report_id >=", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdLessThan(String value) {
+            addCriterion("api_scenario_execute_report_id <", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdLessThanOrEqualTo(String value) {
+            addCriterion("api_scenario_execute_report_id <=", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdLike(String value) {
+            addCriterion("api_scenario_execute_report_id like", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdNotLike(String value) {
+            addCriterion("api_scenario_execute_report_id not like", value, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdIn(List<String> values) {
+            addCriterion("api_scenario_execute_report_id in", values, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdNotIn(List<String> values) {
+            addCriterion("api_scenario_execute_report_id not in", values, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdBetween(String value1, String value2) {
+            addCriterion("api_scenario_execute_report_id between", value1, value2, "apiScenarioExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioExecuteReportIdNotBetween(String value1, String value2) {
+            addCriterion("api_scenario_execute_report_id not between", value1, value2, "apiScenarioExecuteReportId");
             return (Criteria) this;
         }
     }

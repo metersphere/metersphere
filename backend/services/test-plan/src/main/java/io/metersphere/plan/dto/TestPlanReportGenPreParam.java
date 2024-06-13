@@ -1,7 +1,10 @@
 package io.metersphere.plan.dto;
 
+import io.metersphere.plan.domain.TestPlan;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class TestPlanReportGenPreParam {
@@ -30,8 +33,8 @@ public class TestPlanReportGenPreParam {
 	@Schema(description = "是否集成报告")
 	private Boolean integrated;
 
-	@Schema(description = "计划数量, 集成报告需要")
-	private Long planCount;
+	@Schema(description = "子计划, 集成报告需要")
+	private List<TestPlan> childPlans;
 
 	@Schema(description = "计划组报告ID, 独立报告需要")
 	private String groupReportId;

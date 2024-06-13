@@ -10,6 +10,17 @@
         group by brc.bug_id
     </select>
 
+    <select id="getGroupBugs" resultType="io.metersphere.plan.domain.TestPlanReportBug">
+        select distinct brc.bug_id as bugId, b.num as bugNum, b.title as bugTitle, b.status bugStatus,
+                        b.handle_user bugHandleUser, count(brc.id) bugCaseCount
+        from bug_relation_case brc join bug b on brc.bug_id = b.id
+        where brc.test_plan_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by brc.bug_id
+    </select>
+
     <select id="list" resultType="io.metersphere.bug.dto.response.BugDTO">
         select distinct tprb.bug_id as id, tprb.bug_num as num, tprb.bug_title as title, tprb.bug_status as status, tprb.bug_handle_user as handleUserName,
             ifnull(tprb.bug_case_count, 0) as relationCaseCount
