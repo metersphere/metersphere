@@ -11,9 +11,11 @@ import java.util.List;
  */
 public interface UserXpackService {
 
-    int guessWhatHowToAddUser(UserBatchCreateRequest userCreateDTO, String source, String operator);
+    int GWHowToAddUser(UserBatchCreateRequest userCreateDTO, String source, String operator);
 
-    int guessWhatHowToAddUser(UserRegisterRequest registerRequest, UserInvite userInvite) throws Exception;
+    int GWHowToAddUser(UserRegisterRequest registerRequest, UserInvite userInvite) throws Exception;
 
-    int guessWhatHowToChangeUser(List<String> userIds, boolean enable, String operator);
+    int GWHowToChangeUser(List<String> userIds, boolean enable, String operator);
+
+    int GWHowToDeleteUser(List<String> userIdList, String operator);
 }

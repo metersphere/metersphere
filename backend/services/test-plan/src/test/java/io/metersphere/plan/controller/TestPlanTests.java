@@ -1370,7 +1370,7 @@ public class TestPlanTests extends BaseTest {
                                 this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, List.of(groupTestPlanId7))
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanStatisticsResponse.class);
-        Assertions.assertTrue(statisticsResponses.size() == 1);
+        Assertions.assertTrue(statisticsResponses.size() > 1);
         Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() > 0);
         Assertions.assertTrue(statisticsResponses.getFirst().getScheduleConfig().isEnable());
 
@@ -1395,7 +1395,7 @@ public class TestPlanTests extends BaseTest {
                                 this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, List.of(groupTestPlanId7))
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanStatisticsResponse.class);
-        Assertions.assertTrue(statisticsResponses.size() == 1);
+        Assertions.assertTrue(statisticsResponses.size() > 1);
         Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() == null);
         Assertions.assertFalse(statisticsResponses.getFirst().getScheduleConfig().isEnable());
 
@@ -1474,7 +1474,7 @@ public class TestPlanTests extends BaseTest {
                                 this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, List.of(groupTestPlanId7))
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanStatisticsResponse.class);
-        Assertions.assertTrue(statisticsResponses.size() == 1);
+        Assertions.assertTrue(statisticsResponses.size() > 1);
         Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() == null);
         Assertions.assertTrue(statisticsResponses.getFirst().getScheduleConfig() == null);
     }

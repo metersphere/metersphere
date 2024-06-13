@@ -129,7 +129,7 @@ public class SimpleUserService {
     }
 
     private List<UserCreateInfo> saveUserAndRole(UserBatchCreateRequest userCreateDTO, String source, String operator, String requestPath) {
-        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).guessWhatHowToAddUser(userCreateDTO, source, operator);
+        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).GWHowToAddUser(userCreateDTO, source, operator);
         if (responseCode == 0) {
             operationLogService.batchAdd(userLogService.getBatchAddLogs(userCreateDTO.getUserInfoList(), operator, requestPath));
         } else {
@@ -225,7 +225,7 @@ public class SimpleUserService {
             this.checkProcessUserAndThrowException(request.getSelectIds(), operatorId, operatorName, Translator.get("user.not.disable"));
         }
 
-        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).guessWhatHowToChangeUser(request.getSelectIds(), request.isEnable(), operatorName);
+        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).GWHowToChangeUser(request.getSelectIds(), request.isEnable(), operatorName);
 
         if (responseCode == 0) {
             TableBatchProcessResponse response = new TableBatchProcessResponse();
@@ -319,12 +319,13 @@ public class SimpleUserService {
         this.checkUserInDb(userIdList);
         //检查是否含有Admin
         this.checkProcessUserAndThrowException(userIdList, operatorId, operatorName, Translator.get("user.not.delete"));
+        //开始删除
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
-        //更新删除标志位
         TableBatchProcessResponse response = new TableBatchProcessResponse();
         response.setTotalCount(userIdList.size());
-        response.setSuccessCount(this.deleteUserByList(userIdList, operatorId));
+        response.setSuccessCount(
+                Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).GWHowToDeleteUser(userIdList, operatorId));
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
         //批量踢出用户
@@ -348,23 +349,6 @@ public class SimpleUserService {
                 throw new MSException(exceptionMessage + ": admin");
             }
         }
-    }
-
-    private int deleteUserByList(List<String> updateUserList, String operator) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        BaseUserMapper batchDeleteMapper = sqlSession.getMapper(BaseUserMapper.class);
-        int insertIndex = 0;
-        long deleteTime = System.currentTimeMillis();
-        for (String userId : updateUserList) {
-            batchDeleteMapper.deleteUser(userId, operator, deleteTime);
-            insertIndex++;
-            if (insertIndex % 50 == 0) {
-                sqlSession.flushStatements();
-            }
-        }
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        return insertIndex;
     }
 
     public List<User> getUserList(String keyword) {
@@ -521,7 +505,7 @@ public class SimpleUserService {
             this.add(userInvite.getEmail());
         }});
 
-        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).guessWhatHowToAddUser(request, userInvite);
+        int responseCode = Objects.requireNonNull(CommonBeanFactory.getBean(UserXpackService.class)).GWHowToAddUser(request, userInvite);
         if (responseCode == 0) {
             //删除本次邀请记录
             userInviteService.deleteInviteById(userInvite.getId());

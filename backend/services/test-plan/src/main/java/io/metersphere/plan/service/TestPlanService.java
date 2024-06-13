@@ -762,16 +762,22 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlan.setStatus(testPlanFinalStatus);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
 
-        List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlanId);
-        if (CollectionUtils.isNotEmpty(childPlan)) {
-            TestPlan updateGroupPlan = new TestPlan();
-            updateGroupPlan.setId(testPlanId);
-            if (childPlan.stream().allMatch(item -> StringUtils.equals(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))) {
-                testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-            } else {
-                testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+        testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+
+        if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            //该测试计划是测试计划组内的子计划， 要同步计算测试计划组的状态
+
+            List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlan.getGroupId());
+            if (CollectionUtils.isNotEmpty(childPlan)) {
+                TestPlan updateGroupPlan = new TestPlan();
+                updateGroupPlan.setId(testPlan.getGroupId());
+                if (childPlan.stream().allMatch(item -> StringUtils.equals(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))) {
+                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+                } else {
+                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+                }
+                testPlanMapper.updateByPrimaryKeySelective(updateGroupPlan);
             }
-            testPlanMapper.updateByPrimaryKeySelective(testPlan);
         }
     }
 
