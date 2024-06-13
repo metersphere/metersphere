@@ -12,7 +12,7 @@ import java.util.List;
 public class TestPlanBatchEditRequest extends TestPlanBatchProcessRequest {
 
     @Schema(description = "是否追加")
-    private boolean append;
+    private boolean append = true;
 
     @Schema(description = "标签")
     private List<String> tags;

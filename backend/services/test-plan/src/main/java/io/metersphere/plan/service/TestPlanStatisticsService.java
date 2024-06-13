@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 public class TestPlanStatisticsService {
 
 	@Resource
+	private TestPlanMapper testPlanMapper;
+	@Resource
 	private TestPlanConfigMapper testPlanConfigMapper;
 	@Resource
 	private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
@@ -74,12 +76,17 @@ public class TestPlanStatisticsService {
 	 * @param planIds 计划ID集合
 	 */
 	public List<TestPlanStatisticsResponse> calculateRate(List<String> planIds) {
+		//		查出子计划
+		TestPlanExample testPlanExample = new TestPlanExample();
+		testPlanExample.createCriteria().andGroupIdIn(planIds);
+		List<TestPlan> childrenPlan = testPlanMapper.selectByExample(testPlanExample);
+		childrenPlan.forEach(item -> planIds.add(item.getId()));
+
 		List<TestPlanStatisticsResponse> planStatisticsResponses = new ArrayList<>();
 		/*
 		 * 1. 查询计划下的用例数据集合
 		 * 2. 根据执行结果统计(结果小数保留两位)
 		 */
-
 		// 计划的更多配置
 		TestPlanConfigExample example = new TestPlanConfigExample();
 		example.createCriteria().andTestPlanIdIn(planIds);
@@ -99,32 +106,36 @@ public class TestPlanStatisticsService {
 		planIds.forEach(planId -> {
 			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
 			statisticsResponse.setId(planId);
-			statisticsResponse.setPassThreshold(planConfigMap.get(planId).getPassThreshold());
-			// 功能用例分组统计开始 (为空时, 默认为未执行)
-			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);
-			statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
-			Map<String, Long> functionalCaseResultCountMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
-					Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
-			// 接口用例分组统计开始 (为空时, 默认为未执行)
-			List<TestPlanApiCase> apiCases = planApiCaseMap.get(planId);
-			statisticsResponse.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
-			Map<String, Long> apiCaseResultCountMap = CollectionUtils.isEmpty(apiCases) ? new HashMap<>(16) : apiCases.stream().collect(
-					Collectors.groupingBy(apiCase -> Optional.ofNullable(apiCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
-			// 接口场景用例分组统计开始 (为空时, 默认为未执行)
-			List<TestPlanApiScenario> apiScenarios = planApiScenarioMap.get(planId);
-			statisticsResponse.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
-			Map<String, Long> apiScenarioResultCountMap = CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
-					Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
-			// 用例数据汇总
-			statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.SUCCESS.name()));
-			statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.ERROR.name()));
-			statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.FAKE_ERROR.name()));
-			statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.BLOCKED.name()));
-			statisticsResponse.setPendingCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
-			statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount() + statisticsResponse.getApiCaseCount() + statisticsResponse.getApiScenarioCount());
-			// 通过率 {通过用例数/总用例数} && 执行进度 {非未执行的用例数/总用例数}
-			statisticsResponse.setPassRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getSuccessCount(), statisticsResponse.getCaseTotal(), 2));
-			statisticsResponse.setExecuteRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount(), statisticsResponse.getCaseTotal(), 2));
+
+			// 测试计划组没有测试计划配置。同理，也不用参与用例等数据的计算
+			if (planConfigMap.containsKey(planId)) {
+				statisticsResponse.setPassThreshold(planConfigMap.get(planId).getPassThreshold());
+				// 功能用例分组统计开始 (为空时, 默认为未执行)
+				List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);
+				statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
+				Map<String, Long> functionalCaseResultCountMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
+						Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+				// 接口用例分组统计开始 (为空时, 默认为未执行)
+				List<TestPlanApiCase> apiCases = planApiCaseMap.get(planId);
+				statisticsResponse.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
+				Map<String, Long> apiCaseResultCountMap = CollectionUtils.isEmpty(apiCases) ? new HashMap<>(16) : apiCases.stream().collect(
+						Collectors.groupingBy(apiCase -> Optional.ofNullable(apiCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+				// 接口场景用例分组统计开始 (为空时, 默认为未执行)
+				List<TestPlanApiScenario> apiScenarios = planApiScenarioMap.get(planId);
+				statisticsResponse.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
+				Map<String, Long> apiScenarioResultCountMap = CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
+						Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+				// 用例数据汇总
+				statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.SUCCESS.name()));
+				statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.ERROR.name()));
+				statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.FAKE_ERROR.name()));
+				statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.BLOCKED.name()));
+				statisticsResponse.setPendingCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
+				statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount() + statisticsResponse.getApiCaseCount() + statisticsResponse.getApiScenarioCount());
+				// 通过率 {通过用例数/总用例数} && 执行进度 {非未执行的用例数/总用例数}
+				statisticsResponse.setPassRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getSuccessCount(), statisticsResponse.getCaseTotal(), 2));
+				statisticsResponse.setExecuteRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount(), statisticsResponse.getCaseTotal(), 2));
+			}
 			planStatisticsResponses.add(statisticsResponse);
 
 			//定时任务
