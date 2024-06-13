@@ -212,7 +212,7 @@ export default {
   'system.config.qrCodeConfig.appKey': 'App Key',
   'system.config.qrCodeConfig.appSecret': 'App Secret',
   'system.config.qrCodeConfig.callBack': 'CallBack',
-  'system.config.qrCodeConfig.enable': 'Enable',
+  'system.config.qrCodeConfig.enable': 'State',
   'system.config.qrCodeConfig.valid': 'Valid',
   'system.config.qrCodeConfig.corpId.required': 'Corp Id is empty',
   'system.config.qrCodeConfig.agentId.required': 'Agent Id is empty',
