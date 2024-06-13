@@ -1,6 +1,12 @@
 <template>
   <a-radio-group v-model:active-key="activeName" type="button" class="tabPlatform" @change="handleClick">
-    <a-radio v-for="item of orgOptions" :key="item.value" :value="item.value" :v-show="item.label">
+    <a-radio
+      v-for="item of orgOptions"
+      :key="item.value"
+      :value="item.value"
+      :v-show="item.label"
+      class="radioOneButton"
+    >
       {{ t('project.messageManagement.' + item.value) }}
     </a-radio>
     <!--    <a-tab-pane key="lark" :title="t('project.messageManagement.LARK')"></a-tab-pane>
@@ -45,7 +51,7 @@
 
   const { t } = useI18n();
 
-  const activeName = ref('');
+  const activeName = ref('WE_COM');
 
   interface qrOption {
     value: string;

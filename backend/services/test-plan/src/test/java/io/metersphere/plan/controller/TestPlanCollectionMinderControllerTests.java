@@ -63,7 +63,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollectionMinderEditDTO.setName("更新名称");
         testPlanCollectionMinderEditDTO.setNum(500L);
         testPlanCollectionMinderEditDTO.setExecuteMethod("PARALLEL");
-        testPlanCollectionMinderEditDTO.setCollectionType("API");
+        testPlanCollectionMinderEditDTO.setType("API");
         testPlanCollectionMinderEditDTO.setExtended(false);
         testPlanCollectionMinderEditDTO.setGrouped(false);
         testPlanCollectionMinderEditDTO.setEnvironmentId("gyq_123");
@@ -91,7 +91,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollectionMinderEditDTO.setName("新建名称");
         testPlanCollectionMinderEditDTO.setNum(500L);
         testPlanCollectionMinderEditDTO.setExecuteMethod("PARALLEL");
-        testPlanCollectionMinderEditDTO.setCollectionType("API");
+        testPlanCollectionMinderEditDTO.setType("API");
         testPlanCollectionMinderEditDTO.setExtended(false);
         testPlanCollectionMinderEditDTO.setGrouped(false);
         testPlanCollectionMinderEditDTO.setEnvironmentId("gyq_123");

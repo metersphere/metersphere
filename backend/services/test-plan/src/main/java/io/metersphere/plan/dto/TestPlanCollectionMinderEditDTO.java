@@ -35,7 +35,7 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
 
     @Schema(description = "测试集类型(功能：FUNCTIONAL/接口用例：API/场景：SCENARIO)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_collection_minder_edit.collection_type.not_blank}")
-    private String collectionType;
+    private String type;
 
     @Schema(description = "是否继承", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{test_plan_collection.extended.not_blank}")
