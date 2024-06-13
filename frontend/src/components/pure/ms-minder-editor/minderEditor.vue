@@ -54,7 +54,7 @@
     (e: 'save', data: MinderJson, callback: () => void): void;
     (e: 'afterMount'): void;
     (e: 'nodeSelect', data: MinderJsonNode): void;
-    (e: 'contentChange', data: MinderJsonNode): void;
+    (e: 'contentChange', data?: MinderJsonNode): void;
     (e: 'action', event: MinderCustomEvent): void;
     (e: 'beforeExecCommand', event: MinderEvent): void;
     (e: 'nodeUnselect'): void;
@@ -112,26 +112,25 @@
 
   onMounted(() => {
     useMinderEventListener({
-      handleSelectionChange: () => {
-        const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
-        if (selectedNode) {
-          emit('nodeSelect', selectedNode);
-          const box = selectedNode.getRenderBox();
+      handleSelectionChange: (node?: MinderJsonNode) => {
+        if (node) {
+          emit('nodeSelect', node);
+          const box = node.getRenderBox();
           minderStore.dispatchEvent(
             MinderEventName.NODE_SELECT,
             undefined,
             {
               ...box,
             },
-            selectedNode.rc.node,
-            [selectedNode]
+            node.rc.node,
+            [node]
           );
         } else {
           emit('nodeUnselect');
           minderStore.dispatchEvent(MinderEventName.NODE_UNSELECT);
         }
       },
-      handleContentChange: (node: MinderJsonNode) => {
+      handleContentChange: (node?: MinderJsonNode) => {
         emit('contentChange', node);
       },
       handleMinderEvent: (event) => {

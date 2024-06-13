@@ -39,7 +39,7 @@
           <MsIcon type="icon-icon_aiming" class="text-[var(--color-text-4)]" />
         </MsButton>
       </a-tooltip>
-      <a-trigger
+      <!-- <a-trigger
         :popup-translate="[5, -105]"
         position="right"
         class="ms-minder-shortcut-trigger"
@@ -127,7 +127,7 @@
             </div>
           </div>
         </template>
-      </a-trigger>
+      </a-trigger> -->
     </div>
     <div v-show="isNavOpen" ref="navPreviewer" class="ms-minder-navigator-previewer" />
   </div>

@@ -84,6 +84,7 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
@@ -103,6 +104,9 @@
     moduleId: string;
     moduleName: string;
     modulesCount: Record<string, number>; // 模块数量
+  }>();
+  const emit = defineEmits<{
+    (e: 'save'): void;
   }>();
 
   const appStore = useAppStore();
@@ -165,6 +169,7 @@
           expandState: e.level === 1 ? 'expand' : 'collapse',
           count: props.modulesCount[e.id],
           isNew: false,
+          changed: false,
         },
         children:
           props.modulesCount[e.id] > 0 && !e.children?.length
@@ -175,6 +180,7 @@
                     text: 'fakeNode',
                     resource: ['fakeNode'],
                     isNew: false,
+                    changed: false,
                   },
                 },
               ]
@@ -643,7 +649,15 @@
       await saveCaseMinder(makeMinderParams(fullJson));
       extraVisible.value = false;
       Message.success(t('common.saveSuccess'));
-      initCaseTree();
+      tempMinderParams.value = {
+        projectId: appStore.currentProjectId,
+        versionId: '',
+        updateCaseList: [],
+        updateModuleList: [],
+        deleteResourceList: [],
+        additionalNodeList: [],
+      };
+      emit('save');
       callback();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -652,6 +666,18 @@
       loading.value = false;
     }
   }
+
+  const featureCaseStore = useFeatureCaseStore();
+
+  watch(
+    () => featureCaseStore.modulesCount,
+    () => {
+      initCaseTree();
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style lang="less" scoped></style>
