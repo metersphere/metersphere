@@ -85,7 +85,7 @@
     }>(),
     {
       size: '300px',
-      min: '250px',
+      min: '300px',
       max: 0.5,
       direction: 'horizontal',
       expandDirection: 'left',

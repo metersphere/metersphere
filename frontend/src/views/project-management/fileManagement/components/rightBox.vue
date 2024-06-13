@@ -194,7 +194,7 @@
             @change="enableAllJar"
           ></a-switch>
           {{ t('project.fileManagement.enableAll') }}
-          <a-tooltip :content="t('project.fileManagement.uploadTip')">
+          <a-tooltip position="tr" :content="t('project.fileManagement.uploadTip')">
             <MsIcon type="icon-icon-maybe_outlined" class="cursor-pointer hover:text-[rgb(var(--primary-5))]" />
           </a-tooltip>
         </div>

@@ -260,10 +260,11 @@
    * 设置根模块名称列表
    * @param names 根模块名称列表
    */
-  function setRootModules(names: string[], isSetDefaultKey: boolean) {
+  function setRootModules(names: string[], isDelete = false) {
     rootModulesName.value = names;
-    if (isSetDefaultKey) {
-      activeFolder.value = 'all';
+    if (isDelete) {
+      caseTreeRef.value?.initModules(true);
+      caseTableRef.value?.initData();
     }
   }
 

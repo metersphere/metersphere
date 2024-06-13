@@ -866,10 +866,10 @@
   async function initTableParams() {
     let moduleIds: string[] = [];
     if (props.activeFolder && props.activeFolder !== 'all') {
-      moduleIds = [...featureCaseStore.moduleId];
+      moduleIds = [props.activeFolder];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_TABLE);
       if (getAllChildren) {
-        moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
+        moduleIds = [props.activeFolder, ...props.offspringIds];
       }
     }
 
@@ -1054,7 +1054,7 @@
   const moduleNamePath = computed(() => {
     return props.activeFolder === 'all'
       ? t('caseManagement.featureCase.allCase')
-      : findNodeByKey<Record<string, any>>(caseTreeData.value, featureCaseStore.moduleId[0], 'id')?.name;
+      : findNodeByKey<Record<string, any>>(caseTreeData.value, props.activeFolder, 'id')?.name;
   });
   // 获取对应模块name
   function getModules(moduleIds: string) {

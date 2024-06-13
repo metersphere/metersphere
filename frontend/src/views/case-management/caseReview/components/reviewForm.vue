@@ -72,6 +72,7 @@
       v-model:raw="caseResultForm.reason"
       v-model:commentIds="caseResultForm.commentIds"
       v-model:filed-ids="caseResultForm.fileList"
+      :auto-height="false"
       :upload-image="handleUploadImage"
       :preview-url="PreviewEditorImageUrl"
       class="w-full"

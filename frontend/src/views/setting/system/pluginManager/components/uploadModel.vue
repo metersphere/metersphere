@@ -18,19 +18,9 @@
               allow-clear
             />
             <span class="absolute right-0 top-1 flex items-center">
-              <span class="float-left cursor-pointer text-[rgb(var(--primary-5))]" @click="openGithub">{{
+              <MsButton class="!mx-0 text-[rgb(var(--primary-5))]" @click="openGithub">{{
                 t('system.plugin.getPlugin')
-              }}</span>
-              <a-tooltip position="bottom">
-                <span class="float-right ml-1 mt-[2px]">
-                  <IconQuestionCircle
-                    class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
-                  />
-                </span>
-                <template #content>
-                  <span @click="openGithub">{{ t('system.plugin.infoTip') }}</span>
-                </template>
-              </a-tooltip>
+              }}</MsButton>
             </span>
           </a-form-item>
           <a-form-item
@@ -248,7 +238,7 @@
   });
 
   function openGithub() {
-    window.open('https://github.com/metersphere');
+    window.open('https://metersphere.io/docs/v3.x/plugin/');
   }
 </script>
 

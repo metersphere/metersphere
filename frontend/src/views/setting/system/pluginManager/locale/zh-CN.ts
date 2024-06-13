@@ -45,7 +45,7 @@ export default {
   'system.plugin.selectOrganizeTip': '请选择组织',
   'system.plugin.selectOrganization': '选择组织',
   'system.plugin.infoTip': '跳转至 GitHub 下载插件',
-  'system.plugin.getPlugin': '获取开源插件',
+  'system.plugin.getPlugin': '获取更多插件',
   'system.plugin.afterSecond': '秒后回到插件列表',
   'system.plugin.uploadSuccess': '上传成功！',
   'system.plugin.uploadSuccessAfter': '上传成功后，须到',
