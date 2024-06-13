@@ -677,6 +677,12 @@
       });
       window.minder.importJson(importJson.value);
       window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[3]);
+      setTimeout(() => {
+        // 初始化脑图完毕后，中心节点移动至左侧边缘
+        const position = window.minder.getViewDragger().getMovement();
+        position.x -= position.x - 40;
+        window.minder.getViewDragger().moveTo(position);
+      }, 200);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

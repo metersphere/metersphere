@@ -1,5 +1,4 @@
 import useMinderStore from '@/store/modules/components/minder-editor';
-import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
 
 import { MinderEventName } from '@/enums/minderEnum';
 

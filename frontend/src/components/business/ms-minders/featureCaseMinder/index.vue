@@ -474,7 +474,7 @@
         node.expand();
         node.renderTree();
         window.minder.layout();
-        window.minder.execCommand('camera', node, 600);
+        window.minder.execCommand('camera', node, 100);
         if (node.data) {
           node.data.isLoaded = true;
         }

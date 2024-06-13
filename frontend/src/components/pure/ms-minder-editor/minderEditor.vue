@@ -73,6 +73,8 @@
     ...viewMenuProps,
   });
 
+  const minderStore = useMinderStore();
+
   const loading = defineModel<boolean>('loading', {
     default: false,
   });
@@ -90,7 +92,15 @@
     }),
   });
 
-  const minderStore = useMinderStore();
+  watch(
+    () => extraVisible.value,
+    (val) => {
+      const node: MinderJsonNode = window.minder.getSelectedNode();
+      if (val && node) {
+        window.minder.execCommand('camera', node, 100);
+      }
+    }
+  );
 
   onMounted(async () => {
     window.minderProps = props;
