@@ -14,7 +14,7 @@
       <SetReportChart
         size="160px"
         :legend-data="legendData"
-        :options="charOptions"
+        :options="executeCharOptions"
         :request-total="getIndicators(detail.caseTotal) || 0"
       />
     </div>
@@ -66,18 +66,18 @@
             <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
             <a-popover position="bottom" content-class="response-popover-content">
               <div class="flex justify-center text-[18px] font-medium">
-                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCasePassRate }} </div>
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ apiCasePassRate }} </div>
               </div>
               <template #content>
                 <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
                   <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
-                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCasePassRate }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ apiCasePassRate }}</div>
                 </div>
               </template>
             </a-popover>
           </div>
           <div class="flex h-full w-full min-w-[150px] items-center justify-center">
-            <MsChart width="150px" height="150px" :options="functionCaseOptions"
+            <MsChart width="150px" height="150px" :options="apiCaseOptions"
           /></div>
         </div>
       </div>
@@ -96,18 +96,18 @@
             <div class="text-[12px] !text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
             <a-popover position="bottom" content-class="response-popover-content">
               <div class="flex justify-center text-[18px] font-medium">
-                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ functionCasePassRate }} </div>
+                <div class="one-line-text max-w-[80px] text-[var(--color-text-1)]">{{ scenarioCasePassRate }} </div>
               </div>
               <template #content>
                 <div class="min-w-[95px] max-w-[400px] p-4 text-[14px]">
                   <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.passRate') }}</div>
-                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ functionCasePassRate }}</div>
+                  <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{ scenarioCasePassRate }}</div>
                 </div>
               </template>
             </a-popover>
           </div>
           <div class="flex h-full w-full min-w-[150px] items-center justify-center">
-            <MsChart width="150px" height="150px" :options="functionCaseOptions"
+            <MsChart width="150px" height="150px" :options="scenarioCaseOptions"
           /></div>
         </div>
       </div>
@@ -157,7 +157,7 @@
   import Summary from '@/views/test-plan/report/detail/component/summary.vue';
 
   import { updateReportDetail } from '@/api/modules/test-plan/report';
-  import { defaultReportDetail, statusConfig } from '@/config/testPlan';
+  import { commonConfig, defaultCount, defaultReportDetail, seriesConfig, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
 
@@ -196,34 +196,11 @@
 
   const legendData = ref<LegendData[]>([]);
 
-  const charOptions = ref({
-    tooltip: {
-      show: false,
-      trigger: 'item',
-    },
-    legend: {
-      show: false,
-    },
+  // 执行分析
+  const executeCharOptions = ref({
+    ...commonConfig,
     series: {
-      name: '',
-      type: 'pie',
-      radius: ['62%', '80%'],
-      center: ['50%', '50%'],
-      avoidLabelOverlap: false,
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: false,
-          fontSize: 40,
-          fontWeight: 'bold',
-        },
-      },
-      labelLine: {
-        show: false,
-      },
+      ...seriesConfig,
       data: [
         {
           value: 0,
@@ -264,33 +241,43 @@
     },
   });
 
+  // 功能用例分析
   const functionCaseOptions = ref({
-    tooltip: {
-      show: false,
-      trigger: 'item',
-    },
-    legend: {
-      show: false,
-    },
+    ...commonConfig,
     series: {
-      name: '',
-      type: 'pie',
-      radius: ['62%', '80%'],
-      avoidLabelOverlap: false,
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: false,
-          fontSize: 40,
-          fontWeight: 'bold',
+      ...seriesConfig,
+      data: [
+        {
+          value: 0,
+          name: t('common.success'),
+          itemStyle: {
+            color: '#00C261',
+          },
         },
-      },
-      labelLine: {
-        show: false,
-      },
+      ],
+    },
+  });
+  // 接口用例分析
+  const apiCaseOptions = ref({
+    ...commonConfig,
+    series: {
+      ...seriesConfig,
+      data: [
+        {
+          value: 0,
+          name: t('common.success'),
+          itemStyle: {
+            color: '#00C261',
+          },
+        },
+      ],
+    },
+  });
+  // 场景用例分析
+  const scenarioCaseOptions = ref({
+    ...commonConfig,
+    series: {
+      ...seriesConfig,
       data: [
         {
           value: 0,
@@ -303,9 +290,9 @@
     },
   });
 
-  // 初始化图表
-  function initOptionsData() {
-    charOptions.value.series.data = statusConfig.map((item: StatusListType) => {
+  // 初始化执行分析
+  function initExecuteOptions() {
+    executeCharOptions.value.series.data = statusConfig.map((item: StatusListType) => {
       return {
         value: detail.value.executeCount[item.value] || 0,
         name: t(item.label),
@@ -325,15 +312,17 @@
         rote: `${Number.isNaN(rate) ? 0 : rate.toFixed(2)}%`,
       };
     }) as unknown as LegendData[];
+  }
 
+  // 获取通过率
+  function getPassRateData(caseDetailCount: countDetail) {
+    const caseCountDetail = caseDetailCount || defaultCount;
     const passRateData = statusConfig.filter((item) => ['success'].includes(item.value));
-    const { functionalCount } = detail.value;
-    const { success } = functionalCount;
+    const { success } = caseCountDetail;
     const valueList = success ? statusConfig : passRateData;
-
-    functionCaseOptions.value.series.data = valueList.map((item: StatusListType) => {
+    return valueList.map((item: StatusListType) => {
       return {
-        value: detail.value.functionalCount[item.value] || 0,
+        value: caseCountDetail[item.value] || 0,
         name: t(item.label),
         itemStyle: {
           color: success ? item.color : '#D4D4D8',
@@ -342,6 +331,15 @@
         },
       };
     });
+  }
+
+  // 初始化图表
+  function initOptionsData() {
+    initExecuteOptions();
+    const { functionalCount, apiCaseCount, apiScenarioCount } = detail.value;
+    functionCaseOptions.value.series.data = getPassRateData(functionalCount);
+    apiCaseOptions.value.series.data = getPassRateData(apiCaseCount);
+    scenarioCaseOptions.value.series.data = getPassRateData(apiScenarioCount);
   }
 
   async function handleUpdateReportDetail() {
@@ -387,11 +385,51 @@
     },
   ]);
 
+  function getSummaryDetail(detailCount: countDetail) {
+    if (detailCount) {
+      const { success, error, fakeError, pending, block } = detailCount;
+      // 已执行用例
+      const hasExecutedCase = success + error + fakeError + block;
+      // 用例总数
+      const caseTotal = hasExecutedCase + pending;
+      // 执行率
+      const executedCount = (hasExecutedCase / caseTotal) * 100;
+      const apiExecutedRate = `${Number.isNaN(executedCount) ? 0 : executedCount.toFixed(2)}%`;
+      // 通过率
+      const successCount = (success / caseTotal) * 100;
+      const successRate = `${Number.isNaN(successCount) ? 0 : successCount.toFixed(2)}%`;
+      return {
+        hasExecutedCase,
+        caseTotal,
+        apiExecutedRate,
+        successRate,
+        pending,
+        success,
+      };
+    }
+    return {
+      hasExecutedCase: 0,
+      caseTotal: 0,
+      apiExecutedRate: 0,
+      successRate: 0,
+      pending: 0,
+      success: 0,
+    };
+  }
+
   const functionCasePassRate = computed(() => {
-    const { functionalCount } = detail.value;
-    const { success, error, pending, block } = functionalCount;
-    const successRate = (success / (success + error + pending + block)) * 100;
-    return `${Number.isNaN(successRate) ? 0 : successRate.toFixed(2)}%`;
+    const apiCaseDetail = getSummaryDetail(detail.value.functionalCount || defaultCount);
+    return apiCaseDetail.successRate;
+  });
+
+  const apiCasePassRate = computed(() => {
+    const apiCaseDetail = getSummaryDetail(detail.value.apiCaseCount || defaultCount);
+    return apiCaseDetail.successRate;
+  });
+
+  const scenarioCasePassRate = computed(() => {
+    const apiScenarioDetail = getSummaryDetail(detail.value.apiScenarioCount || defaultCount);
+    return apiScenarioDetail.successRate;
   });
 
   const activeTab = ref('bug');
@@ -430,38 +468,6 @@
       });
     });
   });
-
-  function getSummaryDetail(detailCount: countDetail) {
-    if (detailCount) {
-      const { success, error, fakeError, pending, block } = detailCount;
-      // 已执行用例
-      const hasExecutedCase = success + error + fakeError + block;
-      // 用例总数
-      const caseTotal = hasExecutedCase + pending;
-      // 执行率
-      const executedCount = (hasExecutedCase / caseTotal) * 100;
-      const apiExecutedRate = `${Number.isNaN(executedCount) ? 0 : executedCount.toFixed(2)}%`;
-      // 通过率
-      const successCount = (success / caseTotal) * 100;
-      const successRate = `${Number.isNaN(successCount) ? 0 : successCount.toFixed(2)}%`;
-      return {
-        hasExecutedCase,
-        caseTotal,
-        apiExecutedRate,
-        successRate,
-        pending,
-        success,
-      };
-    }
-    return {
-      hasExecutedCase: 0,
-      caseTotal: 0,
-      apiExecutedRate: 0,
-      successRate: 0,
-      pending: 0,
-      success: 0,
-    };
-  }
 
   const summaryContent = computed(() => {
     const { functionalCount, apiCaseCount, apiScenarioCount } = detail.value;

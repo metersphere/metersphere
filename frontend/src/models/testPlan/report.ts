@@ -23,3 +23,15 @@ export interface UpdateReportDetailParams {
   summary: string;
   richTextTmpFileIds: string[];
 }
+
+export interface ApiOrScenarioCaseItem {
+  id: string;
+  num: number;
+  name: string;
+  moduleName: string;
+  priority: string;
+  executeResult: string;
+  executeUser: string;
+  bugCount: number;
+  reportId: string;
+}

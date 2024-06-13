@@ -288,7 +288,7 @@
     <template #title>
       {{ t('testPlan.testPlanIndex.batchExecution') }}
     </template>
-    <a-radio-group v-model="executeForm.executeMode">
+    <a-radio-group v-model="executeForm.runMode">
       <a-radio value="SERIAL">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
       <a-radio value="PARALLEL">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
     </a-radio-group>
@@ -373,6 +373,7 @@
     deleteScheduleTask,
     dragPlanOnGroup,
     executePlanOrGroup,
+    executeSinglePlan,
     getPlanPassRate,
     getTestPlanDetail,
     getTestPlanList,
@@ -389,6 +390,7 @@
   import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type {
     AddTestPlanParams,
+    BatchExecutePlan,
     BatchMoveParams,
     CreateTask,
     ExecutePlan,
@@ -431,13 +433,14 @@
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE', 'PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ADD'])
   );
+  const showType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.ALL);
 
   const columns: MsTableColumn = [
     {
       title: 'testPlan.testPlanIndex.ID',
       slotName: 'num',
       dataIndex: 'num',
-      width: 150,
+      width: 180,
       showInTable: true,
       showDrag: false,
       showTooltip: true,
@@ -580,8 +583,6 @@
       return Promise.resolve(false);
     }
   }
-
-  const showType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.ALL);
 
   // 设置对齐缩进
   function hasIndent(record: TestPlanItem) {
@@ -873,19 +874,18 @@
   /**
    * 批量执行
    */
-  const initExecuteForm: ExecutePlan = {
+  const initExecuteForm: BatchExecutePlan = {
     projectId: appStore.currentProjectId,
     executeIds: [],
-    executeMode: 'SERIAL',
+    runMode: 'SERIAL',
+    executionSource: 'JENKINS',
   };
 
-  const executeForm = ref<ExecutePlan>(cloneDeep(initExecuteForm));
+  const executeForm = ref<BatchExecutePlan>(cloneDeep(initExecuteForm));
   const executeVisible = ref<boolean>(false);
 
-  function handleExecute(isBatch: boolean) {
-    if (isBatch) {
-      executeForm.value.executeIds = batchParams.value.selectedIds || [];
-    }
+  function handleExecute() {
+    executeForm.value.executeIds = batchParams.value.selectedIds || [];
     executeVisible.value = true;
   }
 
@@ -915,13 +915,27 @@
     }
   }
 
+  async function singleExecute(id: string) {
+    try {
+      const params: ExecutePlan = {
+        executeId: id,
+        runMode: 'SERIAL',
+        executionSource: 'JENKINS',
+      };
+      await executeSinglePlan(params);
+      Message.success(t('case.detail.execute.success'));
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   // 测试计划详情
   function executePlan(record: TestPlanItem) {
     const { type, id } = record;
 
     if (type === testPlanTypeEnum.GROUP) {
-      handleExecute(false);
-      executeForm.value.executeIds = [id];
+      singleExecute(record.id);
       return;
     }
     if (type === testPlanTypeEnum.TEST_PLAN) {
@@ -936,8 +950,7 @@
             },
           });
         } else {
-          executeForm.value.executeIds = [id];
-          executeHandler();
+          singleExecute(record.id);
         }
       }
     }
@@ -1019,6 +1032,7 @@
         },
         type: showType.value,
         scheduleOpen: enable,
+        editColumn: 'SCHEDULE',
       };
       await batchEditTestPlan(params);
       Message.success(
@@ -1143,7 +1157,7 @@
     batchParams.value = params;
     switch (event.eventTag) {
       case 'execute':
-        handleExecute(true);
+        handleExecute();
         break;
       case 'copy':
         handleCopyOrMove('copy');

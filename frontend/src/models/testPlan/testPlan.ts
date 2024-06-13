@@ -367,10 +367,15 @@ export interface CreateTask {
   cron: string;
   runConfig: { runMode: 'SERIAL' | 'PARALLEL' };
 }
-export interface ExecutePlan {
-  projectId: string;
-  executeIds: string[];
-  executeMode: RunModeType;
+export interface BatchExecutePlan {
+  projectId?: string;
+  executeIds?: string[];
+  runMode: RunModeType;
+  executionSource: string;
+}
+
+export interface ExecutePlan extends BatchExecutePlan {
+  executeId: string;
 }
 
 export interface PlanMinderNodeData extends MinderJsonNodeData {
