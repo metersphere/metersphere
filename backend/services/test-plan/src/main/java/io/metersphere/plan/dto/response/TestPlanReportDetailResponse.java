@@ -1,6 +1,7 @@
 package io.metersphere.plan.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.metersphere.plan.dto.CaseCount;
 import io.metersphere.plan.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -35,6 +36,8 @@ public class TestPlanReportDetailResponse {
 	private Double executeRate;
 	@Schema(description = "缺陷总数")
 	private Integer bugCount;
+	@Schema(description = "计划总数")
+	private Integer planCount;
 
 
 	@Schema(description = "用例总数")
@@ -59,22 +62,4 @@ public class TestPlanReportDetailResponse {
 	 */
 	@Schema(description = "接口场景用例分析-用例数")
 	private CaseCount apiScenarioCount;
-
-
-	/**
-	 * 功能, 接口, 场景
-	 */
-	@Data
-	public static class CaseCount {
-		@Schema(description = "成功用例数量")
-		private Integer success = 0;
-		@Schema(description = "失败用例数量")
-		private Integer error = 0;
-		@Schema(description = "误报用例数量")
-		private Integer fakeError = 0;
-		@Schema(description = "阻塞用例数量")
-		private Integer block = 0;
-		@Schema(description = "未执行用例数量")
-		private Integer pending = 0;
-	}
 }

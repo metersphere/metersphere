@@ -29,4 +29,10 @@ public class TestPlanReportGenPreParam {
 
 	@Schema(description = "是否集成报告")
 	private Boolean integrated;
+
+	@Schema(description = "计划数量, 集成报告需要")
+	private Long planCount;
+
+	@Schema(description = "计划组报告ID, 独立报告需要")
+	private String groupReportId;
 }

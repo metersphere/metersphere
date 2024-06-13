@@ -2,6 +2,7 @@ package io.metersphere.plan.service;
 
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugCommonService;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
@@ -12,7 +13,10 @@ import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.ModuleTreeUtils;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileCopyRequest;
@@ -39,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,6 +69,10 @@ public class TestPlanReportService {
 	private ExtTestPlanReportBugMapper extTestPlanReportBugMapper;
 	@Resource
 	private ExtTestPlanReportFunctionalCaseMapper extTestPlanReportFunctionalCaseMapper;
+	@Resource
+	private ExtTestPlanReportApiCaseMapper extTestPlanReportApiCaseMapper;
+	@Resource
+	private ExtTestPlanReportApiScenarioMapper extTestPlanReportApiScenarioMapper;
 	@Resource
 	private TestPlanReportLogService testPlanReportLogService;
 	@Resource
@@ -189,71 +198,123 @@ public class TestPlanReportService {
         testPlanReportBugMapper.deleteByExample(testPlanReportBugExample);
     }
 	/**
-	 * 手动生成报告
+	 * 手动生成报告 (计划 或者 组)
 	 * @param request 请求参数
-	 * @return 报告
+	 * @param currentUser 当前用户
 	 */
-	public TestPlanReport genReportByManual(TestPlanReportGenRequest request, String currentUser) {
-		TestPlan testPlan = checkPlan(request.getTestPlanId());
-		/*
-		 * 手动生成报告
-		 * 1. 构建预生成报告参数
-		 * 2. 预生成报告
-		 * 3. 报告后置处理
-		 */
-		TestPlanReportGenPreParam genPreParam = new TestPlanReportGenPreParam();
-		BeanUtils.copyBean(genPreParam, request);
-		genPreParam.setTestPlanName(testPlan.getName());
-		genPreParam.setStartTime(System.currentTimeMillis());
-		// 手动触发
-		genPreParam.setTriggerMode(TaskTriggerMode.MANUAL.name());
-		// 报告预生成时, 执行状态为未执行, 结果状态为'-'
-		genPreParam.setExecStatus(ExecStatus.PENDING.name());
-		genPreParam.setResultStatus("-");
-		// 是否集成报告, 目前根据是否计划组来区分
-		genPreParam.setIntegrated(StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP));
-		TestPlanReport preReport = preGenReport(genPreParam, currentUser, "/test-plan/report/gen");
-		TestPlanReportPostParam postParam = new TestPlanReportPostParam();
-		BeanUtils.copyBean(postParam, request);
-		postParam.setReportId(preReport.getId());
-		// 手动生成报告, 执行状态为已完成, 执行及结束时间为当前时间
-		postParam.setExecuteTime(System.currentTimeMillis());
-		postParam.setEndTime(System.currentTimeMillis());
-		postParam.setExecStatus(ExecStatus.COMPLETED.name());
-		return postHandleReport(postParam);
+	public void genReportByManual(TestPlanReportGenRequest request, String currentUser) {
+		genReport(request, false, currentUser, "/test-plan/report/gen");
 	}
 
-
 	/**
-	 * 预生成报告内容(后续拆分优化)
-	 * @return 报告
+	 * 执行生成报告
+	 * @param request 请求参数
+	 * @param currentUser 当前用户
 	 */
-	public TestPlanReport preGenReport(TestPlanReportGenPreParam genParam, String currentUser, String logPath) {
-		// 准备计划数据
-		TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
+	public void genReportByExecution(TestPlanReportGenRequest request, String currentUser) {
+		genReport(request, true, currentUser, "/test-plan/report/gen");
+	}
+
+	public void genReport(TestPlanReportGenRequest request, boolean isExecute, String currentUser, String logPath) {
+		// 所有计划
+		List<TestPlan> plans = getPlans(request.getTestPlanId());
+		// 模块参数
+		TestPlanReportModuleParam moduleParam = getModuleParam(request.getProjectId());
 
 		/*
-		 * 预生成报告(后续执行生成报告复用)
+		 * 1. 准备报告生成参数
+		 * 2. 预生成报告
+		 * 3. 汇总报告数据 {执行时跳过}
+		 * 3. 报告后置处理 (计算通过率, 执行率, 执行状态...) {执行时跳过}
+		 */
+		final Long groupPlanCount = (long) (plans.size() - 1);
+		AtomicReference<String> groupReportId = new AtomicReference<>();
+		plans.forEach(plan -> {
+			request.setTestPlanId(plan.getId());
+			TestPlanReportGenPreParam genPreParam = buildReportGenParam(request, plan, groupPlanCount, groupReportId.get() != null ? groupReportId.get() : null);
+			TestPlanReport preReport = preGenReport(genPreParam, currentUser, logPath, moduleParam);
+			if (genPreParam.getIntegrated()) {
+				// 如果是计划组的报告, 初始化组的报告ID
+				groupReportId.set(preReport.getId());
+			}
+
+			if (!isExecute) {
+				// 汇总
+				summaryReport(preReport.getId());
+				// 手动生成的报告, 汇总结束后直接进行后置处理
+				TestPlanReportPostParam postParam = new TestPlanReportPostParam();
+				BeanUtils.copyBean(postParam, request);
+				postParam.setReportId(preReport.getId());
+				// 手动生成报告, 执行状态为已完成, 执行及结束时间为当前时间
+				postParam.setExecuteTime(System.currentTimeMillis());
+				postParam.setEndTime(System.currentTimeMillis());
+				postParam.setExecStatus(ExecStatus.COMPLETED.name());
+				postHandleReport(postParam);
+			}
+		});
+	}
+
+	/**
+	 * 预生成报告内容(汇总前调用)
+	 * @return 报告
+	 */
+	public TestPlanReport preGenReport(TestPlanReportGenPreParam genParam, String currentUser, String logPath, TestPlanReportModuleParam moduleParam) {
+		// 计划配置
+		TestPlanConfig config = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
+
+		/*
+		 * 预生成报告
 		 * 1. 生成报告用例数据, 缺陷数据
 		 * 2. 生成或计算报告统计数据
 		 */
+		TestPlanReport report = new TestPlanReport();
+		BeanUtils.copyBean(report, genParam);
+		report.setId(IDGenerator.nextStr());
+		report.setName(genParam.getTestPlanName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+		report.setCreateUser(currentUser);
+		report.setCreateTime(System.currentTimeMillis());
+		report.setDeleted(false);
+		report.setPassThreshold(config.getPassThreshold());
+		report.setParentId(genParam.getGroupReportId());
+		testPlanReportMapper.insertSelective(report);
+
+		// 报告关联数据
+		TestPlanReportDetailCaseDTO reportCaseDetail = genReportDetail(genParam, moduleParam, report);
+		// 报告统计内容
+		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
+		reportSummary.setId(IDGenerator.nextStr());
+		reportSummary.setTestPlanReportId(report.getId());
+		reportSummary.setFunctionalCaseCount((long) (CollectionUtils.isEmpty(reportCaseDetail.getFunctionCases()) ? 0 : reportCaseDetail.getFunctionCases().size()));
+		reportSummary.setApiCaseCount((long) (CollectionUtils.isEmpty(reportCaseDetail.getApiCases()) ? 0 : reportCaseDetail.getApiCases().size()));
+		reportSummary.setApiScenarioCount((long) (CollectionUtils.isEmpty(reportCaseDetail.getApiScenarios()) ? 0 : reportCaseDetail.getApiScenarios().size()));
+		reportSummary.setBugCount((long) (CollectionUtils.isEmpty(reportCaseDetail.getBugs()) ? 0 : reportCaseDetail.getBugs().size()));
+		reportSummary.setPlanCount(genParam.getIntegrated() ? genParam.getPlanCount() : 0);
+		testPlanReportSummaryMapper.insertSelective(reportSummary);
+
+		// 报告日志
+		testPlanReportLogService.addLog(report, currentUser, genParam.getProjectId(), logPath);
+		return report;
+	}
+
+	/**
+	 * 生成报告的关联数据
+	 * @param genParam 报告生成的参数
+	 * @param moduleParam 模块参数
+	 * @param report 报告
+	 */
+	private TestPlanReportDetailCaseDTO genReportDetail(TestPlanReportGenPreParam genParam, TestPlanReportModuleParam moduleParam, TestPlanReport report) {
 		SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-		String reportId = IDGenerator.nextStr();
 		// 功能用例
 		List<TestPlanReportFunctionCase> reportFunctionCases = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCases(genParam.getTestPlanId());
 		if (CollectionUtils.isNotEmpty(reportFunctionCases)) {
-			// 模块树
-			List<TestPlanBaseModule> functionalModules = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCaseModules(genParam.getProjectId());
-			Map<String, String> functionalModuleMap = new HashMap<>(functionalModules.size());
-			ModuleTreeUtils.genPathMap(functionalModules, functionalModuleMap, new ArrayList<>());
 			// 用例等级
 			List<String> ids = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseId).distinct().toList();
 			List<SelectOption> options = extTestPlanReportFunctionalCaseMapper.getCasePriorityByIds(ids);
 			Map<String, String> casePriorityMap = options.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
 			reportFunctionCases.forEach(reportFunctionalCase -> {
 				reportFunctionalCase.setId(IDGenerator.nextStr());
-				reportFunctionalCase.setTestPlanReportId(reportId);
-				reportFunctionalCase.setFunctionCaseModule(functionalModuleMap.getOrDefault(reportFunctionalCase.getFunctionCaseModule(),
+				reportFunctionalCase.setTestPlanReportId(report.getId());
+				reportFunctionalCase.setFunctionCaseModule(moduleParam.getFunctionalModuleMap().getOrDefault(reportFunctionalCase.getFunctionCaseModule(),
 						ModuleTreeUtils.MODULE_PATH_PREFIX + reportFunctionalCase.getFunctionCaseModule()));
 				reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
 			});
@@ -262,7 +323,33 @@ public class TestPlanReportService {
 			batchMapper.batchInsert(reportFunctionCases);
 		}
 
-		// TODO: 接口用例, 场景报告内容 (与接口报告是否能一致)
+		// 接口用例
+		List<TestPlanReportApiCase> reportApiCases = extTestPlanReportApiCaseMapper.getPlanExecuteCases(genParam.getTestPlanId());
+		if (CollectionUtils.isNotEmpty(reportApiCases)) {
+			reportApiCases.forEach(reportApiCase -> {
+				reportApiCase.setId(IDGenerator.nextStr());
+				reportApiCase.setTestPlanReportId(report.getId());
+				reportApiCase.setApiCaseModule(moduleParam.getApiModuleMap().getOrDefault(reportApiCase.getApiCaseModule(),
+						ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiCase.getApiCaseModule()));
+			});
+			// 插入计划接口用例关联数据 -> 报告内容
+			TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
+			batchMapper.batchInsert(reportApiCases);
+		}
+
+		// 场景用例
+		List<TestPlanReportApiScenario> reportApiScenarios = extTestPlanReportApiScenarioMapper.getPlanExecuteCases(genParam.getTestPlanId());
+		if (CollectionUtils.isNotEmpty(reportApiScenarios)) {
+			reportApiScenarios.forEach(reportApiScenario -> {
+				reportApiScenario.setId(IDGenerator.nextStr());
+				reportApiScenario.setTestPlanReportId(report.getId());
+				reportApiScenario.setApiScenarioModule(moduleParam.getScenarioModuleMap().getOrDefault(reportApiScenario.getApiScenarioModule(),
+						ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiScenario.getApiScenarioModule()));
+			});
+			// 插入计划场景用例关联数据 -> 报告内容
+			TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
+			batchMapper.batchInsert(reportApiScenarios);
+		}
 
 		// 计划报告缺陷内容
 		List<TestPlanReportBug> reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId());
@@ -274,7 +361,7 @@ public class TestPlanReportService {
 		Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(genParam.getProjectId());
 		reportBugs.forEach(reportBug -> {
 			reportBug.setId(IDGenerator.nextStr());
-			reportBug.setTestPlanReportId(reportId);
+			reportBug.setTestPlanReportId(report.getId());
 			reportBug.setBugHandleUser(headerHandleUserMap.containsKey(reportBug.getBugHandleUser()) ?
 					headerHandleUserMap.get(reportBug.getBugHandleUser()) : localHandleUserMap.get(reportBug.getBugHandleUser()));
 			reportBug.setBugStatus(allStatusMap.get(reportBug.getBugStatus()));
@@ -284,65 +371,40 @@ public class TestPlanReportService {
 			TestPlanReportBugMapper batchMapper = sqlSession.getMapper(TestPlanReportBugMapper.class);
 			batchMapper.batchInsert(reportBugs);
 		}
+
 		sqlSession.flushStatements();
 		SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
-		// 插入报告统计内容
-		TestPlanReportSummary reportSummary = new TestPlanReportSummary();
-		reportSummary.setId(IDGenerator.nextStr());
-		reportSummary.setTestPlanReportId(reportId);
-		reportSummary.setFunctionalCaseCount((long) (CollectionUtils.isEmpty(reportFunctionCases) ? 0 : reportFunctionCases.size()));
-		reportSummary.setApiCaseCount(0L);
-		reportSummary.setApiScenarioCount(0L);
-		reportSummary.setBugCount((long) (CollectionUtils.isEmpty(reportBugs) ? 0 : reportBugs.size()));
-		testPlanReportSummaryMapper.insertSelective(reportSummary);
-		// 插入报告
-		TestPlanReport report = new TestPlanReport();
-		BeanUtils.copyBean(report, genParam);
-		report.setId(reportId);
-		report.setName(genParam.getTestPlanName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-		report.setCreateUser(currentUser);
-		report.setCreateTime(System.currentTimeMillis());
-		report.setDeleted(false);
-		report.setPassThreshold(testPlanConfig.getPassThreshold());
-		testPlanReportMapper.insertSelective(report);
-
-		// 插入生成报告日志
-		testPlanReportLogService.addLog(report, currentUser, genParam.getProjectId(), logPath);
-		return report;
+		return TestPlanReportDetailCaseDTO.builder()
+				.functionCases(reportFunctionCases).apiCases(reportApiCases).apiScenarios(reportApiScenarios).bugs(reportBugs).build();
 	}
 
 
 	/**
-	 * 报告结果后置处理
+	 * 报告结果后置处理 (汇总操作结束后调用)
 	 * @param postParam 后置处理参数
-	 * @return 报告
 	 */
-	public TestPlanReport postHandleReport(TestPlanReportPostParam postParam) {
+	public void postHandleReport(TestPlanReportPostParam postParam) {
 		/*
 		 * 处理报告(执行状态, 结束时间)
 		 */
 		TestPlanReport planReport = checkReport(postParam.getReportId());
 		BeanUtils.copyBean(planReport, postParam);
 		/*
-		 * TODO: 计算报告通过率, 并对比阈值生成报告结果状态(目前只有功能用例参与计算)
+		 * 计算报告通过率, 并对比阈值生成报告结果状态
 		 */
 		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
 		example.createCriteria().andTestPlanReportIdEqualTo(postParam.getReportId());
-		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExample(example).get(0);
-		// 通过的功能用例数
-		// TODO: 接口用例, 场景用例
-		long functionalCasePassCount = extTestPlanReportFunctionalCaseMapper.countExecuteSuccessCase(postParam.getReportId());
+		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExampleWithBLOBs(example).get(0);
 		// 用例总数
 		long caseTotal = reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount();
-		// 通过率 {通过用例数/总用例数}
-		// FIXME: 后续替换成PASS_COUNT
-		planReport.setPassRate(RateCalculateUtils.divWithPrecision((int) functionalCasePassCount, (int) caseTotal, 2));
+		CaseCount summaryCount = JSON.parseObject(new String(reportSummary.getExecuteResult()), CaseCount.class);
+		planReport.setExecuteRate(RateCalculateUtils.divWithPrecision(((int) caseTotal - summaryCount.getPending()), (int) caseTotal, 2));
+		planReport.setPassRate(RateCalculateUtils.divWithPrecision(summaryCount.getSuccess(), (int) caseTotal, 2));
 		// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
 		planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
 
 		testPlanReportMapper.updateByPrimaryKeySelective(planReport);
-		return planReport;
 	}
 
 	/**
@@ -354,17 +416,22 @@ public class TestPlanReportService {
 		TestPlanReport planReport = checkReport(reportId);
 		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
 		example.createCriteria().andTestPlanReportIdEqualTo(reportId);
-		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExample(example).get(0);
+		TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExampleWithBLOBs(example).get(0);
 		TestPlanReportDetailResponse planReportDetail = new TestPlanReportDetailResponse();
 		BeanUtils.copyBean(planReportDetail, planReport);
 		int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
 		planReportDetail.setCaseTotal(caseTotal);
 		planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
+		planReportDetail.setPlanCount(reportSummary.getPlanCount().intValue());
 		planReportDetail.setSummary(reportSummary.getSummary());
 		/*
 		 * 统计用例执行数据
 		 */
-		return statisticsCase(planReportDetail);
+		planReportDetail.setFunctionalCount(JSON.parseObject(new String(reportSummary.getFunctionalExecuteResult()), CaseCount.class));
+		planReportDetail.setApiCaseCount(JSON.parseObject(new String(reportSummary.getApiExecuteResult()), CaseCount.class));
+		planReportDetail.setApiScenarioCount(JSON.parseObject(new String(reportSummary.getScenarioExecuteResult()), CaseCount.class));
+		planReportDetail.setExecuteCount(JSON.parseObject(new String(reportSummary.getExecuteResult()), CaseCount.class));
+		return planReportDetail;
 	}
 
 	/**
@@ -394,52 +461,59 @@ public class TestPlanReportService {
 	}
 
 	/**
-	 * 分页查询报告详情-功能用例分页数据
+	 * 分页查询报告详情-用例分页数据
 	 * @param request 请求参数
-	 * @return 缺陷分页数据
+	 * @return 用例分页数据
 	 */
-	public List<ReportDetailCasePageDTO> listReportDetailFunctionalCases(TestPlanReportDetailPageRequest request) {
-		List<ReportDetailCasePageDTO> functionalCases = extTestPlanReportFunctionalCaseMapper.list(request);
-		if (CollectionUtils.isEmpty(functionalCases)) {
-			return new ArrayList<>();
+	public List<ReportDetailCasePageDTO> listReportDetailCases(TestPlanReportDetailPageRequest request, String caseType) {
+		List<ReportDetailCasePageDTO> detailCases = new ArrayList<>();
+		switch (caseType) {
+			case AssociateCaseType.FUNCTIONAL ->  detailCases = extTestPlanReportFunctionalCaseMapper.list(request);
+			case AssociateCaseType.API_CASE -> detailCases = extTestPlanReportApiCaseMapper.list(request);
+			case AssociateCaseType.API_SCENARIO -> detailCases = extTestPlanReportApiScenarioMapper.list(request);
 		}
-		List<String> distinctUserIds = functionalCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().toList();
-		List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(distinctUserIds);
-		Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
-		functionalCases.forEach(functionalCase -> functionalCase.setExecuteUser(userMap.getOrDefault(functionalCase.getExecuteUser(), functionalCase.getExecuteUser())));
-		return functionalCases;
+		List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().toList();
+		Map<String, String> userMap = getUserMap(distinctUserIds);
+		detailCases.forEach(detailCase -> detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser())));
+		return detailCases;
 	}
 
 	/**
-	 * 统计用例执行数据 (目前只统计功能用例)
-	 * @param reportDetail 用例详情
+	 * 汇总规划生成的报告
+	 * @param reportId 报告ID
 	 */
-	private TestPlanReportDetailResponse statisticsCase(TestPlanReportDetailResponse reportDetail) {
-		// 功能用例 (无误报状态)
-		List<CaseStatusCountMap> functionalCaseCountMap = extTestPlanReportFunctionalCaseMapper.countExecuteResult(reportDetail.getId());
-		Map<String, Long> functionalCaseResultMap = functionalCaseCountMap.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
-		TestPlanReportDetailResponse.CaseCount functionalCaseCount = new TestPlanReportDetailResponse.CaseCount();
-		functionalCaseCount.setSuccess(functionalCaseResultMap.getOrDefault(ExecStatus.SUCCESS.name(), 0L).intValue());
-		functionalCaseCount.setError(functionalCaseResultMap.getOrDefault(ExecStatus.ERROR.name(), 0L).intValue());
-		functionalCaseCount.setPending(functionalCaseResultMap.getOrDefault(ExecStatus.PENDING.name(), 0L).intValue());
-		functionalCaseCount.setBlock(functionalCaseResultMap.getOrDefault(ExecStatus.BLOCKED.name(), 0L).intValue());
+	public void summaryReport(String reportId) {
+		TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
+		example.createCriteria().andTestPlanReportIdEqualTo(reportId);
+		List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExample(example);
+		if (CollectionUtils.isEmpty(testPlanReportSummaries)) {
+			// 报告详情不存在
+			return;
+		}
+		// 功能用例
+		List<CaseStatusCountMap> functionalCountMapList = extTestPlanReportFunctionalCaseMapper.countExecuteResult(reportId);
+		CaseCount functionalCaseCount = countMap(functionalCountMapList);
+		// 接口用例
+		List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(reportId);
+		CaseCount apiCaseCount = countMap(apiCountMapList);
+		// 场景用例
+		List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(reportId);
+		CaseCount scenarioCaseCount = countMap(scenarioCountMapList);
 
-		// TODO: 接口用例, 场景用例
+		// 规划整体的汇总数据
+		CaseCount summaryCount = CaseCount.builder().success(functionalCaseCount.getSuccess() + apiCaseCount.getSuccess() + scenarioCaseCount.getSuccess())
+				.error(functionalCaseCount.getError() + apiCaseCount.getError() + scenarioCaseCount.getError())
+				.block(functionalCaseCount.getBlock() + apiCaseCount.getBlock() + scenarioCaseCount.getBlock())
+				.pending(functionalCaseCount.getPending() + apiCaseCount.getPending() + scenarioCaseCount.getPending())
+				.fakeError(functionalCaseCount.getFakeError() + apiCaseCount.getFakeError() + scenarioCaseCount.getFakeError()).build();
 
-		// FIXME: 目前只有功能用例
-		TestPlanReportDetailResponse.CaseCount executeCaseCount = new TestPlanReportDetailResponse.CaseCount();
-		executeCaseCount.setSuccess(functionalCaseCount.getSuccess());
-		executeCaseCount.setError(functionalCaseCount.getError());
-		executeCaseCount.setFakeError(functionalCaseCount.getFakeError());
-		executeCaseCount.setPending(functionalCaseCount.getPending());
-		executeCaseCount.setBlock(functionalCaseCount.getBlock());
-
-		// 计算执行完成率
-		reportDetail.setExecuteRate(RateCalculateUtils.divWithPrecision(reportDetail.getCaseTotal() - executeCaseCount.getPending(), reportDetail.getCaseTotal(), 2));
-		// 分析详情数据
-		reportDetail.setFunctionalCount(functionalCaseCount);
-		reportDetail.setExecuteCount(executeCaseCount);
-		return reportDetail;
+		// 入库汇总数据 => 报告详情表
+		TestPlanReportSummary reportSummary = testPlanReportSummaries.get(0);
+		reportSummary.setFunctionalExecuteResult(JSON.toJSONBytes(functionalCaseCount));
+		reportSummary.setApiExecuteResult(JSON.toJSONBytes(apiCaseCount));
+		reportSummary.setScenarioExecuteResult(JSON.toJSONBytes(scenarioCaseCount));
+		reportSummary.setExecuteResult(JSON.toJSONBytes(summaryCount));
+		testPlanReportSummaryMapper.updateByPrimaryKeySelective(reportSummary);
 	}
 
     /**
@@ -594,5 +668,93 @@ public class TestPlanReportService {
 				throw new MSException(Translator.get("file_upload_fail"));
 			}
 		}
+	}
+
+	/**
+	 * 构建预生成报告的参数
+	 * @param genRequest 报告请求参数
+	 * @return 预生成报告参数
+	 */
+	private TestPlanReportGenPreParam buildReportGenParam(TestPlanReportGenRequest genRequest, TestPlan testPlan, Long groupPlanCount, String groupReportId) {
+		TestPlanReportGenPreParam genPreParam = new TestPlanReportGenPreParam();
+		BeanUtils.copyBean(genPreParam, genRequest);
+		genPreParam.setTestPlanName(testPlan.getName());
+		genPreParam.setStartTime(System.currentTimeMillis());
+		// 报告预生成时, 执行状态为未执行, 结果状态为'-'
+		genPreParam.setExecStatus(ExecStatus.PENDING.name());
+		genPreParam.setResultStatus("-");
+		// 是否集成报告(计划组报告), 目前根据是否计划组来区分
+		genPreParam.setIntegrated(StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP));
+		genPreParam.setPlanCount(groupPlanCount);
+		genPreParam.setGroupReportId(groupReportId);
+		return genPreParam;
+	}
+
+	/**
+	 * 统计执行状态的用例数量
+	 * @param resultMapList 执行结果集合
+	 * @return 用例数量
+	 */
+	private CaseCount countMap(List<CaseStatusCountMap> resultMapList) {
+		CaseCount caseCount = new CaseCount();
+		Map<String, Long> resultMap = resultMapList.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
+		caseCount.setSuccess(resultMap.getOrDefault(ExecStatus.SUCCESS.name(), 0L).intValue());
+		caseCount.setError(resultMap.getOrDefault(ExecStatus.ERROR.name(), 0L).intValue());
+		caseCount.setPending(resultMap.getOrDefault(ExecStatus.PENDING.name(), 0L).intValue());
+		caseCount.setBlock(resultMap.getOrDefault(ExecStatus.BLOCKED.name(), 0L).intValue());
+		caseCount.setFakeError(resultMap.getOrDefault(ExecStatus.FAKE_ERROR.name(), 0L).intValue());
+		return caseCount;
+	}
+
+	/**
+	 * 获取组或者计划
+	 * @param groupOrPlanId 计划组/报告ID
+	 * @return 计划集合
+	 */
+	private List<TestPlan> getPlans(String groupOrPlanId) {
+		TestPlan testPlan = checkPlan(groupOrPlanId);
+		List<TestPlan> plans = new ArrayList<>();
+		if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+			// 计划组
+			TestPlanExample example = new TestPlanExample();
+			example.createCriteria().andGroupIdEqualTo(groupOrPlanId);
+			List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
+			plans.addAll(testPlans);
+		}
+		// 保证第一条为计划组
+		plans.addFirst(testPlan);
+		return plans;
+	}
+
+	/**
+	 * 获取项目下的模块参数
+	 * @param projectId 项目ID
+	 * @return 模块参数
+	 */
+	private TestPlanReportModuleParam getModuleParam(String projectId) {
+		// 模块树 {功能, 接口, 场景}
+		List<TestPlanBaseModule> functionalModules = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCaseModules(projectId);
+		Map<String, String> functionalModuleMap = new HashMap<>(functionalModules.size());
+		ModuleTreeUtils.genPathMap(functionalModules, functionalModuleMap, new ArrayList<>());
+		List<TestPlanBaseModule> apiModules = extTestPlanReportApiCaseMapper.getPlanExecuteCaseModules(projectId);
+		Map<String, String> apiModuleMap = new HashMap<>(apiModules.size());
+		ModuleTreeUtils.genPathMap(apiModules, apiModuleMap, new ArrayList<>());
+		List<TestPlanBaseModule> scenarioModules = extTestPlanReportApiScenarioMapper.getPlanExecuteCaseModules(projectId);
+		Map<String, String> scenarioModuleMap = new HashMap<>(apiModules.size());
+		ModuleTreeUtils.genPathMap(scenarioModules, scenarioModuleMap, new ArrayList<>());
+		return TestPlanReportModuleParam.builder().functionalModuleMap(functionalModuleMap).apiModuleMap(apiModuleMap).scenarioModuleMap(scenarioModuleMap).build();
+	}
+
+	/**
+	 * 获取用户集合
+	 * @param userIds 用户ID集合
+	 * @return 用户集合
+	 */
+	private Map<String, String> getUserMap(List<String> userIds) {
+		if (CollectionUtils.isEmpty(userIds)) {
+			return new HashMap<>(16);
+		}
+		List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
+		return userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
 	}
 }

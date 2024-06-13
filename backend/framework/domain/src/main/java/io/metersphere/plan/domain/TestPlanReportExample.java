@@ -1,5 +1,6 @@
 package io.metersphere.plan.domain;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -774,52 +775,52 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassRateEqualTo(Long value) {
+        public Criteria andPassRateEqualTo(BigDecimal value) {
             addCriterion("pass_rate =", value, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotEqualTo(Long value) {
+        public Criteria andPassRateNotEqualTo(BigDecimal value) {
             addCriterion("pass_rate <>", value, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateGreaterThan(Long value) {
+        public Criteria andPassRateGreaterThan(BigDecimal value) {
             addCriterion("pass_rate >", value, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateGreaterThanOrEqualTo(Long value) {
+        public Criteria andPassRateGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("pass_rate >=", value, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateLessThan(Long value) {
+        public Criteria andPassRateLessThan(BigDecimal value) {
             addCriterion("pass_rate <", value, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateLessThanOrEqualTo(Long value) {
+        public Criteria andPassRateLessThanOrEqualTo(BigDecimal value) {
             addCriterion("pass_rate <=", value, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIn(List<Long> values) {
+        public Criteria andPassRateIn(List<BigDecimal> values) {
             addCriterion("pass_rate in", values, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotIn(List<Long> values) {
+        public Criteria andPassRateNotIn(List<BigDecimal> values) {
             addCriterion("pass_rate not in", values, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateBetween(Long value1, Long value2) {
+        public Criteria andPassRateBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pass_rate between", value1, value2, "passRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotBetween(Long value1, Long value2) {
+        public Criteria andPassRateNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pass_rate not between", value1, value2, "passRate");
             return (Criteria) this;
         }
@@ -904,52 +905,52 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdEqualTo(Long value) {
+        public Criteria andPassThresholdEqualTo(BigDecimal value) {
             addCriterion("pass_threshold =", value, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdNotEqualTo(Long value) {
+        public Criteria andPassThresholdNotEqualTo(BigDecimal value) {
             addCriterion("pass_threshold <>", value, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdGreaterThan(Long value) {
+        public Criteria andPassThresholdGreaterThan(BigDecimal value) {
             addCriterion("pass_threshold >", value, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdGreaterThanOrEqualTo(Long value) {
+        public Criteria andPassThresholdGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("pass_threshold >=", value, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdLessThan(Long value) {
+        public Criteria andPassThresholdLessThan(BigDecimal value) {
             addCriterion("pass_threshold <", value, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdLessThanOrEqualTo(Long value) {
+        public Criteria andPassThresholdLessThanOrEqualTo(BigDecimal value) {
             addCriterion("pass_threshold <=", value, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdIn(List<Long> values) {
+        public Criteria andPassThresholdIn(List<BigDecimal> values) {
             addCriterion("pass_threshold in", values, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdNotIn(List<Long> values) {
+        public Criteria andPassThresholdNotIn(List<BigDecimal> values) {
             addCriterion("pass_threshold not in", values, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdBetween(Long value1, Long value2) {
+        public Criteria andPassThresholdBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pass_threshold between", value1, value2, "passThreshold");
             return (Criteria) this;
         }
 
-        public Criteria andPassThresholdNotBetween(Long value1, Long value2) {
+        public Criteria andPassThresholdNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("pass_threshold not between", value1, value2, "passThreshold");
             return (Criteria) this;
         }
@@ -1141,6 +1142,136 @@ public class TestPlanReportExample {
 
         public Criteria andDeletedNotBetween(Boolean value1, Boolean value2) {
             addCriterion("deleted not between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateIsNull() {
+            addCriterion("execute_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateIsNotNull() {
+            addCriterion("execute_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateEqualTo(BigDecimal value) {
+            addCriterion("execute_rate =", value, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateNotEqualTo(BigDecimal value) {
+            addCriterion("execute_rate <>", value, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateGreaterThan(BigDecimal value) {
+            addCriterion("execute_rate >", value, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("execute_rate >=", value, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateLessThan(BigDecimal value) {
+            addCriterion("execute_rate <", value, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("execute_rate <=", value, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateIn(List<BigDecimal> values) {
+            addCriterion("execute_rate in", values, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateNotIn(List<BigDecimal> values) {
+            addCriterion("execute_rate not in", values, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("execute_rate between", value1, value2, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteRateNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("execute_rate not between", value1, value2, "executeRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdIsNull() {
+            addCriterion("parent_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdIsNotNull() {
+            addCriterion("parent_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdEqualTo(String value) {
+            addCriterion("parent_id =", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdNotEqualTo(String value) {
+            addCriterion("parent_id <>", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdGreaterThan(String value) {
+            addCriterion("parent_id >", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("parent_id >=", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdLessThan(String value) {
+            addCriterion("parent_id <", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdLessThanOrEqualTo(String value) {
+            addCriterion("parent_id <=", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdLike(String value) {
+            addCriterion("parent_id like", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdNotLike(String value) {
+            addCriterion("parent_id not like", value, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdIn(List<String> values) {
+            addCriterion("parent_id in", values, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdNotIn(List<String> values) {
+            addCriterion("parent_id not in", values, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdBetween(String value1, String value2) {
+            addCriterion("parent_id between", value1, value2, "parentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIdNotBetween(String value1, String value2) {
+            addCriterion("parent_id not between", value1, value2, "parentId");
             return (Criteria) this;
         }
     }
