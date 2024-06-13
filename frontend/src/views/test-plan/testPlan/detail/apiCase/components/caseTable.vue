@@ -36,13 +36,11 @@
         <ExecuteResult :execute-result="filterContent.key" />
       </template>
       <template #lastExecResult="{ record }">
-        <ExecuteResult :execute-result="record.lastExecResult" />
-        <MsIcon
-          v-show="record.lastExecResult !== LastExecuteResults.PENDING"
-          v-permission="['PROJECT_TEST_PLAN:READ']"
-          type="icon-icon_take-action_outlined"
-          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]"
-          size="16"
+        <ExecuteResult
+          :execute-result="record.lastExecResult"
+          :class="[
+            !record.lastExecReportId || record.lastExecResult === LastExecuteResults.PENDING ? '' : 'cursor-pointer',
+          ]"
           @click="showReport(record)"
         />
       </template>
@@ -432,6 +430,7 @@
   const reportVisible = ref(false);
   const reportId = ref('');
   function showReport(record: PlanDetailApiCaseItem) {
+    if (!record.lastExecReportId || record.lastExecResult === LastExecuteResults.PENDING) return;
     reportVisible.value = true;
     reportId.value = record.lastExecReportId;
   }

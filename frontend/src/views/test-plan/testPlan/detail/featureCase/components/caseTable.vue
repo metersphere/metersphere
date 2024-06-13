@@ -468,7 +468,7 @@
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
-      await sortFeatureCase({ ...params, testPlanId: props.planId });
+      await sortFeatureCase({ ...params, testCollectionId: collectionId.value });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
       loadCaseList();
     } catch (error) {
