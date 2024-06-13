@@ -362,9 +362,8 @@
     const commonParams = {
       testPlanId: props.planId,
       projectId: appStore.currentProjectId,
-      moduleIds: selectModules,
       protocols: props.selectedProtocols,
-      collectionId: collectionId.value,
+      ...(props.treeType === 'COLLECTION' ? { collectionId: collectionId.value } : { moduleIds: selectModules }),
     };
     if (isBatch) {
       return {

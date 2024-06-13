@@ -177,6 +177,8 @@
     }
   }
   onMounted(() => {
-    getTime();
+    if (!props.doNotShowShare) {
+      getTime();
+    }
   });
 </script>
