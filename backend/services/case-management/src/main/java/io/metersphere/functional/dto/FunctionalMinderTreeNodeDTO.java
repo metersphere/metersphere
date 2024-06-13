@@ -20,7 +20,7 @@ public class FunctionalMinderTreeNodeDTO {
     private String text;
 
     @Schema(description = "用例等级")
-    private String priority;
+    private Integer priority;
 
     @Schema(description = "用例评审状态")
     private String status;
