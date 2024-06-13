@@ -149,4 +149,13 @@ public class TestPlanApiScenarioController {
     public TestPlanOperationResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
         return testPlanApiScenarioService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/sort", HttpMethodConstants.POST.name()));
     }
+
+    @PostMapping("/batch/move")
+    @Operation(summary = "测试计划-计划详情-场景用例-批量移动")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanApiScenarioLogService.class)
+    public void batchMove(@Validated @RequestBody BaseBatchMoveRequest request) {
+        testPlanApiScenarioService.batchMove(request);
+    }
 }

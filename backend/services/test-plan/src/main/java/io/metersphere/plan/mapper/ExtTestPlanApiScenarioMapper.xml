@@ -92,6 +92,7 @@
         api_scenario.priority,
         api_scenario.project_id,
         api_scenario.create_user,
+        api_scenario.status,
         test_plan_api_scenario.create_time,
         test_plan_api_scenario.environment_id,
         api_scenario.module_id,
@@ -162,6 +163,12 @@
                                 and api_scenario.last_report_status in
                                 <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             </if>
+                        </when>
+                        <when test="key=='lastExecResult'">
+                            and test_plan_api_scenario.last_exec_result in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
                         </when>
                         <when test="key=='status'">
                             and api_scenario.status in

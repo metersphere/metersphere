@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -588,5 +589,33 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
             throw new MSException(Translator.get("api_scenario_report_not_exist"));
         }
 
+    }
+
+
+    /**
+     * 批量移动
+     * @param request
+     */
+    public void batchMove(BaseBatchMoveRequest request) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            moveCaseToCollection(ids,request.getTargetCollectionId());
+        }
+    }
+
+    private void moveCaseToCollection(List<String> ids, String targetCollectionId) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(targetCollectionId));
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiScenarioMapper testPlanApiScenarioMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
+        ids.forEach(id -> {
+            TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+            testPlanApiScenario.setId(id);
+            testPlanApiScenario.setPos(nextOrder.get());
+            testPlanApiScenario.setTestPlanCollectionId(targetCollectionId);
+            nextOrder.addAndGet(DEFAULT_NODE_INTERVAL_POS);
+            testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 }

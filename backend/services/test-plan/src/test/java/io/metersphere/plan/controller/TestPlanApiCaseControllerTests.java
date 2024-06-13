@@ -70,6 +70,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String RUN = "run/{0}";
     public static final String BATCH_RUN = "batch/run";
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
+    private static final String API_CASE_BATCH_MOVE = "/batch/move";
 
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
@@ -457,5 +458,13 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/detail/plan-test-report-id" + "/" + "plan-test-report-step-id1");
     }
 
-
+    @Test
+    @Order(11)
+    public void testApiCaseBatchMove() throws Exception {
+        TestPlanApiCaseBatchMoveRequest request = new TestPlanApiCaseBatchMoveRequest();
+        request.setTestPlanId("wxxx_1");
+        request.setTargetCollectionId("wxxx_2");
+        request.setSelectAll(true);
+        this.requestPostWithOk(API_CASE_BATCH_MOVE, request);
+    }
 }

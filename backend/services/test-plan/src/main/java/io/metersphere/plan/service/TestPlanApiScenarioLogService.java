@@ -10,12 +10,14 @@ import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
+import io.metersphere.plan.dto.request.BaseBatchMoveRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioUpdateRequest;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -69,6 +71,40 @@ public class TestPlanApiScenarioLogService {
                 dto.setModifiedValue(JSON.toJSONBytes(request.getUserId()));
                 dtoList.add(dto);
             });
+        }
+    }
+
+    public void batchMove(BaseBatchMoveRequest request) {
+        List<String> ids = testPlanApiScenarioService.doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestPlanApiScenario> caseList = testPlanApiScenarioMapper.selectByExample(example);
+            List<String> apiScenarioIds = caseList.stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList());
+            ApiScenarioExample scenarioExample = new ApiScenarioExample();
+            scenarioExample.createCriteria().andIdIn(apiScenarioIds);
+            List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(scenarioExample);
+            Map<String, String> caseMap = apiScenarios.stream().collect(Collectors.toMap(ApiScenario::getId, ApiScenario::getName));
+            List<LogDTO> dtoList = new ArrayList<>();
+            caseList.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        null,
+                        null,
+                        item.getApiScenarioId(),
+                        null,
+                        OperationLogType.UPDATE.name(),
+                        OperationLogModule.TEST_PLAN,
+                        Translator.get("move") + ":" + caseMap.get(item.getApiScenarioId()));
+                dto.setPath("/test-plan/api/scenario/batch/move");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(item));
+                TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+                testPlanApiScenario.setId(item.getId());
+                testPlanApiScenario.setTestPlanCollectionId(request.getTargetCollectionId());
+                dto.setModifiedValue(JSON.toJSONBytes(testPlanApiScenario));
+                dtoList.add(dto);
+            });
+
         }
     }
 

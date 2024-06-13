@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -668,5 +669,33 @@ public class TestPlanApiCaseService extends TestPlanResourceService implements G
         if (apiReportMapper.countByExample(example) == 0) {
             throw new MSException("api_case_report_not_exist");
         }
+    }
+
+    /**
+     * 批量移动
+     *
+     * @param request
+     */
+    public void batchMove(TestPlanApiCaseBatchMoveRequest request) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            moveCaseToCollection(ids, request.getTargetCollectionId());
+        }
+    }
+
+    private void moveCaseToCollection(List<String> ids, String targetCollectionId) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(targetCollectionId));
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiCaseMapper testPlanApiCaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
+        ids.forEach(id -> {
+            TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
+            testPlanApiCase.setId(id);
+            testPlanApiCase.setPos(nextOrder.get());
+            testPlanApiCase.setTestPlanCollectionId(targetCollectionId);
+            nextOrder.addAndGet(DEFAULT_NODE_INTERVAL_POS);
+            testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 }

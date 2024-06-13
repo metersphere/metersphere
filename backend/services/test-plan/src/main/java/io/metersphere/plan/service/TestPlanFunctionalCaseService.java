@@ -780,12 +780,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     /**
      * 批量移动
+     *
      * @param request
      */
     public void batchMove(BaseBatchMoveRequest request) {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
-            moveCaseToCollection(ids,request.getTargetCollectionId());
+            moveCaseToCollection(ids, request.getTargetCollectionId());
         }
     }
 
@@ -793,7 +794,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         AtomicLong nextOrder = new AtomicLong(getNextOrder(targetCollectionId));
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanFunctionalCaseMapper functionalBatchMapper = sqlSession.getMapper(TestPlanFunctionalCaseMapper.class);
-        ids.forEach(id ->{
+        ids.forEach(id -> {
             TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
             testPlanFunctionalCase.setId(id);
             testPlanFunctionalCase.setPos(nextOrder.get());
