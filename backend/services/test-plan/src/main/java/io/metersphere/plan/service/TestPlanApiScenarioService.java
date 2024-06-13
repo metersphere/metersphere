@@ -1,10 +1,12 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiScenarioExample;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.domain.ApiScenarioReportExample;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.invoker.GetRunScriptServiceRegister;
+import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.GetRunScriptService;
@@ -92,6 +94,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
     private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
     public TestPlanApiScenarioService() {
         GetRunScriptServiceRegister.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
@@ -163,8 +167,52 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
 
     @Override
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
-        List<BaseCollectionAssociateRequest> apiScenarios = collectionAssociates.get(AssociateCaseType.API_SCENARIO);
-        // TODO: 调用具体的关联场景用例入库方法  入参{计划ID, 测试集ID, 关联的用例ID集合}
+        List<TestPlanApiScenario> testPlanApiScenarioList = new ArrayList<>();
+        handleApiScenarioData(collectionAssociates.get(AssociateCaseType.API_SCENARIO), userId, testPlanApiScenarioList, planId);
+        if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
+            testPlanApiScenarioMapper.batchInsert(testPlanApiScenarioList);
+        }
+    }
+
+    private void handleApiScenarioData(List<BaseCollectionAssociateRequest> apiScenarioList, String userId, List<TestPlanApiScenario> testPlanApiScenarioList, String planId) {
+        if (CollectionUtils.isNotEmpty(apiScenarioList)) {
+            List<String> ids = apiScenarioList.stream().flatMap(item -> item.getIds().stream()).toList();
+            ApiScenarioExample scenarioExample = new ApiScenarioExample();
+            scenarioExample.createCriteria().andIdIn(ids);
+            List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(scenarioExample);
+            apiScenarioList.forEach(apiScenario -> {
+                List<String> apiScenarioIds = apiScenario.getIds();
+                if (CollectionUtils.isNotEmpty(apiScenarioIds)) {
+                    List<ApiScenario> scenarios = apiScenarios.stream().filter(item -> apiScenarioIds.contains(item.getId())).collect(Collectors.toList());
+                    buildTestPlanApiScenario(planId, scenarios, apiScenario.getCollectionId(), userId, testPlanApiScenarioList);
+                }
+            });
+        }
+    }
+
+    /**
+     * 构建测试计划场景用例对象
+     *
+     * @param planId
+     * @param scenarios
+     * @param collectionId
+     * @param userId
+     * @param testPlanApiScenarioList
+     */
+    private void buildTestPlanApiScenario(String planId, List<ApiScenario> scenarios, String collectionId, String userId, List<TestPlanApiScenario> testPlanApiScenarioList) {
+        scenarios.forEach(scenario -> {
+            TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+            testPlanApiScenario.setId(IDGenerator.nextStr());
+            testPlanApiScenario.setTestPlanId(planId);
+            testPlanApiScenario.setApiScenarioId(scenario.getId());
+            testPlanApiScenario.setTestPlanCollectionId(collectionId);
+            testPlanApiScenario.setGrouped(scenario.getGrouped());
+            testPlanApiScenario.setEnvironmentId(scenario.getEnvironmentId());
+            testPlanApiScenario.setCreateTime(System.currentTimeMillis());
+            testPlanApiScenario.setCreateUser(userId);
+            testPlanApiScenario.setPos(getNextOrder(collectionId));
+            testPlanApiScenarioList.add(testPlanApiScenario);
+        });
     }
 
     @Override

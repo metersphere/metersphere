@@ -18,6 +18,7 @@ import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.request.*;
@@ -255,6 +256,20 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(4)
+    public void testApiCaseAssociate() {
+        // api_scenario
+        Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
+        List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
+        BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
+        baseCollectionAssociateRequest.setCollectionId("wxxx_collection_1");
+        baseCollectionAssociateRequest.setIds(List.of("wxxx_api_scenario_1"));
+        baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
+        collectionAssociates.put(AssociateCaseType.API_SCENARIO, baseCollectionAssociateRequests);
+        testPlanApiScenarioService.associateCollection("wxxx_plan_2", collectionAssociates, "wx");
     }
 
 
