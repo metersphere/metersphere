@@ -205,7 +205,7 @@ export default {
   'system.config.qrCodeConfig.appKey': '应用key',
   'system.config.qrCodeConfig.appSecret': '应用密钥',
   'system.config.qrCodeConfig.callBack': '回调域名',
-  'system.config.qrCodeConfig.enable': '是否开启',
+  'system.config.qrCodeConfig.enable': '状态',
   'system.config.qrCodeConfig.valid': '是否可用',
   'system.config.qrCodeConfig.corpId.required': '企业ID不能为空',
   'system.config.qrCodeConfig.agentId.required': '应用ID不能为空',

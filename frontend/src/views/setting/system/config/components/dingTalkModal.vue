@@ -43,15 +43,6 @@
           :placeholder="t('formCreate.PleaseEnter')"
         />
       </a-form-item>
-      <a-form-item
-        field="callBack"
-        :label="t('system.config.qrCodeConfig.callBack')"
-        :rules="[{ required: true, message: t('system.config.qrCodeConfig.callBack.required') }]"
-        :validate-trigger="['blur', 'input']"
-        asterisk-position="end"
-      >
-        <a-input v-model="dingTalkForm.callBack" :max-length="255" :placeholder="t('formCreate.PleaseEnter')" />
-      </a-form-item>
     </a-form>
     <template #footer>
       <div class="footer-button">
