@@ -450,7 +450,7 @@ public class FunctionalCaseMinderService {
             List<MindAdditionalNodeRequest> updateList = resourceMap.get(OperationLogType.UPDATE.toString());
             if (CollectionUtils.isNotEmpty(updateList)) {
                 List<MindAdditionalNode> nodes = new ArrayList<>();
-                Map<String, List<MindAdditionalNode>> parentModuleMap = getParentNodeMap(addList);
+                Map<String, List<MindAdditionalNode>> parentModuleMap = getParentNodeMap(updateList);
                 for (MindAdditionalNodeRequest mindAdditionalNodeRequest : updateList) {
                     MindAdditionalNode updateModule = updateNode(userId, mindAdditionalNodeRequest, additionalNodeMapper);
                     nodes.add(updateModule);
