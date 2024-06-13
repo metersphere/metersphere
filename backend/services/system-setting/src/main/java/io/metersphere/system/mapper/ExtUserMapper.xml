@@ -102,6 +102,11 @@
         SELECT
             UNIX_TIMESTAMP(installed_on) * 1000  as installed_on
         FROM metersphere_version
-        WHERE version ='3.0.1.2'
+        WHERE version ='3.0.1.2' and description = 'ga ddl'
+    </select>
+
+    <select id="updateInstalled">
+        update metersphere_version SET description ='ga'
+        WHERE version ='3.0.1.2' and description = 'ga ddl'
     </select>
 </mapper>

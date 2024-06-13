@@ -172,6 +172,9 @@ WHERE
 --  默认资源池固定ID
 update test_resource_pool set id ='100001100001' where `name`= '默认资源池';
 
+ALTER TABLE `user`
+    ADD COLUMN `cft_token` varchar(255) NOT NULL DEFAULT 'NONE' COMMENT '身份令牌';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

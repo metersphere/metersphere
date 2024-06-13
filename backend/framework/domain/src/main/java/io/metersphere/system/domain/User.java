@@ -10,58 +10,64 @@ import lombok.Data;
 
 @Data
 public class User implements Serializable {
-    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{user.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.email.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{user.email.length_range}", groups = {Created.class, Updated.class})
     private String email;
 
-    @Schema(description =  "用户密码")
+    @Schema(description = "用户密码")
     private String password;
 
-    @Schema(description =  "是否启用")
+    @Schema(description = "是否启用")
     private Boolean enable;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "语言")
+    @Schema(description = "语言")
     private String language;
 
-    @Schema(description =  "当前组织ID")
+    @Schema(description = "当前组织ID")
     private String lastOrganizationId;
 
-    @Schema(description =  "手机号")
+    @Schema(description = "手机号")
     private String phone;
 
-    @Schema(description =  "来源：LOCAL OIDC CAS OAUTH2", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "来源：LOCAL OIDC CAS OAUTH2", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.source.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user.source.length_range}", groups = {Created.class, Updated.class})
     private String source;
 
-    @Schema(description =  "当前项目ID")
+    @Schema(description = "当前项目ID")
     private String lastProjectId;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description =  "修改人")
+    @Schema(description = "修改人")
     private String updateUser;
 
-    @Schema(description =  "是否删除")
+    @Schema(description = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{user.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
+
+    @Schema(description = "身份令牌", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{user.cft_token.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{user.cft_token.length_range}", groups = {Created.class, Updated.class})
+    private String cftToken;
 
     private static final long serialVersionUID = 1L;
 
@@ -80,7 +86,8 @@ public class User implements Serializable {
         lastProjectId("last_project_id", "lastProjectId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
-        deleted("deleted", "deleted", "BIT", false);
+        deleted("deleted", "deleted", "BIT", false),
+        cftToken("cft_token", "cftToken", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
