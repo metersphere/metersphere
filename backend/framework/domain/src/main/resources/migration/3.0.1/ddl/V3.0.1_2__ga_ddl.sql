@@ -175,6 +175,42 @@ update test_resource_pool set id ='100001100001' where `name`= '默认资源池'
 ALTER TABLE `user`
     ADD COLUMN `cft_token` varchar(255) NOT NULL DEFAULT 'NONE' COMMENT '身份令牌';
 
+-- 测试计划报告接口详情
+CREATE TABLE IF NOT EXISTS test_plan_report_api_case(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
+    `test_plan_api_case_id` VARCHAR(50) NOT NULL   COMMENT '测试计划接口用例关联ID' ,
+    `api_case_id` VARCHAR(50) NOT NULL   COMMENT '接口用例ID' ,
+    `api_case_num` BIGINT NOT NULL   COMMENT '接口用例业务ID' ,
+    `api_case_name` VARCHAR(255) NOT NULL   COMMENT '接口用例名称' ,
+    `api_case_module` VARCHAR(255)    COMMENT '接口用例所属模块' ,
+    `api_case_priority` VARCHAR(255)    COMMENT '接口用例等级' ,
+    `api_case_execute_user` VARCHAR(50)    COMMENT '接口用例执行人' ,
+    `api_case_execute_result` VARCHAR(50) NOT NULL   COMMENT '接口用例执行结果' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容接口用例部分';
+CREATE INDEX idx_test_plan_report_id ON test_plan_report_api_case(test_plan_report_id);
+
+-- 测试计划报告场景详情部分
+CREATE TABLE IF NOT EXISTS test_plan_report_api_scenario(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
+    `test_plan_api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '测试计划场景用例关联ID' ,
+    `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景用例ID' ,
+    `api_scenario_num` BIGINT NOT NULL   COMMENT '场景用例业务ID' ,
+    `api_scenario_name` VARCHAR(255) NOT NULL   COMMENT '场景用例名称' ,
+    `api_scenario_module` VARCHAR(255)    COMMENT '场景用例所属模块' ,
+    `api_scenario_priority` VARCHAR(255)    COMMENT '场景用例等级' ,
+    `api_scenario_execute_user` VARCHAR(50)    COMMENT '场景用例执行人' ,
+    `api_scenario_execute_result` VARCHAR(50) NOT NULL   COMMENT '场景用例执行结果' ,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容接口场景部分';
+CREATE INDEX idx_test_plan_report_id ON test_plan_report_api_scenario(test_plan_report_id);
+
+-- 测试计划报告
+ALTER TABLE test_plan_report ADD `execute_rate` DECIMAL(10, 4) COMMENT '执行率';
+ALTER TABLE test_plan_report ADD `parent_id` VARCHAR(50)  COMMENT '独立报告的父级ID';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 

@@ -23,11 +23,11 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -373,6 +373,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         user.setUpdateUser(ADMIN.getValue());
         user.setEnable(true);
         user.setDeleted(false);
+        user.setCftToken("NONE");
         userMapper.insert(user);
         UserRoleRelation roleRelation = new UserRoleRelation();
         roleRelation.setId(IDGenerator.nextStr());

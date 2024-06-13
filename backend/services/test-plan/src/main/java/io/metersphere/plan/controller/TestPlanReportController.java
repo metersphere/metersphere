@@ -4,8 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugAttachmentService;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
@@ -88,9 +88,9 @@ public class TestPlanReportController {
 	@Operation(summary = "测试计划-详情-生成报告")
 	@RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
 	@CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-	public TestPlanReport genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
+	public void genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
-		return testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
+        testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
 	}
 
     // 报告详情开始
@@ -136,6 +136,26 @@ public class TestPlanReportController {
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.function_case_num, tprfc.id desc");
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailFunctionalCases(request));
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
+    }
+
+    @PostMapping("/detail/api/case/page")
+    @Operation(summary = "测试计划-报告-详情-接口用例分页查询")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.api_case_num, tprac.id desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
+    }
+
+    @PostMapping("/detail/scenario/case/page")
+    @Operation(summary = "测试计划-报告-详情-场景用例分页查询")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.api_scenario_num, tpras.id desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
     }
 }

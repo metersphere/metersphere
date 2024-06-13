@@ -3,6 +3,7 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.response.BugDTO;
+import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.TestPlanReportShareRequest;
@@ -84,6 +85,26 @@ public class TestPlanReportShareController {
 		testPlanReportShareService.validateExpired(shareInfo);
 		Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
 				StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.function_case_num, tprfc.id desc");
-		return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailFunctionalCases(request));
+		return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
+	}
+
+	@PostMapping("/detail/api/case/page")
+	@Operation(summary = "测试计划-报告-详情-接口用例分页查询")
+	public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
+		ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
+		testPlanReportShareService.validateExpired(shareInfo);
+		Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+				StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.api_case_num, tprac.id desc");
+		return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
+	}
+
+	@PostMapping("/detail/scenario/case/page")
+	@Operation(summary = "测试计划-报告-详情-场景用例分页查询")
+	public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
+		ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
+		testPlanReportShareService.validateExpired(shareInfo);
+		Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+				StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.api_scenario_num, tpras.id desc");
+		return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
 	}
 }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportApiCaseMapper">
+    <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
+        select tprac.api_case_execute_result as status, count(id) as count from test_plan_report_api_case tprac
+        where tprac.test_plan_report_id = #{id}
+        group by tprac.api_case_execute_result
+    </select>
+
+    <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiCase">
+        select  tpac.id as testPlanApiCaseId, atc.id as apiCaseId, atc.num as apiCaseNum, atc.name as apiCaseName, atc.priority as apiCasePriority,
+                if(ad.module_id = 'root','未规划用例', ad.module_id) as apiCaseModule, tpac.execute_user as apiCaseExecuteUser,
+                ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult
+        from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
+                                            left join api_definition ad on atc.api_definition_id = ad.id
+                                            left join api_definition_module adm on ad.module_id = adm.id
+        where tpac.test_plan_id = #{id} and atc.deleted = false
+        group by tpac.id
+    </select>
+
+    <select id="getPlanExecuteCaseModules" resultType="io.metersphere.plan.dto.TestPlanBaseModule">
+        select adm.id, adm.name, adm.parent_id as parentId from api_definition_module adm
+        where adm.project_id = #{id}
+    </select>
+
+    <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
+        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
+        select distinct tprac.api_case_id as id, tprac.api_case_num as num, tprac.api_case_name as name,
+        tprac.api_case_module as moduleName, tprac.api_case_priority as priority,
+        tprac.api_case_execute_result as executeResult, tprac.api_case_execute_user as executeUser
+        from test_plan_report_api_case tprac
+        where tprac.test_plan_report_id = #{request.reportId}
+        <include refid="filter"/>
+    </select>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 执行状态 -->
+                        <when test="key == 'executeResult'">
+                            and tprfc.function_case_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+</mapper>
