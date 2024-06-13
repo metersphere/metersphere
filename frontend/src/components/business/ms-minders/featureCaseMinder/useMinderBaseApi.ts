@@ -206,7 +206,7 @@ export default function useMinderBaseApi() {
     if (window.minder) {
       const node: MinderJsonNode = window.minder.getSelectedNode();
       // 选中节点是用例节点时，可展示优先级菜单
-      return node?.data?.resource?.includes(caseTag);
+      return !!node?.data?.resource?.includes(caseTag);
     }
     return false;
   }
@@ -640,7 +640,7 @@ export default function useMinderBaseApi() {
    * 处理节点文本变更
    * @param node 变更节点
    */
-  function handleContentChange(node: MinderJsonNode) {
+  function handleContentChange(node?: MinderJsonNode) {
     if (node?.data) {
       const { resource } = node.data;
       // 用例下的子节点更改，触发用例更改

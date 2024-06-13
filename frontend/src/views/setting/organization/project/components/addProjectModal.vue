@@ -6,6 +6,7 @@
     unmount-on-close
     :mask-closable="false"
     @cancel="handleCancel(false)"
+    @close="handleCancel(false)"
   >
     <template #title>
       <span v-if="isEdit" class="flex">

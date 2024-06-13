@@ -27,7 +27,7 @@
               class="cursor-pointer"
               @click.stop="handleExpand(_props)"
             >
-              <icon-caret-down v-if="_props.expanded || props.expandAll" class="text-[var(--color-text-4)]" />
+              <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
               <icon-caret-right v-else class="text-[var(--color-text-4)]" />
             </div>
             <div v-else class="h-full w-[16px]"></div>
@@ -90,7 +90,6 @@
 </template>
 
 <script setup lang="ts">
-  import { nextTick, onBeforeMount, Ref, ref, watch } from 'vue';
   import { TreeInstance } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
@@ -194,28 +193,19 @@
   const filterTreeData = ref<MsTreeNodeData[]>([]); // 初始化时全量的树数据或在非搜索情况下更新后的全量树数据
 
   function init(isFirstInit = false) {
-    nextTick(() => {
-      if (isFirstInit) {
-        if (props.defaultExpandAll) {
-          treeRef.value?.expandAll(true);
-          filterTreeData.value = mapTree(filterTreeData.value, (node) => {
-            node.expanded = true;
-            return node;
-          });
-        }
-        if (!isInitListener.value && treeRef.value) {
-          setContainer(
-            props.virtualListProps?.height
-              ? (treeRef.value.$el.querySelector('.arco-virtual-list') as HTMLElement)
-              : treeRef.value.$el
-          );
-          initScrollListener();
-        }
+    if (isFirstInit) {
+      if (!isInitListener.value && treeRef.value) {
+        setContainer(
+          props.virtualListProps?.height
+            ? (treeRef.value.$el.querySelector('.arco-virtual-list') as HTMLElement)
+            : treeRef.value.$el
+        );
+        initScrollListener();
       }
-    });
+    }
   }
 
-  onBeforeMount(() => {
+  onMounted(() => {
     init(true);
   });
 
@@ -262,13 +252,19 @@
 
   watch(
     () => data.value,
-    (val) => {
+    debounce((val) => {
       if (!props.keyword) {
-        filterTreeData.value = val;
+        filterTreeData.value = mapTree(val, (node) => {
+          node.expanded = props.defaultExpandAll;
+          return node;
+        });
+        if (props.defaultExpandAll && treeRef.value) {
+          treeRef.value.expandAll(true);
+        }
       } else {
         updateDebouncedSearch();
       }
-    },
+    }, 0),
     {
       deep: true,
       immediate: true,

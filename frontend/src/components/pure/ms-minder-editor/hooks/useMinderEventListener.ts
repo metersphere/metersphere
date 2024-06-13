@@ -6,17 +6,23 @@ import type { MinderCustomEvent } from '@/store/modules/components/minder-editor
 import type { MinderEvent, MinderJsonNode } from '../props';
 
 export interface UseEventListenerProps {
-  handleContentChange?: (node: MinderJsonNode) => void;
-  handleSelectionChange?: (node: MinderJsonNode) => void;
+  handleContentChange?: (node?: MinderJsonNode) => void;
+  handleSelectionChange?: (node?: MinderJsonNode) => void;
   handleMinderEvent?: (event: MinderCustomEvent) => void;
   handleBeforeExecCommand?: (event: MinderEvent) => void;
   handleViewChange?: (event: MinderEvent) => void;
+  handleDragStart?: (event: MinderEvent) => void;
   handleDragFinish?: (event: MinderEvent) => void;
 }
 
 export default function useEventListener(listener: UseEventListenerProps) {
   const { minder } = window;
   const minderStore = useMinderStore();
+
+  // 是否正在拖拽节点中，拖拽时不触发节点选中事件，拖拽完成后才触发
+  const isDragging = ref(false);
+  // 拖拽触发时未处理的选中事件，拖拽完成后触发
+  let selectionchangeEvent: (() => void) | undefined;
 
   // 监听脑图节点内容变化
   minder.on('contentchange', () => {
@@ -31,7 +37,14 @@ export default function useEventListener(listener: UseEventListenerProps) {
     'selectionchange',
     debounce(() => {
       const node: MinderJsonNode = minder.getSelectedNode();
-      if (listener.handleSelectionChange) {
+      // 如果节点选中后即刻进行拖拽，则等待拖拽结束后再触发选中事件
+      if (isDragging.value) {
+        selectionchangeEvent = () => {
+          if (listener.handleSelectionChange) {
+            listener.handleSelectionChange(node);
+          }
+        };
+      } else if (listener.handleSelectionChange) {
         listener.handleSelectionChange(node);
       }
     }, 300)
@@ -44,10 +57,24 @@ export default function useEventListener(listener: UseEventListenerProps) {
     }
   });
 
+  // 监听脑图节点拖拽开始事件
+  minder.on('dragStart', (e: MinderEvent) => {
+    isDragging.value = true;
+    if (listener.handleDragStart) {
+      listener.handleDragStart(e);
+    }
+  });
+
   // 监听脑图节点拖拽结束事件
   minder.on('dragFinish', (e: MinderEvent) => {
+    isDragging.value = false;
     if (listener.handleDragFinish) {
       listener.handleDragFinish(e);
+    }
+    if (selectionchangeEvent) {
+      // 拖拽完成后触发未处理的选中事件
+      selectionchangeEvent();
+      selectionchangeEvent = undefined;
     }
   });
 

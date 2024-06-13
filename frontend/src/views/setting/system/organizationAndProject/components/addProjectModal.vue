@@ -8,6 +8,7 @@
     :mask-closable="false"
     :ok-loading="loading"
     @cancel="handleCancel(false)"
+    @close="handleCancel(false)"
   >
     <template #title>
       <span v-if="isEdit">
@@ -219,6 +220,7 @@
     pause();
   };
   const handleCancel = (shouldSearch: boolean) => {
+    formRef.value?.resetFields();
     emit('cancel', shouldSearch);
   };
 

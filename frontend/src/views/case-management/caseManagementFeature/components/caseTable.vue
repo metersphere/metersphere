@@ -214,6 +214,7 @@
           :module-id="props.activeFolder"
           :modules-count="props.modulesCount"
           :module-name="props.moduleName"
+          @save="emitTableParams"
         />
         <MsDrawer v-model:visible="visible" :width="480" :mask="false">
           {{ nodeData.text }}

@@ -244,6 +244,7 @@
     </template>
     <moduleTree
       v-if="moveModalVisible"
+      ref="moveModuleTreeRef"
       :is-expand-all="true"
       :is-modal="true"
       :active-module="props.activeModule"
@@ -853,6 +854,7 @@
     });
   }
 
+  const moveModuleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const moveModalVisible = ref(false);
   const selectedModuleKeys = ref<(string | number)[]>([]); // 移动文件选中节点
   const isBatchMove = ref(false); // 是否批量移动文件
@@ -928,6 +930,9 @@
       case 'move':
         isBatchMove.value = true;
         moveModalVisible.value = true;
+        nextTick(() => {
+          moveModuleTreeRef.value?.refresh();
+        });
         break;
       default:
         break;
