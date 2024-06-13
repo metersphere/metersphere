@@ -622,13 +622,9 @@
     }
     for (let i = 0; i < dragNodes.length; i++) {
       const dragNode = (dragNodes as MinderJsonNode[])[i];
-      if (dragNode.parent?.data?.id !== dropNode.parent?.data?.id) {
-        // 不允许跨节点拖拽
+      if (dragNode.parent?.data?.id !== dropNode.parent?.data?.id && dragNode.data?.level !== 2) {
+        // 不允许跨节点拖拽，只允许拖拽同一节点内的测试集排序
         return true;
-      }
-      if (dragNode.data?.level === 2) {
-        // 只允许拖拽同一节点内的测试集排序
-        return false;
       }
     }
     return false;
