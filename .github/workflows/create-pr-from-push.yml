@@ -1,10 +1,10 @@
 on:
   push:
-    branches:    
+    branches:
       - 'pr@**'
       - 'repr@**'
 
-name: 针对特定分支名自动创建 PR
+name: MeterSphere
 
 jobs:
   generic_handler:

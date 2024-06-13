@@ -1,6 +1,6 @@
 on: pull_request
 
-name: MeterSphere 通用 PR 处理
+name: MeterSphere
 
 permissions:
   pull-requests: write

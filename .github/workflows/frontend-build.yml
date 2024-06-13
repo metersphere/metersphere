@@ -10,7 +10,7 @@ on:
     paths:
       - "frontend/**"
 
-name: MeterSphere 前端代码校验
+name: MeterSphere
 
 permissions:
   pull-requests: write

@@ -12,7 +12,7 @@ on:
       - "backend/**"
       - "pom.xml"
 
-name: MeterSphere 覆盖率统计
+name: MeterSphere
 
 permissions:
   pull-requests: write
