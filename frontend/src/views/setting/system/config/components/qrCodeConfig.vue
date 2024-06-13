@@ -43,7 +43,7 @@
                         type="outline"
                         class="arco-btn-outline--secondary"
                         size="mini"
-                        :disabled="!item.valid || !hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE'])"
+                        :disabled="!item.valid || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])"
                         @click="getValidateHandler(item.key)"
                         >{{ t('organization.service.testLink') }}</a-button
                       ></span
@@ -51,7 +51,7 @@
                   </a-tooltip>
                   <a-button
                     v-else
-                    :disabled="!item.valid || !hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE'])"
+                    :disabled="!item.valid || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
@@ -60,7 +60,7 @@
                   </a-button>
                   <a-button
                     v-if="item.edit"
-                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE']"
+                    v-permission="['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE']"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
@@ -69,7 +69,7 @@
                   </a-button>
                   <a-button
                     v-else
-                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+ADD']"
+                    v-permission="['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE']"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
@@ -91,7 +91,7 @@
                     v-else
                     v-model="item.enable"
                     size="small"
-                    :disabled="!hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE'])"
+                    :disabled="!hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])"
                     @change="(v) => changeStatus(v, item.key)"
                   />
                 </span>

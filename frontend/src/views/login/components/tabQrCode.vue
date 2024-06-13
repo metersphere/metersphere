@@ -99,7 +99,7 @@
 
 <style lang="less" scoped>
   .tabPlatform {
-    width: 400px;
+    min-width: 480px;
     height: 40px;
   }
   .login-qrcode {
@@ -135,7 +135,7 @@
     }
   }
   .radioOneButton {
-    width: 200px;
+    width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;

@@ -169,7 +169,7 @@
             "license": true
           },
           {
-            "id": "SYSTEM_PARAMETER_SETTING_QRCODE:READ",
+            "id": "SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE",
             "name": "permission.system_parameter_setting_qrcode.update",
             "license": true
           }
