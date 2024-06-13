@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportApiScenarioMapper">
+    <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
+        select tpras.api_scenario_execute_result as status, count(id) as count from test_plan_report_api_scenario tpras
+        where tpras.test_plan_report_id = #{id}
+        group by tpras.api_scenario_execute_result
+    </select>
+
+    <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiScenario">
+        select  tpas.id as testPlanApiScenarioId, aso.id as apiScenarioId, aso.num as apiScenarioNum, aso.name as apiScenarioName, aso.priority as apiScenarioPriority,
+                if(aso.module_id = 'root','未规划用例', aso.module_id) as apiScenarioModule, tpas.execute_user as apiScenarioExecuteUser,
+                ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult
+        from test_plan_api_scenario tpas join api_scenario aso on aso.id = tpas.api_scenario_id
+                                     left join api_scenario_module asm on aso.module_id = asm.id
+        where tpas.test_plan_id = #{id} and aso.deleted = false
+        group by tpas.id
+    </select>
+
+    <select id="getPlanExecuteCaseModules" resultType="io.metersphere.plan.dto.TestPlanBaseModule">
+        select asm.id, asm.name, asm.parent_id as parentId from api_scenario_module asm
+        where asm.project_id = #{id}
+    </select>
+
+    <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
+        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
+        select distinct tpras.api_scenario_id as id, tpras.api_scenario_num as num, tpras.api_scenario_name as name,
+        tpras.api_scenario_module as moduleName, tpras.api_scenario_priority as priority,
+        tpras.api_scenario_execute_result as executeResult, tpras.api_scenario_execute_user as executeUser
+        from test_plan_report_api_scenario tpras
+        where tpras.test_plan_report_id = #{request.reportId}
+        <include refid="filter"/>
+    </select>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 执行状态 -->
+                        <when test="key == 'executeResult'">
+                            and tpras.api_scenario_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+</mapper>

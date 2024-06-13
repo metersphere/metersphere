@@ -38,7 +38,7 @@
     </select>
 
     <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
-        select tprfc.function_case_execute_result as status, count(*) as count from test_plan_report_function_case tprfc
+        select tprfc.function_case_execute_result as status, count(id) as count from test_plan_report_function_case tprfc
         where tprfc.test_plan_report_id = #{id}
         group by tprfc.function_case_execute_result
     </select>
