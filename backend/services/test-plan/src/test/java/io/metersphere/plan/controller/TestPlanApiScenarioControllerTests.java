@@ -24,6 +24,7 @@ import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.plan.service.TestPlanApiScenarioLogService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
@@ -71,6 +72,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String API_SCENARIO_BATCH_DISASSOCIATE = "batch/disassociate";
     public static final String API_SCENARIO_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
     private static final String URL_POST_RESOURCE_API_SCENARIO_SORT = "/sort";
+    private static final String API_SCENARIO_BATCH_MOVE_URL = "/batch/move";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -270,6 +272,16 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.API_SCENARIO, baseCollectionAssociateRequests);
         testPlanApiScenarioService.associateCollection("wxxx_plan_2", collectionAssociates, "wx");
+    }
+
+    @Test
+    @Order(5)
+    public void testApiScenarioBatchMove() throws Exception {
+        BaseBatchMoveRequest request = new BaseBatchMoveRequest();
+        request.setTestPlanId("wxxx_plan_1");
+        request.setTargetCollectionId("wxxx_collection_2");
+        request.setSelectAll(true);
+        this.requestPostWithOk(API_SCENARIO_BATCH_MOVE_URL, request);
     }
 
 

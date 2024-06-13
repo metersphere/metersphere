@@ -64,4 +64,7 @@ public class TestPlanApiScenarioPageResponse implements Serializable {
 
     @Schema(description = "报告id")
     private String lastExecReportId;
+
+    @Schema(description = "状态")
+    private String status;
 }
