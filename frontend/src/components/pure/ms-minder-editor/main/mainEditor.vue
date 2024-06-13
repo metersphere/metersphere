@@ -213,8 +213,15 @@
     () => minderStore.getMinderUnsaved,
     (val) => {
       setIsSave(!val);
+    },
+    {
+      immediate: true,
     }
   );
+
+  onBeforeUnmount(() => {
+    minderStore.setMinderUnsaved(false);
+  });
 </script>
 
 <style lang="less">
@@ -224,8 +231,6 @@
   }
   .ms-minder-container {
     @apply relative h-full overflow-hidden !bg-white;
-
-    padding: 16px 0;
   }
   .ms-minder-dropdown {
     .arco-dropdown-list-wrapper {

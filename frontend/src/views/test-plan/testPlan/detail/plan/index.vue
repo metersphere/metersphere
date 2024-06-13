@@ -1,9 +1,7 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="p-[16px]">
-      <MsNotRemind tip="testPlan.planTip" type="info" visited-key="testPlanTip" />
-    </div>
-    <div class="flex-1 overflow-hidden px-[16px]">
+    <MsNotRemind tip="testPlan.planTip" class="p-[16px]" type="info" visited-key="testPlanTip" />
+    <div class="flex-1 overflow-hidden p-[16px]">
       <MsTestPlanMinder :plan-id="props.planId" />
     </div>
   </div>

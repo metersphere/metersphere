@@ -171,6 +171,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import useMinderStore from '@/store/modules/components/minder-editor';
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -184,6 +185,8 @@
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
+  const minderStore = useMinderStore();
+
   const loading = ref(false);
   const planId = ref(route.query.id as string);
   const detail = ref<TestPlanDetail>({
@@ -204,6 +207,7 @@
       // eslint-disable-next-line prefer-destructuring
       countDetail.value = result[0];
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -263,6 +267,7 @@
           Message.success(t('common.batchArchiveSuccess'));
           initDetail();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -403,6 +408,7 @@
     try {
       testPlanTree.value = await getTestPlanModule({ projectId: appStore.currentProjectId });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -427,8 +433,7 @@
   }
 
   function changeTabInterceptor(newVal: string, oldVal: string, done: () => void) {
-    console.log('changeTabInterceptor', newVal, oldVal);
-    if (oldVal === 'plan') {
+    if (oldVal === 'plan' && minderStore.minderUnsaved) {
       openModal({
         type: 'warning',
         title: t('common.tip'),
