@@ -240,6 +240,7 @@
     ScenarioStepType.API_CASE,
     ScenarioStepType.CUSTOM_REQUEST,
     ScenarioStepType.SCRIPT,
+    ScenarioStepType.TEST_PLAN_API_CASE,
   ]);
 
   const innerNumber = ref<number>(0);
@@ -296,6 +297,7 @@
     ScenarioStepType.LOOP_CONTROLLER,
     ScenarioStepType.IF_CONTROLLER,
     ScenarioStepType.ONCE_ONLY_CONTROLLER,
+    ScenarioStepType.TEST_PLAN_API_CASE,
   ]);
   function getShowExpand(item: ScenarioItemType) {
     if (props.showType === 'API') {

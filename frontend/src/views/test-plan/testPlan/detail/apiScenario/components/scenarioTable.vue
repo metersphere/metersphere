@@ -39,6 +39,7 @@
         <ExecuteResult :execute-result="record.lastExecResult" />
         <MsIcon
           v-show="record.lastExecResult !== LastExecuteResults.PENDING"
+          v-permission="['PROJECT_TEST_PLAN:READ']"
           type="icon-icon_take-action_outlined"
           class="ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]"
           size="16"
@@ -49,7 +50,12 @@
         <apiStatus :status="record.status" />
       </template>
       <template v-if="props.canEdit" #operation="{ record }">
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']" type="text" class="!mr-0" @click="handleRun">
+        <MsButton
+          v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+          type="text"
+          class="!mr-0"
+          @click="handleRun(record)"
+        >
           {{ t('common.execute') }}
         </MsButton>
         <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
@@ -67,7 +73,14 @@
         </MsPopconfirm>
       </template>
     </MsBaseTable>
-    <CaseAndScenarioReportDrawer v-model:visible="reportVisible" :report-id="reportId" do-not-show-share />
+    <CaseAndScenarioReportDrawer
+      v-model:visible="reportVisible"
+      :report-id="reportId"
+      do-not-show-share
+      is-scenario
+      :report-detail="getApiScenarioReport"
+      :get-report-step-detail="getApiScenarioReportStep"
+    />
     <!-- 批量修改执行人 -->
     <BatchUpdateExecutorModal
       v-model:visible="batchUpdateExecutorModalVisible"
@@ -116,6 +129,8 @@
     batchRunApiScenario,
     batchUpdateApiScenarioExecutor,
     disassociateApiScenario,
+    getApiScenarioReport,
+    getApiScenarioReportStep,
     getPlanDetailApiScenarioList,
     runApiScenario,
     sortApiScenario,

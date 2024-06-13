@@ -62,6 +62,8 @@ export const DisassociateCaseUrl = '/test-plan/functional/case/disassociate';
 export const BatchDisassociateCaseUrl = '/test-plan/functional/case/batch/disassociate';
 // 计划详情-功能用例-执行
 export const RunFeatureCaseUrl = '/test-plan/functional/case/run';
+// 计划详情-功能用例列表-批量移动
+export const BatchMoveFeatureCaseUrl = '/test-plan/functional/case/batch/move';
 // 测试计划-用例详情-缺陷列表
 export const GetAssociatedBugUrl = '/test-plan/functional/case/has/associate/bug/page';
 // 测试计划-用例详情
@@ -119,6 +121,10 @@ export const BatchUpdateApiCaseExecutorUrl = '/test-plan/api/case/batch/update/e
 export const BatchRunApiCaseUrl = '/test-plan/api/case/batch/run';
 // 计划详情-接口用例列表-批量移动
 export const BatchMoveApiCaseUrl = '/test-plan/api/case/batch/move';
+// 计划详情-接口用例列表-报告详情
+export const ApiCaseReportDetailUrl = '/test-plan/api/case/report/get';
+// 计划详情-接口用例列表-步骤详情
+export const ApiCaseReportDetailStepUrl = '/test-plan/api/case/report/get/detail';
 
 // 计划详情-接口场景列表
 export const GetPlanDetailApiScenarioListUrl = '/test-plan/api/scenario/page';
@@ -140,6 +146,10 @@ export const BatchUpdateApiScenarioExecutorUrl = '/test-plan/api/scenario/batch/
 export const BatchRunApiScenarioUrl = '/test-plan/api/scenario/batch/run';
 // 计划详情-接口场景列表-批量移动
 export const BatchMoveApiScenarioUrl = '/test-plan/api/scenario/batch/move';
+// 计划详情-接口场景列表-报告详情
+export const ApiScenarioReportDetailUrl = '/test-plan/api/scenario/report/get';
+// 计划详情-接口场景列表-步骤详情
+export const ApiScenarioReportDetailStepUrl = '/test-plan/api/scenario/report/get/detail';
 
 // 测试规划脑图
 export const GetPlanMinderUrl = '/test-plan/mind/data';

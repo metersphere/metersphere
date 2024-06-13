@@ -257,6 +257,7 @@ export enum ScenarioStepType {
   API_CASE = 'API_CASE', // 接口用例
   LOOP_CONTROLLER = 'LOOP_CONTROLLER', // 循环控制器
   API = 'API', // 接口定义
+  TEST_PLAN_API_CASE = 'TEST_PLAN_API_CASE', // 测试计划接口用例
   CUSTOM_REQUEST = 'CUSTOM_REQUEST', // 自定义请求
   API_SCENARIO = 'API_SCENARIO', // 场景
   IF_CONTROLLER = 'IF_CONTROLLER', // 条件控制器

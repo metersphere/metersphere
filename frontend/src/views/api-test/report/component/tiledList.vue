@@ -26,6 +26,7 @@
       :show-type="props.showType"
       :console="props.reportDetail.console"
       :report-id="props.reportDetail.id"
+      :get-report-step-detail="props.getReportStepDetail"
     />
   </div>
 </template>
@@ -47,6 +48,7 @@
     activeType: 'tiled' | 'tab'; // 平铺模式|tab模式
     showType: 'API' | 'CASE'; // 接口场景|用例
     keyWords: string;
+    getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
   }>();
 
   const tiledList = ref<ScenarioItemType[]>([]);
