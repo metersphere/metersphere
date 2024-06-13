@@ -226,6 +226,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService implemen
         TestPlanApiScenarioExample scenarioCaseExample = new TestPlanApiScenarioExample();
         scenarioCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
         scenarioBatchMapper.updateByExampleSelective(record, scenarioCaseExample);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     /**

@@ -373,6 +373,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         user.setUpdateUser(ADMIN.getValue());
         user.setEnable(true);
         user.setDeleted(false);
+        user.setCftToken("NONE");
         userMapper.insert(user);
         UserRoleRelation roleRelation = new UserRoleRelation();
         roleRelation.setId(IDGenerator.nextStr());

@@ -65,6 +65,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -773,6 +774,34 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanFunctionalCaseExample functionalCaseExample = new TestPlanFunctionalCaseExample();
         functionalCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
         functionalBatchMapper.updateByExampleSelective(record, functionalCaseExample);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
+    /**
+     * 批量移动
+     * @param request
+     */
+    public void batchMove(BaseBatchMoveRequest request) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            moveCaseToCollection(ids,request.getTargetCollectionId());
+        }
+    }
+
+    private void moveCaseToCollection(List<String> ids, String targetCollectionId) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(targetCollectionId));
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanFunctionalCaseMapper functionalBatchMapper = sqlSession.getMapper(TestPlanFunctionalCaseMapper.class);
+        ids.forEach(id ->{
+            TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
+            testPlanFunctionalCase.setId(id);
+            testPlanFunctionalCase.setPos(nextOrder.get());
+            testPlanFunctionalCase.setTestPlanCollectionId(targetCollectionId);
+            nextOrder.addAndGet(DEFAULT_NODE_INTERVAL_POS);
+            functionalBatchMapper.updateByPrimaryKeySelective(testPlanFunctionalCase);
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
 }
