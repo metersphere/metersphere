@@ -145,6 +145,7 @@
     isResponseModel?: boolean;
     reportId?: string;
     steps?: ScenarioItemType[]; // 步骤列表
+    getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
   }>();
   const { t } = useI18n();
 
@@ -270,11 +271,16 @@
     try {
       loading.value = true;
       if (props.stepItem) {
-        const res = await reportDetailMap[props.showType].stepDetail(
-          (props.stepItem?.reportId || props.reportId) as string,
-          stepId,
-          route.query.shareId as string | undefined
-        );
+        let res;
+        if (props.getReportStepDetail) {
+          res = await props.getReportStepDetail((props.stepItem?.reportId || props.reportId) as string, stepId);
+        } else {
+          res = await reportDetailMap[props.showType].stepDetail(
+            (props.stepItem?.reportId || props.reportId) as string,
+            stepId,
+            route.query.shareId as string | undefined
+          );
+        }
         stepDetailInfo.value = cloneDeep(res) as any;
         // TODO 子请求后台数据不全--需要后边有数据进行测试
         activeStepDetail.value = stepDetailInfo.value[activeIndex.value];

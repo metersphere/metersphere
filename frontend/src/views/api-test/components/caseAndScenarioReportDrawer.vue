@@ -28,8 +28,12 @@
         </template>
       </a-dropdown>
     </template>
-    <CaseReportCom v-if="!props.isScenario" :detail-info="reportStepDetail" />
-    <ScenarioCom v-else :detail-info="reportStepDetail" />
+    <CaseReportCom
+      v-if="!props.isScenario"
+      :detail-info="reportStepDetail"
+      :get-report-step-detail="props.getReportStepDetail"
+    />
+    <ScenarioCom v-else :detail-info="reportStepDetail" :get-report-step-detail="props.getReportStepDetail" />
   </MsDrawer>
 </template>
 
@@ -54,6 +58,8 @@
     reportId: string;
     isScenario?: boolean;
     doNotShowShare?: boolean; // 不展示分享按钮
+    reportDetail?: (...args: any) => Promise<any>; // 获取报告接口
+    getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
   }>();
 
   const appStore = useAppStore();
@@ -108,6 +114,10 @@
   });
   async function getReportDetail() {
     try {
+      if (props.reportDetail) {
+        reportStepDetail.value = await props.reportDetail(props.reportId);
+        return;
+      }
       if (props.isScenario) {
         reportStepDetail.value = await reportScenarioDetail(props.reportId);
       } else {

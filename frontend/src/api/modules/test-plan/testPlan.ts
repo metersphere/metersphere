@@ -2,6 +2,10 @@ import MSR from '@/api/http/index';
 import {
   addTestPlanModuleUrl,
   AddTestPlanUrl,
+  ApiCaseReportDetailStepUrl,
+  ApiCaseReportDetailUrl,
+  ApiScenarioReportDetailStepUrl,
+  ApiScenarioReportDetailUrl,
   archivedPlanUrl,
   associationCaseToPlanUrl,
   batchArchivedPlanUrl,
@@ -13,6 +17,7 @@ import {
   BatchEditTestPlanUrl,
   BatchMoveApiCaseUrl,
   BatchMoveApiScenarioUrl,
+  BatchMoveFeatureCaseUrl,
   batchMovePlanUrl,
   BatchRunApiCaseUrl,
   BatchRunApiScenarioUrl,
@@ -75,6 +80,7 @@ import {
 } from '@/api/requrls/test-plan/testPlan';
 
 import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
+import type { ReportDetail, ReportStepDetail } from '@/models/apiTest/report';
 import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 import type { CaseManagementTable, CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
@@ -261,6 +267,10 @@ export const GetTestPlanUsers = (projectId: string, keyword: string) => {
 export function batchUpdateCaseExecutor(data: BatchUpdateCaseExecutorParams) {
   return MSR.post({ url: BatchUpdateCaseExecutorUrl, data });
 }
+// 计划详情-功能用例列表-批量移动
+export function batchMoveFeatureCase(data: BatchMoveApiCaseParams) {
+  return MSR.post({ url: BatchMoveFeatureCaseUrl, data });
+}
 // 计划详情-功能用例-执行
 export function runFeatureCase(data: RunFeatureCaseParams) {
   return MSR.post({ url: RunFeatureCaseUrl, data });
@@ -325,6 +335,14 @@ export function batchRunApiCase(data: BatchApiCaseParams) {
 export function batchMoveApiCase(data: BatchMoveApiCaseParams) {
   return MSR.post({ url: BatchMoveApiCaseUrl, data });
 }
+// 计划详情-接口用例列表-获取报告
+export function getApiCaseReport(reportId: string) {
+  return MSR.get<ReportDetail>({ url: `${ApiCaseReportDetailUrl}/${reportId}` });
+}
+// 计划详情-接口用例列表-获取报告-步骤详情
+export function getApiCaseReportStep(reportId: string, stepId: string) {
+  return MSR.get<ReportStepDetail[]>({ url: `${ApiCaseReportDetailStepUrl}/${reportId}/${stepId}` });
+}
 // 计划详情-接口场景列表
 export function getPlanDetailApiScenarioList(data: PlanDetailApiScenarioQueryParams) {
   return MSR.post<CommonList<PlanDetailApiScenarioItem>>({ url: GetPlanDetailApiScenarioListUrl, data });
@@ -364,6 +382,14 @@ export function batchRunApiScenario(data: BatchApiCaseParams) {
 // 计划详情-接口场景列表-批量移动
 export function batchMoveApiScenario(data: BatchMoveApiCaseParams) {
   return MSR.post({ url: BatchMoveApiScenarioUrl, data });
+}
+// 计划详情-接口场景列表-获取报告
+export function getApiScenarioReport(reportId: string) {
+  return MSR.get<ReportDetail>({ url: `${ApiScenarioReportDetailUrl}/${reportId}` });
+}
+// 计划详情-接口用例列表-获取报告-步骤详情
+export function getApiScenarioReportStep(reportId: string, stepId: string) {
+  return MSR.get<ReportStepDetail[]>({ url: `${ApiScenarioReportDetailStepUrl}/${reportId}/${stepId}` });
 }
 // 计划详情-执行历史 TODO 联调
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {

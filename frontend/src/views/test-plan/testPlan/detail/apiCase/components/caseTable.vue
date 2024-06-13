@@ -39,6 +39,7 @@
         <ExecuteResult :execute-result="record.lastExecResult" />
         <MsIcon
           v-show="record.lastExecResult !== LastExecuteResults.PENDING"
+          v-permission="['PROJECT_TEST_PLAN:READ']"
           type="icon-icon_take-action_outlined"
           class="ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]"
           size="16"
@@ -72,7 +73,13 @@
         </MsPopconfirm>
       </template>
     </MsBaseTable>
-    <CaseAndScenarioReportDrawer v-model:visible="reportVisible" :report-id="reportId" do-not-show-share />
+    <CaseAndScenarioReportDrawer
+      v-model:visible="reportVisible"
+      :report-id="reportId"
+      do-not-show-share
+      :report-detail="getApiCaseReport"
+      :get-report-step-detail="getApiCaseReportStep"
+    />
     <!-- 批量修改执行人 -->
     <BatchUpdateExecutorModal
       v-model:visible="batchUpdateExecutorModalVisible"
@@ -122,6 +129,8 @@
     batchRunApiCase,
     batchUpdateApiCaseExecutor,
     disassociateApiCase,
+    getApiCaseReport,
+    getApiCaseReportStep,
     getPlanDetailApiCaseList,
     runApiCase,
     sortApiCase,

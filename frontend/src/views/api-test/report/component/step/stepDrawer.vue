@@ -23,6 +23,7 @@
         :step-item="props.scenarioDetail"
         :console="props.console"
         :is-definition="true"
+        :get-report-step-detail="props.getReportStepDetail"
         :report-id="props.scenarioDetail?.reportId"
       />
     </div>
@@ -46,6 +47,7 @@
     scenarioDetail?: ScenarioItemType;
     showType: 'API' | 'CASE'; // 接口场景|用例
     console?: string; //  控制台
+    getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
   }>();
 
   const emit = defineEmits<{
