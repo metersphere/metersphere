@@ -299,27 +299,29 @@ public class ApiTaskCenterService {
                     LogUtils.error(e);
                 } finally {
                     subList.forEach(reportId -> {
-                        TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
-                        TaskItem taskItem = new TaskItem();
-                        taskItem.setReportId(reportId);
-                        taskInfo.setResourceType(request.getModuleType());
-                        taskItem.setResourceId(resourceIdMap.getOrDefault(reportId, null));
-                        // 这里需要兼容测试计划批量执行的类型
-                        if (StringUtils.isNotEmpty(testPlanIdMap.get(reportId))
-                                && !StringUtils.equals(testPlanIdMap.get(reportId), "NONE")) {
-                            if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_CASE.toString())) {
-                                taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
-                            } else if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_SCENARIO.toString())) {
-                                taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
-                            }
-                        }
-                        taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
                         if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
-                            taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
+                            TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
+                            TaskItem taskItem = new TaskItem();
+                            taskItem.setReportId(reportId);
+                            taskInfo.setResourceType(request.getModuleType());
+                            taskItem.setResourceId(resourceIdMap.getOrDefault(reportId, null));
+                            // 这里需要兼容测试计划批量执行的类型
+                            if (StringUtils.isNotEmpty(testPlanIdMap.get(reportId))
+                                    && !StringUtils.equals(testPlanIdMap.get(reportId), "NONE")) {
+                                if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_CASE.toString())) {
+                                    taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+                                } else if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_SCENARIO.toString())) {
+                                    taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+                                }
+                            }
+                            taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
+                            if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
+                                taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
+                            }
+                            taskRequestDTO.setTaskItem(taskItem);
+                            result.setRequest(taskRequestDTO);
+                            kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
                         }
-                        taskRequestDTO.setTaskItem(taskItem);
-                        result.setRequest(taskRequestDTO);
-                        kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
                     });
 
                     if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
