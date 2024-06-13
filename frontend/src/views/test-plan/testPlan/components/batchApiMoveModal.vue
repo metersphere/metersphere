@@ -83,6 +83,11 @@
     })
   );
 
+  function handleCancel() {
+    visible.value = false;
+    form.value = { targetCollectionId: '' };
+  }
+
   async function handleMove() {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
@@ -92,6 +97,7 @@
             ...props.params,
             ...form.value,
           });
+          handleCancel();
           Message.success(t('common.moveSuccess'));
           emit('loadList');
         } catch (error) {
@@ -102,10 +108,5 @@
         }
       }
     });
-  }
-
-  function handleCancel() {
-    visible.value = false;
-    form.value = { targetCollectionId: '' };
   }
 </script>

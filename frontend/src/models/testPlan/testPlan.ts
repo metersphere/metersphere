@@ -210,9 +210,6 @@ export interface BatchUpdateCaseExecutorParams extends BatchFeatureCaseParams {
   userId: string;
 }
 
-export interface SortFeatureCaseParams extends DragSortParams {
-  testPlanId: string;
-}
 export type RunModeType = 'SERIAL' | 'PARALLEL';
 export interface PassRateCountDetail {
   id: string;

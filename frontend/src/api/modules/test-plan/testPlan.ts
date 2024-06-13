@@ -114,7 +114,6 @@ import type {
   PlanMinderNode,
   RunFeatureCaseParams,
   SortApiCaseParams,
-  SortFeatureCaseParams,
   TestPlanBaseParams,
   TestPlanDetail,
   TestPlanItem,
@@ -248,7 +247,7 @@ export function disassociateCase(data: DisassociateCaseParams) {
   return MSR.post({ url: DisassociateCaseUrl, data });
 }
 // 计划详情-功能用例列表-拖拽排序
-export const sortFeatureCase = (data: SortFeatureCaseParams) => {
+export const sortFeatureCase = (data: SortApiCaseParams) => {
   return MSR.post({ url: SortFeatureCaseUrl, data });
 };
 // 计划详情-功能用例列表-批量取消关联用例
