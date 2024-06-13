@@ -302,8 +302,8 @@ public class TestPlanCollectionMinderService {
         BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         testPlanCollection.setId(testPlanCollectionMinderEditDTO.getId());
         testPlanCollection.setTestPlanId(request.getPlanId());
-        testPlanCollection.setType(testPlanCollectionMinderEditDTO.getCollectionType());
-        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getCollectionType()).get(0);
+        testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
+        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);
         if (StringUtils.equalsIgnoreCase(parent.getId(), testPlanCollectionMinderEditDTO.getId())) {
             testPlanCollection.setParentId(parent.getParentId());
         } else {
@@ -322,8 +322,8 @@ public class TestPlanCollectionMinderService {
         BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         testPlanCollection.setId(IDGenerator.nextStr());
         testPlanCollection.setTestPlanId(request.getPlanId());
-        testPlanCollection.setType(testPlanCollectionMinderEditDTO.getCollectionType());
-        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getCollectionType()).get(0);
+        testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
+        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);
         testPlanCollection.setParentId(parent.getId());
         testPlanCollection.setCreateUser(userId);
         testPlanCollection.setCreateTime(System.currentTimeMillis());
