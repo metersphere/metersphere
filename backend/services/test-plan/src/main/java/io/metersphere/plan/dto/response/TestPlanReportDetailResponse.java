@@ -64,4 +64,7 @@ public class TestPlanReportDetailResponse {
     private CaseCount apiScenarioCount;
 
     private boolean deleted;
+
+    @Schema(description = "报告状态")
+    private String resultStatus;
 }

@@ -115,6 +115,107 @@
 
         <include refid="queryWhereConditionByParentId"/>
     </select>
+    <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select
+        distinct tpr.id,
+        tpr.project_id,
+        tpr.integrated,
+        project.organization_id,
+        tp.id AS resourceId
+        FROM
+        test_plan_report tpr
+        INNER JOIN test_plan tp ON tpr.test_plan_id = tp.id
+        left join project on tpr.project_id = project.id
+        where
+        tpr.start_time BETWEEN #{startTime} AND #{endTime}
+         and tpr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
+        <if test="ids != null and ids.size() > 0">
+            and tpr.id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and
+            tpr.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (tp.num like concat('%', #{request.condition.keyword},'%')
+
+            or tp.name like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <include refid="filterByCondition"/>
+    </select>
+    <select id="getHistoryDeleted" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
+        select distinct tpr.* from test_plan_report tpr INNER JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
+        <if test="ids != null and ids.size() > 0">
+            where tpr.id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectByParentIds" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select
+        distinct tpr.id,
+        tpr.project_id,
+        tpr.integrated,
+        project.organization_id,
+        tp.id AS resourceId
+        FROM
+        test_plan_report tpr
+        INNER JOIN test_plan tp ON tpr.test_plan_id = tp.id
+        left join project on tpr.project_id = project.id
+        where
+        tpr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
+        and tpr.parent_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getCaseReports" resultType="io.metersphere.api.dto.report.ReportDTO">
+        SELECT DISTINCT
+        ar.*,
+        project.organization_id,
+        ar.test_plan_case_id AS testPlanId,
+        tprac.test_plan_report_id AS testPlanReportId,
+        ar.test_plan_case_id AS resourceId
+        FROM
+        api_report ar
+        LEFT JOIN project ON ar.project_id = project.id
+        LEFT JOIN test_plan_report_api_case tprac ON ar.id = tprac.api_case_execute_report_id
+        WHERE
+        ar.deleted = FALSE
+        AND ar.plan = 1
+        AND ar.exec_status IN ( 'PENDING', 'RUNNING', 'RERUNNING' )
+        AND tprac.test_plan_report_id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getScenarioReports" resultType="io.metersphere.api.dto.report.ReportDTO">
+        SELECT DISTINCT
+            asr.*,
+            project.organization_id,
+            asr.test_plan_scenario_id AS testPlanId,
+            asr.test_plan_scenario_id AS resourceId
+        FROM
+            api_scenario_report asr
+                LEFT JOIN test_plan_report_api_scenario tpras ON asr.id = tpras.test_plan_report_id
+                LEFT JOIN project ON asr.project_id = project.id
+        WHERE
+            asr.deleted = FALSE
+          AND asr.plan = 1
+          AND asr.exec_status IN ( 'PENDING', 'RUNNING', 'RERUNNING' )
+          AND tpras.api_scenario_execute_report_id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 
     <sql id="queryWhereConditionByParentId">
         <where>

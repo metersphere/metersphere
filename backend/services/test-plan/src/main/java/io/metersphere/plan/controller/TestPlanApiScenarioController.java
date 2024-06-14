@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -127,7 +128,7 @@ public class TestPlanApiScenarioController {
     @GetMapping("/report/get/{id}")
     @Operation(summary = "测试计划-计划详情-场景用例列表-查看执行结果")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_REPORT_READ}, logical = Logical.OR)
     public ApiScenarioReportDTO get(@PathVariable String id) {
         testPlanApiScenarioService.checkReportIsTestPlan(id);
         return apiScenarioReportService.get(id);
@@ -136,7 +137,7 @@ public class TestPlanApiScenarioController {
     @GetMapping("report/get/detail/{reportId}/{stepId}")
     @Operation(summary = "测试计划-计划详情-场景用例列表-执行结果详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_REPORT_READ}, logical = Logical.OR)
     public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String reportId,
                                                       @PathVariable String stepId) {
         testPlanApiScenarioService.checkReportIsTestPlan(reportId);
