@@ -98,7 +98,7 @@ body {
 }
 
 /* 白色背景的tooltip */
-.tooltip-white {
+.ms-tooltip-white {
   .arco-tooltip-content {
     background-color: var(--color-bg-1);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
@@ -106,5 +106,18 @@ body {
   .arco-tooltip-popup-arrow {
     z-index: 1;
     background-color: var(--color-bg-1);
+  }
+}
+
+/* 红色背景的tooltip */
+.ms-tooltip-red {
+  .arco-tooltip-content {
+    color: rgb(var(--danger-6));
+    background-color: rgb(var(--danger-1));
+    box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
+  }
+  .arco-tooltip-popup-arrow {
+    z-index: 1;
+    background-color: rgb(var(--danger-1));
   }
 }

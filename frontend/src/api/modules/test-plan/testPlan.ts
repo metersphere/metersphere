@@ -392,7 +392,7 @@ export function getApiScenarioReport(reportId: string) {
 export function getApiScenarioReportStep(reportId: string, stepId: string) {
   return MSR.get<ReportStepDetail[]>({ url: `${ApiScenarioReportDetailStepUrl}/${reportId}/${stepId}` });
 }
-// 计划详情-执行历史 TODO 联调
+// 计划详情-执行历史
 export function getPlanDetailExecuteHistory(data: PlanDetailFeatureCaseListQueryParams) {
   return MSR.post<CommonList<PlanDetailExecuteHistoryItem>>({ url: PlanDetailExecuteHistoryUrl, data });
 }

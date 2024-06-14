@@ -19,7 +19,7 @@
     </div>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
       <template #revokeDelete="{ record }">
-        <a-tooltip class="tooltip-white">
+        <a-tooltip class="ms-tooltip-white">
           <template #content>
             <div class="flex flex-row">
               <span class="text-[var(--color-text-1)]">

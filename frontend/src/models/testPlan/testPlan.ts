@@ -61,6 +61,7 @@ export interface AddTestPlanParams {
   projectId?: string;
   testPlanId?: string;
   functionalCaseCount?: number;
+  isGroup?: boolean;
 }
 
 export interface TestPlanDetail extends AddTestPlanParams {
@@ -144,7 +145,7 @@ export interface FollowPlanParams {
 }
 
 export interface TestPlanBaseParams {
-  projectId: string;
+  projectId?: string;
   testPlanId: string;
 }
 
@@ -348,17 +349,16 @@ export interface PlanDetailApiScenarioItem {
   testPlanCollectionId: string; // 测试集id
 }
 
-// 执行历史 TODO 联调
+// 执行历史
 export interface PlanDetailExecuteHistoryItem {
   id: string;
   num: string;
-  name: string;
+  triggerMode: string; // 执行方式
+  execStatus: string; // 执行结果
   operationUser: string;
-  createUser: string;
   startTime: number;
   endTime: number;
-  lastExecResult: LastExecuteResults;
-  triggerMode: string;
+  deleted: boolean;
 }
 
 export interface CreateTask {
