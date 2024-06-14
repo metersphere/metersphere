@@ -5,7 +5,7 @@
     <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
         select tpfc.id as testPlanFunctionCaseId, fc.id as functionCaseId, fc.num as functionCaseNum, fc.name as functionCaseName, tpfc.test_plan_collection_id testPlanCollectionId,
                if(fc.module_id = 'root','未规划用例', fc.module_id) as functionCaseModule, tpfc.execute_user as functionCaseExecuteUser,
-               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult
+               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult, tpfc.pos pos
         from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
         left join functional_case_module fcm on fcm.id = fc.module_id
         left join bug_relation_case brc on brc.test_plan_case_id = tpfc.id
@@ -16,7 +16,7 @@
     <select id="getGroupPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
         select tpfc.id as testPlanFunctionCaseId, fc.id as functionCaseId, fc.num as functionCaseNum, fc.name as functionCaseName, tpfc.test_plan_collection_id testPlanCollectionId,
                if(fc.module_id = 'root','未规划用例', fc.module_id) as functionCaseModule, tpfc.execute_user as functionCaseExecuteUser,
-               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult
+               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult, tpfc.pos pos
         from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
                                             left join functional_case_module fcm on fcm.id = fc.module_id
                                             left join bug_relation_case brc on brc.test_plan_case_id = tpfc.id
@@ -76,6 +76,10 @@
                         <!-- 执行状态 -->
                         <when test="key == 'executeResult'">
                             and tprfc.function_case_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'priority'">
+                            and tprfc.function_case_priority in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>

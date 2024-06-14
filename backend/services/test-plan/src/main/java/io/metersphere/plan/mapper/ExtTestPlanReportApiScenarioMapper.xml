@@ -11,7 +11,7 @@
         select  tpas.id as testPlanApiScenarioId, aso.id as apiScenarioId, aso.num as apiScenarioNum, aso.name as apiScenarioName, aso.priority as apiScenarioPriority,
                 tpas.test_plan_collection_id testPlanCollectionId, tpas.grouped grouped, tpas.environment_id environmentId,
                 if(aso.module_id = 'root','未规划用例', aso.module_id) as apiScenarioModule, tpas.execute_user as apiScenarioExecuteUser,
-                ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult
+                ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult, tpas.last_exec_report_id apiScenarioExecuteReportId, tpas.pos pos
         from test_plan_api_scenario tpas join api_scenario aso on aso.id = tpas.api_scenario_id
                                      left join api_scenario_module asm on aso.module_id = asm.id
         where tpas.test_plan_id = #{id} and aso.deleted = false
@@ -22,7 +22,7 @@
         select  tpas.id as testPlanApiScenarioId, aso.id as apiScenarioId, aso.num as apiScenarioNum, aso.name as apiScenarioName, aso.priority as apiScenarioPriority,
                 tpas.test_plan_collection_id testPlanCollectionId, tpas.grouped grouped, tpas.environment_id environmentId,
                 if(aso.module_id = 'root','未规划用例', aso.module_id) as apiScenarioModule, tpas.execute_user as apiScenarioExecuteUser,
-                ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult
+                ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult, tpas.last_exec_report_id apiScenarioExecuteReportId, tpas.pos pos
         from test_plan_api_scenario tpas join api_scenario aso on aso.id = tpas.api_scenario_id
                                          left join api_scenario_module asm on aso.module_id = asm.id
         where aso.deleted = false and tpas.test_plan_id in
@@ -41,7 +41,7 @@
         <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
         select distinct tpras.api_scenario_id as id, tpras.api_scenario_num as num, tpras.api_scenario_name as name,
         tpras.api_scenario_module as moduleName, tpras.api_scenario_priority as priority, tpras.api_scenario_execute_report_id reportId,
-        tpras.api_scenario_execute_result as executeResult, tpras.api_scenario_execute_user as executeUser
+        tpras.api_scenario_execute_result as executeResult, tpras.api_scenario_execute_user as executeUser, 0 as bugCount
         from test_plan_report_api_scenario tpras
         where tpras.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
@@ -55,6 +55,10 @@
                         <!-- 执行状态 -->
                         <when test="key == 'executeResult'">
                             and tpras.api_scenario_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'priority'">
+                            and tpras.api_scenario_priority in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>

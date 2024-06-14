@@ -38,4 +38,7 @@ public class TestPlanReportGenPreParam {
 
 	@Schema(description = "计划组报告ID, 独立报告需要")
 	private String groupReportId;
+
+	@Schema(description = "是否手动生成报告")
+	private Boolean useManual;
 }

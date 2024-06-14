@@ -11,7 +11,7 @@
         select  tpac.id as testPlanApiCaseId, atc.id as apiCaseId, atc.num as apiCaseNum, atc.name as apiCaseName, atc.priority as apiCasePriority,
                 tpac.test_plan_collection_id testPlanCollectionId, tpac.environment_id as environmentId,
                 if(ad.module_id = 'root','未规划用例', ad.module_id) as apiCaseModule, tpac.execute_user as apiCaseExecuteUser,
-                ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult
+                ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult, tpac.last_exec_report_id apiCaseExecuteReportId, tpac.pos pos
         from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
                                             left join api_definition ad on atc.api_definition_id = ad.id
                                             left join api_definition_module adm on ad.module_id = adm.id
@@ -22,7 +22,7 @@
     <select id="getGroupExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiCase">
         select  tpac.id as testPlanApiCaseId, atc.id as apiCaseId, atc.num as apiCaseNum, atc.name as apiCaseName, atc.priority as apiCasePriority,
                 if(ad.module_id = 'root','未规划用例', ad.module_id) as apiCaseModule, tpac.execute_user as apiCaseExecuteUser,
-                ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult
+                ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult, tpac.last_exec_report_id apiCaseExecuteReportId, tpac.pos pos
         from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
                                      left join api_definition ad on atc.api_definition_id = ad.id
                                      left join api_definition_module adm on ad.module_id = adm.id
@@ -42,7 +42,7 @@
         <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
         select distinct tprac.api_case_id as id, tprac.api_case_num as num, tprac.api_case_name as name,
         tprac.api_case_module as moduleName, tprac.api_case_priority as priority, tprac.api_case_execute_report_id reportId,
-        tprac.api_case_execute_result as executeResult, tprac.api_case_execute_user as executeUser
+        tprac.api_case_execute_result as executeResult, tprac.api_case_execute_user as executeUser, 0 as bugCount
         from test_plan_report_api_case tprac
         where tprac.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
@@ -56,6 +56,10 @@
                         <!-- 执行状态 -->
                         <when test="key == 'executeResult'">
                             and tprfc.function_case_execute_result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'priority'">
+                            and tprac.api_case_priority in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
