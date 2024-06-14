@@ -849,11 +849,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (CollectionUtils.isEmpty(hisList)) {
             return new ArrayList<>();
         }
-        List<String> userIds = hisList.stream().map(TestPlanExecuteHisDTO::getCreateUser).distinct().toList();
+        List<String> userIds = hisList.stream().map(TestPlanExecuteHisDTO::getOperationUser).distinct().toList();
         List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
         Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
         hisList.forEach(his -> {
-            his.setCreateUser(userMap.getOrDefault(his.getCreateUser(), his.getCreateUser()));
+            his.setOperationUser(userMap.getOrDefault(his.getOperationUser(), his.getOperationUser()));
         });
         return hisList;
     }
