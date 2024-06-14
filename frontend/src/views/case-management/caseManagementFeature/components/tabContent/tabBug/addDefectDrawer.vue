@@ -23,6 +23,22 @@
       >
         <a-input v-model="form.title" :max-length="255" />
       </a-form-item>
+      <a-form-item
+        field="handleUserId"
+        :label="t('caseManagement.featureCase.updateUser')"
+        :rules="[{ required: true, message: t('bugManagement.edit.handleManIsRequired') }]"
+        asterisk-position="end"
+        class="w-[240px]"
+      >
+        <MsSelect
+          v-model:modelValue="form.handleUserId"
+          mode="static"
+          :placeholder="t('common.pleaseSelect')"
+          :options="handleUserOptions"
+          :search-keys="['label']"
+          allow-search
+        />
+      </a-form-item>
       <a-form-item :label="t('bugManagement.edit.content')">
         <MsRichText
           v-model:raw="form.description"
@@ -36,10 +52,11 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
+  import MsSelect from '@/components/business/ms-select/index';
 
   import {
     createOrUpdateBug,
@@ -52,6 +69,7 @@
   import { useAppStore } from '@/store';
 
   import { TemplateOption } from '@/models/common';
+  import type { CustomField, FieldOptions } from '@/models/setting/template';
 
   const appStore = useAppStore();
 
@@ -106,6 +124,11 @@
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
         drawerLoading.value = true;
+        templateCustomFields.value.forEach((item: any) => {
+          if (item.id === 'current_owner') {
+            item.value = form.value.handleUserId;
+          }
+        });
         try {
           await createOrUpdateBug({
             request: { ...form.value, customFields: templateCustomFields.value, ...props.extraParams },
@@ -126,12 +149,21 @@
     });
   }
 
+  const handleUserOptions = ref<SelectOptionData[]>([]);
   async function initBugTemplate() {
     try {
       templateOptions.value = await getTemplateOption(appStore.currentProjectId);
       form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
       defaultTemplateId.value = templateOptions.value.find((item) => item.enableDefault)?.id as string;
       const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
+      handleUserOptions.value = result.customFields
+        .find((customField: CustomField) => customField.fieldKey === 'handleUser')
+        .options.map((item: FieldOptions) => {
+          return {
+            value: item.value,
+            label: item.text,
+          };
+        });
       templateCustomFields.value = result.customFields.map((item: any) => {
         return {
           id: item.fieldId,
@@ -162,4 +194,8 @@
   );
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.halo-rich-text-editor .ProseMirror) {
+    min-height: 400px !important;
+  }
+</style>
