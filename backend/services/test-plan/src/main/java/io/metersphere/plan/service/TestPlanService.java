@@ -16,6 +16,7 @@ import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ScheduleExample;
+import io.metersphere.system.domain.TestPlanModule;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.LogInsertModule;
@@ -126,6 +127,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator) {
         //检查模块的合法性
         checkModule(createOrCopyRequest.getModuleId());
+        if (StringUtils.equalsIgnoreCase(createOrCopyRequest.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
+                && !StringUtils.equalsIgnoreCase(createOrCopyRequest.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            throw new MSException(Translator.get("test_plan.group.error"));
+        }
+        
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
         validateTestPlanGroup(createTestPlan.getGroupId(), 1);
@@ -468,14 +474,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public TestPlanDetailResponse detail(String id, String userId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         TestPlanDetailResponse response = new TestPlanDetailResponse();
-        String moduleName = getModuleName(testPlan.getModuleId());
+
+        String moduleName = Translator.get("unplanned.plan");
+        if (!ModuleConstants.DEFAULT_NODE_ID.equals(id)) {
+            TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(id);
+            moduleName = module == null ? Translator.get("unplanned.plan") : module.getName();
+            response.setModuleId(module == null ? ModuleConstants.DEFAULT_NODE_ID : module.getId());
+        }
+
         //计划组只有几个参数
         response.setId(testPlan.getId());
         response.setNum(testPlan.getNum());
         response.setStatus(testPlan.getStatus());
         response.setName(testPlan.getName());
         response.setTags(testPlan.getTags());
-        response.setModuleId(testPlan.getModuleId());
         response.setModuleName(moduleName);
         response.setDescription(testPlan.getDescription());
         response.setType(testPlan.getType());
@@ -547,9 +559,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     public String getModuleName(String id) {
         if (ModuleConstants.DEFAULT_NODE_ID.equals(id)) {
-            return Translator.get("functional_case.module.default.name");
+            return Translator.get("unplanned.plan");
         }
-        return testPlanModuleMapper.selectByPrimaryKey(id).getName();
+        TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(id);
+        return module == null ? StringUtils.EMPTY : module.getName();
     }
 
 

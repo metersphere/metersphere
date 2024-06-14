@@ -10,6 +10,7 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.plan.service.*;
@@ -147,6 +148,8 @@ public class TestPlanTests extends BaseTest {
     private static final String[] PROJECT_MODULE = new String[]{"workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"};
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
 
     @BeforeEach
     public void initTestData() {
@@ -1264,14 +1267,21 @@ public class TestPlanTests extends BaseTest {
         if (FUNCTIONAL_CASES.isEmpty()) {
             this.testPlanAssociationFunctionCase();
         }
+        String collectionId = IDGenerator.nextStr();
         List<TestPlanFunctionalCase> funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
+        funcList.forEach(item -> {
+            TestPlanFunctionalCase updateModel = new TestPlanFunctionalCase();
+            updateModel.setId(item.getId());
+            updateModel.setTestPlanCollectionId(collectionId);
+            testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(updateModel);
+        });
         //将第30个移动到第一位之前
         ResourceSortRequest request = new ResourceSortRequest();
-        request.setTestCollectionId(repeatCaseTestPlan.getId());
+        request.setTestCollectionId(funcList.getFirst().getTestPlanCollectionId());
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setMoveId(funcList.get(29).getId());
         request.setTargetId(funcList.get(0).getId());
-        request.setMoveMode(MoveTypeEnum.AFTER.name());
+        request.setMoveMode(MoveTypeEnum.BEFORE.name());
 
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
@@ -1290,7 +1300,7 @@ public class TestPlanTests extends BaseTest {
         //将这时的第30个放到第一位之后
         request.setMoveId(funcList.get(29).getId());
         request.setTargetId(funcList.get(0).getId());
-        request.setMoveMode(MoveTypeEnum.BEFORE.name());
+        request.setMoveMode(MoveTypeEnum.AFTER.name());
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
@@ -1302,11 +1312,10 @@ public class TestPlanTests extends BaseTest {
                 new CheckLogModel(request.getMoveId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
         );
 
-
-        //再将这时的第30个放到第一位之后,但是第一个的pos为2，检查能否触发ref操作
+        //再将这时的第30个放到第一位之前,但是第一个的pos为2，检查能否触发ref操作
         request.setMoveId(funcList.get(29).getId());
         request.setTargetId(funcList.get(0).getId());
-        request.setMoveMode(MoveTypeEnum.AFTER.name());
+        request.setMoveMode(MoveTypeEnum.BEFORE.name());
         testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, 2);
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
@@ -1319,11 +1328,11 @@ public class TestPlanTests extends BaseTest {
                 new CheckLogModel(request.getMoveId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
         );
 
-        //反例：测试计划为空
+        //反例：测试集为空
         request.setTestCollectionId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
         //反例：拖拽的节点不存在
-        request.setTestCollectionId(repeatCaseTestPlan.getId());
+        request.setTestCollectionId(funcList.getFirst().getTestPlanCollectionId());
         request.setMoveId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
         //反例：目标节点不存在
