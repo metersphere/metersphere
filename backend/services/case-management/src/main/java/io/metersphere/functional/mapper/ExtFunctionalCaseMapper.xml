@@ -793,17 +793,31 @@
     <select id="getMinderCaseList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
             fc.id, fc.name, fc.project_id, fc.module_id, fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
-            fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description, fccf.value as priority
+            fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
         functional_case fc
             LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
-            LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
-            LEFT JOIN custom_field cf ON cf.id = fccf.field_id
         WHERE
             fc.deleted = false
         AND
             fc.project_Id = #{request.projectId}
         AND
+            fc.module_id = #{request.moduleId}
+        order by fc.pos
+    </select>
+
+    <select id="getCaseCustomFieldList" resultType="io.metersphere.functional.domain.FunctionalCaseCustomField">
+        SELECT
+            fccf.case_id, fccf.field_id, fccf.value
+        FROM
+            functional_case_custom_field fccf
+                LEFT JOIN functional_case fc ON fccf.case_id = fc.id
+                LEFT JOIN custom_field cf ON cf.id = fccf.field_id
+        WHERE
+            fc.deleted = false
+          AND
+            fc.project_Id = #{request.projectId}
+          AND
             fc.module_id = #{request.moduleId}
           AND
             cf.name = 'functional_priority'
@@ -811,6 +825,7 @@
           AND cf.internal= true
         order by fc.pos
     </select>
+
 
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
