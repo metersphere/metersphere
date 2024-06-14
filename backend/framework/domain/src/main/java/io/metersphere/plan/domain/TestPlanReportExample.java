@@ -445,66 +445,6 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andExecuteTimeIsNull() {
-            addCriterion("execute_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeIsNotNull() {
-            addCriterion("execute_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeEqualTo(Long value) {
-            addCriterion("execute_time =", value, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeNotEqualTo(Long value) {
-            addCriterion("execute_time <>", value, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeGreaterThan(Long value) {
-            addCriterion("execute_time >", value, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("execute_time >=", value, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeLessThan(Long value) {
-            addCriterion("execute_time <", value, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeLessThanOrEqualTo(Long value) {
-            addCriterion("execute_time <=", value, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeIn(List<Long> values) {
-            addCriterion("execute_time in", values, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeNotIn(List<Long> values) {
-            addCriterion("execute_time not in", values, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeBetween(Long value1, Long value2) {
-            addCriterion("execute_time between", value1, value2, "executeTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andExecuteTimeNotBetween(Long value1, Long value2) {
-            addCriterion("execute_time not between", value1, value2, "executeTime");
-            return (Criteria) this;
-        }
-
         public Criteria andStartTimeIsNull() {
             addCriterion("start_time is null");
             return (Criteria) this;

@@ -13,10 +13,10 @@ public class TestPlanReportDetailResponse {
     private String id;
     @Schema(description = "报告名称")
     private String name;
-    @Schema(description = "报告开始时间")
+    @Schema(description = "报告创建时间")
+    private Long createTime;
+    @Schema(description = "报告开始(执行)时间")
     private Long startTime;
-    @Schema(description = "报告执行开始时间")
-    private Long executeTime;
     @Schema(description = "报告结束(执行)时间")
     private Long endTime;
     @Schema(description = "报告内容")

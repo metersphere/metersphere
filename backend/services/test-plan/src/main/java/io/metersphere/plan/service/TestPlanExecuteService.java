@@ -5,13 +5,17 @@ import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.dto.TestPlanReportPostParam;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
+import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
+import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
@@ -27,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -36,9 +41,13 @@ public class TestPlanExecuteService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
+    private ExtTestPlanReportMapper extTestPlanReportMapper;
+    @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private TestPlanReportService testPlanReportService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
 
@@ -120,11 +129,19 @@ public class TestPlanExecuteService {
         if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
             throw new MSException("test_plan.error");
         }
+
+        TestPlanReportGenRequest genReportRequest = new TestPlanReportGenRequest();
+        genReportRequest.setTriggerMode(executionQueue.getExecutionSource());
+        genReportRequest.setTestPlanId(executionQueue.getSourceID());
+        genReportRequest.setProjectId(testPlan.getProjectId());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
+            // 预生成计划组报告
+            Map<String, String> reportMap = testPlanReportService.genReportByExecution(genReportRequest, executionQueue.getCreateUser());
+            executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
+
             long pos = 0;
             List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
-            String queueId = IDGenerator.nextStr();
             String queueType = QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE;
             for (TestPlan child : children) {
                 childrenQueue.add(
@@ -132,14 +149,14 @@ public class TestPlanExecuteService {
                                 pos++,
                                 executionQueue.getCreateUser(),
                                 System.currentTimeMillis(),
-                                queueId,
+                                reportMap.get(child.getId()),
                                 queueType,
                                 executionQueue.getQueueId(),
                                 executionQueue.getQueueType(),
                                 child.getId(),
                                 executionQueue.getRunMode(),
                                 executionQueue.getExecutionSource(),
-                                IDGenerator.nextStr()
+                                reportMap.get(child.getId())
                         )
                 );
             }
@@ -147,24 +164,28 @@ public class TestPlanExecuteService {
                 //本次的测试计划组执行完成
                 this.testPlanGroupQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
             } else {
-                this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
+                this.setRedisForList(genQueueKey(executionQueue.getQueueId(), queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
-                // todo Song-cc  这里是否要生成测试计划组的集合报告，并且记录测试计划里用例的执行信息？
+                // 更新报告的执行时间
+                extTestPlanReportMapper.batchUpdateExecuteTime(reportMap.values().stream().toList(), System.currentTimeMillis());
 
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
-                    TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
-                    executeTestPlanOrGroup(nextQueue);
+                    TestPlanExecutionQueue nextQueue = this.getNextQueue(executionQueue.getQueueId(), queueType);
+                    executeTestPlan(nextQueue);
                 } else {
                     //并行
                     childrenQueue.forEach(childQueue -> {
-                        executeTestPlanOrGroup(childQueue);
+                        executeTestPlan(childQueue);
                     });
                 }
             }
 
             return executionQueue.getPrepareReportId();
         } else {
+            Map<String, String> reportMap = testPlanReportService.genReportByExecution(genReportRequest, executionQueue.getCreateUser());
+            executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
+            extTestPlanReportMapper.batchUpdateExecuteTime(reportMap.values().stream().toList(), System.currentTimeMillis());
             return this.executeTestPlan(executionQueue);
         }
     }
@@ -200,7 +221,7 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             runMode,
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr())
+                            executionQueue.getPrepareReportId())
             );
         }
 
@@ -209,7 +230,6 @@ public class TestPlanExecuteService {
             this.testPlanExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
         } else {
             this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
-            // todo Song-cc  这里是否要生成测试计划报告，并且记录测试计划里用例的执行信息？
 
             //开始根据测试计划集合执行测试用例
             if (StringUtils.equalsIgnoreCase(runMode, ApiBatchRunMode.SERIAL.name())) {
@@ -252,7 +272,7 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             collection.getExecuteMethod(),
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr()) {{
+                            executionQueue.getPrepareReportId()) {{
                         this.setTestPlanCollectionJson(JSON.toJSONString(collection));
                     }}
             );
@@ -396,10 +416,26 @@ public class TestPlanExecuteService {
 
     private void queueExecuteFinish(TestPlanExecutionQueue queue) {
         if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
-            // todo Song-cc 测试计划组集合报告生成
+            // 计划组报告汇总并统计
+            testPlanReportService.summaryGroupReport(queue.getPrepareReportId());
+            TestPlanReportPostParam postParam = new TestPlanReportPostParam();
+            postParam.setReportId(queue.getPrepareReportId());
+            // 执行生成报告, 执行状态为已完成, 执行及结束时间为当前时间
+            postParam.setEndTime(System.currentTimeMillis());
+            postParam.setExecStatus(ExecStatus.COMPLETED.name());
+            testPlanReportService.postHandleReport(postParam);
+
             this.testPlanGroupQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
-            // todo Song-cc 测试计划报告计算
+            // 计划报告汇总并统计
+            testPlanReportService.summaryPlanReport(queue.getPrepareReportId());
+            TestPlanReportPostParam postParam = new TestPlanReportPostParam();
+            postParam.setReportId(queue.getPrepareReportId());
+            // 执行生成报告, 执行状态为已完成, 执行及结束时间为当前时间
+            postParam.setEndTime(System.currentTimeMillis());
+            postParam.setExecStatus(ExecStatus.COMPLETED.name());
+            testPlanReportService.postHandleReport(postParam);
+
             this.testPlanExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.caseTypeExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());

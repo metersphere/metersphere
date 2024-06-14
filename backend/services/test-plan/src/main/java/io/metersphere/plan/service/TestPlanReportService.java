@@ -10,6 +10,7 @@ import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.utils.CountUtils;
 import io.metersphere.plan.utils.ModuleTreeUtils;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
@@ -39,11 +40,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -215,8 +212,8 @@ public class TestPlanReportService {
      * @param request     请求参数
      * @param currentUser 当前用户
      */
-    public void genReportByManual(TestPlanReportGenRequest request, String currentUser) {
-        genReport(request, true, currentUser, "/test-plan/report/gen");
+    public Map<String, String> genReportByManual(TestPlanReportGenRequest request, String currentUser) {
+        return genReport(request, true, currentUser, "/test-plan/report/gen");
     }
 
     /**
@@ -225,48 +222,59 @@ public class TestPlanReportService {
      * @param request     请求参数
      * @param currentUser 当前用户
      */
-    public void genReportByExecution(TestPlanReportGenRequest request, String currentUser) {
-        genReport(request, false, currentUser, "/test-plan/report/gen");
+    public Map<String, String> genReportByExecution(TestPlanReportGenRequest request, String currentUser) {
+        return genReport(request, false, currentUser, "/test-plan/report/gen");
     }
 
-    public void genReport(TestPlanReportGenRequest request, boolean manual, String currentUser, String logPath) {
-        // 所有计划
-        List<TestPlan> plans = getPlans(request.getTestPlanId());
-        // 模块参数
-        TestPlanReportModuleParam moduleParam = getModuleParam(request.getProjectId());
+    public Map<String, String> genReport(TestPlanReportGenRequest request, boolean manual, String currentUser, String logPath) {
+		Map<String, String> preReportMap = new HashMap<>();
+		try {
+			// 所有计划
+			List<TestPlan> plans = getPlans(request.getTestPlanId());
+			// 模块参数
+			TestPlanReportModuleParam moduleParam = getModuleParam(request.getProjectId());
 
-		/*
-		 * 1. 准备报告生成参数
-		 * 2. 预生成报告
-		 * 3. 汇总报告数据 {执行时跳过}
-		 * 3. 报告后置处理 (计算通过率, 执行率, 执行状态...) {执行时跳过}
-		 */
-		List<String> childPlanIds = plans.stream().filter(plan -> StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)).map(TestPlan::getId).toList();
-		AtomicReference<String> groupReportId = new AtomicReference<>();
-		plans.forEach(plan -> {
-			request.setTestPlanId(plan.getId());
-			TestPlanReportGenPreParam genPreParam = buildReportGenParam(request, plan, groupReportId.get());
-			genPreParam.setUseManual(manual);
-			TestPlanReport preReport = preGenReport(genPreParam, currentUser, logPath, moduleParam, childPlanIds);
-			if (genPreParam.getIntegrated()) {
-				// 如果是计划组的报告, 初始化组的报告ID
-				groupReportId.set(preReport.getId());
+			/*
+			 * 1. 准备报告生成参数
+			 * 2. 预生成报告
+			 * 3. 汇总报告数据 {执行时跳过}
+			 * 3. 报告后置处理 (计算通过率, 执行率, 执行状态...) {执行时跳过}
+			 */
+			Optional<TestPlan> findGroup = plans.stream().filter(plan -> StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)).findAny();
+			List<String> childPlanIds = plans.stream().filter(plan -> StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)).map(TestPlan::getId).toList();
+			final String groupReportId;
+			if (findGroup.isPresent()) {
+				groupReportId = IDGenerator.nextStr();
+			} else {
+				groupReportId = null;
 			}
-
-            if (manual) {
-                // 汇总
-                summaryReport(preReport.getId());
-                // 手动生成的报告, 汇总结束后直接进行后置处理
-                TestPlanReportPostParam postParam = new TestPlanReportPostParam();
-                BeanUtils.copyBean(postParam, request);
-                postParam.setReportId(preReport.getId());
-                // 手动生成报告, 执行状态为已完成, 执行及结束时间为当前时间
-                postParam.setExecuteTime(System.currentTimeMillis());
-                postParam.setEndTime(System.currentTimeMillis());
-                postParam.setExecStatus(ExecStatus.COMPLETED.name());
-                postHandleReport(postParam);
-            }
-        });
+			plans.forEach(plan -> {
+				request.setTestPlanId(plan.getId());
+				TestPlanReportGenPreParam genPreParam = buildReportGenParam(request, plan, groupReportId);
+				genPreParam.setUseManual(manual);
+				TestPlanReport preReport = preGenReport(genPreParam, currentUser, logPath, moduleParam, childPlanIds);
+				if (manual) {
+					// 汇总
+					if (genPreParam.getIntegrated()) {
+						summaryGroupReport(preReport.getId());
+					} else {
+						summaryPlanReport(preReport.getId());
+					}
+					// 手动生成的报告, 汇总结束后直接进行后置处理
+					TestPlanReportPostParam postParam = new TestPlanReportPostParam();
+					postParam.setReportId(preReport.getId());
+					// 手动生成报告, 执行状态为已完成, 执行及结束时间为当前时间
+					postParam.setExecuteTime(System.currentTimeMillis());
+					postParam.setEndTime(System.currentTimeMillis());
+					postParam.setExecStatus(ExecStatus.COMPLETED.name());
+					postHandleReport(postParam);
+				}
+				preReportMap.put(plan.getId(), preReport.getId());
+			});
+		} catch (Exception e) {
+			LogUtils.error("生成报告异常: " + e.getMessage());
+		}
+		return preReportMap;
     }
 
 	/**
@@ -284,7 +292,7 @@ public class TestPlanReportService {
          */
         TestPlanReport report = new TestPlanReport();
         BeanUtils.copyBean(report, genParam);
-        report.setId(IDGenerator.nextStr());
+        report.setId(genParam.getIntegrated() ? genParam.getGroupReportId() : IDGenerator.nextStr());
         report.setName(genParam.getTestPlanName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
         report.setCreateUser(currentUser);
         report.setCreateTime(System.currentTimeMillis());
@@ -398,7 +406,7 @@ public class TestPlanReportService {
 		if (genParam.getIntegrated()) {
 			reportBugs = CollectionUtils.isEmpty(childPlanIds) ? new ArrayList<>() : extTestPlanReportBugMapper.getGroupBugs(childPlanIds);
 		} else {
-			reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId());;
+			reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId());
 		}
 		if (CollectionUtils.isNotEmpty(reportBugs)) {
 			// MS处理人会与第三方的值冲突, 分开查询
@@ -531,11 +539,11 @@ public class TestPlanReportService {
 	}
 
     /**
-     * 汇总规划生成的报告
+     * 汇总生成的计划报告
      *
      * @param reportId 报告ID
      */
-    public void summaryReport(String reportId) {
+    public void summaryPlanReport(String reportId) {
         TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
         example.createCriteria().andTestPlanReportIdEqualTo(reportId);
         List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExample(example);
@@ -568,6 +576,59 @@ public class TestPlanReportService {
         reportSummary.setExecuteResult(JSON.toJSONBytes(summaryCount));
         testPlanReportSummaryMapper.updateByPrimaryKeySelective(reportSummary);
     }
+
+	/**
+	 * 汇总生成的计划组报告
+	 * @param reportId
+	 */
+	public void summaryGroupReport(String reportId) {
+		TestPlanReportSummaryExample summaryExample = new TestPlanReportSummaryExample();
+		summaryExample.createCriteria().andTestPlanReportIdEqualTo(reportId);
+		List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExample(summaryExample);
+		if (CollectionUtils.isEmpty(testPlanReportSummaries)) {
+			// 报告详情不存在
+			return;
+		}
+		TestPlanReportSummary groupSummary = testPlanReportSummaries.get(0);
+
+
+		TestPlanReportExample example = new TestPlanReportExample();
+		example.createCriteria().andParentIdEqualTo(reportId);
+		List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
+		if (CollectionUtils.isEmpty(testPlanReports)) {
+			groupSummary.setFunctionalExecuteResult(JSON.toJSONBytes(CaseCount.builder().build()));
+			groupSummary.setApiExecuteResult(JSON.toJSONBytes(CaseCount.builder().build()));
+			groupSummary.setScenarioExecuteResult(JSON.toJSONBytes(CaseCount.builder().build()));
+			groupSummary.setExecuteResult(JSON.toJSONBytes(CaseCount.builder().build()));
+		} else {
+			List<String> ids = testPlanReports.stream().map(TestPlanReport::getId).toList();
+			summaryExample.clear();
+			summaryExample.createCriteria().andIdIn(ids);
+			List<TestPlanReportSummary> summaryList = testPlanReportSummaryMapper.selectByExampleWithBLOBs(summaryExample);
+			List<CaseCount> functionalCaseCountList = new ArrayList<>();
+			List<CaseCount> apiCaseCountList = new ArrayList<>();
+			List<CaseCount> scenarioCountList = new ArrayList<>();
+			List<CaseCount> executeCountList = new ArrayList<>();
+			summaryList.forEach(summary -> {
+				CaseCount functionalCaseCount = summary.getFunctionalExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getFunctionalExecuteResult()), CaseCount.class);
+				CaseCount apiCaseCount = summary.getApiExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getApiExecuteResult()), CaseCount.class);
+				CaseCount scenarioCount = summary.getScenarioExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getScenarioExecuteResult()), CaseCount.class);
+				CaseCount executeCount = summary.getExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getExecuteResult()), CaseCount.class);
+				functionalCaseCountList.add(functionalCaseCount);
+				apiCaseCountList.add(apiCaseCount);
+				scenarioCountList.add(scenarioCount);
+				executeCountList.add(executeCount);
+			});
+
+			groupSummary.setFunctionalExecuteResult(JSON.toJSONBytes(CountUtils.summarizeProperties(functionalCaseCountList)));
+			groupSummary.setApiExecuteResult(JSON.toJSONBytes(CountUtils.summarizeProperties(apiCaseCountList)));
+			groupSummary.setScenarioExecuteResult(JSON.toJSONBytes(CountUtils.summarizeProperties(scenarioCountList)));
+			groupSummary.setExecuteResult(JSON.toJSONBytes(CountUtils.summarizeProperties(executeCountList)));
+		}
+
+		// 入库组汇总数据 => 报告详情表
+		testPlanReportSummaryMapper.updateByPrimaryKeySelective(groupSummary);
+	}
 
     /**
      * 通过请求参数获取批量操作的ID集合
@@ -778,8 +839,8 @@ public class TestPlanReportService {
             List<TestPlan> testPlans = testPlanMapper.selectByExample(example);
             plans.addAll(testPlans);
         }
-        // 保证第一条为计划组
-        plans.addFirst(testPlan);
+        // 保证最后一条为计划组
+        plans.addLast(testPlan);
         return plans;
     }
 

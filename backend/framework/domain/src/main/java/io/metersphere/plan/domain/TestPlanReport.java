@@ -35,9 +35,6 @@ public class TestPlanReport implements Serializable {
     @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description = "执行时间;计划真正执行的时间")
-    private Long executeTime;
-
     @Schema(description = "开始时间;计划开始执行的时间")
     private Long startTime;
 
@@ -93,7 +90,6 @@ public class TestPlanReport implements Serializable {
         name("name", "name", "VARCHAR", true),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        executeTime("execute_time", "executeTime", "BIGINT", false),
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
         execStatus("exec_status", "execStatus", "VARCHAR", false),
