@@ -301,6 +301,7 @@ public class TestPlanCollectionMinderService {
         TestPlanCollection testPlanCollection = new TestPlanCollection();
         BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         testPlanCollection.setId(testPlanCollectionMinderEditDTO.getId());
+        testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
         TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);
@@ -321,6 +322,7 @@ public class TestPlanCollectionMinderService {
         TestPlanCollection testPlanCollection = new TestPlanCollection();
         BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         testPlanCollection.setId(IDGenerator.nextStr());
+        testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
         TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);

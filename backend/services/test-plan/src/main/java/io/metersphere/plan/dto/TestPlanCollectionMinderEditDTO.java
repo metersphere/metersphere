@@ -23,7 +23,7 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
 
     @Schema(description = "节点名称")
     @NotBlank(message = "{test_plan_collection.name.not_blank}")
-    private String name;
+    private String text;
 
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_collection.num.not_blank}")
