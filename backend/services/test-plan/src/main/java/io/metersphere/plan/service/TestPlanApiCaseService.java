@@ -36,6 +36,11 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -99,7 +104,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private TestPlanConfigService testPlanConfigService;
     @Resource
     private ApiReportMapper apiReportMapper;
-
+    @Resource
+    private OperationLogService operationLogService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -493,17 +499,20 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId) {
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         List<TestPlanApiCase> testPlanApiCaseList = new ArrayList<>();
+        List<LogDTO> logDTOS = new ArrayList<>();
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         //处理数据
-        handleApiData(collectionAssociates.get(AssociateCaseType.API), userId, testPlanApiCaseList, planId);
-        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), userId, testPlanApiCaseList, planId);
+        handleApiData(collectionAssociates.get(AssociateCaseType.API), user, testPlanApiCaseList, testPlan, logDTOS);
+        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), user, testPlanApiCaseList, testPlan, logDTOS);
         if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
             testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
+            operationLogService.batchAdd(logDTOS);
         }
     }
 
-    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {
+    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan, List<LogDTO> logDTOS) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
             ApiTestCaseExample example = new ApiTestCaseExample();
@@ -513,22 +522,22 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 List<String> apiCaseIds = apiCase.getIds();
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {
                     List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).collect(Collectors.toList());
-                    buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+                    buildTestPlanApiCase(testPlan, apiTestCases, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
                 }
             });
         }
     }
 
-    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, String userId, List<TestPlanApiCase> testPlanApiCaseList, String planId) {
+    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan, List<LogDTO> logDTOS) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
-            boolean isRepeat = testPlanConfigService.isRepeatCase(planId);
+            boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
             List<ApiTestCase> apiTestCaseList = extTestPlanApiCaseMapper.selectApiCaseByDefinitionIds(ids, isRepeat);
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {
                     List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).collect(Collectors.toList());
-                    buildTestPlanApiCase(planId, apiTestCases, apiCase.getCollectionId(), userId, testPlanApiCaseList);
+                    buildTestPlanApiCase(testPlan, apiTestCases, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
                 }
             });
         }
@@ -537,25 +546,42 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     /**
      * 构建测试计划接口用例对象
      *
-     * @param planId
+     * @param testPlan
      * @param apiTestCases
      * @param collectionId
-     * @param userId
+     * @param user
      * @param testPlanApiCaseList
      */
-    private void buildTestPlanApiCase(String planId, List<ApiTestCase> apiTestCases, String collectionId, String userId, List<TestPlanApiCase> testPlanApiCaseList) {
+    private void buildTestPlanApiCase(TestPlan testPlan, List<ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, List<LogDTO> logDTOS) {
         apiTestCases.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(IDGenerator.nextStr());
             testPlanApiCase.setTestPlanCollectionId(collectionId);
-            testPlanApiCase.setTestPlanId(planId);
+            testPlanApiCase.setTestPlanId(testPlan.getId());
             testPlanApiCase.setApiCaseId(apiTestCase.getId());
             testPlanApiCase.setEnvironmentId(apiTestCase.getEnvironmentId());
             testPlanApiCase.setCreateTime(System.currentTimeMillis());
-            testPlanApiCase.setCreateUser(userId);
+            testPlanApiCase.setCreateUser(user.getId());
             testPlanApiCase.setPos(getNextOrder(collectionId));
+            testPlanApiCase.setExecuteUser(apiTestCase.getCreateUser());
             testPlanApiCaseList.add(testPlanApiCase);
+            buildLog(logDTOS, testPlan, user, apiTestCase);
         });
+    }
+
+    private void buildLog(List<LogDTO> logDTOS, TestPlan testPlan, SessionUser user, ApiTestCase apiTestCase) {
+        LogDTO dto = new LogDTO(
+                testPlan.getProjectId(),
+                user.getLastOrganizationId(),
+                testPlan.getId(),
+                user.getId(),
+                OperationLogType.ASSOCIATE.name(),
+                OperationLogModule.TEST_PLAN,
+                Translator.get("log.test_plan.api_case") + ":" + apiTestCase.getName());
+        dto.setHistory(true);
+        dto.setPath("/test-plan/mind/data/edit");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        logDTOS.add(dto);
     }
 
     @Override

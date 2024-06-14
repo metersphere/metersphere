@@ -11,6 +11,7 @@ import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -240,14 +241,14 @@ public class TestPlanCollectionMinderService {
     }
 
 
-    public void editMindTestPlanCase(TestPlanCollectionMinderEditRequest request, String userId) {
+    public void editMindTestPlanCase(TestPlanCollectionMinderEditRequest request, SessionUser user) {
         Map<String, List<BaseCollectionAssociateRequest>> associateMap = new HashMap<>();
         //处理新增与更新
-        dealEditList(request, userId, associateMap);
+        dealEditList(request, user.getId(), associateMap);
         //处理关联关系
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
         beansOfType.forEach((k, v) -> {
-            v.associateCollection(request.getPlanId(), associateMap, userId);
+            v.associateCollection(request.getPlanId(), associateMap, user);
         });
     }
 
