@@ -346,7 +346,7 @@ public class FunctionalCaseMinderService {
                 for (FunctionalCaseChangeRequest functionalCaseChangeRequest : updateList) {
                     //基本信息
                     String caseId = functionalCaseChangeRequest.getId();
-                    FunctionalCase functionalCase = updateCase(request, userId, caseMapper);
+                    FunctionalCase functionalCase = updateCase(functionalCaseChangeRequest, userId, caseMapper);
                     //更新附属表信息
                     FunctionalCaseBlob functionalCaseBlob = updateBlob(functionalCaseChangeRequest, caseId, caseBlobMapper);
                     //更新自定义字段
@@ -860,7 +860,7 @@ public class FunctionalCaseMinderService {
         return functionalCasesByModule.stream().collect(Collectors.groupingBy(FunctionalCase::getModuleId));
     }
 
-    private FunctionalCase updateCase(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseMapper caseMapper) {
+    private FunctionalCase updateCase(FunctionalCaseChangeRequest request, String userId, FunctionalCaseMapper caseMapper) {
         FunctionalCase functionalCase = new FunctionalCase();
         BeanUtils.copyBean(functionalCase, request);
         functionalCase.setUpdateUser(userId);
