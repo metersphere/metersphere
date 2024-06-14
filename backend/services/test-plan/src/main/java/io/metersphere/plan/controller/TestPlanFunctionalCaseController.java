@@ -6,6 +6,7 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
+import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.service.TestPlanCaseLogService;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -48,6 +49,8 @@ public class TestPlanFunctionalCaseController {
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
@@ -140,6 +143,7 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
         testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
+        extTestPlanMapper.setActualStartTime(request.getTestPlanId(), System.currentTimeMillis());
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
@@ -149,6 +153,7 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void batchRun(@Validated @RequestBody TestPlanCaseBatchRunRequest request) {
         testPlanFunctionalCaseService.batchRun(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/run", HttpMethodConstants.POST.name()));
+        extTestPlanMapper.setActualStartTime(request.getTestPlanId(), System.currentTimeMillis());
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 

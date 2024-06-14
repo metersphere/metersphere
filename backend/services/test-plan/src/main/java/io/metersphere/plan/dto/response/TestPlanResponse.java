@@ -39,6 +39,18 @@ public class TestPlanResponse extends TestPlanStatisticsResponse {
     @Schema(description = "组内计划数量")
     private Integer childrenCount;
 
+    @Schema(description = "计划开始时间")
+    private Long plannedStartTime;
+
+    @Schema(description = "计划结束时间")
+    private Long plannedEndTime;
+
+    @Schema(description = "实际开始时间")
+    private Long actualStartTime;
+
+    @Schema(description = "实际结束时间")
+    private Long actualEndTime;
+    
     @Schema(description = "测试计划组Id")
     private String groupId;
 

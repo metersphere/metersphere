@@ -82,6 +82,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
     private ApiScenarioRunService apiScenarioRunService;
@@ -287,6 +289,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiScenario testPlanApiScenario = checkResourceExist(id);
+        extTestPlanMapper.setActualStartTime(testPlanApiScenario.getTestPlanId(), System.currentTimeMillis());
         ApiScenario apiScenario = apiScenarioService.checkResourceExist(testPlanApiScenario.getApiScenarioId());
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiScenario.getTestPlanCollectionId());
         runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiScenario.getEnvironmentId()));

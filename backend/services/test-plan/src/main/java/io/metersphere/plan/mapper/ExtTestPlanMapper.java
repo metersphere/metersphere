@@ -41,6 +41,12 @@ public interface ExtTestPlanMapper {
 
     void batchUpdate(@Param("testPlan") TestPlan testPlan, @Param("ids") List<String> ids);
 
+    void setActualStartTime(@Param("id") String id, @Param("time") Long actualStartTime);
+
+    void setActualEndTime(@Param("id") String id, @Param("time") Long actualEndTime);
+
+    void clearActualEndTime(String id);
+
     List<String> selectIdByProjectId(String projectId);
 
     List<String> selectNotArchivedIds(@Param("ids") List<String> selectIds);
