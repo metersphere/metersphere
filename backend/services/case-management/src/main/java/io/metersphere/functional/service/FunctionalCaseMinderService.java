@@ -142,13 +142,15 @@ public class FunctionalCaseMinderService {
             return new ArrayList<>();
         }
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseList(request, deleted);
+        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted);
+        Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
 
         List<FunctionalMinderTreeDTO> functionalMinderTreeDTOS = buildAdditionalData(request.getModuleId());
         if (CollectionUtils.isNotEmpty(functionalMinderTreeDTOS)) {
             list.addAll(functionalMinderTreeDTOS);
         }
         //构造父子级数据
-        buildList(functionalCaseMindDTOList, list);
+        buildList(functionalCaseMindDTOList, list, priorityMap);
         return list;
     }
 
@@ -175,7 +177,7 @@ public class FunctionalCaseMinderService {
         return list;
     }
 
-    private void buildList(List<FunctionalCaseMindDTO> functionalCaseMindDTOList, List<FunctionalMinderTreeDTO> list) {
+    private void buildList(List<FunctionalCaseMindDTO> functionalCaseMindDTOList, List<FunctionalMinderTreeDTO> list, Map<String, String> priorityMap) {
         //构造父子级数据
         for (FunctionalCaseMindDTO functionalCaseMindDTO : functionalCaseMindDTOList) {
             FunctionalMinderTreeDTO root = new FunctionalMinderTreeDTO();
@@ -183,7 +185,7 @@ public class FunctionalCaseMinderService {
             rootData.setId(functionalCaseMindDTO.getId());
             rootData.setPos(functionalCaseMindDTO.getPos());
             rootData.setText(functionalCaseMindDTO.getName());
-            rootData.setPriority(StringUtils.isNotBlank(functionalCaseMindDTO.getPriority()) ? Integer.parseInt(functionalCaseMindDTO.getPriority().substring(1))+1 : 1);
+            rootData.setPriority(StringUtils.isNotBlank(priorityMap.get(functionalCaseMindDTO.getId())) ? Integer.parseInt(priorityMap.get(functionalCaseMindDTO.getId()).substring(1))+1 : 1);
             rootData.setStatus(functionalCaseMindDTO.getReviewStatus());
             rootData.setResource(List.of(Translator.get("minder_extra_node.case")));
             List<FunctionalMinderTreeDTO> children = buildChildren(functionalCaseMindDTO);
@@ -1064,8 +1066,10 @@ public class FunctionalCaseMinderService {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
         //查出当前模块下的所有用例
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseReviewList(request, deleted, userId, viewStatusUserId);
+        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted);
+        Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
         //构造父子级数据
-        buildList(functionalCaseMindDTOList, list);
+        buildList(functionalCaseMindDTOList, list, priorityMap);
         return list;
     }
 
@@ -1074,8 +1078,10 @@ public class FunctionalCaseMinderService {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
         //查出当前模块下的所有用例
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderTestPlanList(request, deleted);
+        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted);
+        Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
         //构造父子级数据
-        buildList(functionalCaseMindDTOList, list);
+        buildList(functionalCaseMindDTOList, list, priorityMap);
         return list;
     }
 
