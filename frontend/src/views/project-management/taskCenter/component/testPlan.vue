@@ -95,7 +95,7 @@
             ['RUNNING', 'RERUNNING'].includes(record.execStatus) && hasAnyPermission(permissionsMap[props.group].stop)
           "
           class="!mr-0"
-          @click="stop()"
+          @click="stop(record)"
           >{{ t('project.taskCenter.stop') }}
         </MsButton>
       </template>
@@ -105,6 +105,7 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -115,11 +116,18 @@
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
 
   import {
+    batchStopRealOrgPlan,
+    batchStopRealProPlan,
+    batchStopRealSysPlan,
     getRealOrgPlanList,
     getRealProPlanList,
     getRealSysPlanList,
+    stopRealOrgPlan,
+    stopRealProPlan,
+    stopRealSysPlan,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
@@ -138,6 +146,7 @@
   const { openNewPage } = useOpenNewPage();
 
   const tableStore = useTableStore();
+  const { openModal } = useModal();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -150,29 +159,35 @@
     organization: {
       stop: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
       jump: ['PROJECT_TEST_PLAN:READ'],
-      report: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN_REPORT:READ'],
+      report: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
     },
     system: {
       stop: ['SYSTEM_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
       jump: ['PROJECT_TEST_PLAN:READ'],
-      report: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN_REPORT:READ'],
+      report: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
     },
     project: {
       stop: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
       jump: ['PROJECT_TEST_PLAN:READ'],
-      report: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN_REPORT:READ'],
+      report: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
     },
   };
 
   const loadRealMap = ref({
     system: {
       list: getRealSysPlanList,
+      stop: stopRealSysPlan,
+      batchStop: batchStopRealSysPlan,
     },
     organization: {
       list: getRealOrgPlanList,
+      stop: stopRealOrgPlan,
+      batchStop: batchStopRealOrgPlan,
     },
     project: {
       list: getRealProPlanList,
+      stop: stopRealProPlan,
+      batchStop: batchStopRealProPlan,
     },
   });
   const hasJumpPermission = computed(() => hasAnyPermission(permissionsMap[props.group].jump));
@@ -285,15 +300,6 @@
       showDrag: true,
     },
     {
-      title: 'project.taskCenter.resourcePool',
-      slotName: 'poolName',
-      dataIndex: 'poolName',
-      showInTable: true,
-      showDrag: true,
-      showTooltip: true,
-      width: 200,
-    },
-    {
       title: 'project.taskCenter.operator',
       slotName: 'operationName',
       dataIndex: 'operationName',
@@ -371,11 +377,46 @@
     excludeIds: [] as string[],
     condition: {},
   });
+  function batchStopRealTask() {
+    openModal({
+      type: 'warning',
+      title: t('project.taskCenter.batchStopTask', { num: batchParams.value.currentSelectCount }),
+      content: t('project.taskCenter.stopTaskContent'),
+      okText: t('project.taskCenter.confirmStop'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          const { selectIds, selectAll, excludeIds } = batchParams.value;
+          await loadRealMap.value[props.group].batchStop({
+            selectIds: selectIds || [],
+            selectAll,
+            excludeIds: excludeIds || [],
+            condition: {
+              keyword: keyword.value,
+              filter: {
+                ...propsRes.value.filter,
+              },
+            },
+          });
+          resetSelector();
+          Message.success(t('project.taskCenter.stopSuccess'));
+          initData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: params?.condition || {} };
     if (event.eventTag === 'batchStop') {
-      // TODO
+      batchStopRealTask();
     }
   }
 
@@ -389,8 +430,29 @@
     // TODO
   }
 
-  function stop() {
-    // TODO
+  function stop(record: any) {
+    openModal({
+      type: 'warning',
+      title: t('project.taskCenter.stopTask', { name: characterLimit(record.name) }),
+      content: t('project.taskCenter.stopTaskContent'),
+      okText: t('project.taskCenter.confirmStop'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          await loadRealMap.value[props.group].stop(record.id);
+          resetSelector();
+          Message.success(t('project.taskCenter.stopSuccess'));
+          initData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
   }
 
   function searchList() {
