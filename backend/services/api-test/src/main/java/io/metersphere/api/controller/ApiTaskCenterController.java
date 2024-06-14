@@ -91,7 +91,7 @@ public class ApiTaskCenterController {
                 SessionUtils.getCurrentOrganizationId(),
                 SessionUtils.getCurrentProjectId());
         apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(),
-                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, "/task/center/api/project/stop");
+                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
     @GetMapping("/api/org/stop/{moduleType}/{id}")
@@ -101,7 +101,7 @@ public class ApiTaskCenterController {
                 SessionUtils.getCurrentOrganizationId(),
                 SessionUtils.getCurrentProjectId());
         apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(),
-                OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, "/task/center/api/org/stop");
+                OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
     @GetMapping("/api/system/stop/{moduleType}/{id}")
@@ -112,6 +112,6 @@ public class ApiTaskCenterController {
                 SessionUtils.getCurrentOrganizationId(),
                 SessionUtils.getCurrentProjectId());
         apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(),
-                OperationLogModule.SETTING_SYSTEM_TASK_CENTER, "/task/center/api/system/stop");
+                OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 }

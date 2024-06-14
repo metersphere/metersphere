@@ -311,7 +311,7 @@ public class ApiTaskCenterControllerTests extends BaseTest {
 
         baseResourcePoolTestService.insertResourcePoolProject(testResourcePool);
         baseResourcePoolTestService.insertProjectApplication(testResourcePool);
-
+        
     }
 
 

@@ -27,6 +27,8 @@ public class ReportDTO implements Serializable {
     private String resourceId;
     @Schema(description = "测试计划id")
     private String testPlanId;
+    @Schema(description = "测试计划名称")
+    private String testPlanReportId;
 
 
 }

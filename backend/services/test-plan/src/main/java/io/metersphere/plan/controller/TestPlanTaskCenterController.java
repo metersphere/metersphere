@@ -3,7 +3,9 @@ package io.metersphere.plan.controller;
 import io.metersphere.plan.service.TestPlanTaskCenterService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,10 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,6 +48,65 @@ public class TestPlanTaskCenterController {
     @RequiresPermissions(PermissionConstants.SYSTEM_TASK_CENTER_READ)
     public Pager<List<TaskCenterDTO>> systemList(@Validated @RequestBody TaskCenterPageRequest request) {
         return testPlanTaskCenterService.getSystemPage(request);
+    }
+
+    @GetMapping("/project/stop/{id}")
+    @Operation(summary = "项目-任务中心-接口用例/场景-停止任务")
+    public void stopById(@PathVariable String id) {
+        testPlanTaskCenterService.hasPermission(PROJECT,
+                SessionUtils.getCurrentOrganizationId(),
+                SessionUtils.getCurrentProjectId());
+        testPlanTaskCenterService.stopById(id, SessionUtils.getUserId(),
+                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+    }
+
+    @GetMapping("/org/stop/{id}")
+    @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
+    public void stopOrgById(@PathVariable String id) {
+        testPlanTaskCenterService.hasPermission(ORG,
+                SessionUtils.getCurrentOrganizationId(),
+                SessionUtils.getCurrentProjectId());
+        testPlanTaskCenterService.stopById(id, SessionUtils.getUserId(),
+                OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+    }
+
+    @GetMapping("/system/stop/{id}")
+    @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
+    public void stopSystemById(@PathVariable String id) {
+        testPlanTaskCenterService.hasPermission(SYSTEM,
+                SessionUtils.getCurrentOrganizationId(),
+                SessionUtils.getCurrentProjectId());
+        testPlanTaskCenterService.stopById(id, SessionUtils.getUserId(),
+                OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+    }
+
+    @PostMapping("/system/stop")
+    @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
+    public void systemStop(@Validated @RequestBody TaskCenterBatchRequest request) {
+        testPlanTaskCenterService.hasPermission(SYSTEM,
+                SessionUtils.getCurrentOrganizationId(),
+                SessionUtils.getCurrentProjectId());
+        testPlanTaskCenterService.systemStop(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/org/stop")
+    @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
+    public void orgStop(@Validated @RequestBody TaskCenterBatchRequest request) {
+        testPlanTaskCenterService.hasPermission(ORG,
+                SessionUtils.getCurrentOrganizationId(),
+                SessionUtils.getCurrentProjectId());
+
+        testPlanTaskCenterService.orgStop(request, SessionUtils.getCurrentOrganizationId(), SessionUtils.getUserId());
+    }
+
+    @PostMapping("/project/stop")
+    @Operation(summary = "项目-任务中心-接口用例/场景-停止任务")
+    public void projectStop(@Validated @RequestBody TaskCenterBatchRequest request) {
+        testPlanTaskCenterService.hasPermission(PROJECT,
+                SessionUtils.getCurrentOrganizationId(),
+                SessionUtils.getCurrentProjectId());
+        testPlanTaskCenterService.projectStop(request, SessionUtils.getCurrentProjectId(), SessionUtils.getUserId());
     }
 
 
