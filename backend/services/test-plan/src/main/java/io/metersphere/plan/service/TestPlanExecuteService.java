@@ -7,6 +7,7 @@ import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
 import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
+import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
@@ -40,6 +41,8 @@ public class TestPlanExecuteService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private ExtTestPlanReportMapper extTestPlanReportMapper;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
@@ -194,6 +197,7 @@ public class TestPlanExecuteService {
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
     public String executeTestPlan(TestPlanExecutionQueue executionQueue) {
+        extTestPlanMapper.setActualStartTime(executionQueue.getSourceID(), System.currentTimeMillis());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(executionQueue.getSourceID());
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(testPlan.getId()).andParentIdEqualTo("NONE");
@@ -439,11 +443,17 @@ public class TestPlanExecuteService {
             postParam.setEndTime(System.currentTimeMillis());
             postParam.setExecStatus(ExecStatus.COMPLETED.name());
             testPlanReportService.postHandleReport(postParam);
+
+            if(!isGroupReport){
+                TestPlanReport testPlanReport = testPlanReportService.selectById(reportId);
+                if(testPlanReport!=null){
+                    testPlanService.refreshTestPlanStatus(testPlanReport.getTestPlanId());
+                }
+            }
         }catch (Exception e){
             LogUtils.error("Cannot find test plan report for " + reportId, e);
         }
     }
-
 
     private void queueExecuteFinish(TestPlanExecutionQueue queue) {
         if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {

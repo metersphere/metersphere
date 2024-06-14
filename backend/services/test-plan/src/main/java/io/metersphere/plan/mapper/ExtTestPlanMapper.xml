@@ -53,6 +53,10 @@
         t.type,
         t.description,
         t.pos,
+        t.planned_start_time AS plannedStartTime,
+        t.planned_end_time AS plannedEndTime,
+        t.actual_start_time AS actualStartTime,
+        t.actual_end_time AS actualEndTime,
         t.tags
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
@@ -485,6 +489,23 @@
             #{id}
         </foreach>
         and project_id = #{testPlan.projectId}
+    </update>
+    <update id="setActualStartTime">
+        update test_plan
+        set actual_start_time = #{time}
+        where id = #{id}
+          and actual_start_time is null
+    </update>
+    <update id="setActualEndTime">
+        update test_plan
+        set actual_end_time = #{time}
+        where id = #{id}
+    </update>
+    <update id="clearActualEndTime">
+        update test_plan
+        set actual_end_time = null
+        where id = #{0}
+          and actual_end_time is not null
     </update>
 
     <sql id="filter">
