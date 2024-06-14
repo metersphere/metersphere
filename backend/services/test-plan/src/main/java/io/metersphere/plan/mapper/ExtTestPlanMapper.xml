@@ -462,8 +462,8 @@
 
     <select id="listHis" resultType="io.metersphere.plan.dto.TestPlanExecuteHisDTO">
         select tpr.id, from_unixtime(tpr.create_time / 1000, '%Y%m%d%H%i%s') as num, tpr.trigger_mode triggerMode, tpr.exec_status execStatus,
-               tpr.create_user createUser, tpr.start_time startTime, tpr.end_time endTime, tpr.deleted deleted from test_plan_report tpr
-        where tpr.test_plan_id = #{request.planId}
+               tpr.create_user operationUser, tpr.start_time startTime, tpr.end_time endTime, tpr.deleted deleted from test_plan_report tpr
+        where tpr.test_plan_id = #{request.testPlanId}
         <include refid="filter"/>
     </select>
 

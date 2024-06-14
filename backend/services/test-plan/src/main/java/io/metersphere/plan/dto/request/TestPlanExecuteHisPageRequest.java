@@ -8,5 +8,5 @@ import lombok.Data;
 public class TestPlanExecuteHisPageRequest extends BasePageRequest {
 
 	@Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
-	private String planId;
+	private String testPlanId;
 }
