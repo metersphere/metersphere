@@ -10,6 +10,18 @@
         <include refid="queryWhereCondition"/>
     </select>
 
+    <select id="historyList" resultType="io.metersphere.plan.dto.response.TestPlanHistoryResponse">
+        select id            as id,
+               trigger_mode  as triggerMode,
+               result_status as resultStatus,
+               create_user   as operator,
+               start_time    as startTime,
+               end_time      as endTime,
+               deleted       as reportDeleted
+        from test_plan_report
+        WHERE test_plan_id = #{0}
+    </select>
+
     <select id="getReportBatchIdsByParam" resultType="java.lang.String">
         select tpr.id from test_plan_report tpr
         join test_plan tp on tpr.test_plan_id = tp.id

@@ -6,6 +6,7 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
@@ -102,6 +103,23 @@ public class TestPlanReportService {
         List<String> distinctUserIds = reportList.stream().map(TestPlanReportPageResponse::getCreateUser).distinct().toList();
         Map<String, String> userMap = simpleUserService.getUserMapByIds(distinctUserIds);
         reportList.forEach(report -> report.setCreateUserName(userMap.get(report.getCreateUser())));
+        return reportList;
+    }
+
+    /**
+     * 分页查询执行历史
+     */
+    public List<TestPlanHistoryResponse> historyPage(String testPlanId) {
+        List<TestPlanHistoryResponse> reportList = extTestPlanReportMapper.historyList(testPlanId);
+        if (CollectionUtils.isEmpty(reportList)) {
+            return new ArrayList<>();
+        }
+
+        List<String> distinctUserIds = reportList.stream().map(TestPlanHistoryResponse::getOperator).distinct().toList();
+        Map<String, String> userMap = simpleUserService.getUserMapByIds(distinctUserIds);
+        reportList.forEach(report -> {
+            report.setOperator(userMap.get(report.getOperator()));
+        });
         return reportList;
     }
 

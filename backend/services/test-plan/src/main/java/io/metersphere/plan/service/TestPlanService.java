@@ -121,6 +121,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator) {
         //检查模块的合法性
         checkModule(createOrCopyRequest.getModuleId());
+        if (StringUtils.equalsIgnoreCase(createOrCopyRequest.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
+                && !StringUtils.equalsIgnoreCase(createOrCopyRequest.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            throw new MSException(Translator.get("test_plan.group.error"));
+        }
+        
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
         validateTestPlanGroup(createTestPlan.getGroupId(), 1);

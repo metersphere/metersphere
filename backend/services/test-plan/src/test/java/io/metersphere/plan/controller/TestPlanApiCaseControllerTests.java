@@ -151,7 +151,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         request.setProjectId("wxx_1234");
         request.setMoveId(apiList.getLast().getId());
         request.setTargetId(apiList.getFirst().getId());
-        request.setMoveMode(MoveTypeEnum.AFTER.name());
+        request.setMoveMode(MoveTypeEnum.BEFORE.name());
 
         MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
@@ -164,7 +164,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         //将这时的第30个放到第一位之后
         request.setTargetId(apiList.getLast().getId());
         request.setMoveId(apiList.getFirst().getId());
-        request.setMoveMode(MoveTypeEnum.BEFORE.name());
+        request.setMoveMode(MoveTypeEnum.AFTER.name());
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);

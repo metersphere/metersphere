@@ -4,6 +4,7 @@ import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.dto.request.TestPlanReportBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
 import io.metersphere.plan.dto.request.TestPlanReportPageRequest;
+import io.metersphere.plan.dto.response.TestPlanHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
@@ -22,6 +23,9 @@ public interface ExtTestPlanReportMapper {
      * @return 计划列表
      */
     List<TestPlanReportPageResponse> list(@Param("request") TestPlanReportPageRequest request);
+
+    //分页获取执行历史
+    List<TestPlanHistoryResponse> historyList(String testPlanId);
 
     /**
      * 根据页面参数获取批量操作的报告ID

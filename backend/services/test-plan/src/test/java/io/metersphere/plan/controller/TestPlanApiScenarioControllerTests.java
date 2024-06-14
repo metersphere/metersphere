@@ -24,7 +24,6 @@ import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
-import io.metersphere.plan.service.TestPlanApiScenarioLogService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
@@ -316,7 +315,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         request.setProjectId("wxx_project_1234");
         request.setMoveId(scenarioList.getLast().getId());
         request.setTargetId(scenarioList.getFirst().getId());
-        request.setMoveMode(MoveTypeEnum.AFTER.name());
+        request.setMoveMode(MoveTypeEnum.BEFORE.name());
 
         MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
@@ -329,7 +328,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         //将这时的第30个放到第一位之后
         request.setTargetId(scenarioList.getLast().getId());
         request.setMoveId(scenarioList.getFirst().getId());
-        request.setMoveMode(MoveTypeEnum.BEFORE.name());
+        request.setMoveMode(MoveTypeEnum.AFTER.name());
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);

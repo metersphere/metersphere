@@ -61,7 +61,7 @@
             resultType="io.metersphere.project.dto.DropNode">
         SELECT id, pos
         FROM test_plan_api_case
-        WHERE test_plan_id = #{parentId}
+        WHERE test_plan_collection_id = #{parentId}
         <if test="operator == 'moreThan'">
             AND pos &gt; #{pos}
         </if>
