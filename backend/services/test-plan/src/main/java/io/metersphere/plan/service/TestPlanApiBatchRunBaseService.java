@@ -19,8 +19,18 @@ public class TestPlanApiBatchRunBaseService {
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
 
+    public ApiRunModeConfigDTO getApiRunModeConfig(String collectionId) {
+        TestPlanCollection collection = testPlanCollectionMapper.selectByPrimaryKey(collectionId);
+        return getApiRunModeConfig(collection);
+    }
+
     public ApiRunModeConfigDTO getApiRunModeConfig(TestPlanCollection collection) {
         TestPlanCollection rootCollection = null;
+        if (collection == null) {
+            ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+            runModeConfig.setPoolId(StringUtils.EMPTY);
+            return runModeConfig;
+        }
         if (BooleanUtils.isTrue(collection.getExtended())
                 && StringUtils.equalsIgnoreCase(collection.getParentId(), "NONE")) {
             TestPlanCollectionExample example = new TestPlanCollectionExample();

@@ -127,10 +127,10 @@ public class TestPlanApiScenarioBatchRunService {
                     ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(rootCollection, collection);
                     if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
                         //  并行执行测试集中的用例
-                        parallelExecute(ids, runModeConfig, testPlan.getProjectId(), userId);
+                        parallelExecute(ids, runModeConfig, testPlan.getProjectId(), null, userId);
                     } else {
                         // 串行执行测试集中的用例
-                        serialExecute(ids, runModeConfig, userId);
+                        serialExecute(ids, runModeConfig, null, userId);
                     }
                 }
             } else {
@@ -171,18 +171,17 @@ public class TestPlanApiScenarioBatchRunService {
     public void executeNextCollection(String collectionQueueId) {
         ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
         String userId = collectionQueue.getUserId();
-        String queueId = collectionQueue.getQueueId();
-        ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queueId);
+        ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(collectionQueueId);
         String collectionId = nextDetail.getResourceId();
-        List<String> ids = apiExecutionMapService.getAndRemove(queueId, collectionId);
+        List<String> ids = apiExecutionMapService.getAndRemove(collectionQueueId, collectionId);
         TestPlanCollection collection = testPlanCollectionMapper.selectByPrimaryKey(collectionId);
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
         if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
             String testPlanId = collection.getTestPlanId();
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
-            parallelExecute(ids, runModeConfig, testPlan.getProjectId(), userId);
+            parallelExecute(ids, runModeConfig, testPlan.getProjectId(), collectionQueueId, userId);
         } else {
-            serialExecute(ids, runModeConfig, userId);
+            serialExecute(ids, runModeConfig, collectionQueueId, userId);
         }
     }
 
@@ -190,9 +189,9 @@ public class TestPlanApiScenarioBatchRunService {
      * 串行批量执行
      *
      */
-    public void serialExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String userId) {
+    public void serialExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String parentQueueId, String userId) {
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), parentQueueId, userId);
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
         executeNextTask(queue, nextDetail);
@@ -202,7 +201,7 @@ public class TestPlanApiScenarioBatchRunService {
      * 并行批量执行
      *
      */
-    public void parallelExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String projectId, String userId) {
+    public void parallelExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String projectId, String parentQueueId, String userId) {
 
         Map<String, String> scenarioReportMap = initReport(ids, runModeConfig, userId);
 
@@ -211,6 +210,7 @@ public class TestPlanApiScenarioBatchRunService {
 
         TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(projectId, runModeConfig);
         taskRequest.setTaskItems(taskItems);
+        taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
 
         apiExecuteService.batchExecute(taskRequest);
     }
@@ -282,18 +282,19 @@ public class TestPlanApiScenarioBatchRunService {
         TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
         taskRequest.setTaskItem(taskItem);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
 
         apiExecuteService.execute(taskRequest);
     }
 
-    private TaskRequestDTO getTaskRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
+    public TaskRequestDTO getTaskRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskRequestDTO taskRequest = new TaskRequestDTO();
         TaskInfo taskInfo = getTaskInfo(projectId, runModeConfig);
         taskRequest.setTaskInfo(taskInfo);
         return taskRequest;
     }
 
-    private TaskBatchRequestDTO getTaskBatchRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
+    public TaskBatchRequestDTO getTaskBatchRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskBatchRequestDTO taskRequest = new TaskBatchRequestDTO();
         TaskInfo taskInfo = getTaskInfo(projectId, runModeConfig);
         taskRequest.setTaskInfo(taskInfo);
@@ -324,23 +325,17 @@ public class TestPlanApiScenarioBatchRunService {
         return apiScenarioRecord;
     }
 
-    public String getEnvId(ApiRunModeConfigDTO runModeConfig, TestPlanApiScenario testPlanApiScenario) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? testPlanApiScenario.getEnvironmentId() : runModeConfig.getEnvironmentId();
-    }
-
     private ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, TestPlanApiScenario testPlanApiScenario, ApiScenario apiScenario, String userId) {
-        ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, userId);
-        apiScenarioReport.setEnvironmentId(apiScenarioRunService.getEnvId(runModeConfig, apiScenario));
-        apiScenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
-        apiScenarioReport.setProjectId(apiScenario.getProjectId());
-        apiScenarioReport.setTriggerMode(TaskTriggerMode.BATCH.name());
+        ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, apiScenario, userId);
         apiScenarioReport.setTestPlanScenarioId(testPlanApiScenario.getId());
-        apiScenarioReport.setEnvironmentId(getEnvId(runModeConfig, testPlanApiScenario));
+        apiScenarioReport.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiScenario.getEnvironmentId()));
         return apiScenarioReport;
     }
 
-    public ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, String userId) {
+    public ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario, String userId) {
         ApiScenarioReport apiScenarioReport = apiScenarioRunService.getScenarioReport(userId);
+        apiScenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
+        apiScenarioReport.setProjectId(apiScenario.getProjectId());
         apiScenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         apiScenarioReport.setRunMode(runModeConfig.getRunMode());
         apiScenarioReport.setPoolId(runModeConfig.getPoolId());

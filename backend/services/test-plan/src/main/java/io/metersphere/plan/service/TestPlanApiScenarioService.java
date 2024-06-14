@@ -7,6 +7,7 @@ import io.metersphere.api.domain.ApiScenarioReportExample;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
@@ -74,6 +75,10 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiBatchRunBaseService apiBatchRunBaseService;
+    @Resource
+    private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
@@ -283,11 +288,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiScenario testPlanApiScenario = checkResourceExist(id);
         ApiScenario apiScenario = apiScenarioService.checkResourceExist(testPlanApiScenario.getApiScenarioId());
-
-        String poolId = "todo";
-        String envId = "todo";
-        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
-        // todo 设置 runModeConfig 配置
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiScenario.getTestPlanCollectionId());
+        runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiScenario.getEnvironmentId()));
         TaskRequestDTO taskRequest = getTaskRequest(reportId, id, apiScenario.getProjectId(), ApiExecuteRunMode.RUN.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
@@ -308,8 +310,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         scenarioReport.setId(reportId);
         scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
         scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        scenarioReport.setPoolId(poolId);
-        scenarioReport.setEnvironmentId(envId);
+        scenarioReport.setPoolId(runModeConfig.getPoolId());
+        scenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         scenarioReport.setTestPlanScenarioId(testPlanApiScenario.getId());
         apiScenarioRunService.initApiReport(apiScenario, scenarioReport);
 

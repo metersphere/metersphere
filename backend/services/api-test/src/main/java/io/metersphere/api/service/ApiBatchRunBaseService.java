@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -29,7 +30,19 @@ public class ApiBatchRunBaseService {
      * @return
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
+        return initExecutionqueue(resourceIds, runModeConfig, resourceType, null, userId);
+    }
+
+    /**
+     * 初始化执行队列
+     *
+     * @param resourceIds
+     * @param runModeConfig
+     * @return
+     */
+    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        queue.setParentQueueId(parentQueueId);
         List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
         return queue;
@@ -119,5 +132,12 @@ public class ApiBatchRunBaseService {
 
     public boolean isParallel(String runMode) {
         return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
+    }
+
+    public String getEnvId(ApiRunModeConfigDTO runModeConfig, String caseEnvId) {
+        if (StringUtils.isBlank(runModeConfig.getEnvironmentId()) || StringUtils.equals(runModeConfig.getEnvironmentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+            return caseEnvId;
+        }
+        return runModeConfig.getEnvironmentId();
     }
 }

@@ -48,6 +48,12 @@
         <include refid="filter"/>
     </select>
 
+    <select id="getIdsByReportIdAndCollectionId" resultType="java.lang.String">
+        select id from test_plan_report_api_case
+        where test_plan_report_id = #{testPlanReportId} and test_plan_collection_id = #{collectionId}
+        order by pos
+    </select>
+
     <sql id="filter">
         <if test="request.filter != null and request.filter.size() > 0">
             <foreach collection="request.filter.entrySet()" index="key" item="values">

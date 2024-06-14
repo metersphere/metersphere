@@ -45,4 +45,6 @@ public interface ExtTestPlanReportApiCaseMapper {
 	 * @return 关联的用例集合
 	 */
 	List<ReportDetailCasePageDTO> list(@Param("request") TestPlanReportDetailPageRequest request);
+
+    List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
 }

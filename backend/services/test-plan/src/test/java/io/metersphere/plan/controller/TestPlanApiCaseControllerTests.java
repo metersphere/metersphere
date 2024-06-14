@@ -26,19 +26,20 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApiBatchRunMode;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -48,10 +49,10 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -291,8 +292,8 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void run() throws Exception {
-        assertErrorCode(this.requestGet(RUN, testPlanApiCase.getId()), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
-        assertErrorCode(this.requestGet(RUN_WITH_REPORT_ID, testPlanApiCase.getId(), "reportId"), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        assertRun(this.requestGetAndReturn(RUN, testPlanApiCase.getId()));
+        assertRun(this.requestGetAndReturn(RUN_WITH_REPORT_ID, testPlanApiCase.getId(), "reportId"));
         assertErrorCode(this.requestGet(RUN, "11"), NOT_FOUND);
         GetRunScriptRequest request = new GetRunScriptRequest();
         TaskItem taskItem = new TaskItem();
@@ -302,6 +303,14 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         testPlanApiCaseService.getRunScript(request);
 
         requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, RUN, testPlanApiCase.getId());
+    }
+
+    public static void assertRun(MvcResult mvcResult) throws UnsupportedEncodingException {
+        Map resultData = JSON.parseMap(mvcResult.getResponse().getContentAsString());
+        Integer code = (Integer) resultData.get("code");
+        if (code != ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() && code != ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG.getCode()) {
+            Assertions.assertTrue(false);
+        }
     }
 
     @Test

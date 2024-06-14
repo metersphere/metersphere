@@ -88,7 +88,7 @@ public class ApiTestCaseBatchRunService {
      *
      * @param request
      */
-    public void serialExecute(ApiTestCaseBatchRunRequest request, String userId) throws Exception {
+    public void serialExecute(ApiTestCaseBatchRunRequest request, String userId) {
         List<String> ids = apiTestCaseService.doSelectIds(request, false);
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
 
@@ -304,7 +304,7 @@ public class ApiTestCaseBatchRunService {
         return taskRequest;
     }
 
-    private TaskBatchRequestDTO getTaskBatchRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
+    public TaskBatchRequestDTO getTaskBatchRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskBatchRequestDTO taskRequest = new TaskBatchRequestDTO();
         TaskInfo taskInfo = getTaskInfo(projectId, runModeConfig);
         taskRequest.setTaskInfo(taskInfo);

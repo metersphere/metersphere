@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
@@ -77,6 +78,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiBatchRunBaseService apiBatchRunBaseService;
+    @Resource
+    private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
     @Resource
     private ApiReportService apiReportService;
     @Resource
@@ -621,10 +626,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiCase testPlanApiCase = checkResourceExist(id);
         ApiTestCase apiTestCase = apiTestCaseService.checkResourceExist(testPlanApiCase.getApiCaseId());
-
-        String poolId = "todo";
-        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
-        // todo 设置 runModeConfig 配置
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiCase.getTestPlanCollectionId());
+        runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiCase.getEnvironmentId()));
+        runModeConfig.setRunMode(ApiBatchRunMode.PARALLEL.name());
         TaskRequestDTO taskRequest = getTaskRequest(reportId, id, apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
@@ -642,7 +646,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         }
 
         // 初始化报告
-        initApiReport(apiTestCase, testPlanApiCase, reportId, poolId, userId);
+        initApiReport(apiTestCase, testPlanApiCase, reportId, runModeConfig, userId);
 
         return apiExecuteService.execute(taskRequest);
     }
@@ -663,15 +667,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     /**
      * 预生成用例的执行报告
-     *
-     * @param apiTestCase
-     * @param poolId
-     * @param userId
      * @return
      */
-    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, String reportId, String poolId, String userId) {
+    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase,  String reportId, ApiRunModeConfigDTO runModeConfig, String userId) {
         // 初始化报告
-        ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, poolId, userId);
+        ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, runModeConfig.getPoolId(), userId);
+        apiReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         apiReport.setTestPlanCaseId(testPlanApiCase.getTestPlanId());
 
         // 创建报告和用例的关联关系

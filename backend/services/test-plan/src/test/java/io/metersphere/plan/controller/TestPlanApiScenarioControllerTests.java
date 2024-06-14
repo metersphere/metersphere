@@ -3,7 +3,6 @@ package io.metersphere.plan.controller;
 import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
-import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiRunModeRequest;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
@@ -41,7 +40,6 @@ import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -123,8 +121,9 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void run() throws Exception {
-        assertErrorCode(this.requestGet(RUN, testPlanApiScenario.getId()), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
-        assertErrorCode(this.requestGet(RUN_WITH_REPORT_ID, testPlanApiScenario.getId(), "reportId"), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        TestPlanApiCaseControllerTests.assertRun(this.requestGetAndReturn(RUN, testPlanApiScenario.getId()));
+        TestPlanApiCaseControllerTests.assertRun(this.requestGetAndReturn(RUN, testPlanApiScenario.getId()));
+        TestPlanApiCaseControllerTests.assertRun(this.requestGetAndReturn(RUN_WITH_REPORT_ID, testPlanApiScenario.getId(), "reportId"));
         assertErrorCode(this.requestGet(RUN, "11"), NOT_FOUND);
         GetRunScriptRequest request = new GetRunScriptRequest();
         TaskItem taskItem = new TaskItem();
