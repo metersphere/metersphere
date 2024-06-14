@@ -581,7 +581,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         TestPlanOperationResponse response = new TestPlanOperationResponse();
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 request.getTestCollectionId(),
-                super.getNodeMoveRequest(request, true),
+                super.getNodeMoveRequest(request, false),
                 extTestPlanApiCaseMapper::selectDragInfoById,
                 extTestPlanApiCaseMapper::selectNodeByPosOperator
         );

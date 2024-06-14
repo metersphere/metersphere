@@ -53,4 +53,5 @@ public class TestPlanExecuteController {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanExecuteService.batchExecuteTestPlan(request, SessionUtils.getUserId());
     }
+
 }
