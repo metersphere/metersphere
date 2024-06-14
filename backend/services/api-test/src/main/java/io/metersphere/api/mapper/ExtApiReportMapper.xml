@@ -214,7 +214,7 @@
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
        select distinct ar.* , project.organization_id ,
         ar.test_plan_case_id as testPlanId,
-        if (ar.test_plan_case_id = 'NONE' , a.api_test_case_id , ar.test_plan_case_id) as resourceId from api_report ar
+        if (ar.test_plan_case_id = 'NONE' and ar.integrated =0, a.api_test_case_id , ar.test_plan_case_id) as resourceId from api_report ar
         LEFT JOIN api_test_case_record a ON ar.id = a.api_report_id
         LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
         left join project on ar.project_id = project.id
