@@ -60,7 +60,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         List<TestPlanCollectionMinderEditDTO> editList = new ArrayList<>();
         TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
         testPlanCollectionMinderEditDTO.setId("gyq_wxxx_4");
-        testPlanCollectionMinderEditDTO.setName("更新名称");
+        testPlanCollectionMinderEditDTO.setText("更新名称");
         testPlanCollectionMinderEditDTO.setNum(500L);
         testPlanCollectionMinderEditDTO.setExecuteMethod("PARALLEL");
         testPlanCollectionMinderEditDTO.setType("API");
@@ -88,7 +88,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         editList = new ArrayList<>();
         testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
         testPlanCollectionMinderEditDTO.setId(null);
-        testPlanCollectionMinderEditDTO.setName("新建名称");
+        testPlanCollectionMinderEditDTO.setText("新建名称");
         testPlanCollectionMinderEditDTO.setNum(500L);
         testPlanCollectionMinderEditDTO.setExecuteMethod("PARALLEL");
         testPlanCollectionMinderEditDTO.setType("API");
