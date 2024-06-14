@@ -386,7 +386,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         collectionExample.createCriteria().andTypeEqualTo(CaseType.API_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
         testPlanCollections.forEach(item -> {
-            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.API_CASE.getKey());
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), Translator.get(item.getName()), CaseType.API_CASE.getKey());
             returnList.add(baseTreeNode);
         });
         return returnList;
@@ -581,7 +581,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         TestPlanOperationResponse response = new TestPlanOperationResponse();
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 request.getTestCollectionId(),
-                super.getNodeMoveRequest(request, true),
+                super.getNodeMoveRequest(request, false),
                 extTestPlanApiCaseMapper::selectDragInfoById,
                 extTestPlanApiCaseMapper::selectNodeByPosOperator
         );

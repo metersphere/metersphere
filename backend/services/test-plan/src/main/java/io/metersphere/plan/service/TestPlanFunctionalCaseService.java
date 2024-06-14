@@ -205,7 +205,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanOperationResponse response = new TestPlanOperationResponse();
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 request.getTestCollectionId(),
-                super.getNodeMoveRequest(request, true),
+                super.getNodeMoveRequest(request, false),
                 extTestPlanFunctionalCaseMapper::selectDragInfoById,
                 extTestPlanFunctionalCaseMapper::selectNodeByPosOperator
         );
@@ -291,7 +291,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         collectionExample.createCriteria().andTypeEqualTo(CaseType.FUNCTIONAL_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
         testPlanCollections.forEach(item -> {
-            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.FUNCTIONAL_CASE.getKey());
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), Translator.get(item.getName()), CaseType.FUNCTIONAL_CASE.getKey());
             returnList.add(baseTreeNode);
         });
         return returnList;

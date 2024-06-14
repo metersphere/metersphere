@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.service.definition.ApiReportService;
-import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -32,7 +31,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +64,7 @@ public class TestPlanApiCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Pager<List<TestPlanApiCasePageResponse>> page(@Validated @RequestBody TestPlanApiCaseRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "t.pos asc");
         return PageUtils.setPageInfo(page, testPlanApiCaseService.hasRelateApiCaseList(request, false));
     }
 

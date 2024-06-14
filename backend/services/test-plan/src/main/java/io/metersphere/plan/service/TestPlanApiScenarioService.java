@@ -245,7 +245,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         TestPlanOperationResponse response = new TestPlanOperationResponse();
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 request.getTestCollectionId(),
-                super.getNodeMoveRequest(request, true),
+                super.getNodeMoveRequest(request, false),
                 extTestPlanApiScenarioMapper::selectDragInfoById,
                 extTestPlanApiScenarioMapper::selectNodeByPosOperator
         );
@@ -490,7 +490,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         collectionExample.createCriteria().andTypeEqualTo(CaseType.SCENARIO_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
         testPlanCollections.forEach(item -> {
-            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.SCENARIO_CASE.getKey());
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), Translator.get(item.getName()), CaseType.SCENARIO_CASE.getKey());
             returnList.add(baseTreeNode);
         });
         return returnList;
@@ -603,9 +603,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         ids.forEach(id -> {
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(id);
-            testPlanApiScenario.setPos(nextOrder.get());
+            testPlanApiScenario.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanApiScenario.setTestPlanCollectionId(targetCollectionId);
-            nextOrder.addAndGet(DEFAULT_NODE_INTERVAL_POS);
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
         });
         sqlSession.flushStatements();
