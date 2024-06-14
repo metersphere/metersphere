@@ -78,6 +78,8 @@ export default {
   'testPlan.planForm.planStartAndEndTime': '计划起止时间',
   'testPlan.planForm.associateRepeatCase': '允许关联重复用例',
   'testPlan.planForm.passThreshold': '通过阀值',
+  'testPlan.planForm.createTo': '创建到',
+  'testPlan.planForm.selectPlanGroup': '选择计划组',
   'testPlan.planForm.repeatCaseTip1': '开启：可重复关联同一个用例',
   'testPlan.planForm.repeatCaseTip2': '关闭：不可重复关联同一用例',
   'testPlan.planForm.passThresholdTip': '通过率达到设置的通过阈值时，报告结果为通过',

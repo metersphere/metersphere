@@ -2,7 +2,11 @@
   <div class="p-[16px]">
     <a-input
       v-model:model-value="moduleKeyword"
-      :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
+      :placeholder="
+        props.treeType === 'MODULE'
+          ? t('caseManagement.caseReview.folderSearchPlaceholder')
+          : t('testPlan.testPlanGroup.newPlanPlaceHolder')
+      "
       allow-clear
       class="mb-[8px]"
       :max-length="255"
@@ -10,7 +14,7 @@
     <MsFolderAll
       v-model:isExpandAll="isExpandAll"
       :active-folder="activeFolder"
-      :folder-name="t('apiScenario.allScenario')"
+      :folder-name="t('caseManagement.featureCase.sceneCase')"
       :all-count="allCount"
       @set-active-folder="setActiveFolder"
     />

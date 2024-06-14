@@ -24,7 +24,32 @@
       <a-form-item field="description" :label="t('common.desc')" class="w-[732px]">
         <a-textarea v-model:model-value="form.description" :placeholder="t('common.pleaseInput')" :max-length="1000" />
       </a-form-item>
-      <a-form-item :label="t('common.belongModule')" class="w-[436px]">
+      <a-form-item
+        field="type"
+        :label="props.planId?.length ? t('caseManagement.featureCase.moveTo') : t('testPlan.planForm.createTo')"
+      >
+        <a-radio-group v-model:model-value="form.type">
+          <a-radio :value="testPlanTypeEnum.TEST_PLAN">{{ t('testPlan.testPlanGroup.module') }}</a-radio>
+          <a-radio :value="testPlanTypeEnum.GROUP">{{ t('testPlan.testPlanIndex.testPlanGroup') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item
+        v-show="form.type === testPlanTypeEnum.GROUP"
+        field="groupId"
+        :label="t('testPlan.testPlanIndex.testPlanGroup')"
+        class="w-[436px]"
+      >
+        <a-select v-model="form.groupId" :placeholder="t('common.pleaseSelect')">
+          <a-option v-for="item of groupList" :key="item.id" :value="item.id">
+            {{ item.name }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item
+        v-show="form.type === testPlanTypeEnum.TEST_PLAN"
+        :label="t('common.belongModule')"
+        class="w-[436px]"
+      >
         <a-tree-select
           v-model:modelValue="form.moduleId"
           :data="props.moduleTree"
@@ -110,7 +135,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message, TreeNodeData, ValidatedError } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData, TreeNodeData, ValidatedError } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
@@ -118,7 +143,12 @@
   import MsMoreSettingCollapse from '@/components/pure/ms-more-setting-collapse/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
-  import { addTestPlan, getTestPlanDetail, updateTestPlan } from '@/api/modules/test-plan/testPlan';
+  import {
+    addTestPlan,
+    getPlanGroupOptions,
+    getTestPlanDetail,
+    updateTestPlan,
+  } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -246,7 +276,6 @@
         try {
           const params: AddTestPlanParams = {
             ...cloneDeep(form.value),
-            groupId: 'NONE',
             plannedStartTime: form.value.cycle ? form.value.cycle[0] : undefined,
             plannedEndTime: form.value.cycle ? form.value.cycle[1] : undefined,
             projectId: appStore.currentProjectId,
@@ -288,12 +317,23 @@
     }
   }
 
+  const groupList = ref<SelectOptionData>([]);
+  async function initGroupOptions() {
+    try {
+      groupList.value = await getPlanGroupOptions(appStore.currentProjectId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   watch(
     () => innerVisible.value,
     (val) => {
       if (val) {
         form.value = cloneDeep(initForm);
         getDetail();
+        initGroupOptions();
         if (!props.planId && props.moduleId) {
           form.value.moduleId = props.moduleId === 'all' ? 'root' : props.moduleId;
         }

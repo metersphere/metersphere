@@ -320,7 +320,7 @@
     },
     {
       value: 'apiScenario',
-      label: t('testPlan.testPlanIndex.apiScenarioCase'),
+      label: t('caseManagement.featureCase.sceneCase'),
     },
     {
       value: 'defectList',

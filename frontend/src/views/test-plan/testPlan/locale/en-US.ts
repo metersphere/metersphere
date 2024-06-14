@@ -83,6 +83,8 @@ export default {
   'testPlan.planForm.planStartAndEndTime': 'Planned start and end time',
   'testPlan.planForm.associateRepeatCase': 'Allow associated duplicate cases',
   'testPlan.planForm.passThreshold': 'Pass threshold',
+  'testPlan.planForm.createTo': 'Create to',
+  'testPlan.planForm.selectPlanGroup': 'Select plan group',
   'testPlan.planForm.repeatCaseTip1': 'Enable: Repeatedly associate the same case',
   'testPlan.planForm.repeatCaseTip2': 'Close: Cannot be associated with the same case repeatedly',
   'testPlan.planForm.passThresholdTip': 'If the pass rate reaches the specified pass threshold, the result is passed',
