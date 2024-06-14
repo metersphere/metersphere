@@ -103,7 +103,7 @@ export default {
   'testPlan.featureCase.disassociateTipContent': '取消后，影响测试计划相关统计',
   'testPlan.featureCase.batchDisassociateTipContent': '取消后，再次关联，执行结果为：未执行',
   'testPlan.featureCase.startExecution': '开始执行',
-  'testPlan.featureCase.richTextDblclickPlaceholder': '双击可快速输入',
+  'testPlan.featureCase.richTextDblclickPlaceholder': '双击可全屏输入',
   'testPlan.featureCase.autoNextTip1': '开启：提交结果后，跳转至下一条用例',
   'testPlan.featureCase.autoNextTip2': '关闭：提交结果后，还在当前',
   'testPlan.api.testSetRequired': '测试集不能为空',
