@@ -8,16 +8,20 @@
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #lastExecResult="{ record }">
-        <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />
+        <ExecutionStatus :status="record.execStatus" :module-type="ReportEnum.API_REPORT" />
       </template>
       <template #executionStartAndEndTime="{ record }">
-        <!-- TODO 样式 -->
-        <div>{{ record.startTime }} 至 {{ record.endTime ?? '-' }}</div>
+        <div> {{ record.startTime }} 至 {{ record.endTime ?? '-' }} </div>
       </template>
       <template #operation="{ record }">
-        <MsButton class="!mr-0" @click="toReport(record)">
-          {{ t('apiScenario.executeHistory.execution.operation') }}
-        </MsButton>
+        <a-tooltip :content="t('project.executionHistory.cleared')" :disabled="!record.deleted">
+          <MsButton
+            :disabled="record.deleted || !hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ'])"
+            class="!mr-0"
+            @click="toReport(record)"
+            >{{ t('apiScenario.executeHistory.execution.operation') }}
+          </MsButton>
+        </a-tooltip>
       </template>
     </ms-base-table>
   </div>
@@ -37,9 +41,10 @@
   import { getPlanDetailExecuteHistory } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { PlanDetailExecuteHistoryItem } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { ReportEnum, TriggerModeLabel } from '@/enums/reportEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -49,7 +54,6 @@
 
   const { t } = useI18n();
   const route = useRoute();
-  const appStore = useAppStore();
   const { openNewPage } = useOpenNewPage();
 
   const planId = ref(route.query.id as string);
@@ -73,7 +77,7 @@
     },
     {
       title: 'common.executionResult',
-      dataIndex: 'lastExecResult',
+      dataIndex: 'execStatus',
       slotName: 'lastExecResult',
       filterConfig: {
         valueKey: 'key',
@@ -121,8 +125,7 @@
 
   function loadExecuteList() {
     setLoadListParams({
-      projectId: appStore.currentProjectId,
-      id: planId.value,
+      testPlanId: planId.value,
     });
     loadList();
   }

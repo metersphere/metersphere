@@ -28,28 +28,25 @@
         field="type"
         :label="props.planId?.length ? t('caseManagement.featureCase.moveTo') : t('testPlan.planForm.createTo')"
       >
-        <a-radio-group v-model:model-value="form.type">
-          <a-radio :value="testPlanTypeEnum.TEST_PLAN">{{ t('testPlan.testPlanGroup.module') }}</a-radio>
-          <a-radio :value="testPlanTypeEnum.GROUP">{{ t('testPlan.testPlanIndex.testPlanGroup') }}</a-radio>
+        <a-radio-group v-model:model-value="form.isGroup">
+          <a-radio :value="false">{{ t('testPlan.testPlanGroup.module') }}</a-radio>
+          <a-radio :value="true">{{ t('testPlan.testPlanIndex.testPlanGroup') }}</a-radio>
         </a-radio-group>
       </a-form-item>
       <a-form-item
-        v-show="form.type === testPlanTypeEnum.GROUP"
+        v-if="form.isGroup"
         field="groupId"
+        :rules="[{ required: true, message: t('testPlan.planForm.testPlanGroupRequired') }]"
         :label="t('testPlan.testPlanIndex.testPlanGroup')"
         class="w-[436px]"
       >
-        <a-select v-model="form.groupId" :placeholder="t('common.pleaseSelect')">
+        <a-select v-model="form.groupId" allow-search :placeholder="t('common.pleaseSelect')">
           <a-option v-for="item of groupList" :key="item.id" :value="item.id">
             {{ item.name }}
           </a-option>
         </a-select>
       </a-form-item>
-      <a-form-item
-        v-show="form.type === testPlanTypeEnum.TEST_PLAN"
-        :label="t('common.belongModule')"
-        class="w-[436px]"
-      >
+      <a-form-item v-else field="moduleId" :label="t('common.belongModule')" class="w-[436px]">
         <a-tree-select
           v-model:modelValue="form.moduleId"
           :data="props.moduleTree"
@@ -178,7 +175,7 @@
   const drawerLoading = ref(false);
   const formRef = ref<FormInstance>();
   const initForm: AddTestPlanParams = {
-    groupId: 'NONE',
+    isGroup: false,
     name: '',
     projectId: '',
     moduleId: 'root',
@@ -310,6 +307,7 @@
 
         form.value.cycle = [result.plannedStartTime as number, result.plannedEndTime as number];
         form.value.passThreshold = parseFloat(result.passThreshold.toString());
+        form.value.isGroup = result.groupId !== 'none';
       }
     } catch (error) {
       // eslint-disable-next-line no-console
