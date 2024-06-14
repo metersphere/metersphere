@@ -280,7 +280,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     /**
-     * 已关联接口用例规划视图树
+     * 已关联功能用例规划视图树
      *
      * @param testPlanId
      * @return
@@ -291,7 +291,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         collectionExample.createCriteria().andTypeEqualTo(CaseType.FUNCTIONAL_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
         testPlanCollections.forEach(item -> {
-            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.FUNCTIONAL_CASE.getKey());
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), Translator.get(item.getName(), item.getName()), CaseType.FUNCTIONAL_CASE.getKey());
             returnList.add(baseTreeNode);
         });
         return returnList;
