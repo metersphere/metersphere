@@ -63,4 +63,7 @@ public class TestPlanDetailResponse extends TestPlanStatisticsResponse implement
 
     @Schema(description = "关注标识")
     private Boolean followFlag;
+
+    @Schema(description = "类型")
+    private String type;
 }
