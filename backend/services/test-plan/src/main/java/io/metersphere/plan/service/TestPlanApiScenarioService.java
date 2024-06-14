@@ -490,7 +490,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         collectionExample.createCriteria().andTypeEqualTo(CaseType.SCENARIO_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
         testPlanCollections.forEach(item -> {
-            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), item.getName(), CaseType.SCENARIO_CASE.getKey());
+            BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), Translator.get(item.getName(), item.getName()), CaseType.SCENARIO_CASE.getKey());
             returnList.add(baseTreeNode);
         });
         return returnList;
@@ -587,12 +587,13 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     /**
      * 批量移动
+     *
      * @param request
      */
     public void batchMove(BaseBatchMoveRequest request) {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
-            moveCaseToCollection(ids,request.getTargetCollectionId());
+            moveCaseToCollection(ids, request.getTargetCollectionId());
         }
     }
 
