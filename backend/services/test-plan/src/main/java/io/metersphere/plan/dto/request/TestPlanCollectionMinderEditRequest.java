@@ -24,7 +24,4 @@ public class TestPlanCollectionMinderEditRequest implements Serializable {
     @Schema(description = "新增/修改的节点集合", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<TestPlanCollectionMinderEditDTO> editList;
 
-    @Schema(description = "删除的节点集合", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<String> deletedIds;
-
 }
