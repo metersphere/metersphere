@@ -473,6 +473,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         response.setModuleId(testPlan.getModuleId());
         response.setModuleName(moduleName);
         response.setDescription(testPlan.getDescription());
+        response.setType(testPlan.getType());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
             //计划的 其他参数
             getGroupName(response, testPlan);

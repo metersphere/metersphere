@@ -126,7 +126,7 @@
             </foreach>
         </if>
         <if test="request.collectionId != null and request.collectionId != ''">
-            and t.test_plan_collection_id = #{request.collectionId}
+            and test_plan_api_scenario.test_plan_collection_id = #{request.collectionId}
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
