@@ -261,7 +261,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-执行历史-列表分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public Pager<List<TestPlanExecuteHisDTO>> pageHis(@Validated TestPlanExecuteHisPageRequest request) {
+    public Pager<List<TestPlanExecuteHisDTO>> pageHis(@Validated @RequestBody TestPlanExecuteHisPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 MapUtils.isEmpty(request.getSort()) ? "tpr.create_time desc" : request.getSortString());
         return PageUtils.setPageInfo(page, testPlanService.listHis(request));
