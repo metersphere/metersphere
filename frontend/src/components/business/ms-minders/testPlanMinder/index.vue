@@ -224,7 +224,7 @@
   </MsMinderEditor>
   <caseAssociate
     v-model:visible="caseAssociateVisible"
-    v-model:currentSelectCase="currentSelectCase"
+    :association-type="currentSelectCase"
     :has-not-associated-ids="selectedAssociateCasesParams.selectIds"
     :test-plan-id="props.planId"
     @success="writeAssociateCases"
@@ -268,6 +268,9 @@
 
   const props = defineProps<{
     planId: string;
+  }>();
+  const emit = defineEmits<{
+    (e: 'save'): void;
   }>();
 
   const appStore = useAppStore();
@@ -373,6 +376,7 @@
       text: t('ms.minders.item', { count: 0 }),
       resource: [caseCountTag],
       level: 3,
+      disabled: true, // 只有测试集能改文本
       isNew: true,
     };
     // 环境子节点
@@ -381,6 +385,7 @@
       text: t('case.execute.defaultEnv'),
       resource: [envTag],
       level: 3,
+      disabled: true, // 只有测试集能改文本
       isNew: true,
     };
     // 资源池子节点
@@ -389,6 +394,7 @@
       resource: [resourcePoolTag],
       text: t('ms.minders.defaultResourcePool'),
       level: 3,
+      disabled: true, // 只有测试集能改文本
       isNew: true,
     };
     if (node.data?.level === 1) {
@@ -398,6 +404,7 @@
         id: getGenerateId(),
         text: t('ms.minders.defaultTestSet'),
         level: 2,
+        disabled: false, // 只有测试集能改文本
         isNew: true,
       };
     } else if (node.parent?.data) {
@@ -407,6 +414,7 @@
         id: getGenerateId(),
         text: t('ms.minders.defaultTestSet'),
         level: 2,
+        disabled: false, // 只有测试集能改文本
         isNew: true,
       };
     }
@@ -545,7 +553,7 @@
     });
   }
 
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
+  const currentSelectCase = ref<CaseLinkEnum>(CaseLinkEnum.FUNCTIONAL);
   const caseAssociateVisible = ref<boolean>(false);
 
   // 批量关联用例表格参数
@@ -592,7 +600,7 @@
     switchingConfigFormData.value = true;
     configForm.value = cloneDeep(activePlanSet.value.data);
     extraVisible.value = true;
-    currentSelectCase.value = node.data?.type || 'FUNCTIONAL';
+    currentSelectCase.value = (node.data?.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
     caseAssociateVisible.value = true;
     nextTick(() => {
       switchingConfigFormData.value = false;
@@ -671,7 +679,7 @@
           level,
           isNew: false,
           changed: false,
-          disabled: level < 2,
+          disabled: level !== 2, // 只有测试集能改文本
         };
         return node;
       });
@@ -727,6 +735,7 @@
       handleConfigCancel();
       initMinder();
       callback();
+      emit('save');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

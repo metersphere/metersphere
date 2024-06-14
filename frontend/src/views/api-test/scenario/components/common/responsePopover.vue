@@ -30,24 +30,25 @@
               <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
             </div>
           </div>
-          <responseResult
-            v-else
-            :active-tab="ResponseComposition.BODY"
-            :request-result="currentResponse"
-            :console="currentResponse?.console"
-            :show-empty="false"
-            :is-edit="false"
-            is-definition
-          >
-            <template #titleLeft>
-              <div class="flex items-center text-[14px]">
-                <div class="font-medium text-[var(--color-text-1)]">{{ t('apiScenario.response') }}</div>
-                <a-tooltip :content="props.step.name">
-                  <div class="one-line-text">({{ props.step.name }})</div>
-                </a-tooltip>
-              </div>
-            </template>
-          </responseResult>
+          <div v-else class="response-result">
+            <responseResult
+              :active-tab="ResponseComposition.BODY"
+              :request-result="currentResponse"
+              :console="currentResponse?.console"
+              :show-empty="false"
+              :is-edit="false"
+              is-definition
+            >
+              <template #titleLeft>
+                <div class="flex items-center text-[14px]">
+                  <div class="font-medium text-[var(--color-text-1)]">{{ t('apiScenario.response') }}</div>
+                  <a-tooltip :content="props.step.name">
+                    <div class="one-line-text">({{ props.step.name }})</div>
+                  </a-tooltip>
+                </div>
+              </template>
+            </responseResult>
+          </div>
         </div>
       </div>
     </template>
@@ -129,17 +130,21 @@
         padding: 8px 12px;
         border-radius: var(--border-radius-small);
       }
-      .response {
-        .response-head {
-          background-color: var(--color-text-n9);
-        }
+      .response-result {
+        @apply h-full overflow-auto bg-white;
+        .ms-scroll-bar();
+        .response {
+          .response-head {
+            background-color: var(--color-text-n9);
+          }
 
-        border: 1px solid var(--color-text-n8);
-        border-radius: var(--border-radius-small);
-        .arco-spin {
-          padding: 0;
-          .response-container {
-            padding: 0 16px 14px;
+          border: 1px solid var(--color-text-n8);
+          border-radius: var(--border-radius-small);
+          .arco-spin {
+            padding: 0;
+            .response-container {
+              padding: 0 16px 14px;
+            }
           }
         }
       }

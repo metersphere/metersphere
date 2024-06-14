@@ -14,7 +14,7 @@
     @close="handleClose"
   >
     <template #title>
-      <div class="flex max-w-[60%] items-center gap-[8px]">
+      <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
         <div
           v-if="props.step"
           class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] pr-[2px] !text-white"
@@ -26,30 +26,30 @@
           :step="props.step"
         />
         <a-tooltip v-if="!isShowEditStepNameInput" :content="title" position="bottom">
-          <div class="flex items-center gap-[4px]">
-            <div class="one-line-text max-w-[300px]">
+          <div class="flex flex-1 items-center gap-[4px] overflow-hidden">
+            <div class="one-line-text">
               {{ title }}
             </div>
             <MsIcon
               v-if="!props.step || !props.step.isQuoteScenarioStep"
               type="icon-icon_edit_outlined"
-              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+              class="min-w-[16px] cursor-pointer hover:text-[rgb(var(--primary-5))]"
               @click="isShowEditStepNameInput = true"
             />
           </div>
         </a-tooltip>
+        <a-input
+          v-if="isShowEditStepNameInput"
+          ref="stepNameInputRef"
+          v-model:model-value="requestVModel.stepName"
+          class="flex-1"
+          :placeholder="t('apiScenario.pleaseInputStepName')"
+          :max-length="255"
+          show-word-limit
+          @press-enter="updateStepName"
+          @blur="updateStepName"
+        />
       </div>
-      <a-input
-        v-if="isShowEditStepNameInput"
-        ref="stepNameInputRef"
-        v-model:model-value="requestVModel.stepName"
-        class="flex-1"
-        :placeholder="t('apiScenario.pleaseInputStepName')"
-        :max-length="255"
-        show-word-limit
-        @press-enter="updateStepName"
-        @blur="updateStepName"
-      />
       <div v-show="!isShowEditStepNameInput" class="ml-auto flex items-center gap-[16px]">
         <div
           v-if="!props.step || props.step?.stepType === ScenarioStepType.CUSTOM_REQUEST"
@@ -1156,6 +1156,20 @@
   // const showAddDependencyDrawer = ref(false);
   // const addDependencyMode = ref<'pre' | 'post'>('pre');
 
+  function setDefaultActiveTab() {
+    if (requestVModel.value.body.bodyType !== RequestBodyFormat.NONE) {
+      requestVModel.value.activeTab = RequestComposition.BODY;
+    } else if (requestVModel.value.query.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.QUERY;
+    } else if (requestVModel.value.rest.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.REST;
+    } else if (requestVModel.value.headers.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.HEADER;
+    } else {
+      requestVModel.value.activeTab = RequestComposition.BODY;
+    }
+  }
+
   async function initQuoteApiDetail() {
     try {
       loading.value = true;
@@ -1287,6 +1301,7 @@
           });
         }
         requestVModel.value.activeTab = contentTabList.value[0].value;
+        setDefaultActiveTab();
         nextTick(() => {
           isSwitchingContent.value = false;
         });

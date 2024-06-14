@@ -202,7 +202,7 @@ export default {
   'apiTestDebug.searchByDataBaseName': 'Search by data source name',
   'apiTestDebug.regexMatchRules': 'Expression matching rules',
   'apiTestDebug.extractValueTitleTip':
-    'Enter the column name and corresponding value in column storage. If you want to extract the first value of the name column, enter name_1',
+    'Enter the column name and corresponding value in column storage. If you want to extract the first value of the id column, enter id_1',
   'apiTestDebug.responseRepeatMessage': 'The name is duplicated, please re-enter it.',
   'apiTestDebug.saveAsApi': 'Save as Api',
   'apiTestDebug.assertionItem': 'Assertion item',

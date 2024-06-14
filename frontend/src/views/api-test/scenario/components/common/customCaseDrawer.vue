@@ -28,17 +28,15 @@
         @press-enter="updateStepName"
         @blur="updateStepName"
       />
-      <div v-show="!isShowEditStepNameInput" class="flex flex-1 items-center justify-between">
-        <div class="flex items-center gap-[8px]">
+      <div v-show="!isShowEditStepNameInput" class="flex flex-1 items-center justify-between overflow-hidden">
+        <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
           <a-tooltip :content="requestVModel.stepName || activeStep?.name">
-            <div class="one-line-text max-w-[300px]">
-              {{ requestVModel.stepName || characterLimit(activeStep?.name) }}</div
-            >
+            <div class="one-line-text"> {{ requestVModel.stepName || characterLimit(activeStep?.name) }}</div>
           </a-tooltip>
           <MsIcon
             v-if="!activeStep || !activeStep.isQuoteScenarioStep"
             type="icon-icon_edit_outlined"
-            class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+            class="min-w-[16px] cursor-pointer hover:text-[rgb(var(--primary-5))]"
             @click="showEditScriptNameInput"
           />
         </div>
@@ -1020,6 +1018,20 @@
     }
   }
 
+  function setDefaultActiveTab() {
+    if (requestVModel.value.body.bodyType !== RequestBodyFormat.NONE) {
+      requestVModel.value.activeTab = RequestComposition.BODY;
+    } else if (requestVModel.value.query.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.QUERY;
+    } else if (requestVModel.value.rest.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.REST;
+    } else if (requestVModel.value.headers.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.HEADER;
+    } else {
+      requestVModel.value.activeTab = RequestComposition.BODY;
+    }
+  }
+
   /**
    * 替换步骤
    * @param newStep 替换的新步骤
@@ -1063,6 +1075,7 @@
           await initQuoteCaseDetail();
         }
         handleActiveDebugProtocolChange(requestVModel.value.protocol);
+        setDefaultActiveTab();
         nextTick(() => {
           isSwitchingContent.value = false;
         });

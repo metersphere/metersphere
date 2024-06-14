@@ -1,48 +1,46 @@
 <template>
   <MsCard has-breadcrumb no-content-padding simple>
-    <div class="p-[24px_24px_8px_24px]">
-      <MsEditableTab
-        v-model:active-tab="activeApiTab"
-        v-model:tabs="apiTabs"
-        class="flex-1 overflow-hidden"
-        :show-add="false"
-        :readonly="true"
-        @add="newTab"
-      >
-        <template #label="{ tab }">
-          <a-tooltip :content="tab.label" :mouse-enter-delay="500">
-            <div class="one-line-text max-w-[144px]">
-              {{ tab.label }}
-            </div>
-          </a-tooltip>
-        </template>
-      </MsEditableTab>
-    </div>
-    <a-divider class="!my-0" />
-    <div v-if="activeApiTab.id === 'all'" class="pageWrap">
-      <MsSplitBox :size="300" :max="0.5">
-        <template #first>
-          <div class="flex h-full flex-col">
-            <div class="p-[16px]">
-              <recycleTree
-                ref="recycleTreeRef"
-                :is-show-scenario="isShowScenario"
-                @folder-node-select="handleNodeSelect"
-                @init="handleModuleInit"
-              ></recycleTree>
-            </div>
-          </div>
-        </template>
-        <template #second>
+    <MsSplitBox :size="300" :max="0.5">
+      <template #first>
+        <div class="h-full p-[16px]">
+          <recycleTree
+            ref="recycleTreeRef"
+            :is-show-scenario="isShowScenario"
+            @folder-node-select="handleNodeSelect"
+            @init="handleModuleInit"
+          ></recycleTree>
+        </div>
+      </template>
+      <template #second>
+        <div class="p-[24px_24px_8px_24px]">
+          <MsEditableTab
+            v-model:active-tab="activeApiTab"
+            v-model:tabs="apiTabs"
+            class="flex-1 overflow-hidden"
+            :show-add="false"
+            :readonly="true"
+            @add="newTab"
+          >
+            <template #label="{ tab }">
+              <a-tooltip :content="tab.label" :mouse-enter-delay="500">
+                <div class="one-line-text max-w-[144px]">
+                  {{ tab.label }}
+                </div>
+              </a-tooltip>
+            </template>
+          </MsEditableTab>
+        </div>
+        <a-divider class="!my-0" />
+        <div v-if="activeApiTab.id === 'all'" class="pageWrap">
           <RecycleTable
             ref="apiTableRef"
             :active-module="activeModule"
             :offspring-ids="offspringIds"
             @refresh-module-tree="refreshTree"
           />
-        </template>
-      </MsSplitBox>
-    </div>
+        </div>
+      </template>
+    </MsSplitBox>
     <!-- <detail v-else v-model:scenario="activeApiTab"></detail> -->
   </MsCard>
 </template>

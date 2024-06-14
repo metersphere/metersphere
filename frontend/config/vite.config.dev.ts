@@ -1,7 +1,11 @@
 /// <reference types="vitest" />
 import baseConfig from './vite.config.base';
+import dotenv from 'dotenv';
 import { mergeConfig } from 'vite';
 import eslint from 'vite-plugin-eslint';
+
+// 注入本地/开发配置环境变量(先导入的配置优先级高)
+dotenv.config({ path: ['.env.development.local', '.env.development'] });
 
 export default mergeConfig(
   {
@@ -13,38 +17,38 @@ export default mergeConfig(
       },
       proxy: {
         '/ws': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/ws/, ''),
           ws: true,
         },
         '/front': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front/, ''),
         },
         '/file': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/file/, ''),
         },
         '/attachment': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/attachment/, ''),
         },
         '/bug/attachment': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/bug\/attachment/, ''),
         },
         '/plugin/image': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/plugin\/image/, ''),
         },
         '/base-display': {
-          target: 'http://172.16.200.18:8081/',
+          target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/base-display/, ''),
         },

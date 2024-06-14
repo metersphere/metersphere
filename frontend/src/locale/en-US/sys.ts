@@ -32,11 +32,11 @@ export default {
   'asyncTask.uploadFileSuccessTitle': 'Upload completed',
   // 通用业务提示
   'user.openSourceCreateUsersLimit':
-    'The maximum number of system users has reached 30 (Community Edition). If you need to add more users, you can apply',
+    'The maximum number of system users has reached 30 (Community Edition). If you need to add/enable more users, you can apply',
   'user.businessTry': 'Enterprise Edition Trial',
   'user.businessCreateUsersLimitThirty':
-    'The maximum number of system users has reached 30 (Community Edition). If you need to add more users, you can apply',
+    'The maximum number of system users has reached 30 (Community Edition). If you need to add/enable more users, you can apply',
   'user.businessCreateUsersLimitMax':
-    'The number of system users has reached the maximum number of user subscriptions {count}. If you want to add more users, you can apply',
+    'The number of system users has reached the maximum number of user subscriptions {count}. If you want to add/enable more users, you can apply',
   'user.businessScaling': 'Enterprise Edition Capacity Expansion',
 };

@@ -3,11 +3,11 @@
     <minderHeader :icon-buttons="props.iconButtons" @save="save" />
     <Navigator />
     <div
-      v-if="innerImportJson.treePath?.length > 1"
+      v-if="currentTreePath?.length > 0"
       class="absolute left-[50%] top-[24px] z-50 translate-x-[-50%] bg-white p-[8px]"
     >
       <a-breadcrumb>
-        <a-breadcrumb-item v-for="crumb of innerImportJson.treePath" :key="crumb.name" @click="switchNode(crumb)">
+        <a-breadcrumb-item v-for="crumb of currentTreePath" :key="crumb.name" @click="switchNode(crumb)">
           {{ crumb.text }}
         </a-breadcrumb-item>
       </a-breadcrumb>
@@ -80,6 +80,7 @@
     template: 'default',
     treePath: [],
   });
+  const currentTreePath = ref<MinderJsonNodeData[]>([]);
 
   async function init() {
     window.editor = new Editor(mec.value, {
@@ -144,6 +145,14 @@
   const menuVisible = ref(false);
   const menuPopupOffset = ref([0, 0]);
 
+  function getCurrentTreePath() {
+    if (innerImportJson.value.root.id === 'NONE' || innerImportJson.value.treePath?.length <= 1) {
+      return [];
+    }
+    const index = innerImportJson.value.treePath?.findIndex((e) => e.id === innerImportJson.value.root.data?.id);
+    return innerImportJson.value.treePath?.filter((e, i) => i <= index) || [];
+  }
+
   /**
    * 切换脑图展示的节点层级
    * @param node 切换的节点
@@ -159,15 +168,20 @@
         'id'
       );
     }
-    if (node.data) {
+    if (node.id === 'NONE') {
+      innerImportJson.value = importJson.value;
+    } else if (node.data) {
       innerImportJson.value = findNodePathByKey([importJson.value.root], node.data.id, 'data', 'id') as MinderJson;
     } else {
       innerImportJson.value = findNodePathByKey([importJson.value.root], node.id, 'data', 'id') as MinderJson;
     }
     window.minder.importJson(innerImportJson.value);
+    const root: MinderJsonNode = window.minder.getRoot();
+    window.minder.toggleSelect(root); // 先取消选中
+    window.minder.select(root); // 再选中，才能触发选中变化事件
+    currentTreePath.value = getCurrentTreePath();
     setTimeout(() => {
-      window.minder.select(window.minder.getRoot());
-      window.minder.execCommand('camera', window.minder.getRoot());
+      window.minder.execCommand('camera', root);
     }, 100); // TODO:暂未知渲染时机，临时延迟解决
   }
 
@@ -217,6 +231,13 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => importJson.value.treePath,
+    (arr) => {
+      currentTreePath.value = arr;
     }
   );
 

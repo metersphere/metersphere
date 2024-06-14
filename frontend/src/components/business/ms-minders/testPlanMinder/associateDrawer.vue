@@ -34,6 +34,7 @@
 
   const { t } = useI18n();
   const props = defineProps<{
+    associationType: CaseLinkEnum;
     hasNotAssociatedIds?: string[];
     saveApi?: (params: AssociateCaseRequestType) => Promise<any>;
     testPlanId?: string;
@@ -73,7 +74,4 @@
     }
     innerVisible.value = false;
   }
-
-  // TODO 关联用例脑图待替换关联类型
-  const associationType = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
 </script>

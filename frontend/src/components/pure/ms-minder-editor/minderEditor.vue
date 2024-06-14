@@ -97,7 +97,9 @@
     (val) => {
       const node: MinderJsonNode = window.minder.getSelectedNode();
       if (val && node) {
-        window.minder.execCommand('camera', node, 100);
+        nextTick(() => {
+          window.minder.execCommand('camera', node, 100);
+        });
       }
     }
   );

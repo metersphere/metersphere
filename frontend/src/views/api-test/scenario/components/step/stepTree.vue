@@ -120,7 +120,7 @@
                   </div>
                   <a-tooltip v-else :content="step.name">
                     <div class="step-name-container">
-                      <div class="one-line-text mr-[4px] max-w-[350px] font-medium text-[var(--color-text-1)]">
+                      <div class="step-name-text one-line-text font-medium">
                         {{ step.name }}
                       </div>
                       <MsIcon
@@ -155,11 +155,7 @@
                   </div>
                   <a-tooltip :content="step.name" :disabled="!step.name">
                     <div class="step-name-container">
-                      <div
-                        :class="`one-line-text mr-[4px] ${
-                          step.stepType === ScenarioStepType.ONCE_ONLY_CONTROLLER ? 'max-w-[750px]' : 'max-w-[150px]'
-                        } font-normal text-[var(--color-text-1)]`"
-                      >
+                      <div class="step-name-text one-line-text font-normal">
                         {{ step.name || t('apiScenario.pleaseInputStepDesc') }}
                       </div>
                       <MsIcon
@@ -1376,6 +1372,9 @@
       background-color: var(--color-text-n9) !important;
       .arco-tree-node-title {
         background-color: var(--color-text-n9) !important;
+        .step-name-text {
+          max-width: calc(100% - 244px) !important;
+        }
       }
     }
     .arco-tree-node-title {
@@ -1391,13 +1390,18 @@
         gap: 8px;
       }
       .step-name-container {
-        @apply flex items-center;
+        @apply flex flex-1 items-center overflow-hidden;
 
         margin-right: 16px;
         &:hover {
           .edit-script-name-icon {
             @apply visible;
           }
+        }
+        .step-name-text {
+          margin-right: 4px;
+          max-width: calc(100% - 170px);
+          color: var(--color-text-1);
         }
         .edit-script-name-icon {
           @apply invisible cursor-pointer;
@@ -1430,6 +1434,9 @@
         color: var(--color-text-1);
       }
     }
+  }
+  :deep(.step-tree-node-title) {
+    @apply w-full;
   }
   :deep(.step-tree-node-focus) {
     background-color: var(--color-text-n9) !important;
