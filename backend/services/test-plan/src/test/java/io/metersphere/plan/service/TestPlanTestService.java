@@ -299,8 +299,8 @@ public class TestPlanTestService {
             }
         }
 
-        if (updateRequest.getTestPlanGroupId() != null) {
-            Assertions.assertEquals(newTestPlan.getGroupId(), updateRequest.getTestPlanGroupId());
+        if (updateRequest.getGroupId() != null) {
+            Assertions.assertEquals(newTestPlan.getGroupId(), updateRequest.getGroupId());
         } else {
             Assertions.assertEquals(newTestPlan.getGroupId(), testPlan.getGroupId());
         }

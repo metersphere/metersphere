@@ -321,7 +321,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public TestPlan update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         this.checkTestPlanNotArchived(request.getId());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
-        if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
+        if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
             updateTestPlan.setId(request.getId());
             if (StringUtils.isNotBlank(request.getModuleId())) {
@@ -341,7 +341,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             updateTestPlan.setPlannedStartTime(request.getPlannedStartTime());
             updateTestPlan.setPlannedEndTime(request.getPlannedEndTime());
             updateTestPlan.setDescription(request.getDescription());
-            updateTestPlan.setGroupId(request.getTestPlanGroupId());
+            updateTestPlan.setGroupId(request.getGroupId());
             updateTestPlan.setType(testPlan.getType());
             testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
         }

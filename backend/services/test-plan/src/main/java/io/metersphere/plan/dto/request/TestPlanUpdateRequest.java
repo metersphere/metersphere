@@ -51,5 +51,5 @@ public class TestPlanUpdateRequest {
     private Double passThreshold;
 
     @Schema(description = "测试计划组Id")
-    private String testPlanGroupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
+    private String groupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
 }
