@@ -222,6 +222,7 @@ CREATE INDEX idx_pos ON test_plan_report_api_scenario(pos);
 -- 测试计划报告
 ALTER TABLE test_plan_report ADD `execute_rate` DECIMAL(10, 4) COMMENT '执行率';
 ALTER TABLE test_plan_report ADD `parent_id` VARCHAR(50)  COMMENT '独立报告的父级ID';
+ALTER TABLE test_plan_report DROP `execute_time`;
 
 -- 计划报告功能用例明细表
 ALTER TABLE test_plan_report_function_case ADD `test_plan_collection_id` VARCHAR(50) NOT NULL  COMMENT '测试集ID';
