@@ -107,7 +107,7 @@
 
         select distinct asr.*, project.organization_id,
         asr.test_plan_scenario_id as testPlanId,
-        if (asr.test_plan_scenario_id = 'NONE' , a.api_scenario_id , asr.test_plan_scenario_id) as resourceId
+        if (asr.test_plan_scenario_id = 'NONE'  and asr.integrated =0 , a.api_scenario_id , asr.test_plan_scenario_id) as resourceId
          from api_scenario_report asr
         left join api_scenario_record a on asr.id = a.api_scenario_report_id
         left JOIN api_scenario s on a.api_scenario_id = s.id

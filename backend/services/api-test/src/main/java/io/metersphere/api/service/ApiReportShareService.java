@@ -114,6 +114,7 @@ public class ApiReportShareService {
         request.setCreateUser(userId);
         request.setCustomData(shareRequest.getReportId().getBytes());
         request.setShareType(ShareInfoType.API_SHARE_REPORT.name());
+        request.setProjectId(shareRequest.getProjectId());
         ShareInfo shareInfo = createShareInfo(request);
         return conversionShareInfoToDTO(shareInfo);
     }
