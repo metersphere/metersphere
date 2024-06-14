@@ -23,9 +23,9 @@ import {
   scheduleOrgCenterListUrl,
   scheduleProCenterListUrl,
   scheduleSysCenterListUrl,
-  stopRealOrdApiUrl,
-  stopRealProjectApiUrl,
-  stopRealSysApiUrl,
+  stopRealOrdApiUrl, stopRealOrgPlanUrl,
+  stopRealProjectApiUrl, stopRealProjectPlanUrl,
+  stopRealSysApiUrl, stopRealSysPlanUrl,
   systemRealTotal,
   systemScheduleTotal,
   taskOrgPlanRealCenterListUrl,
@@ -207,6 +207,30 @@ export function getRealOrgPlanList(data: TableQueryParams) {
 
 export function getRealProPlanList(data: TableQueryParams) {
   return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskProPlanRealCenterListUrl, data });
+}
+
+export function stopRealSysPlan(id: string) {
+  return MSR.get({ url: `${stopRealSysPlanUrl}/${id}` });
+}
+
+export function stopRealOrgPlan(id: string) {
+  return MSR.get({ url: `${stopRealOrgPlanUrl}/${id}` });
+}
+
+export function stopRealProPlan(id: string) {
+  return MSR.get({ url: `${stopRealProjectPlanUrl}/${id}` });
+}
+
+export function batchStopRealSysPlan(data: TableQueryParams) {
+  return MSR.post({ url: `${stopRealSysPlanUrl}`, data });
+}
+
+export function batchStopRealOrgPlan(data: TableQueryParams) {
+  return MSR.post({ url: `${stopRealOrgPlanUrl}`, data });
+}
+
+export function batchStopRealProPlan(data: TableQueryParams) {
+  return MSR.post({ url: `${stopRealProjectPlanUrl}`, data });
 }
 
 export default {};
