@@ -55,7 +55,7 @@ public class TestPlanApiScenarioController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public Pager<List<TestPlanApiScenarioPageResponse>> page(@Validated @RequestBody TestPlanApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "test_plan_api_scenario.pos asc");
         return PageUtils.setPageInfo(page, testPlanApiScenarioService.hasRelateApiScenarioList(request, false));
     }
 
