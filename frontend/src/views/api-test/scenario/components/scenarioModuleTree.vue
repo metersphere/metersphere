@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full">
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input
         v-model:model-value="moduleKeyword"
@@ -51,7 +51,7 @@
     </div>
     <a-divider class="my-[8px]" />
 
-    <a-spin class="w-full" :style="{ height: `calc(100vh - 300px)` }" :loading="loading">
+    <a-spin class="w-full" :style="{ height: `calc(100vh - 248px)` }" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
         v-model:selected-keys="selectedKeys"
@@ -178,16 +178,8 @@
   const { openModal } = useModal();
 
   const virtualListProps = computed(() => {
-    if (props.readOnly) {
-      return {
-        height: 'calc(60vh - 325px)',
-        threshold: 200,
-        fixedSize: true,
-        buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
-      };
-    }
     return {
-      height: 'calc(100vh - 300px)',
+      height: '100%',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题

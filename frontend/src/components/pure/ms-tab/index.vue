@@ -62,6 +62,13 @@
   // 临时值，用于组件内部变更，但未影响到实际值
   const tempActiveKey = ref(activeKey.value);
 
+  watch(
+    () => activeKey.value,
+    (val) => {
+      tempActiveKey.value = val;
+    }
+  );
+
   function handleTabClick(value: string) {
     if (value === activeKey.value) {
       return;

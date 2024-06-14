@@ -36,7 +36,7 @@ export interface MinderJsonNode {
 export interface MinderJson {
   root: MinderJsonNode;
   template: string;
-  treePath: MinderJsonNode[];
+  treePath: MinderJsonNodeData[];
 }
 // 脑图类
 export interface MinderClass {

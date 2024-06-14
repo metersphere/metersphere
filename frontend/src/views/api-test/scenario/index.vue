@@ -1,101 +1,97 @@
 <template>
   <MsCard no-content-padding simple>
-    <div class="flex items-center justify-between p-[8px_16px_8px_16px]">
-      <MsEditableTab
-        v-model:active-tab="activeScenarioTab"
-        v-model:tabs="scenarioTabs"
-        v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
-        class="flex-1 overflow-hidden"
-        @add="() => newTab()"
-      >
-        <template #label="{ tab }">
-          <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
-            <div class="one-line-text max-w-[144px]">
-              {{ tab.name || tab.label }}
+    <MsSplitBox :size="300" :max="0.5">
+      <template #first>
+        <div class="flex h-full flex-col">
+          <div class="flex-1 p-[16px]">
+            <scenarioModuleTree
+              ref="scenarioModuleTreeRef"
+              :is-show-scenario="isShowScenario"
+              @count-recycle-scenario="selectRecycleCount"
+              @folder-node-select="handleNodeSelect"
+              @init="handleModuleInit"
+              @new-scenario="() => newTab()"
+            ></scenarioModuleTree>
+          </div>
+          <a-divider margin="0" />
+          <div class="case">
+            <div class="flex items-center px-[20px]" :class="getActiveClass('recycle')" @click="redirectRecycle()">
+              <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+              <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
+              <div class="folder-count">({{ recycleModulesCount || 0 }})</div>
             </div>
-          </a-tooltip>
-        </template>
-      </MsEditableTab>
-      <div v-show="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
-        <MsEnvironmentSelect :env="activeScenarioTab.environmentId" />
-        <executeButton
-          ref="executeButtonRef"
-          v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
-          :execute-loading="activeScenarioTab.executeLoading"
-          @execute="(type) => handleExecute(type)"
-          @stop-debug="handleStopExecute"
-        />
-        <a-button
-          v-if="
-            activeScenarioTab.isNew
-              ? hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])
-              : hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])
-          "
-          type="primary"
-          :loading="saveLoading"
-          @click="saveScenario"
-        >
-          {{ t('common.save') }}
-        </a-button>
-      </div>
-    </div>
-    <a-divider class="!my-0" />
-    <div v-if="activeScenarioTab.id === 'all'" class="pageWrap">
-      <MsSplitBox :size="300" :max="0.5">
-        <template #first>
-          <div class="flex h-full flex-col">
-            <div class="p-[16px]">
-              <scenarioModuleTree
-                ref="scenarioModuleTreeRef"
-                :is-show-scenario="isShowScenario"
-                @count-recycle-scenario="selectRecycleCount"
-                @folder-node-select="handleNodeSelect"
-                @init="handleModuleInit"
-                @new-scenario="() => newTab()"
-              ></scenarioModuleTree>
-            </div>
-            <div class="flex-1">
-              <a-divider margin="0" />
-              <div class="case">
-                <div class="flex items-center px-[20px]" :class="getActiveClass('recycle')" @click="redirectRecycle()">
-                  <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
-                  <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
-                  <div class="folder-count">({{ recycleModulesCount || 0 }})</div>
+          </div>
+        </div>
+      </template>
+      <template #second>
+        <div class="flex items-center justify-between p-[8px_16px_8px_16px]">
+          <MsEditableTab
+            v-model:active-tab="activeScenarioTab"
+            v-model:tabs="scenarioTabs"
+            v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
+            class="flex-1 overflow-hidden"
+            @add="() => newTab()"
+          >
+            <template #label="{ tab }">
+              <a-tooltip :content="tab.name || tab.label" :mouse-enter-delay="500">
+                <div class="one-line-text max-w-[144px]">
+                  {{ tab.name || tab.label }}
                 </div>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template #second>
-          <div class="overflow-x-hidden">
-            <ScenarioTable
-              ref="apiTableRef"
-              :active-module="activeModule"
-              :offspring-ids="offspringIds"
-              @refresh-module-tree="refreshTree"
-              @open-scenario="openScenarioTab"
-              @create-scenario="() => newTab()"
+              </a-tooltip>
+            </template>
+          </MsEditableTab>
+          <div v-show="activeScenarioTab.id !== 'all'" class="flex items-center gap-[8px]">
+            <MsEnvironmentSelect :env="activeScenarioTab.environmentId" />
+            <executeButton
+              ref="executeButtonRef"
+              v-permission="['PROJECT_API_SCENARIO:READ+EXECUTE']"
+              :execute-loading="activeScenarioTab.executeLoading"
+              @execute="(type) => handleExecute(type)"
+              @stop-debug="handleStopExecute"
             />
+            <a-button
+              v-if="
+                activeScenarioTab.isNew
+                  ? hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])
+                  : hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])
+              "
+              type="primary"
+              :loading="saveLoading"
+              @click="saveScenario"
+            >
+              {{ t('common.save') }}
+            </a-button>
           </div>
-        </template>
-      </MsSplitBox>
-    </div>
-    <div v-else-if="activeScenarioTab.isNew" class="pageWrap">
-      <create
-        ref="createRef"
-        v-model:scenario="activeScenarioTab"
-        :module-tree="moduleTree"
-        @batch-debug="realExecute($event, false)"
-      ></create>
-    </div>
-    <div v-else class="pageWrap">
-      <detail
-        ref="detailRef"
-        v-model:scenario="activeScenarioTab"
-        :module-tree="moduleTree"
-        @batch-debug="realExecute($event, false)"
-      ></detail>
-    </div>
+        </div>
+        <a-divider class="!my-0" />
+        <div v-if="activeScenarioTab.id === 'all'" class="pageWrap overflow-x-hidden">
+          <ScenarioTable
+            ref="apiTableRef"
+            :active-module="activeModule"
+            :offspring-ids="offspringIds"
+            @refresh-module-tree="refreshTree"
+            @open-scenario="openScenarioTab"
+            @create-scenario="() => newTab()"
+          />
+        </div>
+        <div v-else-if="activeScenarioTab.isNew" class="pageWrap">
+          <create
+            ref="createRef"
+            v-model:scenario="activeScenarioTab"
+            :module-tree="moduleTree"
+            @batch-debug="realExecute($event, false)"
+          ></create>
+        </div>
+        <div v-else class="pageWrap">
+          <detail
+            ref="detailRef"
+            v-model:scenario="activeScenarioTab"
+            :module-tree="moduleTree"
+            @batch-debug="realExecute($event, false)"
+          ></detail>
+        </div>
+      </template>
+    </MsSplitBox>
   </MsCard>
 </template>
 
@@ -707,43 +703,43 @@
     height: calc(100% - 50px);
     border-radius: var(--border-radius-large);
     @apply bg-white;
-    .case {
-      padding: 8px 4px;
-      border-radius: var(--border-radius-small);
-      @apply flex cursor-pointer  items-center justify-between;
-      &:hover {
-        background-color: rgb(var(--primary-1));
-      }
-      .folder-icon {
-        margin-right: 4px;
-        color: var(--color-text-4);
-      }
-      .folder-name {
-        color: var(--color-text-1);
-      }
+  }
+  .case {
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    @apply flex cursor-pointer  items-center justify-between;
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+    .folder-icon {
+      margin-right: 4px;
+      color: var(--color-text-4);
+    }
+    .folder-name {
+      color: var(--color-text-1);
+    }
+    .folder-count {
+      margin-left: 4px;
+      color: var(--color-text-4);
+    }
+    .case-active {
+      .folder-icon,
+      .folder-name,
       .folder-count {
-        margin-left: 4px;
-        color: var(--color-text-4);
+        color: rgb(var(--primary-5));
       }
-      .case-active {
-        .folder-icon,
-        .folder-name,
-        .folder-count {
-          color: rgb(var(--primary-5));
-        }
+    }
+    .back {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #ffffff;
+      background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+      box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+      .arco-icon {
+        color: rgb(var(--primary-5));
       }
-      .back {
-        margin-right: 8px;
-        width: 20px;
-        height: 20px;
-        border: 1px solid #ffffff;
-        background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
-        box-shadow: 0 0 7px rgb(15 0 78 / 9%);
-        .arco-icon {
-          color: rgb(var(--primary-5));
-        }
-        @apply flex cursor-pointer items-center rounded-full;
-      }
+      @apply flex cursor-pointer items-center rounded-full;
     }
   }
   .recycle {

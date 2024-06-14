@@ -49,7 +49,7 @@
         <slot name="title" v-bind="_props"></slot>
       </template>
       <template v-if="$slots['extra'] || props.nodeMoreActions" #extra="_props">
-        <div class="sticky right-[8px] flex items-center justify-between">
+        <div class="sticky right-0 flex items-center justify-between">
           <div v-if="_props.hideMoreAction !== true" class="ms-tree-node-extra">
             <slot name="extra" v-bind="_props"></slot>
             <MsTableMoreAction
@@ -497,6 +497,7 @@
           @apply invisible flex w-0 items-center;
 
           margin-left: -4px;
+          padding-right: 8px;
           height: 32px;
           border-radius: var(--border-radius-small);
           background-color: rgb(var(--primary-1));

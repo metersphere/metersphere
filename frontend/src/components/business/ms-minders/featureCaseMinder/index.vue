@@ -69,6 +69,7 @@
   import { FormItem } from '@/components/pure/ms-form-create/types';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
+  import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import attachment from './attachment.vue';
   import baseInfo from './basInfo.vue';
@@ -87,7 +88,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
-  import { filterTree, getGenerateId, mapTree } from '@/utils';
+  import { filterTree, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
 
   import {
     FeatureCaseMinderEditType,
@@ -158,7 +159,7 @@
       loading.value = true;
       const res = await getCaseMinderTree({
         projectId: appStore.currentProjectId,
-        moduleId: props.moduleId === 'all' ? '' : props.moduleId,
+        moduleId: '', // 始终加载全部，然后再进入对应的模块节点
       });
       caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
         ...e,
@@ -195,8 +196,11 @@
           disabled: true,
         },
       };
+      importJson.value.treePath = [];
       window.minder.importJson(importJson.value);
+      window.minder.execCommand('camera', window.minder.getRoot(), 100);
       if (props.moduleId !== 'all') {
+        // 携带具体的模块 ID 加载时，进入该模块内
         nextTick(() => {
           minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
             window.minder.getNodeById(props.moduleId),
@@ -485,7 +489,15 @@
           node.data.isLoaded = true;
         }
         // 加载完用例数据后，更新当前importJson数据
-        importJson.value = window.minder.exportJson();
+        const currentFullJson: MinderJson = window.minder.exportJson();
+        const { root } = currentFullJson;
+        if (root.data?.id === 'NONE') {
+          // 当前仍然是全部模块视图，则直接替换
+          importJson.value = currentFullJson;
+        } else {
+          // 当前是单个模块视图，则替换对应模块的数据
+          replaceNodeInTree([importJson.value.root], node.data?.id || '', root, 'data', 'id');
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -503,6 +515,7 @@
         window.minder.layout();
       }
     }
+    setPriorityView(true, 'P');
   }
 
   /**

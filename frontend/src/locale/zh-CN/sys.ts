@@ -31,9 +31,9 @@ export default {
   'asyncTask.uploadFileSuccess': '文件上传完成：成功 {done} 个，失败 {fail} 个',
   'asyncTask.uploadFileSuccessTitle': '上传完成',
   // 通用业务提示
-  'user.openSourceCreateUsersLimit': '系统用户数已达到最大用户数限制30人(社区版)，如需添加更多用户，可申请',
+  'user.openSourceCreateUsersLimit': '系统用户数已达到最大用户数限制30人(社区版)，如需添加/启用更多用户，可申请',
   'user.businessTry': '企业版试用',
-  'user.businessCreateUsersLimitThirty': '系统用户数已达到最大用户数限制30人 (社区版)，如需添加更多用户，可申请',
-  'user.businessCreateUsersLimitMax': '系统用户数已达到最大用户订阅数 {count} 人，如需添加更多用户，可申请',
+  'user.businessCreateUsersLimitThirty': '系统用户数已达到最大用户数限制30人 (社区版)，如需添加/启用更多用户，可申请',
+  'user.businessCreateUsersLimitMax': '系统用户数已达到最大用户订阅数 {count} 人，如需添加/启用更多用户，可申请',
   'user.businessScaling': '企业版扩容',
 };

@@ -255,7 +255,6 @@
     </template>
     <!-- SQL操作 -->
     <template v-else-if="condition.processorType === RequestConditionProcessor.SQL">
-      <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('ms.paramsInput.sqlOperationNameDesc') }}</div>
       <div class="mb-[8px]">
         <a-input
           v-model:model-value="condition.name"

@@ -188,7 +188,7 @@ export default {
   'apiTestDebug.testSuccess': '测试成功',
   'apiTestDebug.searchByDataBaseName': '按数据源名称搜索',
   'apiTestDebug.regexMatchRules': '表达式匹配规则',
-  'apiTestDebug.extractValueTitleTip': '输入按列存储中的列名和对应的数值，如提取name列的第一个值则输入name_1',
+  'apiTestDebug.extractValueTitleTip': '输入按列存储中的列名和对应的数值，如提取 id 列的第一个值则输入 id_1',
   'apiTestDebug.responseRepeatMessage': '名称重复，请重新输入',
   'apiTestDebug.saveAsApi': '另存为接口',
   'apiTestDebug.assertionItem': '断言项',

@@ -1164,6 +1164,20 @@
     requestVModel.value.executeLoading = false;
   }
 
+  function setDefaultActiveTab() {
+    if (requestVModel.value.body.bodyType !== RequestBodyFormat.NONE) {
+      requestVModel.value.activeTab = RequestComposition.BODY;
+    } else if (requestVModel.value.query.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.QUERY;
+    } else if (requestVModel.value.rest.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.REST;
+    } else if (requestVModel.value.headers.length > 0) {
+      requestVModel.value.activeTab = RequestComposition.HEADER;
+    } else {
+      requestVModel.value.activeTab = RequestComposition.BODY;
+    }
+  }
+
   watch(
     () => requestVModel.value.id,
     async () => {
@@ -1189,6 +1203,7 @@
         // 如果定义有参数BODY/QUERY/REST，用例默认tab是参数tab
         requestVModel.value.activeTab = contentTabList.value[1].value;
       }
+      setDefaultActiveTab();
       if (!props.isCase) {
         responseRef.value?.setActiveResponse(requestVModel.value.mode === 'debug' ? 'result' : 'content');
       }

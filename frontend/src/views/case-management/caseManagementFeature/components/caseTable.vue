@@ -210,7 +210,6 @@
       <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
         <!-- 脑图开始 -->
         <MsFeatureCaseMinder
-          minder-type="FeatureCase"
           :module-id="props.activeFolder"
           :modules-count="props.modulesCount"
           :module-name="props.moduleName"
