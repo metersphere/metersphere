@@ -95,7 +95,7 @@ public class LocalRealm extends AuthorizingRealm {
         UserDTO user = userLoginService.getUserDTO(userId);
         String msg;
         if (user == null) {
-            user = userLoginService.getUserDTOByEmail(userId, UserSource.LOCAL.name());
+            user = userLoginService.getUserDTOByEmail(userId);
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
