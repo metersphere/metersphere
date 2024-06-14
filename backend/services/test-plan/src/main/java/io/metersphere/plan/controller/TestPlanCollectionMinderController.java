@@ -44,8 +44,7 @@ public class TestPlanCollectionMinderController {
     }, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.planId", resourceType = "test_plan")
     public void editMindTestPlanCase(@Validated @RequestBody TestPlanCollectionMinderEditRequest request) {
-        String userId = SessionUtils.getUserId();
-        testPlanCollectionMinderService.editMindTestPlanCase(request, userId);
+        testPlanCollectionMinderService.editMindTestPlanCase(request, SessionUtils.getUser());
     }
 
 

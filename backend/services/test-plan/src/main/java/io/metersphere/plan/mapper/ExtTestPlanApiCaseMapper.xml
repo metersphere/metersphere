@@ -684,8 +684,10 @@
     <select id="selectApiCaseByDefinitionIds" resultType="io.metersphere.api.domain.ApiTestCase">
         SELECT
         api_test_case.id,
+        api_test_case.name,
         api_test_case.api_definition_id,
-        api_test_case.environment_id
+        api_test_case.environment_id,
+        api_test_case.create_user
         FROM
         api_test_case
         WHERE

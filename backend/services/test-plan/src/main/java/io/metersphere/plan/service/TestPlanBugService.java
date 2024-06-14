@@ -11,6 +11,7 @@ import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import io.metersphere.plan.mapper.ExtTestPlanBugMapper;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.mapper.BaseUserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -119,7 +120,7 @@ public class TestPlanBugService extends TestPlanResourceService {
     }
 
     @Override
-    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates,String userId) {
+    public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         // TODO: 暂不支持缺陷关联测试集
     }
 

@@ -26,18 +26,19 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +51,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -254,7 +256,13 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         baseCollectionAssociateRequest.setIds(List.of("wxxx_api_1"));
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.API, baseCollectionAssociateRequests);
-        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates, "wx");
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(sessionId);
+        userDTO.setName("admin");
+        userDTO.setLastOrganizationId("wxx_1234");
+        SessionUser user = SessionUser.fromUser(userDTO, sessionId);
+        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates, user);
 
         //api case
         Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates1 = new HashMap<>();
@@ -264,7 +272,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         baseCollectionAssociateRequest1.setIds(List.of("wxxx_api_case_1"));
         baseCollectionAssociateRequests1.add(baseCollectionAssociateRequest1);
         collectionAssociates1.put(AssociateCaseType.API_CASE, baseCollectionAssociateRequests1);
-        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates1, "wx");
+        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates1, user);
 
         apiTestCase = initApiData();
         TestPlanApiCase testPlanApiCase = new TestPlanApiCase();

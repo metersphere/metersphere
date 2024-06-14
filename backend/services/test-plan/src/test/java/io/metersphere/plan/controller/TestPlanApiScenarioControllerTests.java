@@ -38,8 +38,11 @@ import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -270,7 +273,13 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         baseCollectionAssociateRequest.setIds(List.of("wxxx_api_scenario_1"));
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.API_SCENARIO, baseCollectionAssociateRequests);
-        testPlanApiScenarioService.associateCollection("wxxx_plan_2", collectionAssociates, "wx");
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(sessionId);
+        userDTO.setName("admin");
+        userDTO.setLastOrganizationId("wxx_1234");
+        SessionUser user = SessionUser.fromUser(userDTO, sessionId);
+        testPlanApiScenarioService.associateCollection("wxxx_plan_2", collectionAssociates, user);
     }
 
     @Test

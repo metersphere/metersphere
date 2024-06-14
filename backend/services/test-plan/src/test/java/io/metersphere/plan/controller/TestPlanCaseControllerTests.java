@@ -23,6 +23,9 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -363,7 +366,12 @@ public class TestPlanCaseControllerTests extends BaseTest {
         baseCollectionAssociateRequest.setIds(List.of("fc_1"));
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
-        testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, "wx");
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(sessionId);
+        userDTO.setName("admin");
+        userDTO.setLastOrganizationId("wxx_1234");
+        SessionUser user = SessionUser.fromUser(userDTO, sessionId);
+        testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, user);
     }
 
     @Test

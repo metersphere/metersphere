@@ -9,6 +9,7 @@ import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.sdk.SessionUser;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +63,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
      * @param planId               计划ID
      * @param collectionAssociates 测试集关联用例参数
      */
-    public abstract void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, String userId);
+    public abstract void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user);
 
 	/**
 	 * 初始化旧的关联资源到默认测试集

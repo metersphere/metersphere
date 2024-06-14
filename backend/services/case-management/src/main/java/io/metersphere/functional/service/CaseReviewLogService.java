@@ -165,7 +165,7 @@ public class CaseReviewLogService {
                     caseReview.getProjectId(),
                     null,
                     caseReview.getId(),
-                    caseReview.getCreateUser(),
+                    null,
                     OperationLogType.ASSOCIATE.name(),
                     OperationLogModule.CASE_REVIEW_DETAIL,
                     functionalCase.getName());
