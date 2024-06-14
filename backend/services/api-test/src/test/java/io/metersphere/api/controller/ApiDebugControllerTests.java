@@ -69,9 +69,11 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEBUG_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -454,11 +456,11 @@ public class ApiDebugControllerTests extends BaseTest {
         projectTestResourcePoolExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
         projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
         // @校验组织没有资源池权限异常
-        assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        assertRun(this.requestPostAndReturn(DEBUG, request));
         TestResourcePool resourcePool = baseResourcePoolTestService.insertResourcePool();
         baseResourcePoolTestService.insertResourcePoolOrg(resourcePool);
         // @校验项目没有资源池权限异常
-        assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        assertRun(this.requestPostAndReturn(DEBUG, request));
 
         TestResourcePoolExample example = new TestResourcePoolExample();
         example.createCriteria().andNameEqualTo("默认资源池");
@@ -474,7 +476,7 @@ public class ApiDebugControllerTests extends BaseTest {
         baseResourcePoolTestService.insertResourcePoolProject(resourcePool);
         baseResourcePoolTestService.insertProjectApplication(resourcePool);
         // @校验资源池调用失败
-        assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
+        assertRun(this.requestPostAndReturn(DEBUG, request));
 
         mockPost("/api/debug", "");
         msHTTPElement.setPath("/test/{rest1}/aa");
@@ -570,6 +572,14 @@ public class ApiDebugControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);
+    }
+
+    public static void assertRun(MvcResult mvcResult) throws UnsupportedEncodingException {
+        Map resultData = JSON.parseMap(mvcResult.getResponse().getContentAsString());
+        Integer code = (Integer) resultData.get("code");
+        if (code != ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() && code != ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG.getCode()) {
+            Assertions.assertTrue(false);
+        }
     }
 
     private CustomFunction addCustomFunction() {

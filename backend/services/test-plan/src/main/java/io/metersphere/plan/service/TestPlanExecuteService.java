@@ -1,10 +1,7 @@
 package io.metersphere.plan.service;
 
 import com.esotericsoftware.minlog.Log;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanCollection;
-import io.metersphere.plan.domain.TestPlanCollectionExample;
-import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
@@ -41,6 +38,10 @@ public class TestPlanExecuteService {
     private TestPlanService testPlanService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private TestPlanApiCasePlanRunService testPlanApiCasePlanRunService;
+    @Resource
+    private TestPlanApiScenarioPlanRunService testPlanApiScenarioPlanRunService;
 
     @Resource
     private RedisTemplate<String, String> redisTemplate;
@@ -276,28 +277,37 @@ public class TestPlanExecuteService {
 
     }
 
-    // todo  @Chen jianxing 执行用例
+    /**
+     * 批量执行单个测试集的用例
+     * @param testPlanExecutionQueue
+     */
     private void executeCase(TestPlanExecutionQueue testPlanExecutionQueue) {
         String queueId = testPlanExecutionQueue.getQueueId();
-        String queueType = testPlanExecutionQueue.getQueueType();
-
         try {
+            boolean isFinish = false;
             TestPlanCollection collection = JSON.parseObject(testPlanExecutionQueue.getTestPlanCollectionJson(), TestPlanCollection.class);
-            String runMode = collection.getExecuteMethod();
-            String environmentId = collection.getEnvironmentId();
             if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.API_CASE.getKey())) {
-                // todo 执行API用例    预生成报告时会将要执行的用例记录在test_plan_report_api_case表中，通过它查询
+                if (StringUtils.equals(collection.getExecuteMethod(), ApiBatchRunMode.PARALLEL.name())) {
+                    isFinish = testPlanApiCasePlanRunService.parallelExecute(testPlanExecutionQueue);
+                } else {
+                    isFinish = testPlanApiCasePlanRunService.serialExecute(testPlanExecutionQueue);
+                }
             } else if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.SCENARIO_CASE.getKey())) {
-                // todo 执行场景用例  预生成报告时会将要执行的用例记录在test_plan_report_api_scenario表中，通过它查询
+                if (StringUtils.equals(collection.getExecuteMethod(), ApiBatchRunMode.PARALLEL.name())) {
+                    isFinish = testPlanApiScenarioPlanRunService.parallelExecute(testPlanExecutionQueue);
+                } else {
+                    isFinish = testPlanApiScenarioPlanRunService.serialExecute(testPlanExecutionQueue);
+                }
             }
-            //执行完成之后需要回调：  collectionExecuteQueueFinish
-            //如果没有要执行的用例（可能会出现空测试集的情况），直接调用collectionExecuteQueueFinish(queueId)
+            if (isFinish) {
+                // 如果没有要执行的用例（可能会出现空测试集的情况），直接调用回调
+                collectionExecuteQueueFinish(queueId);
+            }
         } catch (Exception e) {
             Log.error("按测试集执行失败!", e);
             collectionExecuteQueueFinish(queueId);
         }
     }
-
 
     //测试集执行完成
     public void collectionExecuteQueueFinish(String queueID) {
