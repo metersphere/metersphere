@@ -10,19 +10,15 @@
       />
     </div>
     <div class="analysis min-w-[410px]">
-      <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
-      <SetReportChart
-        size="160px"
-        :legend-data="legendData"
-        :options="charOptions"
-        :request-total="getIndicators(detail.caseTotal) || 0"
-      />
+      <ExecuteAnalysis :detail="detail" />
     </div>
   </div>
   <Summary
     v-model:richText="richText"
     :share-id="shareId"
     :show-button="showButton"
+    :is-plan-group="true"
+    :detail="detail"
     @update-summary="handleUpdateReportDetail"
     @cancel="handleCancel"
     @handle-summary="handleSummary"
@@ -57,7 +53,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
+  import ExecuteAnalysis from '@/views/test-plan/report/detail/component/executeAnalysis.vue';
   import ReportDetailTable from '@/views/test-plan/report/detail/component/reportDetailTable.vue';
   import ReportHeader from '@/views/test-plan/report/detail/component/reportHeader.vue';
   import ReportMetricsItem from '@/views/test-plan/report/detail/component/ReportMetricsItem.vue';
@@ -68,10 +64,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
 
-  import type { LegendData } from '@/models/apiTest/report';
   import type { PlanReportDetail, ReportMetricsItemModel } from '@/models/testPlan/testPlanReport';
-
-  import { getIndicators } from '@/views/api-test/report/utils';
 
   const { t } = useI18n();
 
@@ -87,90 +80,23 @@
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
   const shareId = ref<string>(route.query.shareId as string);
-  const charOptions = ref({
-    tooltip: {
-      show: false,
-      trigger: 'item',
-    },
-    legend: {
-      show: false,
-    },
-    series: {
-      name: '',
-      type: 'pie',
-      radius: ['62%', '80%'],
-      center: ['50%', '50%'],
-      avoidLabelOverlap: false,
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: false,
-          fontSize: 40,
-          fontWeight: 'bold',
-        },
-      },
-      labelLine: {
-        show: false,
-      },
-      data: [
-        {
-          value: 0,
-          name: t('common.success'),
-          itemStyle: {
-            color: '#00C261',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.fakeError'),
-          itemStyle: {
-            color: '#FFC14E',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.fail'),
-          itemStyle: {
-            color: '#ED0303',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.unExecute'),
-          itemStyle: {
-            color: '#D4D4D8',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.block'),
-          itemStyle: {
-            color: '#B379C8',
-          },
-        },
-      ],
-    },
-  });
-  const legendData = ref<LegendData[]>([]);
+
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
     {
       name: t('report.detail.testPlanTotal'),
-      value: detail.value.passThreshold,
+      value: addCommasToNumber(detail.value.planCount),
       unit: t('report.detail.number'),
       icon: 'plan_total',
     },
     {
       name: t('report.detail.testPlanCaseTotal'),
-      value: detail.value.passRate,
+      value: addCommasToNumber(detail.value.caseTotal),
       unit: t('report.detail.number'),
       icon: 'case_total',
     },
     {
       name: t('report.passRate'),
-      value: detail.value.executeRate,
+      value: detail.value.passRate,
       unit: '%',
       icon: 'passRate',
     },
@@ -182,9 +108,8 @@
     },
   ]);
 
-  const summaryContent = ref<string>('');
-
   const showButton = ref(false);
+
   const richText = ref<{ summary: string; richTextTmpFileIds?: string[] }>({
     summary: '',
   });
@@ -210,14 +135,21 @@
     showButton.value = false;
   }
 
-  function handleSummary() {
-    richText.value.summary = summaryContent.value;
+  function handleSummary(content: string) {
+    richText.value.summary = content;
   }
 
   const currentMode = ref<string>('drawer');
   const handleModeChange = (value: string | number | boolean) => {
     currentMode.value = value as string;
   };
+
+  watchEffect(() => {
+    if (props.detailInfo) {
+      detail.value = cloneDeep(props.detailInfo);
+      richText.value.summary = detail.value.summary;
+    }
+  });
 
   onMounted(async () => {
     nextTick(() => {

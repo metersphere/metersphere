@@ -145,4 +145,5 @@ export default {
   'testPlan.plan': 'Test plan',
   'testPlan.planTip':
     '1. Create a test set for business classification testing; 2. Select the test set associated use case',
+  'testPlan.planStartToEndTimeTip': '测试计划已超时',
 };

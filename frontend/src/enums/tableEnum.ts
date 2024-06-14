@@ -72,8 +72,6 @@ export enum TableKeyEnum {
   TEST_PLAN_DETAIL_API_CASE = 'testPlanDetailApiCase',
   TEST_PLAN_DETAIL_API_SCENARIO = 'testPlanDetailApiScenario',
   TEST_PLAN_REPORT_TABLE = 'testPlanReportTable',
-  TEST_PLAN_REPORT_DETAIL_BUG = 'testPlanReportDetailBug',
-  TEST_PLAN_REPORT_DETAIL_FEATURE_CASE = 'testPlanReportDetailFeatureCase',
   TASK_API_CASE_SYSTEM = 'taskCenterApiCaseSystem',
   TASK_API_CASE_ORGANIZATION = 'taskCenterApiCaseOrganization',
   TASK_API_CASE_PROJECT = 'taskCenterApiCaseProject',

@@ -147,6 +147,7 @@ export interface FollowPlanParams {
 export interface TestPlanBaseParams {
   projectId?: string;
   testPlanId: string;
+  triggerMode?: string;
 }
 
 export interface PlanDetailFeatureCaseItem {

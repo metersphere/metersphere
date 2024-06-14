@@ -2,7 +2,7 @@
   <MsDetailDrawer
     ref="detailDrawerRef"
     v-model:visible="showDrawerVisible"
-    :width="960"
+    :width="850"
     :footer="false"
     :mask="false"
     :title="t('caseManagement.featureCase.caseDetailTitle', { id: detailInfo?.num, name: detailInfo?.name })"

@@ -359,6 +359,7 @@
       await generateReport({
         projectId: appStore.currentProjectId,
         testPlanId: detail.value.id as string,
+        triggerMode: 'MANUAL',
       });
       Message.success(t('testPlan.testPlanDetail.successfullyGenerated'));
     } catch (error) {

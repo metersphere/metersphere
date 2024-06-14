@@ -11,6 +11,12 @@
         </a-tooltip>
       </div>
     </template>
+    <template #resultStatus="{ record }">
+      <ExecutionStatus v-if="record.resultStatus !== '-'" :status="record.resultStatus" />
+    </template>
+    <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
+      <ExecutionStatus :status="filterContent.value" />
+    </template>
     <template #operation="{ record }">
       <MsButton class="!mx-0" @click="openReport(record)">{{ t('report.detail.testPlanGroup.viewReport') }}</MsButton>
     </template>
@@ -25,13 +31,17 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
   import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
-  import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
+  import { getReportDetailPage, getReportDetailSharePage } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
+  import { PlanReportDetail } from '@/models/testPlan/testPlanReport';
+  import { PlanReportStatus } from '@/enums/reportEnum';
   import { RouteEnum } from '@/enums/routeEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const { openNewPage } = useOpenNewPage();
 
@@ -42,6 +52,16 @@
     shareId?: string;
     currentMode: string;
   }>();
+
+  const statusResultOptions = computed(() => {
+    return Object.keys(PlanReportStatus).map((key) => {
+      return {
+        value: key,
+        label: PlanReportStatus[key].statusText,
+      };
+    });
+  });
+
   const columns: MsTableColumn = [
     {
       title: 'testPlan.testPlanIndex.operation',
@@ -60,35 +80,41 @@
     },
     {
       title: 'report.detail.testPlanGroup.result',
-      dataIndex: 'result',
+      dataIndex: 'resultStatus',
+      slotName: 'resultStatus',
+      filterConfig: {
+        options: statusResultOptions.value,
+        filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
+      },
       showTooltip: true,
       width: 200,
     },
     {
       title: 'report.detail.threshold',
-      dataIndex: 'threshold',
-      slotName: 'threshold',
+      dataIndex: 'passThreshold',
+      slotName: 'passThreshold',
       width: 150,
     },
     {
       title: 'report.passRate',
-      dataIndex: 'executeUser',
+      dataIndex: 'passRate',
+      slotName: 'passRate',
       titleSlotName: 'passRateTitle',
       showTooltip: true,
       width: 150,
     },
     {
       title: 'report.detail.testPlanGroup.useCasesCount',
-      dataIndex: 'bugCount',
+      dataIndex: 'caseTotal',
       width: 100,
     },
   ];
 
-  const reportBugList = () => {
-    return !props.shareId ? getReportBugList : getReportShareBugList;
+  const reportDetailList = () => {
+    return !props.shareId ? getReportDetailPage : getReportDetailSharePage;
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportBugList(), {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportDetailList(), {
     columns,
     heightUsed: 20,
     showSelectorAll: false,
@@ -104,8 +130,10 @@
       loadReportDetailList();
     }
   });
+
   const reportVisible = ref(false);
-  function openReport(record: any) {
+
+  function openReport(record: PlanReportDetail) {
     if (props.currentMode === 'drawer') {
       reportVisible.value = true;
     } else {

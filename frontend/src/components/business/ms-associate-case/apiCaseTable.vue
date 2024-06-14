@@ -244,6 +244,11 @@
   watch(
     () => () => props.currentProject,
     () => {
+      setPagination({
+        current: 1,
+      });
+      resetSelector();
+      resetFilterParams();
       loadCaseList();
     }
   );
@@ -252,6 +257,8 @@
     () => props.activeModule,
     (val) => {
       if (val) {
+        resetSelector();
+        resetFilterParams();
         loadCaseList();
       }
     }

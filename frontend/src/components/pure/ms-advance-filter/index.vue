@@ -45,7 +45,14 @@
       </MsTag> -->
 
       <slot name="right"></slot>
-      <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleRefresh">
+      <MsTag
+        no-margin
+        size="large"
+        :tooltip-disabled="true"
+        class="cursor-pointer"
+        theme="outline"
+        @click="handleRefresh"
+      >
         <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
       </MsTag>
     </div>

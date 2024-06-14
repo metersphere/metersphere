@@ -28,7 +28,7 @@
           type="text"
           class="one-line-text w-full"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail()"
+          @click="showDetail(record.resourceId)"
           >{{ record.resourceNum }}
         </div>
       </template>
@@ -37,7 +37,7 @@
           v-if="!record.integrated"
           class="one-line-text max-w-[300px]"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail()"
+          @click="showDetail(record.resourceId)"
           >{{ record.resourceName }}
         </div>
       </template>
@@ -75,7 +75,7 @@
             <MsButton
               class="!mr-0"
               :disabled="record.historyDeleted || !hasAnyPermission(permissionsMap[props.group].report)"
-              @click="viewReport(record.id)"
+              @click="viewReport(record.id, record.integrated)"
               >{{ t('project.taskCenter.viewReport') }}
             </MsButton>
           </a-tooltip>
@@ -84,7 +84,7 @@
           <MsButton
             class="!mr-0"
             :disabled="record.historyDeleted || !hasAnyPermission(permissionsMap[props.group].report)"
-            @click="viewReport(record.id)"
+            @click="viewReport(record.id, record.integrated)"
             >{{ t('project.taskCenter.viewReport') }}
           </MsButton>
         </div>
@@ -420,14 +420,17 @@
     }
   }
 
-  function viewReport(id: string) {
+  function viewReport(id: string, type: boolean) {
     openNewPage(RouteEnum.TEST_PLAN_REPORT_DETAIL, {
       id,
+      type: type ? 'GROUP' : 'TEST_PLAN',
     });
   }
 
-  function showDetail() {
-    // TODO
+  function showDetail(id: string) {
+    openNewPage(RouteEnum.TEST_PLAN_INDEX_DETAIL, {
+      id,
+    });
   }
 
   function stop(record: any) {

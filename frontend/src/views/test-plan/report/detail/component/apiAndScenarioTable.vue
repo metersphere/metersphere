@@ -6,14 +6,14 @@
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
       <caseLevel :case-level="filterContent.value" />
     </template>
-    <template #caseLevel="{ record }">
-      <CaseLevel :case-level="record.caseLevel" />
+    <template #priority="{ record }">
+      <caseLevel :case-level="record.priority" />
     </template>
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
       <ExecuteResult :execute-result="filterContent.key" />
     </template>
     <template #lastExecResult="{ record }">
-      <ExecuteResult :execute-result="record.lastExecResult" />
+      <ExecuteResult :execute-result="record.executeResult" />
       <!-- TOTO 暂时不上 -->
       <!-- <MsIcon
         v-show="record.lastExecResult !== LastExecuteResults.PENDING"
@@ -37,15 +37,13 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
 
   import { getApiPage, getScenarioPage, getShareApiPage, getShareScenarioPage } from '@/api/modules/test-plan/report';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
-  import { LastExecuteResults } from '@/enums/caseEnum';
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
@@ -61,6 +59,7 @@
     {
       title: 'ID',
       dataIndex: 'num',
+      slotName: 'num',
       sortIndex: 1,
       fixed: 'left',
       width: 100,
@@ -75,7 +74,7 @@
     {
       title: 'report.detail.level',
       dataIndex: 'priority',
-      slotName: 'caseLevel',
+      slotName: 'priority',
       filterConfig: {
         options: casePriorityOptions,
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
@@ -85,7 +84,7 @@
     },
     {
       title: 'common.executionResult',
-      dataIndex: 'lastExecResult',
+      dataIndex: 'executeResult',
       slotName: 'lastExecResult',
       filterConfig: {
         valueKey: 'key',
@@ -101,14 +100,6 @@
       dataIndex: 'moduleName',
       showTooltip: true,
       width: 200,
-      showDrag: true,
-    },
-
-    {
-      title: 'case.tableColumnCreateUser',
-      dataIndex: 'createUserName',
-      showTooltip: true,
-      width: 130,
       showDrag: true,
     },
     {
@@ -128,23 +119,16 @@
   ];
   const reportApiList = () => {
     if (props.activeTab === 'scenarioCase') {
-      return !props.shareId ? getShareScenarioPage : getScenarioPage;
+      return !props.shareId ? getScenarioPage : getShareScenarioPage;
     }
-    return !props.shareId ? getShareApiPage : getApiPage;
+    return !props.shareId ? getApiPage : getShareApiPage;
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetFilterParams, resetPagination } = useTable(
     reportApiList(),
     {
       scroll: { x: '100%' },
       columns,
-      tableKey: TableKeyEnum.TEST_PLAN_REPORT_DETAIL_BUG,
       showSelectorAll: false,
-    },
-    (record) => {
-      return {
-        ...record,
-        lastExecResult: record.executeResult ?? LastExecuteResults.PENDING,
-      };
     }
   );
 
@@ -172,6 +156,8 @@
   watch(
     () => props.activeTab,
     () => {
+      resetFilterParams();
+      resetPagination();
       loadCaseList();
     }
   );

@@ -36,7 +36,7 @@
         <div
           type="text"
           class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
-          @click="showReportDetail(record.id)"
+          @click="showReportDetail(record.id, record.integrated)"
         >
           {{ characterLimit(record.name) }}
         </div>
@@ -56,7 +56,7 @@
       </template>
       <template #passRate="{ record }">
         <div class="text-[var(--color-text-1)]">
-          {{ `${record.passRate}%` }}
+          {{ `${record.passRate || '0.00'}%` }}
         </div>
       </template>
       <!-- 执行状态筛选 -->
@@ -420,19 +420,17 @@
   /**
    * 报告详情 showReportDetail
    */
-  function showReportDetail(id: string) {
+  function showReportDetail(id: string, type: boolean) {
     router.push({
       name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
       query: {
         id,
+        type: type ? 'GROUP' : 'TEST_PLAN',
       },
     });
   }
 
   onBeforeMount(() => {
-    if (route.query.id) {
-      showReportDetail(route.query.id as string);
-    }
     initData();
   });
 </script>

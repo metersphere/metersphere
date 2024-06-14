@@ -133,4 +133,5 @@ export default {
   'testPlan.testPlanGroup.closeScheduleTaskSuccess': '关闭定时任务成功',
   'testPlan.plan': '测试规划',
   'testPlan.planTip': '1.创建测试集进行业务分类测试；2.选择测试集关联用例',
+  'testPlan.planStartToEndTimeTip': '测试计划已超时',
 };

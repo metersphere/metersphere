@@ -1,7 +1,6 @@
 <template>
-  <PlanDetail :detail-info="detail" @update-success="getDetail()" />
-  <!-- TODO 待联调计划组报告 -->
-  <!-- <PlanGroupDetail :detail-info="detail" @update-success="getDetail()" /> -->
+  <PlanGroupDetail v-if="isGroup" :detail-info="detail" @update-success="getDetail()" />
+  <PlanDetail v-else :detail-info="detail" @update-success="getDetail()" />
 </template>
 
 <script setup lang="ts">
@@ -22,6 +21,8 @@
 
   const detail = ref<PlanReportDetail>(cloneDeep(defaultReportDetail));
 
+  const isGroup = computed(() => route.query.type === 'GROUP');
+
   async function getDetail() {
     try {
       detail.value = await getReportDetail(reportId.value);
@@ -33,7 +34,6 @@
   onBeforeMount(() => {
     getDetail();
   });
-  // 测试代码结束
 </script>
 
 <style scoped lang="less"></style>
