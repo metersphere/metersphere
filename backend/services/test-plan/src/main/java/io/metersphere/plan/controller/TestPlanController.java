@@ -1,8 +1,11 @@
 package io.metersphere.plan.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
@@ -19,6 +22,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +31,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -250,5 +255,15 @@ public class TestPlanController {
     public void deleteScheduleConfig(@PathVariable String testPlanId) {
         testPlanManagementService.checkModuleIsOpen(testPlanId, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.deleteScheduleConfig(testPlanId);
+    }
+
+    @PostMapping(value = "/his/page")
+    @Operation(summary = "测试计划-执行历史-列表分页查询")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
+    public Pager<List<TestPlanExecuteHisDTO>> pageHis(@Validated TestPlanExecuteHisPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                MapUtils.isEmpty(request.getSort()) ? "tpr.create_time desc" : request.getSortString());
+        return PageUtils.setPageInfo(page, testPlanService.listHis(request));
     }
 }

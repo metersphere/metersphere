@@ -2,6 +2,7 @@ package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
+import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
@@ -20,8 +21,10 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -56,6 +59,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    private BaseUserMapper baseUserMapper;
     @Resource
     private TestPlanGroupService testPlanGroupService;
     @Resource
@@ -824,6 +829,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     public void deleteScheduleConfig(String testPlanId) {
         scheduleService.deleteByResourceId(testPlanId, TestPlanScheduleJob.getJobKey(testPlanId), TestPlanScheduleJob.getTriggerKey(testPlanId));
+    }
+
+    public List<TestPlanExecuteHisDTO> listHis(TestPlanExecuteHisPageRequest request) {
+        List<TestPlanExecuteHisDTO> hisList = extTestPlanMapper.listHis(request);
+        if (CollectionUtils.isEmpty(hisList)) {
+            return new ArrayList<>();
+        }
+        List<String> userIds = hisList.stream().map(TestPlanExecuteHisDTO::getCreateUser).distinct().toList();
+        List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
+        Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+        hisList.forEach(his -> {
+            his.setCreateUser(userMap.getOrDefault(his.getCreateUser(), his.getCreateUser()));
+        });
+        return hisList;
     }
 
     public List<String> selectRightfulIds(List<String> executeIds) {

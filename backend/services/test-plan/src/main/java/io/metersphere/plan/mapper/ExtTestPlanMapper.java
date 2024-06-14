@@ -1,8 +1,10 @@
 package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.TestPlanQueryConditions;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
+import io.metersphere.plan.dto.request.TestPlanExecuteHisPageRequest;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.project.dto.DropNode;
@@ -52,4 +54,6 @@ public interface ExtTestPlanMapper {
     List<TestPlanResponse> selectByGroupIds(@Param("groupIds") List<String> groupIds);
 
     List<String> selectRightfulIdsForExecute(@Param("ids") List<String> ids);
+
+    List<TestPlanExecuteHisDTO> listHis(@Param("request")TestPlanExecuteHisPageRequest request);
 }
