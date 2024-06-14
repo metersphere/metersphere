@@ -1164,11 +1164,11 @@ public class TestPlanTests extends BaseTest {
 
         //修改a2节点下的数据（91,92）的所属测试计划组
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_91").getId());
-        updateRequest.setTestPlanGroupId(groupTestPlanId7);
+        updateRequest.setGroupId(groupTestPlanId7);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_92").getId());
-        updateRequest.setTestPlanGroupId(groupTestPlanId7);
+        updateRequest.setGroupId(groupTestPlanId7);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
 
