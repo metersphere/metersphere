@@ -157,13 +157,31 @@
         </span>
       </a-tooltip>
     </template>
+    <template #planStartToEndTime="{ record }">
+      <div>
+        {{ record.plannedStartTime ? dayjs(record.plannedStartTime) : '-' }} {{ t('common.to') }}
+        <a-tooltip
+          class="ms-tooltip-red"
+          :content="t('testPlan.planStartToEndTimeTip')"
+          :disabled="record.execStatus !== LastExecuteResults.ERROR"
+        >
+          <span :class="[`${record.execStatus === LastExecuteResults.ERROR ? 'text-[rgb(var(--danger-6))' : ''}`]">
+            {{ record?.plannedEndTime ? dayjs(record.plannedEndTime) : '-' }}
+          </span>
+        </a-tooltip>
+      </div>
+    </template>
+    <template #actualStartToEndTime="{ record }">
+      {{ record?.actualStartTime ? dayjs(record.actualStartTime) : '-' }}{{ t('common.to')
+      }}{{ record.actualEndTime ? dayjs(record.actualEndTime) : '-' }}
+    </template>
 
     <template #passRate="{ record }">
       <div class="mr-[8px] w-[100px]">
         <StatusProgress :status-detail="defaultCountDetailMap[record.id]" height="5px" />
       </div>
       <div class="text-[var(--color-text-1)]">
-        {{ `${defaultCountDetailMap[record.id] ? defaultCountDetailMap[record.id].passRate : '-'}%` }}
+        {{ `${defaultCountDetailMap[record.id]?.passRate ? defaultCountDetailMap[record.id].passRate : '-'}%` }}
       </div>
     </template>
     <template #passRateTitleSlot="{ columnConfig }">
@@ -221,6 +239,8 @@
 
     <template #operation="{ record }">
       <div class="flex items-center">
+        <!-- TODO 测试计划组手动生成报告 -->
+        <!-- <MsButton class="mr-2" @click="handleGenerateReport(record.id)">生成报告</MsButton> -->
         <MsButton
           v-if="
             getFunctionalCount(record.id) > 0 &&
@@ -313,7 +333,6 @@
     :type="showType"
     @save="handleMoveOrCopy"
   />
-  <!-- TODO 待联调[编辑] 字段加到统计里边 -->
   <ScheduledModal
     v-model:visible="showScheduledTaskModal"
     :type="planType"
@@ -398,6 +417,7 @@
     PassRateCountDetail,
     TestPlanItem,
   } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -530,7 +550,6 @@
     {
       title: 'testPlan.testPlanIndex.planStartToEndTime',
       slotName: 'planStartToEndTime',
-      dataIndex: 'planStartToEndTime',
       showInTable: false,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -542,7 +561,6 @@
     {
       title: 'testPlan.testPlanIndex.actualStartToEndTime',
       slotName: 'actualStartToEndTime',
-      dataIndex: 'actualStartToEndTime',
       showInTable: false,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -763,7 +781,7 @@
     showSetting: true,
     heightUsed: 236,
     paginationSize: 'mini',
-    showSelectorAll: true,
+    showSelectorAll: false,
     draggable: { type: 'handle' },
     draggableCondition: true,
   });

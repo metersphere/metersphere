@@ -1,12 +1,13 @@
 <template>
-  <PlanGroupDetail :detail-info="detail" />
+  <PlanGroupDetail v-if="props.isGroup" :detail-info="detail" @update-success="getDetail()" />
+  <PlanDetail v-else :detail-info="detail" @update-success="getDetail()" />
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
+  import PlanDetail from '@/views/test-plan/report/detail/component/planDetail.vue';
   import PlanGroupDetail from '@/views/test-plan/report/detail/component/planGroupDetail.vue';
 
   import { getReportDetail } from '@/api/modules/test-plan/report';
@@ -14,16 +15,17 @@
 
   import type { PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
-  const route = useRoute();
-  const reportId = ref<string>(route.query.id as string);
+  const props = defineProps<{
+    isGroup: boolean;
+    reportId: string;
+  }>();
 
   const detail = ref<PlanReportDetail>(cloneDeep(defaultReportDetail));
 
   async function getDetail() {
     try {
-      detail.value = await getReportDetail(reportId.value);
+      detail.value = await getReportDetail(props.reportId);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -33,4 +35,4 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less"></style>

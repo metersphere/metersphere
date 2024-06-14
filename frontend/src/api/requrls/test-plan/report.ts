@@ -36,3 +36,7 @@ export const ReportIndependentScenarioUrl = '/test-plan/report/detail/scenario/c
 export const ReportShareApiUrl = '/test-plan/report/share/detail/api/case/page';
 // 测试计划-独立报告-场景用例-分享
 export const ReportShareScenarioUrl = '/test-plan/report/share/detail/scenario/case/page';
+// 测试计划-聚合报告-报告明细
+export const ReportDetailPageUrl = '/test-plan/report/detail/plan/report/page';
+// 测试计划-聚合报告-报告明细-分享
+export const ReportDetailSharePageUrl = '/test-plan/report/share/detail/plan/report/page';

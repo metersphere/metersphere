@@ -2,7 +2,7 @@
   <MsDetailDrawer
     ref="detailDrawerRef"
     v-model:visible="showDrawerVisible"
-    :width="900"
+    :width="850"
     :footer="false"
     :title="t('bugManagement.detail.title', { id: detailInfo?.num, name: detailInfo?.title })"
     :tooltip-text="(detailInfo && detailInfo.title) || null"

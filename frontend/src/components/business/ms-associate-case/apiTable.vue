@@ -206,6 +206,11 @@
   watch(
     () => [() => props.currentProject, () => props.protocols],
     () => {
+      setPagination({
+        current: 1,
+      });
+      resetSelector();
+      resetFilterParams();
       loadApiList();
     }
   );
@@ -225,6 +230,8 @@
     () => props.activeModule,
     (val) => {
       if (val) {
+        resetSelector();
+        resetFilterParams();
         loadApiList();
       }
     }

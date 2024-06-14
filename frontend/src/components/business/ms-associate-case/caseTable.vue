@@ -283,6 +283,11 @@
     () => props.currentProject,
     (val) => {
       if (val) {
+        setPagination({
+          current: 1,
+        });
+        resetSelector();
+        resetFilterParams();
         loadCaseList();
       }
     },
@@ -295,6 +300,8 @@
     () => props.activeModule,
     (val) => {
       if (val) {
+        resetSelector();
+        resetFilterParams();
         loadCaseList();
       }
     }

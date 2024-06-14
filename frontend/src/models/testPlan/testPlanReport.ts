@@ -21,6 +21,7 @@ export interface PlanReportDetail {
   functionalCount: countDetail;
   apiCaseCount: countDetail; // 接口场景用例分析-用例数
   apiScenarioCount: countDetail; // 接口场景用例分析-用例数
+  planCount: number;
 }
 
 export type AnalysisType = 'FUNCTIONAL' | 'API' | 'SCENARIO';

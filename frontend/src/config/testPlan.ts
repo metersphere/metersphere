@@ -82,6 +82,7 @@ export const defaultReportDetail: PlanReportDetail = {
   functionalCount: cloneDeep(defaultCount),
   apiCaseCount: cloneDeep(defaultCount),
   apiScenarioCount: cloneDeep(defaultCount),
+  planCount: 0,
 };
 
 export const statusConfig: StatusListType[] = [

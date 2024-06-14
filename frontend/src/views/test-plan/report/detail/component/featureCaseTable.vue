@@ -22,9 +22,7 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
   import { getReportFeatureCaseList, getReportShareFeatureCaseList } from '@/api/modules/test-plan/report';
-  import { useTableStore } from '@/store';
 
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -32,9 +30,8 @@
   const props = defineProps<{
     reportId: string;
     shareId?: string;
+    activeTab: string;
   }>();
-
-  const tableStore = useTableStore();
 
   const columns: MsTableColumn = [
     {
@@ -104,7 +101,6 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
     scroll: { x: '100%' },
     columns,
-    tableKey: TableKeyEnum.TEST_PLAN_REPORT_DETAIL_FEATURE_CASE,
     heightUsed: 20,
     showSelectorAll: false,
   });
@@ -119,6 +115,4 @@
       loadCaseList();
     }
   });
-
-  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_REPORT_DETAIL_FEATURE_CASE, columns, 'drawer');
 </script>

@@ -9,6 +9,7 @@ import {
   ReportBugItem,
   UpdateReportDetailParams,
 } from '@/models/testPlan/report';
+import { PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
 // 报告列表
 export function reportList(data: TableQueryParams) {
@@ -99,6 +100,14 @@ export function getShareApiPage(data: TableQueryParams) {
 // 测试计划-报告-获取分享链接时效
 export function getShareScenarioPage(data: TableQueryParams) {
   return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareScenarioUrl, data });
+}
+// 测试计划-聚合报告-报告明细
+export function getReportDetailPage(data: TableQueryParams) {
+  return MSR.post<CommonList<PlanReportDetail>>({ url: reportUrl.ReportDetailPageUrl, data });
+}
+// 测试计划-聚合报告-报告明细-分享
+export function getReportDetailSharePage(data: TableQueryParams) {
+  return MSR.post<CommonList<PlanReportDetail>>({ url: reportUrl.ReportDetailSharePageUrl, data });
 }
 
 export default {};

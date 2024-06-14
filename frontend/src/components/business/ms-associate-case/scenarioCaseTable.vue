@@ -243,6 +243,11 @@
     () => props.currentProject,
     (val) => {
       if (val) {
+        setPagination({
+          current: 1,
+        });
+        resetSelector();
+        resetFilterParams();
         loadScenarioList();
       }
     },
@@ -255,6 +260,8 @@
     () => props.activeModule,
     (val) => {
       if (val) {
+        resetSelector();
+        resetFilterParams();
         loadScenarioList();
       }
     }

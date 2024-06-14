@@ -132,7 +132,7 @@
 
   const initForm: CreateTask = {
     resourceId: '',
-    cron: '',
+    cron: '0 0 0/1 * * ?',
     enable: false,
     runConfig: { runMode: 'SERIAL' },
   };

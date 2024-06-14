@@ -37,7 +37,7 @@
         field="targetId"
         :label="t('testPlan.testPlanIndex.testPlanGroup')"
       >
-        <a-select v-model="form.targetId" :placeholder="t('common.pleaseSelect')">
+        <a-select v-model="form.targetId" :placeholder="t('common.pleaseSelect')" allow-search>
           <a-option v-for="item of groupList" :key="item.id" :value="item.id">
             {{ item.name }}
           </a-option>

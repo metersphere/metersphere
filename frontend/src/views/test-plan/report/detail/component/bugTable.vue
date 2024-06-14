@@ -10,16 +10,11 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
-  import { useTableStore } from '@/store';
-
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     reportId: string;
     shareId?: string;
   }>();
-
-  const tableStore = useTableStore();
 
   const columns: MsTableColumn = [
     {
@@ -69,7 +64,6 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportBugList(), {
     scroll: { x: '100%' },
     columns,
-    tableKey: TableKeyEnum.TEST_PLAN_REPORT_DETAIL_BUG,
     showSelectorAll: false,
   });
 
@@ -83,6 +77,4 @@
       loadCaseList();
     }
   });
-
-  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_REPORT_DETAIL_BUG, columns, 'drawer');
 </script>
