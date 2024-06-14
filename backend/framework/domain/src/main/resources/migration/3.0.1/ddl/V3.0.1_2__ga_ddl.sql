@@ -190,12 +190,13 @@ CREATE TABLE IF NOT EXISTS test_plan_report_api_case(
     `api_case_execute_user` VARCHAR(50)    COMMENT '接口用例执行人' ,
     `api_case_execute_result` VARCHAR(50)    COMMENT '接口用例执行结果' ,
     `api_case_execute_report_id` VARCHAR(50)    COMMENT '接口用例执行报告ID' ,
+    `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容接口用例部分';
 CREATE INDEX idx_test_plan_report_id ON test_plan_report_api_case(test_plan_report_id);
 CREATE INDEX idx_test_plan_collection_id ON test_plan_report_api_case(test_plan_collection_id);
+CREATE INDEX idx_pos ON test_plan_report_api_case(pos);
 
--- 测试计划报告场景详情部分
 CREATE TABLE IF NOT EXISTS test_plan_report_api_scenario(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `test_plan_report_id` VARCHAR(50) NOT NULL   COMMENT '测试计划报告ID' ,
@@ -211,10 +212,12 @@ CREATE TABLE IF NOT EXISTS test_plan_report_api_scenario(
     `api_scenario_execute_user` VARCHAR(50)    COMMENT '场景用例执行人' ,
     `api_scenario_execute_result` VARCHAR(50)    COMMENT '场景用例执行结果' ,
     `api_scenario_execute_report_id` VARCHAR(50)    COMMENT '场景用例执行报告ID' ,
+    `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告内容接口场景部分';
 CREATE INDEX idx_test_plan_report_id ON test_plan_report_api_scenario(test_plan_report_id);
 CREATE INDEX idx_test_plan_collection_id ON test_plan_report_api_scenario(test_plan_collection_id);
+CREATE INDEX idx_pos ON test_plan_report_api_scenario(pos);
 
 -- 测试计划报告
 ALTER TABLE test_plan_report ADD `execute_rate` DECIMAL(10, 4) COMMENT '执行率';
@@ -222,7 +225,9 @@ ALTER TABLE test_plan_report ADD `parent_id` VARCHAR(50)  COMMENT '独立报告�
 
 -- 计划报告功能用例明细表
 ALTER TABLE test_plan_report_function_case ADD `test_plan_collection_id` VARCHAR(50) NOT NULL  COMMENT '测试集ID';
+ALTER TABLE test_plan_report_function_case ADD `pos` BIGINT NOT NULL   COMMENT '自定义排序';
 CREATE INDEX idx_test_plan_collection_id ON test_plan_report_function_case(test_plan_collection_id);
+CREATE INDEX idx_pos ON test_plan_report_function_case(pos);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -81,6 +81,10 @@ public class TestPlanReportService {
     private TestPlanReportSummaryMapper testPlanReportSummaryMapper;
     @Resource
     private TestPlanReportFunctionCaseMapper testPlanReportFunctionCaseMapper;
+	@Resource
+	private TestPlanReportApiCaseMapper testPlanReportApiCaseMapper;
+	@Resource
+	private TestPlanReportApiScenarioMapper testPlanReportApiScenarioMapper;
     @Resource
     private TestPlanReportBugMapper testPlanReportBugMapper;
     @Resource
@@ -184,7 +188,6 @@ public class TestPlanReportService {
     }
 
     private void deleteTestPlanReportBlobs(List<String> reportIdList) {
-        // todo 后续版本增加 api_case\ api_scenario 的清理
         TestPlanReportSummaryExample summaryExample = new TestPlanReportSummaryExample();
         summaryExample.createCriteria().andTestPlanReportIdIn(reportIdList);
         testPlanReportSummaryMapper.deleteByExample(summaryExample);
@@ -192,6 +195,14 @@ public class TestPlanReportService {
         TestPlanReportFunctionCaseExample testPlanReportFunctionCaseExample = new TestPlanReportFunctionCaseExample();
         testPlanReportFunctionCaseExample.createCriteria().andTestPlanReportIdIn(reportIdList);
         testPlanReportFunctionCaseMapper.deleteByExample(testPlanReportFunctionCaseExample);
+
+		TestPlanReportApiCaseExample testPlanReportApiCaseExample = new TestPlanReportApiCaseExample();
+		testPlanReportApiCaseExample.createCriteria().andTestPlanReportIdIn(reportIdList);
+		testPlanReportApiCaseMapper.deleteByExample(testPlanReportApiCaseExample);
+
+		TestPlanReportApiScenarioExample testPlanReportApiScenarioExample = new TestPlanReportApiScenarioExample();
+		testPlanReportApiScenarioExample.createCriteria().andTestPlanReportIdIn(reportIdList);
+		testPlanReportApiScenarioMapper.deleteByExample(testPlanReportApiScenarioExample);
 
         TestPlanReportBugExample testPlanReportBugExample = new TestPlanReportBugExample();
         testPlanReportBugExample.createCriteria().andTestPlanReportIdIn(reportIdList);
@@ -205,7 +216,7 @@ public class TestPlanReportService {
      * @param currentUser 当前用户
      */
     public void genReportByManual(TestPlanReportGenRequest request, String currentUser) {
-        genReport(request, false, currentUser, "/test-plan/report/gen");
+        genReport(request, true, currentUser, "/test-plan/report/gen");
     }
 
     /**
@@ -215,10 +226,10 @@ public class TestPlanReportService {
      * @param currentUser 当前用户
      */
     public void genReportByExecution(TestPlanReportGenRequest request, String currentUser) {
-        genReport(request, true, currentUser, "/test-plan/report/gen");
+        genReport(request, false, currentUser, "/test-plan/report/gen");
     }
 
-    public void genReport(TestPlanReportGenRequest request, boolean isExecute, String currentUser, String logPath) {
+    public void genReport(TestPlanReportGenRequest request, boolean manual, String currentUser, String logPath) {
         // 所有计划
         List<TestPlan> plans = getPlans(request.getTestPlanId());
         // 模块参数
@@ -235,13 +246,14 @@ public class TestPlanReportService {
 		plans.forEach(plan -> {
 			request.setTestPlanId(plan.getId());
 			TestPlanReportGenPreParam genPreParam = buildReportGenParam(request, plan, groupReportId.get());
+			genPreParam.setUseManual(manual);
 			TestPlanReport preReport = preGenReport(genPreParam, currentUser, logPath, moduleParam, childPlanIds);
 			if (genPreParam.getIntegrated()) {
 				// 如果是计划组的报告, 初始化组的报告ID
 				groupReportId.set(preReport.getId());
 			}
 
-            if (!isExecute) {
+            if (manual) {
                 // 汇总
                 summaryReport(preReport.getId());
                 // 手动生成的报告, 汇总结束后直接进行后置处理
@@ -344,6 +356,12 @@ public class TestPlanReportService {
 				reportApiCase.setTestPlanReportId(report.getId());
 				reportApiCase.setApiCaseModule(moduleParam.getApiModuleMap().getOrDefault(reportApiCase.getApiCaseModule(),
 						ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiCase.getApiCaseModule()));
+				if (!genParam.getUseManual()) {
+					// 接口执行时才更新结果
+					reportApiCase.setApiCaseExecuteResult(null);
+					reportApiCase.setApiCaseExecuteUser(null);
+					reportApiCase.setApiCaseExecuteReportId(IDGenerator.nextStr());
+				}
 			});
 			// 插入计划接口用例关联数据 -> 报告内容
 			TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
@@ -363,6 +381,12 @@ public class TestPlanReportService {
 				reportApiScenario.setTestPlanReportId(report.getId());
 				reportApiScenario.setApiScenarioModule(moduleParam.getScenarioModuleMap().getOrDefault(reportApiScenario.getApiScenarioModule(),
 						ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiScenario.getApiScenarioModule()));
+				if (!genParam.getUseManual()) {
+					// 接口执行时才更新结果
+					reportApiScenario.setApiScenarioExecuteResult(null);
+					reportApiScenario.setApiScenarioExecuteUser(null);
+					reportApiScenario.setApiScenarioExecuteReportId(IDGenerator.nextStr());
+				}
 			});
 			// 插入计划场景用例关联数据 -> 报告内容
 			TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
@@ -372,24 +396,24 @@ public class TestPlanReportService {
 		// 计划报告缺陷内容
 		List<TestPlanReportBug> reportBugs;
 		if (genParam.getIntegrated()) {
-			reportBugs = extTestPlanReportBugMapper.getGroupBugs(childPlanIds);
+			reportBugs = CollectionUtils.isEmpty(childPlanIds) ? new ArrayList<>() : extTestPlanReportBugMapper.getGroupBugs(childPlanIds);
 		} else {
 			reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId());;
 		}
-		// MS处理人会与第三方的值冲突, 分开查询
-		List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(genParam.getProjectId());
-		Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-		List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(genParam.getProjectId());
-		Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-		Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(genParam.getProjectId());
-		reportBugs.forEach(reportBug -> {
-			reportBug.setId(IDGenerator.nextStr());
-			reportBug.setTestPlanReportId(report.getId());
-			reportBug.setBugHandleUser(headerHandleUserMap.containsKey(reportBug.getBugHandleUser()) ?
-					headerHandleUserMap.get(reportBug.getBugHandleUser()) : localHandleUserMap.get(reportBug.getBugHandleUser()));
-			reportBug.setBugStatus(allStatusMap.get(reportBug.getBugStatus()));
-		});
 		if (CollectionUtils.isNotEmpty(reportBugs)) {
+			// MS处理人会与第三方的值冲突, 分开查询
+			List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(genParam.getProjectId());
+			Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+			List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(genParam.getProjectId());
+			Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+			Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(genParam.getProjectId());
+			reportBugs.forEach(reportBug -> {
+				reportBug.setId(IDGenerator.nextStr());
+				reportBug.setTestPlanReportId(report.getId());
+				reportBug.setBugHandleUser(headerHandleUserMap.containsKey(reportBug.getBugHandleUser()) ?
+						headerHandleUserMap.get(reportBug.getBugHandleUser()) : localHandleUserMap.get(reportBug.getBugHandleUser()));
+				reportBug.setBugStatus(allStatusMap.get(reportBug.getBugStatus()));
+			});
 			// 插入计划关联用例缺陷数据(去重) -> 报告内容
 			TestPlanReportBugMapper batchMapper = sqlSession.getMapper(TestPlanReportBugMapper.class);
 			batchMapper.batchInsert(reportBugs);
@@ -452,10 +476,10 @@ public class TestPlanReportService {
         /*
          * 统计用例执行数据
          */
-        planReportDetail.setFunctionalCount(JSON.parseObject(new String(reportSummary.getFunctionalExecuteResult()), CaseCount.class));
-        planReportDetail.setApiCaseCount(JSON.parseObject(new String(reportSummary.getApiExecuteResult()), CaseCount.class));
-        planReportDetail.setApiScenarioCount(JSON.parseObject(new String(reportSummary.getScenarioExecuteResult()), CaseCount.class));
-        planReportDetail.setExecuteCount(JSON.parseObject(new String(reportSummary.getExecuteResult()), CaseCount.class));
+        planReportDetail.setFunctionalCount(reportSummary.getFunctionalExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(reportSummary.getFunctionalExecuteResult()), CaseCount.class));
+        planReportDetail.setApiCaseCount(reportSummary.getApiExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(reportSummary.getApiExecuteResult()), CaseCount.class));
+        planReportDetail.setApiScenarioCount(reportSummary.getScenarioExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(reportSummary.getScenarioExecuteResult()), CaseCount.class));
+        planReportDetail.setExecuteCount(reportSummary.getExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(reportSummary.getExecuteResult()), CaseCount.class));
         return planReportDetail;
     }
 

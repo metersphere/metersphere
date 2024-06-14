@@ -14,6 +14,7 @@
     <result column="function_case_bug_count" jdbcType="BIGINT" property="functionCaseBugCount" />
     <result column="function_case_execute_result" jdbcType="VARCHAR" property="functionCaseExecuteResult" />
     <result column="test_plan_collection_id" jdbcType="VARCHAR" property="testPlanCollectionId" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +77,7 @@
   <sql id="Base_Column_List">
     id, test_plan_report_id, test_plan_function_case_id, function_case_id, function_case_num, 
     function_case_name, function_case_module, function_case_priority, function_case_execute_user, 
-    function_case_bug_count, function_case_execute_result, test_plan_collection_id
+    function_case_bug_count, function_case_execute_result, test_plan_collection_id, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportFunctionCaseExample" resultMap="BaseResultMap">
     select
@@ -113,14 +114,14 @@
       function_case_id, function_case_num, function_case_name, 
       function_case_module, function_case_priority, 
       function_case_execute_user, function_case_bug_count, 
-      function_case_execute_result, test_plan_collection_id
-      )
+      function_case_execute_result, test_plan_collection_id, 
+      pos)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{testPlanFunctionCaseId,jdbcType=VARCHAR}, 
       #{functionCaseId,jdbcType=VARCHAR}, #{functionCaseNum,jdbcType=BIGINT}, #{functionCaseName,jdbcType=VARCHAR}, 
       #{functionCaseModule,jdbcType=VARCHAR}, #{functionCasePriority,jdbcType=VARCHAR}, 
       #{functionCaseExecuteUser,jdbcType=VARCHAR}, #{functionCaseBugCount,jdbcType=BIGINT}, 
-      #{functionCaseExecuteResult,jdbcType=VARCHAR}, #{testPlanCollectionId,jdbcType=VARCHAR}
-      )
+      #{functionCaseExecuteResult,jdbcType=VARCHAR}, #{testPlanCollectionId,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
     insert into test_plan_report_function_case
@@ -161,6 +162,9 @@
       <if test="testPlanCollectionId != null">
         test_plan_collection_id,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -198,6 +202,9 @@
       </if>
       <if test="testPlanCollectionId != null">
         #{testPlanCollectionId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -246,6 +253,9 @@
       <if test="record.testPlanCollectionId != null">
         test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -264,7 +274,8 @@
       function_case_execute_user = #{record.functionCaseExecuteUser,jdbcType=VARCHAR},
       function_case_bug_count = #{record.functionCaseBugCount,jdbcType=BIGINT},
       function_case_execute_result = #{record.functionCaseExecuteResult,jdbcType=VARCHAR},
-      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR}
+      test_plan_collection_id = #{record.testPlanCollectionId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -305,6 +316,9 @@
       <if test="testPlanCollectionId != null">
         test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -320,14 +334,16 @@
       function_case_execute_user = #{functionCaseExecuteUser,jdbcType=VARCHAR},
       function_case_bug_count = #{functionCaseBugCount,jdbcType=BIGINT},
       function_case_execute_result = #{functionCaseExecuteResult,jdbcType=VARCHAR},
-      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR}
+      test_plan_collection_id = #{testPlanCollectionId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_function_case
     (id, test_plan_report_id, test_plan_function_case_id, function_case_id, function_case_num, 
       function_case_name, function_case_module, function_case_priority, function_case_execute_user, 
-      function_case_bug_count, function_case_execute_result, test_plan_collection_id)
+      function_case_bug_count, function_case_execute_result, test_plan_collection_id, 
+      pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanReportId,jdbcType=VARCHAR}, #{item.testPlanFunctionCaseId,jdbcType=VARCHAR}, 
@@ -335,7 +351,7 @@
         #{item.functionCaseName,jdbcType=VARCHAR}, #{item.functionCaseModule,jdbcType=VARCHAR}, 
         #{item.functionCasePriority,jdbcType=VARCHAR}, #{item.functionCaseExecuteUser,jdbcType=VARCHAR}, 
         #{item.functionCaseBugCount,jdbcType=BIGINT}, #{item.functionCaseExecuteResult,jdbcType=VARCHAR}, 
-        #{item.testPlanCollectionId,jdbcType=VARCHAR})
+        #{item.testPlanCollectionId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -383,6 +399,9 @@
         </if>
         <if test="'test_plan_collection_id'.toString() == column.value">
           #{item.testPlanCollectionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

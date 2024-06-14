@@ -69,6 +69,10 @@ public class TestPlanReportApiScenario implements Serializable {
     @Schema(description = "场景用例执行报告ID")
     private String apiScenarioExecuteReportId;
 
+    @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_api_scenario.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -85,7 +89,8 @@ public class TestPlanReportApiScenario implements Serializable {
         apiScenarioPriority("api_scenario_priority", "apiScenarioPriority", "VARCHAR", false),
         apiScenarioExecuteUser("api_scenario_execute_user", "apiScenarioExecuteUser", "VARCHAR", false),
         apiScenarioExecuteResult("api_scenario_execute_result", "apiScenarioExecuteResult", "VARCHAR", false),
-        apiScenarioExecuteReportId("api_scenario_execute_report_id", "apiScenarioExecuteReportId", "VARCHAR", false);
+        apiScenarioExecuteReportId("api_scenario_execute_report_id", "apiScenarioExecuteReportId", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -66,6 +66,10 @@ public class TestPlanReportApiCase implements Serializable {
     @Schema(description = "接口用例执行报告ID")
     private String apiCaseExecuteReportId;
 
+    @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_api_case.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -81,7 +85,8 @@ public class TestPlanReportApiCase implements Serializable {
         apiCasePriority("api_case_priority", "apiCasePriority", "VARCHAR", false),
         apiCaseExecuteUser("api_case_execute_user", "apiCaseExecuteUser", "VARCHAR", false),
         apiCaseExecuteResult("api_case_execute_result", "apiCaseExecuteResult", "VARCHAR", false),
-        apiCaseExecuteReportId("api_case_execute_report_id", "apiCaseExecuteReportId", "VARCHAR", false);
+        apiCaseExecuteReportId("api_case_execute_report_id", "apiCaseExecuteReportId", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

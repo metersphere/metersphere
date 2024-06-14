@@ -16,6 +16,7 @@
     <result column="api_scenario_execute_user" jdbcType="VARCHAR" property="apiScenarioExecuteUser" />
     <result column="api_scenario_execute_result" jdbcType="VARCHAR" property="apiScenarioExecuteResult" />
     <result column="api_scenario_execute_report_id" jdbcType="VARCHAR" property="apiScenarioExecuteReportId" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -78,7 +79,8 @@
   <sql id="Base_Column_List">
     id, test_plan_report_id, test_plan_collection_id, grouped, environment_id, test_plan_api_scenario_id, 
     api_scenario_id, api_scenario_num, api_scenario_name, api_scenario_module, api_scenario_priority, 
-    api_scenario_execute_user, api_scenario_execute_result, api_scenario_execute_report_id
+    api_scenario_execute_user, api_scenario_execute_result, api_scenario_execute_report_id, 
+    pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportApiScenarioExample" resultMap="BaseResultMap">
     select
@@ -116,13 +118,13 @@
       api_scenario_id, api_scenario_num, api_scenario_name, 
       api_scenario_module, api_scenario_priority, 
       api_scenario_execute_user, api_scenario_execute_result, 
-      api_scenario_execute_report_id)
+      api_scenario_execute_report_id, pos)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{testPlanCollectionId,jdbcType=VARCHAR}, 
       #{grouped,jdbcType=BIT}, #{environmentId,jdbcType=VARCHAR}, #{testPlanApiScenarioId,jdbcType=VARCHAR}, 
       #{apiScenarioId,jdbcType=VARCHAR}, #{apiScenarioNum,jdbcType=BIGINT}, #{apiScenarioName,jdbcType=VARCHAR}, 
       #{apiScenarioModule,jdbcType=VARCHAR}, #{apiScenarioPriority,jdbcType=VARCHAR}, 
       #{apiScenarioExecuteUser,jdbcType=VARCHAR}, #{apiScenarioExecuteResult,jdbcType=VARCHAR}, 
-      #{apiScenarioExecuteReportId,jdbcType=VARCHAR})
+      #{apiScenarioExecuteReportId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReportApiScenario">
     insert into test_plan_report_api_scenario
@@ -169,6 +171,9 @@
       <if test="apiScenarioExecuteReportId != null">
         api_scenario_execute_report_id,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -212,6 +217,9 @@
       </if>
       <if test="apiScenarioExecuteReportId != null">
         #{apiScenarioExecuteReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -266,6 +274,9 @@
       <if test="record.apiScenarioExecuteReportId != null">
         api_scenario_execute_report_id = #{record.apiScenarioExecuteReportId,jdbcType=VARCHAR},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -286,7 +297,8 @@
       api_scenario_priority = #{record.apiScenarioPriority,jdbcType=VARCHAR},
       api_scenario_execute_user = #{record.apiScenarioExecuteUser,jdbcType=VARCHAR},
       api_scenario_execute_result = #{record.apiScenarioExecuteResult,jdbcType=VARCHAR},
-      api_scenario_execute_report_id = #{record.apiScenarioExecuteReportId,jdbcType=VARCHAR}
+      api_scenario_execute_report_id = #{record.apiScenarioExecuteReportId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -333,6 +345,9 @@
       <if test="apiScenarioExecuteReportId != null">
         api_scenario_execute_report_id = #{apiScenarioExecuteReportId,jdbcType=VARCHAR},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -350,15 +365,16 @@
       api_scenario_priority = #{apiScenarioPriority,jdbcType=VARCHAR},
       api_scenario_execute_user = #{apiScenarioExecuteUser,jdbcType=VARCHAR},
       api_scenario_execute_result = #{apiScenarioExecuteResult,jdbcType=VARCHAR},
-      api_scenario_execute_report_id = #{apiScenarioExecuteReportId,jdbcType=VARCHAR}
+      api_scenario_execute_report_id = #{apiScenarioExecuteReportId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report_api_scenario
     (id, test_plan_report_id, test_plan_collection_id, grouped, environment_id, test_plan_api_scenario_id, 
       api_scenario_id, api_scenario_num, api_scenario_name, api_scenario_module, api_scenario_priority, 
-      api_scenario_execute_user, api_scenario_execute_result, api_scenario_execute_report_id
-      )
+      api_scenario_execute_user, api_scenario_execute_result, api_scenario_execute_report_id, 
+      pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanReportId,jdbcType=VARCHAR}, #{item.testPlanCollectionId,jdbcType=VARCHAR}, 
@@ -366,8 +382,8 @@
         #{item.apiScenarioId,jdbcType=VARCHAR}, #{item.apiScenarioNum,jdbcType=BIGINT}, 
         #{item.apiScenarioName,jdbcType=VARCHAR}, #{item.apiScenarioModule,jdbcType=VARCHAR}, 
         #{item.apiScenarioPriority,jdbcType=VARCHAR}, #{item.apiScenarioExecuteUser,jdbcType=VARCHAR}, 
-        #{item.apiScenarioExecuteResult,jdbcType=VARCHAR}, #{item.apiScenarioExecuteReportId,jdbcType=VARCHAR}
-        )
+        #{item.apiScenarioExecuteResult,jdbcType=VARCHAR}, #{item.apiScenarioExecuteReportId,jdbcType=VARCHAR}, 
+        #{item.pos,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -421,6 +437,9 @@
         </if>
         <if test="'api_scenario_execute_report_id'.toString() == column.value">
           #{item.apiScenarioExecuteReportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

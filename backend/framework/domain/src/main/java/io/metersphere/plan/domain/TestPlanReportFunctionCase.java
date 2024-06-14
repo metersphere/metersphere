@@ -65,6 +65,10 @@ public class TestPlanReportFunctionCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_report_function_case.test_plan_collection_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanCollectionId;
 
+    @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_function_case.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -79,7 +83,8 @@ public class TestPlanReportFunctionCase implements Serializable {
         functionCaseExecuteUser("function_case_execute_user", "functionCaseExecuteUser", "VARCHAR", false),
         functionCaseBugCount("function_case_bug_count", "functionCaseBugCount", "BIGINT", false),
         functionCaseExecuteResult("function_case_execute_result", "functionCaseExecuteResult", "VARCHAR", false),
-        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false);
+        testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

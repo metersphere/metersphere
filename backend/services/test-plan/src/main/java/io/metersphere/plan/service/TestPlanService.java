@@ -308,7 +308,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         historyExample.createCriteria().andTestPlanIdIn(testPlanIds);
         testPlanCaseExecuteHistoryMapper.deleteByExample(historyExample);
 
-        //删除测试计划报告 todo: 正式版增加接口用例报告、接口场景报告的清理
+        //删除测试计划报告
         testPlanReportService.deleteByTestPlanIds(testPlanIds);
         //删除定时任务
         scheduleService.deleteByResourceIds(testPlanIds, TestPlanScheduleJob.class.getName());
