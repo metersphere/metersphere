@@ -1,18 +1,23 @@
 package io.metersphere.plan.service;
 
 import com.esotericsoftware.minlog.Log;
+import io.metersphere.plan.dto.TestPlanReportPostParam;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
+import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
+import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -33,9 +39,13 @@ public class TestPlanExecuteService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
+    private ExtTestPlanReportMapper extTestPlanReportMapper;
+    @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private TestPlanReportService testPlanReportService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
@@ -121,12 +131,20 @@ public class TestPlanExecuteService {
         if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
             throw new MSException("test_plan.error");
         }
+
+        TestPlanReportGenRequest genReportRequest = new TestPlanReportGenRequest();
+        genReportRequest.setTriggerMode(executionQueue.getExecutionSource());
+        genReportRequest.setTestPlanId(executionQueue.getSourceID());
+        genReportRequest.setProjectId(testPlan.getProjectId());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
+            // 预生成计划组报告
+            Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(),genReportRequest, executionQueue.getCreateUser());
+
             long pos = 0;
             List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
-            String queueId = IDGenerator.nextStr();
             String queueType = QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE;
+            String queueId = executionQueue.getPrepareReportId();
             for (TestPlan child : children) {
                 childrenQueue.add(
                         new TestPlanExecutionQueue(
@@ -140,7 +158,7 @@ public class TestPlanExecuteService {
                                 child.getId(),
                                 executionQueue.getRunMode(),
                                 executionQueue.getExecutionSource(),
-                                IDGenerator.nextStr()
+                                reportMap.get(child.getId())
                         )
                 );
             }
@@ -150,22 +168,26 @@ public class TestPlanExecuteService {
             } else {
                 this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
-                // todo Song-cc  这里是否要生成测试计划组的集合报告，并且记录测试计划里用例的执行信息？
+                // 更新报告的执行时间
+                extTestPlanReportMapper.batchUpdateExecuteTime(System.currentTimeMillis(),reportMap.values().stream().toList());
 
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
                     TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
-                    executeTestPlanOrGroup(nextQueue);
+                    executeTestPlan(nextQueue);
                 } else {
                     //并行
                     childrenQueue.forEach(childQueue -> {
-                        executeTestPlanOrGroup(childQueue);
+                        executeTestPlan(childQueue);
                     });
                 }
             }
 
             return executionQueue.getPrepareReportId();
         } else {
+            Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(),genReportRequest, executionQueue.getCreateUser());
+            executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
+            extTestPlanReportMapper.batchUpdateExecuteTime(System.currentTimeMillis(),reportMap.values().stream().toList());
             return this.executeTestPlan(executionQueue);
         }
     }
@@ -185,7 +207,7 @@ public class TestPlanExecuteService {
         TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlan.getId());
         String runMode = StringUtils.isBlank(testPlanConfig.getCaseRunMode()) ? ApiBatchRunMode.SERIAL.name() : testPlanConfig.getCaseRunMode();
 
-        String queueId = IDGenerator.nextStr();
+        String queueId = executionQueue.getPrepareReportId();
         String queueType = QUEUE_PREFIX_TEST_PLAN_CASE_TYPE;
         List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
         for (TestPlanCollection collection : testPlanCollectionList) {
@@ -201,7 +223,7 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             runMode,
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr())
+                            executionQueue.getPrepareReportId())
             );
         }
 
@@ -210,7 +232,6 @@ public class TestPlanExecuteService {
             this.testPlanExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
         } else {
             this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
-            // todo Song-cc  这里是否要生成测试计划报告，并且记录测试计划里用例的执行信息？
 
             //开始根据测试计划集合执行测试用例
             if (StringUtils.equalsIgnoreCase(runMode, ApiBatchRunMode.SERIAL.name())) {
@@ -253,7 +274,7 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             collection.getExecuteMethod(),
                             executionQueue.getExecutionSource(),
-                            IDGenerator.nextStr()) {{
+                            executionQueue.getPrepareReportId()) {{
                         this.setTestPlanCollectionJson(JSON.toJSONString(collection));
                     }}
             );
@@ -404,12 +425,43 @@ public class TestPlanExecuteService {
         }
     }
 
+    private void summaryTestPlanReport(String reportId,boolean isGroupReport){
+        try {
+            if(isGroupReport){
+                testPlanReportService.summaryGroupReport(reportId);
+            }else {
+                testPlanReportService.summaryPlanReport(reportId);
+            }
+
+            TestPlanReportPostParam postParam = new TestPlanReportPostParam();
+            postParam.setReportId(reportId);
+            // 执行生成报告, 执行状态为已完成, 执行及结束时间为当前时间
+            postParam.setEndTime(System.currentTimeMillis());
+            postParam.setExecStatus(ExecStatus.COMPLETED.name());
+            testPlanReportService.postHandleReport(postParam);
+        }catch (Exception e){
+            LogUtils.error("Cannot find test plan report for " + reportId, e);
+        }
+    }
+
+
     private void queueExecuteFinish(TestPlanExecutionQueue queue) {
         if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
-            // todo Song-cc 测试计划组集合报告生成
+            if(StringUtils.equalsIgnoreCase(queue.getQueueType(),QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)){
+                // 计划组报告汇总并统计
+                this.summaryTestPlanReport(queue.getQueueId(),true);
+            }else if(StringUtils.equalsIgnoreCase(queue.getQueueType(),QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)){
+                /*
+                    此时处于批量勾选执行中的游离态测试计划执行。所以队列顺序为：QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE -> QUEUE_PREFIX_TEST_PLAN_CASE_TYPE。
+                    此时queue节点为testPlanCollection的节点。  而测试计划节点（串行状态下）在执行之前就被弹出了。
+                    所以获取报告ID的方式为读取queueId （caseType队列和collection队列的queueId都是报告ID）
+                 */
+                this.summaryTestPlanReport(queue.getQueueId(),false);
+            }
             this.testPlanGroupQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
-            // todo Song-cc 测试计划报告计算
+            // 计划报告汇总并统计
+            this.summaryTestPlanReport(queue.getQueueId(),false);
             this.testPlanExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.caseTypeExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
@@ -428,17 +480,12 @@ public class TestPlanExecuteService {
         ListOperations<String, String> listOps = redisTemplate.opsForList();
         String queueDetail = listOps.leftPop(queueKey);
         if (StringUtils.isBlank(queueDetail)) {
-            // 重试2次获取
-            for (int i = 0; i < 3; i++) {
-                queueDetail = redisTemplate.opsForList().leftPop(queueKey);
-                if (StringUtils.isNotBlank(queueDetail)) {
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ignore) {
-                }
+            // 重试1次获取
+            try {
+                Thread.sleep(1000);
+            } catch (Exception ignore) {
             }
+            queueDetail = redisTemplate.opsForList().leftPop(queueKey);
         }
 
         if (StringUtils.isNotBlank(queueDetail)) {

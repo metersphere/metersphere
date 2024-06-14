@@ -59,4 +59,6 @@ public interface ExtTestPlanReportMapper {
     List<ReportDTO> getCaseReports(@Param("ids") List<String> ids);
 
     List<ReportDTO> getScenarioReports(@Param("ids") List<String> ids);
+
+    void batchUpdateExecuteTime(@Param("startTime") long startTime,@Param("ids")List<String> ids);
 }
