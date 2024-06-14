@@ -58,6 +58,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         TestPlanCollectionMinderEditRequest request = new TestPlanCollectionMinderEditRequest();
         request.setPlanId("gyq_plan_1");
         List<TestPlanCollectionMinderEditDTO> editList = new ArrayList<>();
+        TestPlanCollectionMinderEditDTO deleteDTO = new TestPlanCollectionMinderEditDTO();
         TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
         testPlanCollectionMinderEditDTO.setId("gyq_wxxx_4");
         testPlanCollectionMinderEditDTO.setText("更新名称");
@@ -79,6 +80,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollectionAssociateDTO.setIds(List.of("gyq_plan_api-case-associate-1"));
         associateDTOS.add(testPlanCollectionAssociateDTO);
         testPlanCollectionMinderEditDTO.setAssociateDTOS(associateDTOS);
+        deleteDTO = testPlanCollectionMinderEditDTO;
         editList.add(testPlanCollectionMinderEditDTO);
         request.setEditList(editList);
         this.requestPostWithOkAndReturn(EDIT_MIND, request);
@@ -114,8 +116,9 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollectionExample.createCriteria().andNameEqualTo("新建名称");
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(testPlanCollections));
-        request.setEditList(new ArrayList<>());
-        request.setDeletedIds(List.of(testPlanCollections.get(0).getId()));
+        editList = new ArrayList<>();
+        editList.add(deleteDTO);
+        request.setEditList(editList);
         this.requestPostWithOkAndReturn(EDIT_MIND, request);
         testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andNameEqualTo("新建名称");

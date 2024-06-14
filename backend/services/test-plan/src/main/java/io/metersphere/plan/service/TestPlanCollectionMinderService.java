@@ -7,6 +7,7 @@ import io.metersphere.plan.dto.request.TestPlanCollectionMinderEditRequest;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -100,9 +101,9 @@ public class TestPlanCollectionMinderService {
         BeanUtils.copyBean(typeTreeNodeDTO, testPlanCollection);
         typeTreeNodeDTO.setText(Translator.get(testPlanCollection.getName(), testPlanCollection.getName()));
         if (StringUtils.equalsIgnoreCase(testPlanCollection.getExecuteMethod(), ApiBatchRunMode.PARALLEL.toString())) {
-            typeTreeNodeDTO.setPriority(2);
-        } else {
             typeTreeNodeDTO.setPriority(3);
+        } else {
+            typeTreeNodeDTO.setPriority(2);
         }
         if (StringUtils.equalsIgnoreCase(CaseType.FUNCTIONAL_CASE.getKey(),testPlanCollection.getType())) {
             typeTreeNodeDTO.setPriority(null);
@@ -240,10 +241,6 @@ public class TestPlanCollectionMinderService {
 
 
     public void editMindTestPlanCase(TestPlanCollectionMinderEditRequest request, String userId) {
-        //处理删除
-        if (CollectionUtils.isNotEmpty(request.getDeletedIds())) {
-            testPlanService.deletePlanCollectionResource(request.getDeletedIds());
-        }
         Map<String, List<BaseCollectionAssociateRequest>> associateMap = new HashMap<>();
         //处理新增与更新
         dealEditList(request, userId, associateMap);
@@ -268,13 +265,29 @@ public class TestPlanCollectionMinderService {
         }
     }
 
-    private static void dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
+    private void dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
         List<TestPlanCollectionMinderEditDTO> updateList = request.getEditList().stream().filter(t -> StringUtils.isNotBlank(t.getId())).toList();
+
+
         if (CollectionUtils.isNotEmpty(updateList)) {
+            //处理删除
+            deleteCollection(updateList);
+            //处理更新
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : updateList) {
                 TestPlanCollection testPlanCollection = updateCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
+        }
+    }
+
+    private void deleteCollection(List<TestPlanCollectionMinderEditDTO> updateList) {
+        List<String> existIds = updateList.stream().map(TestPlanCollectionMinderEditDTO::getId).toList();
+        TestPlanCollectionExample example = new TestPlanCollectionExample();
+        example.createCriteria().andIdNotIn(existIds);
+        List<TestPlanCollection> collections = testPlanCollectionMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(collections)) {
+            List<String> deletedIds = collections.stream().map(TestPlanCollection::getId).toList();
+            testPlanService.deletePlanCollectionResource(deletedIds);
         }
     }
 
@@ -325,8 +338,13 @@ public class TestPlanCollectionMinderService {
         testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
-        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);
-        testPlanCollection.setParentId(parent.getId());
+        List<TestPlanCollection> testPlanCollections = parentMap.get(testPlanCollectionMinderEditDTO.getType());
+        if (CollectionUtils.isNotEmpty(testPlanCollections)) {
+            TestPlanCollection parent = testPlanCollections.get(0);
+            testPlanCollection.setParentId(parent.getId());
+        } else {
+            testPlanCollection.setParentId(CommonConstants.DEFAULT_NULL_VALUE);
+        }
         testPlanCollection.setCreateUser(userId);
         testPlanCollection.setCreateTime(System.currentTimeMillis());
         testPlanCollection.setPos(testPlanCollectionMinderEditDTO.getNum());
