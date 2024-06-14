@@ -769,12 +769,15 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (MapUtils.isEmpty(caseExecResultCount)) {
             // 没有任何执行结果： 状态是未开始
             testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
+            extTestPlanMapper.clearActualEndTime(testPlanId);
         } else if (caseExecResultCount.size() == 1 && caseExecResultCount.containsKey(ExecStatus.PENDING.name()) && caseExecResultCount.get(ExecStatus.PENDING.name()) > 0) {
             // 执行结果只有未开始： 状态是未开始
             testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
+            extTestPlanMapper.clearActualEndTime(testPlanId);
         } else if (!caseExecResultCount.containsKey(ExecStatus.PENDING.name())) {
             // 执行结果没有未开始： 已完成
             testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_COMPLETED;
+            extTestPlanMapper.setActualEndTime(testPlanId, System.currentTimeMillis());
         }
         TestPlan testPlan = new TestPlan();
         testPlan.setId(testPlanId);

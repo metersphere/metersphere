@@ -7,6 +7,7 @@ import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
+import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
@@ -35,6 +36,8 @@ public class TestPlanExecuteService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
@@ -154,11 +157,11 @@ public class TestPlanExecuteService {
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
                     TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
-                    executeTestPlanOrGroup(nextQueue);
+                    executeTestPlan(nextQueue);
                 } else {
                     //并行
                     childrenQueue.forEach(childQueue -> {
-                        executeTestPlanOrGroup(childQueue);
+                        executeTestPlan(childQueue);
                     });
                 }
             }
@@ -171,6 +174,7 @@ public class TestPlanExecuteService {
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
     public String executeTestPlan(TestPlanExecutionQueue executionQueue) {
+        extTestPlanMapper.setActualStartTime(executionQueue.getSourceID(), System.currentTimeMillis());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(executionQueue.getSourceID());
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(testPlan.getId()).andParentIdEqualTo("NONE");
@@ -398,9 +402,11 @@ public class TestPlanExecuteService {
         if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
             // todo Song-cc 测试计划组集合报告生成
             this.testPlanGroupQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
+            testPlanService.refreshTestPlanStatus(queue.getSourceID());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
             // todo Song-cc 测试计划报告计算
             this.testPlanExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
+            testPlanService.refreshTestPlanStatus(queue.getSourceID());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.caseTypeExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         }

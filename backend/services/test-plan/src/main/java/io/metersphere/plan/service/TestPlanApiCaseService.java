@@ -70,6 +70,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
@@ -620,6 +622,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiCase testPlanApiCase = checkResourceExist(id);
+        extTestPlanMapper.setActualStartTime(testPlanApiCase.getTestPlanId(), System.currentTimeMillis());
         ApiTestCase apiTestCase = apiTestCaseService.checkResourceExist(testPlanApiCase.getApiCaseId());
 
         String poolId = "todo";

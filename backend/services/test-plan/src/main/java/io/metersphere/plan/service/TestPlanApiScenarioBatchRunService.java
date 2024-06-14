@@ -17,10 +17,7 @@ import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.dto.request.ApiExecutionMapService;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
-import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
-import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
-import io.metersphere.plan.mapper.TestPlanCollectionMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.CommonConstants;
@@ -75,6 +72,8 @@ public class TestPlanApiScenarioBatchRunService {
     private ApiExecutionMapService apiExecutionMapService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
 
     /**
      * 异步批量执行
@@ -83,6 +82,7 @@ public class TestPlanApiScenarioBatchRunService {
      * @param userId
      */
     public void asyncBatchRun(TestPlanApiScenarioBatchRunRequest request, String userId) {
+        extTestPlanMapper.setActualStartTime(request.getTestPlanId(), System.currentTimeMillis());
         Thread.startVirtualThread(() -> batchRun(request, userId));
     }
 
