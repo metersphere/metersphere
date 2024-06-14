@@ -6,12 +6,6 @@ import lombok.Data;
 @Data
 public class TestPlanReportPostParam {
 
-	@Schema(description = "项目ID")
-	private String projectId;
-
-	@Schema(description = "计划ID")
-	private String testPlanId;
-
 	@Schema(description = "报告ID")
 	private String reportId;
 

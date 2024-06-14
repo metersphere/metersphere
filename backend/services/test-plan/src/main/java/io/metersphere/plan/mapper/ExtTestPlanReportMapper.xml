@@ -217,6 +217,15 @@
         </foreach>
     </select>
 
+    <update id="batchUpdateExecuteTime" parameterType="java.lang.String">
+        update test_plan_report
+        set start_time = #{startTime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
     <sql id="queryWhereConditionByParentId">
         <where>
             <if test="request.reportId != null and request.reportId != ''">

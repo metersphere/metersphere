@@ -267,7 +267,6 @@ public class TestPlanExecuteTests extends BaseTest {
         //本条测试用例中，最多传入的是5个批量执行。（4个测试计划组和1个测试计划， 有一个测试计划组下面没有测试计划），
         // 串行的话模拟其中8个测试集的回调。 既while中最多循环8次进行回调，每次回调只传入1个测试集，防止并行/串行的干扰
         int foreachIndex = 8;
-        long timeStem = System.currentTimeMillis();
         while (foreachIndex > 0 && !allQueueIds.isEmpty()) {
 
             String collectionFinishQueueIds = collectionQueueIdList.getFirst();
