@@ -453,11 +453,6 @@
     done();
   }
 
-  function handleSuccess() {
-    initDetail();
-    loadActiveTabList();
-  }
-
   onBeforeMount(() => {
     initDetail();
     initPlanTree();

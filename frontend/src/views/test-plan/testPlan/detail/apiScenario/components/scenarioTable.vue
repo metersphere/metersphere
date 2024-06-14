@@ -8,9 +8,9 @@
       :count="props.modulesCount[props.activeModule] || 0"
       :name="moduleNamePath"
       :search-placeholder="t('common.searchByIdName')"
-      @keyword-search="loadCaseList"
-      @adv-search="loadCaseList"
-      @refresh="loadCaseList"
+      @keyword-search="loadCaseList()"
+      @adv-search="loadCaseList()"
+      @refresh="loadCaseList()"
     />
     <MsBaseTable
       ref="tableRef"
@@ -22,6 +22,7 @@
       @drag-change="handleDragChange"
       @selected-change="handleTableSelect"
       @filter-change="getModuleCount"
+      @module-change="loadCaseList(false)"
     >
       <template #num="{ record }">
         <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -391,15 +392,17 @@
     }
   );
 
-  async function loadCaseList() {
+  async function loadCaseList(refreshTreeCount = true) {
     const tableParams = await getTableParams(false);
     setLoadListParams(tableParams);
     loadList();
-    emit('getModuleCount', {
-      ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    });
+    if (refreshTreeCount) {
+      emit('getModuleCount', {
+        ...tableParams,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+      });
+    }
   }
   watch(
     () => props.activeModule,
@@ -454,7 +457,7 @@
     try {
       await sortApiScenario({ ...params, testCollectionId: collectionId.value });
       Message.success(t('caseManagement.featureCase.sortSuccess'));
-      loadCaseList();
+      loadCaseList(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
