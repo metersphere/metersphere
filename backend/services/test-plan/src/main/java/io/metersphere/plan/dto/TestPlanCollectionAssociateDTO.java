@@ -19,7 +19,7 @@ public class TestPlanCollectionAssociateDTO implements Serializable {
     @Schema(description = "关联关系的ids", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<String> ids;
 
-    @Schema(description = "关联关系的type(功能：FUNCTIONAL_CASE/接口定义：API/接口用例：API_CASE/场景：SCENARIO_CASE)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "关联关系的type(功能：FUNCTIONAL/接口定义：API/接口用例：API_CASE/场景：API_SCENARIO)", requiredMode = Schema.RequiredMode.REQUIRED)
     private String associateType;
 
 
