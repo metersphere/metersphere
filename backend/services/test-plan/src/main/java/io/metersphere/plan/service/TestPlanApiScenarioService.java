@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiScenarioExample;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.domain.ApiScenarioReportExample;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
@@ -335,6 +336,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         TaskItem taskItem = request.getTaskItem();
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanApiScenario.getApiScenarioId());
+        apiScenarioDetail.setEnvironmentId(testPlanApiScenario.getEnvironmentId());
+        apiScenarioDetail.setGrouped(testPlanApiScenario.getGrouped());
         return apiScenarioRunService.getRunScript(request, testPlanApiScenario.getApiScenarioId());
     }
 

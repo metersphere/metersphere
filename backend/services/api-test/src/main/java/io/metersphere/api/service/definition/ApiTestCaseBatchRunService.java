@@ -343,7 +343,7 @@ public class ApiTestCaseBatchRunService {
 
     public ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase, String userId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
-        apiReport.setEnvironmentId(apiTestCaseService.getEnvId(runModeConfig, apiTestCase));
+        apiReport.setEnvironmentId(apiTestCaseService.getEnvId(runModeConfig, apiTestCase.getEnvironmentId()));
         apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setProjectId(apiTestCase.getProjectId());
         apiReport.setTriggerMode(TaskTriggerMode.BATCH.name());

@@ -49,9 +49,11 @@ public class TestPlanExecuteService {
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
-    private TestPlanApiCasePlanRunService testPlanApiCasePlanRunService;
+    private PlanRunTestPlanApiCaseService planRunTestPlanApiCaseService;
     @Resource
-    private TestPlanApiScenarioPlanRunService testPlanApiScenarioPlanRunService;
+    private PlanRunTestPlanApiScenarioService planRunTestPlanApiScenarioService;
+    @Resource
+    private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
 
     @Resource
     private RedisTemplate<String, String> redisTemplate;
@@ -388,17 +390,19 @@ public class TestPlanExecuteService {
         try {
             boolean isFinish = false;
             TestPlanCollection collection = JSON.parseObject(testPlanExecutionQueue.getTestPlanCollectionJson(), TestPlanCollection.class);
+            TestPlanCollection extendedRootCollection = testPlanApiBatchRunBaseService.getExtendedRootCollection(collection);
+            String executeMethod = extendedRootCollection == null ? collection.getExecuteMethod() : extendedRootCollection.getExecuteMethod();
             if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.API_CASE.getKey())) {
-                if (StringUtils.equals(collection.getExecuteMethod(), ApiBatchRunMode.PARALLEL.name())) {
-                    isFinish = testPlanApiCasePlanRunService.parallelExecute(testPlanExecutionQueue);
+                if (StringUtils.equals(executeMethod, ApiBatchRunMode.PARALLEL.name())) {
+                    isFinish = planRunTestPlanApiCaseService.parallelExecute(testPlanExecutionQueue);
                 } else {
-                    isFinish = testPlanApiCasePlanRunService.serialExecute(testPlanExecutionQueue);
+                    isFinish = planRunTestPlanApiCaseService.serialExecute(testPlanExecutionQueue);
                 }
             } else if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.SCENARIO_CASE.getKey())) {
-                if (StringUtils.equals(collection.getExecuteMethod(), ApiBatchRunMode.PARALLEL.name())) {
-                    isFinish = testPlanApiScenarioPlanRunService.parallelExecute(testPlanExecutionQueue);
+                if (StringUtils.equals(executeMethod, ApiBatchRunMode.PARALLEL.name())) {
+                    isFinish = planRunTestPlanApiScenarioService.parallelExecute(testPlanExecutionQueue);
                 } else {
-                    isFinish = testPlanApiScenarioPlanRunService.serialExecute(testPlanExecutionQueue);
+                    isFinish = planRunTestPlanApiScenarioService.serialExecute(testPlanExecutionQueue);
                 }
             }
             if (isFinish) {

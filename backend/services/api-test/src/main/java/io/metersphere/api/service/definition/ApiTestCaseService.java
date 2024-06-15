@@ -786,7 +786,7 @@ public class ApiTestCaseService extends MoveNodeService {
         apiExecuteService.setTestElementParam(msTestElement, apiTestCase.getProjectId(), request.getTaskItem());
 
         // 设置环境信息
-        apiParamConfig.setEnvConfig(environmentService.get(getEnvId(request.getRunModeConfig(), apiTestCase)));
+        apiParamConfig.setEnvConfig(environmentService.get(getEnvId(request.getRunModeConfig(), apiTestCase.getEnvironmentId())));
         GetRunScriptResult runScriptResult = new GetRunScriptResult();
         // 记录请求数量
         runScriptResult.setRequestCount(1L);
@@ -804,12 +804,13 @@ public class ApiTestCaseService extends MoveNodeService {
      * 优先使用运行配置的环境
      * 没有则使用用例自身的环境
      *
-     * @param runModeConfig
-     * @param apiTestCase
      * @return
      */
-    public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiTestCase apiTestCase) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiTestCase.getEnvironmentId() : runModeConfig.getEnvironmentId();
+    public String getEnvId(ApiRunModeConfigDTO runModeConfig, String caseEnvId) {
+        if (StringUtils.isBlank(runModeConfig.getEnvironmentId()) || StringUtils.equals(runModeConfig.getEnvironmentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+            return caseEnvId;
+        }
+        return runModeConfig.getEnvironmentId();
     }
 
     /**
@@ -830,7 +831,7 @@ public class ApiTestCaseService extends MoveNodeService {
 
         apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
         //初始化步骤
-        apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase, reportId, 1L)));
+        apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase.getId(), apiTestCase.getName(), reportId, 1L)));
         return apiTestCaseRecord;
     }
 
@@ -846,12 +847,12 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiReport;
     }
 
-    public ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId, long sort) {
+    public ApiReportStep getApiReportStep(String stepId, String stepName, String reportId, long sort) {
         ApiReportStep apiReportStep = new ApiReportStep();
         apiReportStep.setReportId(reportId);
-        apiReportStep.setStepId(apiTestCase.getId());
+        apiReportStep.setStepId(stepId);
         apiReportStep.setSort(sort);
-        apiReportStep.setName(apiTestCase.getName());
+        apiReportStep.setName(stepName);
         apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
         return apiReportStep;
     }

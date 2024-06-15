@@ -17,15 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackService {
+public class PlanRunApiScenarioExecuteCallbackService implements ApiExecuteCallbackService {
     @Resource
     private TestPlanExecuteService testPlanExecuteService;
 
     @Resource
-    private PlanRunTestPlanApiCaseService planRunTestPlanApiCaseService;
+    private PlanRunTestPlanApiScenarioService planRunTestPlanApiScenarioService;
 
-    public PlanRunApiCaseExecuteCallbackService() {
-        ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.PLAN_RUN_API_CASE, this);
+    public PlanRunApiScenarioExecuteCallbackService() {
+        ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO, this);
     }
 
     /**
@@ -33,7 +33,7 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
      */
     @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        return planRunTestPlanApiCaseService.getRunScript(request);
+        return planRunTestPlanApiScenarioService.getRunScript(request);
     }
 
     /**
@@ -43,7 +43,7 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
      */
     @Override
     public void executeNextTask(ExecutionQueue queue, ExecutionQueueDetail queueDetail) {
-        planRunTestPlanApiCaseService.executeNextTask(queue, queueDetail);
+        planRunTestPlanApiScenarioService.executeNextTask(queue, queueDetail);
     }
 
     /**

@@ -30,10 +30,7 @@ import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.project.service.EnvironmentService;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.ApiExecuteRunMode;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.TaskTriggerMode;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.JSON;
@@ -265,6 +262,11 @@ public class ApiScenarioRunService {
 
     public GetRunScriptResult getRunScript(GetRunScriptRequest request, String id) {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);
+        return getRunScript(request, apiScenarioDetail);
+    }
+
+    public GetRunScriptResult getRunScript(GetRunScriptRequest request, ApiScenarioDetail apiScenarioDetail) {
+        String id = apiScenarioDetail.getId();
         TaskItem taskItem = request.getTaskItem();
         ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
         String reportId = taskItem.getReportId();
@@ -278,8 +280,8 @@ public class ApiScenarioRunService {
             return null;
         }
 
-        String envId = getEnvId(runModeConfig, apiScenarioDetail);
-        boolean envGroup = getEnvGroup(runModeConfig, apiScenarioDetail);
+        String envId = getEnvId(runModeConfig, apiScenarioDetail.getEnvironmentId());
+        boolean envGroup = getEnvGroup(runModeConfig, apiScenarioDetail.getGrouped());
 
         // 解析生成待执行的场景树
         MsScenario msScenario = getMsScenario(apiScenarioDetail);
@@ -329,12 +331,25 @@ public class ApiScenarioRunService {
      * @param apiScenario
      * @return
      */
-    public String getEnvId(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiScenario.getEnvironmentId() : runModeConfig.getEnvironmentId();
+    /**
+     * 获取执行的环境ID
+     * 优先使用运行配置的环境
+     * 没有则使用用例自身的环境
+     *
+     * @return
+     */
+    public String getEnvId(ApiRunModeConfigDTO runModeConfig, String caseEnvId) {
+        if (StringUtils.isBlank(runModeConfig.getEnvironmentId()) || StringUtils.equals(runModeConfig.getEnvironmentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+            return caseEnvId;
+        }
+        return runModeConfig.getEnvironmentId();
     }
 
-    public boolean getEnvGroup(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario) {
-        return StringUtils.isBlank(runModeConfig.getEnvironmentId()) ? apiScenario.getGrouped() : runModeConfig.getGrouped();
+    public boolean getEnvGroup(ApiRunModeConfigDTO runModeConfig, boolean group) {
+        if (StringUtils.isBlank(runModeConfig.getEnvironmentId()) || StringUtils.equals(runModeConfig.getEnvironmentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+            return group;
+        }
+        return runModeConfig.getGrouped();
     }
 
     private void updateReportWaitTime(String reportId, ApiScenarioParseParam parseParam) {
