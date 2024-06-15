@@ -6,11 +6,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
-import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
-import io.metersphere.plan.mapper.ExtTestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanCollectionMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.ExecStatus;
@@ -23,6 +19,7 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -65,7 +62,44 @@ public class TestPlanExecuteService {
     public static final String QUEUE_PREFIX_TEST_PLAN_COLLECTION = "test-plan-collection-execute:";
 
     public static final String LAST_QUEUE_PREFIX = "last-queue:";
-    //单独执行测试计划
+    @Autowired
+    private TestPlanReportMapper testPlanReportMapper;
+
+    // 停止测试计划的执行
+    public void stopTestPlanRunning(String testPlanReportId){
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportId);
+        if(testPlanReport.getIntegrated()){
+            /*
+            todo
+                集成报告：要停止的是测试计划组执行
+                这条测试计划所在队列，是以 test-plan-batch-execute:randomId 命名的
+                要删除的队列：1. test-plan-group-execute:testPlanReportId（队列里放的是子测试计划的数据）
+                            2. test-plan-case-type-execute:testPlanItemReportId（队列里放的是测试计划-用例类型的数据）
+                            3. test-plan-collection-execute:testPlanItemReportId_testPlanParentCollectionId
+                继续执行    test-plan-batch-execute:randomId 队列的下一条
+             */
+        }else if(!StringUtils.equalsIgnoreCase(testPlanReport.getId(),testPlanReport.getParentId())){
+            /*
+            todo
+                独立报告中，parentId和本身的id不一致：要停止的是测试计划组内的测试计划执行
+                这条测试计划所在队列，是以 test-plan-group-execute:parentReportId 命名的
+                要删除的队列：1. test-plan-case-type-execute:testPlanReportId（队列里放的是测试计划-用例类型的数据）
+                            2. test-plan-collection-execute:testPlanReportId_testPlanParentCollectionId
+                继续执行    test-plan-group-execute:parentReportId 队列的下一条
+             */
+        }else {
+            /*
+            todo
+                停止的是游离态测试计划执行
+                这条测试计划所在队列，是以 test-plan-batch-execute:randomId 命名的
+                要删除的队列：1. test-plan-case-type-execute:testPlanReportId
+                            2. test-plan-collection-execute:testPlanReportId_testPlanParentCollectionId
+                继续执行    test-plan-batch-execute:randomId 队列的下一条
+             */
+
+        }
+    }
+
     /**
      * 单个执行测试计划
      */
@@ -191,12 +225,13 @@ public class TestPlanExecuteService {
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(),genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
             extTestPlanReportMapper.batchUpdateExecuteTime(System.currentTimeMillis(),reportMap.values().stream().toList());
-            return this.executeTestPlan(executionQueue);
+            this.executeTestPlan(executionQueue);
+            return executionQueue.getPrepareReportId();
         }
     }
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
-    public String executeTestPlan(TestPlanExecutionQueue executionQueue) {
+    public void executeTestPlan(TestPlanExecutionQueue executionQueue) {
         extTestPlanMapper.setActualStartTime(executionQueue.getSourceID(), System.currentTimeMillis());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(executionQueue.getSourceID());
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
@@ -249,8 +284,6 @@ public class TestPlanExecuteService {
                 });
             }
         }
-
-        return executionQueue.getPrepareReportId();
     }
 
     //执行测试集 -- 回调：collectionExecuteQueueFinish
@@ -263,7 +296,7 @@ public class TestPlanExecuteService {
         int pos = 0;
         List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
 
-        String queueId = IDGenerator.nextStr();
+        String queueId = executionQueue.getPrepareReportId()+"_"+parentCollection.getId();
         String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
         for (TestPlanCollection collection : childrenList) {
             childrenQueue.add(
