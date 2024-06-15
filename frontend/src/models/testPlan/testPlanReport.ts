@@ -8,9 +8,9 @@ export interface countDetail {
 export interface PlanReportDetail {
   id: string;
   name: string;
-  startTime: number;
-  executeTime: number; // 报告执行开始时间
-  endTime: number;
+  startTime: number; // 报告执行开始时间
+  createTime: number; // 报告生成时间
+  endTime: number; // 报告执行结束时间
   summary: string;
   passThreshold: number; // 通过阈值
   passRate: number; // 通过率

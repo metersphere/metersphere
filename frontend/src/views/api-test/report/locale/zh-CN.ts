@@ -23,6 +23,7 @@ export default {
   'report.detail.api.errorTip': '当前用例执行存在 前/后置脚本运行错误',
   'report.detail.api.resContent': '响应内容',
   'report.detail.api.executionTime': '执行时间',
+  'report.detail.api.createTime': '报告生成时间',
   'report.detail.api.executionTimeTo': '至',
   'report.detail.api.stepAnalysis': '步骤分析',
   'report.detail.api.reportAnalysis': '报告分析',

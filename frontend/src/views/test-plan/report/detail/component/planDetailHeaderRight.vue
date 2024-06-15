@@ -3,15 +3,15 @@
     <a-popover position="bottom" content-class="response-popover-content">
       <div>
         <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
-        {{ props.detail.executeTime ? dayjs(props.detail.executeTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
+        {{ props.detail.startTime ? dayjs(props.detail.startTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
         <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
         {{ props.detail.endTime ? dayjs(props.detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
       </div>
       <template #content>
         <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
-          <div class="flex-shrink-0 text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</div>
+          <div class="flex-shrink-0 text-[var(--color-text-4)]">{{ t('report.detail.api.createTime') }}</div>
           <div class="mt-2">
-            {{ dayjs(props.detail.executeTime).format('YYYY-MM-DD HH:mm:ss') }}
+            {{ dayjs(props.detail.createTime).format('YYYY-MM-DD HH:mm:ss') }}
           </div>
         </div>
       </template>
