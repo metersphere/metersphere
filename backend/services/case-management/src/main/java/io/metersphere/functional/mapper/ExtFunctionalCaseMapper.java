@@ -87,7 +87,7 @@ public interface ExtFunctionalCaseMapper {
      */
     List<FunctionalCaseMindDTO> getMinderCaseList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted);
 
-    List<FunctionalCaseCustomField> getCaseCustomFieldList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted);
+    List<FunctionalCaseCustomField> getCaseCustomFieldList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted, @Param("fieldIds") List<String>fieldIds);
 
 
     /**

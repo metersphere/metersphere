@@ -823,6 +823,12 @@
             cf.name = 'functional_priority'
           AND cf.scene = 'FUNCTIONAL'
           AND cf.internal= true
+        <if test="fieldIds != null and fieldIds.size() > 0">
+            and fccf.field_id in
+            <foreach collection="fieldIds" item="fieldId" open="(" separator="," close=")">
+                #{fieldId}
+            </foreach>
+        </if>
         order by fc.pos
     </select>
 
