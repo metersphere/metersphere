@@ -83,6 +83,11 @@ export const defaultReportDetail: PlanReportDetail = {
   apiCaseCount: cloneDeep(defaultCount),
   apiScenarioCount: cloneDeep(defaultCount),
   planCount: 0,
+  passCountOfPlan: 0, // 计划通过数量
+  failCountOfPlan: 0, // 计划未通过数量
+  functionalBugCount: 0, // 用例明细bug总数
+  apiBugCount: 0, // 接口用例明细bug总数
+  scenarioBugCount: 0, // 场景用例明细bug总数
 };
 
 export const statusConfig: StatusListType[] = [
