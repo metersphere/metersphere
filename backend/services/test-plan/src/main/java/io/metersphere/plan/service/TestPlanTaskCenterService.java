@@ -82,10 +82,9 @@ public class TestPlanTaskCenterService {
     ExtApiReportMapper extApiReportMapper;
     @Resource
     ExtApiScenarioReportMapper extApiScenarioReportMapper;
+    @Resource
+    TestPlanExecuteService testPlanExecuteService;
     private static final String DEFAULT_SORT = "start_time desc";
-    private final static String PROJECT_STOP = "/task/center/api/project/stop";
-    private final static String ORG_STOP = "/task/center/api/org/stop";
-    private final static String SYSTEM_STOP = "/task/center/api/system/stop";
 
     /**
      * 任务中心实时任务列表-项目级
@@ -275,12 +274,24 @@ public class TestPlanTaskCenterService {
             }
             //根据id去重
             List<String> allReportIds = reports.stream().distinct().map(ReportDTO::getId).toList();
+
             if (CollectionUtils.isNotEmpty(allReportIds)) {
                 // 查找和测试计划管理的接口用例的所有数据
-                List<ReportDTO> apiReports = extTestPlanReportMapper.getCaseReports(allReportIds);
-                detailReport(request, apiReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
-                List<ReportDTO> scenarioReports = extTestPlanReportMapper.getScenarioReports(allReportIds);
-                detailReport(request, scenarioReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+                //停止测试计划的队列
+                SubListUtils.dealForSubList(allReportIds, 10, (subList) -> {
+                    subList.forEach(item -> {
+                        try {
+                            LogUtils.info(String.format("开始停止测试计划队列：%s", item));
+                            testPlanExecuteService.stopTestPlanRunning(item);
+                        } catch (Exception e) {
+                            LogUtils.error("停止测试计划队列异常", e);
+                        }
+                    });
+                    List<ReportDTO> apiReports = extTestPlanReportMapper.getCaseReports(subList);
+                    detailReport(request, apiReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+                    List<ReportDTO> scenarioReports = extTestPlanReportMapper.getScenarioReports(subList);
+                    detailReport(request, scenarioReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+                });
             }
 
         }
