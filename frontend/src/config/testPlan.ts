@@ -70,7 +70,7 @@ export const defaultReportDetail: PlanReportDetail = {
   id: '',
   name: '',
   startTime: 0,
-  executeTime: 0, // 报告执行开始时间
+  createTime: 0, // 报告执行开始时间
   endTime: 0,
   summary: '',
   passThreshold: 0, // 通过阈值

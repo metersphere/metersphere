@@ -24,6 +24,7 @@ export default {
   'report.detail.api.errorTip': 'There are pre/post script running errors in the current use case execution.',
   'report.detail.api.resContent': 'Response content',
   'report.detail.api.executionTime': 'Execution time',
+  'report.detail.api.createTime': 'Generation time',
   'report.detail.api.executionTimeTo': 'To',
   'report.detail.api.stepAnalysis': 'Step analysis',
   'report.detail.api.reportAnalysis': 'Report analysis',
