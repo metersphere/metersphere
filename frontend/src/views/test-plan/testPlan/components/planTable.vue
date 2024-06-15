@@ -718,7 +718,7 @@
 
   const defaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
   function getFunctionalCount(id: string) {
-    return defaultCountDetailMap.value[id]?.functionalCaseCount ?? 0;
+    return defaultCountDetailMap.value[id]?.caseTotal ?? 0;
   }
   function getSchedule(id: string) {
     return !!defaultCountDetailMap.value[id]?.scheduleConfig;
@@ -729,7 +729,7 @@
 
   function getMoreActions(record: TestPlanItem) {
     const { status: planStatus } = record;
-    const useCount = defaultCountDetailMap.value[record.id]?.functionalCaseCount ?? 0;
+    const useCount = defaultCountDetailMap.value[record.id]?.caseTotal ?? 0;
 
     // 有用例数量才可以执行 否则不展示执行
     const copyAction =

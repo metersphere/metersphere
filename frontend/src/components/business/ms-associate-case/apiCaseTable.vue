@@ -15,10 +15,12 @@
     </template>
     <template #lastReportStatus="{ record }">
       <ExecutionStatus
+        v-if="record.lastReportStatus !== 'PENDING'"
         :module-type="ReportEnum.API_REPORT"
         :status="record.lastReportStatus"
         :class="[!record.lastReportId ? '' : 'cursor-pointer']"
       />
+      <span v-else>-</span>
     </template>
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
       <CaseLevel :case-level="filterContent.value" />
@@ -80,6 +82,7 @@
     keyword: string;
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
+    protocols: string[];
   }>();
 
   const emit = defineEmits<{
@@ -215,6 +218,7 @@
       condition: {
         keyword: props.keyword,
       },
+      protocols: props.protocols,
       ...props.extraTableParams,
     };
   }
