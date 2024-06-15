@@ -8,6 +8,9 @@ public class TestPlanConstants {
     //测试计划组默认ID
     public static final String TEST_PLAN_DEFAULT_GROUP_ID = "NONE";
 
+    //测试计划中相关的默认父ID
+    public static final String DEFAULT_PARENT_ID = "NONE";
+
     //测试计划状态-未开始
     public static final String TEST_PLAN_STATUS_PREPARED = "PREPARED";
 
