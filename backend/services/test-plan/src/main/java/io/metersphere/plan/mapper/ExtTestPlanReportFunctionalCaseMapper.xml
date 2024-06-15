@@ -68,6 +68,11 @@
         <include refid="filter"/>
     </select>
 
+    <select id="countBug" resultType="java.lang.Long">
+        select sum(function_case_bug_count) from test_plan_report_function_case tprfc
+        where tprfc.test_plan_report_id = #{id}
+    </select>
+
     <sql id="filter">
         <if test="request.filter != null and request.filter.size() > 0">
             <foreach collection="request.filter.entrySet()" index="key" item="values">
