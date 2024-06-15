@@ -19,7 +19,7 @@ export enum PlanMinderAssociateType {
   FUNCTIONAL_CASE = 'FUNCTIONAL',
   API = 'API',
   API_CASE = 'API_CASE',
-  SCENARIO_CASE = 'SCENARIO_CASE',
+  SCENARIO_CASE = 'API_SCENARIO',
 }
 // 测试集类型(功能：FUNCTIONAL/接口用例：API/场景：SCENARIO)
 export enum PlanMinderCollectionType {
