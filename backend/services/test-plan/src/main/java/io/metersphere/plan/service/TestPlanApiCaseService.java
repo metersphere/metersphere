@@ -665,6 +665,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         TaskItem taskItem = request.getTaskItem();
         TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(taskItem.getResourceId());
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+        apiTestCase.setEnvironmentId(testPlanApiCase.getEnvironmentId());
         return apiTestCaseService.getRunScript(request, apiTestCase);
     }
 
@@ -684,12 +685,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
 
         //初始化步骤
-        apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase, reportId)));
+        apiReportService.insertApiReportStep(List.of(getApiReportStep(testPlanApiCase, apiTestCase, reportId)));
         return apiTestCaseRecord;
     }
 
-    public ApiReportStep getApiReportStep(ApiTestCase apiTestCase, String reportId) {
-        ApiReportStep apiReportStep = apiTestCaseService.getApiReportStep(apiTestCase, reportId, 1L);
+    public ApiReportStep getApiReportStep(TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase, String reportId) {
+        ApiReportStep apiReportStep = apiTestCaseService.getApiReportStep(testPlanApiCase.getId(), apiTestCase.getName(), reportId, 1L);
         apiReportStep.setStepType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
         return apiReportStep;
     }

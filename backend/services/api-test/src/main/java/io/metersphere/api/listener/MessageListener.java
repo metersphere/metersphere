@@ -66,7 +66,11 @@ public class MessageListener {
                     }
                     // 集合报告不发送通知
                 } else {
-                    apiReportSendNoticeService.sendNotice(dto);
+                    try {
+                        apiReportSendNoticeService.sendNotice(dto);
+                    } catch (Exception e) {
+                        LogUtils.error(e);
+                    }
                     if (StringUtils.isNotBlank(dto.getParentQueueId())
                             && BooleanUtils.isTrue(dto.getChildCollectionExecuteOver())) {
                         // 执行下一个测试集

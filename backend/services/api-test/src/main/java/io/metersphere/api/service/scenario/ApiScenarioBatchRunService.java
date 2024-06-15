@@ -327,7 +327,7 @@ public class ApiScenarioBatchRunService {
 
     private ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario, String userId) {
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, userId);
-        apiScenarioReport.setEnvironmentId(apiScenarioRunService.getEnvId(runModeConfig, apiScenario));
+        apiScenarioReport.setEnvironmentId(apiScenarioRunService.getEnvId(runModeConfig, apiScenario.getEnvironmentId()));
         apiScenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiScenarioReport.setProjectId(apiScenario.getProjectId());
         apiScenarioReport.setTriggerMode(TaskTriggerMode.BATCH.name());

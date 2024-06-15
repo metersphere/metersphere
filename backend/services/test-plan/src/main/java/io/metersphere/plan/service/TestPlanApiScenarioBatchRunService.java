@@ -210,6 +210,7 @@ public class TestPlanApiScenarioBatchRunService {
 
         TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(projectId, runModeConfig);
         taskRequest.setTaskItems(taskItems);
+        taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
 
         apiExecuteService.batchExecute(taskRequest);
@@ -250,6 +251,7 @@ public class TestPlanApiScenarioBatchRunService {
                                                   Map<String, ApiScenario> apiScenarioMap, String userId) {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(testPlanApiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(testPlanApiScenarios.size());
+        Map<String, String> resourceReportMap = new HashMap<>();
         for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
             ApiScenario apiScenario = apiScenarioMap.get(testPlanApiScenario.getApiScenarioId());
             // 初始化报告
@@ -259,9 +261,10 @@ public class TestPlanApiScenarioBatchRunService {
             // 创建报告和用例的关联关系
             ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(apiScenario, apiScenarioReport);
             apiScenarioRecords.add(apiScenarioRecord);
+            resourceReportMap.put(testPlanApiScenario.getId(), apiScenarioReport.getId());
         }
         apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
-        return apiScenarioRecords.stream().collect(Collectors.toMap(ApiScenarioRecord::getApiScenarioId, ApiScenarioRecord::getApiScenarioReportId));
+        return resourceReportMap;
     }
 
     /**
@@ -282,6 +285,7 @@ public class TestPlanApiScenarioBatchRunService {
         TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
         taskRequest.setTaskItem(taskItem);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
 
         apiExecuteService.execute(taskRequest);

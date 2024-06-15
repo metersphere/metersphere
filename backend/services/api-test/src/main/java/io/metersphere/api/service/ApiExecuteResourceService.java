@@ -42,9 +42,9 @@ public class ApiExecuteResourceService {
         ApiExecuteResourceType apiExecuteResourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, request.getResourceType());
 
         switch (apiExecuteResourceType) {
-            case API_SCENARIO, TEST_PLAN_API_SCENARIO ->
+            case API_SCENARIO, TEST_PLAN_API_SCENARIO, PLAN_RUN_API_SCENARIO ->
                     apiScenarioReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
-            case API_CASE, TEST_PLAN_API_CASE ->
+            case API_CASE, TEST_PLAN_API_CASE, PLAN_RUN_API_CASE ->
                     apiReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
             default -> throw new MSException("不支持的资源类型: " + request.getResourceType());
         }

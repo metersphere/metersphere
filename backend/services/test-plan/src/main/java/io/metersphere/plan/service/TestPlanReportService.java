@@ -39,6 +39,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -220,10 +222,12 @@ public class TestPlanReportService {
 
     /**
      * 执行生成报告
+     * 新开事务，避免异步执行查不到数据
      *
      * @param request     请求参数
      * @param currentUser 当前用户
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Map<String, String> genReportByExecution(String prepareReportId,TestPlanReportGenRequest request, String currentUser) {
         return genReport(prepareReportId,request, false, currentUser, "/test-plan/report/gen");
     }

@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.ApiRunRetryConfig;
 import io.metersphere.sdk.util.BeanUtils;
@@ -25,23 +26,27 @@ public class TestPlanApiBatchRunBaseService {
     }
 
     public ApiRunModeConfigDTO getApiRunModeConfig(TestPlanCollection collection) {
-        TestPlanCollection rootCollection = null;
         if (collection == null) {
             ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
             runModeConfig.setPoolId(StringUtils.EMPTY);
             return runModeConfig;
         }
+        TestPlanCollection rootCollection = getExtendedRootCollection(collection);
+        ApiRunModeConfigDTO runModeConfig = getApiRunModeConfig(rootCollection, collection);
+        return runModeConfig;
+    }
+
+    public TestPlanCollection getExtendedRootCollection(TestPlanCollection collection) {
         if (BooleanUtils.isTrue(collection.getExtended())
-                && StringUtils.equalsIgnoreCase(collection.getParentId(), "NONE")) {
+                && !StringUtils.equals(collection.getParentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
             TestPlanCollectionExample example = new TestPlanCollectionExample();
-            example.createCriteria().andParentIdEqualTo(collection.getParentId());
-            rootCollection = testPlanCollectionMapper.selectByExample(example)
+            example.createCriteria().andIdEqualTo(collection.getParentId());
+            return testPlanCollectionMapper.selectByExample(example)
                     .stream()
                     .findFirst()
                     .orElse(null);
         }
-        ApiRunModeConfigDTO runModeConfig = getApiRunModeConfig(rootCollection, collection);
-        return runModeConfig;
+        return null;
     }
 
     public ApiRunModeConfigDTO getApiRunModeConfig(TestPlanCollection rootCollection, TestPlanCollection collection) {

@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanApiCasePlanRunService {
+public class PlanRunTestPlanApiCaseService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -153,6 +153,7 @@ public class TestPlanApiCasePlanRunService {
         TaskBatchRequestDTO taskRequest = apiTestCaseBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
         taskRequest.setTaskItems(taskItems);
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
+        taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
         apiExecuteService.batchExecute(taskRequest);
 
@@ -191,6 +192,7 @@ public class TestPlanApiCasePlanRunService {
         TaskRequestDTO taskRequest = testPlanApiCaseBatchRunService.getTaskRequestDTO(reportId, testPlanReportApiCase.getId(), apiTestCase, runModeConfig);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskItem().setRequestCount(1L);
 

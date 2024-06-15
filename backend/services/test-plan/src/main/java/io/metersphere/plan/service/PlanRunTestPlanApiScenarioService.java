@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
@@ -10,18 +11,13 @@ import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanCollection;
-import io.metersphere.plan.domain.TestPlanReportApiScenario;
-import io.metersphere.plan.domain.TestPlanReportApiScenarioExample;
+import io.metersphere.api.service.scenario.ApiScenarioRunService;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportApiScenarioMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
-import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
-import io.metersphere.sdk.dto.api.task.TaskItem;
-import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
@@ -34,16 +30,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanApiScenarioPlanRunService {
+public class PlanRunTestPlanApiScenarioService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
@@ -56,6 +49,8 @@ public class TestPlanApiScenarioPlanRunService {
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private TestPlanReportApiScenarioMapper testPlanReportApiScenarioMapper;
+    @Resource
+    private ApiScenarioRunService apiScenarioRunService;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
@@ -122,6 +117,7 @@ public class TestPlanApiScenarioPlanRunService {
         TaskBatchRequestDTO taskRequest = testPlanApiScenarioBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
         taskRequest.setTaskItems(taskItems);
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
+        taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
 
         // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
@@ -151,6 +147,7 @@ public class TestPlanApiScenarioPlanRunService {
                                                   Map<String, ApiScenario> apiScenarioMap, String userId) {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(testPlanReportApiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(testPlanReportApiScenarios.size());
+        Map<String, String> resourceReportMap = new HashMap<>();
         for (TestPlanReportApiScenario testPlanReportApiScenario : testPlanReportApiScenarios) {
             ApiScenario apiScenario = apiScenarioMap.get(testPlanReportApiScenario.getApiScenarioId());
             // 初始化报告
@@ -168,9 +165,10 @@ public class TestPlanApiScenarioPlanRunService {
             scenarioRecord.setApiScenarioId(apiScenario.getId());
             scenarioRecord.setApiScenarioReportId(apiScenarioReport.getId());
             apiScenarioRecords.add(scenarioRecord);
+            resourceReportMap.put(testPlanReportApiScenario.getId(), apiScenarioReport.getId());
         }
         apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
-        return apiScenarioRecords.stream().collect(Collectors.toMap(ApiScenarioRecord::getApiScenarioId, ApiScenarioRecord::getApiScenarioReportId));
+        return resourceReportMap;
     }
 
     private List<TestPlanReportApiScenario> getTestPlanReportApiScenarios(String testPlanReportId, TestPlanCollection collection) {
@@ -206,9 +204,19 @@ public class TestPlanApiScenarioPlanRunService {
         TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
         taskRequest.setTaskItem(taskItem);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
 
         apiExecuteService.execute(taskRequest);
+    }
+
+    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
+        TaskItem taskItem = request.getTaskItem();
+        TestPlanReportApiScenario testPlanReportApiScenario = testPlanReportApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanReportApiScenario.getApiScenarioId());
+        apiScenarioDetail.setEnvironmentId(testPlanReportApiScenario.getEnvironmentId());
+        apiScenarioDetail.setGrouped(testPlanReportApiScenario.getGrouped());
+        return apiScenarioRunService.getRunScript(request, testPlanReportApiScenario.getApiScenarioId());
     }
 }

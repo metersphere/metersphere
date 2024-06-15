@@ -222,7 +222,7 @@ public class TestPlanApiCaseBatchRunService {
                 .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
 
         // 初始化报告，返回用例和报告的 map
-        Map<String, String> caseReportMap = initParallelReport(runModeConfig, testPlanApiCases, apiCaseMap, userId);
+        Map<String, String> caseReportMap = initApiReport(runModeConfig, testPlanApiCases, apiCaseMap, userId);
 
         List<TaskItem> taskItems = new ArrayList<>(ids.size());
 
@@ -250,13 +250,6 @@ public class TestPlanApiCaseBatchRunService {
         taskRequest.setTaskItems(taskItems);
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
         apiExecuteService.batchExecute(taskRequest);
-    }
-
-    private Map<String, String> initParallelReport(ApiRunModeConfigDTO runModeConfig, List<TestPlanApiCase> testPlanApiCases, Map<String, ApiTestCase> caseMap, String userId) {
-        // 初始化非集成报告
-        List<ApiTestCaseRecord> apiTestCaseRecords = initApiReport(runModeConfig, testPlanApiCases, caseMap, userId);
-        return apiTestCaseRecords.stream()
-                .collect(Collectors.toMap(ApiTestCaseRecord::getApiTestCaseId, ApiTestCaseRecord::getApiReportId));
     }
 
     public ApiReportStep getApiReportStep(String resourceId, ApiTestCase apiTestCase, String reportId, long sort) {
@@ -289,7 +282,7 @@ public class TestPlanApiCaseBatchRunService {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
 
         // 独立报告，执行到当前任务时初始化报告
-        String reportId = initApiReport(runModeConfig, List.of(testPlanApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(0).getApiReportId();
+        String reportId = initApiReport(runModeConfig, List.of(testPlanApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(testPlanApiCase.getId());
         TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, testPlanApiCase.getId(), apiTestCase, runModeConfig);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
@@ -326,11 +319,12 @@ public class TestPlanApiCaseBatchRunService {
      * @param runModeConfig
      * @return
      */
-    public List<ApiTestCaseRecord> initApiReport(ApiRunModeConfigDTO runModeConfig, List<TestPlanApiCase> testPlanApiCases,
+    public Map<String, String> initApiReport(ApiRunModeConfigDTO runModeConfig, List<TestPlanApiCase> testPlanApiCases,
                                                  Map<String, ApiTestCase> caseMap, String userId) {
         List<ApiReport> apiReports = new ArrayList<>();
         List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
         List<ApiReportStep> apiReportSteps = new ArrayList<>();
+        Map<String, String> resourceReportMap = new HashMap<>();
 
         for (TestPlanApiCase testPlanApiCase : testPlanApiCases) {
             ApiTestCase apiTestCase = caseMap.get(testPlanApiCase.getApiCaseId());
@@ -341,10 +335,11 @@ public class TestPlanApiCaseBatchRunService {
             ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
             apiTestCaseRecords.add(apiTestCaseRecord);
             apiReportSteps.add(getApiReportStep(testPlanApiCase.getId(), apiTestCase, apiReport.getId(), 1));
+            resourceReportMap.put(testPlanApiCase.getId(), apiReport.getId());
         }
         apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
         apiReportService.insertApiReportStep(apiReportSteps);
-        return apiTestCaseRecords;
+        return resourceReportMap;
     }
 
     private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase, String userId) {
