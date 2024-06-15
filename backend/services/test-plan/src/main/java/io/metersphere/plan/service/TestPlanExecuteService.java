@@ -68,36 +68,72 @@ public class TestPlanExecuteService {
     // 停止测试计划的执行
     public void stopTestPlanRunning(String testPlanReportId){
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportId);
+        if(testPlanReport ==null){
+            return;
+        }
         if(testPlanReport.getIntegrated()){
+            TestPlanReportExample reportExample = new TestPlanReportExample();
+            reportExample.createCriteria().andParentIdEqualTo(testPlanReportId);
+            List<TestPlanReport> testPlanItemReport = testPlanReportMapper.selectByExample(reportExample);
             /*
-            todo
                 集成报告：要停止的是测试计划组执行
                 这条测试计划所在队列，是以 test-plan-batch-execute:randomId 命名的
                 要删除的队列：1. test-plan-group-execute:testPlanReportId（队列里放的是子测试计划的数据）
                             2. test-plan-case-type-execute:testPlanItemReportId（队列里放的是测试计划-用例类型的数据）
                             3. test-plan-collection-execute:testPlanItemReportId_testPlanParentCollectionId
+                循环子报告进行报告结算
+                进行报告结算
                 继续执行    test-plan-batch-execute:randomId 队列的下一条
              */
-        }else if(!StringUtils.equalsIgnoreCase(testPlanReport.getId(),testPlanReport.getParentId())){
+            // 获取下一个要执行的测试计划节点，目的是得到最后一条的queueId
+            TestPlanExecutionQueue nextTestPlanQueue = this.getNextQueue(testPlanReportId,QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE);
+            if(nextTestPlanQueue == null || !StringUtils.equalsIgnoreCase(nextTestPlanQueue.getParentQueueType(),QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)){
+                throw new MSException("停止执行测试计划组失败!无法获取到执行队列！");
+            }
+
+            String groupExecuteQueueId = genQueueKey(testPlanReportId,QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE);
+            this.deleteRedisKey(groupExecuteQueueId);
+            testPlanItemReport.forEach(item -> {
+                this.deepDeleteTestPlanCaseType(item);
+                //统计子测试计划报告
+                summaryTestPlanReport(item.getId(),false);
+            });
+            summaryTestPlanReport(testPlanReportId,true);
+            this.testPlanExecuteQueueFinish(nextTestPlanQueue.getParentQueueId(),nextTestPlanQueue.getParentQueueType());
+        }else {
             /*
-            todo
-                独立报告中，parentId和本身的id不一致：要停止的是测试计划组内的测试计划执行
+                独立报告中，停止的是单独测试计划的执行
+                这条测试计划是在批量执行队列中，还是在测试计划组执行队中， 通过要删除的队列1（因为当前节点在执行之前就被弹出）来确定。
+                前者为 test-plan-group-execute:parentReportId  后者为 test-plan-batch-execute:randomId
                 这条测试计划所在队列，是以 test-plan-group-execute:parentReportId 命名的
                 要删除的队列：1. test-plan-case-type-execute:testPlanReportId（队列里放的是测试计划-用例类型的数据）
                             2. test-plan-collection-execute:testPlanReportId_testPlanParentCollectionId
-                继续执行    test-plan-group-execute:parentReportId 队列的下一条
+                进行当前报告结算
+                继续执行   队列的下一条
              */
-        }else {
-            /*
-            todo
-                停止的是游离态测试计划执行
-                这条测试计划所在队列，是以 test-plan-batch-execute:randomId 命名的
-                要删除的队列：1. test-plan-case-type-execute:testPlanReportId
-                            2. test-plan-collection-execute:testPlanReportId_testPlanParentCollectionId
-                继续执行    test-plan-batch-execute:randomId 队列的下一条
-             */
-
+            TestPlanExecutionQueue nextTestPlanQueue = this.getNextQueue(testPlanReportId,QUEUE_PREFIX_TEST_PLAN_CASE_TYPE);
+            if(nextTestPlanQueue == null || !StringUtils.equalsAnyIgnoreCase(nextTestPlanQueue.getParentQueueType(),QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE,QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)){
+                throw new MSException("停止测试计划执行失败!无法获取到执行队列！");
+            }
+            this.deepDeleteTestPlanCaseType(testPlanReport);
+            summaryTestPlanReport(testPlanReportId,false);
+            this.testPlanExecuteQueueFinish(nextTestPlanQueue.getParentQueueId(),nextTestPlanQueue.getParentQueueType());
         }
+
+        // todo @wxg 是在 deepDeleteTestPlanCaseType()方法中删除用例执行队列时，同步到执行机停止执行任务，还是其它操作， 由你来决定了
+    }
+
+    private void deepDeleteTestPlanCaseType(TestPlanReport report){
+        this.deleteRedisKey(genQueueKey(report.getId(),QUEUE_PREFIX_TEST_PLAN_CASE_TYPE));
+        TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
+        collectionExample.createCriteria().andTestPlanIdEqualTo(report.getTestPlanId()).andParentIdEqualTo(TestPlanConstants.DEFAULT_PARENT_ID);
+        List<TestPlanCollection> parentTestPlanCollectionList = testPlanCollectionMapper.selectByExample(collectionExample);
+        parentTestPlanCollectionList.forEach( parentCollection -> {
+
+            this.deleteRedisKey(genQueueKey(report.getId()+"_"+parentCollection.getId(),QUEUE_PREFIX_TEST_PLAN_COLLECTION));
+
+            //todo @Chen-Jianxing 这里要同步清理用例/场景的执行队列
+        });
     }
 
     /**
@@ -116,6 +152,12 @@ public class TestPlanExecuteService {
     private void setRedisForList(String key, List<String> list) {
         redisTemplate.opsForList().rightPushAll(key, list);
         redisTemplate.expire(key, 1, TimeUnit.DAYS);
+    }
+
+    private void deleteRedisKey(String redisKey) {
+        //清除list的key 和 last key节点
+        redisTemplate.delete(redisKey);
+        redisTemplate.delete(genQueueKey(redisKey, LAST_QUEUE_PREFIX));
     }
     //批量执行测试计划组
     public void batchExecuteTestPlan(TestPlanBatchExecuteRequest request, String userId) {

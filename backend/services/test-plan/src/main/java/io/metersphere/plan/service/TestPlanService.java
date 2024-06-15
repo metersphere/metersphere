@@ -910,7 +910,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             TestPlanCollection parentCollection = new TestPlanCollection();
             BeanUtils.copyBean(parentCollection, defaultCollection);
             parentCollection.setId(IDGenerator.nextStr());
-            parentCollection.setParentId("NONE");
+            parentCollection.setParentId(TestPlanConstants.DEFAULT_PARENT_ID);
             parentCollection.setName(caseType.getType());
             parentCollection.setType(caseType.getKey());
             parentCollection.setPos(initPos << 12);
