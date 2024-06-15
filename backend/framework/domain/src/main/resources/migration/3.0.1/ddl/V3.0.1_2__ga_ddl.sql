@@ -227,6 +227,7 @@ ALTER TABLE test_plan_report DROP `execute_time`;
 -- 计划报告功能用例明细表
 ALTER TABLE test_plan_report_function_case ADD `test_plan_collection_id` VARCHAR(50) NOT NULL  COMMENT '测试集ID';
 ALTER TABLE test_plan_report_function_case ADD `pos` BIGINT NOT NULL   COMMENT '自定义排序';
+ALTER TABLE test_plan_report_function_case ADD `function_case_execute_report_id` VARCHAR(50)    COMMENT '执行报告ID';
 CREATE INDEX idx_test_plan_collection_id ON test_plan_report_function_case(test_plan_collection_id);
 CREATE INDEX idx_pos ON test_plan_report_function_case(pos);
 
