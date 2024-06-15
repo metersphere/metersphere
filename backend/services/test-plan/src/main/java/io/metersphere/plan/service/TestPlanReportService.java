@@ -40,10 +40,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,6 +66,8 @@ public class TestPlanReportService {
     private ExtTestPlanReportBugMapper extTestPlanReportBugMapper;
     @Resource
     private ExtTestPlanReportFunctionalCaseMapper extTestPlanReportFunctionalCaseMapper;
+	@Resource
+	private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
     @Resource
     private ExtTestPlanReportApiCaseMapper extTestPlanReportApiCaseMapper;
     @Resource
@@ -339,12 +338,27 @@ public class TestPlanReportService {
 			List<String> ids = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseId).distinct().toList();
 			List<SelectOption> options = extTestPlanReportFunctionalCaseMapper.getCasePriorityByIds(ids);
 			Map<String, String> casePriorityMap = options.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+			// 关联的功能用例最新一次执行历史
+			List<String> relateIds = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getTestPlanFunctionCaseId).toList();
+			TestPlanCaseExecuteHistoryExample example = new TestPlanCaseExecuteHistoryExample();
+			example.createCriteria().andTestPlanCaseIdIn(relateIds);
+			List<TestPlanCaseExecuteHistory> functionalExecHisList = testPlanCaseExecuteHistoryMapper.selectByExample(example);
+			Map<String, List<TestPlanCaseExecuteHistory>> functionalExecMap = functionalExecHisList.stream().collect(Collectors.groupingBy(TestPlanCaseExecuteHistory::getTestPlanCaseId));
+
+
 			reportFunctionCases.forEach(reportFunctionalCase -> {
 				reportFunctionalCase.setId(IDGenerator.nextStr());
 				reportFunctionalCase.setTestPlanReportId(report.getId());
 				reportFunctionalCase.setFunctionCaseModule(moduleParam.getFunctionalModuleMap().getOrDefault(reportFunctionalCase.getFunctionCaseModule(),
 						ModuleTreeUtils.MODULE_PATH_PREFIX + reportFunctionalCase.getFunctionCaseModule()));
 				reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
+				List<TestPlanCaseExecuteHistory> hisList = functionalExecMap.get(reportFunctionalCase.getTestPlanFunctionCaseId());
+				if (CollectionUtils.isNotEmpty(hisList)) {
+					Optional<String> lastExecuteHisOpt = hisList.stream().sorted(Comparator.comparing(TestPlanCaseExecuteHistory::getCreateTime).reversed()).map(TestPlanCaseExecuteHistory::getId).findFirst();
+					reportFunctionalCase.setFunctionCaseExecuteReportId(lastExecuteHisOpt.get());
+				} else {
+					reportFunctionalCase.setFunctionCaseExecuteReportId(null);
+				}
 			});
 			// 插入计划功能用例关联数据 -> 报告内容
 			TestPlanReportFunctionCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportFunctionCaseMapper.class);

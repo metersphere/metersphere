@@ -983,6 +983,76 @@ public class TestPlanReportFunctionCaseExample {
             addCriterion("pos not between", value1, value2, "pos");
             return (Criteria) this;
         }
+
+        public Criteria andFunctionCaseExecuteReportIdIsNull() {
+            addCriterion("function_case_execute_report_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdIsNotNull() {
+            addCriterion("function_case_execute_report_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdEqualTo(String value) {
+            addCriterion("function_case_execute_report_id =", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdNotEqualTo(String value) {
+            addCriterion("function_case_execute_report_id <>", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdGreaterThan(String value) {
+            addCriterion("function_case_execute_report_id >", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("function_case_execute_report_id >=", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdLessThan(String value) {
+            addCriterion("function_case_execute_report_id <", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdLessThanOrEqualTo(String value) {
+            addCriterion("function_case_execute_report_id <=", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdLike(String value) {
+            addCriterion("function_case_execute_report_id like", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdNotLike(String value) {
+            addCriterion("function_case_execute_report_id not like", value, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdIn(List<String> values) {
+            addCriterion("function_case_execute_report_id in", values, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdNotIn(List<String> values) {
+            addCriterion("function_case_execute_report_id not in", values, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdBetween(String value1, String value2) {
+            addCriterion("function_case_execute_report_id between", value1, value2, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFunctionCaseExecuteReportIdNotBetween(String value1, String value2) {
+            addCriterion("function_case_execute_report_id not between", value1, value2, "functionCaseExecuteReportId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
