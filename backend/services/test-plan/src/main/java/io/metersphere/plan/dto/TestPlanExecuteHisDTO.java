@@ -12,6 +12,8 @@ public class TestPlanExecuteHisDTO {
 	private String num;
 	@Schema(description = "执行方式")
 	private String triggerMode;
+	@Schema(description = "执行状态")
+	private String execStatus;
 	@Schema(description = "执行结果")
 	private String execResult;
 	@Schema(description = "操作人")
