@@ -39,6 +39,7 @@ import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -143,7 +144,10 @@ public class FunctionalCaseMinderService {
             return new ArrayList<>();
         }
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseList(request, deleted);
-        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted);
+        List<String> fieldIds = getFieldIds(request);
+        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted, fieldIds);
+
+
         Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
 
         List<FunctionalMinderTreeDTO> functionalMinderTreeDTOS = buildAdditionalData(request.getModuleId());
@@ -153,6 +157,14 @@ public class FunctionalCaseMinderService {
         //构造父子级数据
         buildList(functionalCaseMindDTOList, list, priorityMap);
         return list;
+    }
+
+    @NotNull
+    private List<String> getFieldIds(FunctionalCaseMindRequest request) {
+        TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.toString());
+        List<TemplateCustomFieldDTO> customFields = defaultTemplateDTO.getCustomFields();
+        List<String> fieldIds = customFields.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
+        return fieldIds;
     }
 
     private List<FunctionalMinderTreeDTO> buildAdditionalData(String moduleId) {
@@ -524,16 +536,34 @@ public class FunctionalCaseMinderService {
         sources.remove(nodeIndex);
         List<T> beforeNode;
         List<T> afterNode;
-        if (StringUtils.equals(moveMode, MoveTypeEnum.AFTER.name())) {
-            beforeNode = sources.subList(0, targetIndex + 1);
-            afterNode = sources.subList(targetIndex + 1, sources.size());
+        //证明相邻点不是同种类型，放到1位
+        if (targetIndex == 0 && !findTarget) {
+            beforeNode = new ArrayList<>();
+            afterNode = sources;
         } else {
-            beforeNode = sources.subList(0, targetIndex);
-            afterNode = sources.subList(targetIndex, sources.size());
+            if (StringUtils.equals(moveMode, MoveTypeEnum.AFTER.name())) {
+                if (targetIndex+1>sources.size()) {
+                    beforeNode = sources;
+                    afterNode = new ArrayList<>();
+                } else {
+                    beforeNode = sources.subList(0, targetIndex+1);
+                    afterNode = sources.subList(targetIndex+1, sources.size());
+                }
+            } else {
+                beforeNode = sources.subList(0, targetIndex);
+                afterNode = sources.subList(targetIndex, sources.size());
+            }
         }
-        List<T> finallyNode = new ArrayList<>(beforeNode);
-        finallyNode.add(currentNode);
-        finallyNode.addAll(afterNode);
+        List<T> finallyNode = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(beforeNode)) {
+            finallyNode.addAll(beforeNode);
+        }
+        if (currentNode!=null) {
+            finallyNode.add(currentNode);
+        }
+        if (CollectionUtils.isNotEmpty(afterNode)) {
+            finallyNode.addAll(afterNode);
+        }
         return finallyNode;
     }
 
@@ -544,7 +574,7 @@ public class FunctionalCaseMinderService {
         String textParentId = targetTextMap.get(targetId);
         if (StringUtils.isNotBlank(parentId)) {
             moduleMapKey = parentId;
-        } else if (StringUtils.isNotBlank(parentId)) {
+        } else if (StringUtils.isNotBlank(caseModuleId)) {
             moduleMapKey = caseModuleId;
         } else {
             moduleMapKey = textParentId;
@@ -641,7 +671,7 @@ public class FunctionalCaseMinderService {
                 }
             }
         }
-        functionalMinderUpdateDTO.setSourceIdAndTargetIdsMap(sourceIdAndTargetIdsMap);
+        setDTOTargetMap(functionalMinderUpdateDTO, sourceIdAndTargetIdsMap);
         return sourceIdAndInsertCaseIdMap;
     }
 
@@ -721,8 +751,17 @@ public class FunctionalCaseMinderService {
                 }
             }
         }
-        functionalMinderUpdateDTO.setSourceIdAndTargetIdsMap(sourceIdAndTargetIdsMap);
+        setDTOTargetMap(functionalMinderUpdateDTO, sourceIdAndTargetIdsMap);
         return sourceIdAndInsertTextIdMap;
+    }
+
+    private static void setDTOTargetMap(FunctionalMinderUpdateDTO functionalMinderUpdateDTO, Map<String, String> sourceIdAndTargetIdsMap) {
+        Map<String, String> existMap = functionalMinderUpdateDTO.getSourceIdAndTargetIdsMap();
+        if (MapUtils.isEmpty(existMap)) {
+            existMap = new HashMap<>();
+        }
+        existMap.putAll(sourceIdAndTargetIdsMap);
+        functionalMinderUpdateDTO.setSourceIdAndTargetIdsMap(existMap);
     }
 
     private MindAdditionalNode updateNode(String userId, MindAdditionalNodeRequest mindAdditionalNodeRequest, MindAdditionalNodeMapper mindAdditionalNodeMapper) {
@@ -796,7 +835,7 @@ public class FunctionalCaseMinderService {
                 }
             }
         }
-        functionalMinderUpdateDTO.setSourceIdAndTargetIdsMap(sourceIdAndTargetIdsMap);
+        setDTOTargetMap(functionalMinderUpdateDTO, sourceIdAndTargetIdsMap);
         return sourceIdAndInsertIdMap;
     }
 
@@ -1113,7 +1152,8 @@ public class FunctionalCaseMinderService {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
         //查出当前模块下的所有用例
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCaseReviewList(request, deleted, userId, viewStatusUserId);
-        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted);
+        List<String> fieldIds = getFieldIds(request);
+        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted, fieldIds);
         Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
         //构造父子级数据
         buildList(functionalCaseMindDTOList, list, priorityMap);
@@ -1124,7 +1164,8 @@ public class FunctionalCaseMinderService {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
         //查出当前模块下的所有用例
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderTestPlanList(request, deleted);
-        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted);
+        List<String> fieldIds = getFieldIds(request);
+        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted, fieldIds);
         Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
         //构造父子级数据
         buildList(functionalCaseMindDTOList, list, priorityMap);
