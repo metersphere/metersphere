@@ -482,7 +482,19 @@ public class TestPlanReportService {
         int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
         planReportDetail.setCaseTotal(caseTotal);
         planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
-        planReportDetail.setPlanCount(reportSummary.getPlanCount().intValue());
+		// 暂时只有功能用例能关联缺陷
+		Long functionalBugCount = extTestPlanReportFunctionalCaseMapper.countBug(reportId);
+		planReportDetail.setFunctionalBugCount(functionalBugCount.intValue());
+		if (planReport.getIntegrated()) {
+			// 计划组报告, 需要统计计划的执行数据
+			planReportDetail.setPlanCount(reportSummary.getPlanCount().intValue());
+			TestPlanReportExample reportExample = new TestPlanReportExample();
+			reportExample.createCriteria().andParentIdEqualTo(reportId);
+			List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(reportExample);
+			long planPassCount = testPlanReports.stream().filter(report -> StringUtils.equals(ExecStatus.SUCCESS.name(), report.getResultStatus())).count();
+			planReportDetail.setPassCountOfPlan((int) planPassCount);
+			planReportDetail.setFailCountOfPlan(planReportDetail.getPlanCount() - planReportDetail.getPassCountOfPlan());
+		}
         planReportDetail.setSummary(reportSummary.getSummary());
         /*
          * 统计用例执行数据

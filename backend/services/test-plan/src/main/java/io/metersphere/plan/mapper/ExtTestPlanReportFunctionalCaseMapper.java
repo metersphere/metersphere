@@ -60,4 +60,11 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 	 * @return 关联的用例集合
 	 */
 	List<ReportDetailCasePageDTO> list(@Param("request") TestPlanReportDetailPageRequest request);
+
+	/**
+	 * 统计用例明细的关联缺陷数
+	 * @param reportId 报告ID
+	 * @return 缺陷数量
+	 */
+	Long countBug(@Param("id") String reportId);
 }

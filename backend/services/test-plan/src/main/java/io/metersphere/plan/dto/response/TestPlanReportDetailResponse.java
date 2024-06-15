@@ -39,9 +39,24 @@ public class TestPlanReportDetailResponse {
     @Schema(description = "计划总数")
     private Integer planCount;
 
+    /**
+     * 一键总结参数
+     */
+    @Schema(description = "通过的计划数量 - 计划组报告使用")
+    private Integer passCountOfPlan = 0;
+    @Schema(description = "未通过的计划数量 - 计划组报告使用")
+    private Integer failCountOfPlan = 0;
+    @Schema(description = "功能用例明细的缺陷数量")
+    private Integer functionalBugCount = 0;
+    @Schema(description = "功能用例明细的缺陷数量")
+    private Integer apiBugCount = 0;
+    @Schema(description = "功能用例明细的缺陷数量")
+    private Integer scenarioBugCount = 0;
+
 
     @Schema(description = "用例总数")
     private Integer caseTotal = 0;
+
     /**
      * 执行分析
      */
@@ -63,6 +78,7 @@ public class TestPlanReportDetailResponse {
     @Schema(description = "接口场景用例分析-用例数")
     private CaseCount apiScenarioCount;
 
+    @Schema(description = "报告是否删除")
     private boolean deleted;
 
     @Schema(description = "报告状态")
