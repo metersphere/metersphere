@@ -19,7 +19,6 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -64,7 +63,7 @@ public class TestPlanExecuteService {
     public static final String QUEUE_PREFIX_TEST_PLAN_COLLECTION = "test-plan-collection-execute:";
 
     public static final String LAST_QUEUE_PREFIX = "last-queue:";
-    @Autowired
+    @Resource
     private TestPlanReportMapper testPlanReportMapper;
 
     // 停止测试计划的执行
@@ -146,6 +145,8 @@ public class TestPlanExecuteService {
         executionQueue.setSourceID(request.getExecuteId());
         executionQueue.setRunMode(request.getRunMode());
         executionQueue.setExecutionSource(request.getExecutionSource());
+        executionQueue.setQueueId(IDGenerator.nextStr());
+        executionQueue.setQueueType(QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
         executionQueue.setCreateUser(userId);
         executionQueue.setPrepareReportId(IDGenerator.nextStr());
         return executeTestPlanOrGroup(executionQueue);
