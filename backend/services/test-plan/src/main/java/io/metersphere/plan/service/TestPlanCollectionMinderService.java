@@ -272,7 +272,7 @@ public class TestPlanCollectionMinderService {
 
         if (CollectionUtils.isNotEmpty(updateList)) {
             //处理删除
-            deleteCollection(updateList);
+            deleteCollection(updateList, request.getPlanId());
             //处理更新
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : updateList) {
                 TestPlanCollection testPlanCollection = updateCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
@@ -281,10 +281,10 @@ public class TestPlanCollectionMinderService {
         }
     }
 
-    private void deleteCollection(List<TestPlanCollectionMinderEditDTO> updateList) {
+    private void deleteCollection(List<TestPlanCollectionMinderEditDTO> updateList, String planId) {
         List<String> existIds = updateList.stream().map(TestPlanCollectionMinderEditDTO::getId).toList();
         TestPlanCollectionExample example = new TestPlanCollectionExample();
-        example.createCriteria().andIdNotIn(existIds);
+        example.createCriteria().andIdNotIn(existIds).andTestPlanIdEqualTo(planId);
         List<TestPlanCollection> collections = testPlanCollectionMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(collections)) {
             List<String> deletedIds = collections.stream().map(TestPlanCollection::getId).toList();
