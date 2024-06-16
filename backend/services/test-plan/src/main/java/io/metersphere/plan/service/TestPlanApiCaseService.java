@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -488,7 +489,18 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         } else {
             TestPlanApiCaseExample example = new TestPlanApiCaseExample();
             example.createCriteria().andIdIn(request.getSelectIds());
-            return testPlanApiCaseMapper.selectByExample(example);
+            Map<String, TestPlanApiCase> testPlanApiCaseMap = testPlanApiCaseMapper.selectByExample(example)
+                    .stream()
+                    .collect(Collectors.toMap(TestPlanApiCase::getId, Function.identity()));
+            List<TestPlanApiCase> testPlanApiCases = new ArrayList<>(request.getSelectIds().size());
+            // 按ID的顺序排序
+            for (String id : request.getSelectIds()) {
+                TestPlanApiCase testPlanApiCase = testPlanApiCaseMap.get(id);
+                if (testPlanApiCase != null) {
+                    testPlanApiCases.add(testPlanApiCase);
+                }
+            }
+            return testPlanApiCases;
         }
     }
 
