@@ -502,7 +502,7 @@ public class TestPlanReportService {
         planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
 		// 暂时只有功能用例能关联缺陷
 		Long functionalBugCount = extTestPlanReportFunctionalCaseMapper.countBug(reportId);
-		planReportDetail.setFunctionalBugCount(functionalBugCount.intValue());
+		planReportDetail.setFunctionalBugCount(functionalBugCount == null ? 0 : functionalBugCount.intValue());
 		if (planReport.getIntegrated()) {
 			// 计划组报告, 需要统计计划的执行数据
 			planReportDetail.setPlanCount(reportSummary.getPlanCount().intValue());
