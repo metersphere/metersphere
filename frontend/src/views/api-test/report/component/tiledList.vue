@@ -6,7 +6,7 @@
     }"
   >
     <!-- 步骤树 -->
-    <stepTree
+    <StepTree
       ref="stepTreeRef"
       v-model:steps="tiledList"
       v-model:expandedKeys="expandedKeys"
@@ -15,6 +15,7 @@
       :expand-all="isExpandAll"
       :console="props.reportDetail.console"
       :report-id="props.reportDetail.id"
+      :get-report-step-detail="props.getReportStepDetail"
       @detail="showDetail"
     />
     <!-- 步骤抽屉 -->
