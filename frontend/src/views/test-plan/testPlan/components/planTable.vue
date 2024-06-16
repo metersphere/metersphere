@@ -213,7 +213,7 @@
                 <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.functionalUseCase') }}</div>
               </td>
               <td class="popover-value-td">
-                {{ getFunctionalCount(record.id) }}
+                {{ defaultCountDetailMap[record.id]?.functionalCaseCount ?? '0' }}
               </td>
             </tr>
             <tr>
