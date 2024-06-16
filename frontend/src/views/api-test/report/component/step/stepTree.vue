@@ -176,6 +176,7 @@
                   :is-response-model="true"
                   :report-id="props?.reportId"
                   :steps="steps"
+                  :get-report-step-detail="props.getReportStepDetail"
                 />
               </Suspense>
             </div>
@@ -222,6 +223,7 @@
     console?: string;
     reportId?: string;
     expandedKeys: (string | number)[];
+    getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
   }>();
   const loading = ref(false);
 
