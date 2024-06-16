@@ -138,7 +138,7 @@ public class TestPlanApiScenarioBatchRunService {
                 List<String> serialCollectionIds = testPlanCollections.stream().map(TestPlanCollection::getId).toList();
                 // 生成测试集队列
                 ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(serialCollectionIds,
-                        ApiExecuteResourceType.API_CASE.name(), userId);
+                        ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), userId);
                 // 记录各测试集中要执行的用例
                 apiExecutionMapService.initMap(collectionQueue.getQueueId(), collectionMap);
 
