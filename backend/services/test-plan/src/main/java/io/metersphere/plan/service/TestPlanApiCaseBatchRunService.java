@@ -139,7 +139,7 @@ public class TestPlanApiCaseBatchRunService {
                 List<String> serialCollectionIds = testPlanCollections.stream().map(TestPlanCollection::getId).toList();
                 // 生成测试集队列
                 ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(serialCollectionIds,
-                        ApiExecuteResourceType.API_CASE.name(), userId);
+                        ApiExecuteResourceType.TEST_PLAN_API_CASE.name(), userId);
                 // 记录各测试集中要执行的用例
                 apiExecutionMapService.initMap(collectionQueue.getQueueId(), collectionMap);
 
@@ -192,7 +192,7 @@ public class TestPlanApiCaseBatchRunService {
      */
     public void serialExecute(List<String> ids, ApiRunModeConfigDTO runModeConfig, String parentQueueId, String userId) {
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.API_CASE.name(), parentQueueId, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_CASE.name(), parentQueueId, userId);
 
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
