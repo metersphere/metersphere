@@ -188,10 +188,11 @@
 
   import { MinderEventName } from '@/enums/minderEnum';
 
-  import { floatMenuProps, insertProps, MinderJsonNode, priorityProps, tagProps } from '../props';
+  import { floatMenuProps, insertProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
   import { isDisableNode, isNodeInMinderView, setPriorityView } from '../script/tool/utils';
 
   const props = defineProps({
+    ...mainEditorProps,
     ...floatMenuProps,
     ...insertProps,
     ...tagProps,
@@ -219,7 +220,7 @@
         if (minderStore.event.name === MinderEventName.NODE_SELECT) {
           nodePosition = minderStore.event.nodePosition;
           currentNodeTags.value = minderStore.event.nodes?.[0].data?.resource || [];
-          if (props.replaceableTags) {
+          if (props.replaceableTags && !props.disabled) {
             tags.value = props.replaceableTags(selectedNodes);
           } else {
             tags.value = [];

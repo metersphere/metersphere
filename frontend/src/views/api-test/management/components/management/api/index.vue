@@ -306,7 +306,7 @@
       id,
       isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
       definitionActiveKey: !defaultProps ? 'definition' : 'preview',
-      protocol: activeApiTab.value.protocol, // 新开的tab默认使用当前激活的tab的协议
+      protocol: activeApiTab.value.protocol || defaultDefinitionParams.protocol, // 新开的tab默认使用当前激活的tab的协议
       ...defaultProps,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1];

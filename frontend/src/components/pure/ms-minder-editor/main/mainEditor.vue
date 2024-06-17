@@ -21,8 +21,6 @@
 </template>
 
 <script lang="ts" name="minderContainer" setup>
-  import { onMounted, ref, watch } from 'vue';
-
   import nodeFloatMenu from '../menu/nodeFloatMenu.vue';
   import minderHeader from './header.vue';
   import Navigator from './navigator.vue';

@@ -13,6 +13,7 @@
     :can-show-priority-menu="false"
     :can-show-float-menu="canShowFloatMenu"
     :can-show-delete-menu="canShowDeleteMenu"
+    :disable="!hasEditPermission"
     custom-priority
     single-tag
     tag-enable
@@ -20,7 +21,6 @@
     @node-select="(node) => handleNodeSelect(node as PlanMinderNode)"
     @before-exec-command="handleBeforeExecCommand"
     @save="handleMinderSave"
-    @float-menu-close="handleFloatMenuClose"
   >
     <template #extractMenu>
       <a-tooltip v-if="showAssociateCaseMenu" :content="t('ms.case.associate.title')">
@@ -85,8 +85,8 @@
             <div class="one-line-text font-medium">{{ configForm.text }}</div>
           </a-tooltip>
         </div>
-        <a-form ref="configFormRef" :model="configForm" layout="vertical">
-          <a-form-item>
+        <a-form ref="configFormRef" :model="configForm" :disabled="!hasEditPermission" layout="vertical">
+          <a-form-item v-if="hasEditPermission">
             <template #label>
               <div class="flex items-center">
                 <div>{{ t('testPlan.planForm.pickCases') }}</div>
@@ -94,6 +94,7 @@
                 <MsButton
                   type="text"
                   :disabled="
+                    !hasEditPermission ||
                     (selectedAssociateCasesParams.totalCount || selectedAssociateCasesParams.selectIds.length) === 0
                   "
                   @click="clearSelectedCases"
@@ -118,7 +119,8 @@
                   v-permission="['CASE_REVIEW:READ+RELEVANCE']"
                   type="text"
                   class="font-medium"
-                  @click="caseAssociateVisible = true"
+                  :disabled="!hasEditPermission"
+                  @click="openCaseAssociateDrawer"
                 >
                   {{ t('ms.case.associate.title') }}
                 </MsButton>
@@ -149,7 +151,8 @@
                 <div>{{ t('ms.minders.failStop') }}</div>
               </div>
             </a-form-item>
-            <a-form-item class="hidden-item">
+            <!-- 暂时不上 -->
+            <!-- <a-form-item class="hidden-item">
               <div class="flex items-center gap-[8px]">
                 <a-switch v-model:model-value="configForm.retryOnFail" size="small"></a-switch>
                 <div>{{ t('ms.minders.failRetry') }}</div>
@@ -196,7 +199,7 @@
                   class="w-[120px]"
                 ></a-input-number>
               </a-form-item>
-            </template>
+            </template> -->
           </template>
           <a-form-item
             v-if="configForm.type !== PlanMinderCollectionType.FUNCTIONAL && configForm.level === 2"
@@ -208,7 +211,7 @@
             </div>
           </a-form-item>
         </a-form>
-        <div class="flex items-center gap-[12px] bg-white pb-[16px]">
+        <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white pb-[16px]">
           <a-button
             v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
             type="primary"
@@ -232,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-  import { FormInstance, SelectOptionData } from '@arco-design/web-vue';
+  import { type FormInstance, Message, type SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -253,6 +256,7 @@
   import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import {
     AssociateCaseRequest,
@@ -262,9 +266,7 @@
   } from '@/models/testPlan/testPlan';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { MinderEventName } from '@/enums/minderEnum';
-  import { FailRetry, PlanMinderAssociateType, PlanMinderCollectionType, RunMode } from '@/enums/testPlanEnum';
-
-  import Message from '@arco-design/web-vue/es/message';
+  import { PlanMinderAssociateType, PlanMinderCollectionType, RunMode } from '@/enums/testPlanEnum';
 
   const props = defineProps<{
     planId: string;
@@ -290,11 +292,12 @@
   const insertSiblingMenus = ref<InsertMenuItem[]>([]);
   const insertSonMenus = ref<InsertMenuItem[]>([]);
   const showAssociateCaseMenu = ref(false);
-  const canShowExecuteMethodMenu = ref(true);
+  const canShowExecuteMethodMenu = ref(false);
   const executeMethodMenuVisible = ref(false);
   const showConfigMenu = ref(false);
   const canShowDeleteMenu = ref(false);
   const extraVisible = ref<boolean>(false);
+  const hasEditPermission = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']);
 
   /**
    * 检测节点可展示的菜单项
@@ -302,6 +305,17 @@
    */
   function checkNodeCanShowMenu(node: PlanMinderNode) {
     const { data } = node;
+
+    if (!hasEditPermission && (data?.level === 1 || data?.level === 2)) {
+      // 没有编辑权限，只能查看配置菜单（功能用例只有关联用例，所以配置菜单也不能看）
+      if (data?.type === PlanMinderCollectionType.FUNCTIONAL) {
+        canShowFloatMenu.value = false;
+      } else {
+        canShowFloatMenu.value = true;
+        showConfigMenu.value = true;
+      }
+      return;
+    }
 
     if (data?.level === 1 || data?.level === 2) {
       canShowFloatMenu.value = true;
@@ -499,12 +513,6 @@
     return false;
   }
 
-  function handleFloatMenuClose() {
-    if (!checkConfigFormUnsaved()) {
-      handleConfigCancel();
-    }
-  }
-
   /**
    * 处理节点选中
    * @param node 节点
@@ -605,6 +613,11 @@
     nextTick(() => {
       switchingConfigFormData.value = false;
     });
+  }
+
+  function openCaseAssociateDrawer() {
+    currentSelectCase.value = (activePlanSet.value?.data?.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
+    caseAssociateVisible.value = true;
   }
 
   watch(
@@ -732,6 +745,11 @@
       loading.value = true;
       await editPlanMinder(makeMinderParams(fullJson));
       Message.success(t('common.saveSuccess'));
+      tempMinderParams.value = {
+        planId: props.planId,
+        editList: [],
+        deletedIds: [],
+      };
       handleConfigCancel();
       initMinder();
       callback();

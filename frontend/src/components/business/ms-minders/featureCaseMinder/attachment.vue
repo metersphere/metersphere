@@ -2,6 +2,7 @@
   <a-spin :loading="attachmentLoading" class="block h-full pl-[16px]">
     <MsAddAttachment
       v-model:file-list="fileList"
+      :disabled="!hasEditPermission"
       multiple
       only-button
       @change="(files, file) => handleFileChange(file ? [file] : [])"
@@ -81,6 +82,7 @@
             v-if="activeCase.id && item.isUpdateFlag"
             type="button"
             status="primary"
+            :disabled="!hasEditPermission"
             @click="handleUpdateFile(item)"
           >
             {{ t('common.update') }}
@@ -125,6 +127,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { downloadByteFile } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociatedList } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
@@ -151,6 +154,7 @@
       hiddenIds: [],
     },
   });
+  const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']);
 
   // 监视文件列表处理关联和本地文件
   watch(

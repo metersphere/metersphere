@@ -33,6 +33,7 @@
       </template>
     </div>
     <inputComment
+      v-if="hasEditPermission"
       ref="commentInputRef"
       v-model:content="content"
       v-model:notice-user-ids="noticeUserIds"
@@ -71,6 +72,7 @@
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import { hasAnyPermission } from '@/utils/permission';
 
   const props = defineProps<{
     activeCase: Record<string, any>;
@@ -78,6 +80,8 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
+
+  const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+COMMENT']);
 
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({
