@@ -163,7 +163,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public long getNextOrder(String collectionId) {
         Long maxPos = extTestPlanFunctionalCaseMapper.getMaxPosByCollectionId(collectionId);
         if (maxPos == null) {
-            return 0;
+            return DEFAULT_NODE_INTERVAL_POS;
         } else {
             return maxPos + DEFAULT_NODE_INTERVAL_POS;
         }
@@ -762,6 +762,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             FunctionalCaseExample example = new FunctionalCaseExample();
             example.createCriteria().andIdIn(functionalIds);
             List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(example);
+            AtomicLong nextOrder = new AtomicLong(getNextOrder(functional.getCollectionId()));
             Map<String, FunctionalCase> collect = functionalCases.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
             functionalIds.forEach(functionalId -> {
                 FunctionalCase functionalCase = collect.get(functionalId);
@@ -772,7 +773,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 testPlanFunctionalCase.setFunctionalCaseId(functionalId);
                 testPlanFunctionalCase.setCreateUser(user.getId());
                 testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
-                testPlanFunctionalCase.setPos(getNextOrder(functional.getCollectionId()));
+                testPlanFunctionalCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
                 testPlanFunctionalCase.setExecuteUser(functionalCase.getCreateUser());
                 testPlanFunctionalCase.setLastExecResult(ExecStatus.PENDING.name());
                 testPlanFunctionalCaseList.add(testPlanFunctionalCase);
@@ -830,9 +831,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         ids.forEach(id -> {
             TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
             testPlanFunctionalCase.setId(id);
-            testPlanFunctionalCase.setPos(nextOrder.get());
+            testPlanFunctionalCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanFunctionalCase.setTestPlanCollectionId(targetCollectionId);
-            nextOrder.addAndGet(DEFAULT_NODE_INTERVAL_POS);
             functionalBatchMapper.updateByPrimaryKeySelective(testPlanFunctionalCase);
         });
         sqlSession.flushStatements();

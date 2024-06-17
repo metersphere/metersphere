@@ -572,6 +572,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param testPlanApiCaseList
      */
     private void buildTestPlanApiCase(TestPlan testPlan, List<ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, List<LogDTO> logDTOS) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         apiTestCases.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(IDGenerator.nextStr());
@@ -581,7 +582,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             testPlanApiCase.setEnvironmentId(apiTestCase.getEnvironmentId());
             testPlanApiCase.setCreateTime(System.currentTimeMillis());
             testPlanApiCase.setCreateUser(user.getId());
-            testPlanApiCase.setPos(getNextOrder(collectionId));
+            testPlanApiCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanApiCase.setExecuteUser(apiTestCase.getCreateUser());
             testPlanApiCaseList.add(testPlanApiCase);
             buildLog(logDTOS, testPlan, user, apiTestCase);
@@ -741,9 +742,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         ids.forEach(id -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(id);
-            testPlanApiCase.setPos(nextOrder.get());
+            testPlanApiCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanApiCase.setTestPlanCollectionId(targetCollectionId);
-            nextOrder.addAndGet(DEFAULT_NODE_INTERVAL_POS);
             testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
         });
         sqlSession.flushStatements();

@@ -210,6 +210,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @param testPlanApiScenarioList
      */
     private void buildTestPlanApiScenario(TestPlan testPlan, List<ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, List<LogDTO> logDTOS) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         scenarios.forEach(scenario -> {
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(IDGenerator.nextStr());
@@ -220,7 +221,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             testPlanApiScenario.setEnvironmentId(scenario.getEnvironmentId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
             testPlanApiScenario.setCreateUser(user.getId());
-            testPlanApiScenario.setPos(getNextOrder(collectionId));
+            testPlanApiScenario.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanApiScenario.setExecuteUser(scenario.getCreateUser());
             testPlanApiScenarioList.add(testPlanApiScenario);
             buildLog(logDTOS, testPlan, user, scenario);
