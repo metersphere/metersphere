@@ -216,8 +216,8 @@ public class TestPlanReportService {
      * @param request     请求参数
      * @param currentUser 当前用户
      */
-    public Map<String, String> genReportByManual(TestPlanReportGenRequest request, String currentUser) {
-        return genReport(IDGenerator.nextStr(),request, true, currentUser, "/test-plan/report/gen");
+    public void genReportByManual(TestPlanReportGenRequest request, String currentUser) {
+		genReport(IDGenerator.nextStr(),request, true, currentUser, "/test-plan/report/gen");
     }
 
     /**
@@ -254,8 +254,8 @@ public class TestPlanReportService {
 				TestPlanReportGenPreParam genPreParam = buildReportGenParam(request, plan, prepareReportId);
 				genPreParam.setUseManual(manual);
                 //如果是测试计划的独立报告，使用参数中的预生成的报告id。否则只有测试计划组报告使用该id
-                String prepareItemReportId = isGroupReports?IDGenerator.nextStr() : prepareReportId;
-				TestPlanReport preReport = preGenReport(prepareItemReportId,genPreParam, currentUser, logPath, moduleParam, childPlanIds);
+                String prepareItemReportId = isGroupReports ? IDGenerator.nextStr() : prepareReportId;
+				TestPlanReport preReport = preGenReport(prepareItemReportId, genPreParam, currentUser, logPath, moduleParam, childPlanIds);
 				if (manual) {
 					// 汇总
 					if (genPreParam.getIntegrated()) {
@@ -359,7 +359,7 @@ public class TestPlanReportService {
 				List<TestPlanCaseExecuteHistory> hisList = functionalExecMap.get(reportFunctionalCase.getTestPlanFunctionCaseId());
 				if (CollectionUtils.isNotEmpty(hisList)) {
 					Optional<String> lastExecuteHisOpt = hisList.stream().sorted(Comparator.comparing(TestPlanCaseExecuteHistory::getCreateTime).reversed()).map(TestPlanCaseExecuteHistory::getId).findFirst();
-					reportFunctionalCase.setFunctionCaseExecuteReportId(lastExecuteHisOpt.get());
+					reportFunctionalCase.setFunctionCaseExecuteReportId(lastExecuteHisOpt.orElse(null));
 				} else {
 					reportFunctionalCase.setFunctionCaseExecuteReportId(null);
 				}
@@ -612,7 +612,7 @@ public class TestPlanReportService {
 
 	/**
 	 * 汇总生成的计划组报告
-	 * @param reportId
+	 * @param reportId 报告ID
 	 */
 	public void summaryGroupReport(String reportId) {
 		TestPlanReportSummaryExample summaryExample = new TestPlanReportSummaryExample();

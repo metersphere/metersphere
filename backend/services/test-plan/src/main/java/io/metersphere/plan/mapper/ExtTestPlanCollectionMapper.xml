@@ -7,7 +7,7 @@
         tpc.id, tpc.test_plan_id, tpc.parent_id,
         tpc.`name`, tpc.`type`, tpc.execute_method,
         tpc.extended, tpc.grouped, tpc.environment_id,
-        tpc.test_resource_pool_id, tpc.retry_on_fail, tpc.retry_type,
+        tpc.test_resource_pool_id, tpc.retry_on_fail,
         tpc.retry_times, tpc.retry_interval, tpc.stop_on_fail,
         tpc.create_user, tpc.create_time, tpc.pos,
         trp.name as poolName,
