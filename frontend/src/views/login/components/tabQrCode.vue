@@ -51,7 +51,7 @@
 
   const { t } = useI18n();
 
-  const activeName = ref('WE_COM');
+  const activeName = ref('');
 
   interface qrOption {
     value: string;
@@ -63,9 +63,8 @@
     tabName: string;
   }>();
   const initActive = () => {
-    const qrArray = ['WE_COM', 'DING_TALK', 'lark', 'larksuite'];
-    for (let i = 0; i < qrArray.length; i++) {
-      const key = qrArray[i];
+    for (let i = 0; i < orgOptions.value.length; i++) {
+      const key = orgOptions.value[i].value;
       if (props.tabName === key) {
         activeName.value = key;
         break;
@@ -75,8 +74,6 @@
   function handleClick(val: string | number | boolean) {
     if (typeof val === 'string') {
       activeName.value = val;
-    } else {
-      activeName.value = 'WE_COM';
     }
   }
   async function initPlatformInfo() {
@@ -92,8 +89,8 @@
     }
   }
   onMounted(() => {
-    initActive();
     initPlatformInfo();
+    initActive();
   });
 </script>
 
