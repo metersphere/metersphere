@@ -217,9 +217,9 @@
         </foreach>
     </select>
 
-    <update id="batchUpdateExecuteTime" parameterType="java.lang.String">
+    <update id="batchUpdateExecuteTimeAndStatus" parameterType="java.lang.String">
         update test_plan_report
-        set start_time = #{startTime}
+        set start_time = #{startTime}, exec_status = 'RUNNING'
         where id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
