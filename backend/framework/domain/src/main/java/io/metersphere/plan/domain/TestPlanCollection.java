@@ -66,17 +66,10 @@ public class TestPlanCollection implements Serializable {
     @NotNull(message = "{test_plan_collection.retry_on_fail.not_blank}", groups = {Created.class})
     private Boolean retryOnFail;
 
-    @Schema(description = "失败重试类型(步骤/场景)", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_collection.retry_type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_collection.retry_type.length_range}", groups = {Created.class, Updated.class})
-    private String retryType;
-
-    @Schema(description = "失败重试次数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_collection.retry_times.not_blank}", groups = {Created.class})
+    @Schema(description = "失败重试次数")
     private Integer retryTimes;
 
-    @Schema(description = "失败重试间隔(单位: ms)", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_collection.retry_interval.not_blank}", groups = {Created.class})
+    @Schema(description = "失败重试间隔(单位: ms)")
     private Integer retryInterval;
 
     @Schema(description = "是否失败停止", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -107,7 +100,6 @@ public class TestPlanCollection implements Serializable {
         environmentId("environment_id", "environmentId", "VARCHAR", false),
         testResourcePoolId("test_resource_pool_id", "testResourcePoolId", "VARCHAR", false),
         retryOnFail("retry_on_fail", "retryOnFail", "BIT", false),
-        retryType("retry_type", "retryType", "VARCHAR", false),
         retryTimes("retry_times", "retryTimes", "INTEGER", false),
         retryInterval("retry_interval", "retryInterval", "INTEGER", false),
         stopOnFail("stop_on_fail", "stopOnFail", "BIT", false),

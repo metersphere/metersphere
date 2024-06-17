@@ -13,7 +13,6 @@
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
     <result column="retry_on_fail" jdbcType="BIT" property="retryOnFail" />
-    <result column="retry_type" jdbcType="VARCHAR" property="retryType" />
     <result column="retry_times" jdbcType="INTEGER" property="retryTimes" />
     <result column="retry_interval" jdbcType="INTEGER" property="retryInterval" />
     <result column="stop_on_fail" jdbcType="BIT" property="stopOnFail" />
@@ -81,7 +80,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, parent_id, `name`, `type`, execute_method, extended, grouped, environment_id, 
-    test_resource_pool_id, retry_on_fail, retry_type, retry_times, retry_interval, stop_on_fail, 
+    test_resource_pool_id, retry_on_fail, retry_times, retry_interval, stop_on_fail, 
     create_user, create_time, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanCollectionExample" resultMap="BaseResultMap">
@@ -118,17 +117,15 @@
     insert into test_plan_collection (id, test_plan_id, parent_id, 
       `name`, `type`, execute_method, 
       extended, grouped, environment_id, 
-      test_resource_pool_id, retry_on_fail, retry_type, 
-      retry_times, retry_interval, stop_on_fail, 
-      create_user, create_time, pos
-      )
+      test_resource_pool_id, retry_on_fail, retry_times, 
+      retry_interval, stop_on_fail, create_user, 
+      create_time, pos)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{executeMethod,jdbcType=VARCHAR}, 
       #{extended,jdbcType=BIT}, #{grouped,jdbcType=BIT}, #{environmentId,jdbcType=VARCHAR}, 
-      #{testResourcePoolId,jdbcType=VARCHAR}, #{retryOnFail,jdbcType=BIT}, #{retryType,jdbcType=VARCHAR}, 
-      #{retryTimes,jdbcType=INTEGER}, #{retryInterval,jdbcType=INTEGER}, #{stopOnFail,jdbcType=BIT}, 
-      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT}
-      )
+      #{testResourcePoolId,jdbcType=VARCHAR}, #{retryOnFail,jdbcType=BIT}, #{retryTimes,jdbcType=INTEGER}, 
+      #{retryInterval,jdbcType=INTEGER}, #{stopOnFail,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanCollection">
     insert into test_plan_collection
@@ -165,9 +162,6 @@
       </if>
       <if test="retryOnFail != null">
         retry_on_fail,
-      </if>
-      <if test="retryType != null">
-        retry_type,
       </if>
       <if test="retryTimes != null">
         retry_times,
@@ -221,9 +215,6 @@
       </if>
       <if test="retryOnFail != null">
         #{retryOnFail,jdbcType=BIT},
-      </if>
-      <if test="retryType != null">
-        #{retryType,jdbcType=VARCHAR},
       </if>
       <if test="retryTimes != null">
         #{retryTimes,jdbcType=INTEGER},
@@ -287,9 +278,6 @@
       <if test="record.retryOnFail != null">
         retry_on_fail = #{record.retryOnFail,jdbcType=BIT},
       </if>
-      <if test="record.retryType != null">
-        retry_type = #{record.retryType,jdbcType=VARCHAR},
-      </if>
       <if test="record.retryTimes != null">
         retry_times = #{record.retryTimes,jdbcType=INTEGER},
       </if>
@@ -326,7 +314,6 @@
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       retry_on_fail = #{record.retryOnFail,jdbcType=BIT},
-      retry_type = #{record.retryType,jdbcType=VARCHAR},
       retry_times = #{record.retryTimes,jdbcType=INTEGER},
       retry_interval = #{record.retryInterval,jdbcType=INTEGER},
       stop_on_fail = #{record.stopOnFail,jdbcType=BIT},
@@ -370,9 +357,6 @@
       <if test="retryOnFail != null">
         retry_on_fail = #{retryOnFail,jdbcType=BIT},
       </if>
-      <if test="retryType != null">
-        retry_type = #{retryType,jdbcType=VARCHAR},
-      </if>
       <if test="retryTimes != null">
         retry_times = #{retryTimes,jdbcType=INTEGER},
       </if>
@@ -406,7 +390,6 @@
       environment_id = #{environmentId,jdbcType=VARCHAR},
       test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       retry_on_fail = #{retryOnFail,jdbcType=BIT},
-      retry_type = #{retryType,jdbcType=VARCHAR},
       retry_times = #{retryTimes,jdbcType=INTEGER},
       retry_interval = #{retryInterval,jdbcType=INTEGER},
       stop_on_fail = #{stopOnFail,jdbcType=BIT},
@@ -418,17 +401,17 @@
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_collection
     (id, test_plan_id, parent_id, `name`, `type`, execute_method, extended, grouped, 
-      environment_id, test_resource_pool_id, retry_on_fail, retry_type, retry_times, 
-      retry_interval, stop_on_fail, create_user, create_time, pos)
+      environment_id, test_resource_pool_id, retry_on_fail, retry_times, retry_interval, 
+      stop_on_fail, create_user, create_time, pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, 
         #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.executeMethod,jdbcType=VARCHAR}, 
         #{item.extended,jdbcType=BIT}, #{item.grouped,jdbcType=BIT}, #{item.environmentId,jdbcType=VARCHAR}, 
         #{item.testResourcePoolId,jdbcType=VARCHAR}, #{item.retryOnFail,jdbcType=BIT}, 
-        #{item.retryType,jdbcType=VARCHAR}, #{item.retryTimes,jdbcType=INTEGER}, #{item.retryInterval,jdbcType=INTEGER}, 
-        #{item.stopOnFail,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.pos,jdbcType=BIGINT})
+        #{item.retryTimes,jdbcType=INTEGER}, #{item.retryInterval,jdbcType=INTEGER}, #{item.stopOnFail,jdbcType=BIT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.pos,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -473,9 +456,6 @@
         </if>
         <if test="'retry_on_fail'.toString() == column.value">
           #{item.retryOnFail,jdbcType=BIT}
-        </if>
-        <if test="'retry_type'.toString() == column.value">
-          #{item.retryType,jdbcType=VARCHAR}
         </if>
         <if test="'retry_times'.toString() == column.value">
           #{item.retryTimes,jdbcType=INTEGER}

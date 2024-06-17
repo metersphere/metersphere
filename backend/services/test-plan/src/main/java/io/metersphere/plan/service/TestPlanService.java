@@ -7,7 +7,6 @@ import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.enums.ExecuteMethod;
-import io.metersphere.plan.enums.RetryType;
 import io.metersphere.plan.job.TestPlanScheduleJob;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.request.ProjectApplicationRequest;
@@ -897,9 +896,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         defaultCollection.setEnvironmentId("NONE");
         defaultCollection.setTestResourcePoolId(configMap.getOrDefault(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name(), StringUtils.EMPTY).toString());
         defaultCollection.setRetryOnFail(false);
-        defaultCollection.setRetryType(RetryType.STEP.name());
-        defaultCollection.setRetryTimes(10);
-        defaultCollection.setRetryInterval(1);
         defaultCollection.setStopOnFail(false);
         defaultCollection.setCreateUser(currentUser);
         defaultCollection.setCreateTime(System.currentTimeMillis());
