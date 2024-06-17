@@ -479,7 +479,7 @@
   function stop(record: any) {
     openModal({
       type: 'warning',
-      title: t('project.taskCenter.stopTask', { name: characterLimit(record.name) }),
+      title: t('project.taskCenter.stopTask', { name: characterLimit(record.resourceName) }),
       content: t('project.taskCenter.stopTaskContent'),
       okText: t('project.taskCenter.confirmStop'),
       cancelText: t('common.cancel'),

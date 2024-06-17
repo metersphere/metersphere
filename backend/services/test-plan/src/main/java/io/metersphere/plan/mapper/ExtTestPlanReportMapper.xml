@@ -205,13 +205,13 @@
             asr.test_plan_scenario_id AS resourceId
         FROM
             api_scenario_report asr
-                LEFT JOIN test_plan_report_api_scenario tpras ON asr.id = tpras.test_plan_report_id
+                LEFT JOIN test_plan_report_api_scenario tpras ON asr.id = tpras.api_scenario_execute_report_id
                 LEFT JOIN project ON asr.project_id = project.id
         WHERE
             asr.deleted = FALSE
           AND asr.plan = 1
           AND asr.exec_status IN ( 'PENDING', 'RUNNING', 'RERUNNING' )
-          AND tpras.api_scenario_execute_report_id IN
+          AND tpras.test_plan_report_id IN
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>

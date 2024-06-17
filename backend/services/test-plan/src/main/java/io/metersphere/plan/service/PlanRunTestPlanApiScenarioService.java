@@ -12,7 +12,10 @@ import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
-import io.metersphere.plan.domain.*;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanReportApiScenario;
+import io.metersphere.plan.domain.TestPlanReportApiScenarioExample;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportApiScenarioMapper;
@@ -24,7 +27,6 @@ import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -66,6 +68,7 @@ public class PlanRunTestPlanApiScenarioService {
 
     /**
      * 串行批量执行
+     *
      * @Return 是否执行完毕
      */
     public boolean serialExecute(TestPlanExecutionQueue testPlanExecutionQueue) {
@@ -91,6 +94,7 @@ public class PlanRunTestPlanApiScenarioService {
 
     /**
      * 并行批量执行
+     *
      * @return 是否执行完毕
      */
     public boolean parallelExecute(TestPlanExecutionQueue testPlanExecutionQueue) {
@@ -158,7 +162,6 @@ public class PlanRunTestPlanApiScenarioService {
             apiScenarioReport.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanReportApiScenario.getEnvironmentId()));
             apiScenarioReport.setPlan(true);
 
-            apiScenarioReport.setId(IDGenerator.nextStr());
             apiScenarioReports.add(apiScenarioReport);
             // 创建报告和用例的关联关系
             ApiScenarioRecord scenarioRecord = new ApiScenarioRecord();

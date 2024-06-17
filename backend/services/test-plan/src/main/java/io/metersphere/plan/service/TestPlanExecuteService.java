@@ -94,9 +94,9 @@ public class TestPlanExecuteService {
             testPlanItemReport.forEach(item -> {
                 this.deepDeleteTestPlanCaseType(item);
                 //统计子测试计划报告
-                summaryTestPlanReport(item.getId(), false);
+                summaryTestPlanReport(item.getId(), false, true);
             });
-            summaryTestPlanReport(testPlanReportId, true);
+            summaryTestPlanReport(testPlanReportId, true, true);
             this.testPlanExecuteQueueFinish(nextTestPlanQueue.getParentQueueId(), nextTestPlanQueue.getParentQueueType());
         } else {
             /*
@@ -114,7 +114,7 @@ public class TestPlanExecuteService {
                 return;
             }
             this.deepDeleteTestPlanCaseType(testPlanReport);
-            summaryTestPlanReport(testPlanReportId, false);
+            summaryTestPlanReport(testPlanReportId, false, true);
             this.testPlanExecuteQueueFinish(nextTestPlanQueue.getParentQueueId(), nextTestPlanQueue.getParentQueueType());
         }
 
@@ -140,7 +140,7 @@ public class TestPlanExecuteService {
     public String singleExecuteTestPlan(TestPlanExecuteRequest request, String userId) {
         TestPlanExecutionQueue executionQueue = new TestPlanExecutionQueue();
         executionQueue.setSourceID(request.getExecuteId());
-        executionQueue.setRunMode(request.getRunMode());
+        executionQueue.setRunMode(ApiBatchRunMode.PARALLEL.name());
         executionQueue.setExecutionSource(request.getExecutionSource());
         executionQueue.setQueueId(IDGenerator.nextStr());
         executionQueue.setQueueType(QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
@@ -156,7 +156,7 @@ public class TestPlanExecuteService {
                 null,
                 null,
                 request.getExecuteId(),
-                request.getRunMode(),
+                executionQueue.getRunMode(),
                 executionQueue.getExecutionSource(),
                 IDGenerator.nextStr()
         );
@@ -558,7 +558,7 @@ public class TestPlanExecuteService {
         }
     }
 
-    private void summaryTestPlanReport(String reportId, boolean isGroupReport) {
+    private void summaryTestPlanReport(String reportId, boolean isGroupReport, boolean isStop) {
         LogUtils.info("开始合并报告： --- 报告ID[{}],是否是报告组[{}]", reportId, isGroupReport);
         try {
             if (isGroupReport) {
@@ -571,7 +571,7 @@ public class TestPlanExecuteService {
             postParam.setReportId(reportId);
             // 执行生成报告, 执行状态为已完成, 执行及结束时间为当前时间
             postParam.setEndTime(System.currentTimeMillis());
-            postParam.setExecStatus(ExecStatus.COMPLETED.name());
+            postParam.setExecStatus(isStop ? ExecStatus.STOPPED.name() : ExecStatus.COMPLETED.name());
             testPlanReportService.postHandleReport(postParam, false);
 
             if (!isGroupReport) {
@@ -590,19 +590,19 @@ public class TestPlanExecuteService {
         if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
             if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
                 // 计划组报告汇总并统计
-                this.summaryTestPlanReport(queue.getQueueId(), true);
+                this.summaryTestPlanReport(queue.getQueueId(), true, false);
             } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
                 /*
                     此时处于批量勾选执行中的游离态测试计划执行。所以队列顺序为：QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE -> QUEUE_PREFIX_TEST_PLAN_CASE_TYPE。
                     此时queue节点为testPlanCollection的节点。  而测试计划节点（串行状态下）在执行之前就被弹出了。
                     所以获取报告ID的方式为读取queueId （caseType队列和collection队列的queueId都是报告ID）
                  */
-                this.summaryTestPlanReport(queue.getQueueId(), false);
+                this.summaryTestPlanReport(queue.getQueueId(), false, false);
             }
             this.testPlanGroupQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
             // 计划报告汇总并统计
-            this.summaryTestPlanReport(queue.getQueueId(), false);
+            this.summaryTestPlanReport(queue.getQueueId(), false, false);
             this.testPlanExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.caseTypeExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
