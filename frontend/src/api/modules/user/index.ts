@@ -81,7 +81,7 @@ export function getWeComInfo() {
 export function getWeComCallback(code: string) {
   return MSR.get<LoginRes>(
     { url: GetWeComCallbackUrl, params: { code } },
-    { ignoreCancelToken: true, errorMessageMode: 'none' }
+    { ignoreCancelToken: true, errorMessageMode: 'message' }
   );
 }
 
@@ -92,7 +92,7 @@ export function getDingInfo() {
 export function getDingCallback(code: string) {
   return MSR.get<LoginRes>(
     { url: GetDingCallbackUrl, params: { code } },
-    { ignoreCancelToken: true, errorMessageMode: 'none' }
+    { ignoreCancelToken: true, errorMessageMode: 'message' }
   );
 }
 export function logout() {
