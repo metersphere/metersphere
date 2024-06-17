@@ -16,7 +16,7 @@
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import * as ww from '@wecom/jssdk';
-  import { WWLoginPanelSizeType, WWLoginRedirectType, WWLoginType } from '@wecom/jssdk';
+  import { WWLoginErrorResp, WWLoginPanelSizeType, WWLoginRedirectType, WWLoginType } from '@wecom/jssdk';
 
   const { t } = useI18n();
 
@@ -74,7 +74,8 @@
           },
         });
       },
-      onLoginFail(err: any) {
+      onLoginFail(err: WWLoginErrorResp) {
+        Message.error(`errorMsg of errorCbk: ${err.errMsg}`);
         console.log(err);
       },
     });
