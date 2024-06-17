@@ -92,6 +92,8 @@ public class TestPlanReportService {
     private TestPlanReportAttachmentMapper testPlanReportAttachmentMapper;
     @Resource
     private BaseUserMapper baseUserMapper;
+	@Resource
+	private TestPlanSendNoticeService testPlanSendNoticeService;
 
     /**
      * 分页查询报告列表
@@ -270,7 +272,7 @@ public class TestPlanReportService {
 					postParam.setExecuteTime(System.currentTimeMillis());
 					postParam.setEndTime(System.currentTimeMillis());
 					postParam.setExecStatus(ExecStatus.COMPLETED.name());
-					postHandleReport(postParam);
+					postHandleReport(postParam, true);
 				}
 				preReportMap.put(plan.getId(), preReport.getId());
 			});
@@ -458,7 +460,7 @@ public class TestPlanReportService {
      *
      * @param postParam 后置处理参数
      */
-    public void postHandleReport(TestPlanReportPostParam postParam) {
+    public void postHandleReport(TestPlanReportPostParam postParam, boolean useManual) {
         /*
          * 处理报告(执行状态, 结束时间)
          */
@@ -486,6 +488,11 @@ public class TestPlanReportService {
 		}
 
         testPlanReportMapper.updateByPrimaryKeySelective(planReport);
+
+		// 发送计划执行通知
+		if (!useManual) {
+			testPlanSendNoticeService.sendExecuteNotice(planReport.getCreateUser(), planReport.getTestPlanId(), planReport.getProjectId(), planReport.getResultStatus());
+		}
     }
 
 	/**

@@ -572,7 +572,7 @@ public class TestPlanExecuteService {
             // 执行生成报告, 执行状态为已完成, 执行及结束时间为当前时间
             postParam.setEndTime(System.currentTimeMillis());
             postParam.setExecStatus(ExecStatus.COMPLETED.name());
-            testPlanReportService.postHandleReport(postParam);
+            testPlanReportService.postHandleReport(postParam, false);
 
             if (!isGroupReport) {
                 TestPlanReport testPlanReport = testPlanReportService.selectById(reportId);

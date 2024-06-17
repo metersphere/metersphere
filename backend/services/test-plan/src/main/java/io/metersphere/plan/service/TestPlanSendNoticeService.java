@@ -10,6 +10,7 @@ import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -25,6 +26,7 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,5 +162,36 @@ public class TestPlanSendNoticeService {
             return dto;
         }
         return null;
+    }
+
+    /**
+     * 报告汇总-计划执行结束通知
+     * @param currentUser 当前用户
+     * @param planId 计划ID
+     * @param projectId 项目ID
+     * @param executeResult 执行结果
+     */
+    @Async
+    public void sendExecuteNotice(String currentUser, String planId, String projectId, String executeResult) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        if (testPlan != null) {
+            User user = userMapper.selectByPrimaryKey(currentUser);
+            setLanguage(user.getLanguage());
+            Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+            String template = defaultTemplateMap.get(StringUtils.equals(executeResult, ReportStatus.SUCCESS.name()) ?
+                    NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_SUCCESSFUL : NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_FAILED);
+            Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+            String subject = defaultSubjectMap.get(StringUtils.equals(executeResult, ReportStatus.SUCCESS.name()) ?
+                    NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_SUCCESSFUL : NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_FAILED);
+            Map<String, Object> paramMap = new HashMap<>(4);
+            paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
+            paramMap.put("name", testPlan.getName());
+            paramMap.put("projectId", projectId);
+            paramMap.put("Language", user.getLanguage());
+            NoticeModel noticeModel = NoticeModel.builder().operator(currentUser).excludeSelf(false)
+                    .context(template).subject(subject).paramMap(paramMap).event(StringUtils.equals(executeResult, ReportStatus.SUCCESS.name()) ?
+                            NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_SUCCESSFUL : NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_FAILED).build();
+            noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+        }
     }
 }
