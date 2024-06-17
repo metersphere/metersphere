@@ -514,7 +514,11 @@ public class TestPlanReportService {
         TestPlanReport planReport = checkReport(reportId);
         TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
         example.createCriteria().andTestPlanReportIdEqualTo(reportId);
-        TestPlanReportSummary reportSummary = testPlanReportSummaryMapper.selectByExampleWithBLOBs(example).get(0);
+		List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExampleWithBLOBs(example);
+		if (CollectionUtils.isEmpty(testPlanReportSummaries)) {
+			throw new MSException(Translator.get("test_plan_report_detail_not_exist"));
+		}
+		TestPlanReportSummary reportSummary = testPlanReportSummaries.get(0);
         TestPlanReportDetailResponse planReportDetail = new TestPlanReportDetailResponse();
         BeanUtils.copyBean(planReportDetail, planReport);
         int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
