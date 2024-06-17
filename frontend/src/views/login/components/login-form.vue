@@ -74,7 +74,7 @@
         </div>
       </a-form>
       <div v-if="showQrCodeTab">
-        <tab-qr-code :tab-name="orgOptions[0].value"></tab-qr-code>
+        <tab-qr-code :tab-name="activeName === 'WE_COM' ? 'WE_COM' : orgOptions[0].value"></tab-qr-code>
       </div>
       <a-divider
         v-if="isShowLDAP || isShowOIDC || isShowOAUTH || (isShowQRCode && orgOptions.length > 0)"
@@ -180,6 +180,7 @@
   });
 
   const showQrCodeTab = ref(false);
+  const activeName = ref('');
 
   function switchLoginType(type: string) {
     userInfo.value.authenticate = type;
@@ -277,10 +278,16 @@
   async function initPlatformInfo() {
     try {
       const res = await getPlatformParamUrl();
+
       orgOptions.value = res.map((e) => ({
         label: e.name,
         value: e.id,
       }));
+      res.forEach((e) => {
+        if (e.id === 'WE_COM') {
+          e.id = activeName.value;
+        }
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
