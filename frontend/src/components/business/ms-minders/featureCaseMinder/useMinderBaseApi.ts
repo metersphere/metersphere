@@ -13,7 +13,7 @@ import { getGenerateId } from '@/utils';
  * 封装用例脑图基础功能，包含菜单显隐判断、节点插入、节点替换、节点拖拽等
  * @returns API 集合
  */
-export default function useMinderBaseApi() {
+export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermission: boolean }) {
   const { t } = useI18n();
   const minderStore = useMinderStore();
 
@@ -29,6 +29,22 @@ export default function useMinderBaseApi() {
   const caseChildTags = [prerequisiteTag, stepTag, textDescTag, remarkTag];
   const caseOffspringTags = [...caseChildTags, stepTag, stepExpectTag, textDescTag, remarkTag];
 
+  /**
+   * 是否可展示浮动菜单
+   */
+  function canShowFloatMenu() {
+    if (window.minder) {
+      const node: MinderJsonNode = window.minder.getSelectedNode();
+      if (node.data?.resource?.includes(caseTag)) {
+        return true;
+      }
+      if (!hasEditPermission) {
+        return false;
+      }
+    }
+    return false;
+  }
+
   const insertSiblingMenus = ref<InsertMenuItem[]>([]);
   const insertSonMenus = ref<InsertMenuItem[]>([]);
 
@@ -37,6 +53,11 @@ export default function useMinderBaseApi() {
    * @param node 选中节点
    */
   function checkNodeCanShowMenu(node: MinderJsonNode) {
+    if (!hasEditPermission) {
+      insertSiblingMenus.value = [];
+      insertSonMenus.value = [];
+      return;
+    }
     const { data } = node;
     if (data?.resource?.includes(moduleTag)) {
       // 模块节点
@@ -191,6 +212,9 @@ export default function useMinderBaseApi() {
    * 是否可展示更多菜单
    */
   function canShowMoreMenu() {
+    if (!hasEditPermission) {
+      return false;
+    }
     if (window.minder) {
       const node: MinderJsonNode = window.minder.getSelectedNode();
       // 选中节点不为虚拟根节点时，可展示更多菜单
@@ -203,6 +227,9 @@ export default function useMinderBaseApi() {
    * 是否可展示优先级菜单
    */
   function canShowPriorityMenu() {
+    if (!hasEditPermission) {
+      return false;
+    }
     if (window.minder) {
       const node: MinderJsonNode = window.minder.getSelectedNode();
       // 选中节点是用例节点时，可展示优先级菜单
@@ -280,6 +307,9 @@ export default function useMinderBaseApi() {
    * 检查节点是否可打优先级
    */
   function priorityDisableCheck(node: MinderJsonNode) {
+    if (!hasEditPermission) {
+      return false;
+    }
     if (node.data?.resource?.includes(caseTag)) {
       return false;
     }
@@ -678,6 +708,7 @@ export default function useMinderBaseApi() {
     handleBeforeExecCommand,
     stopPaste,
     checkNodeCanShowMenu,
+    canShowFloatMenu,
     canShowMoreMenu,
     canShowPriorityMenu,
     handleContentChange,

@@ -104,15 +104,12 @@
     }
   );
 
-  onMounted(async () => {
-    window.minderProps = props;
-  });
-
   function save(data: MinderJson, callback: () => void) {
     emit('save', data, callback);
   }
 
   onMounted(() => {
+    window.minderProps = props;
     useMinderEventListener({
       handleSelectionChange: (node?: MinderJsonNode) => {
         if (node) {

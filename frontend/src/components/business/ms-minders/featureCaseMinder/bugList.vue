@@ -1,6 +1,6 @@
 <template>
   <a-spin :loading="bugListLoading" class="block h-full pl-[16px]">
-    <a-button v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])" class="mr-3" type="primary" @click="linkBug">
+    <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
       {{ t('caseManagement.featureCase.linkDefect') }}
     </a-button>
     <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
@@ -22,7 +22,7 @@
         <div class="bug-item">
           <div class="mb-[4px] flex items-center justify-between">
             <MsButton type="text" @click="goBug(item.id)">{{ item.num }}</MsButton>
-            <MsButton type="text" @click="disassociateBug(item.id)">
+            <MsButton v-if="hasEditPermission" type="text" @click="disassociateBug(item.id)">
               {{ t('ms.add.attachment.cancelAssociate') }}
             </MsButton>
           </div>
@@ -83,6 +83,7 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
+  const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']);
   const bugList = ref<any[]>([]);
   const noMoreData = ref(false);
   const pageNation = ref({

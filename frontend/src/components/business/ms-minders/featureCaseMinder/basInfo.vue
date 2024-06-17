@@ -6,7 +6,7 @@
           <a-skeleton-line :rows="10" :line-height="30" :line-spacing="30" />
         </a-space>
       </a-skeleton>
-      <a-form v-else ref="baseInfoFormRef" :model="baseInfoForm" layout="vertical">
+      <a-form v-else ref="baseInfoFormRef" :model="baseInfoForm" :disabled="!hasEditPermission" layout="vertical">
         <a-form-item
           field="name"
           :label="t('ms.minders.caseName')"
@@ -21,13 +21,14 @@
           v-model:api="fApi"
           v-model:form-item="formItem"
           :form-rule="formRules"
+          :disabled="!hasEditPermission"
         />
         <a-form-item field="tags" :label="t('common.tag')">
           <MsTagsInput v-model:model-value="baseInfoForm.tags" :max-tag-count="6" />
         </a-form-item>
       </a-form>
     </div>
-    <div class="flex items-center gap-[12px] bg-white py-[16px]">
+    <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white py-[16px]">
       <a-button
         v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
         type="primary"
@@ -57,6 +58,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { OptionsFieldId } from '@/models/caseManagement/featureCase';
 
@@ -75,6 +77,7 @@
   const userStore = useUserStore();
   const { t } = useI18n();
 
+  const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+MINDER']);
   const baseInfoFormRef = ref<FormInstance>();
   const baseInfoForm = ref({
     name: '',

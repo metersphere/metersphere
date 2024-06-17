@@ -233,7 +233,7 @@
       ...cloneDeep(defaultDebugParams),
       id,
       isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
-      protocol: activeDebug.value.protocol, // 新开的tab默认使用当前激活的tab的协议
+      protocol: activeDebug.value.protocol || defaultDebugParams.protocol, // 新开的tab默认使用当前激活的tab的协议
       ...defaultProps,
     });
     activeDebug.value = debugTabs.value[debugTabs.value.length - 1];

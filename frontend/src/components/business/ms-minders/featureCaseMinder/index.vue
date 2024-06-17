@@ -11,6 +11,7 @@
       :priority-disable-check="priorityDisableCheck"
       :after-tag-edit="afterTagEdit"
       :extract-content-tab-list="extractContentTabList"
+      :can-show-float-menu="canShowFloatMenu()"
       :can-show-enter-node="canShowEnterNode"
       :insert-sibling-menus="insertSiblingMenus"
       :insert-son-menus="insertSonMenus"
@@ -18,6 +19,7 @@
       :can-show-more-menu="canShowMoreMenu()"
       :can-show-priority-menu="canShowPriorityMenu()"
       :priority-tooltip="t('caseManagement.caseReview.caseLevel')"
+      :disabled="!hasEditPermission"
       single-tag
       tag-enable
       sequence-enable
@@ -89,6 +91,7 @@
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
   import { filterTree, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import {
     FeatureCaseMinderEditType,
@@ -114,6 +117,7 @@
   const { t } = useI18n();
   const minderStore = useMinderStore();
 
+  const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+MINDER']);
   const {
     caseTag,
     moduleTag,
@@ -127,13 +131,14 @@
     insertNode,
     handleBeforeExecCommand,
     stopPaste,
+    canShowFloatMenu,
     checkNodeCanShowMenu,
     canShowMoreMenu,
     canShowPriorityMenu,
     handleContentChange,
     replaceableTags,
     priorityDisableCheck,
-  } = useMinderBaseApi();
+  } = useMinderBaseApi({ hasEditPermission });
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
     template: 'default',
@@ -220,61 +225,6 @@
   });
 
   const baseInfoRef = ref<InstanceType<typeof baseInfo>>();
-
-  /**
-   * 解析用例节点信息
-   * @param node 用例节点
-   */
-  function getCaseNodeInfo(node: MinderJsonNode) {
-    let textStep: MinderJsonNode | undefined; // 文本描述
-    let prerequisiteNode: MinderJsonNode | undefined; // 前置条件
-    let remarkNode: MinderJsonNode | undefined; // 备注
-    const stepNodes: MinderJsonNode[] = []; // 步骤描述
-    node.children?.forEach((item) => {
-      if (item.data?.resource?.includes(textDescTag)) {
-        textStep = item;
-      } else if (item.data?.resource?.includes(stepTag)) {
-        stepNodes.push(item);
-      } else if (item.data?.resource?.includes(prerequisiteTag)) {
-        prerequisiteNode = item;
-      } else if (item.data?.resource?.includes(remarkTag)) {
-        remarkNode = item;
-      }
-    });
-    const steps: FeatureCaseMinderStepItem[] = stepNodes.map((child, i) => {
-      return {
-        id: child.data?.id || getGenerateId(),
-        num: i,
-        desc: child.data?.text || '',
-        result: child.children?.[0].data?.text || '',
-      };
-    });
-    return {
-      prerequisite: prerequisiteNode?.data?.text || '',
-      caseEditType: steps.length > 0 ? 'STEP' : ('TEXT' as FeatureCaseMinderEditType),
-      steps: JSON.stringify(steps),
-      textDescription: textStep?.data?.text || '',
-      expectedResult: textStep?.children?.[0]?.data?.text || '',
-      description: remarkNode?.data?.text || '',
-    };
-  }
-
-  /**
-   * 获取节点的移动信息
-   * @param node 节点
-   * @param parent 父节点
-   */
-  function getNodeMoveInfo(nodeIndex: number, parent?: MinderJsonNode): { moveMode: MoveMode; targetId?: string } {
-    const moveMode = nodeIndex === 0 ? 'BEFORE' : 'AFTER'; // 除了第一个以外，其他都是在目标节点后面插入
-    return {
-      moveMode,
-      targetId:
-        moveMode === 'BEFORE'
-          ? parent?.children?.[1]?.data?.id
-          : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data?.id,
-    };
-  }
-
   const baseInfoLoading = ref(false);
 
   const formRules = ref<FormItem[]>([]);
@@ -601,6 +551,65 @@
           break;
       }
     }
+  }
+
+  /**
+   * 解析用例节点信息
+   * @param node 用例节点
+   */
+  function getCaseNodeInfo(node: MinderJsonNode) {
+    let textStep: MinderJsonNode | undefined; // 文本描述
+    let prerequisiteNode: MinderJsonNode | undefined; // 前置条件
+    let remarkNode: MinderJsonNode | undefined; // 备注
+    const stepNodes: MinderJsonNode[] = []; // 步骤描述
+    node.children?.forEach((item) => {
+      if (item.data?.resource?.includes(textDescTag)) {
+        textStep = item;
+      } else if (item.data?.resource?.includes(stepTag)) {
+        stepNodes.push(item);
+      } else if (item.data?.resource?.includes(prerequisiteTag)) {
+        prerequisiteNode = item;
+      } else if (item.data?.resource?.includes(remarkTag)) {
+        remarkNode = item;
+      }
+    });
+    const steps: FeatureCaseMinderStepItem[] = stepNodes.map((child, i) => {
+      return {
+        id: child.data?.id || getGenerateId(),
+        num: i,
+        desc: child.data?.text || '',
+        result: child.children?.[0].data?.text || '',
+      };
+    });
+    return {
+      prerequisite: prerequisiteNode?.data?.text || '',
+      caseEditType: steps.length > 0 ? 'STEP' : ('TEXT' as FeatureCaseMinderEditType),
+      steps: JSON.stringify(steps),
+      textDescription: textStep?.data?.text || '',
+      expectedResult: textStep?.children?.[0]?.data?.text || '',
+      description: remarkNode?.data?.text || '',
+    };
+  }
+
+  /**
+   * 获取节点的移动信息
+   * @param node 节点
+   * @param parent 父节点
+   */
+  function getNodeMoveInfo(nodeIndex: number, parent?: MinderJsonNode): { moveMode: MoveMode; targetId?: string } {
+    const moveMode = nodeIndex === 0 ? 'BEFORE' : 'AFTER'; // 除了第一个以外，其他都是在目标节点后面插入
+    if (!parent) {
+      // 没有父节点的话，说明是根节点下的子节点
+      parent = importJson.value.root;
+    }
+
+    return {
+      moveMode,
+      targetId:
+        moveMode === 'BEFORE'
+          ? parent?.children?.[1]?.data?.id
+          : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data?.id,
+    };
   }
 
   /**
