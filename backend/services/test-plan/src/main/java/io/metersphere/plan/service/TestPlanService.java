@@ -753,6 +753,48 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Autowired
     private ApplicationContext applicationContext;
 
+    public void setTestPlanUnderway(String testPlanId) {
+        this.updateTestPlanStatusAndGroupStatus(testPlanId, TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+    }
+
+    public void setActualStartTime(String testPlanId) {
+        long actualStartTime = System.currentTimeMillis();
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        if (testPlan != null) {
+            extTestPlanMapper.setActualStartTime(testPlan.getId(), actualStartTime);
+            if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                extTestPlanMapper.setActualStartTime(testPlan.getGroupId(), actualStartTime);
+            }
+        }
+    }
+
+    private void updateTestPlanStatusAndGroupStatus(String testPlanId, String testPlanStatus) {
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId(testPlanId);
+        testPlan.setStatus(testPlanStatus);
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
+
+        testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            //该测试计划是测试计划组内的子计划， 要同步计算测试计划组的状态
+            List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlan.getGroupId());
+            if (CollectionUtils.isNotEmpty(childPlan)) {
+                TestPlan updateGroupPlan = new TestPlan();
+                updateGroupPlan.setId(testPlan.getGroupId());
+                if (childPlan.stream().allMatch(item -> StringUtils.equals(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))) {
+                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+                } else {
+                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+                }
+                testPlanMapper.updateByPrimaryKeySelective(updateGroupPlan);
+
+                if (StringUtils.equalsIgnoreCase(updateGroupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
+                    extTestPlanMapper.setActualEndTime(testPlan.getGroupId(), System.currentTimeMillis());
+                }
+            }
+        }
+    }
+
     public void refreshTestPlanStatus(String testPlanId) {
         Map<String, Long> caseExecResultCount = new HashMap<>();
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
@@ -779,28 +821,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_COMPLETED;
             extTestPlanMapper.setActualEndTime(testPlanId, System.currentTimeMillis());
         }
-        TestPlan testPlan = new TestPlan();
-        testPlan.setId(testPlanId);
-        testPlan.setStatus(testPlanFinalStatus);
-        testPlanMapper.updateByPrimaryKeySelective(testPlan);
 
-        testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
-
-        if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            //该测试计划是测试计划组内的子计划， 要同步计算测试计划组的状态
-
-            List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlan.getGroupId());
-            if (CollectionUtils.isNotEmpty(childPlan)) {
-                TestPlan updateGroupPlan = new TestPlan();
-                updateGroupPlan.setId(testPlan.getGroupId());
-                if (childPlan.stream().allMatch(item -> StringUtils.equals(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))) {
-                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-                } else {
-                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
-                }
-                testPlanMapper.updateByPrimaryKeySelective(updateGroupPlan);
-            }
-        }
+        this.updateTestPlanStatusAndGroupStatus(testPlanId, testPlanFinalStatus);
     }
 
     public TestPlanOperationResponse sortInGroup(PosRequest request, LogInsertModule logInsertModule) {

@@ -143,7 +143,7 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
         testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
-        extTestPlanMapper.setActualStartTime(request.getTestPlanId(), System.currentTimeMillis());
+        testPlanService.setActualStartTime(request.getTestPlanId());
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
@@ -153,7 +153,7 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void batchRun(@Validated @RequestBody TestPlanCaseBatchRunRequest request) {
         testPlanFunctionalCaseService.batchRun(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/run", HttpMethodConstants.POST.name()));
-        extTestPlanMapper.setActualStartTime(request.getTestPlanId(), System.currentTimeMillis());
+        testPlanService.setActualStartTime(request.getTestPlanId());
         testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 

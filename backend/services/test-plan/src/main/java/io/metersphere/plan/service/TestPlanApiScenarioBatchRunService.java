@@ -25,6 +25,7 @@ import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
@@ -82,7 +83,9 @@ public class TestPlanApiScenarioBatchRunService {
      * @param userId
      */
     public void asyncBatchRun(TestPlanApiScenarioBatchRunRequest request, String userId) {
-        extTestPlanMapper.setActualStartTime(request.getTestPlanId(), System.currentTimeMillis());
+        TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        testPlanService.setActualStartTime(request.getTestPlanId());
+        testPlanService.setTestPlanUnderway(request.getTestPlanId());
         Thread.startVirtualThread(() -> batchRun(request, userId));
     }
 
