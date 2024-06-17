@@ -277,6 +277,9 @@
             plannedEndTime: form.value.cycle ? form.value.cycle[1] : undefined,
             projectId: appStore.currentProjectId,
           };
+          if (!params.isGroup && params.groupId) {
+            delete params.groupId;
+          }
           if (!props.planId?.length) {
             await addTestPlan(params);
             Message.success(t('common.createSuccess'));
@@ -307,7 +310,8 @@
 
         form.value.cycle = [result.plannedStartTime as number, result.plannedEndTime as number];
         form.value.passThreshold = parseFloat(result.passThreshold.toString());
-        form.value.isGroup = result.groupId !== 'none';
+        form.value.isGroup = result.groupId !== 'NONE';
+        form.value.groupId = result.groupId !== 'NONE' ? result.groupId : '';
       }
     } catch (error) {
       // eslint-disable-next-line no-console

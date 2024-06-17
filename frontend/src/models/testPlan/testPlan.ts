@@ -308,10 +308,6 @@ export interface BatchApiCaseParams extends BatchActionQueryParams {
   protocols?: string[]; // 接口用例传protocols 接口场景不传
 }
 
-export interface BatchUpdateApiCaseExecutorParams extends BatchApiCaseParams {
-  userId: string; // 执行人id
-}
-
 export interface BatchMoveApiCaseParams extends BatchApiCaseParams {
   targetCollectionId: string; // 测试集id
 }
@@ -348,6 +344,7 @@ export interface PlanDetailApiScenarioItem {
   executeUserName: string;
   lastExecReportId: string; // 报告id
   testPlanCollectionId: string; // 测试集id
+  apiScenarioId: string; // 场景id
 }
 
 // 执行历史
@@ -355,7 +352,7 @@ export interface PlanDetailExecuteHistoryItem {
   id: string;
   num: string;
   triggerMode: string; // 执行方式
-  execStatus: string; // 执行结果
+  execResult: string; // 执行结果
   operationUser: string;
   startTime: number;
   endTime: number;

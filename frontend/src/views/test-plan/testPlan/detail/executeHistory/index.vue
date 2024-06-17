@@ -8,7 +8,7 @@
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
       <template #lastExecResult="{ record }">
-        <ExecutionStatus v-if="record.execStatus" :status="record.execStatus" :module-type="ReportEnum.API_REPORT" />
+        <ExecutionStatus v-if="record.execResult" :status="record.execResult" :module-type="ReportEnum.API_REPORT" />
       </template>
       <template #executionStartAndEndTime="{ record }">
         <div>
@@ -87,7 +87,7 @@
     },
     {
       title: 'common.executionResult',
-      dataIndex: 'execStatus',
+      dataIndex: 'execResult',
       slotName: 'lastExecResult',
       filterConfig: {
         options: statusResultOptions.value,

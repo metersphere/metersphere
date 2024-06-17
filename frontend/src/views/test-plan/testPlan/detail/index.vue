@@ -23,8 +23,8 @@
         v-model="treeType"
         size="small"
         type="line"
-        checked-value="COLLECTION"
-        unchecked-value="MODULE"
+        checked-value="MODULE"
+        unchecked-value="COLLECTION"
         class="mr-[4px]"
         @change="loadActiveTabList"
       />
@@ -192,7 +192,7 @@
   const detail = ref<TestPlanDetail>({
     ...testPlanDefaultDetail,
   });
-  const treeType = ref<'MODULE' | 'COLLECTION'>('MODULE');
+  const treeType = ref<'MODULE' | 'COLLECTION'>('COLLECTION');
 
   const countDetail = ref<PassRateCountDetail>({ ...defaultDetailCount });
 

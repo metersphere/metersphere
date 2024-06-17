@@ -23,8 +23,6 @@ import {
   BatchRunApiCaseUrl,
   BatchRunApiScenarioUrl,
   BatchRunCaseUrl,
-  BatchUpdateApiCaseExecutorUrl,
-  BatchUpdateApiScenarioExecutorUrl,
   BatchUpdateCaseExecutorUrl,
   ConfigScheduleUrl,
   copyTestPlanUrl,
@@ -94,7 +92,6 @@ import type {
   BatchExecutePlan,
   BatchFeatureCaseParams,
   BatchMoveApiCaseParams,
-  BatchUpdateApiCaseExecutorParams,
   BatchUpdateCaseExecutorParams,
   CreateTask,
   DisassociateCaseParams,
@@ -324,10 +321,6 @@ export function runApiCase(id: string, reportId?: string) {
 export function batchDisassociateApiCase(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchDisassociateApiCaseUrl, data });
 }
-// 计划详情-接口用例列表-批量更新执行人
-export function batchUpdateApiCaseExecutor(data: BatchUpdateApiCaseExecutorParams) {
-  return MSR.post({ url: BatchUpdateApiCaseExecutorUrl, data });
-}
 // 计划详情-接口用例列表-批量执行
 export function batchRunApiCase(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchRunApiCaseUrl, data });
@@ -371,10 +364,6 @@ export function disassociateApiScenario(data: DisassociateCaseParams) {
 // 计划详情-接口场景列表-批量取消关联用例
 export function batchDisassociateApiScenario(data: BatchApiCaseParams) {
   return MSR.post({ url: BatchDisassociateApiScenarioUrl, data });
-}
-// 计划详情-接口场景列表-批量更新执行人
-export function batchUpdateApiScenarioExecutor(data: BatchUpdateApiCaseExecutorParams) {
-  return MSR.post({ url: BatchUpdateApiScenarioExecutorUrl, data });
 }
 // 计划详情-接口场景列表-批量执行
 export function batchRunApiScenario(data: BatchApiCaseParams) {
