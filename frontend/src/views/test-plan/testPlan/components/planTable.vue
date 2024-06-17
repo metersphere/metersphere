@@ -239,27 +239,10 @@
 
     <template #operation="{ record }">
       <div class="flex items-center">
-        <!-- TODO 测试计划组手动生成报告 -->
-        <!-- <MsButton class="mr-2" @click="handleGenerateReport(record.id)">生成报告</MsButton> -->
-        <MsButton
-          v-if="
-            getFunctionalCount(record.id) > 0 &&
-            hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
-            record.status !== 'ARCHIVED'
-          "
-          class="!mx-0"
-          @click="executePlan(record)"
-          >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
-        >
-        <a-divider
-          v-if="
-            getFunctionalCount(record.id) > 0 &&
-            hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
-            record.status !== 'ARCHIVED'
-          "
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
+        <MsButton v-if="isShowExecuteButton(record)" class="!mx-0" @click="executePlan(record)">{{
+          t('testPlan.testPlanIndex.execution')
+        }}</MsButton>
+        <a-divider v-if="isShowExecuteButton(record)" direction="vertical" :margin="8"></a-divider>
 
         <MsButton
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
@@ -273,25 +256,10 @@
           :margin="8"
         ></a-divider>
 
-        <MsButton
-          v-if="
-            hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
-            getFunctionalCount(record.id) < 1 &&
-            record.status !== 'ARCHIVED'
-          "
-          class="!mx-0"
-          @click="copyTestPlanOrGroup(record.id)"
-          >{{ t('common.copy') }}</MsButton
-        >
-        <a-divider
-          v-if="
-            hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
-            getFunctionalCount(record.id) < 1 &&
-            record.status !== 'ARCHIVED'
-          "
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
+        <MsButton v-if="!isShowExecuteButton(record)" class="!mx-0" @click="copyTestPlanOrGroup(record.id)">{{
+          t('common.copy')
+        }}</MsButton>
+        <a-divider v-if="!isShowExecuteButton(record)" direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="getMoreActions(record)" @select="handleMoreActionSelect($event, record)" />
       </div>
     </template>
@@ -727,13 +695,20 @@
     return defaultCountDetailMap.value[id].scheduleConfig.enable;
   }
 
+  function isShowExecuteButton(record: TestPlanItem) {
+    return (
+      ((record.type === testPlanTypeEnum.TEST_PLAN && getFunctionalCount(record.id) > 0) ||
+        (record.type === testPlanTypeEnum.GROUP && record.childrenCount)) &&
+      hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) &&
+      record.status !== 'ARCHIVED'
+    );
+  }
+
   function getMoreActions(record: TestPlanItem) {
     const { status: planStatus } = record;
-    const useCount = defaultCountDetailMap.value[record.id]?.caseTotal ?? 0;
 
     // 有用例数量才可以执行 否则不展示执行
-    const copyAction =
-      useCount > 0 && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && planStatus !== 'ARCHIVED' ? copyActions : [];
+    const copyAction = isShowExecuteButton(record) ? copyActions : [];
 
     let scheduledTaskAction: ActionsItem[] = [];
     if (planStatus !== 'ARCHIVED' && record.groupId && record.groupId === 'NONE') {

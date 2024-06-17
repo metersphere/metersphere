@@ -87,17 +87,23 @@ export function getShareValidity(id: string) {
 }
 // 测试计划-独立报告-接口用例
 export function getApiPage(data: TableQueryParams) {
+  if (data.shareId) {
+    return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareApiUrl, data });
+  }
   return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportIndependentApiUrl, data });
 }
 // 测试计划-报告-获取分享链接时效
 export function getScenarioPage(data: TableQueryParams) {
+  if (data.shareId) {
+    return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareScenarioUrl, data });
+  }
   return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportIndependentScenarioUrl, data });
 }
 // 测试计划-独立报告-接口用例
 export function getShareApiPage(data: TableQueryParams) {
   return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareApiUrl, data });
 }
-// 测试计划-报告-获取分享链接时效
+// 测试计划-报告-场景用例
 export function getShareScenarioPage(data: TableQueryParams) {
   return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareScenarioUrl, data });
 }
