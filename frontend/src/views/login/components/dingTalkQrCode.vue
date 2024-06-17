@@ -73,9 +73,9 @@
           },
         });
         // 也可以在不跳转页面的情况下，使用code进行授权
-        console.log(authCode);
       },
       (errorMsg) => {
+        Message.error(`errorMsg of errorCbk: ${errorMsg}`);
         // 这里一般需要展示登录失败的具体原因,可以使用toast等轻提示
         console.error(`errorMsg of errorCbk: ${errorMsg}`);
       }
