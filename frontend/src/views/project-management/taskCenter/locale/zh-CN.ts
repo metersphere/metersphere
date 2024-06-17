@@ -18,7 +18,7 @@ export default {
   'project.taskCenter.execution': '执行',
   'project.taskCenter.viewReport': '执行结果',
   'project.taskCenter.batchStopTask': '确定停止 {num} 个任务吗？',
-  'project.taskCenter.stopTask': '确定停止 {name} 个任务吗？',
+  'project.taskCenter.stopTask': '确定停止 {name} 吗？',
   'project.taskCenter.stopTaskContent': '停止后会影响报告的生成，执行完成的报告不可以停止',
   'project.taskCenter.confirmStop': '确认停止',
   'project.taskCenter.stopSuccess': '停止成功',
