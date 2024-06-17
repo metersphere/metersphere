@@ -93,6 +93,7 @@
         api_scenario.project_id,
         api_scenario.create_user,
         api_scenario.status,
+        api_scenario.id as apiScenarioId,
         test_plan_api_scenario.create_time,
         test_plan_api_scenario.environment_id,
         api_scenario.module_id,
