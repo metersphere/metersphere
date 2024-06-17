@@ -25,7 +25,6 @@
             :disabled="!contentEditAble"
             :placeholder="t('editor.placeholder')"
             :upload-image="handleUploadImage"
-            :auto-height="false"
             :preview-url="EditorPreviewFileUrl"
           />
           <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>

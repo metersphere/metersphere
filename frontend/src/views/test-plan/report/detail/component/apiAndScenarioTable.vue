@@ -1,5 +1,5 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+  <MsBaseTable v-bind="currentCaseTable.propsRes.value" v-on="currentCaseTable.propsEvent.value">
     <template #num="{ record }">
       <MsButton type="text" @click="showReport(record)">{{ record.num }}</MsButton>
     </template>
@@ -32,7 +32,7 @@
   />
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" async>
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -41,7 +41,7 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
 
-  import { getApiPage, getScenarioPage, getShareApiPage, getShareScenarioPage } from '@/api/modules/test-plan/report';
+  import { getApiPage, getScenarioPage } from '@/api/modules/test-plan/report';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -117,31 +117,35 @@
       showDrag: true,
     },
   ];
-  const reportApiList = () => {
-    if (props.activeTab === 'scenarioCase') {
-      return !props.shareId ? getScenarioPage : getShareScenarioPage;
+
+  const getReportApiList = () => {
+    if (props.activeTab === 'apiCase') {
+      return getApiPage;
     }
-    return !props.shareId ? getApiPage : getShareApiPage;
+    return getScenarioPage;
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetFilterParams, resetPagination } = useTable(
-    reportApiList(),
-    {
-      scroll: { x: '100%' },
-      columns,
-      showSelectorAll: false,
-    }
-  );
+
+  const useApiTable = useTable(getApiPage, {
+    scroll: { x: '100%' },
+    columns,
+    showSelectorAll: false,
+    showSetting: false,
+  });
+  const useScenarioTable = useTable(getScenarioPage, {
+    scroll: { x: '100%' },
+    columns,
+    showSelectorAll: false,
+    showSetting: false,
+  });
+
+  const currentCaseTable = computed(() => {
+    return props.activeTab === 'apiCase' ? useApiTable : useScenarioTable;
+  });
 
   async function loadCaseList() {
-    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
-    loadList();
+    currentCaseTable.value.setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
+    currentCaseTable.value.loadList();
   }
-
-  watchEffect(() => {
-    if (props.reportId) {
-      loadCaseList();
-    }
-  });
 
   // 显示执行报告
   const reportVisible = ref(false);
@@ -156,9 +160,24 @@
   watch(
     () => props.activeTab,
     () => {
-      resetFilterParams();
-      resetPagination();
+      currentCaseTable.value.resetFilterParams();
+      currentCaseTable.value.resetPagination();
       loadCaseList();
+    }
+  );
+
+  // onBeforeMount(() => {
+  //   if (props.reportId) {
+  //     loadCaseList();
+  //   }
+  // });
+
+  watch(
+    () => props.reportId,
+    (val) => {
+      if (val) {
+        loadCaseList();
+      }
     }
   );
 </script>
