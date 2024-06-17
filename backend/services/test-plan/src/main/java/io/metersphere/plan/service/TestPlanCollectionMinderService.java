@@ -250,6 +250,8 @@ public class TestPlanCollectionMinderService {
         beansOfType.forEach((k, v) -> {
             v.associateCollection(request.getPlanId(), associateMap, user);
         });
+        //更新测试计划
+        testPlanService.refreshTestPlanStatus(request.getPlanId());
     }
 
     private void dealEditList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap) {
