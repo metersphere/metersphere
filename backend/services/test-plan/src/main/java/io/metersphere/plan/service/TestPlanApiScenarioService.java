@@ -224,6 +224,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             testPlanApiScenario.setCreateUser(user.getId());
             testPlanApiScenario.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanApiScenario.setExecuteUser(scenario.getCreateUser());
+            testPlanApiScenario.setLastExecResult(ExecStatus.PENDING.name());
             testPlanApiScenarioList.add(testPlanApiScenario);
             buildLog(logDTOS, testPlan, user, scenario);
         });

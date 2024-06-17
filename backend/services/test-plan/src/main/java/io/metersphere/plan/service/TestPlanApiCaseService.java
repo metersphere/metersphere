@@ -585,6 +585,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             testPlanApiCase.setCreateUser(user.getId());
             testPlanApiCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
             testPlanApiCase.setExecuteUser(apiTestCase.getCreateUser());
+            testPlanApiCase.setLastExecResult(ExecStatus.PENDING.name());
             testPlanApiCaseList.add(testPlanApiCase);
             buildLog(logDTOS, testPlan, user, apiTestCase);
         });
