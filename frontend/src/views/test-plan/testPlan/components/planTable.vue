@@ -251,6 +251,7 @@
         <MsButton
           v-if="isShowExecuteButton(record, ['PROJECT_TEST_PLAN:READ+EXECUTE'])"
           class="!mx-0"
+          :disabled="executeId == record.id"
           @click="executePlan(record)"
           >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
         >
@@ -945,7 +946,9 @@
     }
   }
 
+  const executeId = ref<string>('');
   async function singleExecute(id: string) {
+    executeId.value = id;
     try {
       const params: ExecutePlan = {
         executeId: id,
@@ -957,6 +960,8 @@
       fetchData();
     } catch (error) {
       console.log(error);
+    } finally {
+      executeId.value = '';
     }
   }
 
@@ -1534,5 +1539,15 @@
 
     padding-top: 8px;
     color: var(--color-text-1);
+  }
+  :deep(.parent-tr) {
+    .arco-table-drag-handle {
+      pointer-events: none;
+      .arco-table-cell {
+        svg {
+          color: transparent;
+        }
+      }
+    }
   }
 </style>

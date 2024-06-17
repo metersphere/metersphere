@@ -235,6 +235,11 @@
           </div>
         </slot>
       </template>
+
+      <!-- 控制拖拽类 -->
+      <template #tr="{ record }">
+        <tr :class="!record.parent ? 'parent-tr' : 'children-tr'" />
+      </template>
     </a-table>
     <div
       v-if="showBatchAction || !!attrs.showPagination"

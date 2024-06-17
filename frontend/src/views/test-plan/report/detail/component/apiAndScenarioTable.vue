@@ -166,18 +166,7 @@
     }
   );
 
-  // onBeforeMount(() => {
-  //   if (props.reportId) {
-  //     loadCaseList();
-  //   }
-  // });
-
-  watch(
-    () => props.reportId,
-    (val) => {
-      if (val) {
-        loadCaseList();
-      }
-    }
-  );
+  onMounted(() => {
+    loadCaseList();
+  });
 </script>
