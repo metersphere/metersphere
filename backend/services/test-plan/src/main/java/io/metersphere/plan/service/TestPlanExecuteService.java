@@ -10,6 +10,7 @@ import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
@@ -187,7 +188,7 @@ public class TestPlanExecuteService {
                                     null,
                                     testPlanId,
                                     runMode,
-                                    request.getExecutionSource(),
+                                    TaskTriggerMode.BATCH.name(),
                                     IDGenerator.nextStr()
                             )
                     );
