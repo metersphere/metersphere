@@ -9,6 +9,7 @@ import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.SessionUser;
@@ -257,30 +258,60 @@ public class TestPlanCollectionMinderService {
     private void dealEditList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap) {
         if (CollectionUtils.isNotEmpty(request.getEditList())) {
             Map<String, List<TestPlanCollection>> parentMap = getParentMap(request);
+            Map<String, List<TestPlanCollection>> childrenMap = getChildrenMap(request);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             TestPlanCollectionMapper collectionMapper = sqlSession.getMapper(TestPlanCollectionMapper.class);
             //新增
-            dealAddList(request, userId, associateMap, parentMap, collectionMapper);
+            Map<String, List<String>> addTypeNameMap = dealAddList(request, userId, associateMap, parentMap, collectionMapper);
             //更新
-            dealUpdateList(request, userId, associateMap, parentMap, collectionMapper);
+            Map<String, List<String>> updateTypeNameMap = dealUpdateList(request, userId, associateMap, parentMap, collectionMapper);
+            //检查同一类型名称重复
+            checkNameRepeat(updateTypeNameMap, addTypeNameMap, childrenMap);
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 
-    private void dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
+    private static void checkNameRepeat(Map<String, List<String>> updateTypeNameMap, Map<String, List<String>> addTypeNameMap, Map<String, List<TestPlanCollection>> childrenMap) {
+        updateTypeNameMap.forEach((k, v)->{
+            List<String> nameList = addTypeNameMap.get(k);
+            if (CollectionUtils.isNotEmpty(nameList)) {
+                List<String> repeatList = v.stream().filter(nameList::contains).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(repeatList)) {
+                    throw new MSException(Translator.get("test_plan.mind.collection_name_repeat"));
+                } else {
+                    nameList.addAll(v);
+                    addTypeNameMap.put(k, nameList);
+                }
+            } else {
+                addTypeNameMap.put(k,v);
+            }
+        });
+        childrenMap.forEach((k, v)->{
+            List<String> nameList = addTypeNameMap.get(k);
+            if (CollectionUtils.isNotEmpty(nameList)) {
+                List<TestPlanCollection> list = v.stream().filter(t -> nameList.contains(t.getName())).toList();
+                if (CollectionUtils.isNotEmpty(list)) {
+                    throw new MSException(Translator.get("test_plan.mind.collection_name_repeat"));
+                }
+            }
+        });
+    }
+
+    private Map<String, List<String>> dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
         List<TestPlanCollectionMinderEditDTO> updateList = request.getEditList().stream().filter(t -> StringUtils.isNotBlank(t.getId())).toList();
-
-
+        Map<String, List<String>>typeNamesMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(updateList)) {
             //处理删除
             deleteCollection(updateList, request.getPlanId());
             //处理更新
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : updateList) {
                 TestPlanCollection testPlanCollection = updateCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
+                checkChangeDataReapet(typeNamesMap, testPlanCollection);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
         }
+        return typeNamesMap;
     }
 
     private void deleteCollection(List<TestPlanCollectionMinderEditDTO> updateList, String planId) {
@@ -294,13 +325,31 @@ public class TestPlanCollectionMinderService {
         }
     }
 
-    private static void dealAddList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
+    private Map<String, List<String>> dealAddList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
+        Map<String, List<String>>typeNamesMap = new HashMap<>();
         List<TestPlanCollectionMinderEditDTO> addList = request.getEditList().stream().filter(t -> StringUtils.isBlank(t.getId())).toList();
         if (CollectionUtils.isNotEmpty(addList)) {
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : addList) {
                 TestPlanCollection testPlanCollection = addCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
+                checkChangeDataReapet(typeNamesMap, testPlanCollection);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
+        }
+        return typeNamesMap;
+    }
+
+    private static void checkChangeDataReapet(Map<String, List<String>> typeNamesMap, TestPlanCollection testPlanCollection) {
+        List<String> nameList = typeNamesMap.get(testPlanCollection.getType());
+        if (CollectionUtils.isNotEmpty(nameList)) {
+            if (nameList.contains(testPlanCollection.getName())) {
+                throw new MSException(Translator.get("test_plan.mind.collection_name_repeat"));
+            } else {
+                nameList.add(testPlanCollection.getName());
+                typeNamesMap.put(testPlanCollection.getType(), nameList);
+            }
+        } else {
+            nameList = new ArrayList<>(List.of(testPlanCollection.getName()));
+            typeNamesMap.put(testPlanCollection.getType(), nameList);
         }
     }
 
@@ -308,6 +357,14 @@ public class TestPlanCollectionMinderService {
     private Map<String, List<TestPlanCollection>> getParentMap(TestPlanCollectionMinderEditRequest request) {
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andParentIdEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID);
+        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
+        return testPlanCollections.stream().collect(Collectors.groupingBy(TestPlanCollection::getType));
+    }
+
+    @NotNull
+    private Map<String, List<TestPlanCollection>> getChildrenMap(TestPlanCollectionMinderEditRequest request) {
+        TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
+        testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         return testPlanCollections.stream().collect(Collectors.groupingBy(TestPlanCollection::getType));
     }

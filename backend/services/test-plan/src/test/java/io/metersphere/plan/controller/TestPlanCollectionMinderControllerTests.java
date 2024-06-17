@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
@@ -119,8 +121,30 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         editList = new ArrayList<>();
         editList.add(deleteDTO);
         request.setEditList(editList);
-        this.requestPostWithOkAndReturn(EDIT_MIND, request);
+        this.requestPost(EDIT_MIND, request).andExpect(status().is5xxServerError());;
         testPlanCollectionExample = new TestPlanCollectionExample();
+        testPlanCollectionExample.createCriteria().andNameEqualTo("新建名称");
+        testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
+        Assertions.assertFalse(CollectionUtils.isEmpty(testPlanCollections));
+        testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
+        testPlanCollectionMinderEditDTO.setId(testPlanCollections.get(0).getId());
+        testPlanCollectionMinderEditDTO.setText("hahaha");
+        testPlanCollectionMinderEditDTO.setNum(500L);
+        testPlanCollectionMinderEditDTO.setExecuteMethod("PARALLEL");
+        testPlanCollectionMinderEditDTO.setType("API");
+        testPlanCollectionMinderEditDTO.setExtended(false);
+        testPlanCollectionMinderEditDTO.setGrouped(false);
+        testPlanCollectionMinderEditDTO.setEnvironmentId("gyq_123");
+        testPlanCollectionMinderEditDTO.setTestResourcePoolId("gyq_123_pool");
+        testPlanCollectionMinderEditDTO.setRetryOnFail(true);
+        testPlanCollectionMinderEditDTO.setRetryType("SCENARIO");
+        testPlanCollectionMinderEditDTO.setRetryTimes(5);
+        testPlanCollectionMinderEditDTO.setRetryInterval(1000);
+        testPlanCollectionMinderEditDTO.setStopOnFail(true);
+        editList = new ArrayList<>();
+        editList.add(testPlanCollectionMinderEditDTO);
+        request.setEditList(editList);
+        this.requestPostWithOkAndReturn(EDIT_MIND, request);
         testPlanCollectionExample.createCriteria().andNameEqualTo("新建名称");
         testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(testPlanCollections));
