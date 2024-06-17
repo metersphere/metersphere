@@ -702,6 +702,7 @@
             api_case_id
             FROM
             test_plan_api_case
+            where test_plan_api_case.test_plan_id = #{testPlanId}
             )
         </if>
     </select>

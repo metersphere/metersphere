@@ -551,7 +551,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
             boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
-            List<ApiTestCase> apiTestCaseList = extTestPlanApiCaseMapper.selectApiCaseByDefinitionIds(ids, isRepeat);
+            List<ApiTestCase> apiTestCaseList = extTestPlanApiCaseMapper.selectApiCaseByDefinitionIds(ids, isRepeat, testPlan.getId());
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {
@@ -683,9 +683,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     /**
      * 预生成用例的执行报告
+     *
      * @return
      */
-    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase,  String reportId, ApiRunModeConfigDTO runModeConfig, String userId) {
+    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, String reportId, ApiRunModeConfigDTO runModeConfig, String userId) {
         // 初始化报告
         ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, runModeConfig.getPoolId(), userId);
         apiReport.setEnvironmentId(runModeConfig.getEnvironmentId());
