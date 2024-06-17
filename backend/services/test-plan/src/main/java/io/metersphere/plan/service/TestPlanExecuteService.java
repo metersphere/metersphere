@@ -253,7 +253,7 @@ public class TestPlanExecuteService {
                 this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
                 // 更新报告的执行时间
-                extTestPlanReportMapper.batchUpdateExecuteTime(System.currentTimeMillis(), reportMap.values().stream().toList());
+                extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
 
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
@@ -271,7 +271,7 @@ public class TestPlanExecuteService {
         } else {
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
-            extTestPlanReportMapper.batchUpdateExecuteTime(System.currentTimeMillis(), reportMap.values().stream().toList());
+            extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
             this.executeTestPlan(executionQueue);
             return executionQueue.getPrepareReportId();
         }

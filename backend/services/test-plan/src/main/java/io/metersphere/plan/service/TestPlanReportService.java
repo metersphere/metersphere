@@ -480,6 +480,12 @@ public class TestPlanReportService {
 
         testPlanReportMapper.updateByPrimaryKeySelective(planReport);
     }
+
+	/**
+	 * 获取报告
+	 * @param reportId 报告ID
+	 * @return 报告详情
+	 */
     public TestPlanReport selectById(String reportId) {
         return testPlanReportMapper.selectByPrimaryKey(reportId);
     }
