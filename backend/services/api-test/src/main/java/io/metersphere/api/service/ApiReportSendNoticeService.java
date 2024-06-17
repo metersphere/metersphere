@@ -14,6 +14,7 @@ import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
@@ -57,15 +58,17 @@ public class ApiReportSendNoticeService {
     private EnvironmentMapper environmentMapper;
     @Resource
     private ProjectMapper projectMapper;
-    private static final String API_SCENARIO = "API_SCENARIO";
-    private static final String API_CASE = "API_CASE";
 
     public void sendNotice(ApiNoticeDTO noticeDTO) {
-        String noticeType;
+        String noticeType = null;
+        if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
+                ApiExecuteResourceType.PLAN_RUN_API_CASE.name(), ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name())) {
+            return;
+        }
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         assert systemParameterService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        BeanMap beanMap;
+        BeanMap beanMap = null;
         String event = null;
         ApiReportShareService shareService = CommonBeanFactory.getBean(ApiReportShareService.class);
         ApiReportShareRequest shareRequest = new ApiReportShareRequest();
@@ -77,12 +80,13 @@ public class ApiReportSendNoticeService {
         String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api-test/report?orgId=%s&pId=%s&type=%s&reportId=%s";
         String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId();
         ApiScenarioReport report = new ApiScenarioReport();
-        if (API_SCENARIO.equals(noticeDTO.getResourceType())) {
+        if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
+                ApiExecuteResourceType.API_SCENARIO.name(), ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name())) {
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
             beanMap = new BeanMap(scenario);
             noticeType = NoticeConstants.TaskType.API_SCENARIO_TASK;
             report = apiScenarioReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
-            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_SCENARIO, report.getId());
+            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), ApiExecuteResourceType.API_SCENARIO.name(), report.getId());
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_SUCCESSFUL;
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.FAKE_ERROR.name())) {
@@ -91,14 +95,15 @@ public class ApiReportSendNoticeService {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_FAILED;
             }
             shareUrl = String.format(shareUrl, "shareReportScenario");
-        } else {
+        } else if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
+                ApiExecuteResourceType.API_CASE.name(), ApiExecuteResourceType.TEST_PLAN_API_CASE.name())) {
             ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
             beanMap = new BeanMap(testCase);
 
             // TODO 是否需要区分场景和用例
             noticeType = NoticeConstants.TaskType.API_DEFINITION_TASK;
             ApiReport apiReport = apiReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
-            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), API_CASE, apiReport.getId());
+            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), ApiExecuteResourceType.API_CASE.name(), apiReport.getId());
             BeanUtils.copyBean(report, apiReport);
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ReportStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_SUCCESSFUL;
