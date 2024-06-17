@@ -21,11 +21,13 @@ public class TestPlanScheduleJob extends BaseScheduleJob {
         assert testPlanExecuteService != null;
         Map<String, String> runConfig = JSON.parseObject(context.getJobDetail().getJobDataMap().get("config").toString(), Map.class);
         String runMode = runConfig.containsKey("runMode") ? runConfig.get("runMode") : ApiBatchRunMode.SERIAL.name();
-        testPlanExecuteService.singleExecuteTestPlan(new TestPlanExecuteRequest() {{
-            this.setExecuteId(resourceId);
-            this.setRunMode(runMode);
-            this.setExecutionSource(ApiExecuteRunMode.SCHEDULE.name());
-        }}, userId);
+        Thread.startVirtualThread(() -> {
+            testPlanExecuteService.singleExecuteTestPlan(new TestPlanExecuteRequest() {{
+                this.setExecuteId(resourceId);
+                this.setRunMode(runMode);
+                this.setExecutionSource(ApiExecuteRunMode.SCHEDULE.name());
+            }}, userId);
+        });
     }
 
 

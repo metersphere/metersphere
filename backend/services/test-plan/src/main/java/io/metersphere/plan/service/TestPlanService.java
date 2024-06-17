@@ -341,6 +341,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 //移动模块时重置GroupId
                 updateTestPlan.setGroupId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
             }
+            if (StringUtils.isNotBlank(request.getGroupId()) && !StringUtils.equalsIgnoreCase(request.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                //移动测试计划到测试计划组中，删除定时任务
+                updateTestPlan.setGroupId(request.getGroupId());
+                this.deleteScheduleConfig(request.getId());
+            }
             if (StringUtils.isNotBlank(request.getName())) {
                 updateTestPlan.setName(request.getName());
                 updateTestPlan.setProjectId(testPlan.getProjectId());
