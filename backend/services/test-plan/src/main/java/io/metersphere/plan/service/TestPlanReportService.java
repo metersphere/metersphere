@@ -635,6 +635,7 @@ public class TestPlanReportService {
 	 * @param reportId 报告ID
 	 */
 	public void summaryGroupReport(String reportId) {
+		// TODO: 更新计划组的用例明细执行结果
 		TestPlanReportSummaryExample summaryExample = new TestPlanReportSummaryExample();
 		summaryExample.createCriteria().andTestPlanReportIdEqualTo(reportId);
 		List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExample(summaryExample);
@@ -645,14 +646,14 @@ public class TestPlanReportService {
 		TestPlanReportSummary groupSummary = testPlanReportSummaries.get(0);
 
 		TestPlanReportExample example = new TestPlanReportExample();
-		example.createCriteria().andParentIdEqualTo(reportId);
+		example.createCriteria().andParentIdEqualTo(reportId).andIntegratedEqualTo(false);
 		List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(testPlanReports)){
             return;
         }
 		List<String> ids = testPlanReports.stream().map(TestPlanReport::getId).toList();
 		summaryExample.clear();
-		summaryExample.createCriteria().andIdIn(ids);
+		summaryExample.createCriteria().andTestPlanReportIdIn(ids);
 		List<TestPlanReportSummary> summaryList = testPlanReportSummaryMapper.selectByExampleWithBLOBs(summaryExample);
 		List<CaseCount> functionalCaseCountList = new ArrayList<>();
 		List<CaseCount> apiCaseCountList = new ArrayList<>();
