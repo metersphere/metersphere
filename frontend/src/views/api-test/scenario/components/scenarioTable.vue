@@ -132,6 +132,8 @@
           :module-type="ReportEnum.API_SCENARIO_REPORT"
           :status="record.lastReportStatus ? record.lastReportStatus : 'PENDING'"
           :script-identifier="record.scriptIdentifier"
+          :class="record.lastReportId ? 'cursor-pointer' : ''"
+          @click="openScenarioReportDrawer(record)"
         />
       </template>
       <template #stepTotal="{ record }">
@@ -483,6 +485,12 @@
     :batch-run-func="batchRunScenario"
     @finished="loadScenarioList"
   />
+  <!-- 场景报告抽屉 -->
+  <caseAndScenarioReportDrawer
+    v-model:visible="showScenarioReportVisible"
+    is-scenario
+    :report-id="tableRecord?.lastReportId || ''"
+  />
 </template>
 
 <script setup lang="ts">
@@ -502,6 +510,7 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import BatchRunModal from '@/views/api-test/scenario/components/batchRunModal.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
@@ -1428,6 +1437,14 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    }
+  }
+
+  const showScenarioReportVisible = ref(false);
+  function openScenarioReportDrawer(record: ApiScenarioTableItem) {
+    if (record.lastReportId) {
+      tableRecord.value = record;
+      showScenarioReportVisible.value = true;
     }
   }
 

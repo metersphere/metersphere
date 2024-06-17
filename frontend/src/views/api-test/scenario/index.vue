@@ -501,8 +501,16 @@
     recycleModulesCount.value = res.all;
   }
 
-  function refreshTree(params: ApiScenarioGetModuleParams) {
-    scenarioModuleTreeRef.value?.initModuleCount(params);
+  const tempTableQueryParams = ref<ApiScenarioGetModuleParams>();
+  function refreshTree(params?: ApiScenarioGetModuleParams) {
+    tempTableQueryParams.value = params;
+    if (params) {
+      scenarioModuleTreeRef.value?.initModuleCount(params);
+    } else {
+      scenarioModuleTreeRef.value?.initModuleCount({
+        projectId: appStore.currentProjectId,
+      });
+    }
     selectRecycleCount();
   }
 
@@ -621,6 +629,7 @@
           }),
         });
       }
+      refreshTree(tempTableQueryParams.value);
       Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
       activeScenarioTab.value.unSaved = false;
       saveLoading.value = false;

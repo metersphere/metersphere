@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-start">
-    <MsIcon :type="getExecutionResult().icon" :class="getExecutionResult()?.color" size="14" />
+    <MsIcon :type="getExecutionResult().icon || '-'" :class="getExecutionResult()?.color" size="14" />
     <span class="ml-1">{{ t(getExecutionResult().label) }}</span>
     <a-tooltip v-if="props.scriptIdentifier" :content="getMsg()">
       <MsTag
