@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.lang.ShiroException;
+import org.eclipse.jetty.io.EofException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -114,6 +115,11 @@ public class RestControllerExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ResultHolder> handlerException(Exception e) {
+        if (e instanceof EofException) {
+            return ResponseEntity.internalServerError()
+                    .body(ResultHolder.error(MsHttpResultCode.FAILED.getCode(),
+                            e.getMessage(), null));
+        }
         return ResponseEntity.internalServerError()
                 .body(ResultHolder.error(MsHttpResultCode.FAILED.getCode(),
                         e.getMessage(), getStackTraceAsString(e)));
