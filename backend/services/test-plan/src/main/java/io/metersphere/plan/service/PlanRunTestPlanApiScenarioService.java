@@ -217,6 +217,6 @@ public class PlanRunTestPlanApiScenarioService {
         ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanReportApiScenario.getApiScenarioId());
         apiScenarioDetail.setEnvironmentId(testPlanReportApiScenario.getEnvironmentId());
         apiScenarioDetail.setGrouped(testPlanReportApiScenario.getGrouped());
-        return apiScenarioRunService.getRunScript(request, testPlanReportApiScenario.getApiScenarioId());
+        return apiScenarioRunService.getRunScript(request, apiScenarioDetail);
     }
 }
