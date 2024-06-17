@@ -48,7 +48,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
 
-  import type { TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
+  import type { CreateTask, TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   const { t } = useI18n();
@@ -56,6 +56,7 @@
   const props = defineProps<{
     visible: boolean;
     record: TestPlanItem | TestPlanDetail | undefined; // 表record
+    scheduleConfig?: CreateTask;
   }>();
 
   const emit = defineEmits<{
@@ -98,7 +99,9 @@
       case 'ARCHIVED':
         return t('testPlan.testPlanIndex.deleteArchivedPlan');
       case 'UNDERWAY':
-        return t('testPlan.testPlanIndex.deleteRunningPlan');
+        return props.scheduleConfig && props.scheduleConfig.enable
+          ? t('testPlan.testPlanIndex.deleteRunningSchedulePlan')
+          : t('testPlan.testPlanIndex.deleteRunningPlan');
       case 'COMPLETED':
         return t('testPlan.testPlanIndex.deleteCompletedPlan');
       default:

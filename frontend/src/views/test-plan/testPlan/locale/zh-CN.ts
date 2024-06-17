@@ -68,12 +68,15 @@ export default {
   'testPlan.testPlanIndex.deleteArchivedPlan': '计划 已归档，删除后数据不可恢复，请谨慎操作！',
   'testPlan.testPlanIndex.deletePendingPlan': '计划 未执行，删除后数据不可恢复，请谨慎操作！',
   'testPlan.testPlanIndex.deleteRunningPlan': '计划 进行中，删除后，终止执行且不可恢复，请谨慎操作！',
+  'testPlan.testPlanIndex.deleteRunningSchedulePlan':
+    '计划 进行中，删除后，终止执行且不可恢复，定时任务停止并删除，请谨慎操作！',
   'testPlan.testPlanIndex.deleteCompletedPlan':
     '建议计划 已完成 ，选择归档，用例信息及执行结果都将被保留；若继续删除，数据将不会恢复，请谨慎操作！',
   'testPlan.testPlanIndex.confirmArchivePlan': '归档后，执行信息不再更新且不可编辑，数据不可恢复，请谨慎操作！',
   'testPlan.testPlanIndex.passRateTitleTip': '已通过用例/全部用例*100%',
   'testPlan.testPlanIndex.batchEdit': '批量编辑 (已选 { number } 项数据)',
   'testPlan.planForm.namePlaceholder': '请输入测试计划名称',
+  'testPlan.planForm.nameGroupPlaceholder': '请输入计划组名称',
   'testPlan.planForm.nameRequired': '测试计划名称不能为空',
   'testPlan.planForm.testPlanGroupRequired': '计划组不能为空',
   'testPlan.planForm.planStartAndEndTime': '计划起止时间',

@@ -579,11 +579,20 @@
   function writeAssociateCases(param: AssociateCaseRequest) {
     selectedAssociateCasesParams.value = { ...param };
     const node: PlanMinderNode = window.minder.getSelectedNode();
+    let associateType: string = '';
+    // TODO 类型对应的上 但是node保存的时候节点好像不太对
+    if (node.data.type === PlanMinderCollectionType.SCENARIO) {
+      associateType = PlanMinderAssociateType.SCENARIO_CASE;
+    } else {
+      associateType =
+        node.data.type === PlanMinderCollectionType.API && param.associateApiType
+          ? param.associateApiType
+          : node.data.type;
+    }
     node.data.associateDTOS = [
       {
         ids: param.selectIds,
-        associateType:
-          node.data.type === PlanMinderCollectionType.SCENARIO ? PlanMinderAssociateType.SCENARIO_CASE : node.data.type,
+        associateType,
       },
     ];
     caseAssociateVisible.value = false;
