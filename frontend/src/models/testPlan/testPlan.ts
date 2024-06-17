@@ -37,6 +37,7 @@ export interface AssociateCaseRequest extends BatchApiParams {
   apiScenarioSelectIds?: string[];
   totalCount?: number;
   testPlanId?: string;
+  associateApiType?: string;
 }
 
 export type AssociateCaseRequestType = Pick<AssociateCaseRequest, 'functionalSelectIds' | 'testPlanId'>;

@@ -15,7 +15,7 @@
       <a-form-item
         field="name"
         :label="t('testPlan.testPlanGroup.name')"
-        :rules="[{ required: true, message: t('apiTestDebug.requestNameRequired') }]"
+        :rules="[{ required: true, message: t('testPlan.planForm.nameGroupPlaceholder') }]"
         asterisk-position="end"
       >
         <a-input

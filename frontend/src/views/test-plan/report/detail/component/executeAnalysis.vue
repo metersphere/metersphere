@@ -4,7 +4,7 @@
     size="160px"
     :legend-data="legendData"
     :options="executeCharOptions"
-    :request-total="getIndicators(detail.caseTotal) || 0"
+    :request-total="getIndicators(getTotal) || 0"
   />
 </template>
 
@@ -96,6 +96,12 @@
       };
     }) as unknown as LegendData[];
   }
+
+  const getTotal = computed(() => {
+    const { executeCount } = props.detail;
+    const { success, error, fakeError, pending, block } = executeCount;
+    return success + error + fakeError + pending + block;
+  });
 
   watchEffect(() => {
     if (props.detail) {

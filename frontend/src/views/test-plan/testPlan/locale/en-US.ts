@@ -73,12 +73,15 @@ export default {
     'The plan is not executed, the data cannot be recovered after deletion, please operate carefully!',
   'testPlan.testPlanIndex.deleteRunningPlan':
     'Scheduled tasks are stopped and deleted. Exercise caution when performing this operation',
+  'testPlan.testPlanIndex.deleteRunningSchedulePlan':
+    'Scheduled tasks are stopped and deleted. Exercise caution when performing this operation.',
   'testPlan.testPlanIndex.deleteCompletedPlan':
     'The proposed plan is completed, the option is archived, and the use case information and execution results are retained;If you continue to delete, the data will not be restored, please be careful!',
   'testPlan.testPlanIndex.confirmArchivePlan':
     'After filing, implement information no longer update and editing, data unrecoverable, please careful operation！',
   'testPlan.testPlanIndex.passRateTitleTip': 'Passed use cases/all use cases *100%',
   'testPlan.planForm.namePlaceholder': 'Please enter the name of the test plan',
+  'testPlan.planForm.nameGroupPlaceholder': 'Please enter a plan group name',
   'testPlan.planForm.nameRequired': 'Test plan name cannot be empty',
   'testPlan.planForm.testPlanGroupRequired': 'Plan group cannot be empty',
   'testPlan.planForm.planStartAndEndTime': 'Planned start and end time',

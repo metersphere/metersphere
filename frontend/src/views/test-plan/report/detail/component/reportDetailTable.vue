@@ -21,7 +21,7 @@
       <MsButton class="!mx-0" @click="openReport(record)">{{ t('report.detail.testPlanGroup.viewReport') }}</MsButton>
     </template>
   </MsBaseTable>
-  <ReportDrawer v-model:visible="reportVisible" :report-id="reportId" />
+  <ReportDrawer v-model:visible="reportVisible" :report-id="independentReportId" />
 </template>
 
 <script setup lang="ts">
@@ -133,12 +133,15 @@
 
   const reportVisible = ref(false);
 
+  const independentReportId = ref<string>('');
+
   function openReport(record: PlanReportDetail) {
+    independentReportId.value = record.id;
     if (props.currentMode === 'drawer') {
       reportVisible.value = true;
     } else {
       openNewPage(RouteEnum.TEST_PLAN_REPORT_DETAIL, {
-        reportId: record.id,
+        id: record.id,
       });
     }
   }
