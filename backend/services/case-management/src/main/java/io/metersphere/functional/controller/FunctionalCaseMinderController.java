@@ -14,10 +14,12 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -42,7 +44,7 @@ public class FunctionalCaseMinderController {
 
     @PostMapping("/list")
     @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public List<FunctionalMinderTreeDTO> getFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
         return functionalCaseMinderService.getMindFunctionalCase(request, false);
@@ -50,11 +52,7 @@ public class FunctionalCaseMinderController {
 
     @PostMapping("/edit")
     @Operation(summary = "脑图保存")
-    @RequiresPermissions(value = {
-            PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE,
-            PermissionConstants.FUNCTIONAL_CASE_READ_DELETE,
-            PermissionConstants.FUNCTIONAL_CASE_READ_ADD,
-    }, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
     public void editFunctionalCaseBatch(@Validated @RequestBody FunctionalCaseMinderEditRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseMinderService.editFunctionalCaseBatch(request, userId);

@@ -163,8 +163,7 @@ public class FunctionalCaseMinderService {
     private List<String> getFieldIds(FunctionalCaseMindRequest request) {
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.toString());
         List<TemplateCustomFieldDTO> customFields = defaultTemplateDTO.getCustomFields();
-        List<String> fieldIds = customFields.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
-        return fieldIds;
+        return customFields.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
     }
 
     private List<FunctionalMinderTreeDTO> buildAdditionalData(String moduleId) {
