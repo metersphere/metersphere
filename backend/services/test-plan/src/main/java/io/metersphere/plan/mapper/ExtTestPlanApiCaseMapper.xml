@@ -420,7 +420,8 @@
             t.execute_user,
             t.last_exec_time,
             t.last_exec_report_id,
-            atc.status
+            atc.status,
+            atc.id as apiTestCaseId
         FROM
             api_test_case atc
                 INNER JOIN api_definition a ON atc.api_definition_id = a.id

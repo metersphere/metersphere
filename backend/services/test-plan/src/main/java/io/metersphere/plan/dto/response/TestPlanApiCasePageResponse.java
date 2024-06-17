@@ -74,4 +74,7 @@ public class TestPlanApiCasePageResponse implements Serializable {
 
     @Schema(description = "协议")
     private String protocol;
+
+    @Schema(description = "接口用例id")
+    private String apiTestCaseId;
 }
