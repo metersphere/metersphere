@@ -155,6 +155,10 @@ public class TestPlanApiCaseBatchRunService {
 
     public void executeNextCollection(String collectionQueueId) {
         ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
+        if (collectionQueue == null) {
+            // 失败停止后，队列被删除
+            return;
+        }
         String userId = collectionQueue.getUserId();
         String queueId = collectionQueue.getQueueId();
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queueId);
@@ -169,6 +173,10 @@ public class TestPlanApiCaseBatchRunService {
         } else {
             serialExecute(ids, runModeConfig, queueId, userId);
         }
+    }
+
+    public void stopCollectionOnFailure(String collectionQueueId) {
+        apiExecutionQueueService.deleteQueue(collectionQueueId);
     }
 
     private Map<String, List<String>> getCollectionMap(List<TestPlanApiCase> testPlanApiCases) {

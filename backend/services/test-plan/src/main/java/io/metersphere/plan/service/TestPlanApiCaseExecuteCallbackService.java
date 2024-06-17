@@ -54,4 +54,13 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
     public void executeNextCollection(String parentQueueId) {
         testPlanApiCaseBatchRunService.executeNextCollection(parentQueueId);
     }
+
+    /**
+     * 失败停止时，删除测试集合队列
+     * @param parentQueueId
+     */
+    @Override
+    public void stopCollectionOnFailure(String parentQueueId) {
+        testPlanApiCaseBatchRunService.stopCollectionOnFailure(parentQueueId);
+    }
 }

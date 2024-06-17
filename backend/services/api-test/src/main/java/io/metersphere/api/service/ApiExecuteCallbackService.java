@@ -27,5 +27,11 @@ public interface ApiExecuteCallbackService {
      * 测试集下用例执行完成时回调
      * @param collectionQueueId
      */
-    default void executeNextCollection(String collectionQueueId) {};
+    default void executeNextCollection(String collectionQueueId) {}
+
+    /**
+     * 失败停止时，处理 parentQueue
+     * @param parentQueueId
+     */
+    default void stopCollectionOnFailure(String parentQueueId) {}
 }

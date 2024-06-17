@@ -39,6 +39,10 @@ public class ApiExecuteCallbackServiceInvoker {
         getCallbackService(getApiExecuteResourceType(resourceType)).executeNextCollection(collectionQueueId);
     }
 
+    public static void stopCollectionOnFailure(String resourceType, String collectionQueueId) {
+        getCallbackService(getApiExecuteResourceType(resourceType)).stopCollectionOnFailure(collectionQueueId);
+    }
+
     public static ApiExecuteResourceType getApiExecuteResourceType(String resourceType) {
         return EnumValidator.validateEnum(ApiExecuteResourceType.class, resourceType);
     }
