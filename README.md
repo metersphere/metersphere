@@ -18,7 +18,7 @@ MeterSphere 是新一代的测试管理和接口测试工具，让测试工作�
 ## 快速开始
 
 ```
-docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/metersphere/data metersphere/metersphere-ce-allinone
+docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/metersphere/data cr2.fit2cloud.com/metersphere/metersphere-ce-allinone
 
 # 用户名: admin
 # 密码: metersphere
