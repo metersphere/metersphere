@@ -80,14 +80,6 @@
       :report-detail="getApiScenarioReport"
       :get-report-step-detail="getApiScenarioReportStep"
     />
-    <!-- 批量修改执行人 -->
-    <BatchUpdateExecutorModal
-      v-model:visible="batchUpdateExecutorModalVisible"
-      :count="batchParams.currentSelectCount || tableSelected.length"
-      :params="batchUpdateParams"
-      :batch-update-executor="batchUpdateApiScenarioExecutor"
-      @load-list="resetSelectorAndCaseList"
-    />
     <!-- 批量移动 -->
     <BatchApiMoveModal
       v-model:visible="batchMoveModalVisible"
@@ -120,13 +112,11 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
-  import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
 
   import {
     batchDisassociateApiScenario,
     batchMoveApiScenario,
     batchRunApiScenario,
-    batchUpdateApiScenarioExecutor,
     disassociateApiScenario,
     getApiScenarioReport,
     getApiScenarioReportStep,
@@ -324,11 +314,6 @@
           label: 'common.execute',
           eventTag: 'execute',
           permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
-        },
-        {
-          label: 'testPlan.featureCase.changeExecutor',
-          eventTag: 'changeExecutor',
-          permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
         },
         ...(props.treeType === 'COLLECTION'
           ? [{ label: 'common.move', eventTag: 'move', permission: ['PROJECT_TEST_PLAN:READ+UPDATE'] }]
@@ -555,9 +540,8 @@
     });
   }
 
-  // 批量修改执行人 和 批量移动
+  // 批量批量移动
   const batchUpdateParams = ref();
-  const batchUpdateExecutorModalVisible = ref(false);
   const batchMoveModalVisible = ref(false);
 
   // 处理表格选中后批量操作
@@ -578,9 +562,6 @@
       case 'disassociate':
         handleBatchDisassociateCase();
         break;
-      case 'changeExecutor':
-        batchUpdateExecutorModalVisible.value = true;
-        break;
       case 'move':
         batchMoveModalVisible.value = true;
         break;
@@ -592,7 +573,7 @@
   // 去接口场景详情页面
   function toDetail(record: PlanDetailApiScenarioItem) {
     openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
-      id: record.id,
+      id: record.apiScenarioId,
     });
   }
 

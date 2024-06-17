@@ -52,11 +52,11 @@
   import useAppStore from '@/store/modules/app';
 
   import { ReviewUserItem } from '@/models/caseManagement/caseReview';
-  import type { BatchUpdateApiCaseExecutorParams, BatchUpdateCaseExecutorParams } from '@/models/testPlan/testPlan';
+  import type { BatchUpdateCaseExecutorParams } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
     count: number;
-    params?: BatchUpdateCaseExecutorParams | BatchUpdateApiCaseExecutorParams;
+    params?: BatchUpdateCaseExecutorParams;
     batchUpdateExecutor: (...args: any) => Promise<any>; // 更新执行人接口
   }>();
 
