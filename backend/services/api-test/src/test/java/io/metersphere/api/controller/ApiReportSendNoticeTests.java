@@ -6,6 +6,7 @@ import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.ApiReportSendNoticeService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
@@ -123,6 +124,12 @@ public class ApiReportSendNoticeTests extends BaseTest {
         noticeDTO.setReportId("send-api-case-report-id2");
         apiReportSendNoticeService.sendNotice(noticeDTO);
 
+        noticeDTO.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
+        apiReportSendNoticeService.sendNotice(noticeDTO);
+
+        noticeDTO.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+        apiReportSendNoticeService.sendNotice(noticeDTO);
+
 
         ApiScenario apiScenario = new ApiScenario();
         apiScenario.setId("send-scenario-id");
@@ -189,6 +196,12 @@ public class ApiReportSendNoticeTests extends BaseTest {
         apiReportSendNoticeService.sendNotice(noticeDTO);
         noticeDTO.setReportStatus(ReportStatus.FAKE_ERROR.name());
         noticeDTO.setReportId("send-scenario-report-id2");
+        apiReportSendNoticeService.sendNotice(noticeDTO);
+
+        noticeDTO.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
+        apiReportSendNoticeService.sendNotice(noticeDTO);
+
+        noticeDTO.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
         apiReportSendNoticeService.sendNotice(noticeDTO);
     }
 }
