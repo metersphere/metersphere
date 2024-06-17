@@ -95,6 +95,7 @@ export interface ApiScenarioTableItem {
   status: RequestDefinitionStatus;
   customFields: ApiDefinitionCustomField[];
   scheduleConfig?: ApiScenarioScheduleConfig;
+  lastReportId?: string;
 }
 
 // 场景列表查询参数
