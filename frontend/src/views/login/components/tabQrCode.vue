@@ -1,5 +1,5 @@
 <template>
-  <a-radio-group v-model:active-key="activeName" type="button" class="tabPlatform" @change="handleClick">
+  <a-radio-group v-if="activeName != ''" v-model="activeName" type="button" class="tabPlatform" @change="handleClick">
     <a-radio
       v-for="item of orgOptions"
       :key="item.value"
@@ -62,20 +62,22 @@
   const props = defineProps<{
     tabName: string;
   }>();
-  const initActive = () => {
-    for (let i = 0; i < orgOptions.value.length; i++) {
-      const key = orgOptions.value[i].value;
-      if (props.tabName === key) {
-        activeName.value = key;
-        break;
-      }
-    }
-  };
   function handleClick(val: string | number | boolean) {
     if (typeof val === 'string') {
       activeName.value = val;
     }
   }
+  const initActive = () => {
+    for (let i = 0; i < orgOptions.value.length; i++) {
+      const key = orgOptions.value[i].value;
+      if (props.tabName === key) {
+        nextTick(() => {
+          handleClick(key);
+        });
+        break;
+      }
+    }
+  };
   async function initPlatformInfo() {
     try {
       const res = await getPlatformParamUrl();
@@ -83,6 +85,7 @@
         label: e.name,
         value: e.id,
       }));
+      initActive();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -90,7 +93,6 @@
   }
   onMounted(() => {
     initPlatformInfo();
-    initActive();
   });
 </script>
 
