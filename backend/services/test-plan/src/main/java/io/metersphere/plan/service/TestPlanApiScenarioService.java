@@ -121,7 +121,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public long getNextOrder(String collectionId) {
         Long maxPos = extTestPlanApiScenarioMapper.getMaxPosByRangeId(collectionId);
         if (maxPos == null) {
-            return 0;
+            return DEFAULT_NODE_INTERVAL_POS;
         } else {
             return maxPos + DEFAULT_NODE_INTERVAL_POS;
         }

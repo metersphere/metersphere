@@ -127,7 +127,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     public long getNextOrder(String collectionId) {
         Long maxPos = extTestPlanApiCaseMapper.getMaxPosByCollectionId(collectionId);
         if (maxPos == null) {
-            return 0;
+            return DEFAULT_NODE_INTERVAL_POS;
         } else {
             return maxPos + DEFAULT_NODE_INTERVAL_POS;
         }
