@@ -475,8 +475,15 @@ public class TestPlanReportService {
         CaseCount summaryCount = JSON.parseObject(new String(reportSummary.getExecuteResult()), CaseCount.class);
         planReport.setExecuteRate(RateCalculateUtils.divWithPrecision(((int) caseTotal - summaryCount.getPending()), (int) caseTotal, 2));
         planReport.setPassRate(RateCalculateUtils.divWithPrecision(summaryCount.getSuccess(), (int) caseTotal, 2));
-        // 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
-        planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+		if (planReport.getIntegrated()) {
+			// 计划组的(执行)结果状态: 子计划全部成功 ? 成功 : 失败
+			TestPlanReportExample reportExample = new TestPlanReportExample();
+			reportExample.createCriteria().andParentIdEqualTo(postParam.getReportId()).andIntegratedEqualTo(false).andResultStatusNotEqualTo(ReportStatus.SUCCESS.name());
+			planReport.setResultStatus(testPlanReportMapper.countByExample(reportExample) == 0 ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+		} else {
+			// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
+			planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+		}
 
         testPlanReportMapper.updateByPrimaryKeySelective(planReport);
     }
