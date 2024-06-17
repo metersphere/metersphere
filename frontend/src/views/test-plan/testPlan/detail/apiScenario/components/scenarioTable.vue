@@ -33,15 +33,14 @@
       <template #caseLevel="{ record }">
         <CaseLevel :case-level="record.priority" />
       </template>
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-        <ExecuteResult :execute-result="filterContent.key" />
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #lastExecResult="{ record }">
-        <ExecuteResult
-          :execute-result="record.lastExecResult"
-          :class="[
-            !record.lastExecReportId || record.lastExecResult === LastExecuteResults.PENDING ? '' : 'cursor-pointer',
-          ]"
+        <ExecutionStatus
+          :module-type="ReportEnum.API_REPORT"
+          :status="record.lastExecResult"
+          :class="[!record.lastExecReportId ? '' : 'cursor-pointer']"
           @click="showReport(record)"
         />
       </template>
@@ -108,9 +107,9 @@
   } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
 
   import {
@@ -134,13 +133,13 @@
 
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type { PlanDetailApiScenarioItem, PlanDetailApiScenarioQueryParams } from '@/models/testPlan/testPlan';
-  import { LastExecuteResults } from '@/enums/caseEnum';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  import { casePriorityOptions } from '@/views/api-test/components/config';
-  import { executionResultMap, getModules } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
+  import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
@@ -184,7 +183,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 150,
       showTooltip: true,
       columnSelectorDisabled: true,
     },
@@ -198,6 +197,13 @@
       width: 150,
       showTooltip: true,
       columnSelectorDisabled: true,
+    },
+    {
+      title: 'ms.minders.testSet',
+      dataIndex: 'testPlanCollectionName',
+      width: 150,
+      showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'case.caseLevel',
@@ -215,10 +221,8 @@
       dataIndex: 'lastExecResult',
       slotName: 'lastExecResult',
       filterConfig: {
-        valueKey: 'key',
-        labelKey: 'statusText',
-        options: Object.values(executionResultMap),
-        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+        options: lastReportStatusListOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
       width: 150,
       showDrag: true,
@@ -229,6 +233,7 @@
       slotName: 'status',
       width: 150,
       showDrag: true,
+      showInTable: false,
     },
     {
       title: 'common.belongModule',
@@ -236,7 +241,6 @@
       showTooltip: true,
       width: 200,
       showDrag: true,
-      showInTable: false,
     },
     {
       title: 'common.belongProject',
@@ -244,13 +248,14 @@
       showTooltip: true,
       showDrag: true,
       width: 150,
-      showInTable: false,
     },
     {
       title: 'report.detail.api.executeEnv',
       dataIndex: 'environmentName',
       width: 150,
       showDrag: true,
+      showTooltip: true,
+      showInTable: false,
     },
     {
       title: 'case.tableColumnCreateUser',
@@ -258,7 +263,6 @@
       showTooltip: true,
       width: 130,
       showDrag: true,
-      showInTable: false,
     },
     {
       title: 'testPlan.featureCase.executor',
@@ -293,7 +297,6 @@
     (record) => {
       return {
         ...record,
-        lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
         moduleId: getModules(record.moduleId, props.moduleTree),
       };
     }
@@ -409,7 +412,7 @@
   const reportVisible = ref(false);
   const reportId = ref('');
   function showReport(record: PlanDetailApiScenarioItem) {
-    if (!record.lastExecReportId || record.lastExecResult === LastExecuteResults.PENDING) return;
+    if (!record.lastExecReportId) return;
     reportVisible.value = true;
     reportId.value = record.lastExecReportId;
   }

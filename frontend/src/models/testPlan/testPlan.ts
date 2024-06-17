@@ -167,6 +167,7 @@ export interface PlanDetailFeatureCaseItem {
   customFields: customFieldsItem[]; // 自定义字段集合
   caseId: string;
   testPlanId: string;
+  testPlanCollectionName: string; // 测试集名称
   bugList: {
     bugId: string;
     id: string;
@@ -300,6 +301,8 @@ export interface PlanDetailApiCaseItem {
   environmentId: string;
   environmentName: string;
   testPlanCollectionId: string; // 测试集id
+  testPlanCollectionName: string; // 测试集名称
+  apiTestCaseId: string; // 接口用例id
 }
 
 export interface BatchApiCaseParams extends BatchActionQueryParams {
@@ -345,6 +348,7 @@ export interface PlanDetailApiScenarioItem {
   executeUserName: string;
   lastExecReportId: string; // 报告id
   testPlanCollectionId: string; // 测试集id
+  testPlanCollectionName: string; // 测试集名称
   apiScenarioId: string; // 场景id
 }
 

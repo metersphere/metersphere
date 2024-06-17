@@ -104,7 +104,11 @@
               <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]" />
             </a-tooltip>
           </div>
-          <a-form-item field="passThreshold" :label="t('testPlan.planForm.passThreshold')">
+          <a-form-item
+            field="passThreshold"
+            :label="t('testPlan.planForm.passThreshold')"
+            :rules="[{ required: true, message: t('testPlan.planForm.passThresholdRequired') }]"
+          >
             <a-input-number
               v-model:model-value="form.passThreshold"
               size="small"

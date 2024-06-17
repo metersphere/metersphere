@@ -243,6 +243,13 @@
       columnSelectorDisabled: true,
     },
     {
+      title: 'ms.minders.testSet',
+      dataIndex: 'testPlanCollectionName',
+      width: 150,
+      showTooltip: true,
+      showDrag: true,
+    },
+    {
       title: 'case.caseLevel',
       dataIndex: 'caseLevel',
       slotName: 'caseLevel',

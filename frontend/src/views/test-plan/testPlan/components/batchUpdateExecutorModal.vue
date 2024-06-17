@@ -4,11 +4,7 @@
     title-align="start"
     body-class="p-0"
     :cancel-button-props="{ disabled: batchLoading }"
-    :ok-loading="batchLoading"
-    :ok-button-props="{ disabled: batchUpdateExecutorDisabled }"
-    :ok-text="t('common.update')"
-    @before-ok="handleBatchUpdateExecutor"
-    @close="resetBatchForm"
+    @close="handleCancel"
   >
     <template #title>
       {{ t('testPlan.featureCase.batchChangeExecutor') }}
@@ -39,6 +35,18 @@
         />
       </a-form-item>
     </a-form>
+    <template #footer>
+      <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+      <a-button
+        class="ml-[12px]"
+        :disabled="batchUpdateExecutorDisabled"
+        type="primary"
+        :loading="batchLoading"
+        @click="handleBatchUpdateExecutor"
+      >
+        {{ t('common.update') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 
@@ -90,7 +98,12 @@
     }
   }
 
-  async function handleBatchUpdateExecutor(done: (closed: boolean) => void) {
+  function handleCancel() {
+    visible.value = false;
+    batchUpdateExecutorForm.value = { userId: '' };
+  }
+
+  async function handleBatchUpdateExecutor() {
     batchUpdateExecutorFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
@@ -99,23 +112,17 @@
             ...props.params,
             ...batchUpdateExecutorForm.value,
           });
+          handleCancel();
           Message.success(t('common.updateSuccess'));
           emit('loadList');
-          done(true);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
-          done(false);
         } finally {
           batchLoading.value = false;
-          done(false);
         }
       }
     });
-  }
-
-  function resetBatchForm() {
-    batchUpdateExecutorForm.value = { userId: '' };
   }
 
   onBeforeMount(() => {

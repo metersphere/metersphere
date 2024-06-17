@@ -2,6 +2,8 @@ import { cloneDeep } from 'lodash-es';
 
 import { EQUAL } from '@/components/pure/ms-advance-filter';
 
+import { useI18n } from '@/hooks/useI18n';
+
 import {
   EnableKeyValueParam,
   ExecuteBody,
@@ -29,8 +31,11 @@ import {
   ResponseBodyXPathAssertionFormat,
   ResponseComposition,
 } from '@/enums/apiEnum';
+import { ReportStatus } from '@/enums/reportEnum';
 
 import type { ExpressionConfig } from './fastExtraction/moreSetting.vue';
+
+const { t } = useI18n();
 
 // 请求 body 参数表格默认行的值
 export const defaultBodyParamsItem: ExecuteRequestFormBodyFormValue = {
@@ -413,3 +418,13 @@ export const matchRuleOptions = [
 ];
 // mock 参数为文件类型的匹配规则选项
 export const mockFileMatchRules = ['EQUALS', 'NOT_EQUALS', 'IS_EMPTY', 'IS_NOT_EMPTY'];
+
+// 执行结果筛选下拉
+export const lastReportStatusListOptions = computed(() => {
+  return Object.keys(ReportStatus).map((key) => {
+    return {
+      value: key,
+      label: t(ReportStatus[key].label),
+    };
+  });
+});
