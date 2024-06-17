@@ -24,6 +24,9 @@
       @filter-change="getModuleCount"
       @module-change="loadCaseList(false)"
     >
+      <template #num="{ record }">
+        <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
+      </template>
       <template #protocol="{ record }">
         <ApiMethodName :method="record.protocol" />
       </template>
@@ -33,15 +36,14 @@
       <template #caseLevel="{ record }">
         <CaseLevel :case-level="record.priority" />
       </template>
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-        <ExecuteResult :execute-result="filterContent.key" />
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
       <template #lastExecResult="{ record }">
-        <ExecuteResult
-          :execute-result="record.lastExecResult"
-          :class="[
-            !record.lastExecReportId || record.lastExecResult === LastExecuteResults.PENDING ? '' : 'cursor-pointer',
-          ]"
+        <ExecutionStatus
+          :module-type="ReportEnum.API_REPORT"
+          :status="record.lastExecResult"
+          :class="[!record.lastExecReportId ? '' : 'cursor-pointer']"
           @click="showReport(record)"
         />
       </template>
@@ -107,10 +109,10 @@
   } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import ApiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
 
   import {
@@ -126,6 +128,7 @@
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
@@ -133,12 +136,13 @@
 
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type { PlanDetailApiCaseItem, PlanDetailApiCaseQueryParams } from '@/models/testPlan/testPlan';
-  import { LastExecuteResults } from '@/enums/caseEnum';
+  import { ReportEnum } from '@/enums/reportEnum';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  import { casePriorityOptions } from '@/views/api-test/components/config';
-  import { executionResultMap, getModules } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
+  import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
@@ -162,6 +166,7 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const { openModal } = useModal();
+  const { openNewPage } = useOpenNewPage();
 
   const keyword = ref('');
   const moduleNamePath = computed(() => {
@@ -175,13 +180,14 @@
     {
       title: 'ID',
       dataIndex: 'num',
+      slotName: 'num',
       sortIndex: 1,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 150,
       showTooltip: true,
       columnSelectorDisabled: true,
     },
@@ -204,6 +210,13 @@
       showDrag: true,
     },
     {
+      title: 'ms.minders.testSet',
+      dataIndex: 'testPlanCollectionName',
+      width: 150,
+      showTooltip: true,
+      showDrag: true,
+    },
+    {
       title: 'case.caseLevel',
       dataIndex: 'priority',
       slotName: 'caseLevel',
@@ -219,10 +232,8 @@
       dataIndex: 'lastExecResult',
       slotName: 'lastExecResult',
       filterConfig: {
-        valueKey: 'key',
-        labelKey: 'statusText',
-        options: Object.values(executionResultMap),
-        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+        options: lastReportStatusListOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
       width: 150,
       showDrag: true,
@@ -261,6 +272,7 @@
       title: 'report.detail.api.executeEnv',
       dataIndex: 'environmentName',
       width: 150,
+      showTooltip: true,
       showInTable: false,
       showDrag: true,
     },
@@ -304,7 +316,6 @@
     (record) => {
       return {
         ...record,
-        lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
         moduleId: getModules(record.moduleId, props.moduleTree),
       };
     }
@@ -418,7 +429,7 @@
   const reportVisible = ref(false);
   const reportId = ref('');
   function showReport(record: PlanDetailApiCaseItem) {
-    if (!record.lastExecReportId || record.lastExecResult === LastExecuteResults.PENDING) return;
+    if (!record.lastExecReportId) return;
     reportVisible.value = true;
     reportId.value = record.lastExecReportId;
   }
@@ -577,6 +588,13 @@
       default:
         break;
     }
+  }
+
+  // 去接口用例详情页面
+  function toDetail(record: PlanDetailApiCaseItem) {
+    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+      cId: record.apiTestCaseId,
+    });
   }
 
   defineExpose({
