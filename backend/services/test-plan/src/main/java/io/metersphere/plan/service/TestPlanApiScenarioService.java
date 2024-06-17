@@ -302,6 +302,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         taskInfo.setRunModeConfig(runModeConfig);
         taskInfo.setSaveResult(true);
         taskInfo.setRealTime(true);
+        taskInfo.setUserId(userId);
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
