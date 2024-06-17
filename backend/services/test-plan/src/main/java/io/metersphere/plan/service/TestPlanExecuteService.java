@@ -7,11 +7,7 @@ import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
 import io.metersphere.plan.mapper.*;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.TaskTriggerMode;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
@@ -221,6 +217,10 @@ public class TestPlanExecuteService {
         genReportRequest.setTestPlanId(executionQueue.getSourceID());
         genReportRequest.setProjectId(testPlan.getProjectId());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+
+            testPlanService.setActualStartTime(executionQueue.getSourceID());
+            testPlanService.setTestPlanUnderway(executionQueue.getSourceID());
+
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
@@ -279,7 +279,8 @@ public class TestPlanExecuteService {
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
     public void executeTestPlan(TestPlanExecutionQueue executionQueue) {
-        extTestPlanMapper.setActualStartTime(executionQueue.getSourceID(), System.currentTimeMillis());
+        testPlanService.setActualStartTime(executionQueue.getSourceID());
+        testPlanService.setTestPlanUnderway(executionQueue.getSourceID());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(executionQueue.getSourceID());
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(testPlan.getId()).andParentIdEqualTo("NONE");

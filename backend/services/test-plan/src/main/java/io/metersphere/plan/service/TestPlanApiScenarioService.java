@@ -36,6 +36,7 @@ import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -292,7 +293,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiScenario testPlanApiScenario = checkResourceExist(id);
-        extTestPlanMapper.setActualStartTime(testPlanApiScenario.getTestPlanId(), System.currentTimeMillis());
+        TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        testPlanService.setTestPlanUnderway(testPlanApiScenario.getTestPlanId());
+        testPlanService.setActualStartTime(testPlanApiScenario.getTestPlanId());
         ApiScenario apiScenario = apiScenarioService.checkResourceExist(testPlanApiScenario.getApiScenarioId());
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiScenario.getTestPlanCollectionId());
         runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiScenario.getEnvironmentId()));
