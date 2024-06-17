@@ -100,10 +100,12 @@
         test_plan_api_scenario.last_exec_result,
         test_plan_api_scenario.execute_user,
         test_plan_api_scenario.last_exec_time,
-        test_plan_api_scenario.last_exec_report_id
+        test_plan_api_scenario.last_exec_report_id,
+        test_plan_collection.name as testPlanCollectionName
         FROM
         test_plan_api_scenario
         inner join api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
+        inner join test_plan_collection on test_plan_collection.id = test_plan_api_scenario.test_plan_collection_id
         WHERE api_scenario.deleted =#{deleted}
         and test_plan_api_scenario.test_plan_id = #{request.testPlanId}
         <include refid="queryApiScenarioWhereCondition"/>

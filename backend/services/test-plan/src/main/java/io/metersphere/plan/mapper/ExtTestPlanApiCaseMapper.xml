@@ -421,11 +421,13 @@
             t.last_exec_time,
             t.last_exec_report_id,
             atc.status,
-            atc.id as apiTestCaseId
+            atc.id as apiTestCaseId,
+        test_plan_collection.name as testPlanCollectionName
         FROM
             api_test_case atc
                 INNER JOIN api_definition a ON atc.api_definition_id = a.id
         inner join test_plan_api_case t on atc.id = t.api_case_id
+        inner join test_plan_collection on test_plan_collection.id = t.test_plan_collection_id
         WHERE atc.deleted =#{deleted}
         and t.test_plan_id = #{request.testPlanId}
      <include refid="queryApiCaseWhereCondition"/>

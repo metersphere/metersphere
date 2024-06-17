@@ -94,4 +94,10 @@ public class TestPlanCasePageResponse implements Serializable {
 
     @Schema(description = "测试计划id")
     private String testPlanId;
+
+    @Schema(description = "测试集id")
+    private String testPlanCollectionId;
+
+    @Schema(description = "测试集名称")
+    private String testPlanCollectionName;
 }
