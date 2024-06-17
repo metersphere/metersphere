@@ -114,7 +114,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
         noticeDTO.setResourceType("API_CASE");
         noticeDTO.setUserId("admin");
         noticeDTO.setProjectId(DEFAULT_PROJECT_ID);
-        noticeDTO.setEnvironmentId("api-environment-id");
+        noticeDTO.getRunModeConfig().setEnvironmentId("api-environment-id");
 
         apiReportSendNoticeService.sendNotice(noticeDTO);
         noticeDTO.setReportStatus(ReportStatus.ERROR.name());
@@ -188,7 +188,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
         noticeDTO.setResourceType("API_SCENARIO");
         noticeDTO.setUserId("admin");
         noticeDTO.setProjectId(DEFAULT_PROJECT_ID);
-        noticeDTO.setEnvironmentId("api-environment-id");
+        noticeDTO.getRunModeConfig().setEnvironmentId("api-environment-id");
 
         apiReportSendNoticeService.sendNotice(noticeDTO);
         noticeDTO.setReportStatus(ReportStatus.ERROR.name());

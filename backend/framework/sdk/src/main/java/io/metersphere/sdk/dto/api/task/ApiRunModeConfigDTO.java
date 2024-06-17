@@ -36,6 +36,11 @@ public class ApiRunModeConfigDTO implements Serializable {
     private Boolean stopOnFailure = false;
 
     /**
+     * 测试集之间的运行配置
+     */
+    private ApiRunModeConfigDTO collectionRunConfig;
+
+    /**
      * 资源池，为空则使用默认资源池
      */
     private String poolId;
@@ -62,6 +67,10 @@ public class ApiRunModeConfigDTO implements Serializable {
 
     public Boolean isParallel() {
         return StringUtils.equals(runMode, ApiBatchRunMode.PARALLEL.name());
+    }
+
+    public Boolean isSerial() {
+        return StringUtils.equals(runMode, ApiBatchRunMode.SERIAL.name());
     }
 
     public Boolean isIntegratedReport() {

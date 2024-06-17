@@ -173,6 +173,10 @@ public class TestPlanApiScenarioBatchRunService {
 
     public void executeNextCollection(String collectionQueueId) {
         ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
+        if (collectionQueue == null) {
+            // 失败停止后，队列被删除
+            return;
+        }
         String userId = collectionQueue.getUserId();
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(collectionQueueId);
         String collectionId = nextDetail.getResourceId();
@@ -186,6 +190,10 @@ public class TestPlanApiScenarioBatchRunService {
         } else {
             serialExecute(ids, runModeConfig, collectionQueueId, userId);
         }
+    }
+
+    public void stopCollectionOnFailure(String collectionQueueId) {
+        apiExecutionQueueService.deleteQueue(collectionQueueId);
     }
 
     /**

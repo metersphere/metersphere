@@ -54,4 +54,13 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
     public void executeNextCollection(String collectionQueueId) {
         testPlanApiScenarioBatchRunService.executeNextCollection(collectionQueueId);
     }
+
+    /**
+     * 失败停止时，删除测试集合队列
+     * @param parentQueueId
+     */
+    @Override
+    public void stopCollectionOnFailure(String parentQueueId) {
+        testPlanApiScenarioBatchRunService.stopCollectionOnFailure(parentQueueId);
+    }
 }

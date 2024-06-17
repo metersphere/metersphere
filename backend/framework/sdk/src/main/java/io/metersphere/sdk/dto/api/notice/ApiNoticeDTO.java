@@ -1,5 +1,6 @@
 package io.metersphere.sdk.dto.api.notice;
 
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,10 +34,6 @@ public class ApiNoticeDTO implements java.io.Serializable {
      */
     private String projectId;
     /**
-     * 环境ID
-     */
-    private String environmentId;
-    /**
      * 报告ID
      */
     private String reportId;
@@ -49,13 +46,14 @@ public class ApiNoticeDTO implements java.io.Serializable {
      */
     private String parentQueueId;
     /**
-     * 是否是集成报告
-     */
-    private Boolean integratedReport;
-    /**
      * 是否批量执行结束
      * 这里主要给测试计划使用
      * 当测试集执行完成时标记，触发下个测试集执行
      */
     private Boolean childCollectionExecuteOver;
+
+    /**
+     * 运行配置
+     */
+    private ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
 }

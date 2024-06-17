@@ -30,9 +30,6 @@ public class MessageListener {
     private ApiReportSendNoticeService apiReportSendNoticeService;
 
     @Resource
-    private ApiEventSource apiEventSource;
-
-    @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
     private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
@@ -49,7 +46,7 @@ public class MessageListener {
             if (ObjectUtils.isNotEmpty(record.value())) {
                 ApiNoticeDTO dto = JSON.parseObject(record.value(), ApiNoticeDTO.class);
                 LogUtils.info("接收到发送通知信息：{}", dto.getReportId());
-                if (BooleanUtils.isTrue(dto.getIntegratedReport())) {
+                if (BooleanUtils.isTrue(dto.getRunModeConfig().isIntegratedReport())) {
                     ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, dto.getResourceType());
                     boolean isStop = switch (resourceType) {
                         case API_CASE, TEST_PLAN_API_CASE, PLAN_RUN_API_CASE ->
@@ -71,17 +68,32 @@ public class MessageListener {
                     } catch (Exception e) {
                         LogUtils.error(e);
                     }
-                    if (StringUtils.isNotBlank(dto.getParentQueueId())
-                            && BooleanUtils.isTrue(dto.getChildCollectionExecuteOver())) {
-                        // 执行下一个测试集
-                        ApiExecuteCallbackServiceInvoker.executeNextCollection(dto.getResourceType(), dto.getParentQueueId());
-                    }
                 }
 
-                executeNextTask(dto);
+                if (dto.getRunModeConfig().isSerial()) {
+                    // 执行串行的下一个任务
+                    executeNextTask(dto);
+                }
+
+                // 执行下个测试集
+                executeNextCollection(dto);
             }
         } catch (Exception e) {
             LogUtils.error("接收到发送通知信息：{}", e);
+        }
+    }
+
+    /**
+     * 执行下一个测试集
+     * @param dto
+     */
+    private void executeNextCollection(ApiNoticeDTO dto) {
+        if (StringUtils.isBlank(dto.getParentQueueId())) {
+            return;
+        }
+        if (BooleanUtils.isTrue(dto.getChildCollectionExecuteOver()) || isStopOnFailure(dto)) {
+            // 如果当前测试集执行完了，或者当前测试集失败停止了，执行下一个测试集
+            ApiExecuteCallbackServiceInvoker.executeNextCollection(dto.getResourceType(), dto.getParentQueueId());
         }
     }
 
@@ -96,25 +108,24 @@ public class MessageListener {
      * @param dto
      */
     private void executeNextTask(ApiNoticeDTO dto) {
-        if (StringUtils.isBlank(dto.getQueueId())) {
-            return;
-        }
         try {
             ExecutionQueue queue = apiExecutionQueueService.getQueue(dto.getQueueId());
-            // 串行才执行下个任务
-            if (queue == null || BooleanUtils.isTrue(queue.getRunModeConfig().isParallel())) {
-                return;
+            if (isStopOnFailure(dto)) {
+                ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, queue.getResourceType());
+                // 补充集成报告
+                updateStopOnFailureIntegratedReport(dto, queue, resourceType);
+                // 如果是失败停止，清空队列，不继续执行
+                apiExecutionQueueService.deleteQueue(queue.getQueueId());
+                // 失败停止，删除父队列等
+                ApiExecuteCallbackServiceInvoker.stopCollectionOnFailure(dto.getResourceType(), dto.getParentQueueId());
+            } else if (queue != null) {
+                // queue 不为 null 说明有下个任务
+                ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(dto.getQueueId());
+                if (nextDetail != null) {
+                    // 执行下个任务
+                    ApiExecuteCallbackServiceInvoker.executeNextTask(queue.getResourceType(), queue, nextDetail);
+                }
             }
-            ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, queue.getResourceType());
-
-            if (isStopOnFailure(dto, queue, resourceType)) {
-                // 失败停止，不执行后续任务
-                return;
-            }
-
-            ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(dto.getQueueId());
-
-            ApiExecuteCallbackServiceInvoker.executeNextTask(queue.getResourceType(), queue, nextDetail);
         } catch (Exception e) {
             LogUtils.error("执行任务失败：", e);
         }
@@ -128,18 +139,19 @@ public class MessageListener {
      * @param resourceType
      * @return
      */
-    private boolean isStopOnFailure(ApiNoticeDTO dto, ExecutionQueue queue, ApiExecuteResourceType resourceType) {
-        if (BooleanUtils.isTrue(queue.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ReportStatus.ERROR.name())) {
+    private void updateStopOnFailureIntegratedReport(ApiNoticeDTO dto, ExecutionQueue queue, ApiExecuteResourceType resourceType) {
+        if (dto.getRunModeConfig().isIntegratedReport()) {
+            // 集成报告更新报告状态
             switch (resourceType) {
                 case API_CASE -> apiTestCaseBatchRunService.updateStopOnFailureApiReport(queue);
                 case API_SCENARIO -> apiScenarioBatchRunService.updateStopOnFailureReport(queue);
                 default -> {
                 }
             }
-            // 如果是失败停止，清空队列，不继续执行
-            apiExecutionQueueService.deleteQueue(queue.getQueueId());
-            return true;
         }
-        return false;
+    }
+
+    private boolean isStopOnFailure(ApiNoticeDTO dto) {
+        return BooleanUtils.isTrue(dto.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ReportStatus.ERROR.name());
     }
 }

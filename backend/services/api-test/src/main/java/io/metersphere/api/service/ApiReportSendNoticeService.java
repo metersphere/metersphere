@@ -166,8 +166,9 @@ public class ApiReportSendNoticeService {
         // TODO 这里状态是否是国际化  还有分享链接需要补充
 
         // TODO 暂时取一个环境处理
-        if (StringUtils.isNotEmpty(noticeDTO.getEnvironmentId())) {
-            Environment environment = environmentMapper.selectByPrimaryKey(noticeDTO.getEnvironmentId());
+        String environmentId = noticeDTO.getRunModeConfig().getEnvironmentId();
+        if (StringUtils.isNotEmpty(environmentId)) {
+            Environment environment = environmentMapper.selectByPrimaryKey(environmentId);
             if (environment != null) {
                 paramMap.put("environment", environment.getName());
             }
