@@ -60,7 +60,7 @@
 
   const orgOptions = ref<qrOption[]>([]);
   const props = defineProps<{
-    tabName: string;
+    tabName: string | number | boolean | Record<string, unknown> | undefined;
   }>();
   function handleClick(val: string | number | boolean) {
     if (typeof val === 'string') {
