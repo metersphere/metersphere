@@ -136,6 +136,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import { FormInstance, Message, SelectOptionData, TreeNodeData, ValidatedError } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -155,6 +156,7 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import type { AddTestPlanParams, SwitchListModel } from '@/models/testPlan/testPlan';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import { DisabledTimeProps } from '@arco-design/web-vue/es/date-picker/interface';
@@ -175,6 +177,7 @@
 
   const { t } = useI18n();
   const appStore = useAppStore();
+  const router = useRouter();
 
   const drawerLoading = ref(false);
   const formRef = ref<FormInstance>();
@@ -270,10 +273,21 @@
     emit('close');
   }
 
+  function toDetail(id: string) {
+    router.push({
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+      query: {
+        id,
+        isNew: 'true',
+      },
+    });
+  }
+
   function handleDrawerConfirm(isContinue: boolean) {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
         drawerLoading.value = true;
+        let res = null;
         try {
           const params: AddTestPlanParams = {
             ...cloneDeep(form.value),
@@ -285,7 +299,7 @@
             delete params.groupId;
           }
           if (!props.planId?.length) {
-            await addTestPlan(params);
+            res = await addTestPlan(params);
             Message.success(t('common.createSuccess'));
           } else {
             await updateTestPlan(params);
@@ -299,9 +313,14 @@
           drawerLoading.value = false;
         }
         if (!isContinue) {
+          if (!props.planId?.length) {
+            // 跳转到测试计划详情
+            toDetail(res.id);
+          }
           handleCancel();
+        } else {
+          form.value = { ...cloneDeep(initForm), moduleId: form.value.moduleId };
         }
-        form.value = { ...cloneDeep(initForm), moduleId: form.value.moduleId };
       }
     });
   }

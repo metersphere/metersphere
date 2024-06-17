@@ -305,32 +305,58 @@
   }
 
   const activeTab = ref('plan');
-  const tabList = ref([
-    {
-      value: 'plan',
-      label: t('testPlan.plan'),
-    },
-    {
-      value: 'featureCase',
-      label: t('menu.caseManagement.featureCase'),
-    },
-    {
-      value: 'apiCase',
-      label: t('testPlan.testPlanIndex.apiCase'),
-    },
-    {
-      value: 'apiScenario',
-      label: t('caseManagement.featureCase.sceneCase'),
-    },
-    {
-      value: 'defectList',
-      label: t('caseManagement.featureCase.defectList'),
-    },
-    {
-      value: 'executeHistory',
-      label: t('testPlan.featureCase.executionHistory'),
-    },
-  ]);
+  const showBugAndExecTab = ref(route.query.isNew !== 'true'); // [缺陷列表/执行历史]tab显隐
+  watch(
+    () => detail.value,
+    () => {
+      const { functionalCaseCount, apiCaseCount, apiScenarioCount } = detail.value || {};
+      // 新建后,[缺陷列表/执行历史]不显示,一旦关联用例了,tab就显示
+      if (functionalCaseCount || apiCaseCount || apiScenarioCount) {
+        showBugAndExecTab.value = true;
+      }
+      if (
+        (!functionalCaseCount && activeTab.value === 'featureCase') ||
+        (!apiCaseCount && activeTab.value === 'apiCase') ||
+        (!apiScenarioCount && activeTab.value === 'apiScenario')
+      ) {
+        activeTab.value = 'plan';
+      }
+    }
+  );
+  const tabList = computed(() => {
+    return [
+      {
+        value: 'plan',
+        label: t('testPlan.plan'), // 测试规划
+        show: true,
+      },
+      {
+        value: 'featureCase',
+        label: t('menu.caseManagement.featureCase'), // 功能用例
+        show: detail.value.functionalCaseCount,
+      },
+      {
+        value: 'apiCase',
+        label: t('testPlan.testPlanIndex.apiCase'),
+        show: detail.value?.apiCaseCount,
+      },
+      {
+        value: 'apiScenario',
+        label: t('caseManagement.featureCase.sceneCase'),
+        show: detail.value?.apiScenarioCount,
+      },
+      {
+        value: 'defectList',
+        label: t('caseManagement.featureCase.defectList'), // 缺陷列表
+        show: showBugAndExecTab.value,
+      },
+      {
+        value: 'executeHistory',
+        label: t('testPlan.featureCase.executionHistory'), // 执行历史
+        show: showBugAndExecTab.value,
+      },
+    ].filter((tab) => tab.show); // 过滤掉不显示的 tab
+  });
   function getTabBadge(tabKey: string) {
     switch (tabKey) {
       case 'featureCase':
