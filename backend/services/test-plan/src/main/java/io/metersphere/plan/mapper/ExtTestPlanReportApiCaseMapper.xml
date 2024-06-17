@@ -21,6 +21,7 @@
 
     <select id="getGroupExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiCase">
         select  tpac.id as testPlanApiCaseId, atc.id as apiCaseId, atc.num as apiCaseNum, atc.name as apiCaseName, atc.priority as apiCasePriority,
+                tpac.test_plan_collection_id testPlanCollectionId, tpac.environment_id as environmentId,
                 if(ad.module_id = 'root','未规划用例', ad.module_id) as apiCaseModule, tpac.execute_user as apiCaseExecuteUser,
                 ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult, tpac.last_exec_report_id apiCaseExecuteReportId, tpac.pos pos
         from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
