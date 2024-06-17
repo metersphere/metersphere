@@ -74,7 +74,7 @@
         </div>
       </a-form>
       <div v-if="showQrCodeTab">
-        <tab-qr-code tab-name="WE_COM"></tab-qr-code>
+        <tab-qr-code :tab-name="orgOptions[0].value"></tab-qr-code>
       </div>
       <a-divider
         v-if="isShowLDAP || isShowOIDC || isShowOAUTH || (isShowQRCode && orgOptions.length > 0)"
