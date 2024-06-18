@@ -430,7 +430,7 @@ public class SimpleUserService {
         //校验邮箱和角色的合法性
         Map<String, String> errorMap = this.validateUserInfo(request.getInviteEmails());
         if (MapUtils.isNotEmpty(errorMap)) {
-            throw new MSException(Translator.get("user.email.repeat"));
+            throw new MSException(Translator.get("user.email.repeat") + " : " + StringUtils.join(errorMap.keySet(), ", "));
         }
         List<UserInvite> inviteList = userInviteService.batchInsert(request.getInviteEmails(), inviteUser.getId(), request.getUserRoleIds());
         //记录日志
