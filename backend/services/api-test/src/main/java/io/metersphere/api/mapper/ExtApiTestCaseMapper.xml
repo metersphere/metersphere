@@ -403,6 +403,18 @@
             </foreach>
         </if>
     </select>
+    <select id="getCaseByResourceId" resultType="io.metersphere.api.domain.ApiTestCase">
+        select api_test_case.*
+        from api_test_case
+        inner join test_plan_api_case on api_test_case.id = test_plan_api_case.api_case_id
+        where test_plan_api_case.id = #{resourceId}
+    </select>
+    <select id="getCaseByReportId" resultType="io.metersphere.api.domain.ApiTestCase">
+        select atc.*
+        from api_test_case atc
+        inner join test_plan_report_api_case tprac on atc.id = tprac.api_case_id
+        where tprac.id = #{reportId}
+    </select>
 
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">

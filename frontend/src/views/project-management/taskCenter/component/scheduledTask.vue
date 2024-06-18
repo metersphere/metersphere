@@ -221,7 +221,7 @@
         edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
         jump: ['PROJECT_API_SCENARIO:READ'],
       },
-      TEST_CASE: {
+      TEST_PLAN: {
         edit: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
         jump: ['PROJECT_TEST_PLAN:READ'],
       },
@@ -234,7 +234,7 @@
         edit: ['SYSTEM_TASK_CENTER:READ+STOP', 'PROJECT_API_SCENARIO:READ+EXECUTE'],
         jump: ['PROJECT_API_SCENARIO:READ'],
       },
-      TEST_CASE: {
+      TEST_PLAN: {
         edit: ['SYSTEM_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
         jump: ['PROJECT_TEST_PLAN:READ'],
       },
@@ -247,7 +247,7 @@
         edit: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
         jump: ['PROJECT_API_SCENARIO:READ'],
       },
-      TEST_CASE: {
+      TEST_PLAN: {
         edit: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
         jump: ['PROJECT_TEST_PLAN:READ'],
       },

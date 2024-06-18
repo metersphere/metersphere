@@ -609,6 +609,16 @@
         )
         <include refid="queryByAssociateParam"/>
     </select>
+    <select id="getScenarioByResourceId" resultType="io.metersphere.api.domain.ApiScenario">
+        select api_scenario.* from api_scenario
+        inner join test_plan_api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
+        where test_plan_api_scenario.id = #{id}
+    </select>
+    <select id="getScenarioByReportId" resultType="io.metersphere.api.domain.ApiScenario">
+        select api_scenario.* from api_scenario
+        inner join test_plan_report_api_scenario tpras on api_scenario.id = tpras.api_scenario_id
+        where tpras.id = #{reportId}
+    </select>
 
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">

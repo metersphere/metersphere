@@ -97,4 +97,8 @@ public interface ExtApiTestCaseMapper {
     List<String> getSelectIdsByAssociateParam(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
     List<ExecuteReportDTO> getTestPlanNum(@Param("ids") List<String> ids);
+
+    ApiTestCase getCaseByResourceId(String resourceId);
+
+    ApiTestCase getCaseByReportId(String resourceId);
 }
