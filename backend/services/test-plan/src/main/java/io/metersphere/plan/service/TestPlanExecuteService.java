@@ -21,6 +21,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -293,6 +294,7 @@ public class TestPlanExecuteService {
     }
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void executeTestPlan(TestPlanExecutionQueue executionQueue) {
         boolean testPlanStopped = testPlanExecuteSupportService.checkTestPlanStopped(executionQueue.getPrepareReportId());
         if (testPlanStopped) {
