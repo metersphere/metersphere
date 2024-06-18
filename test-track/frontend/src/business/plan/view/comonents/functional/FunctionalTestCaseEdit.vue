@@ -487,6 +487,7 @@ export default {
       resetPlanCaseSystemField(this.testCaseTemplate.customFields, this.testCase);
     },
     openTestCaseEdit(testCase, tableData) {
+      this.reloadOtherInfo();
       checkProjectPermission(testCase.projectId).then((r) => {
         this.hasProjectPermission = r.data;
       });

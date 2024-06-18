@@ -252,6 +252,9 @@ export default {
       }
     }
   },
+  created() {
+    this.comments = [];
+  },
   methods: {
     updateRemark(text) {
       this.form.remark = text;
