@@ -27,6 +27,8 @@ public class TestPlanExecuteSupportService {
     @Resource
     private TestPlanService testPlanService;
     @Resource
+    private TestPlanReportMapper testPlanReportMapper;
+    @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
     private RedisTemplate<String, String> redisTemplate;
@@ -41,8 +43,6 @@ public class TestPlanExecuteSupportService {
     public static final String QUEUE_PREFIX_TEST_PLAN_COLLECTION = "test-plan-collection-execute:";
 
     public static final String LAST_QUEUE_PREFIX = "last-queue:";
-    @Resource
-    private TestPlanReportMapper testPlanReportMapper;
 
 
     public void setRedisForList(String key, List<String> list) {
@@ -80,7 +80,12 @@ public class TestPlanExecuteSupportService {
                 }
             }
         } catch (Exception e) {
-            LogUtils.error("Cannot find test plan report for " + reportId, e);
+            LogUtils.error("测试计划报告汇总失败!reportId:" + reportId, e);
+            TestPlanReport stopReport = testPlanReportService.selectById(reportId);
+            stopReport.setId(reportId);
+            stopReport.setExecStatus(ExecStatus.ERROR.name());
+            stopReport.setEndTime(System.currentTimeMillis());
+            testPlanReportMapper.updateByPrimaryKeySelective(stopReport);
         }
     }
 
