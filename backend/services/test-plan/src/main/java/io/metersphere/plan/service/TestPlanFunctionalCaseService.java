@@ -14,6 +14,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.*;
+import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
@@ -121,6 +122,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
 
     @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
@@ -242,10 +245,14 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
         Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
+        List<String> moduleIds = functionalCaseLists.stream().map(TestPlanCasePageResponse::getModuleId).toList();
+        List<FunctionalCaseModule> modules = extFunctionalCaseModuleMapper.getNameInfoByIds(moduleIds);
+        Map<String, String> moduleNameMap = modules.stream().collect(Collectors.toMap(FunctionalCaseModule::getId, FunctionalCaseModule::getName));
         functionalCaseLists.forEach(testPlanCasePageResponse -> {
             testPlanCasePageResponse.setCustomFields(collect.get(testPlanCasePageResponse.getCaseId()));
             testPlanCasePageResponse.setCreateUserName(userMap.get(testPlanCasePageResponse.getCreateUser()));
             testPlanCasePageResponse.setExecuteUserName(userMap.get(testPlanCasePageResponse.getExecuteUser()));
+            testPlanCasePageResponse.setModuleName(moduleNameMap.get(testPlanCasePageResponse.getModuleId()));
             if (bugListMap.containsKey(testPlanCasePageResponse.getCaseId())) {
                 List<CaseRelateBugDTO> bugDTOList = bugListMap.get(testPlanCasePageResponse.getCaseId());
                 testPlanCasePageResponse.setBugList(handleStatus(bugDTOList, statusMap));

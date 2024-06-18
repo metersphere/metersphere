@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.mapper.ExtApiDefinitionModuleMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
@@ -19,7 +20,6 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
-import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.*;
@@ -116,6 +116,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private ApiReportMapper apiReportMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ExtApiDefinitionModuleMapper extApiDefinitionModuleMapper;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -233,11 +235,20 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             Map<String, String> projectMap = getProject(apiCaseList);
             Map<String, String> userMap = getUserMap(apiCaseList);
-            handleCaseAndEnv(apiCaseList, projectMap, userMap, testPlanId);
+            Map<String, String> moduleNameMap = getModuleName(apiCaseList);
+            handleCaseAndEnv(apiCaseList, projectMap, userMap, testPlanId, moduleNameMap);
         }
     }
 
-    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId) {
+    private Map<String, String> getModuleName(List<TestPlanApiCasePageResponse> apiCaseList) {
+        List<String> moduleIds = apiCaseList.stream().map(TestPlanApiCasePageResponse::getModuleId).toList();
+        List<ApiDefinitionModule> modules = extApiDefinitionModuleMapper.getNameInfoByIds(moduleIds);
+        Map<String, String> moduleNameMap = modules.stream()
+                .collect(Collectors.toMap(ApiDefinitionModule::getId, ApiDefinitionModule::getName));
+        return moduleNameMap;
+    }
+
+    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId, Map<String, String> moduleNameMap) {
         //获取二级节点环境
         List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.API_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
@@ -253,6 +264,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setExecuteUserName(userMap.get(item.getExecuteUser()));
+            item.setModuleName(moduleNameMap.get(item.getModuleId()));
             if (secondEnvMap.containsKey(item.getTestPlanCollectionId())) {
                 TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
                 if (collectEnv.getExtended()) {
