@@ -19,9 +19,9 @@ VALUES
 
 INSERT INTO `api_test_case`(`id`, `name`, `priority`, `num`, `tags`, `status`, `last_report_status`, `last_report_id`, `pos`, `project_id`, `api_definition_id`, `version_id`, `environment_id`, `create_time`, `create_user`, `update_time`, `update_user`, `delete_time`, `delete_user`, `deleted`)
 VALUES
-    ('wxxx_api_case_1', '231', 'P0', 100055001, '[]', 'PROCESSING', 'SUCCESS', '1130899263537153', 64, 'wxx_1234', 'wxxx_api_1', '899658209591296', '899606669983745', 1716199600948, 'admin', 1716199600948, 'admin', NULL, NULL, b'0'),
-    ('wxxx_api_case_2', '232', 'P0', 100055001, '[]', 'PROCESSING', 'SUCCESS', '1130899263537153', 64, 'wxx_1234', 'wxxx_api_1', '899658209591296', '899606669983745', 1716199600948, 'admin', 1716199600948, 'admin', NULL, NULL, b'0'),
-    ('wxxx_api_case_3', '233', 'P0', 100055001, '[]', 'PROCESSING', 'SUCCESS', '1130899263537153', 64, 'wxx_1234', 'wxxx_api_2', '899658209591296', '899606669983745', 1716199600948, 'admin', 1716199600948, 'admin', NULL, NULL, b'0');
+    ('wxxx_api_case_1', '231', 'P0', 100055001, '[]', 'PROCESSING', 'SUCCESS', '1130899263537153', 64, 'wxx_1234', 'wxxx_api_1', '899658209591296', '123', 1716199600948, 'admin', 1716199600948, 'admin', NULL, NULL, b'0'),
+    ('wxxx_api_case_2', '232', 'P0', 100055001, '[]', 'PROCESSING', 'SUCCESS', '1130899263537153', 64, 'wxx_1234', 'wxxx_api_1', '899658209591296', '123', 1716199600948, 'admin', 1716199600948, 'admin', NULL, NULL, b'0'),
+    ('wxxx_api_case_3', '233', 'P0', 100055001, '[]', 'PROCESSING', 'SUCCESS', '1130899263537153', 64, 'wxx_1234', 'wxxx_api_2', '899658209591296', '123', 1716199600948, 'admin', 1716199600948, 'admin', NULL, NULL, b'0');
 
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
 VALUES

@@ -24,12 +24,32 @@
         SELECT
             tpc.id,
             tpc.environment_id,
-            e.`name` as environmentName
+            e.`name` as environmentName,
+            tpc.parent_id,
+            tpc.extended
         FROM
             test_plan_collection tpc
                 LEFT JOIN environment e ON tpc.environment_id = e.id
         WHERE
             tpc.type = #{type}
           and tpc.parent_id <![CDATA[<>]]> #{parentId}
+        and tpc.test_plan_id = #{testPlanId}
+    </select>
+
+
+    <select id="selectFirstCollectionEnv" resultType="io.metersphere.plan.dto.TestPlanCollectionEnvDTO">
+        SELECT
+            tpc.id,
+            tpc.environment_id,
+            e.`name` as environmentName,
+            tpc.parent_id,
+            tpc.extended
+        FROM
+            test_plan_collection tpc
+                LEFT JOIN environment e ON tpc.environment_id = e.id
+        WHERE
+            tpc.type = #{type}
+          and tpc.parent_id = #{parentId}
+          and tpc.test_plan_id = #{testPlanId}
     </select>
 </mapper>
