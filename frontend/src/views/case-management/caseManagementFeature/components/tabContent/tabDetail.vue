@@ -693,11 +693,8 @@
   }
 
   // 处理关联文件
-  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
-    fileList.value.push(...fileResultList);
-    const fileIds = fileResultList.map((item: any) => item.uid);
-    startUpload(fileIds);
+  function saveSelectAssociatedFile(fileData: AssociatedList[], selectIds?: string[]) {
+    startUpload(selectIds || []);
   }
 
   // 更新文件

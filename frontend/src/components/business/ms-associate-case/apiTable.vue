@@ -166,7 +166,7 @@
       selectable: true,
       showSelectAll: true,
       heightUsed: 310,
-      showSelectorAll: true,
+      showSelectorAll: false,
     });
 
   async function getTableParams() {

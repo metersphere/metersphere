@@ -511,14 +511,12 @@
   }
 
   // 关联文件
-  async function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map(convertToFileByDetail);
-    fileList.value.push(...fileResultList);
+  async function saveSelectAssociatedFile(fileData: AssociatedList[], selectFileIds?: string[]) {
     const params = {
       request: {
         bugId: bugId.value as string,
         projectId: currentProjectId.value,
-        selectIds: fileResultList.map((item: any) => item.uid),
+        selectIds: selectFileIds || [],
       },
     };
     await uploadOrAssociationFile(params);
