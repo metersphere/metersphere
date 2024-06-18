@@ -256,9 +256,6 @@ public class TestPlanExecuteTests extends BaseTest {
                 }
             }
         }
-//        Assertions.assertTrue(!collectionQueueIdList.isEmpty());
-//        Assertions.assertTrue(!allQueueIds.isEmpty());
-
         this.checkRedisKeyEmpty(allQueueIds, collectionQueueIdList);
 
     }
