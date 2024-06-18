@@ -125,6 +125,7 @@
         select associate.${bugColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
         )
         <include refid="queryWhereConditionByProvider"/>
+        ORDER BY b.num DESC
     </select>
 
     <select id="getIdsByProvider" resultType="java.lang.String">
