@@ -982,4 +982,9 @@ public class TestPlanReportService {
     public List<TestPlanReportDetailResponse> planReportList(TestPlanReportDetailPageRequest request) {
         return extTestPlanReportMapper.getPlanReportListById(request);
     }
+
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
+	public void updateExecuteTimeAndStatus(String prepareReportId) {
+		extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), Collections.singletonList(prepareReportId));
+	}
 }

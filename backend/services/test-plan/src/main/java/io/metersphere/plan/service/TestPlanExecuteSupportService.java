@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -56,7 +57,7 @@ public class TestPlanExecuteSupportService {
         redisTemplate.delete(genQueueKey(redisKey, LAST_QUEUE_PREFIX));
     }
 
-
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void summaryTestPlanReport(String reportId, boolean isGroupReport, boolean isStop) {
         LogUtils.info("开始合并报告： --- 报告ID[{}],是否是报告组[{}]", reportId, isGroupReport);
         try {
@@ -80,7 +81,12 @@ public class TestPlanExecuteSupportService {
                 }
             }
         } catch (Exception e) {
-            LogUtils.error("Cannot find test plan report for " + reportId, e);
+            LogUtils.error("测试计划报告汇总失败!reportId:" + reportId, e);
+            TestPlanReport stopReport = testPlanReportService.selectById(reportId);
+            stopReport.setId(reportId);
+            stopReport.setExecStatus(ExecStatus.ERROR.name());
+            stopReport.setEndTime(System.currentTimeMillis());
+            testPlanReportMapper.updateByPrimaryKeySelective(stopReport);
         }
     }
 

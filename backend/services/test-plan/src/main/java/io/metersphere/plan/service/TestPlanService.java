@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -480,8 +481,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         TestPlanDetailResponse response = new TestPlanDetailResponse();
 
         String moduleName = Translator.get("unplanned.plan");
-        if (!ModuleConstants.DEFAULT_NODE_ID.equals(id)) {
-            TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(id);
+        if (!ModuleConstants.DEFAULT_NODE_ID.equals(testPlan.getModuleId())) {
+            TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(testPlan.getModuleId());
             moduleName = module == null ? Translator.get("unplanned.plan") : module.getName();
             response.setModuleId(module == null ? ModuleConstants.DEFAULT_NODE_ID : module.getId());
         }
@@ -992,5 +993,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         // 删除测试集
         testPlanCollectionMapper.deleteByExample(example);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
+    public void setExecuteConfig(String sourceID) {
+        this.setActualStartTime(sourceID);
+        this.setTestPlanUnderway(sourceID);
     }
 }

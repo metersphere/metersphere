@@ -5,7 +5,10 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
-import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.TaskTriggerMode;
@@ -17,10 +20,10 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -36,8 +39,6 @@ public class TestPlanExecuteService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
-    @Resource
-    private ExtTestPlanReportMapper extTestPlanReportMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
@@ -226,9 +227,8 @@ public class TestPlanExecuteService {
         genReportRequest.setTestPlanId(executionQueue.getSourceID());
         genReportRequest.setProjectId(testPlan.getProjectId());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-
-            testPlanService.setActualStartTime(executionQueue.getSourceID());
-            testPlanService.setTestPlanUnderway(executionQueue.getSourceID());
+            //更改测试计划组的状态
+            testPlanService.setExecuteConfig(executionQueue.getSourceID());
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
@@ -263,18 +263,17 @@ public class TestPlanExecuteService {
             } else {
                 testPlanExecuteSupportService.setRedisForList(testPlanExecuteSupportService.genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
-                // 更新报告的执行时间
-                if (MapUtils.isNotEmpty(reportMap)) {
-                    extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
-                }
-
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
                     TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueId, queueType);
+                    testPlanReportService.updateExecuteTimeAndStatus(nextQueue.getPrepareReportId());
+                    testPlanService.setExecuteConfig(nextQueue.getSourceID());
                     executeTestPlan(nextQueue);
                 } else {
                     //并行
                     childrenQueue.forEach(childQueue -> {
+                        testPlanReportService.updateExecuteTimeAndStatus(childQueue.getPrepareReportId());
+                        testPlanService.setExecuteConfig(childQueue.getSourceID());
                         executeTestPlan(childQueue);
                     });
                 }
@@ -284,23 +283,21 @@ public class TestPlanExecuteService {
         } else {
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
-            if (MapUtils.isNotEmpty(reportMap)) {
-                extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
-            }
+            testPlanReportService.updateExecuteTimeAndStatus(executionQueue.getPrepareReportId());
+            testPlanService.setExecuteConfig(executionQueue.getSourceID());
             this.executeTestPlan(executionQueue);
             return executionQueue.getPrepareReportId();
         }
     }
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void executeTestPlan(TestPlanExecutionQueue executionQueue) {
         boolean testPlanStopped = testPlanExecuteSupportService.checkTestPlanStopped(executionQueue.getPrepareReportId());
         if (testPlanStopped) {
             //测试计划报告状态已停止的话便不再执行。执行下一个队列。
             this.testPlanExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
         } else {
-            testPlanService.setActualStartTime(executionQueue.getSourceID());
-            testPlanService.setTestPlanUnderway(executionQueue.getSourceID());
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(executionQueue.getSourceID());
             TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
             testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(testPlan.getId()).andParentIdEqualTo("NONE");
@@ -473,6 +470,7 @@ public class TestPlanExecuteService {
             //并行时，调用回调时意味着执行结束，所以判断是否是当前队列最后一个从而结束队列
             this.queueExecuteFinish(nextQueue);
         }
+
     }
 
     //测试计划中当前用例类型的全部执行完成
@@ -558,7 +556,6 @@ public class TestPlanExecuteService {
             //并行时，调用回调时意味着执行结束，所以判断是否是当前队列最后一个从而结束队列
             this.queueExecuteFinish(nextQueue);
         }
-
     }
 
     private void executeNextNode(TestPlanExecutionQueue queue) {
