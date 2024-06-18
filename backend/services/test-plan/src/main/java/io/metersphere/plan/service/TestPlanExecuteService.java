@@ -134,7 +134,9 @@ public class TestPlanExecuteService {
 
     /**
      * 单个执行测试计划
+     * 这里涉及到嵌套查询，不使用事务。中间涉及到的报告生成、测试计划字段更改、测试报告汇总等操作会开启子事务处理。
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
     public String singleExecuteTestPlan(TestPlanExecuteRequest request, String userId) {
         TestPlanExecutionQueue executionQueue = new TestPlanExecutionQueue();
         executionQueue.setSourceID(request.getExecuteId());
@@ -165,10 +167,15 @@ public class TestPlanExecuteService {
 
         LogUtils.info("测试计划（组）的单独执行start！计划报告[{}] , 资源ID[{}]", singleExecuteRootQueue.getPrepareReportId(), singleExecuteRootQueue.getSourceID());
 
-        return executeTestPlanOrGroup(executionQueue);
+        String returnId = executeTestPlanOrGroup(executionQueue);
+        return returnId;
     }
 
-    //批量执行测试计划组
+    /**
+     * 批量执行测试计划
+     * 这里涉及到嵌套查询，不使用事务。中间涉及到的报告生成、测试计划字段更改、测试报告汇总等操作会开启子事务处理。
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
     public void batchExecuteTestPlan(TestPlanBatchExecuteRequest request, String userId) {
         List<String> rightfulIds = testPlanService.selectRightfulIds(request.getExecuteIds());
 
