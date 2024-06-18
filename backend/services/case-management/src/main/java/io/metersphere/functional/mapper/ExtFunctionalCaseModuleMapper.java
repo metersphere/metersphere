@@ -1,5 +1,6 @@
 package io.metersphere.functional.mapper;
 
+import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
@@ -38,4 +39,6 @@ public interface ExtFunctionalCaseModuleMapper {
     List<String> selectIdByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
 
     void batchUpdateStringColumn(@Param("column") String column, @Param("ids") List<String> ids, @Param("value") String value);
+
+    List<FunctionalCaseModule> getNameInfoByIds(@Param("ids") List<String> ids);
 }
