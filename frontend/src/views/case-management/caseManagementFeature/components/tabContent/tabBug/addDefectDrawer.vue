@@ -125,10 +125,11 @@
       if (!errors) {
         drawerLoading.value = true;
         templateCustomFields.value.forEach((item: any) => {
-          if (item.id === 'current_owner') {
+          if (item.key === 'handleUser') {
             item.value = form.value.handleUserId;
           }
         });
+        delete form.value.handleUserId;
         try {
           await createOrUpdateBug({
             request: { ...form.value, customFields: templateCustomFields.value, ...props.extraParams },
@@ -167,6 +168,7 @@
       templateCustomFields.value = result.customFields.map((item: any) => {
         return {
           id: item.fieldId,
+          key: item.fieldKey,
           name: item.fieldName,
           type: item.type,
           value: (Array.isArray(item.defaultValue) ? JSON.stringify(item.defaultValue) : item.defaultValue) || '',
