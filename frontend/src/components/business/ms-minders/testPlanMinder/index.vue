@@ -753,11 +753,6 @@
       loading.value = true;
       await editPlanMinder(makeMinderParams(fullJson));
       Message.success(t('common.saveSuccess'));
-      tempMinderParams.value = {
-        planId: props.planId,
-        editList: [],
-        deletedIds: [],
-      };
       handleConfigCancel();
       initMinder();
       callback();
@@ -768,6 +763,11 @@
       selectedAssociateCasesParams.value.selectIds = [];
     } finally {
       loading.value = false;
+      tempMinderParams.value = {
+        planId: props.planId,
+        editList: [],
+        deletedIds: [],
+      };
     }
   }
 
