@@ -12,65 +12,67 @@
       @adv-search="loadCaseList()"
       @refresh="loadCaseList()"
     />
-    <MsBaseTable
-      ref="tableRef"
-      class="mt-[16px]"
-      v-bind="propsRes"
-      :action-config="batchActions"
-      v-on="propsEvent"
-      @batch-action="handleTableBatch"
-      @drag-change="handleDragChange"
-      @selected-change="handleTableSelect"
-      @filter-change="getModuleCount"
-      @module-change="loadCaseList(false)"
-    >
-      <template #num="{ record }">
-        <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
-      </template>
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
-        <CaseLevel :case-level="filterContent.value" />
-      </template>
-      <template #caseLevel="{ record }">
-        <CaseLevel :case-level="record.priority" />
-      </template>
-      <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
-        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
-      </template>
-      <template #lastExecResult="{ record }">
-        <ExecutionStatus
-          :module-type="ReportEnum.API_REPORT"
-          :status="record.lastExecResult"
-          :class="[!record.lastExecReportId ? '' : 'cursor-pointer']"
-          @click="showReport(record)"
-        />
-      </template>
-      <template #status="{ record }">
-        <apiStatus :status="record.status" />
-      </template>
-      <template v-if="props.canEdit" #operation="{ record }">
-        <MsButton
-          v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
-          type="text"
-          class="!mr-0"
-          @click="handleRun(record)"
-        >
-          {{ t('common.execute') }}
-        </MsButton>
-        <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
-        <MsPopconfirm
-          :title="t('testPlan.featureCase.disassociateTip', { name: characterLimit(record.name) })"
-          :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
-          :ok-text="t('common.confirm')"
-          :loading="disassociateLoading"
-          type="error"
-          @confirm="(val, done) => handleDisassociateCase(record, done)"
-        >
-          <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="text" class="!mr-0">
-            {{ t('common.cancelLink') }}
+    <a-spin :loading="tableLoading" class="w-full">
+      <MsBaseTable
+        ref="tableRef"
+        class="mt-[16px]"
+        v-bind="propsRes"
+        :action-config="batchActions"
+        v-on="propsEvent"
+        @batch-action="handleTableBatch"
+        @drag-change="handleDragChange"
+        @selected-change="handleTableSelect"
+        @filter-change="getModuleCount"
+        @module-change="loadCaseList(false)"
+      >
+        <template #num="{ record }">
+          <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
+        </template>
+        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+          <CaseLevel :case-level="filterContent.value" />
+        </template>
+        <template #caseLevel="{ record }">
+          <CaseLevel :case-level="record.priority" />
+        </template>
+        <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+          <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
+        </template>
+        <template #lastExecResult="{ record }">
+          <ExecutionStatus
+            :module-type="ReportEnum.API_REPORT"
+            :status="record.lastExecResult"
+            :class="[!record.lastExecReportId ? '' : 'cursor-pointer']"
+            @click="showReport(record)"
+          />
+        </template>
+        <template #status="{ record }">
+          <apiStatus :status="record.status" />
+        </template>
+        <template v-if="props.canEdit" #operation="{ record }">
+          <MsButton
+            v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+            type="text"
+            class="!mr-0"
+            @click="handleRun(record)"
+          >
+            {{ t('common.execute') }}
           </MsButton>
-        </MsPopconfirm>
-      </template>
-    </MsBaseTable>
+          <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
+          <MsPopconfirm
+            :title="t('testPlan.featureCase.disassociateTip', { name: characterLimit(record.name) })"
+            :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
+            :ok-text="t('common.confirm')"
+            :loading="disassociateLoading"
+            type="error"
+            @confirm="(val, done) => handleDisassociateCase(record, done)"
+          >
+            <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="text" class="!mr-0">
+              {{ t('common.cancelLink') }}
+            </MsButton>
+          </MsPopconfirm>
+        </template>
+      </MsBaseTable>
+    </a-spin>
     <CaseAndScenarioReportDrawer
       v-model:visible="reportVisible"
       :report-id="reportId"
@@ -291,7 +293,7 @@
     selectable: hasOperationPermission.value,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setLoading } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getPlanDetailApiScenarioList,
     tableProps.value,
     (record) => {
@@ -474,9 +476,10 @@
   }
 
   // 执行
+  const tableLoading = ref(false); // 包含批量操作按钮，防止重复发起请求
   async function handleRun(record: PlanDetailApiScenarioItem) {
     try {
-      setLoading(true);
+      tableLoading.value = true;
       await runApiScenario(record.id);
       Message.success(t('common.executionSuccess'));
       resetSelectorAndCaseList();
@@ -485,14 +488,14 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
-      setLoading(false);
+      tableLoading.value = false;
     }
   }
 
   // 批量执行
   async function handleBatchRun() {
     try {
-      setLoading(true);
+      tableLoading.value = true;
       const tableParams = await getTableParams(true);
       await batchRunApiScenario({
         selectIds: tableSelected.value as string[],
@@ -507,7 +510,7 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
-      setLoading(false);
+      tableLoading.value = false;
     }
   }
 
