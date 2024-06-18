@@ -358,6 +358,7 @@
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
+    // TODO : 这里需要优化选择跨页的数据
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     if (props.mode === 'button') {
       fileList.value.push(...fileResultList);

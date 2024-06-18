@@ -48,7 +48,7 @@
       </a-form-item>
       <a-form-item v-else field="moduleId" :label="t('common.belongModule')" class="w-[436px]">
         <a-tree-select
-          v-model:modelValue="form.moduleId"
+          v-model="form.moduleId"
           :data="props.moduleTree"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           :tree-props="{
@@ -181,11 +181,16 @@
 
   const drawerLoading = ref(false);
   const formRef = ref<FormInstance>();
+
+  const moduleId = computed(() => {
+    return props.moduleId && props.moduleId !== 'all' ? props.moduleId : 'root';
+  });
+
   const initForm: AddTestPlanParams = {
     isGroup: false,
     name: '',
     projectId: '',
-    moduleId: 'root',
+    moduleId: moduleId.value,
     cycle: [],
     tags: [],
     description: '',
@@ -359,9 +364,7 @@
         form.value = cloneDeep(initForm);
         getDetail();
         initGroupOptions();
-        if (!props.planId && props.moduleId) {
-          form.value.moduleId = props.moduleId === 'all' ? 'root' : props.moduleId;
-        }
+        form.value.moduleId = moduleId.value;
       }
     }
   );

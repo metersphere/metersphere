@@ -139,6 +139,7 @@
           </div>
         </div>
         <inputComment
+          v-if="activeTab !== 'detail'"
           ref="commentInputRef"
           v-model:content="content"
           v-model:notice-user-ids="noticeUserIds"

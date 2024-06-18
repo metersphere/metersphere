@@ -112,6 +112,7 @@
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
     (e: 'update:selectFile', val: AssociatedList[]): void;
+    (e: 'updateFileIds', val: string[]): void;
   }>();
 
   const tableFileTypeOptions = ref<string[]>([]);
@@ -342,11 +343,12 @@
 
   watch(
     () => selectedIds.value,
-    () => {
+    (val) => {
       emit(
         'update:selectFile',
         propsRes.value.data.filter((item: any) => selectedIds.value.indexOf(item.id) > -1)
       );
+      emit('updateFileIds', val);
     }
   );
 

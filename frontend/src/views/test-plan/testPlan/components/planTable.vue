@@ -249,14 +249,14 @@
     <template #operation="{ record }">
       <div class="flex items-center">
         <MsButton
-          v-if="isShowExecuteButton(record, ['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          v-if="isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
           class="!mx-0"
           :disabled="executeId == record.id"
           @click="executePlan(record)"
           >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
         >
         <a-divider
-          v-if="isShowExecuteButton(record, ['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          v-if="isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
           direction="vertical"
           :margin="8"
         ></a-divider>
@@ -274,13 +274,13 @@
         ></a-divider>
 
         <MsButton
-          v-if="!isShowExecuteButton(record, ['PROJECT_TEST_PLAN:READ+ADD'])"
+          v-if="!isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
           class="!mx-0"
           @click="copyTestPlanOrGroup(record.id)"
           >{{ t('common.copy') }}</MsButton
         >
         <a-divider
-          v-if="!isShowExecuteButton(record, ['PROJECT_TEST_PLAN:READ+ADD'])"
+          v-if="!isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
           direction="vertical"
           :margin="8"
         ></a-divider>
@@ -290,11 +290,11 @@
     <template v-if="(keyword || '').trim() === ''" #empty>
       <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
         {{ t('common.noData') }}
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" class="ml-[8px]" @click="emit('new', 'group')">
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" class="ml-[8px]" @click="emit('new', 'testPlan')">
           {{ t('testPlan.testPlanIndex.createTestPlan') }}
         </MsButton>
         {{ t('caseManagement.featureCase.or') }}
-        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" class="ml-[8px]" @click="emit('new', 'testPlan')">
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" class="ml-[8px]" @click="emit('new', 'group')">
           {{ t('testPlan.testPlanIndex.createTestPlanGroup') }}
         </MsButton>
       </div>
@@ -473,7 +473,6 @@
       width: 180,
       showInTable: true,
       showDrag: false,
-      showTooltip: true,
       columnSelectorDisabled: true,
     },
     {
@@ -741,11 +740,10 @@
     return defaultCountDetailMap.value[id].scheduleConfig.enable;
   }
 
-  function isShowExecuteButton(record: TestPlanItem, permission: string[]) {
+  function isShowExecuteButton(record: TestPlanItem) {
     return (
       ((record.type === testPlanTypeEnum.TEST_PLAN && getFunctionalCount(record.id) > 0) ||
         (record.type === testPlanTypeEnum.GROUP && record.childrenCount)) &&
-      hasAnyPermission(permission) &&
       record.status !== 'ARCHIVED'
     );
   }
@@ -754,7 +752,8 @@
     const { status: planStatus } = record;
 
     // 有用例数量才可以执行 否则不展示执行
-    const copyAction = isShowExecuteButton(record, ['PROJECT_TEST_PLAN:READ+ADD']) ? copyActions : [];
+    const copyAction =
+      isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) ? copyActions : [];
 
     let scheduledTaskAction: ActionsItem[] = [];
     if (planStatus !== 'ARCHIVED' && record.groupId && record.groupId === 'NONE') {
@@ -944,7 +943,7 @@
 
   const confirmLoading = ref<boolean>(false);
 
-  async function executeHandler() {
+  async function batchHandleExecute() {
     confirmLoading.value = true;
     try {
       await executePlanOrGroup(executeForm.value);
@@ -961,29 +960,40 @@
 
   const executeId = ref<string>('');
   async function singleExecute(id: string) {
+    confirmLoading.value = true;
     executeId.value = id;
     try {
       const params: ExecutePlan = {
         executeId: id,
-        runMode: 'SERIAL',
+        runMode: executeForm.value.runMode,
         executionSource: 'MANUAL',
       };
       await executeSinglePlan(params);
       Message.success(t('case.detail.execute.success'));
       fetchData();
+      cancelHandler();
     } catch (error) {
       console.log(error);
     } finally {
       executeId.value = '';
+      confirmLoading.value = false;
+    }
+  }
+
+  async function executeHandler() {
+    if (executeId.value) {
+      singleExecute(executeId.value);
+    } else {
+      batchHandleExecute();
     }
   }
 
   // 测试计划详情
   function executePlan(record: TestPlanItem) {
     const { type, id } = record;
-
+    executeId.value = id;
     if (type === testPlanTypeEnum.GROUP) {
-      singleExecute(record.id);
+      executeVisible.value = true;
       return;
     }
     if (type === testPlanTypeEnum.TEST_PLAN) {

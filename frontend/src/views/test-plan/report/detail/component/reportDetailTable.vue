@@ -18,7 +18,9 @@
       <ExecutionStatus :status="filterContent.value" />
     </template>
     <template #operation="{ record }">
-      <MsButton class="!mx-0" @click="openReport(record)">{{ t('report.detail.testPlanGroup.viewReport') }}</MsButton>
+      <MsButton class="!mx-0" :disabled="record.deleted" @click="openReport(record)">{{
+        t('report.detail.testPlanGroup.viewReport')
+      }}</MsButton>
     </template>
   </MsBaseTable>
   <ReportDrawer v-model:visible="reportVisible" :report-id="independentReportId" />
