@@ -88,7 +88,7 @@
               }"
             >
               <slot :name="item.titleSlotName" :column-config="item">
-                <div v-if="item.title" class="title-name text-[var(--color-text-3)]">
+                <div v-if="item.title" class="title-name">
                   {{ t(item.title as string) }}
                 </div>
               </slot>
@@ -1013,6 +1013,13 @@
           color: rgb(var(--primary-5));
         }
       }
+    }
+  }
+  :deep(.arco-table-th-title) {
+    .title-name {
+      @apply break-keep;
+
+      color: var(--color-text-3);
     }
   }
 </style>

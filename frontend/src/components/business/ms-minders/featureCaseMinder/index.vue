@@ -67,7 +67,6 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import { FormItem } from '@/components/pure/ms-form-create/types';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
@@ -397,58 +396,57 @@
           return;
         }
         // TODO:递归渲染存在的子节点
+        const waitingRenderNodes: MinderJsonNode[] = [];
         res.forEach((e) => {
           // 用例节点
           const child = window.minder.createNode(
             {
               ...e.data,
+              expandState: 'collapse',
               isNew: false,
             },
             node
           );
-          child.render();
+          waitingRenderNodes.push(child);
+          const grandChildren: MinderJsonNode[] = [];
           e.children?.forEach((item) => {
             // 前置/步骤/备注节点
             const grandChild = window.minder.createNode(
               {
                 ...item.data,
+                expandState: 'collapse',
                 isNew: false,
               },
               child
             );
-            grandChild.render();
+            grandChildren.push(grandChild);
+            const greatGrandChildren: MinderJsonNode[] = [];
             item.children?.forEach((subItem) => {
               // 预期结果节点
               const greatGrandChild = window.minder.createNode(
                 {
                   ...subItem.data,
+                  expandState: 'collapse',
                   isNew: false,
                 },
                 grandChild
               );
-              greatGrandChild.render();
+              greatGrandChildren.push(greatGrandChild);
             });
+            window.minder.renderNodeBatch(greatGrandChildren);
           });
-          child.expand();
-          child.renderTree();
+          window.minder.renderNodeBatch(grandChildren);
         });
         node.expand();
-        node.renderTree();
+        // node.renderTree();
+        window.minder.renderNodeBatch(waitingRenderNodes);
         window.minder.layout();
         window.minder.execCommand('camera', node, 100);
         if (node.data) {
           node.data.isLoaded = true;
         }
         // 加载完用例数据后，更新当前importJson数据
-        const currentFullJson: MinderJson = window.minder.exportJson();
-        const { root } = currentFullJson;
-        if (root.data?.id === 'NONE') {
-          // 当前仍然是全部模块视图，则直接替换
-          importJson.value = currentFullJson;
-        } else {
-          // 当前是单个模块视图，则替换对应模块的数据
-          replaceNodeInTree([importJson.value.root], node.data?.id || '', root, 'data', 'id');
-        }
+        replaceNodeInTree([importJson.value.root], node.data?.id || '', node, 'data', 'id');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
