@@ -287,6 +287,18 @@
         <MsTableMoreAction :list="getMoreActions(record)" @select="handleMoreActionSelect($event, record)" />
       </div>
     </template>
+    <template v-if="(keyword || '').trim() === ''" #empty>
+      <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+        {{ t('common.noData') }}
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" class="ml-[8px]" @click="emit('new', 'group')">
+          {{ t('testPlan.testPlanIndex.createTestPlan') }}
+        </MsButton>
+        {{ t('caseManagement.featureCase.or') }}
+        <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']" class="ml-[8px]" @click="emit('new', 'testPlan')">
+          {{ t('testPlan.testPlanIndex.createTestPlanGroup') }}
+        </MsButton>
+      </div>
+    </template>
   </MsBaseTable>
   <a-modal
     v-model:visible="executeVisible"
@@ -442,6 +454,7 @@
   const emit = defineEmits<{
     (e: 'init', params: any): void;
     (e: 'edit', record: TestPlanItem): void;
+    (e: 'new', type: string): void;
   }>();
 
   const isArchived = ref<boolean>(false);

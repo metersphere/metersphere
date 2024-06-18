@@ -580,7 +580,6 @@
     selectedAssociateCasesParams.value = { ...param };
     const node: PlanMinderNode = window.minder.getSelectedNode();
     let associateType: string = '';
-    // TODO 类型对应的上 但是node保存的时候节点好像不太对
     if (node.data.type === PlanMinderCollectionType.SCENARIO) {
       associateType = PlanMinderAssociateType.SCENARIO_CASE;
     } else {
@@ -766,6 +765,7 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+      selectedAssociateCasesParams.value.selectIds = [];
     } finally {
       loading.value = false;
     }
