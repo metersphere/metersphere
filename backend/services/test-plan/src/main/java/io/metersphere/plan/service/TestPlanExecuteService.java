@@ -15,6 +15,7 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -278,7 +279,9 @@ public class TestPlanExecuteService {
                 this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
                 // 更新报告的执行时间
-                extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
+                if (MapUtils.isNotEmpty(reportMap)) {
+                    extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
+                }
 
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
@@ -296,7 +299,9 @@ public class TestPlanExecuteService {
         } else {
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
-            extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
+            if (MapUtils.isNotEmpty(reportMap)) {
+                extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), reportMap.values().stream().toList());
+            }
             this.executeTestPlan(executionQueue);
             return executionQueue.getPrepareReportId();
         }
