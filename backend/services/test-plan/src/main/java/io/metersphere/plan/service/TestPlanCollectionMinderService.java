@@ -258,7 +258,6 @@ public class TestPlanCollectionMinderService {
     private void dealEditList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap) {
         if (CollectionUtils.isNotEmpty(request.getEditList())) {
             Map<String, List<TestPlanCollection>> parentMap = getParentMap(request);
-            Map<String, List<TestPlanCollection>> childrenMap = getChildrenMap(request);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             TestPlanCollectionMapper collectionMapper = sqlSession.getMapper(TestPlanCollectionMapper.class);
             //新增
@@ -266,32 +265,18 @@ public class TestPlanCollectionMinderService {
             //更新
             Map<String, List<String>> updateTypeNameMap = dealUpdateList(request, userId, associateMap, parentMap, collectionMapper);
             //检查同一类型名称重复
-            checkNameRepeat(updateTypeNameMap, addTypeNameMap, childrenMap);
+            checkNameRepeat(updateTypeNameMap, addTypeNameMap);
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 
-    private static void checkNameRepeat(Map<String, List<String>> updateTypeNameMap, Map<String, List<String>> addTypeNameMap, Map<String, List<TestPlanCollection>> childrenMap) {
+    private static void checkNameRepeat(Map<String, List<String>> updateTypeNameMap, Map<String, List<String>> addTypeNameMap) {
         updateTypeNameMap.forEach((k, v)->{
             List<String> nameList = addTypeNameMap.get(k);
             if (CollectionUtils.isNotEmpty(nameList)) {
                 List<String> repeatList = v.stream().filter(nameList::contains).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(repeatList)) {
-                    throw new MSException(Translator.get("test_plan.mind.collection_name_repeat"));
-                } else {
-                    nameList.addAll(v);
-                    addTypeNameMap.put(k, nameList);
-                }
-            } else {
-                addTypeNameMap.put(k,v);
-            }
-        });
-        childrenMap.forEach((k, v)->{
-            List<String> nameList = addTypeNameMap.get(k);
-            if (CollectionUtils.isNotEmpty(nameList)) {
-                List<TestPlanCollection> list = v.stream().filter(t -> nameList.contains(t.getName())).toList();
-                if (CollectionUtils.isNotEmpty(list)) {
                     throw new MSException(Translator.get("test_plan.mind.collection_name_repeat"));
                 }
             }
@@ -307,7 +292,7 @@ public class TestPlanCollectionMinderService {
             //处理更新
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : updateList) {
                 TestPlanCollection testPlanCollection = updateCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
-                checkChangeDataReapet(typeNamesMap, testPlanCollection);
+                checkChangeDataRepeat(typeNamesMap, testPlanCollection);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
         }
@@ -331,14 +316,14 @@ public class TestPlanCollectionMinderService {
         if (CollectionUtils.isNotEmpty(addList)) {
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : addList) {
                 TestPlanCollection testPlanCollection = addCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
-                checkChangeDataReapet(typeNamesMap, testPlanCollection);
+                checkChangeDataRepeat(typeNamesMap, testPlanCollection);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
         }
         return typeNamesMap;
     }
 
-    private static void checkChangeDataReapet(Map<String, List<String>> typeNamesMap, TestPlanCollection testPlanCollection) {
+    private static void checkChangeDataRepeat(Map<String, List<String>> typeNamesMap, TestPlanCollection testPlanCollection) {
         List<String> nameList = typeNamesMap.get(testPlanCollection.getType());
         if (CollectionUtils.isNotEmpty(nameList)) {
             if (nameList.contains(testPlanCollection.getName())) {
