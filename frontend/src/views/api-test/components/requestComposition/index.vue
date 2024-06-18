@@ -629,19 +629,6 @@
       label: t('apiTestDebug.setting'),
     },
   ];
-  const restNumApi = computed(
-    () =>
-      filterKeyValParams(props.apiDetail?.rest ?? props.apiDetail?.request.rest, defaultRequestParamsItem).validParams
-        .length
-  );
-  const queryNumApi = computed(
-    () =>
-      filterKeyValParams(props.apiDetail?.query ?? props.apiDetail?.request.query, defaultRequestParamsItem).validParams
-        .length
-  );
-  const bodyTabBadgeApi = computed(() =>
-    props.apiDetail?.request?.body?.bodyType !== RequestBodyFormat.NONE ? '1' : ''
-  );
   // 根据协议类型获取请求内容tab
   const contentTabList = computed(() => {
     // HTTP 协议 tabs
@@ -1192,18 +1179,12 @@
           await initProtocolList();
         }
         await initPluginScript();
-      } else if (protocolOptions.value.length === 0) {
-        await initProtocolList();
+      } else {
+        setDefaultActiveTab();
+        if (protocolOptions.value.length === 0) {
+          await initProtocolList();
+        }
       }
-      if (
-        props.isCase &&
-        requestVModel.value.protocol === 'HTTP' &&
-        (restNumApi.value || queryNumApi.value || bodyTabBadgeApi.value?.length)
-      ) {
-        // 如果定义有参数BODY/QUERY/REST，用例默认tab是参数tab
-        requestVModel.value.activeTab = contentTabList.value[1].value;
-      }
-      setDefaultActiveTab();
       if (!props.isCase) {
         responseRef.value?.setActiveResponse(requestVModel.value.mode === 'debug' ? 'result' : 'content');
       }
