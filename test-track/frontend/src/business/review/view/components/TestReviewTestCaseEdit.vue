@@ -60,10 +60,12 @@
                                    v-if="testCase.stepModel === 'STEP'" :form="testCase"/>
 
               <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
-                <test-case-edit-other-info @openTest="openTest" :read-only="true"
-                                           @syncRelationGraphOpen="syncRelationGraphOpen"
-                                           :project-id="projectId" :form="testCase" :case-id="testCase.caseId"
-                                           ref="otherInfo"/>
+                <test-case-edit-other-info
+                  v-if="otherInfoActive"
+                  @openTest="openTest" :read-only="true"
+                  @syncRelationGraphOpen="syncRelationGraphOpen"
+                  :project-id="projectId" :form="testCase" :case-id="testCase.caseId"
+                  ref="otherInfo"/>
               </el-form-item>
 
             </el-form>
@@ -169,6 +171,7 @@ export default {
       isCommentEmpty: true,
       caseId: null,
       reviewId: null,
+      otherInfoActive: true,
     };
   },
   props: {
@@ -298,6 +301,7 @@ export default {
       this.caseId = this.testCases[this.index].caseId;
       this.getTestCase(this.testCases[this.index].id);
       this.$refs.otherInfo.getFileMetaData(this.caseId);
+      this.reloadOtherInfo();
     },
     isLastData() {
       return (
@@ -317,6 +321,13 @@ export default {
       this.caseId = this.testCases[this.index].caseId;
       this.getTestCase(this.testCases[this.index].id);
       this.$refs.otherInfo.getFileMetaData(this.caseId);
+      this.reloadOtherInfo();
+    },
+    reloadOtherInfo() {
+      this.otherInfoActive = false;
+      this.$nextTick(() => {
+        this.otherInfoActive = true;
+      });
     },
     getTestCase(id) {
       this.loading = true;
@@ -370,6 +381,7 @@ export default {
       });
     },
     openTestCaseEdit(testCase, tableData) {
+      this.reloadOtherInfo();
       if (this.$refs.comment) {
         this.$refs.comment.clearComments();
       }
