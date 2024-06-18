@@ -120,6 +120,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isNotEmpty(testPlanCollections));
         editList = new ArrayList<>();
         editList.add(deleteDTO);
+        editList.add(deleteDTO);
         request.setEditList(editList);
         this.requestPost(EDIT_MIND, request).andExpect(status().is5xxServerError());;
         testPlanCollectionExample = new TestPlanCollectionExample();
