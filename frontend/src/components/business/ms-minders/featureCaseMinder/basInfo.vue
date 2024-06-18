@@ -62,6 +62,7 @@
 
   import { OptionsFieldId } from '@/models/caseManagement/featureCase';
 
+  import { initFormCreate } from '@/views/case-management/caseManagementFeature/components/utils';
   import { Api } from '@form-create/arco-design';
 
   const props = defineProps<{
@@ -200,6 +201,8 @@
     () => props.activeCase.id,
     () => {
       baseInfoForm.value.name = props.activeCase.name;
+      baseInfoForm.value.tags = props.activeCase.tags || [];
+      formRules.value = initFormCreate(props.activeCase.customFields || [], ['FUNCTIONAL_CASE:READ+UPDATE']);
     },
     {
       immediate: true,

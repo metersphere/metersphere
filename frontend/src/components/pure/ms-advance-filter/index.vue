@@ -18,13 +18,13 @@
     </slot>
     <div class="flex flex-row gap-[12px]">
       <a-input-search
-        v-model:modelValue="innerKeyword"
+        v-model:modelValue="keyword"
         size="small"
         :placeholder="props.searchPlaceholder"
         class="w-[240px]"
         allow-clear
-        @press-enter="emit('keywordSearch', innerKeyword, filterResult)"
-        @search="emit('keywordSearch', innerKeyword, filterResult)"
+        @press-enter="emit('keywordSearch', keyword, filterResult)"
+        @search="emit('keywordSearch', keyword, filterResult)"
         @clear="handleClear"
       ></a-input-search>
       <!-- <MsTag
@@ -78,8 +78,6 @@
   import MsTag from '../ms-tag/ms-tag.vue';
   import FilterForm from './FilterForm.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
-
   import { FilterFormItem, FilterResult } from './type';
 
   const props = defineProps<{
@@ -92,14 +90,13 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'keywordSearch', value: string | undefined, combine: FilterResult): void; // innerKeyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
+    (e: 'keywordSearch', value: string | undefined, combine: FilterResult): void; // keyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
     (e: 'dataIndexChange', value: string): void; // 高级搜索选项变更
     (e: 'refresh', value: FilterResult): void;
   }>();
 
-  const { t } = useI18n();
-  const innerKeyword = defineModel<string>('keyword', { default: '' });
+  const keyword = defineModel<string>('keyword', { default: '' });
   const visible = ref(false);
   const filterCount = ref(0);
   const defaultFilterResult: FilterResult = { accordBelow: 'AND', combine: {} };
@@ -124,7 +121,7 @@
   };
 
   const handleClear = () => {
-    innerKeyword.value = '';
+    keyword.value = '';
     emit('keywordSearch', '', filterResult.value);
   };
 

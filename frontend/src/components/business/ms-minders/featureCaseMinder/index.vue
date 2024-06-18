@@ -28,7 +28,6 @@
       @action="handleAction"
       @before-exec-command="handleBeforeExecCommand"
       @save="handleMinderSave"
-      @float-menu-close="handleBaseInfoCancel"
     >
       <template #extractMenu>
         <a-tooltip v-if="showDetailMenu" :content="t('common.detail')">
@@ -102,7 +101,7 @@
   import { MinderEventName } from '@/enums/minderEnum';
 
   import useMinderBaseApi from './useMinderBaseApi';
-  import { convertToFile, initFormCreate } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     moduleId: string;
@@ -159,13 +158,18 @@
   /**
    * 初始化用例模块树
    */
-  async function initCaseTree() {
+  async function initCaseTree(notRemote = false) {
     try {
       loading.value = true;
-      const res = await getCaseMinderTree({
-        projectId: appStore.currentProjectId,
-        moduleId: '', // 始终加载全部，然后再进入对应的模块节点
-      });
+      let res: MinderJsonNode[];
+      if (notRemote) {
+        res = caseTree.value;
+      } else {
+        res = await getCaseMinderTree({
+          projectId: appStore.currentProjectId,
+          moduleId: '', // 始终加载全部，然后再进入对应的模块节点
+        });
+      }
       caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
         ...e,
         data: {
@@ -226,8 +230,6 @@
 
   const baseInfoRef = ref<InstanceType<typeof baseInfo>>();
   const baseInfoLoading = ref(false);
-
-  const formRules = ref<FormItem[]>([]);
 
   const extraVisible = ref<boolean>(false);
   const activeCase = ref<Record<string, any>>({});
@@ -304,7 +306,6 @@
             return convertToFile(fileInfo);
           });
       }
-      formRules.value = initFormCreate(res.customFields, ['FUNCTIONAL_CASE:READ+UPDATE']);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -588,6 +589,7 @@
       textDescription: textStep?.data?.text || '',
       expectedResult: textStep?.children?.[0]?.data?.text || '',
       description: remarkNode?.data?.text || '',
+      priority: node.data?.priority,
     };
   }
 
@@ -630,7 +632,11 @@
         } else if (node.data.resource?.includes(caseTag)) {
           // 处理用例节点
           const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
-          const caseBaseInfo = baseInfoRef.value?.makeParams();
+          let caseBaseInfo;
+          if (activeCase.value.id === node.data.id) {
+            // 当前用例节点是打开的用例详情，获取用例详情数据
+            caseBaseInfo = baseInfoRef.value?.makeParams();
+          }
           tempMinderParams.value.updateCaseList.push({
             id: node.data.id,
             moduleId: parent?.data.id || '',
@@ -694,7 +700,7 @@
   watch(
     () => featureCaseStore.modulesCount,
     () => {
-      initCaseTree();
+      initCaseTree(true);
     },
     {
       deep: true,
