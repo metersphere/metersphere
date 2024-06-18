@@ -78,4 +78,8 @@ public interface ExtApiScenarioMapper {
      * @return 关联的用例ID集合
      */
     List<String> getSelectIdsByAssociateParam(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+
+    ApiScenario getScenarioByResourceId(String id);
+
+    ApiScenario getScenarioByReportId(String reportId);
 }

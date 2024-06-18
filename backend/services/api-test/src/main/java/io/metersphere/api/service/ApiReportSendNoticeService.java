@@ -8,10 +8,7 @@ import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.share.ApiReportShareRequest;
 import io.metersphere.api.dto.share.ShareInfoDTO;
-import io.metersphere.api.mapper.ApiReportMapper;
-import io.metersphere.api.mapper.ApiScenarioMapper;
-import io.metersphere.api.mapper.ApiScenarioReportMapper;
-import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
@@ -58,13 +55,13 @@ public class ApiReportSendNoticeService {
     private EnvironmentMapper environmentMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     public void sendNotice(ApiNoticeDTO noticeDTO) {
         String noticeType = null;
-        if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
-                ApiExecuteResourceType.PLAN_RUN_API_CASE.name(), ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name())) {
-            return;
-        }
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         assert systemParameterService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
@@ -81,8 +78,21 @@ public class ApiReportSendNoticeService {
         String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId();
         ApiScenarioReport report = new ApiScenarioReport();
         if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
-                ApiExecuteResourceType.API_SCENARIO.name(), ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name())) {
-            ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
+                ApiExecuteResourceType.API_SCENARIO.name(), ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name())) {
+            ApiScenario scenario = null;
+            switch (ApiExecuteResourceType.valueOf(noticeDTO.getResourceType())) {
+                case ApiExecuteResourceType.API_SCENARIO ->
+                        scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
+                case ApiExecuteResourceType.TEST_PLAN_API_SCENARIO ->
+                        scenario = extApiScenarioMapper.getScenarioByResourceId(noticeDTO.getResourceId());
+                case ApiExecuteResourceType.PLAN_RUN_API_SCENARIO ->
+                        scenario = extApiScenarioMapper.getScenarioByReportId(noticeDTO.getResourceId());
+                default -> {
+                }
+            }
+            if (scenario == null) {
+                return;
+            }
             beanMap = new BeanMap(scenario);
             noticeType = NoticeConstants.TaskType.API_SCENARIO_TASK;
             report = apiScenarioReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
@@ -96,8 +106,22 @@ public class ApiReportSendNoticeService {
             }
             shareUrl = String.format(shareUrl, "shareReportScenario");
         } else if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
-                ApiExecuteResourceType.API_CASE.name(), ApiExecuteResourceType.TEST_PLAN_API_CASE.name())) {
-            ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
+                ApiExecuteResourceType.API_CASE.name(), ApiExecuteResourceType.TEST_PLAN_API_CASE.name(), ApiExecuteResourceType.PLAN_RUN_API_CASE.name())) {
+            ApiTestCase testCase = null;
+            switch (ApiExecuteResourceType.valueOf(noticeDTO.getResourceType())) {
+                case ApiExecuteResourceType.API_CASE ->
+                        testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
+                case ApiExecuteResourceType.TEST_PLAN_API_CASE ->
+                        testCase = extApiTestCaseMapper.getCaseByResourceId(noticeDTO.getResourceId());
+                case ApiExecuteResourceType.PLAN_RUN_API_CASE ->
+                        testCase = extApiTestCaseMapper.getCaseByReportId(noticeDTO.getResourceId());
+                default -> {
+                }
+            }
+            if (testCase == null) {
+                return;
+            }
+
             beanMap = new BeanMap(testCase);
 
             // TODO 是否需要区分场景和用例
