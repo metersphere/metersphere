@@ -178,11 +178,7 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
-  import {
-    executionResultMap,
-    getCaseLevels,
-    getModules,
-  } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { executionResultMap, getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
@@ -275,7 +271,7 @@
     },
     {
       title: 'common.belongModule',
-      dataIndex: 'moduleId',
+      dataIndex: 'moduleName',
       showTooltip: true,
       width: 200,
       showDrag: true,
@@ -336,7 +332,6 @@
         ...record,
         lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
         caseLevel: getCaseLevels(record.customFields),
-        moduleId: getModules(record.moduleId, props.moduleTree),
       };
     }
   );

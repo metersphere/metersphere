@@ -156,6 +156,7 @@ export interface PlanDetailFeatureCaseItem {
   num: string;
   name: string;
   moduleId: string;
+  moduleName: string;
   versionName: string;
   createUser: string;
   createUserName: string;
@@ -286,6 +287,7 @@ export interface PlanDetailApiCaseItem {
   num: number;
   name: string;
   moduleId: string;
+  moduleName: string;
   createUser: string;
   createUserName: string;
   lastExecResult: LastExecuteResults;
@@ -340,6 +342,7 @@ export interface PlanDetailApiScenarioItem {
   environmentId: string;
   environmentName: string;
   moduleId: string;
+  moduleName: string;
   createUser: string;
   createUserName: string;
   lastExecResult: LastExecuteResults;

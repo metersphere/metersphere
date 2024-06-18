@@ -141,7 +141,6 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
-  import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
@@ -239,7 +238,7 @@
     },
     {
       title: 'common.belongModule',
-      dataIndex: 'moduleId',
+      dataIndex: 'moduleName',
       showTooltip: true,
       width: 200,
       showDrag: true,
@@ -295,13 +294,7 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getPlanDetailApiScenarioList,
-    tableProps.value,
-    (record) => {
-      return {
-        ...record,
-        moduleId: getModules(record.moduleId, props.moduleTree),
-      };
-    }
+    tableProps.value
   );
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
