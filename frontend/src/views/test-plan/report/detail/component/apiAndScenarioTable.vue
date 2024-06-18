@@ -13,7 +13,8 @@
       <ExecuteResult :execute-result="filterContent.key" />
     </template>
     <template #lastExecResult="{ record }">
-      <ExecuteResult :execute-result="record.executeResult" />
+      <ExecuteResult v-if="record.executeResult" :execute-result="record.executeResult" />
+      <span v-else>-</span>
       <!-- TOTO 暂时不上 -->
       <!-- <MsIcon
         v-show="record.lastExecResult !== LastExecuteResults.PENDING"
