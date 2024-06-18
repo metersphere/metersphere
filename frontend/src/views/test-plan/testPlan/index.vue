@@ -94,6 +94,7 @@
             :node-name="nodeName"
             @init="initModulesCount"
             @edit="handleEdit"
+            @new="createTestPlan"
           />
         </div>
       </template>
@@ -273,6 +274,14 @@
   }
   function dragUpdate() {
     planTableRef.value?.emitTableParams();
+  }
+
+  function createTestPlan(type: string) {
+    if (type === 'group') {
+      showPlanGroupModel.value = true;
+    } else {
+      showPlanDrawer.value = true;
+    }
   }
 </script>
 
