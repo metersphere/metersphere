@@ -184,7 +184,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
-  import { getGenerateId, sleep } from '@/utils';
+  import { getGenerateId, sleep, traverseTree } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
@@ -362,6 +362,23 @@
         case 'paste':
           minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, undefined, selectedNodes);
           window.minder.execCommand('Paste');
+          const pastedNode: MinderJsonNode = window.minder.getSelectedNode();
+          if (pastedNode) {
+            pastedNode.data = {
+              ...pastedNode.data,
+              text: pastedNode.data?.text || '',
+              isNew: true,
+              id: getGenerateId(),
+            };
+            traverseTree(pastedNode.children || [], (node) => {
+              node.data = {
+                ...node.data,
+                text: node.data?.text || '',
+                isNew: true,
+                id: getGenerateId(),
+              };
+            });
+          }
           break;
         case 'delete':
           minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, undefined, selectedNodes);

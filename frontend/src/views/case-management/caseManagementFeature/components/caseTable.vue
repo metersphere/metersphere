@@ -16,7 +16,13 @@
         @refresh="fetchData()"
       >
         <template #right>
-          <a-radio-group v-model:model-value="showType" type="button" size="small" class="list-show-type">
+          <a-radio-group
+            v-model:model-value="showType"
+            type="button"
+            size="small"
+            class="list-show-type"
+            @change="handleShowTypeChange"
+          >
             <a-radio value="list" class="show-type-icon !m-[2px]">
               <MsIcon :size="14" type="icon-icon_view-list_outlined" />
             </a-radio>
@@ -413,6 +419,10 @@
         },
         hideCancel: false,
       });
+    } else if (val === 'minder') {
+      keyword.value = '';
+      // 切换到脑图刷新模块统计
+      emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
     }
   }
 

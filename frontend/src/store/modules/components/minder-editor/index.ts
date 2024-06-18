@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 
 import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 
+import { getGenerateId, mapTree } from '@/utils';
+
 import { MinderEventName } from '@/enums/minderEnum';
 
 import { MinderNodePosition, MinderState } from './types';
@@ -60,7 +62,7 @@ const useMinderStore = defineStore('minder', {
       this.mold = val;
     },
     setClipboard(nodes?: MinderJsonNode[]) {
-      this.clipboard = nodes || [];
+      this.clipboard = mapTree(nodes || [], (node) => ({ ...node, id: getGenerateId(), type: 'ADD' }));
     },
     setMinderUnsaved(val: boolean) {
       this.minderUnsaved = val;
