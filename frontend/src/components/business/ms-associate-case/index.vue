@@ -194,6 +194,7 @@
           :extra-table-params="props.extraTableParams"
           :keyword="keyword"
           @get-module-count="initModulesCount"
+          @refresh="loadCaseList"
         />
         <!-- 接口用例 API -->
         <ApiTable
@@ -244,6 +245,7 @@
           :extra-table-params="props.extraTableParams"
           :keyword="keyword"
           @get-module-count="initModulesCount"
+          @refresh="loadCaseList"
         />
 
         <div class="footer">
@@ -421,8 +423,7 @@
       modulesCount.value = await initGetModuleCountFunc(props.getModuleCountApiType, associationType.value, {
         ...params,
         ...props.extraModuleCountParams,
-        protocols:
-          associationType.value === CaseLinkEnum.API && showType.value === 'API' ? selectedProtocols.value : undefined,
+        protocols: associationType.value === CaseLinkEnum.API ? selectedProtocols.value : undefined,
       });
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -450,7 +451,11 @@
   function initModuleTree(tree: ModuleTreeNode[], _protocols?: string[]) {
     moduleTree.value = unref(tree);
     selectedProtocols.value = _protocols || [];
-    loadCaseList();
+    if (props.associatedType === CaseLinkEnum.API) {
+      loadCaseList();
+    } else {
+      activeFolder.value = 'all';
+    }
   }
 
   const functionalType = ref('project');
@@ -502,9 +507,7 @@
   watch(
     () => innerProject.value,
     (val) => {
-      if (val) {
-        activeFolder.value = 'all';
-      }
+      innerProject.value = val;
     }
   );
 </script>

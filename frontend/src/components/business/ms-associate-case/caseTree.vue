@@ -60,7 +60,6 @@
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
 
-  import MsFolderAll from '@/components/business/ms-folder-all/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
@@ -180,18 +179,19 @@
     }
   );
 
-  watchEffect(() => {
-    if (props.currentProject) {
-      initModules();
-    }
-  });
-
   watch(
-    () => props.activeTab,
+    () => props.showType,
     (val) => {
       if (val) {
-        initModules();
+        selectedProtocolsChange();
       }
+    }
+  );
+
+  watch(
+    () => props.currentProject,
+    () => {
+      initModules();
     }
   );
 </script>

@@ -226,44 +226,14 @@
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
 
   watch(
-    () => props.activeSourceType,
-    (val) => {
-      if (val) {
-        tableRef.value?.initColumn(columns);
-        resetSelector();
-        resetFilterParams();
-        setPagination({
-          current: 1,
-        });
-      }
-    }
-  );
-
-  watch(
     () => props.currentProject,
-    (val) => {
-      if (val) {
-        setPagination({
-          current: 1,
-        });
-        resetSelector();
-        resetFilterParams();
-        loadScenarioList();
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
-
-  watch(
-    () => props.activeModule,
-    (val) => {
-      if (val) {
-        resetSelector();
-        resetFilterParams();
-        loadScenarioList();
-      }
+    () => {
+      setPagination({
+        current: 1,
+      });
+      resetSelector();
+      resetFilterParams();
+      emit('refresh');
     }
   );
 
@@ -277,6 +247,19 @@
       selectAll: selectorStatus === 'all',
     };
   }
+
+  onMounted(() => {
+    loadScenarioList();
+  });
+
+  watch(
+    () => props.activeModule,
+    () => {
+      resetSelector();
+      resetFilterParams();
+      loadScenarioList();
+    }
+  );
 
   defineExpose({
     getScenarioSaveParams,
