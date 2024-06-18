@@ -127,6 +127,13 @@ public class MessageListener {
                 }
             }
         } catch (Exception e) {
+            // 串行执行异常，清空队列
+            if (StringUtils.isNotBlank(dto.getQueueId())) {
+                apiExecutionQueueService.deleteQueue(dto.getQueueId());
+            }
+            if (StringUtils.isNotBlank(dto.getParentQueueId())) {
+                apiExecutionQueueService.deleteQueue(dto.getParentQueueId());
+            }
             LogUtils.error("执行任务失败：", e);
         }
     }

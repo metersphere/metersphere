@@ -371,6 +371,7 @@ public class TestPlanExecuteService {
 
         String queueId = executionQueue.getPrepareReportId() + "_" + parentCollection.getId();
         String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
+        String runMode = executionQueue.getRunMode();
         for (TestPlanCollection collection : childrenList) {
             childrenQueue.add(
                     new TestPlanExecutionQueue(
@@ -382,7 +383,7 @@ public class TestPlanExecuteService {
                             executionQueue.getQueueId(),
                             executionQueue.getQueueType(),
                             collection.getId(),
-                            collection.getExecuteMethod(),
+                            runMode,
                             executionQueue.getExecutionSource(),
                             executionQueue.getPrepareReportId()) {{
                         this.setTestPlanCollectionJson(JSON.toJSONString(collection));
@@ -395,7 +396,7 @@ public class TestPlanExecuteService {
             this.caseTypeExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
         } else {
             this.setRedisForList(genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
-            if (StringUtils.equalsIgnoreCase(parentCollection.getExecuteMethod(), ApiBatchRunMode.SERIAL.name())) {
+            if (StringUtils.equalsIgnoreCase(runMode, ApiBatchRunMode.SERIAL.name())) {
                 //串行
                 TestPlanExecutionQueue nextQueue = this.getNextQueue(queueId, queueType);
                 this.executeCase(nextQueue);
