@@ -1075,8 +1075,8 @@
           await initQuoteCaseDetail();
         }
         handleActiveDebugProtocolChange(requestVModel.value.protocol);
-        setDefaultActiveTab();
         nextTick(() => {
+          setDefaultActiveTab();
           isSwitchingContent.value = false;
         });
       }

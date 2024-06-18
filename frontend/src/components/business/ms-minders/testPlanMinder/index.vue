@@ -450,15 +450,19 @@
 
   const currentPriority = ref<RunMode>(RunMode.SERIAL);
   // 优先级与串行/并行文本映射
-  const priorityTextMap = {
+  const priorityTextMap: Record<number, string> = {
     2: t('ms.minders.serial'),
     3: t('ms.minders.parallel'),
   };
   // 串行/并行枚举值与优先级映射
-  const priorityMap = {
+  const priorityMap: Record<RunMode, number> = {
     [RunMode.SERIAL]: 2,
     [RunMode.PARALLEL]: 3,
   };
+
+  function getExecuteMethod(priority: number) {
+    return priority === 2 ? RunMode.SERIAL : RunMode.PARALLEL;
+  }
 
   /**
    * 处理执行方式切换
@@ -736,11 +740,13 @@
           ...node.data,
           id: undefined,
           num: nodeIndex,
+          executeMethod: getExecuteMethod(node.data.priority),
         });
       } else {
         tempMinderParams.value.editList.push({
           ...node.data,
           num: nodeIndex,
+          executeMethod: getExecuteMethod(node.data.priority),
         });
       }
       return node.data.level < 2;
