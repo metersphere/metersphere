@@ -165,6 +165,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setName("新增用例");
         caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ2");
         caseChangeRequest.setMoveMode("AFTER");
+        caseChangeRequest.setPriority(2);
         caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_3");
         caseChangeRequest.setTemplateId("100001");
         caseChangeRequest.setType("ADD");
@@ -172,8 +173,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setCaseEditType("TEXT");
         List<CaseCustomFieldDTO> customFields = new ArrayList<>();
         CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
-        customFieldDTO.setFieldId("custom_field_minder_gyq_id_3");
-        customFieldDTO.setValue("P0");
+        customFieldDTO.setFieldId("custom_field_minder_gyq_id_4");
+        customFieldDTO.setValue("a");
         customFields.add(customFieldDTO);
         caseChangeRequest.setCustomFields(customFields);
         caseChangeRequests.add(caseChangeRequest);
@@ -182,6 +183,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setName("TEST_MINDER_MODULE_ID_GYQ_更新");
         caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
         caseChangeRequest.setTemplateId("100001");
+        caseChangeRequest.setPriority(2);
         caseChangeRequest.setMoveMode("BEFORE");
         caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
         caseChangeRequest.setType("UPDATE");
@@ -189,8 +191,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setCaseEditType("TEXT");
         customFields = new ArrayList<>();
         customFieldDTO = new CaseCustomFieldDTO();
-        customFieldDTO.setFieldId("custom_field_minder_gyq_id_3");
-        customFieldDTO.setValue("P3");
+        customFieldDTO.setFieldId("custom_field_minder_gyq_id_4");
+        customFieldDTO.setValue("b");
         customFields.add(customFieldDTO);
         caseChangeRequest.setCustomFields(customFields);
         caseChangeRequests.add(caseChangeRequest);

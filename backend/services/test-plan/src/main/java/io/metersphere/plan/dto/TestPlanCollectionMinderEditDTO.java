@@ -73,6 +73,10 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
     @NotNull(message = "{test_plan_collection.stop_on_fail.not_blank}")
     private Boolean stopOnFail;
 
+    @Schema(description = "叶子等级", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_collection.num.not_blank}")
+    private Integer level;
+
     @Schema(description = "关联关系的数据")
     private List<TestPlanCollectionAssociateDTO>associateDTOS;
 

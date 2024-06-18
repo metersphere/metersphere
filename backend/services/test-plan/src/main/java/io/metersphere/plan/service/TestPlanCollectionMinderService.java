@@ -107,7 +107,7 @@ public class TestPlanCollectionMinderService {
         } else {
             typeTreeNodeDTO.setPriority(2);
         }
-        if (StringUtils.equalsIgnoreCase(CaseType.FUNCTIONAL_CASE.getKey(),testPlanCollection.getType())) {
+        if (StringUtils.equalsIgnoreCase(CaseType.FUNCTIONAL_CASE.getKey(), testPlanCollection.getType())) {
             typeTreeNodeDTO.setPriority(null);
         }
         return typeTreeNodeDTO;
@@ -188,7 +188,7 @@ public class TestPlanCollectionMinderService {
         buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList);
         TestPlanCollectionMinderTreeDTO envTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO envTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(),ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList);
+        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList);
         TestPlanCollectionMinderTreeDTO poolTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO poolTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
         buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList);
@@ -215,7 +215,7 @@ public class TestPlanCollectionMinderService {
         buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList);
         TestPlanCollectionMinderTreeDTO envTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO envTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(),ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName() , "test_plan.mind.environment", envTreeDTO, endList);
+        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList);
         TestPlanCollectionMinderTreeDTO poolTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO poolTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
         buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList);
@@ -272,7 +272,7 @@ public class TestPlanCollectionMinderService {
     }
 
     private static void checkNameRepeat(Map<String, List<String>> updateTypeNameMap, Map<String, List<String>> addTypeNameMap) {
-        updateTypeNameMap.forEach((k, v)->{
+        updateTypeNameMap.forEach((k, v) -> {
             List<String> nameList = addTypeNameMap.get(k);
             if (CollectionUtils.isNotEmpty(nameList)) {
                 List<String> repeatList = v.stream().filter(nameList::contains).collect(Collectors.toList());
@@ -284,8 +284,8 @@ public class TestPlanCollectionMinderService {
     }
 
     private Map<String, List<String>> dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
-        List<TestPlanCollectionMinderEditDTO> updateList = request.getEditList().stream().filter(t -> StringUtils.isNotBlank(t.getId())).toList();
-        Map<String, List<String>>typeNamesMap = new HashMap<>();
+        List<TestPlanCollectionMinderEditDTO> updateList = request.getEditList().stream().filter(t -> StringUtils.isNotBlank(t.getId()) && t.getLevel() == 2).toList();
+        Map<String, List<String>> typeNamesMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(updateList)) {
             //处理删除
             deleteCollection(updateList, request.getPlanId());
@@ -311,8 +311,8 @@ public class TestPlanCollectionMinderService {
     }
 
     private Map<String, List<String>> dealAddList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
-        Map<String, List<String>>typeNamesMap = new HashMap<>();
-        List<TestPlanCollectionMinderEditDTO> addList = request.getEditList().stream().filter(t -> StringUtils.isBlank(t.getId())).toList();
+        Map<String, List<String>> typeNamesMap = new HashMap<>();
+        List<TestPlanCollectionMinderEditDTO> addList = request.getEditList().stream().filter(t -> StringUtils.isBlank(t.getId()) && t.getLevel() == 2).toList();
         if (CollectionUtils.isNotEmpty(addList)) {
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : addList) {
                 TestPlanCollection testPlanCollection = addCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
@@ -342,14 +342,6 @@ public class TestPlanCollectionMinderService {
     private Map<String, List<TestPlanCollection>> getParentMap(TestPlanCollectionMinderEditRequest request) {
         TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andParentIdEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID);
-        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
-        return testPlanCollections.stream().collect(Collectors.groupingBy(TestPlanCollection::getType));
-    }
-
-    @NotNull
-    private Map<String, List<TestPlanCollection>> getChildrenMap(TestPlanCollectionMinderEditRequest request) {
-        TestPlanCollectionExample testPlanCollectionExample = new TestPlanCollectionExample();
-        testPlanCollectionExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID);
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         return testPlanCollections.stream().collect(Collectors.groupingBy(TestPlanCollection::getType));
     }
