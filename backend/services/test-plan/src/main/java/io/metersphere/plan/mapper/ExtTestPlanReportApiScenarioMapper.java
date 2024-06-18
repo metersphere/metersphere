@@ -26,13 +26,6 @@ public interface ExtTestPlanReportApiScenarioMapper {
 	List<TestPlanReportApiScenario> getPlanExecuteCases(@Param("id") String planId);
 
 	/**
-	 * 获取计划关联的场景用例
-	 * @param planIds 计划ID集合
-	 * @return 场景用例列表
-	 */
-	List<TestPlanReportApiScenario> getGroupExecuteCases(@Param("ids") List<String> planIds);
-
-	/**
 	 * 获取项目下场景用例所属模块集合
 	 * @param projectId 计划ID
 	 * @return 模块集合

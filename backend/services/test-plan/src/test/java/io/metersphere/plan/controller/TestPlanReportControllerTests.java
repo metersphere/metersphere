@@ -278,7 +278,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         this.requestPost(GEN_PLAN_REPORT, genRequest);
         genRequest.setTestPlanId("plan_id_for_gen_report");
         this.requestPost(GEN_PLAN_REPORT, genRequest);
-        GEN_REPORT_ID = getGenReportId("plan_id_for_gen_report");
+        GEN_REPORT_ID = getGenReportId();
     }
 
     @Test
@@ -334,6 +334,14 @@ public class TestPlanReportControllerTests extends BaseTest {
         String fileId = resultHolder.getData().toString();
         request.setRichTextTmpFileIds(List.of(fileId));
         this.requestPostWithOk(EDIT_PLAN_REPORT, request);
+    }
+
+    @Test
+    @Order(18)
+    void testSummaryGroupReport() {
+        testPlanReportService.summaryGroupReport("test-plan-report-id-5");
+        testPlanReportService.summaryGroupReport("test-plan-report-id-7");
+        testPlanReportService.summaryGroupReport("test-plan-report-id-9");
     }
 
     @Resource
@@ -392,12 +400,11 @@ public class TestPlanReportControllerTests extends BaseTest {
     /**
      * 获取生成的报告ID
      *
-     * @param planId 计划ID
      * @return 报告ID
      */
-    private String getGenReportId(String planId) {
+    private String getGenReportId() {
         TestPlanReportExample example = new TestPlanReportExample();
-        example.createCriteria().andTestPlanIdEqualTo(planId);
+        example.createCriteria().andTestPlanIdEqualTo("plan_id_for_gen_report");
         return testPlanReportMapper.selectByExample(example).get(0).getId();
     }
 }

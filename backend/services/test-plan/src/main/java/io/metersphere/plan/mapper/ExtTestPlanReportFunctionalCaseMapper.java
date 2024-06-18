@@ -20,13 +20,6 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 	List<TestPlanReportFunctionCase> getPlanExecuteCases(@Param("id") String planId);
 
 	/**
-	 * 获取计划关联的功能用例
-	 * @param planIds 计划ID集合
-	 * @return 功能用例列表
-	 */
-	List<TestPlanReportFunctionCase> getGroupPlanExecuteCases(@Param("ids") List<String> planIds);
-
-	/**
 	 * 获取项目下功能用例所属模块集合
 	 * @param projectId 计划ID
 	 * @return 模块集合
