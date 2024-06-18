@@ -37,6 +37,10 @@ public class FunctionalCaseChangeRequest implements Serializable {
     @NotBlank(message = "{functional_case.module_id.not_blank}")
     private String moduleId;
 
+    @Schema(description = "用例等级", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.name.not_blank}")
+    private int priority = 0;
+
     @Schema(description = "移动方式（节点移动或新增时需要）", requiredMode = Schema.RequiredMode.REQUIRED)
     private String moveMode;
 

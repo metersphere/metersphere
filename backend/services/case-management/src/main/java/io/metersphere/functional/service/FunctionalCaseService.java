@@ -449,7 +449,7 @@ public class FunctionalCaseService {
         long testPlanExecuteComment = testPlanCaseExecuteHistoryMapper.countByExample(testPlanCaseExecuteHistoryExample);
         OptionDTO executeOption = new OptionDTO();
         executeOption.setId("executiveComment");
-        executeOption.setName(String.valueOf(reviewComment));
+        executeOption.setName(String.valueOf(testPlanExecuteComment));
         commentList.add(2,executeOption);
         functionalCaseDetailDTO.setCommentList(commentList);
         long commentCount = caseComment + reviewComment + testPlanExecuteComment;

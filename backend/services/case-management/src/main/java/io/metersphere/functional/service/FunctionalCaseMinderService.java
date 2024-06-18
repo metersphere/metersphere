@@ -130,7 +130,6 @@ public class FunctionalCaseMinderService {
     private static final String FUNCTIONAL_CASE = "functional_case";
     private static final String FUNCTIONAL_CASE_MODULE = "functional_case_module";
     private static final String CHECK_OWNER_CASE = "check_owner_case";
-
     /**
      * 功能用例-脑图用例列表查询
      *
@@ -276,6 +275,8 @@ public class FunctionalCaseMinderService {
         FunctionalMinderTreeNodeDTO rootData = new FunctionalMinderTreeNodeDTO();
         rootData.setText(text);
         rootData.setPos(pos);
+        //最子节点默认收起
+        rootData.setExpandState("collapse");
         rootData.setResource(List.of(resource));
         functionalMinderTreeDTO.setChildren(new ArrayList<>());
         functionalMinderTreeDTO.setData(rootData);
@@ -620,7 +621,12 @@ public class FunctionalCaseMinderService {
                     FunctionalCase functionalCase = addCase(request, userId, functionalCaseChangeRequest, caseMapper, sourceIdAndInsertModuleIdMap);
                     String caseId = functionalCase.getId();
                     sourceIdAndInsertCaseIdMap.put(functionalCaseChangeRequest.getId(), caseId);
-
+                    //保存用例等级
+                    FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
+                    customField.setCaseId(caseId);
+                    customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
+                    customField.setValue("P"+functionalCaseChangeRequest.getPriority());
+                    caseCustomFieldMapper.insertSelective(customField);
                     //附属表
                     FunctionalCaseBlob functionalCaseBlob = addCaseBlob(functionalCaseChangeRequest, caseId, caseBlobMapper);
                     //保存自定义字段
@@ -658,6 +664,12 @@ public class FunctionalCaseMinderService {
                     FunctionalCaseBlob functionalCaseBlob = updateBlob(functionalCaseChangeRequest, caseId, caseBlobMapper);
                     //更新自定义字段
                     List<FunctionalCaseCustomField> functionalCaseCustomFields = updateCustomFields(functionalCaseChangeRequest, oldCaseCustomFieldMap, caseId, caseCustomFieldMapper);
+                    //更新用例等级
+                    FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
+                    customField.setCaseId(caseId);
+                    customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
+                    customField.setValue("P"+functionalCaseChangeRequest.getPriority());
+                    caseCustomFieldMapper.updateByPrimaryKeySelective(customField);
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, oldCaseCustomFieldMap.get(caseId), new ArrayList<>(), new ArrayList<>());
                     FunctionalCaseHistoryLogDTO old = new FunctionalCaseHistoryLogDTO(oldCaseMap.get(caseId), oldBlobMap.get(caseId), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -692,16 +704,16 @@ public class FunctionalCaseMinderService {
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.toString());
         List<TemplateCustomFieldDTO> customFields = defaultTemplateDTO.getCustomFields();
         Map<String, Object> defaultValueMap = new HashMap<>();
+        String priorityFieldId = null;
         for (TemplateCustomFieldDTO field : customFields) {
-            if (StringUtils.equalsIgnoreCase(field.getFieldName(), "functional_priority")) {
-                if (field.getDefaultValue() == null) {
-                    field.setDefaultValue("P0");
-                }
+            if (StringUtils.equalsIgnoreCase(field.getFieldName(), Translator.get("custom_field.functional_priority"))) {
+                priorityFieldId = field.getFieldId();
             }
-            if (field.getDefaultValue() != null) {
+            if (field.getDefaultValue() != null && !StringUtils.equalsIgnoreCase(field.getFieldName(), Translator.get("custom_field.functional_priority"))) {
                 defaultValueMap.put(field.getFieldId(), field.getDefaultValue());
             }
         }
+        defaultValueMap.put("priorityFieldId", priorityFieldId);
         return defaultValueMap;
     }
 
