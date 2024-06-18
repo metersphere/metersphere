@@ -23,4 +23,10 @@ public class TestPlanCollectionEnvDTO implements Serializable {
 
     @Schema(description = "环境名称")
     private String environmentName;
+
+    @Schema(description = "是否继承")
+    private Boolean extended;
+
+    @Schema(description = "父ID")
+    private String parentId;
 }

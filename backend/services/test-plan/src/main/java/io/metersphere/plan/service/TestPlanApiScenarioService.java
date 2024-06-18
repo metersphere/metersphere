@@ -359,22 +359,24 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      */
     public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted) {
         List<TestPlanApiScenarioPageResponse> list = extTestPlanApiScenarioMapper.relateApiScenarioList(request, deleted);
-        buildApiScenarioResponse(list);
+        buildApiScenarioResponse(list, request.getTestPlanId());
         return list;
     }
 
-    private void buildApiScenarioResponse(List<TestPlanApiScenarioPageResponse> apiScenarioList) {
+    private void buildApiScenarioResponse(List<TestPlanApiScenarioPageResponse> apiScenarioList, String testPlanId) {
         if (CollectionUtils.isNotEmpty(apiScenarioList)) {
             Map<String, String> projectMap = getProject(apiScenarioList);
             Map<String, String> userMap = getUserMap(apiScenarioList);
-            handleScenarioAndEnv(apiScenarioList, projectMap, userMap);
+            handleScenarioAndEnv(apiScenarioList, projectMap, userMap, testPlanId);
         }
     }
 
-    private void handleScenarioAndEnv(List<TestPlanApiScenarioPageResponse> apiScenarioList, Map<String, String> projectMap, Map<String, String> userMap) {
+    private void handleScenarioAndEnv(List<TestPlanApiScenarioPageResponse> apiScenarioList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId) {
         //获取二级节点环境
-        List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.SCENARIO_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID);
+        List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.SCENARIO_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
+        //获取一级节点环境
+        TestPlanCollectionEnvDTO firstEnv = extTestPlanCollectionMapper.selectFirstCollectionEnv(CaseType.SCENARIO_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         //当前用例环境
         List<String> caseEnvIds = apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getEnvironmentId).toList();
         EnvironmentExample environmentExample = new EnvironmentExample();
@@ -385,15 +387,26 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setExecuteUserName(userMap.get(item.getExecuteUser()));
-            TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
-            if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                //计划集 == 默认环境   处理默认环境
-                doHandleDefaultEnv(item, caseEnvMap);
-            } else {
-                //计划集 != 默认环境
-                doHandleEnv(item, collectEnv);
+            if (secondEnvMap.containsKey(item.getTestPlanCollectionId())) {
+                TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
+                if (collectEnv.getExtended()) {
+                    //继承
+                    getRunEnv(firstEnv, caseEnvMap, item);
+                } else {
+                    getRunEnv(collectEnv, caseEnvMap, item);
+                }
             }
         });
+    }
+
+    private void getRunEnv(TestPlanCollectionEnvDTO collectEnv, Map<String, String> caseEnvMap, TestPlanApiScenarioPageResponse item) {
+        if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            //计划集 == 默认环境   处理默认环境
+            doHandleDefaultEnv(item, caseEnvMap);
+        } else {
+            //计划集 != 默认环境
+            doHandleEnv(item, collectEnv);
+        }
     }
 
     private void doHandleEnv(TestPlanApiScenarioPageResponse item, TestPlanCollectionEnvDTO collectEnv) {

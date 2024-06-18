@@ -10,6 +10,7 @@ public interface ExtTestPlanCollectionMapper {
 
     List<TestPlanCollectionConfigDTO> getList(@Param("planId") String planId);
 
-    List<TestPlanCollectionEnvDTO> selectSecondCollectionEnv(@Param("type") String type, @Param("parentId") String parentId);
+    List<TestPlanCollectionEnvDTO> selectSecondCollectionEnv(@Param("type") String type, @Param("parentId") String parentId, @Param("testPlanId") String testPlanId);
 
+    TestPlanCollectionEnvDTO selectFirstCollectionEnv(@Param("type") String type, @Param("parentId") String parentId, @Param("testPlanId") String testPlanId);
 }

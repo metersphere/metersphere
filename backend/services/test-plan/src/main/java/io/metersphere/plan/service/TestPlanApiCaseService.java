@@ -19,6 +19,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
+import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.*;
@@ -224,22 +225,24 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             return new ArrayList<>();
         }
         List<TestPlanApiCasePageResponse> list = extTestPlanApiCaseMapper.relateApiCaseList(request, deleted);
-        buildApiCaseResponse(list);
+        buildApiCaseResponse(list, request.getTestPlanId());
         return list;
     }
 
-    private void buildApiCaseResponse(List<TestPlanApiCasePageResponse> apiCaseList) {
+    private void buildApiCaseResponse(List<TestPlanApiCasePageResponse> apiCaseList, String testPlanId) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             Map<String, String> projectMap = getProject(apiCaseList);
             Map<String, String> userMap = getUserMap(apiCaseList);
-            handleCaseAndEnv(apiCaseList, projectMap, userMap);
+            handleCaseAndEnv(apiCaseList, projectMap, userMap, testPlanId);
         }
     }
 
-    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap) {
+    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId) {
         //获取二级节点环境
-        List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.API_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID);
+        List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.API_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
+        //获取一级节点环境
+        TestPlanCollectionEnvDTO firstEnv = extTestPlanCollectionMapper.selectFirstCollectionEnv(CaseType.API_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         //当前用例环境
         List<String> caseEnvIds = apiCaseList.stream().map(TestPlanApiCasePageResponse::getEnvironmentId).toList();
         EnvironmentExample environmentExample = new EnvironmentExample();
@@ -250,15 +253,26 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setExecuteUserName(userMap.get(item.getExecuteUser()));
-            TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
-            if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                //计划集 == 默认环境   处理默认环境
-                doHandleDefaultEnv(item, caseEnvMap);
-            } else {
-                //计划集 != 默认环境
-                doHandleEnv(item, collectEnv);
+            if (secondEnvMap.containsKey(item.getTestPlanCollectionId())) {
+                TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
+                if (collectEnv.getExtended()) {
+                    //继承
+                    getRunEnv(firstEnv, caseEnvMap, item);
+                } else {
+                    getRunEnv(collectEnv, caseEnvMap, item);
+                }
             }
         });
+    }
+
+    private void getRunEnv(TestPlanCollectionEnvDTO collectEnv, Map<String, String> caseEnvMap, TestPlanApiCasePageResponse item) {
+        if (StringUtils.equalsIgnoreCase(collectEnv.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            //计划集 == 默认环境   处理默认环境
+            doHandleDefaultEnv(item, caseEnvMap);
+        } else {
+            //计划集 != 默认环境
+            doHandleEnv(item, collectEnv);
+        }
     }
 
     private void doHandleEnv(TestPlanApiCasePageResponse item, TestPlanCollectionEnvDTO collectEnv) {
