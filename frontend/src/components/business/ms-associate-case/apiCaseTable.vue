@@ -80,6 +80,7 @@
     activeSourceType: keyof typeof CaseLinkEnum;
     selectorAll?: boolean;
     keyword: string;
+    showType: string;
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
     protocols: string[];
@@ -244,6 +245,17 @@
   }
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
+
+  watch(
+    () => props.showType,
+    (val) => {
+      if (val === 'API_CASE') {
+        resetSelector();
+        resetFilterParams();
+        loadCaseList();
+      }
+    }
+  );
 
   watch(
     () => () => props.currentProject,

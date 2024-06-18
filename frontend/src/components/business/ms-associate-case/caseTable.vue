@@ -266,46 +266,29 @@
   }
 
   watch(
-    () => props.activeSourceType,
-    (val) => {
-      if (val) {
-        tableRef.value?.initColumn(columns);
-        resetSelector();
-        resetFilterParams();
-        setPagination({
-          current: 1,
-        });
-      }
-    }
-  );
-
-  watch(
     () => props.currentProject,
-    (val) => {
-      if (val) {
-        setPagination({
-          current: 1,
-        });
-        resetSelector();
-        resetFilterParams();
-        loadCaseList();
-      }
-    },
-    {
-      immediate: true,
+    () => {
+      setPagination({
+        current: 1,
+      });
+      resetSelector();
+      resetFilterParams();
+      emit('refresh');
     }
   );
 
   watch(
     () => props.activeModule,
-    (val) => {
-      if (val) {
-        resetSelector();
-        resetFilterParams();
-        loadCaseList();
-      }
+    () => {
+      resetSelector();
+      resetFilterParams();
+      loadCaseList();
     }
   );
+
+  onMounted(() => {
+    loadCaseList();
+  });
 
   defineExpose({
     getFunctionalSaveParams,
