@@ -13,7 +13,7 @@ const useMinderStore = defineStore('minder', {
   state: (): MinderState => ({
     event: {
       name: '' as MinderEventName,
-      timestamp: 0,
+      eventId: '',
       params: '',
       nodePosition: {
         x: 0,
@@ -49,7 +49,7 @@ const useMinderStore = defineStore('minder', {
       this.event = {
         name,
         params,
-        timestamp: Date.now(),
+        eventId: getGenerateId(),
         nodePosition: position,
         nodeDom,
         nodes,

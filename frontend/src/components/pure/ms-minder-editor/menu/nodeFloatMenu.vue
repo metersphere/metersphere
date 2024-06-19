@@ -11,7 +11,7 @@
     <span></span>
     <template #content>
       <a-radio-group
-        v-if="currentNodeTags.length > 0 && tags.length > 0"
+        v-if="tags.length > 0"
         v-model:model-value="currentNodeTags[0]"
         type="button"
         size="mini"
@@ -212,7 +212,7 @@
   const menuPopupOffset = ref<TriggerPopupTranslate>([0, 0]);
 
   watch(
-    () => minderStore.event.timestamp,
+    () => minderStore.event.eventId,
     async () => {
       if (window.minder) {
         let nodePosition: MinderNodePosition | undefined;

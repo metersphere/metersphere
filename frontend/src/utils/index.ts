@@ -580,6 +580,7 @@ export function deleteNodes<T>(
   treeArr: TreeNode<T>[],
   targetKeys: (string | number)[],
   deleteCondition?: (node: TreeNode<T>, parent?: TreeNode<T>) => boolean,
+  deleteCallBack?: (node: TreeNode<T>) => void,
   customKey = 'key'
 ): boolean {
   let hasDeleted = false;
@@ -589,6 +590,9 @@ export function deleteNodes<T>(
       const node = tree[i];
       if (targetKeysSet.has(node[customKey])) {
         if (deleteCondition && deleteCondition(node, node.parent)) {
+          if (deleteCallBack) {
+            deleteCallBack(node);
+          }
           tree.splice(i, 1); // 直接删除当前节点
           hasDeleted = true;
           targetKeysSet.delete(node[customKey]); // 删除后从集合中移除

@@ -1,6 +1,6 @@
 <template>
   <div ref="mec" class="ms-minder-container">
-    <minderHeader :icon-buttons="props.iconButtons" @save="save" />
+    <minderHeader :icon-buttons="props.iconButtons" :disabled="props.disabled" @save="save" />
     <Navigator />
     <div
       v-if="currentTreePath?.length > 0"
@@ -125,7 +125,6 @@
         ]);
         if (selectNodes.length > 0 && !notChangeCommands.has(event.commandName.toLocaleLowerCase())) {
           minderStore.setMinderUnsaved(true);
-          minderStore.dispatchEvent(MinderEventName.MINDER_CHANGED);
           selectNodes.forEach((node: MinderJsonNode) => {
             markChangeNode(node);
           });
@@ -155,7 +154,7 @@
    * 切换脑图展示的节点层级
    * @param node 切换的节点
    */
-  function switchNode(node: MinderJsonNode | MinderJsonNodeData) {
+  function switchNode(node?: MinderJsonNode | MinderJsonNodeData) {
     if (minderStore.minderUnsaved) {
       // 切换前，如果脑图未保存，先把更改的节点信息同步一次
       replaceNodeInTree(
@@ -166,12 +165,12 @@
         'id'
       );
     }
-    if (node.id === 'NONE') {
+    if (node?.id === 'NONE') {
       innerImportJson.value = importJson.value;
-    } else if (node.data) {
+    } else if (node?.data) {
       innerImportJson.value = findNodePathByKey([importJson.value.root], node.data.id, 'data', 'id') as MinderJson;
     } else {
-      innerImportJson.value = findNodePathByKey([importJson.value.root], node.id, 'data', 'id') as MinderJson;
+      innerImportJson.value = findNodePathByKey([importJson.value.root], node?.id, 'data', 'id') as MinderJson;
     }
     window.minder.importJson(innerImportJson.value);
     const root: MinderJsonNode = window.minder.getRoot();
@@ -203,7 +202,7 @@
   }
 
   watch(
-    () => minderStore.event.timestamp,
+    () => minderStore.event.eventId,
     () => {
       if (minderStore.event.name === MinderEventName.HOTBOX && minderStore.event.nodePosition) {
         const nodeDomWidth = minderStore.event.nodeDom?.getBoundingClientRect().width || 0;

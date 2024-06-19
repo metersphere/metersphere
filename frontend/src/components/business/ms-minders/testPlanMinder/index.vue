@@ -13,7 +13,7 @@
     :can-show-priority-menu="false"
     :can-show-float-menu="canShowFloatMenu"
     :can-show-delete-menu="canShowDeleteMenu"
-    :disable="!hasEditPermission"
+    :disabled="!hasEditPermission"
     custom-priority
     single-tag
     tag-enable
@@ -86,7 +86,7 @@
           </a-tooltip>
         </div>
         <a-form ref="configFormRef" :model="configForm" :disabled="!hasEditPermission" layout="vertical">
-          <a-form-item v-if="hasEditPermission">
+          <a-form-item v-if="hasEditPermission && configForm.level === 2">
             <template #label>
               <div class="flex items-center">
                 <div>{{ t('testPlan.planForm.pickCases') }}</div>
@@ -127,27 +127,37 @@
               </div>
             </div>
           </a-form-item>
-          <template
-            v-if="
-              configForm.type !== PlanMinderCollectionType.FUNCTIONAL &&
-              (configForm.level === 1 || !configForm.extended)
-            "
-          >
+          <template v-if="configForm.type !== PlanMinderCollectionType.FUNCTIONAL">
             <a-form-item :label="t('system.project.resourcePool')">
-              <a-select v-model:model-value="configForm.testResourcePoolId" :options="resourcePoolOptions"></a-select>
+              <a-select
+                v-model:model-value="configForm.testResourcePoolId"
+                :options="resourcePoolOptions"
+                :disabled="configForm.level === 2 && configForm.extended"
+              ></a-select>
             </a-form-item>
             <a-form-item :label="t('project.environmental.env')">
-              <a-select v-model:model-value="configForm.environmentId" :options="environmentOptions"></a-select>
+              <a-select
+                v-model:model-value="configForm.environmentId"
+                :options="environmentOptions"
+                :disabled="configForm.level === 2 && configForm.extended"
+              ></a-select>
             </a-form-item>
             <a-form-item class="hidden-item">
-              <a-radio-group v-model:model-value="configForm.executeMethod">
+              <a-radio-group
+                v-model:model-value="configForm.executeMethod"
+                :disabled="configForm.level === 2 && configForm.extended"
+              >
                 <a-radio :value="RunMode.SERIAL">{{ t('testPlan.testPlanIndex.serial') }}</a-radio>
                 <a-radio :value="RunMode.PARALLEL">{{ t('testPlan.testPlanIndex.parallel') }}</a-radio>
               </a-radio-group>
             </a-form-item>
             <a-form-item v-if="configForm.executeMethod === RunMode.SERIAL" class="hidden-item">
               <div class="flex items-center gap-[8px]">
-                <a-switch v-model:model-value="configForm.stopOnFail" size="small"></a-switch>
+                <a-switch
+                  v-model:model-value="configForm.stopOnFail"
+                  size="small"
+                  :disabled="configForm.level === 2 && configForm.extended"
+                ></a-switch>
                 <div>{{ t('ms.minders.failStop') }}</div>
               </div>
             </a-form-item>
@@ -206,7 +216,7 @@
             class="hidden-item"
           >
             <div class="flex items-center gap-[8px]">
-              <a-switch v-model:model-value="configForm.extended" size="small"></a-switch>
+              <a-switch v-model:model-value="configForm.extended" size="small" @change="handleExtendChange"></a-switch>
               <div>{{ t('ms.minders.extend') }}</div>
             </div>
           </a-form-item>
@@ -270,6 +280,7 @@
 
   const props = defineProps<{
     planId: string;
+    status: string;
   }>();
   const emit = defineEmits<{
     (e: 'save'): void;
@@ -297,7 +308,9 @@
   const showConfigMenu = ref(false);
   const canShowDeleteMenu = ref(false);
   const extraVisible = ref<boolean>(false);
-  const hasEditPermission = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']);
+  const hasEditPermission = computed(
+    () => props.status !== 'ARCHIVED' && hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE'])
+  );
 
   /**
    * 检测节点可展示的菜单项
@@ -306,13 +319,18 @@
   function checkNodeCanShowMenu(node: PlanMinderNode) {
     const { data } = node;
 
-    if (!hasEditPermission && (data?.level === 1 || data?.level === 2)) {
+    if (!hasEditPermission.value && (data?.level === 1 || data?.level === 2)) {
       // 没有编辑权限，只能查看配置菜单（功能用例只有关联用例，所以配置菜单也不能看）
       if (data?.type === PlanMinderCollectionType.FUNCTIONAL) {
         canShowFloatMenu.value = false;
       } else {
         canShowFloatMenu.value = true;
         showConfigMenu.value = true;
+        showAssociateCaseMenu.value = false;
+        canShowExecuteMethodMenu.value = false;
+        canShowDeleteMenu.value = false;
+        insertSiblingMenus.value = [];
+        insertSonMenus.value = [];
       }
       return;
     }
@@ -694,6 +712,39 @@
     }
   }
 
+  function handleExtendChange(val: string | number | boolean) {
+    if (val && configForm.value) {
+      const node: PlanMinderNode = window.minder.getNodeById(configForm.value.id);
+      if (node.parent?.data) {
+        const {
+          priority,
+          executeMethod,
+          grouped,
+          environmentId,
+          testResourcePoolId,
+          retryOnFail,
+          retryType,
+          retryTimes,
+          retryInterval,
+          stopOnFail,
+        } = node.parent.data;
+        configForm.value = {
+          ...configForm.value,
+          priority,
+          executeMethod,
+          grouped,
+          environmentId,
+          testResourcePoolId,
+          retryOnFail,
+          retryType,
+          retryTimes,
+          retryInterval,
+          stopOnFail,
+        };
+      }
+    }
+  }
+
   /**
    * 初始化测试规划脑图
    */
@@ -762,6 +813,7 @@
       loading.value = true;
       await editPlanMinder(makeMinderParams(fullJson));
       Message.success(t('common.saveSuccess'));
+      clearSelectedCases();
       handleConfigCancel();
       initMinder();
       callback();

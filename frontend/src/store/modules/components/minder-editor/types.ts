@@ -17,7 +17,7 @@ export interface MinderNodePosition {
 
 export interface MinderCustomEvent {
   name: MinderEventName;
-  timestamp: number;
+  eventId: string;
   params?: any;
   nodePosition?: MinderNodePosition;
   nodeDom?: HTMLElement;

@@ -282,6 +282,9 @@
           scenario.value.steps,
           checkedKeys.value,
           (node) => !node.isQuoteScenarioStep,
+          (node) => {
+            delete scenario.value.stepDetails[node.id];
+          },
           'uniqueId'
         );
         if (deleteResult) {

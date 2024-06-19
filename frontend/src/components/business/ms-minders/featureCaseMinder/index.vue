@@ -85,7 +85,6 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
   import { filterTree, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
@@ -160,60 +159,66 @@
   async function initCaseTree(notRemote = false) {
     try {
       loading.value = true;
-      let res: MinderJsonNode[];
-      if (notRemote) {
-        res = caseTree.value;
-      } else {
-        res = await getCaseMinderTree({
+      if (!notRemote) {
+        const res = await getCaseMinderTree({
           projectId: appStore.currentProjectId,
           moduleId: '', // 始终加载全部，然后再进入对应的模块节点
         });
-      }
-      caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
-        ...e,
-        data: {
-          id: e.id,
-          text: e.name,
-          resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
-          expandState: e.level === 1 ? 'expand' : 'collapse',
-          count: props.modulesCount[e.id],
-          isNew: false,
-          changed: false,
-        },
-        children:
-          props.modulesCount[e.id] > 0 && !e.children?.length
-            ? [
-                {
-                  data: {
-                    id: 'fakeNode',
-                    text: 'fakeNode',
-                    resource: ['fakeNode'],
-                    isNew: false,
-                    changed: false,
+        caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
+          ...e,
+          data: {
+            ...e.data,
+            id: e.id || e.data?.id || '',
+            text: e.name || e.data?.text || '',
+            resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
+            expandState: e.level === 1 ? 'expand' : 'collapse',
+            count: props.modulesCount[e.id],
+            isNew: false,
+            changed: false,
+          },
+          children:
+            props.modulesCount[e.id] > 0 && !e.children?.length
+              ? [
+                  {
+                    data: {
+                      id: 'fakeNode',
+                      text: 'fakeNode',
+                      resource: ['fakeNode'],
+                      isNew: false,
+                      changed: false,
+                    },
                   },
-                },
-              ]
-            : e.children,
-      }));
-      importJson.value.root = {
-        children: caseTree.value,
-        data: {
-          id: 'NONE',
-          text: t('ms.minders.allModule'),
-          resource: [moduleTag],
-          disabled: true,
-        },
-      };
-      importJson.value.treePath = [];
-      window.minder.importJson(importJson.value);
-      window.minder.execCommand('camera', window.minder.getRoot(), 100);
-      if (props.moduleId !== 'all') {
-        // 携带具体的模块 ID 加载时，进入该模块内
-        nextTick(() => {
-          minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
-            window.minder.getNodeById(props.moduleId),
-          ]);
-        });
+                ]
+              : e.children,
+        }));
+        importJson.value.root = {
+          children: caseTree.value,
+          data: {
+            id: 'NONE',
+            text: t('ms.minders.allModule'),
+            resource: [moduleTag],
+            disabled: true,
+          },
+        };
+        importJson.value.treePath = [];
+        window.minder.importJson(importJson.value);
+      }
+      if (notRemote) {
+        if (props.moduleId !== 'all') {
+          // 携带具体的模块 ID 加载时，进入该模块内
+          nextTick(() => {
+            minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
+              window.minder.getNodeById(props.moduleId),
+            ]);
+          });
+        } else {
+          // 携带具体的模块 ID 加载时，进入该模块内
+          nextTick(() => {
+            minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
+              importJson.value.root,
+            ]);
+          });
+        }
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -391,12 +396,13 @@
         if ((!res || res.length === 0) && node.children?.length) {
           // 如果模块下没有用例且有别的模块节点，正常展开
           node.expand();
-          node.renderTree();
+          window.minder.renderNodeBatch(node.children);
           node.layout();
+          data.isLoaded = true;
           return;
         }
         // TODO:递归渲染存在的子节点
-        const waitingRenderNodes: MinderJsonNode[] = [];
+        let waitingRenderNodes: MinderJsonNode[] = [];
         res.forEach((e) => {
           // 用例节点
           const child = window.minder.createNode(
@@ -439,14 +445,14 @@
         });
         node.expand();
         // node.renderTree();
+        if (node.children && node.children.length > 0) {
+          waitingRenderNodes = waitingRenderNodes.concat(node.children);
+        }
         window.minder.renderNodeBatch(waitingRenderNodes);
         node.layout();
-        window.minder.execCommand('camera', node, 100);
-        if (node.data) {
-          node.data.isLoaded = true;
-        }
+        data.isLoaded = true;
         // 加载完用例数据后，更新当前importJson数据
-        replaceNodeInTree([importJson.value.root], node.data?.id || '', node, 'data', 'id');
+        replaceNodeInTree([importJson.value.root], node.data?.id || '', window.minder.exportNode(node), 'data', 'id');
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -458,11 +464,6 @@
       extraVisible.value = false;
       showDetailMenu.value = false;
       resetExtractInfo();
-      if (node.children && node.children.length > 0 && node.data?.expandState === 'collapse') {
-        node.expand();
-        node.renderTree();
-        node.layout();
-      }
     }
     setPriorityView(true, 'P');
   }
@@ -524,7 +525,7 @@
             if (!caseOffspringTags.some((e) => node.data?.resource?.includes(e))) {
               // 非用例下的子孙节点的移除，才加入删除资源队列
               tempMinderParams.value.deleteResourceList.push({
-                id: node.data?.id || getGenerateId(),
+                id: node.data?.id || '',
                 type: node.data?.resource?.[0] || moduleTag,
               });
             }
@@ -556,12 +557,12 @@
    * 解析用例节点信息
    * @param node 用例节点
    */
-  function getCaseNodeInfo(node: MinderJsonNode) {
+  function getCaseNodeInfo(node?: MinderJsonNode) {
     let textStep: MinderJsonNode | undefined; // 文本描述
     let prerequisiteNode: MinderJsonNode | undefined; // 前置条件
     let remarkNode: MinderJsonNode | undefined; // 备注
     const stepNodes: MinderJsonNode[] = []; // 步骤描述
-    node.children?.forEach((item) => {
+    node?.children?.forEach((item) => {
       if (item.data?.resource?.includes(textDescTag)) {
         textStep = item;
       } else if (item.data?.resource?.includes(stepTag)) {
@@ -577,7 +578,7 @@
         id: child.data?.id || getGenerateId(),
         num: i,
         desc: child.data?.text || '',
-        result: child.children?.[0].data?.text || '',
+        result: child.children?.[0]?.data?.text || '',
       };
     });
     return {
@@ -587,7 +588,7 @@
       textDescription: textStep?.data?.text || '',
       expectedResult: textStep?.children?.[0]?.data?.text || '',
       description: remarkNode?.data?.text || '',
-      priority: node.data?.priority,
+      priority: node?.data?.priority,
     };
   }
 
@@ -609,6 +610,17 @@
         moveMode === 'BEFORE'
           ? parent?.children?.[1]?.data?.id
           : parent?.children?.[(nodeIndex || parent.children.length - 1) - 1]?.data?.id,
+    };
+  }
+
+  function resetMinderParams() {
+    tempMinderParams.value = {
+      projectId: appStore.currentProjectId,
+      versionId: '',
+      updateCaseList: [],
+      updateModuleList: [],
+      deleteResourceList: [],
+      additionalNodeList: [],
     };
   }
 
@@ -675,28 +687,20 @@
       await saveCaseMinder(makeMinderParams(fullJson));
       extraVisible.value = false;
       Message.success(t('common.saveSuccess'));
-      tempMinderParams.value = {
-        projectId: appStore.currentProjectId,
-        versionId: '',
-        updateCaseList: [],
-        updateModuleList: [],
-        deleteResourceList: [],
-        additionalNodeList: [],
-      };
+      resetMinderParams();
       emit('save');
       callback();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+      resetMinderParams();
     } finally {
       loading.value = false;
     }
   }
 
-  const featureCaseStore = useFeatureCaseStore();
-
   watch(
-    () => featureCaseStore.modulesCount,
+    () => props.moduleId,
     () => {
       initCaseTree(true);
     },

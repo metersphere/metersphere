@@ -259,9 +259,10 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
     if (
       Object.keys(node.data || {}).length === 0 ||
       node.data?.id === 'root' ||
-      (node.parent?.data?.resource || []).length === 0
+      (node.parent?.data?.resource || []).length === 0 ||
+      node.parent?.data?.id === 'NONE'
     ) {
-      // 没有数据的节点、默认模块节点、父节点为文本节点的节点不可替换标签
+      // 没有数据的节点、默认模块节点、父节点为文本节点、父节点为NONE虚拟根节点的节点不可替换标签
       return [];
     }
     if (node.data?.resource?.some((e) => topTags.includes(e))) {
