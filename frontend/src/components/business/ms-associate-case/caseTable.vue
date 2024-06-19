@@ -82,6 +82,7 @@
     (e: 'initModules'): void;
     (e: 'update:selectedIds'): void;
   }>();
+  const innerSelectedIds = defineModel<string[]>('selectedIds', { required: true });
 
   const reviewResultOptions = computed(() => {
     return Object.keys(statusIconMap).map((key) => {
@@ -194,37 +195,46 @@
     return undefined;
   }
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setPagination, resetFilterParams } =
-    useTable(
-      getPageList.value,
-      {
-        columns,
-        showSetting: false,
-        selectable: true,
-        showSelectAll: true,
-        heightUsed: 310,
-        showSelectorAll: false,
-      },
-      (record) => {
-        return {
-          ...record,
-          caseLevel: getCaseLevel(record),
-          tags: (record.tags || []).map((item: string, i: number) => {
-            return {
-              id: `${record.id}-${i}`,
-              name: item,
-            };
-          }),
-        };
-      }
-    );
+  const {
+    propsRes,
+    propsEvent,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    setPagination,
+    resetFilterParams,
+    setTableSelected,
+  } = useTable(
+    getPageList.value,
+    {
+      columns,
+      showSetting: false,
+      selectable: true,
+      showSelectAll: true,
+      heightUsed: 310,
+      showSelectorAll: false,
+    },
+    (record) => {
+      return {
+        ...record,
+        caseLevel: getCaseLevel(record),
+        tags: (record.tags || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+      };
+    }
+  );
 
   async function getTableParams() {
+    const { excludeKeys } = propsRes.value;
     return {
       keyword: props.keyword,
       projectId: props.currentProject,
       moduleIds: props.activeModule === 'all' || !props.activeModule ? [] : [props.activeModule, ...props.offspringIds],
-      excludeIds: [...(props.associatedIds || [])], // 已经存在的关联的id列表
+      excludeIds: [...excludeKeys],
       condition: {
         keyword: props.keyword,
         filter: propsRes.value.filter,
@@ -243,6 +253,11 @@
   }
 
   async function loadCaseList() {
+    if (props.associatedIds && props.associatedIds.length) {
+      props.associatedIds.forEach((hasNotAssociatedId) => {
+        setTableSelected(hasNotAssociatedId);
+      });
+    }
     const tableParams = await getTableParams();
     setLoadListParams(tableParams);
     loadList();
@@ -256,11 +271,12 @@
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
 
   function getFunctionalSaveParams() {
+    console.log(111);
     const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
     const tableParams = getTableParams();
     return {
       ...tableParams,
-      excludeIds: [...excludeKeys].concat(...(props.associatedIds || [])),
+      excludeIds: [...excludeKeys],
       selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
       selectAll: selectorStatus === 'all',
     };
@@ -277,8 +293,6 @@
       emit('refresh');
     }
   );
-
-  const innerSelectedIds = defineModel<string[]>('selectedIds', { required: true });
 
   const selectIds = computed(() => {
     return [...propsRes.value.selectedKeys];

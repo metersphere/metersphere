@@ -988,6 +988,28 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.TEST_PLAN_REPORT,
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'TEST_PLAN_REPORT_TEST_PLAN', // 测试计划报告
+            locale: 'menu.apiTest.reportTestPlan',
+            route: RouteEnum.TEST_PLAN_REPORT,
+            permission: [],
+            level: MENU_LEVEL[2],
+            routeQuery: {
+              type: 'TEST_PLAN',
+            },
+          },
+          {
+            key: 'TEST_PLAN_REPORT_TEST_PLAN_GROUP', // 测试计划组报告
+            locale: 'menu.apiTest.reportTestGroupPlan',
+            route: RouteEnum.TEST_PLAN_REPORT,
+            permission: [],
+            level: MENU_LEVEL[2],
+            routeQuery: {
+              type: 'GROUP',
+            },
+          },
+        ],
       },
     ],
   },

@@ -17,9 +17,10 @@
           </template>
         </a-popover>
       </div>
-      <a-popover position="bottom" content-class="response-popover-content">
-        <div> <MsChart :width="props.size || '120px'" :height="props.size || '120px'" :options="props.options" /></div>
-        <template #content>
+      <!-- TODO 汇总图例暂时不要了 -->
+      <!-- <a-popover position="bottom" content-class="response-popover-content"> -->
+      <div> <MsChart :width="props.size || '120px'" :height="props.size || '120px'" :options="props.options" /></div>
+      <!-- <template #content>
           <div class="min-w-[176px] max-w-[400px] p-4">
             <div v-for="item of legendData" :key="item.value" class="mb-2 flex flex-nowrap justify-between">
               <div class="chart-flag flex flex-nowrap items-center">
@@ -29,8 +30,8 @@
               <div class="count font-medium">{{ item.count || 0 }}</div>
             </div>
           </div>
-        </template>
-      </a-popover>
+        </template> -->
+      <!-- </a-popover> -->
     </div>
 
     <div class="chart-legend grid flex-1 gap-y-3">

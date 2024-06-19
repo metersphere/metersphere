@@ -13,7 +13,7 @@
 
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
 
-  import { commonConfig, seriesConfig, statusConfig } from '@/config/testPlan';
+  import { seriesConfig, statusConfig, toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { LegendData } from '@/models/apiTest/report';
@@ -31,7 +31,9 @@
 
   // 执行分析
   const executeCharOptions = ref({
-    ...commonConfig,
+    tooltip: {
+      ...toolTipConfig,
+    },
     series: {
       ...seriesConfig,
       data: [

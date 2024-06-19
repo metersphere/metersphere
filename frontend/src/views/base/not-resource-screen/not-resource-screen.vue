@@ -5,7 +5,7 @@
         <div class="content">
           <div class="no-resource-svg"></div>
           <div class="title">
-            <span>{{ t('common.resourceDeleted') }}</span>
+            <span>{{ resourceType === 'DELETE' ? t('common.resourceDeleted') : t('common.resourceExpired') }}</span>
           </div>
         </div>
       </div>
@@ -14,11 +14,15 @@
 </template>
 
 <script lang="ts" setup>
-  import { useRouter } from 'vue-router';
+  import { useRoute } from 'vue-router';
 
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
+
+  const route = useRoute();
+
+  const resourceType = ref<string>(route.query.type as string);
 </script>
 
 <style lang="less">

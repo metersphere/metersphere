@@ -55,7 +55,7 @@
 
   async function saveHandler(params: AssociateCaseRequest) {
     if (typeof props.saveApi !== 'function') {
-      emit('success', { ...params, functionalSelectIds: params.selectIds });
+      emit('success', { ...params });
     } else {
       try {
         confirmLoading.value = true;
@@ -63,7 +63,7 @@
           functionalSelectIds: params.selectIds,
           testPlanId: planId.value,
         });
-        emit('success', { ...params, functionalSelectIds: params.selectIds });
+        emit('success', { ...params });
         Message.success(t('ms.case.associate.associateSuccess'));
       } catch (error) {
         // eslint-disable-next-line no-console

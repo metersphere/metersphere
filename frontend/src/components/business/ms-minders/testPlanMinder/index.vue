@@ -107,7 +107,7 @@
               <div class="flex items-center">
                 <div class="text-[var(--color-text-2)]">
                   {{
-                    t('caseManagement.caseReview.selectedCases', {
+                    t('ms.minders.selectedCases', {
                       count: selectedAssociateCasesParams.selectAll
                         ? selectedAssociateCasesParams.totalCount
                         : selectedAssociateCasesParams.selectIds.length,
@@ -769,7 +769,6 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      selectedAssociateCasesParams.value.selectIds = [];
     } finally {
       loading.value = false;
       tempMinderParams.value = {
@@ -777,6 +776,7 @@
         editList: [],
         deletedIds: [],
       };
+      selectedAssociateCasesParams.value.selectIds = [];
     }
   }
 
