@@ -473,6 +473,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @return
      */
     private Map<String, Long> getCollectionCount(TestPlanApiScenarioModuleRequest request) {
+        request.setCollectionId(null);
         Map<String, Long> projectModuleCountMap = new HashMap<>();
         List<ModuleCountDTO> list = extTestPlanApiScenarioMapper.collectionCountByRequest(request.getTestPlanId());
         list.forEach(item -> {
