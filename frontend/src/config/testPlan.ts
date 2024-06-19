@@ -142,6 +142,7 @@ export const toolTipConfig = {
   label: {
     color: '#959598',
   },
+  position: 'top',
   backgroundColor: '#fff',
   padding: 24,
   borderWidth: 0,
