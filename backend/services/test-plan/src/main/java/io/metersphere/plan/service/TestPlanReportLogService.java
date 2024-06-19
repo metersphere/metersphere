@@ -109,7 +109,7 @@ public class TestPlanReportLogService {
                 report.getId(),
                 userId,
                 OperationLogType.ADD.name(),
-                OperationLogModule.TEST_PLAN_REPORT,
+                report.getIntegrated() ? OperationLogModule.TEST_PLAN_GROUP_REPORT : OperationLogModule.TEST_PLAN_REPORT,
                 report.getName());
         log.setPath(path);
         log.setMethod(HttpMethodConstants.POST.name());

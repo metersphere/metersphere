@@ -16,7 +16,7 @@
               <div>{{ t('testPlan.testPlanIndex.TotalCases') }}</div>
             </td>
             <td class="-ml-[2px] font-medium">
-              {{ props.detail.caseTotal || 0 }}
+              {{ countTotal || 0 }}
             </td>
           </tr>
           <tr v-if="props.status === 'pending'" class="popover-tr">
@@ -96,8 +96,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsColorLine from '@/components/pure/ms-color-line/index.vue';
 
   import { defaultCount, statusConfig } from '@/config/testPlan';
@@ -138,6 +136,16 @@
     return props.detail[countKey] ? (props.detail[countKey] as countDetail) : defaultCount;
   });
 
+  const countTotal = computed(() => {
+    return (
+      countDetailData.value.pending +
+      countDetailData.value.success +
+      countDetailData.value.error +
+      countDetailData.value.block +
+      countDetailData.value.fakeError
+    );
+  });
+
   const colorData = computed(() => {
     if (countDetailData.value[props.status] === 0) {
       return [
@@ -149,19 +157,19 @@
     }
     return [
       {
-        percentage: (countDetailData.value[props.status] / props.detail.caseTotal) * 100,
+        percentage: (countDetailData.value[props.status] / countTotal.value) * 100,
         color: statusObject.value.color,
       },
     ];
   });
 
   const getPassRate = computed(() => {
-    const result = (countDetailData.value[props.status] / props.detail.caseTotal) * 100;
+    const result = (countDetailData.value[props.status] / countTotal.value) * 100;
     return `${Number.isNaN(result) ? 0 : result.toFixed(2)}%`;
   });
 
   const calculateRate = (count: number) => {
-    const rate = (count / props.detail.caseTotal) * 100;
+    const rate = (count / countTotal.value) * 100;
     return `${Number.isNaN(rate) ? 0 : rate.toFixed(2)}%`;
   };
 
