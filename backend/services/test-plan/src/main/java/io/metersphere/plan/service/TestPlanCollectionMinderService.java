@@ -290,10 +290,9 @@ public class TestPlanCollectionMinderService {
             //处理删除
             deleteCollection(updateList, request.getPlanId());
             //处理更新
-            List<TestPlanCollectionMinderEditDTO> collect = updateList.stream().filter(t -> t.getLevel() == 2).toList();
-            for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : collect) {
+            for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : updateList) {
                 TestPlanCollection testPlanCollection = updateCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
-                checkChangeDataRepeat(typeNamesMap, testPlanCollection);
+                checkChangeDataRepeat(typeNamesMap, testPlanCollectionMinderEditDTO);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
         }
@@ -317,25 +316,29 @@ public class TestPlanCollectionMinderService {
         if (CollectionUtils.isNotEmpty(addList)) {
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : addList) {
                 TestPlanCollection testPlanCollection = addCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
-                checkChangeDataRepeat(typeNamesMap, testPlanCollection);
+                checkChangeDataRepeat(typeNamesMap, testPlanCollectionMinderEditDTO);
                 setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
             }
         }
         return typeNamesMap;
     }
 
-    private static void checkChangeDataRepeat(Map<String, List<String>> typeNamesMap, TestPlanCollection testPlanCollection) {
-        List<String> nameList = typeNamesMap.get(testPlanCollection.getType());
+    private static void checkChangeDataRepeat(Map<String, List<String>> typeNamesMap, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO) {
+        List<String> nameList = typeNamesMap.get(testPlanCollectionMinderEditDTO.getType());
         if (CollectionUtils.isNotEmpty(nameList)) {
-            if (nameList.contains(testPlanCollection.getName())) {
+            if (nameList.contains(testPlanCollectionMinderEditDTO.getText())) {
                 throw new MSException(Translator.get("test_plan.mind.collection_name_repeat"));
             } else {
-                nameList.add(testPlanCollection.getName());
-                typeNamesMap.put(testPlanCollection.getType(), nameList);
+                if (testPlanCollectionMinderEditDTO.getLevel() == 2) {
+                    nameList.add(testPlanCollectionMinderEditDTO.getText());
+                    typeNamesMap.put(testPlanCollectionMinderEditDTO.getType(), nameList);
+                }
             }
         } else {
-            nameList = new ArrayList<>(List.of(testPlanCollection.getName()));
-            typeNamesMap.put(testPlanCollection.getType(), nameList);
+            if (testPlanCollectionMinderEditDTO.getLevel() == 2) {
+                nameList = new ArrayList<>(List.of(testPlanCollectionMinderEditDTO.getText()));
+                typeNamesMap.put(testPlanCollectionMinderEditDTO.getType(), nameList);
+            }
         }
     }
 
@@ -346,6 +349,7 @@ public class TestPlanCollectionMinderService {
         for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : list) {
             TestPlanCollection testPlanCollection = new TestPlanCollection();
             BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
+            testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
             parentList.add(testPlanCollection);
         }
         return parentList.stream().collect(Collectors.groupingBy(TestPlanCollection::getType));
@@ -382,7 +386,6 @@ public class TestPlanCollectionMinderService {
         List<TestPlanCollection> testPlanCollections = parentMap.get(testPlanCollectionMinderEditDTO.getType());
         TestPlanCollection parent = null;
         TestPlanCollection testPlanCollection = new TestPlanCollection();
-        testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         if (CollectionUtils.isNotEmpty(testPlanCollections)) {
             parent = testPlanCollections.get(0);
             testPlanCollection.setParentId(parent.getId());
@@ -394,6 +397,7 @@ public class TestPlanCollectionMinderService {
         } else {
             BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         }
+        testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setId(IDGenerator.nextStr());
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());

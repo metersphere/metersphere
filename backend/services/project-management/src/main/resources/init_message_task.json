@@ -123,6 +123,34 @@
             ]
           }
         ]
+      },
+      {
+        "taskType":"TEST_PLAN_REPORT_TASK",
+        "taskTypeName":"",
+        "messageTaskDetailDTOList":[
+          {
+            "event":"DELETE",
+            "eventName":"",
+            "receivers":[
+              {
+                "id": "CREATE_USER",
+                "name": ""
+              }
+            ],
+            "projectRobotConfigList":[
+              {
+                "robotId":"",
+                "enable":"",
+                "template":"",
+                "defaultTemplate":"",
+                "useDefaultTemplate":true,
+                "subject":"",
+                "defaultSubject":"",
+                "useDefaultSubject":true
+              }
+            ]
+          }
+        ]
       }
     ]
   },
