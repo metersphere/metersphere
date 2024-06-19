@@ -131,6 +131,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator) {
         //检查模块的合法性
         checkModule(createOrCopyRequest.getModuleId());
+        this.checkTagsLength(createOrCopyRequest.getTags());
         if (StringUtils.equalsIgnoreCase(createOrCopyRequest.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
                 && !StringUtils.equalsIgnoreCase(createOrCopyRequest.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             throw new MSException(Translator.get("test_plan.group.error"));
@@ -139,6 +140,12 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
         validateTestPlanGroup(createTestPlan.getGroupId(), 1);
+
+        if (!StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            // 判断测试计划组是否存在
+            createTestPlan.setModuleId(testPlanMapper.selectByPrimaryKey(createTestPlan.getGroupId()).getModuleId());
+        }
+
         initTestPlanPos(createTestPlan);
 
         createTestPlan.setId(IDGenerator.nextStr());
@@ -363,7 +370,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             updateTestPlan.setPlannedEndTime(request.getPlannedEndTime());
             updateTestPlan.setDescription(request.getDescription());
             if (CollectionUtils.isNotEmpty(request.getTags())) {
-                updateTestPlan.setTags(new ArrayList<>(request.getTags()));
+                List<String> tags = new ArrayList<>(request.getTags());
+                this.checkTagsLength(tags);
+                updateTestPlan.setTags(tags);
             }
             updateTestPlan.setType(testPlan.getType());
             testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
