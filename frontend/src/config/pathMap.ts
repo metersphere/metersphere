@@ -904,6 +904,18 @@ export const pathMap: PathMapItem[] = [
                   type: TaskCenterEnum.API_SCENARIO,
                 },
               },
+              {
+                key: 'PROJECT_MANAGEMENT_TASK_CENTER_REAL_TIME_TEST_PLAN', // 项目管理-任务中心-实时任务-接口场景
+                locale: 'project.taskCenter.testPlan',
+                route: '',
+                permission: [],
+                level: MENU_LEVEL[2],
+                routeQuery: {
+                  task: true,
+                  tab: 'real',
+                  type: TaskCenterEnum.TEST_PLAN,
+                },
+              },
             ],
           },
           {
@@ -935,6 +947,18 @@ export const pathMap: PathMapItem[] = [
                   task: true,
                   tab: 'timing',
                   type: TaskCenterEnum.API_IMPORT,
+                },
+              },
+              {
+                key: 'PROJECT_MANAGEMENT_TASK_CENTER_TIME_TEST_PLAN', // 项目管理-任务中心-定时任务-测试计划
+                locale: 'project.taskCenter.testPlan',
+                route: '',
+                permission: [],
+                level: MENU_LEVEL[2],
+                routeQuery: {
+                  task: true,
+                  tab: 'timing',
+                  type: TaskCenterEnum.TEST_PLAN,
                 },
               },
             ],

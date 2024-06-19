@@ -217,6 +217,18 @@
         </foreach>
     </select>
 
+    <select id="getReportsByIds" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select
+        test_plan_report.id,
+        test_plan_report.name,
+        test_plan_report.project_id
+        from test_plan_report where test_plan_report.deleted = false
+        and test_plan_report.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <update id="batchUpdateExecuteTimeAndStatus" parameterType="java.lang.String">
         update test_plan_report
         set start_time = #{startTime}, exec_status = 'RUNNING'
