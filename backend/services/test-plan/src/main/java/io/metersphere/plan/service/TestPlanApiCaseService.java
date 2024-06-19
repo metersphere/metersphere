@@ -723,7 +723,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         // 初始化报告
         ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, runModeConfig.getPoolId(), userId);
         apiReport.setEnvironmentId(runModeConfig.getEnvironmentId());
-        apiReport.setTestPlanCaseId(testPlanApiCase.getTestPlanId());
+        apiReport.setTestPlanCaseId(testPlanApiCase.getId());
 
         // 创建报告和用例的关联关系
         ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);

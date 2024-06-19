@@ -123,7 +123,7 @@
       dataIndex: 'id',
       slotName: 'num',
       fixed: 'left',
-      width: 180,
+      width: 280,
     },
     {
       title: 'apiScenario.executeHistory.execution.triggerMode',

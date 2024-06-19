@@ -13,7 +13,10 @@ import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
-import io.metersphere.plan.domain.*;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanReportApiCase;
+import io.metersphere.plan.domain.TestPlanReportApiCaseExample;
 import io.metersphere.plan.mapper.ExtTestPlanReportApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportApiCaseMapper;
@@ -70,6 +73,7 @@ public class PlanRunTestPlanApiCaseService {
 
     /**
      * 串行批量执行
+     *
      * @Return 是否执行完毕
      */
     public boolean serialExecute(TestPlanExecutionQueue testPlanExecutionQueue) {
@@ -97,6 +101,7 @@ public class PlanRunTestPlanApiCaseService {
 
     /**
      * 并行批量执行
+     *
      * @return 是否执行完毕
      */
     public boolean parallelExecute(TestPlanExecutionQueue testPlanExecutionQueue) {
@@ -206,7 +211,7 @@ public class PlanRunTestPlanApiCaseService {
      * @return
      */
     public Map<String, String> initApiReport(ApiRunModeConfigDTO runModeConfig, List<TestPlanReportApiCase> testPlanReportApiCases,
-                                                 Map<String, ApiTestCase> caseMap, String userId) {
+                                             Map<String, ApiTestCase> caseMap, String userId) {
 
         Map<String, String> resourceReportMap = new HashMap<>();
         List<ApiReport> apiReports = new ArrayList<>();
@@ -238,7 +243,7 @@ public class PlanRunTestPlanApiCaseService {
     private ApiReport getApiReport(ApiRunModeConfigDTO runModeConfig, TestPlanReportApiCase testPlanReportApiCase, ApiTestCase apiTestCase, String userId) {
         ApiReport apiReport = apiTestCaseBatchRunService.getApiReport(runModeConfig, apiTestCase, userId);
         apiReport.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanReportApiCase.getEnvironmentId()));
-        apiReport.setTestPlanCaseId(testPlanReportApiCase.getApiCaseId());
+        apiReport.setTestPlanCaseId(testPlanReportApiCase.getTestPlanApiCaseId());
         return apiReport;
     }
 
