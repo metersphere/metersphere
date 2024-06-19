@@ -251,6 +251,7 @@ public class TestPlanCollectionMinderService {
         beansOfType.forEach((k, v) -> {
             v.associateCollection(request.getPlanId(), associateMap, user);
         });
+        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(new TestPlanCollectionExample());
         //更新测试计划
         testPlanService.refreshTestPlanStatus(request.getPlanId());
     }
@@ -350,6 +351,7 @@ public class TestPlanCollectionMinderService {
             TestPlanCollection testPlanCollection = new TestPlanCollection();
             BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
             testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
+            testPlanCollection.setParentId(CommonConstants.DEFAULT_NULL_VALUE);
             parentList.add(testPlanCollection);
         }
         return parentList.stream().collect(Collectors.groupingBy(TestPlanCollection::getType));
@@ -358,17 +360,16 @@ public class TestPlanCollectionMinderService {
     @NotNull
     private static TestPlanCollection updateCollection(TestPlanCollectionMinderEditRequest request, String userId, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
         TestPlanCollection testPlanCollection = new TestPlanCollection();
-
         TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);
-        if (StringUtils.equalsIgnoreCase(parent.getId(), testPlanCollectionMinderEditDTO.getId())) {
-            testPlanCollection.setParentId(parent.getParentId());
-        } else {
-            testPlanCollection.setParentId(parent.getId());
-        }
         if (testPlanCollectionMinderEditDTO.getExtended()) {
             BeanUtils.copyBean(testPlanCollection, parent);
         } else {
             BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
+        }
+        if (StringUtils.equalsIgnoreCase(parent.getId(), testPlanCollectionMinderEditDTO.getId())) {
+            testPlanCollection.setParentId(parent.getParentId());
+        } else {
+            testPlanCollection.setParentId(parent.getId());
         }
         testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setTestPlanId(request.getPlanId());
@@ -384,23 +385,17 @@ public class TestPlanCollectionMinderService {
     @NotNull
     private static TestPlanCollection addCollection(TestPlanCollectionMinderEditRequest request, String userId, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
         List<TestPlanCollection> testPlanCollections = parentMap.get(testPlanCollectionMinderEditDTO.getType());
-        TestPlanCollection parent = null;
+        TestPlanCollection parent = testPlanCollections.get(0);
         TestPlanCollection testPlanCollection = new TestPlanCollection();
-        if (CollectionUtils.isNotEmpty(testPlanCollections)) {
-            parent = testPlanCollections.get(0);
-            testPlanCollection.setParentId(parent.getId());
-        } else {
-            testPlanCollection.setParentId(CommonConstants.DEFAULT_NULL_VALUE);
-        }
-        if (testPlanCollectionMinderEditDTO.getExtended() && parent!=null) {
+        if (testPlanCollectionMinderEditDTO.getExtended()) {
             BeanUtils.copyBean(testPlanCollection, parent);
         } else {
             BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         }
+        testPlanCollection.setParentId(parent.getId());
         testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setId(IDGenerator.nextStr());
         testPlanCollection.setTestPlanId(request.getPlanId());
-        testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
         testPlanCollection.setCreateUser(userId);
         testPlanCollection.setCreateTime(System.currentTimeMillis());
         testPlanCollection.setPos(testPlanCollectionMinderEditDTO.getNum());
