@@ -128,19 +128,30 @@ public class ApiReportShareService {
     }
 
     public ApiReportShareDTO get(String id) {
-        ShareInfo shareInfo = checkResource(id);
         ApiReportShareDTO dto = new ApiReportShareDTO();
+        ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(id);
+        if (shareInfo == null) {
+            dto.setExpired(true);
+            return dto;
+        }
         BeanUtils.copyBean(dto, shareInfo);
         dto.setReportId(new String(shareInfo.getCustomData()));
         //检查id是否存在
-        dto.setDeleted(false);
+        dto.setDeleted(true);
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey(dto.getReportId());
-        if (apiReport != null && BooleanUtils.isTrue(apiReport.getDeleted())) {
-            dto.setDeleted(true);
+        if (apiReport != null && BooleanUtils.isFalse(apiReport.getDeleted())) {
+            dto.setDeleted(false);
         } else {
             ApiScenarioReport result = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
-            if (result != null && BooleanUtils.isTrue(result.getDeleted())) {
-                dto.setDeleted(true);
+            if (result != null && BooleanUtils.isFalse(result.getDeleted())) {
+                dto.setDeleted(false);
+            }
+        }
+        if (BooleanUtils.isFalse(dto.isDeleted())) {
+            try {
+                validateExpired(shareInfo);
+            } catch (Exception e) {
+                dto.setExpired(true);
             }
         }
         return dto;

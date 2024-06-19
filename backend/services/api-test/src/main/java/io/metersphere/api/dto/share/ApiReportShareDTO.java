@@ -16,10 +16,13 @@ public class ApiReportShareDTO {
     private String lang;
 
     private String projectId;
-    
-    @Schema(description = "分享扩展数据 资源的id" ,requiredMode = Schema.RequiredMode.REQUIRED)
+
+    @Schema(description = "分享扩展数据 资源的id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String reportId;
 
     @Schema(description = "分享链接是否被删")
-    private Boolean deleted;
+    private boolean deleted;
+
+    @Schema(description = "分享链接是否过期")
+    private boolean expired;
 }
