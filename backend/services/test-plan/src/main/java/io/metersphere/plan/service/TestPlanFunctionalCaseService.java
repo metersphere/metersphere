@@ -252,7 +252,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             testPlanCasePageResponse.setCustomFields(collect.get(testPlanCasePageResponse.getCaseId()));
             testPlanCasePageResponse.setCreateUserName(userMap.get(testPlanCasePageResponse.getCreateUser()));
             testPlanCasePageResponse.setExecuteUserName(userMap.get(testPlanCasePageResponse.getExecuteUser()));
-            testPlanCasePageResponse.setModuleName(moduleNameMap.get(testPlanCasePageResponse.getModuleId()));
+            testPlanCasePageResponse.setModuleName(StringUtils.isNotBlank(moduleNameMap.get(testPlanCasePageResponse.getModuleId())) ? moduleNameMap.get(testPlanCasePageResponse.getModuleId()) : Translator.get("functional_case.module.default.name"));
             if (bugListMap.containsKey(testPlanCasePageResponse.getCaseId())) {
                 List<CaseRelateBugDTO> bugDTOList = bugListMap.get(testPlanCasePageResponse.getCaseId());
                 testPlanCasePageResponse.setBugList(handleStatus(bugDTOList, statusMap));
