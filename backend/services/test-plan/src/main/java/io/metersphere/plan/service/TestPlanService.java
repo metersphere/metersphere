@@ -131,7 +131,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 && !StringUtils.equalsIgnoreCase(createOrCopyRequest.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             throw new MSException(Translator.get("test_plan.group.error"));
         }
-        
+
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
         validateTestPlanGroup(createTestPlan.getGroupId(), 1);
@@ -485,6 +485,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(testPlan.getModuleId());
             moduleName = module == null ? Translator.get("unplanned.plan") : module.getName();
             response.setModuleId(module == null ? ModuleConstants.DEFAULT_NODE_ID : module.getId());
+        } else {
+            response.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
         }
 
         //计划组只有几个参数
@@ -527,7 +529,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 关联的资源初始化默认测试集
-     * @param planId 计划ID
+     *
+     * @param planId         计划ID
      * @param allCollections 测试集
      */
     @Async
@@ -605,10 +608,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 批量移动 (计划/计划组)
      *
-     * @param request 批量请求参数
-     * @param userId  当前登录用户
-     * @param operationUrl     请求URL
-     * @param method  请求方法
+     * @param request      批量请求参数
+     * @param userId       当前登录用户
+     * @param operationUrl 请求URL
+     * @param method       请求方法
      */
     public long batchMove(TestPlanBatchRequest request, String userId, String operationUrl, String method) {
         // 目前计划的批量操作不支持全选所有页
@@ -902,7 +905,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     /**
      * 初始化测试规划默认节点
      *
-     * @param planId 计划ID
+     * @param planId      计划ID
      * @param currentUser 当前用户
      */
     public List<TestPlanCollectionDTO> initDefaultPlanCollection(String planId, String currentUser) {
@@ -953,7 +956,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             BeanUtils.copyBean(childCollectionDTO, childCollection);
             parentCollectionDTO.setChildren(List.of(childCollectionDTO));
             // 更新pos
-            initPos ++;
+            initPos++;
 
             collectionDTOS.add(parentCollectionDTO);
         }
