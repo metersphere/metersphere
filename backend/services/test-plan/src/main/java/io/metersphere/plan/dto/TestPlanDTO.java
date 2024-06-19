@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 
 /**
  * @author wx
@@ -54,5 +56,7 @@ public class TestPlanDTO {
 
     @Schema(description = "message.domain.test_plan_description")
     private String description;
+
+    private List<String> followUsers;
 
 }
