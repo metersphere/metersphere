@@ -155,8 +155,15 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 }
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE -> {
                     try {
-                        List<Receiver> follows = handleFollows(messageDetail, noticeModel);
-                        toUsers.addAll(follows);
+                        List<String> followUser = (List) paramMap.get("followUsers");
+                        if (CollectionUtils.isNotEmpty(followUser)) {
+                            followUser.forEach(item ->{
+                                toUsers.add(new Receiver(item, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                            });
+                        } else {
+                            List<Receiver> follows = handleFollows(messageDetail, noticeModel);
+                            toUsers.addAll(follows);
+                        }
                     } catch (Exception e) {
                         LogUtils.error("查询关注人失败：{}", e);
                     }
