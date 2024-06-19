@@ -938,8 +938,22 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         return hisList;
     }
 
+    //只查找未归档的测试计划组以及游离态测试计划
     public List<String> selectRightfulIds(List<String> executeIds) {
-        return extTestPlanMapper.selectNotArchivedIds(executeIds);
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andIdIn(executeIds).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        Map<String, TestPlan> testPlanIdMap = testPlanMapper.selectByExample(testPlanExample)
+                .stream().collect(Collectors.toMap(TestPlan::getId, v -> v));
+        List<String> returnIds = new ArrayList<>();
+        for (String executeId : executeIds) {
+            TestPlan testPlan = testPlanIdMap.get(executeId);
+            if (testPlan != null &&
+                    (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
+                            || StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.DEFAULT_PARENT_ID))) {
+                returnIds.add(executeId);
+            }
+        }
+        return returnIds;
     }
 
     public List<TestPlan> selectNotArchivedChildren(String testPlanGroupId) {

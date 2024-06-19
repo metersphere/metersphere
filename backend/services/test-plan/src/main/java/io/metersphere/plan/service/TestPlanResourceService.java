@@ -55,7 +55,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
         return response;
     }
 
-    public abstract long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime);
+    public abstract long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime);
 
     /**
      * 关联用例

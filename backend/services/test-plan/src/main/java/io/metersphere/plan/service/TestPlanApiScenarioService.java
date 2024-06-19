@@ -139,8 +139,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     @Override
-    public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
+    public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
         List<TestPlanApiScenario> copyList = new ArrayList<>();
+        String defaultCollectionId = extTestPlanCollectionMapper.selectDefaultCollectionId(newTestPlanId,CaseType.SCENARIO_CASE.getKey());
         extTestPlanApiScenarioMapper.selectByTestPlanIdAndNotDeleted(originalTestPlanId).forEach(originalCase -> {
             TestPlanApiScenario newCase = new TestPlanApiScenario();
             BeanUtils.copyBean(newCase, originalCase);
@@ -149,6 +150,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             newCase.setCreateTime(operatorTime);
             newCase.setCreateUser(operator);
             newCase.setLastExecTime(0L);
+            newCase.setTestPlanCollectionId(oldCollectionIdToNewCollectionId.get(newCase.getTestPlanCollectionId()) == null ? defaultCollectionId : oldCollectionIdToNewCollectionId.get(newCase.getTestPlanCollectionId()));
             newCase.setLastExecResult(ExecStatus.PENDING.name());
             newCase.setLastExecReportId(null);
             copyList.add(newCase);

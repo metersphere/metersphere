@@ -52,4 +52,7 @@
           and tpc.parent_id = #{parentId}
           and tpc.test_plan_id = #{testPlanId}
     </select>
+    <select id="selectDefaultCollectionId" resultType="java.lang.String">
+        SELECT id FROM test_plan_collection WHERE test_plan_id = #{testPlanId} AND parent_id!='NONE' and type = #{type}
+    </select>
 </mapper>

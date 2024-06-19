@@ -198,6 +198,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         TestPlanCollectionExample parentCollectionExample = new TestPlanCollectionExample();
         parentCollectionExample.createCriteria().andTestPlanIdEqualTo(originalTestPlan.getId()).andParentIdEqualTo(TestPlanConstants.DEFAULT_PARENT_ID);
         List<TestPlanCollection> testPlanCollectionList = testPlanCollectionMapper.selectByExample(parentCollectionExample);
+        Map<String, String> oldCollectionIdToNewCollectionId = new HashMap<>();
         if (CollectionUtils.isEmpty(testPlanCollectionList)) {
             //自动生成测试规划
             Objects.requireNonNull(CommonBeanFactory.getBean(TestPlanService.class)).initDefaultPlanCollection(testPlan.getId(), operator);
@@ -225,6 +226,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
                     childCollection.setCreateUser(operator);
                     childCollection.setCreateTime(operatorTime);
                     newTestPlanCollectionList.add(childCollection);
+                    oldCollectionIdToNewCollectionId.put(child.getId(), childCollection.getId());
                 }
             }
             testPlanCollectionMapper.batchInsert(newTestPlanCollectionList);
@@ -233,7 +235,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         //测试用例信息
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
         beansOfType.forEach((k, v) -> {
-            v.copyResource(originalTestPlan.getId(), testPlan.getId(), operator, operatorTime);
+            v.copyResource(originalTestPlan.getId(), testPlan.getId(), oldCollectionIdToNewCollectionId, operator, operatorTime);
         });
         return testPlan;
     }

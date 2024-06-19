@@ -371,7 +371,7 @@ public class TestPlanExecuteService {
 
         String queueId = executionQueue.getPrepareReportId() + "_" + parentCollection.getId();
         String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
-        String runMode = executionQueue.getRunMode();
+        String runMode = parentCollection.getExecuteMethod();
         for (TestPlanCollection collection : childrenList) {
             childrenQueue.add(
                     new TestPlanExecutionQueue(

@@ -58,7 +58,7 @@ public class TestPlanBugService extends TestPlanResourceService {
     }
 
     @Override
-    public long copyResource(String originalTestPlanId, String newTestPlanId, String operator, long operatorTime) {
+    public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
         return 0;
     }
 
