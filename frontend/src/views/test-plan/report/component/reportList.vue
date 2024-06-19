@@ -446,6 +446,9 @@
   }
 
   onBeforeMount(() => {
+    if (route.query.id) {
+      showReportDetail(route.query.id as string, route.query.type === 'GROUP');
+    }
     initData();
   });
 </script>
