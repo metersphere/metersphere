@@ -621,16 +621,16 @@ public class FunctionalCaseMinderService {
                     FunctionalCase functionalCase = addCase(request, userId, functionalCaseChangeRequest, caseMapper, sourceIdAndInsertModuleIdMap);
                     String caseId = functionalCase.getId();
                     sourceIdAndInsertCaseIdMap.put(functionalCaseChangeRequest.getId(), caseId);
-                    //保存用例等级
-                    FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
-                    customField.setCaseId(caseId);
-                    customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
-                    customField.setValue("P"+functionalCaseChangeRequest.getPriority());
-                    caseCustomFieldMapper.insertSelective(customField);
                     //附属表
                     FunctionalCaseBlob functionalCaseBlob = addCaseBlob(functionalCaseChangeRequest, caseId, caseBlobMapper);
                     //保存自定义字段
                     List<FunctionalCaseCustomField> functionalCaseCustomFields = addCustomFields(functionalCaseChangeRequest, caseId, caseCustomFieldMapper, defaultCustomFieldValueMap);
+                    //保存用例等级
+                    FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
+                    customField.setCaseId(caseId);
+                    customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
+                    customField.setValue("P"+(functionalCaseChangeRequest.getPriority()-1));
+                    caseCustomFieldMapper.insertSelective(customField);
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, functionalCaseCustomFields, new ArrayList<>(), new ArrayList<>());
                     LogDTO logDTO = addLog(request, userId, caseId, historyLogDTO, null);
@@ -668,7 +668,7 @@ public class FunctionalCaseMinderService {
                     FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
                     customField.setCaseId(caseId);
                     customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
-                    customField.setValue("P"+functionalCaseChangeRequest.getPriority());
+                    customField.setValue("P"+(functionalCaseChangeRequest.getPriority()-1));
                     caseCustomFieldMapper.updateByPrimaryKeySelective(customField);
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, oldCaseCustomFieldMap.get(caseId), new ArrayList<>(), new ArrayList<>());
@@ -1060,7 +1060,7 @@ public class FunctionalCaseMinderService {
         List<String> list = customFields.stream().map(CaseCustomFieldDTO::getFieldId).toList();
         List<CaseCustomFieldDTO> customFieldDTOs = new ArrayList<>();
         defaultValueMap.forEach((k, v) -> {
-            if (!list.contains(k)) {
+            if (!list.contains(k) && !StringUtils.equalsIgnoreCase(k,"priorityFieldId")) {
                 CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
                 customFieldDTO.setFieldId(k);
                 customFieldDTO.setValue(v.toString());

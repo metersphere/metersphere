@@ -5,10 +5,7 @@ import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.dto.MinderOptionDTO;
-import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
-import io.metersphere.functional.mapper.MindAdditionalNodeMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -58,6 +55,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     private FunctionalCaseModuleMapper functionalCaseModuleMapper;
     @Resource
     private MindAdditionalNodeMapper mindAdditionalNodeMapper;
+    @Resource
+    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
 
     @Test
     @Order(1)
@@ -165,7 +164,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setName("新增用例");
         caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ2");
         caseChangeRequest.setMoveMode("AFTER");
-        caseChangeRequest.setPriority(2);
+        caseChangeRequest.setPriority(3);
         caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_3");
         caseChangeRequest.setTemplateId("100001");
         caseChangeRequest.setType("ADD");
@@ -183,7 +182,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setName("TEST_MINDER_MODULE_ID_GYQ_更新");
         caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
         caseChangeRequest.setTemplateId("100001");
-        caseChangeRequest.setPriority(2);
+        caseChangeRequest.setPriority(3);
         caseChangeRequest.setMoveMode("BEFORE");
         caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
         caseChangeRequest.setType("UPDATE");
@@ -251,6 +250,10 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
         Assertions.assertTrue(functionalCases.get(0).getPos() > 0L);
+        FunctionalCaseCustomFieldExample customFieldExample = new FunctionalCaseCustomFieldExample();
+        customFieldExample.createCriteria().andCaseIdEqualTo(functionalCases.get(0).getId()).andFieldIdEqualTo("custom_field_minder_gyq_id_3");
+        List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.get(0).getValue(),"P2"));
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
         functionalCaseModuleExample.createCriteria().andNameEqualTo("新增9");
         List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
