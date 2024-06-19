@@ -75,8 +75,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanBatchOperationService testPlanBatchOperationService;
     @Resource
-    private TestPlanBatchArchivedService testPlanBatchArchivedService;
-    @Resource
     private TestPlanStatisticsService testPlanStatisticsService;
     @Resource
     private TestPlanCaseService testPlanCaseService;
@@ -113,6 +111,12 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         TestPlan testPlan = savePlanDTO(testPlanCreateRequest, operator);
         //自动生成测试规划
         this.initDefaultPlanCollection(testPlan.getId(), operator);
+
+        if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            //更新计划组状态
+            this.updateTestPlanGroupStatus(testPlan.getGroupId());
+        }
+
         testPlanLogService.saveAddLog(testPlan, operator, requestUrl, requestMethod);
         return testPlan;
     }
@@ -151,9 +155,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanConfig.setAutomaticStatusUpdate(createOrCopyRequest.isAutomaticStatusUpdate());
         testPlanConfig.setRepeatCase(createOrCopyRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(createOrCopyRequest.getPassThreshold());
-
-        //正式版本不再支持这种操作
-        //        handleAssociateCase(createOrCopyRequest.getBaseAssociateCaseRequest(), operator, createTestPlan);
 
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insertSelective(testPlanConfig);
@@ -202,13 +203,17 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public void delete(String id, String operator, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
         if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            // 计划组的删除暂时预留
             this.deleteGroupByList(Collections.singletonList(testPlan.getId()));
         } else {
             testPlanMapper.deleteByPrimaryKey(id);
             //级联删除
             TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
             this.cascadeDeleteTestPlanIds(Collections.singletonList(id), testPlanReportService);
+
+            if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                //更新计划组状态
+                this.updateTestPlanGroupStatus(testPlan.getGroupId());
+            }
         }
         //记录日志
         testPlanLogService.saveDeleteLog(testPlan, operator, requestUrl, requestMethod);
@@ -357,7 +362,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             updateTestPlan.setPlannedStartTime(request.getPlannedStartTime());
             updateTestPlan.setPlannedEndTime(request.getPlannedEndTime());
             updateTestPlan.setDescription(request.getDescription());
-            updateTestPlan.setGroupId(request.getGroupId());
+            if (CollectionUtils.isNotEmpty(request.getTags())) {
+                updateTestPlan.setTags(new ArrayList<>(request.getTags()));
+            }
             updateTestPlan.setType(testPlan.getType());
             testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
         }
@@ -406,12 +413,16 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             //测试计划组归档
             updateGroupStatus(testPlan.getId(), userId);
+            //关闭定时任务
+
         } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             //测试计划
             testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
             testPlan.setUpdateUser(userId);
             testPlan.setUpdateTime(System.currentTimeMillis());
             testPlanMapper.updateByPrimaryKeySelective(testPlan);
+            //关闭定时任务
+            this.deleteScheduleConfig(testPlan.getId());
         } else {
             throw new MSException(Translator.get("test_plan.cannot.archived"));
         }
@@ -424,14 +435,16 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param request     批量请求参数
      * @param currentUser 当前用户
      */
-    public void batchArchived(TestPlanBatchRequest request, String currentUser) {
+    public void batchArchived(TestPlanBatchProcessRequest request, String currentUser) {
         List<String> batchArchivedIds = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(batchArchivedIds)) {
             TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andIdIn(batchArchivedIds).andStatusEqualTo(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-            List<TestPlan> archivedPlanList = testPlanMapper.selectByExample(example);
-            Map<String, List<TestPlan>> plans = archivedPlanList.stream().collect(Collectors.groupingBy(TestPlan::getType));
-            testPlanBatchArchivedService.batchArchived(plans, request, currentUser);
+            example.createCriteria().andIdIn(batchArchivedIds);
+            List<TestPlan> archivedPlanList = testPlanMapper.selectByExample(example).stream().filter(
+                    testPlan -> StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
+                            || (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
+            ).collect(Collectors.toList());
+            archivedPlanList.forEach(item -> this.archived(item.getId(), currentUser));
             //日志
             testPlanLogService.saveBatchLog(archivedPlanList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.UPDATE.name(), "archive");
         }
@@ -461,13 +474,15 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * 复制测试计划
      */
     public long copy(String testPlanId, String userId) {
-
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        TestPlan copyPlan = null;
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            return testPlanBatchOperationService.copyPlanGroup(testPlan, testPlan.getModuleId(), ModuleConstants.NODE_TYPE_DEFAULT, System.currentTimeMillis(), userId);
+            copyPlan = testPlanBatchOperationService.copyPlanGroup(testPlan, testPlan.getModuleId(), ModuleConstants.NODE_TYPE_DEFAULT, System.currentTimeMillis(), userId);
         } else {
-            return testPlanBatchOperationService.copyPlan(testPlan, testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_TYPE_GROUP, System.currentTimeMillis(), userId);
+            copyPlan = testPlanBatchOperationService.copyPlan(testPlan, testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_TYPE_GROUP, System.currentTimeMillis(), userId);
         }
+        testPlanLogService.copyLog(copyPlan, userId);
+        return 1;
     }
 
     /**
@@ -784,22 +799,38 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            //该测试计划是测试计划组内的子计划， 要同步计算测试计划组的状态
-            List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlan.getGroupId());
-            if (CollectionUtils.isNotEmpty(childPlan)) {
-                TestPlan updateGroupPlan = new TestPlan();
-                updateGroupPlan.setId(testPlan.getGroupId());
-                if (childPlan.stream().allMatch(item -> StringUtils.equals(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED))) {
-                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-                } else {
-                    updateGroupPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
-                }
-                testPlanMapper.updateByPrimaryKeySelective(updateGroupPlan);
+            this.updateTestPlanGroupStatus(testPlan.getGroupId());
+        }
+    }
 
-                if (StringUtils.equalsIgnoreCase(updateGroupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
-                    extTestPlanMapper.setActualEndTime(testPlan.getGroupId(), System.currentTimeMillis());
+    private void updateTestPlanGroupStatus(String testPlanGroupId) {
+        //该测试计划是测试计划组内的子计划， 要同步计算测试计划组的状态
+        List<TestPlan> childPlan = this.selectNotArchivedChildren(testPlanGroupId);
+        String groupStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
+
+        //        未开始:计划组为空、组内所有计划都是“未开始”状态
+        //        已完成:组内计划均为“已完成”状态
+        //        进行中:组内计划有未完成的状态
+        if (CollectionUtils.isNotEmpty(childPlan)) {
+            List<String> testPlanStatus = childPlan.stream().map(TestPlan::getStatus).distinct().toList();
+            if (testPlanStatus.size() == 1) {
+                if (StringUtils.equals(testPlanStatus.getFirst(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
+                    groupStatus = TestPlanConstants.TEST_PLAN_STATUS_COMPLETED;
+                } else if (StringUtils.equals(testPlanStatus.getFirst(), TestPlanConstants.TEST_PLAN_STATUS_PREPARED)) {
+                    groupStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
+                } else if (StringUtils.equals(testPlanStatus.getFirst(), TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY)) {
+                    groupStatus = TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY;
                 }
+            } else {
+                groupStatus = TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY;
             }
+        }
+        TestPlan updateGroupPlan = new TestPlan();
+        updateGroupPlan.setId(testPlanGroupId);
+        updateGroupPlan.setStatus(groupStatus);
+        testPlanMapper.updateByPrimaryKeySelective(updateGroupPlan);
+        if (StringUtils.equalsIgnoreCase(updateGroupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
+            extTestPlanMapper.setActualEndTime(testPlanGroupId, System.currentTimeMillis());
         }
     }
 
@@ -875,6 +906,12 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     public void deleteScheduleConfig(String testPlanId) {
         scheduleService.deleteByResourceId(testPlanId, TestPlanScheduleJob.getJobKey(testPlanId), TestPlanScheduleJob.getTriggerKey(testPlanId));
+
+        //判断有没有测试计划组
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andGroupIdEqualTo(testPlanId);
+        testPlanMapper.selectByExample(testPlanExample).forEach(
+                item -> scheduleService.deleteByResourceId(testPlanId, TestPlanScheduleJob.getJobKey(testPlanId), TestPlanScheduleJob.getTriggerKey(testPlanId)));
     }
 
     public List<TestPlanExecuteHisDTO> listHis(TestPlanExecuteHisPageRequest request) {

@@ -2171,12 +2171,9 @@ public class TestPlanTests extends BaseTest {
     @Test
     @Order(303)
     public void testCopy() throws Exception {
-        //1.计划  无用例
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_1"));
-        String returnStr = mvcResult.getResponse().getContentAsString();
-        ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
-        String returnId = holder.getData().toString();
-        Assertions.assertNotNull(returnId);
+        //1. 已归档的不能再归档计划  无用例
+        requestGet(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_1")).andExpect(status().is5xxServerError());
+
 
         //2.计划 有用例
         MvcResult mvcResult1 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_4"));

@@ -201,7 +201,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-批量归档")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public void batchArchived(@Validated @RequestBody TestPlanBatchRequest request) {
+    public void batchArchived(@Validated @RequestBody TestPlanBatchProcessRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.batchArchived(request, SessionUtils.getUserId());
     }
