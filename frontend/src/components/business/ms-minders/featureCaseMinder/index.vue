@@ -392,7 +392,7 @@
           // 如果模块下没有用例且有别的模块节点，正常展开
           node.expand();
           node.renderTree();
-          window.minder.layout();
+          node.layout();
           return;
         }
         // TODO:递归渲染存在的子节点
@@ -440,7 +440,7 @@
         node.expand();
         // node.renderTree();
         window.minder.renderNodeBatch(waitingRenderNodes);
-        window.minder.layout();
+        node.layout();
         window.minder.execCommand('camera', node, 100);
         if (node.data) {
           node.data.isLoaded = true;
@@ -458,10 +458,10 @@
       extraVisible.value = false;
       showDetailMenu.value = false;
       resetExtractInfo();
-      if (node.children && node.children.length > 0) {
+      if (node.children && node.children.length > 0 && node.data?.expandState === 'collapse') {
         node.expand();
         node.renderTree();
-        window.minder.layout();
+        node.layout();
       }
     }
     setPriorityView(true, 'P');

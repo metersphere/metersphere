@@ -151,7 +151,7 @@
     }
   );
 
-  const _specialHeight = props.hasBreadcrumb ? 32 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度32
+  const _specialHeight = props.hasBreadcrumb ? 32 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度24+8间距
 
   // TODO：卡片高度调整，写上数值的注释
   const cardOverHeight = computed(() => {
@@ -169,9 +169,9 @@
     }
     if (props.hideFooter) {
       // 没有底部
-      return props.noContentPadding ? 120 + _specialHeight : 168 + _specialHeight;
+      return props.noContentPadding ? 130 + _specialHeight : 168 + _specialHeight;
     }
-    return 230 + _specialHeight;
+    return 220 + _specialHeight;
   });
 
   const getComputedContentStyle = computed(() => {

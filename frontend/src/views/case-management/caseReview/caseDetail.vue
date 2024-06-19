@@ -618,8 +618,8 @@
     .case-item--active {
       @apply relative;
 
+      border: 1px solid rgb(var(--primary-5));
       background-color: rgb(var(--primary-1));
-      box-shadow: inset 0 0 0.5px 0.5px rgb(var(--primary-5));
     }
   }
   .case-detail-label {

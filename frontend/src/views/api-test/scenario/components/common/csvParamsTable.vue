@@ -22,7 +22,7 @@
         class="scenario-csv-trigger"
         :popup-translate="[-2, 244]"
       >
-        <MsButton type="text" class="!mr-0" @click="handleRecordConfig(record)">
+        <MsButton type="text" class="!mr-0" size="mini" @click="handleRecordConfig(record)">
           {{ t('apiScenario.params.config') }}
         </MsButton>
         <template #content>

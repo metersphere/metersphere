@@ -460,8 +460,11 @@
     [RunMode.PARALLEL]: 3,
   };
 
-  function getExecuteMethod(priority: number) {
-    return priority === 2 ? RunMode.SERIAL : RunMode.PARALLEL;
+  function getExecuteMethod(data: MinderJsonNodeData) {
+    if (activePlanSet.value?.data.id === data.id) {
+      return activePlanSet.value?.data.executeMethod;
+    }
+    return data.priority === 2 ? RunMode.SERIAL : RunMode.PARALLEL;
   }
 
   /**
@@ -740,13 +743,13 @@
           ...node.data,
           id: undefined,
           num: nodeIndex,
-          executeMethod: getExecuteMethod(node.data.priority),
+          executeMethod: getExecuteMethod(node.data),
         });
       } else {
         tempMinderParams.value.editList.push({
           ...node.data,
           num: nodeIndex,
-          executeMethod: getExecuteMethod(node.data.priority),
+          executeMethod: getExecuteMethod(node.data),
         });
       }
       return node.data.level < 2;
