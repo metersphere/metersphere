@@ -183,7 +183,6 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setName("TEST_MINDER_MODULE_ID_GYQ_更新");
         caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
         caseChangeRequest.setTemplateId("100001");
-        caseChangeRequest.setPriority(3);
         caseChangeRequest.setMoveMode("BEFORE");
         caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
         caseChangeRequest.setType("UPDATE");
@@ -250,8 +249,11 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
 
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
         System.out.println(functionalCase);
-
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCase.getName(),"TEST_MINDER_MODULE_ID_GYQ_更新"));
+        FunctionalCaseCustomFieldExample customFieldExample = new FunctionalCaseCustomFieldExample();
+        customFieldExample.createCriteria().andCaseIdEqualTo("TEST_FUNCTIONAL_MINDER_CASE_ID_1").andFieldIdEqualTo("custom_field_minder_gyq_id_3");
+        List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.get(0).getValue(),"P0"));
 
         MindAdditionalNode mindAdditionalNode = mindAdditionalNodeMapper.selectByPrimaryKey("additional2");
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(mindAdditionalNode.getParentId(),"TEST_MINDER_MODULE_ID_GYQ"));
@@ -262,9 +264,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         Assertions.assertTrue(functionalCases.get(0).getPos() > 0L);
 
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
-        FunctionalCaseCustomFieldExample customFieldExample = new FunctionalCaseCustomFieldExample();
+        customFieldExample = new FunctionalCaseCustomFieldExample();
         customFieldExample.createCriteria().andCaseIdEqualTo(functionalCases.get(0).getId()).andFieldIdEqualTo("custom_field_minder_gyq_id_3");
-        List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
+        functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.get(0).getValue(),"P2"));
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
         functionalCaseModuleExample.createCriteria().andNameEqualTo("新增9");
