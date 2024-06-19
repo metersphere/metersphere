@@ -663,13 +663,8 @@ public class FunctionalCaseMinderService {
                     //更新附属表信息
                     FunctionalCaseBlob functionalCaseBlob = updateBlob(functionalCaseChangeRequest, caseId, caseBlobMapper);
                     //更新自定义字段
-                    List<FunctionalCaseCustomField> functionalCaseCustomFields = updateCustomFields(functionalCaseChangeRequest, oldCaseCustomFieldMap, caseId, caseCustomFieldMapper);
-                    //更新用例等级
-                    FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
-                    customField.setCaseId(caseId);
-                    customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
-                    customField.setValue("P"+(functionalCaseChangeRequest.getPriority()-1));
-                    caseCustomFieldMapper.updateByPrimaryKeySelective(customField);
+                    String fieldId = defaultCustomFieldValueMap.get("priorityFieldId").toString();
+                    List<FunctionalCaseCustomField> functionalCaseCustomFields = updateCustomFields(functionalCaseChangeRequest, oldCaseCustomFieldMap, caseId, fieldId, caseCustomFieldMapper);
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, oldCaseCustomFieldMap.get(caseId), new ArrayList<>(), new ArrayList<>());
                     FunctionalCaseHistoryLogDTO old = new FunctionalCaseHistoryLogDTO(oldCaseMap.get(caseId), oldBlobMap.get(caseId), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -1010,13 +1005,18 @@ public class FunctionalCaseMinderService {
         return functionalCaseBlob;
     }
 
-    private List<FunctionalCaseCustomField> updateCustomFields(FunctionalCaseChangeRequest functionalCaseChangeRequest, Map<String, List<FunctionalCaseCustomField>> caseCustomFieldMap, String caseId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper) {
+    private List<FunctionalCaseCustomField> updateCustomFields(FunctionalCaseChangeRequest functionalCaseChangeRequest, Map<String, List<FunctionalCaseCustomField>> caseCustomFieldMap, String caseId,String fieldId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper) {
         List<FunctionalCaseCustomField> total = new ArrayList<>();
         List<FunctionalCaseCustomField> functionalCaseCustomFields = caseCustomFieldMap.get(caseId);
         if (CollectionUtils.isEmpty(functionalCaseCustomFields)) {
             functionalCaseCustomFields = new ArrayList<>();
         }
         List<CaseCustomFieldDTO> customFields = functionalCaseChangeRequest.getCustomFields();
+        //更新用例等级
+        CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
+        customFieldDTO.setFieldId(fieldId);
+        customFieldDTO.setValue("P"+(functionalCaseChangeRequest.getPriority()-1));
+        customFields.add(customFieldDTO);
         if (CollectionUtils.isNotEmpty(customFields)) {
             customFields = customFields.stream().distinct().collect(Collectors.toList());
             List<String> fieldIds = customFields.stream().map(CaseCustomFieldDTO::getFieldId).collect(Collectors.toList());
