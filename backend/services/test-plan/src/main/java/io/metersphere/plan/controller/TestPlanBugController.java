@@ -33,7 +33,7 @@ public class TestPlanBugController {
 	@PostMapping("/page")
 	@Operation(summary = "缺陷列表-分页查询")
 	@RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
-	@CheckOwner(resourceId = "#requst.getPlanId()", resourceType = "test_plan")
+	@CheckOwner(resourceId = "#request.getPlanId()", resourceType = "test_plan")
 	public Pager<List<TestPlanBugPageResponse>> page(@Validated @RequestBody TestPlanBugPageRequest request) {
 		Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
 				StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "b.create_time desc");
