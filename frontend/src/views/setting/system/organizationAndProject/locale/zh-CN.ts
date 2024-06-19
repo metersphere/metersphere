@@ -57,7 +57,7 @@ export default {
   'system.project.endTitle': '结束项目',
   'system.project.enableContent': '开启后的项目展示在项目切换列表',
   'system.project.endContent': '结束后的项目不展示在项目切换列表',
-  'system.project.projectNamePlaceholder': '请输入项目名称,不可与其他项目名称重复',
+  'system.project.projectNamePlaceholder': '请输入项目名称，不可与其他项目名称重复',
   'system.project.updateProject': '更新项目',
   'system.project.createProject': '创建项目',
   'system.project.affiliatedOrg': '所属组织',
