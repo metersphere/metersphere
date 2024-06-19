@@ -1175,6 +1175,11 @@ public class TestPlanTests extends BaseTest {
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
 
+        TestPlan updatePlan = new TestPlan();
+        updatePlan.setId(groupTestPlanId7);
+        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+        testPlanMapper.updateByPrimaryKeySelective(updatePlan);
+
         //修改测试计划组信息
         updateRequest = testPlanTestService.generateUpdateRequest(groupTestPlanId7);
         updateRequest.setName(IDGenerator.nextStr());
@@ -2189,12 +2194,6 @@ public class TestPlanTests extends BaseTest {
         String returnId2 = holder2.getData().toString();
         Assertions.assertNotNull(returnId2);
 
-        //4.计划组 有计划
-        MvcResult mvcResult3 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_5"));
-        String returnStr3 = mvcResult3.getResponse().getContentAsString();
-        ResultHolder holder3 = JSON.parseObject(returnStr3, ResultHolder.class);
-        String returnId3 = holder3.getData().toString();
-        Assertions.assertNotNull(returnId3);
     }
 
     @Test

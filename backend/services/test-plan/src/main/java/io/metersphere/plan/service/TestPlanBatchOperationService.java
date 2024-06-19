@@ -266,6 +266,15 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         testPlanGroup.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
         testPlanMapper.insert(testPlanGroup);
 
+        //测试配置信息
+        TestPlanConfig originalTestPlanConfig = testPlanConfigMapper.selectByPrimaryKey(originalGroup.getId());
+        if (originalTestPlanConfig != null) {
+            TestPlanConfig newTestPlanConfig = new TestPlanConfig();
+            BeanUtils.copyBean(newTestPlanConfig, originalTestPlanConfig);
+            newTestPlanConfig.setTestPlanId(testPlanGroup.getId());
+            testPlanConfigMapper.insertSelective(newTestPlanConfig);
+        }
+
         for (TestPlan child : childList) {
             copyPlan(child, testPlanGroup.getId(), TestPlanConstants.TEST_PLAN_TYPE_GROUP, operatorTime, operator);
         }
