@@ -365,6 +365,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @return
      */
     private Map<String, Long> getCollectionCount(TestPlanCaseModuleRequest request) {
+        request.setCollectionId(null);
         Map<String, Long> projectModuleCountMap = new HashMap<>();
         List<ModuleCountDTO> list = extTestPlanFunctionalCaseMapper.collectionCountByRequest(request.getTestPlanId());
         list.forEach(item -> {
