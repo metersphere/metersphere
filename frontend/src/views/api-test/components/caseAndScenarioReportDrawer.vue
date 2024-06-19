@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
@@ -65,6 +66,7 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { copy, isSupported } = useClipboard({ legacy: true });
+  const route = useRoute();
 
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
@@ -115,7 +117,7 @@
   async function getReportDetail() {
     try {
       if (props.reportDetail) {
-        reportStepDetail.value = await props.reportDetail(props.reportId);
+        reportStepDetail.value = await props.reportDetail(props.reportId, route.query.shareId as string | undefined);
         return;
       }
       if (props.isScenario) {

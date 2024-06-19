@@ -19,9 +19,11 @@
   </MsBaseTable>
   <CaseAndScenarioReportDrawer
     v-model:visible="reportVisible"
-    :is-scenario="props.activeTab === 'scenarioCase'"
     :report-id="apiReportId"
-    :share-id="props.shareId"
+    do-not-show-share
+    :is-scenario="props.activeTab === 'scenarioCase'"
+    :report-detail="props.activeTab === 'scenarioCase' ? reportScenarioDetail : reportCaseDetail"
+    :get-report-step-detail="props.activeTab === 'scenarioCase' ? reportStepDetail : reportCaseStepDetail"
   />
 </template>
 
@@ -31,10 +33,17 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
-  import CaseAndScenarioReportDrawer from '@/views/test-plan/report/detail/component/caseAndScenarioReportDrawer.vue';
 
-  import { getApiPage, getScenarioPage } from '@/api/modules/test-plan/report';
+  import {
+    getApiPage,
+    getScenarioPage,
+    reportCaseDetail,
+    reportCaseStepDetail,
+    reportScenarioDetail,
+    reportStepDetail,
+  } from '@/api/modules/test-plan/report';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
   import { ReportEnum } from '@/enums/reportEnum';
