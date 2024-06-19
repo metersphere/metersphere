@@ -302,7 +302,7 @@ public class TestPlanReportService {
         report.setCreateUser(currentUser);
         report.setCreateTime(System.currentTimeMillis());
         report.setDeleted(false);
-        report.setPassThreshold(config.getPassThreshold());
+        report.setPassThreshold(config == null ? null : config.getPassThreshold());
         report.setParentId(genParam.getGroupReportId());
         testPlanReportMapper.insertSelective(report);
 

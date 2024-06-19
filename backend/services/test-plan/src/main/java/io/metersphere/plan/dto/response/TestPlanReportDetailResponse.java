@@ -9,6 +9,9 @@ import lombok.Data;
 @Data
 public class TestPlanReportDetailResponse {
 
+    /**
+     * 基础报告详情信息
+     */
     @Schema(description = "报告ID")
     private String id;
     @Schema(description = "报告名称")
@@ -21,6 +24,8 @@ public class TestPlanReportDetailResponse {
     private Long endTime;
     @Schema(description = "报告内容")
     private String summary;
+    @Schema(description = "用例总数")
+    private Integer caseTotal = 0;
 
     /**
      * 报告分析
@@ -40,6 +45,18 @@ public class TestPlanReportDetailResponse {
     private Integer planCount;
 
     /**
+     * 执行分析面板
+     */
+    @Schema(description = "执行分析-用例数")
+    private CaseCount executeCount;
+    @Schema(description = "功能用例分析-用例数")
+    private CaseCount functionalCount;
+    @Schema(description = "接口用例分析-用例数")
+    private CaseCount apiCaseCount;
+    @Schema(description = "接口场景用例分析-用例数")
+    private CaseCount apiScenarioCount;
+
+    /**
      * 一键总结参数
      */
     @Schema(description = "通过的计划数量 - 计划组报告使用")
@@ -48,39 +65,16 @@ public class TestPlanReportDetailResponse {
     private Integer failCountOfPlan = 0;
     @Schema(description = "功能用例明细的缺陷数量")
     private Integer functionalBugCount = 0;
-    @Schema(description = "功能用例明细的缺陷数量")
+    @Schema(description = "接口用例明细的缺陷数量")
     private Integer apiBugCount = 0;
-    @Schema(description = "功能用例明细的缺陷数量")
+    @Schema(description = "场景用例明细的缺陷数量")
     private Integer scenarioBugCount = 0;
 
-
-    @Schema(description = "用例总数")
-    private Integer caseTotal = 0;
-
     /**
-     * 执行分析
+     * 报告明细列表 参数
      */
-    @Schema(description = "执行分析-用例数")
-    private CaseCount executeCount;
-    /**
-     * 功能用例分析
-     */
-    @Schema(description = "功能用例分析-用例数")
-    private CaseCount functionalCount;
-    /**
-     * 接口用例分析
-     */
-    @Schema(description = "接口用例分析-用例数")
-    private CaseCount apiCaseCount;
-    /**
-     * 接口场景用例分析
-     */
-    @Schema(description = "接口场景用例分析-用例数")
-    private CaseCount apiScenarioCount;
-
     @Schema(description = "报告是否删除")
     private boolean deleted;
-
     @Schema(description = "报告状态")
     private String resultStatus;
 }
