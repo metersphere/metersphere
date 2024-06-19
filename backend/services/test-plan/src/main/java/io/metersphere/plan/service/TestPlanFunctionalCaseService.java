@@ -765,6 +765,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param testPlanFunctionalCaseList
      */
     private void buildTestPlanFunctionalCase(TestPlan testPlan, BaseCollectionAssociateRequest functional, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList, List<LogDTO> logDTOS) {
+        super.checkCollection(testPlan.getId(), functional.getCollectionId(), CaseType.FUNCTIONAL_CASE.getKey());
         List<String> functionalIds = functional.getIds();
         if (CollectionUtils.isNotEmpty(functionalIds)) {
             FunctionalCaseExample example = new FunctionalCaseExample();
