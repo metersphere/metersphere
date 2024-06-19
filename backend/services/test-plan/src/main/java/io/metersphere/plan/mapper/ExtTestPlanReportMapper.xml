@@ -4,7 +4,7 @@
     <select id="list" resultType="io.metersphere.plan.dto.response.TestPlanReportPageResponse">
         select tpr.id as id, tpr.name as name, tp.name as planName, tpr.pass_threshold planPassThreshold,
         tpr.trigger_mode as triggerMode, tpr.exec_status , tpr.result_status as resultStatus,
-        tpr.pass_rate passRate, tpr.create_user createUser, tpr.create_time createTime, tpr.integrated
+        tpr.pass_rate passRate, tpr.create_user createUser, tpr.create_time , tpr.integrated
         from test_plan_report tpr
         join test_plan tp on tpr.test_plan_id = tp.id
         <include refid="queryWhereCondition"/>
