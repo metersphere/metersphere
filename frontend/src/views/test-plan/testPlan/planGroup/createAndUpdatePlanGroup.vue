@@ -36,7 +36,14 @@
             },
           }"
           allow-search
-        />
+          :filter-tree-node="filterTreeNode"
+        >
+          <template #tree-slot-title="node">
+            <a-tooltip :content="`${node.name}`" position="tl">
+              <div class="one-line-text w-[300px]">{{ node.name }}</div>
+            </a-tooltip>
+          </template>
+        </a-tree-select>
       </a-form-item>
       <a-form-item field="tags" :label="t('common.tag')">
         <MsTagsInput v-model:modelValue="form.tags"></MsTagsInput>
@@ -54,7 +61,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { FormInstance, Message, TreeNodeData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -158,6 +165,10 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function filterTreeNode(searchValue: string, nodeData: TreeNodeData) {
+    return (nodeData as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   const okText = computed(() => {

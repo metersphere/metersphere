@@ -1,5 +1,5 @@
 <template>
-  <ReportHeader v-if="!props.isDrawer" :detail="detail" :share-id="shareId" />
+  <ReportHeader v-if="!props.isDrawer" :detail="detail" :share-id="shareId" :is-group="false" />
   <div class="analysis-wrapper">
     <div class="analysis min-w-[238px]">
       <div class="block-title">{{ t('report.detail.api.reportAnalysis') }}</div>

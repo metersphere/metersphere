@@ -184,6 +184,7 @@
         <CaseTable
           v-if="associationType === CaseLinkEnum.FUNCTIONAL"
           ref="functionalTableRef"
+          v-model:selectedIds="selectedIds"
           :association-type="associateType"
           :get-page-api-type="getPageApiType"
           :active-module="activeFolder"
@@ -200,6 +201,7 @@
         <ApiTable
           v-if="associationType === CaseLinkEnum.API && showType === 'API'"
           ref="apiTableRef"
+          v-model:selectedIds="selectedIds"
           :get-page-api-type="getPageApiType"
           :extra-table-params="props.extraTableParams"
           :association-type="associateType"
@@ -217,6 +219,7 @@
         <ApiCaseTable
           v-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
           ref="caseTableRef"
+          v-model:selectedIds="selectedIds"
           :get-page-api-type="getPageApiType"
           :extra-table-params="props.extraTableParams"
           :association-type="associateType"
@@ -234,6 +237,7 @@
         <ScenarioCaseTable
           v-if="associationType === CaseLinkEnum.SCENARIO"
           ref="scenarioTableRef"
+          v-model:selectedIds="selectedIds"
           :association-type="associateType"
           :modules-count="modulesCount"
           :active-module="activeFolder"
@@ -257,7 +261,12 @@
               <a-button type="secondary" :disabled="props.confirmLoading" class="mr-[12px]" @click="cancel">
                 {{ t('common.cancel') }}
               </a-button>
-              <a-button :loading="props.confirmLoading" type="primary" @click="handleConfirm">
+              <a-button
+                :loading="props.confirmLoading"
+                type="primary"
+                :disabled="!selectedIds.length"
+                @click="handleConfirm"
+              >
                 {{ t('ms.case.associate.associate') }}
               </a-button>
             </slot>
@@ -339,6 +348,7 @@
   const associationType = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
 
   const activeFolder = ref('all');
+  const selectedIds = ref<string[]>([]);
 
   const selectedKeys = computed({
     get: () => [activeFolder.value],
@@ -501,6 +511,16 @@
       }
       selectPopVisible.value = false;
       keyword.value = '';
+      selectedIds.value = [];
+    }
+  );
+
+  watch(
+    () => showType.value,
+    (val) => {
+      if (val) {
+        selectedIds.value = [];
+      }
     }
   );
 

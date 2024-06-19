@@ -1,5 +1,6 @@
 <template>
-  <PlanDetail :detail-info="detail" />
+  <PlanGroupDetail v-if="isGroup" :detail-info="detail" />
+  <PlanDetail v-else :detail-info="detail" />
 </template>
 
 <script setup lang="ts">
@@ -8,6 +9,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import PlanDetail from '@/views/test-plan/report/detail/component/planDetail.vue';
+  import PlanGroupDetail from '@/views/test-plan/report/detail/component/planGroupDetail.vue';
 
   import { getReportDetail, planGetShareHref } from '@/api/modules/test-plan/report';
   import { defaultReportDetail } from '@/config/testPlan';
@@ -18,7 +20,7 @@
   const route = useRoute();
   const router = useRouter();
   const reportId = ref<string>(route.query.id as string);
-
+  const isGroup = computed(() => route.query.type === 'GROUP');
   const detail = ref<PlanReportDetail>(cloneDeep(defaultReportDetail));
 
   async function getShareDetail() {
