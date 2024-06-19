@@ -38,7 +38,10 @@
                     {{ tag }}
                   </MsTag>
                   <template #overflow="{ number }">
-                    <a-tooltip :content="(Array.isArray(item.value) ? item.value : [item.value]).join('，')">
+                    <a-tooltip
+                      :content="(Array.isArray(item.value) ? item.value : [item.value]).join('，')"
+                      position="tl"
+                    >
                       <MsTag
                         :theme="item.tagTheme || 'outline'"
                         :type="item.tagType || 'primary'"
@@ -98,6 +101,7 @@
               <a-tooltip
                 :content="`${item.value}`"
                 :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
+                position="tl"
               >
                 <div>
                   {{

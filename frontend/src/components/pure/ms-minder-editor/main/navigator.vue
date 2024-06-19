@@ -325,7 +325,7 @@
     });
   }
 
-  const shortcutTriggerVisible = ref(false);
+  // const shortcutTriggerVisible = ref(false);
 
   onMounted(() => {
     nextTick(() => {

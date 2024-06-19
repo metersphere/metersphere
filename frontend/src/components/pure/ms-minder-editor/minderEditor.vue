@@ -99,7 +99,7 @@
       if (val && node) {
         setTimeout(() => {
           window.minder.execCommand('camera', node, 100);
-        }, 0);
+        }, 100);
       }
     }
   );

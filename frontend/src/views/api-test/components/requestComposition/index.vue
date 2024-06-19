@@ -854,6 +854,7 @@
         requestVModel.value.method = RequestMethods.GET;
       }
     }
+    localStorage.setItem('currentProtocol', requestVModel.value.protocol);
     handleActiveDebugChange();
   }
 

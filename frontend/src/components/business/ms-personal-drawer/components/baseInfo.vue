@@ -63,12 +63,7 @@
         <template #tag>
           <div v-for="org of orgList" :key="org.orgId" class="mb-[16px]">
             <MsTag class="h-[26px]" max-width="100%">
-              <a-tooltip :content="org.orgName" position="left">
-                <template #content>
-                  <span>{{ org.orgName }}</span>
-                </template>
-                <span>{{ org.orgName }}</span>
-              </a-tooltip>
+              <span>{{ org.orgName }}</span>
             </MsTag>
             <br />
             <MsTag
@@ -77,12 +72,7 @@
               class="!mr-[8px] mt-[8px] !bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]"
               max-width="100%"
             >
-              <a-tooltip :content="project.projectName" position="left">
-                <template #content>
-                  <span>{{ project.projectName }}</span>
-                </template>
-                <span>{{ project.projectName }}</span>
-              </a-tooltip>
+              <span>{{ project.projectName }}</span>
             </MsTag>
           </div>
         </template>
