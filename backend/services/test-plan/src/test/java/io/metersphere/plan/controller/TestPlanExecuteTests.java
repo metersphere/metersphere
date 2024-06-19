@@ -1,15 +1,13 @@
 package io.metersphere.plan.controller;
 
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanCollection;
-import io.metersphere.plan.domain.TestPlanCollectionExample;
-import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.plan.service.TestPlanExecuteService;
 import io.metersphere.plan.service.TestPlanTestService;
 import io.metersphere.project.domain.Project;
@@ -26,6 +24,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -65,6 +64,8 @@ public class TestPlanExecuteTests extends BaseTest {
             "test-plan-batch-execute:", "test-plan-group-execute:", "test-plan-case-type-execute:", "test-plan-collection-execute:"
     };
     public static final String QUEUE_PREFIX_TEST_PLAN_COLLECTION = "test-plan-collection-execute:";
+    @Autowired
+    private TestPlanReportMapper testPlanReportMapper;
 
     @Test
     @Order(1)
@@ -190,19 +191,49 @@ public class TestPlanExecuteTests extends BaseTest {
 
         // 串行4个计划组和一个计划
         this.executeBatch(batchExecuteIds, ApiBatchRunMode.SERIAL.name());
+        for (TestPlan group : testPlanGroupList) {
+            TestPlanReportExample example = new TestPlanReportExample();
+            example.createCriteria().andTestPlanIdEqualTo(group.getId());
+            Assertions.assertTrue(testPlanReportMapper.countByExample(example) > 0);
+            testPlanReportMapper.deleteByExample(example);
+        }
+
         //并行4个计划组和一个计划
         this.executeBatch(batchExecuteIds, ApiBatchRunMode.PARALLEL.name());
-
+        for (TestPlan group : testPlanGroupList) {
+            TestPlanReportExample example = new TestPlanReportExample();
+            example.createCriteria().andTestPlanIdEqualTo(group.getId());
+            Assertions.assertTrue(testPlanReportMapper.countByExample(example) > 0);
+            testPlanReportMapper.deleteByExample(example);
+        }
 
         //单独串行一个计划组
         this.executeOne(allSerialGroup.getId(), ApiBatchRunMode.SERIAL.name());
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo(allSerialGroup.getId());
+        Assertions.assertTrue(testPlanReportMapper.countByExample(example) > 0);
+        testPlanReportMapper.deleteByExample(example);
+
         //单独串行一个计划
         this.executeOne(noGroupPlan.getId(), ApiBatchRunMode.SERIAL.name());
+        example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo(noGroupPlan.getId());
+        Assertions.assertTrue(testPlanReportMapper.countByExample(example) > 0);
+        testPlanReportMapper.deleteByExample(example);
 
         //单独并行一个计划组
         this.executeOne(allParallelGroup.getId(), ApiBatchRunMode.PARALLEL.name());
+        example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo(allParallelGroup.getId());
+        Assertions.assertTrue(testPlanReportMapper.countByExample(example) > 0);
+        testPlanReportMapper.deleteByExample(example);
+
         //单独并行一个计划
         this.executeOne(noGroupPlan.getId(), ApiBatchRunMode.PARALLEL.name());
+        example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo(noGroupPlan.getId());
+        Assertions.assertTrue(testPlanReportMapper.countByExample(example) > 0);
+        testPlanReportMapper.deleteByExample(example);
     }
 
     private void executeBatch(List<String> execIds, String runMode) throws Exception {

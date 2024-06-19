@@ -154,6 +154,7 @@ public class OperationLogModule {
     public static final String BUG_MANAGEMENT_RECYCLE = "BUG_MANAGEMENT_BUG_RECYCLE";
     //测试计划
     public static final String TEST_PLAN = "TEST_PLAN";
+    public static final String TEST_PLAN_INDEX = "TEST_PLAN_INDEX";
     public static final String TEST_PLAN_MODULE = "TEST_PLAN_MODULE";
     public static final String TEST_PLAN_REPORT = "TEST_PLAN_REPORT";
 
