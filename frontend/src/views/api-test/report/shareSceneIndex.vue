@@ -23,10 +23,23 @@
       if (res.deleted) {
         router.push({
           name: NOT_FOUND_RESOURCE,
+          query: {
+            type: 'DELETE',
+          },
         });
-      } else {
-        detail.value = await reportScenarioDetail(res.reportId, route.query.shareId as string);
       }
+
+      if (res.expired) {
+        router.push({
+          name: NOT_FOUND_RESOURCE,
+          query: {
+            type: 'EXPIRED',
+          },
+        });
+        return;
+      }
+
+      detail.value = await reportScenarioDetail(res.reportId, route.query.shareId as string);
     } catch (error) {
       console.log(error);
     }

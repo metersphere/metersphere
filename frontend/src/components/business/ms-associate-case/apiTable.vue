@@ -160,23 +160,32 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setPagination, resetFilterParams } =
-    useTable(getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType].API, {
-      columns,
-      showSetting: false,
-      selectable: true,
-      showSelectAll: true,
-      heightUsed: 310,
-      showSelectorAll: false,
-    });
+  const {
+    propsRes,
+    propsEvent,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    setPagination,
+    resetFilterParams,
+    setTableSelected,
+  } = useTable(getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType].API, {
+    columns,
+    showSetting: false,
+    selectable: true,
+    showSelectAll: true,
+    heightUsed: 310,
+    showSelectorAll: false,
+  });
 
   async function getTableParams() {
+    const { excludeKeys } = propsRes.value;
     return {
       keyword: props.keyword,
       projectId: props.currentProject,
       protocols: props.protocols,
       moduleIds: props.activeModule === 'all' || !props.activeModule ? [] : [props.activeModule, ...props.offspringIds],
-      excludeIds: [...(props.associatedIds || [])], // 已经存在的关联的id列表
+      excludeIds: [...excludeKeys],
       condition: {
         keyword: props.keyword,
       },
@@ -194,6 +203,11 @@
   }
 
   async function loadApiList() {
+    if (props.associatedIds && props.associatedIds.length) {
+      props.associatedIds.forEach((hasNotAssociatedId) => {
+        setTableSelected(hasNotAssociatedId);
+      });
+    }
     const tableParams = await getTableParams();
     setLoadListParams(tableParams);
     loadList();
@@ -255,7 +269,7 @@
     const tableParams = getTableParams();
     return {
       ...tableParams,
-      excludeIds: [...excludeKeys].concat(...(props.associatedIds || [])),
+      excludeIds: [...excludeKeys],
       selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
       selectAll: selectorStatus === 'all',
       associateApiType: 'API',

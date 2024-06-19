@@ -30,6 +30,19 @@
       if (hrefShareDetail.deleted) {
         router.push({
           name: NOT_FOUND_RESOURCE,
+          query: {
+            type: 'DELETE',
+          },
+        });
+        return;
+      }
+
+      if (hrefShareDetail.expired) {
+        router.push({
+          name: NOT_FOUND_RESOURCE,
+          query: {
+            type: 'EXPIRED',
+          },
         });
         return;
       }

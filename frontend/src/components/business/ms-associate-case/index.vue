@@ -445,6 +445,9 @@
   const selectPopVisible = ref<boolean>(false);
 
   function loadCaseList() {
+    if (props.associatedIds && props.associatedIds.length > 0) {
+      selectedIds.value = props.associatedIds;
+    }
     switch (associationType.value) {
       case CaseLinkEnum.FUNCTIONAL:
         return functionalTableRef.value?.loadCaseList();

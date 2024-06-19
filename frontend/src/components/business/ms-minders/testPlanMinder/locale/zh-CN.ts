@@ -19,4 +19,5 @@ export default {
   'ms.minders.env': '环境',
   'ms.minders.item': '{count}条',
   'ms.minders.unsavedTip': '请先保存您更改的配置！',
+  'ms.minders.selectedCases': '已选 {count} 条',
 };

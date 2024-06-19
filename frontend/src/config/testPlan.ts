@@ -1,5 +1,7 @@
 import { cloneDeep } from 'lodash-es';
 
+import { addCommasToNumber } from '@/utils';
+
 import type { PassRateCountDetail, planStatusType, TestPlanDetail } from '@/models/testPlan/testPlan';
 import type { countDetail, PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
 import { LastExecuteResults } from '@/enums/caseEnum';
@@ -133,6 +135,31 @@ export const statusConfig: StatusListType[] = [
     key: 'ERROR',
   },
 ];
+
+export const toolTipConfig = {
+  show: true,
+  trigger: 'item',
+  label: {
+    color: '#959598',
+  },
+  backgroundColor: '#fff',
+  padding: 24,
+  borderWidth: 0,
+  formatter(params: any) {
+    const html = `
+      <div class="w-[144px] flex items-center justify-between">
+      <div class=" flex items-center">
+      <div class="mb-[2px] mr-[8px] h-[6px] w-[6px] rounded-full bg-[${params.color}]" style="background:${
+      params.color
+    }"></div>
+      <div style="color:#959598">${params.name}</div>
+      </div>
+      <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
+      </div>
+      `;
+    return html;
+  },
+};
 
 export const commonConfig = {
   tooltip: {

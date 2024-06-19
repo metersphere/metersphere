@@ -164,6 +164,7 @@ export default {
   'common.image': 'Image',
   'common.text': 'Text',
   'common.resourceDeleted': 'Resource has been deleted',
+  'common.resourceExpired': 'Link has failed, please get it again',
   'common.refresh': 'Refresh',
   'common.searchByNameAndId': 'Search by ID, name, or tag',
   'common.archive': 'archive',

@@ -19,4 +19,5 @@ export default {
   'ms.minders.env': 'Environment',
   'ms.minders.item': '{count} Strip',
   'ms.minders.unsavedTip': 'Please save your changed configuration first!',
+  'ms.minders.selectedCases': '{count} is selected',
 };

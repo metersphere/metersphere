@@ -58,6 +58,7 @@
   import TiledList from './tiledList.vue';
   import ReportMetricsItem from '@/views/test-plan/report/detail/component/ReportMetricsItem.vue';
 
+  import { toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { formatDuration } from '@/utils';
 
@@ -164,8 +165,7 @@
   const stepAnalysisLegendData = ref<LegendData[]>([]);
   const defaultCharOptions = {
     tooltip: {
-      show: false,
-      trigger: 'item',
+      ...toolTipConfig,
     },
     legend: {
       show: false,

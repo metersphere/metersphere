@@ -252,7 +252,6 @@
         <MsButton
           v-if="isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
           class="!mx-0"
-          :disabled="executeId == record.id"
           @click="executePlan(record)"
           >{{ t('testPlan.testPlanIndex.execution') }}</MsButton
         >
@@ -275,13 +274,21 @@
         ></a-divider>
 
         <MsButton
-          v-if="!isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
+          v-if="
+            !isShowExecuteButton(record) &&
+            hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
+            record.status !== 'ARCHIVED'
+          "
           class="!mx-0"
           @click="copyTestPlanOrGroup(record.id)"
           >{{ t('common.copy') }}</MsButton
         >
         <a-divider
-          v-if="!isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])"
+          v-if="
+            !isShowExecuteButton(record) &&
+            hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
+            record.status !== 'ARCHIVED'
+          "
           direction="vertical"
           :margin="8"
         ></a-divider>
@@ -807,18 +814,26 @@
     draggableCondition: true,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams, setPagination } =
-    useTable(
-      getTestPlanList,
-      tableProps.value,
-      (item) => {
-        return {
-          ...item,
-          tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
-        };
-      },
-      updatePlanName
-    );
+  const {
+    propsRes,
+    propsEvent,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    resetFilterParams,
+    setPagination,
+    setLoading,
+  } = useTable(
+    getTestPlanList,
+    tableProps.value,
+    (item) => {
+      return {
+        ...item,
+        tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
+      };
+    },
+    updatePlanName
+  );
 
   const batchParams = ref<BatchActionQueryParams>({
     selectedIds: [],
@@ -978,6 +993,7 @@
     } finally {
       executeId.value = '';
       confirmLoading.value = false;
+      setLoading(false);
     }
   }
 
@@ -1010,6 +1026,7 @@
             },
           });
         } else {
+          setLoading(true);
           singleExecute(record.id);
         }
       }
