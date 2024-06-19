@@ -95,18 +95,22 @@
     if (props.record?.type === testPlanTypeEnum.GROUP) {
       return t('testPlan.testPlanGroup.planGroupDeleteContent');
     }
+    let deleteMessage;
     switch (props.record && props.record.status) {
       case 'ARCHIVED':
-        return t('testPlan.testPlanIndex.deleteArchivedPlan');
+        deleteMessage = t('testPlan.testPlanIndex.deleteArchivedPlan');
+        break;
       case 'UNDERWAY':
-        return props.scheduleConfig && props.scheduleConfig.enable
-          ? t('testPlan.testPlanIndex.deleteRunningSchedulePlan')
-          : t('testPlan.testPlanIndex.deleteRunningPlan');
+        deleteMessage = t('testPlan.testPlanIndex.deleteRunningPlan');
+        break;
       case 'COMPLETED':
-        return t('testPlan.testPlanIndex.deleteCompletedPlan');
+        deleteMessage = t('testPlan.testPlanIndex.deleteCompletedPlan');
+        break;
       default:
-        return t('testPlan.testPlanIndex.deletePendingPlan');
+        deleteMessage = t('testPlan.testPlanIndex.deletePendingPlan');
     }
+    const scheduledMessage = props.scheduleConfig ? t('testPlan.testPlanIndex.scheduledTask') : '';
+    return `${deleteMessage}${scheduledMessage}${t('testPlan.testPlanIndex.operateWithCaution')}`;
   });
 
   const showArchive = computed(() => {

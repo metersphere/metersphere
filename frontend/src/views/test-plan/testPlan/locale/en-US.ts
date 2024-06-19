@@ -67,16 +67,14 @@ export default {
   'testPlan.testPlanIndex.functionalUseCase': 'case',
   'testPlan.testPlanIndex.apiCase': 'Api use case',
   'testPlan.testPlanIndex.apiScenarioCase': 'Api scenario use cases',
-  'testPlan.testPlanIndex.deleteArchivedPlan':
-    'After the program has been archived, delete data unrecoverable, please careful operation.',
-  'testPlan.testPlanIndex.deletePendingPlan':
-    'The plan is not executed, the data cannot be recovered after deletion, please operate carefully!',
+  'testPlan.testPlanIndex.scheduledTask': 'stop and delete scheduled tasks, ',
+  'testPlan.testPlanIndex.operateWithCaution': 'please operate with caution!',
+  'testPlan.testPlanIndex.deleteArchivedPlan': 'After the program has been archived, delete data unrecoverable,',
+  'testPlan.testPlanIndex.deletePendingPlan': 'The plan is not executed, the data cannot be recovered after deletion,',
   'testPlan.testPlanIndex.deleteRunningPlan':
-    'Scheduled tasks are stopped and deleted. Exercise caution when performing this operation',
-  'testPlan.testPlanIndex.deleteRunningSchedulePlan':
-    'Scheduled tasks are stopped and deleted. Exercise caution when performing this operation.',
+    'The plan is in progress. After deletion, the execution will be terminated and cannot be restored,',
   'testPlan.testPlanIndex.deleteCompletedPlan':
-    'The proposed plan is completed, the option is archived, and the use case information and execution results are retained;If you continue to delete, the data will not be restored, please be careful!',
+    'Suggest that completed plans, choose archiving, and retain use case information and execution results; If the deletion continues, the data will not be restored,',
   'testPlan.testPlanIndex.confirmArchivePlan':
     'After filing, implement information no longer update and editing, data unrecoverable, please careful operation！',
   'testPlan.testPlanIndex.passRateTitleTip': 'Passed use cases/all use cases *100%',
