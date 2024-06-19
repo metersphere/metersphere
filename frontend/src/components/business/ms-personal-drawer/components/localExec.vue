@@ -302,6 +302,9 @@
   onBeforeMount(async () => {
     try {
       loading.value = true;
+      if (!userStore.id) {
+        return;
+      }
       const res = await getLocalConfig();
       if (Array.isArray(res)) {
         res.forEach((config) => {
