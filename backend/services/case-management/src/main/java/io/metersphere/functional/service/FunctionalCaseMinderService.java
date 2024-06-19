@@ -990,7 +990,7 @@ public class FunctionalCaseMinderService {
         functionalCase.setCreateTime(null);
         //更新用例
         caseMapper.updateByPrimaryKeySelective(functionalCase);
-        return functionalCase;
+        return caseMapper.selectByPrimaryKey(functionalCase.getId());
     }
 
     private FunctionalCaseBlob updateBlob(FunctionalCaseChangeRequest functionalCaseChangeRequest, String caseId, FunctionalCaseBlobMapper caseBlobMapper) {

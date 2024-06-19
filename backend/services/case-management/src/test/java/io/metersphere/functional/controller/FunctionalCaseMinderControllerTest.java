@@ -177,6 +177,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         customFields.add(customFieldDTO);
         caseChangeRequest.setCustomFields(customFields);
         caseChangeRequests.add(caseChangeRequest);
+
         caseChangeRequest = new FunctionalCaseChangeRequest();
         caseChangeRequest.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
         caseChangeRequest.setName("TEST_MINDER_MODULE_ID_GYQ_更新");
@@ -196,6 +197,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequest.setCustomFields(customFields);
         caseChangeRequests.add(caseChangeRequest);
         request.setUpdateCaseList(caseChangeRequests);
+
         List<FunctionalCaseModuleEditRequest> functionalCaseModuleEditRequests = new ArrayList<>();
         FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest = new FunctionalCaseModuleEditRequest();
         functionalCaseModuleEditRequest.setId("uuuId");
@@ -214,6 +216,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseModuleEditRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
         functionalCaseModuleEditRequests.add(functionalCaseModuleEditRequest);
         request.setUpdateModuleList(functionalCaseModuleEditRequests);
+
         List<MindAdditionalNodeRequest> additionalNodeList = new ArrayList<>();
         MindAdditionalNodeRequest mindAdditionalNodeRequest = new MindAdditionalNodeRequest();
         mindAdditionalNodeRequest.setId("weyyg");
@@ -228,6 +231,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         mindAdditionalNodeRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
         additionalNodeList.add(mindAdditionalNodeRequest);
         request.setAdditionalNodeList(additionalNodeList);
+
         List<MinderOptionDTO> deleteResourceList = new ArrayList<>();
         MinderOptionDTO minderOptionDTO = new MinderOptionDTO();
         minderOptionDTO.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_9");
@@ -243,6 +247,12 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         deleteResourceList.add(minderOptionDTO);
         request.setDeleteResourceList(deleteResourceList);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_EDIT_URL, request);
+
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
+        System.out.println(functionalCase);
+
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCase.getName(),"TEST_MINDER_MODULE_ID_GYQ_更新"));
+
         MindAdditionalNode mindAdditionalNode = mindAdditionalNodeMapper.selectByPrimaryKey("additional2");
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(mindAdditionalNode.getParentId(),"TEST_MINDER_MODULE_ID_GYQ"));
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
@@ -250,6 +260,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
         Assertions.assertTrue(functionalCases.get(0).getPos() > 0L);
+
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
         FunctionalCaseCustomFieldExample customFieldExample = new FunctionalCaseCustomFieldExample();
         customFieldExample.createCriteria().andCaseIdEqualTo(functionalCases.get(0).getId()).andFieldIdEqualTo("custom_field_minder_gyq_id_3");
         List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
