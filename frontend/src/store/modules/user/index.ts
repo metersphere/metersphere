@@ -114,9 +114,7 @@ const useUserStore = defineStore('user', {
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
         appStore.setCurrentProjectId(res.lastProjectId || '');
         this.setInfo(res);
-        if (res) {
-          this.initLocalConfig(); // 获取本地执行配置
-        }
+        this.initLocalConfig(); // 获取本地执行配置
       } catch (err) {
         clearToken();
         throw err;
@@ -131,9 +129,7 @@ const useUserStore = defineStore('user', {
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
         appStore.setCurrentProjectId(res.lastProjectId || '');
         this.setInfo(res);
-        if (res) {
-          this.initLocalConfig(); // 获取本地执行配置
-        }
+        this.initLocalConfig(); // 获取本地执行配置
       } catch (err) {
         clearToken();
         throw err;
@@ -211,24 +207,24 @@ const useUserStore = defineStore('user', {
     },
     // 获取本地执行配置
     async initLocalConfig() {
-      // try {
-      //   const res = await getLocalConfig();
-      //   if (res) {
-      //     const apiLocalExec = res.find((e) => e.type === 'API');
-      //     if (apiLocalExec && apiLocalExec.userUrl) {
-      //       this.hasLocalExec = true;
-      //       this.isPriorityLocalExec = apiLocalExec.enable || false;
-      //       this.localExecuteUrl = apiLocalExec.userUrl || '';
-      //     } else {
-      //       this.hasLocalExec = false;
-      //       this.isPriorityLocalExec = false;
-      //       this.localExecuteUrl = '';
-      //     }
-      //   }
-      // } catch (error) {
-      //   // eslint-disable-next-line no-console
-      //   console.log(error);
-      // }
+      try {
+        const res = await getLocalConfig();
+        if (res) {
+          const apiLocalExec = res.find((e) => e.type === 'API');
+          if (apiLocalExec && apiLocalExec.userUrl) {
+            this.hasLocalExec = true;
+            this.isPriorityLocalExec = apiLocalExec.enable || false;
+            this.localExecuteUrl = apiLocalExec.userUrl || '';
+          } else {
+            this.hasLocalExec = false;
+            this.isPriorityLocalExec = false;
+            this.localExecuteUrl = '';
+          }
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
     },
     async checkIsLogin(forceSet = false) {
       const { isLoginPage } = useUser();
