@@ -40,3 +40,20 @@ export const ReportShareScenarioUrl = '/test-plan/report/share/detail/scenario/c
 export const ReportDetailPageUrl = '/test-plan/report/detail/plan/report/page';
 // 测试计划-聚合报告-报告明细-分享
 export const ReportDetailSharePageUrl = '/test-plan/report/share/detail/plan/report/page';
+
+// 测试计划-报告明细-接口报告-分享
+export const ReportShareApiUrlGet = '/test-plan/report/share/detail/api-report';
+export const ReportShareApiUrlGetDetail = '/test-plan/report/share/detail/api-report/get';
+
+// 测试计划-报告明细-接口报告
+export const ReportApiUrl = '/test-plan/api/case/report/get';
+export const ReportDetailApiUrl = '/test-plan/api/case/report/get/detail';
+
+// 测试计划-报告明细-场景报告-分享
+export const ReportShareScenarioUrlGet = '/test-plan/report/share/detail/scenario-report';
+export const ReportShareScenarioUrlGetDetail = '/test-plan/report/share/detail/scenario-report/get';
+
+// 测试计划-报告明细-场景报告
+export const ReportScenarioUrl = '/test-plan/api/scenario/report/get';
+export const ReportDetailScenarioUrl = '/test-plan/api/scenario/report/get/detail';
+

@@ -4,6 +4,7 @@
       v-model:model-value="numberValue"
       class="w-[120px]"
       :min="1"
+      :max="1000"
       hide-button
       size="small"
       :disabled="props.disabled"

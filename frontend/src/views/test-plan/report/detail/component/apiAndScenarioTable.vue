@@ -21,7 +21,7 @@
     v-model:visible="reportVisible"
     :is-scenario="props.activeTab === 'scenarioCase'"
     :report-id="apiReportId"
-    do-not-show-share
+    :share-id="props.shareId"
   />
 </template>
 
@@ -31,8 +31,8 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import CaseAndScenarioReportDrawer from '@/views/test-plan/report/detail/component/caseAndScenarioReportDrawer.vue';
 
   import { getApiPage, getScenarioPage } from '@/api/modules/test-plan/report';
 
@@ -41,7 +41,6 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
-  import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
     reportId: string;

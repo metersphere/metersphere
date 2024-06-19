@@ -291,6 +291,7 @@ public class TestPlanTaskCenterService {
                     detailReport(request, apiReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
                     List<ReportDTO> scenarioReports = extTestPlanReportMapper.getScenarioReports(subList);
                     detailReport(request, scenarioReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+                    saveLog(subList, userId, StringUtils.join(module, "_REAL_TIME_TEST_PLAN"));
                 });
             }
 
@@ -331,20 +332,13 @@ public class TestPlanTaskCenterService {
                     MsHttpClient.stopApi(endpoint, subList);
                 } catch (Exception e) {
                     LogUtils.error(e);
-                } finally {
-                    saveLog(subList, userId, StringUtils.join(module, "_REAL_TIME_TEST_PLAN"), resourceType);
                 }
             });
         });
     }
 
-    private void saveLog(List<String> ids, String userId, String module, String type) {
-        List<ReportDTO> reports = new ArrayList<>();
-        if (StringUtils.equals(type, ApiExecuteResourceType.TEST_PLAN_API_CASE.name())) {
-            reports = extApiReportMapper.selectByIds(ids);
-        } else if (StringUtils.equals(type, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name())) {
-            reports = extApiScenarioReportMapper.selectByIds(ids);
-        }
+    private void saveLog(List<String> ids, String userId, String module) {
+        List<ReportDTO> reports = extTestPlanReportMapper.getReportsByIds(ids);
         //取出所有的项目id
         List<String> projectIds = reports.stream().map(ReportDTO::getProjectId).distinct().toList();
         //根据项目id取出组织id
