@@ -421,7 +421,7 @@ public class ApiReportControllerTests extends BaseTest {
 
         mockMvc.perform(getRequestBuilder("/api/report/share/get/" + "test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isOk());
 
         mvcResult = this.requestGetWithOk(BASIC + "/share/detail/" + shareId + "/" + "test-report-id" + "/" + "test-report-step-id1")
                 .andReturn();
@@ -435,6 +435,16 @@ public class ApiReportControllerTests extends BaseTest {
         mockMvc.perform(getRequestBuilder(BASIC + "/share/" + shareId + "/" + "test-report-id"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+
+        mvcResult = responsePost("/api/report/share/gen", shareInfo);
+        shareInfoDTO = parseObjectFromMvcResult(mvcResult, ShareInfoDTO.class);
+        shareId = shareInfoDTO.getId();
+        shareInfo1 = shareInfoMapper.selectByPrimaryKey(shareId);
+        shareInfo1.setUpdateTime(1702950953000L);
+        shareInfoMapper.updateByPrimaryKey(shareInfo1);
+
+        this.requestGetWithOk("/api/report/share/get/" + shareId)
+                .andReturn();
 
         //TODO  过期的校验   未完成  需要补充
         //项目当前设置了分享时间  并且没有过期
