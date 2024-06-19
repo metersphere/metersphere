@@ -305,15 +305,10 @@
   }
 
   const activeTab = ref('plan');
-  const showBugAndExecTab = ref(route.query.isNew !== 'true'); // [缺陷列表/执行历史]tab显隐
   watch(
     () => detail.value,
     () => {
       const { functionalCaseCount, apiCaseCount, apiScenarioCount } = detail.value || {};
-      // 新建后,[缺陷列表/执行历史]不显示,一旦关联用例了,tab就显示
-      if (functionalCaseCount || apiCaseCount || apiScenarioCount) {
-        showBugAndExecTab.value = true;
-      }
       if (
         (!functionalCaseCount && activeTab.value === 'featureCase') ||
         (!apiCaseCount && activeTab.value === 'apiCase') ||
@@ -348,12 +343,12 @@
       {
         value: 'defectList',
         label: t('caseManagement.featureCase.defectList'), // 缺陷列表
-        show: showBugAndExecTab.value,
+        show: true,
       },
       {
         value: 'executeHistory',
         label: t('testPlan.featureCase.executionHistory'), // 执行历史
-        show: showBugAndExecTab.value,
+        show: true,
       },
     ].filter((tab) => tab.show); // 过滤掉不显示的 tab
   });

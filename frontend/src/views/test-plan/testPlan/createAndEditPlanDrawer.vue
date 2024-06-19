@@ -283,7 +283,6 @@
       name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
       query: {
         id,
-        isNew: 'true',
       },
     });
   }
