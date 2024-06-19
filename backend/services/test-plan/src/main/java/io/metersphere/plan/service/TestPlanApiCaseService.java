@@ -264,7 +264,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setExecuteUserName(userMap.get(item.getExecuteUser()));
-            item.setModuleName(moduleNameMap.get(item.getModuleId()));
+            item.setModuleName(StringUtils.isNotBlank(moduleNameMap.get(item.getModuleId())) ? moduleNameMap.get(item.getModuleId()) : Translator.get("api_unplanned_request"));
             if (secondEnvMap.containsKey(item.getTestPlanCollectionId())) {
                 TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());
                 if (collectEnv.getExtended()) {
