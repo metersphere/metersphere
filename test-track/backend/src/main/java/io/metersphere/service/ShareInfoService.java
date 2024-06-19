@@ -102,7 +102,9 @@ public class ShareInfoService {
         TestPlanReportContentExample example = new TestPlanReportContentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(shareInfo.getCustomData());
         List<TestPlanReportContentWithBLOBs> testPlanReportContents = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
-        if (!CollectionUtils.isEmpty(testPlanReportContents)) {
+        if (CollectionUtils.isEmpty(testPlanReportContents)) {
+            return testPlanMapper.selectByPrimaryKey(shareInfo.getCustomData());
+        } else {
             TestPlanReportContentWithBLOBs testPlanReportContent = testPlanReportContents.get(0);
             if (testPlanReportContent != null) {
                 TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
