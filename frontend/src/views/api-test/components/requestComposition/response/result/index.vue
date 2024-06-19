@@ -273,7 +273,11 @@
       if (props.stepItem) {
         let res;
         if (props.getReportStepDetail) {
-          res = await props.getReportStepDetail((props.stepItem?.reportId || props.reportId) as string, stepId);
+          res = await props.getReportStepDetail(
+            (props.stepItem?.reportId || props.reportId) as string,
+            stepId,
+            route.query.shareId as string | undefined
+          );
         } else {
           res = await reportDetailMap[props.showType].stepDetail(
             (props.stepItem?.reportId || props.reportId) as string,
