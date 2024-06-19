@@ -3,7 +3,7 @@
     <a-input-number
       v-model:model-value="numberValue"
       class="w-[120px]"
-      :min="0"
+      :min="1"
       hide-button
       size="small"
       :disabled="props.disabled"
