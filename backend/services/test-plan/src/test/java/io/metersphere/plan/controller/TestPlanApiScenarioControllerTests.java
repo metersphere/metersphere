@@ -267,7 +267,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
         BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
-        baseCollectionAssociateRequest.setCollectionId("wxxx_collection_1");
+        baseCollectionAssociateRequest.setCollectionId("wxxx_collection_3");
         baseCollectionAssociateRequest.setIds(List.of("wxxx_api_scenario_1"));
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.API_SCENARIO, baseCollectionAssociateRequests);

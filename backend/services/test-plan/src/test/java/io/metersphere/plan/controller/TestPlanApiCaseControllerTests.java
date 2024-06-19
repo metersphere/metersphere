@@ -253,7 +253,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
         BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
-        baseCollectionAssociateRequest.setCollectionId("wxxx_1");
+        baseCollectionAssociateRequest.setCollectionId("wxxx_2");
         baseCollectionAssociateRequest.setIds(List.of("wxxx_api_1"));
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.API, baseCollectionAssociateRequests);
@@ -263,17 +263,17 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         userDTO.setName("admin");
         userDTO.setLastOrganizationId("wxx_1234");
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
-        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates, user);
+        testPlanApiCaseService.associateCollection("wxxx_1", collectionAssociates, user);
 
         //api case
         Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates1 = new HashMap<>();
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests1 = new ArrayList<>();
         BaseCollectionAssociateRequest baseCollectionAssociateRequest1 = new BaseCollectionAssociateRequest();
-        baseCollectionAssociateRequest1.setCollectionId("wxxx_1");
+        baseCollectionAssociateRequest1.setCollectionId("wxxx_2");
         baseCollectionAssociateRequest1.setIds(List.of("wxxx_api_case_1"));
         baseCollectionAssociateRequests1.add(baseCollectionAssociateRequest1);
         collectionAssociates1.put(AssociateCaseType.API_CASE, baseCollectionAssociateRequests1);
-        testPlanApiCaseService.associateCollection("wxxx_2", collectionAssociates1, user);
+        testPlanApiCaseService.associateCollection("wxxx_1", collectionAssociates1, user);
 
         apiTestCase = initApiData();
         TestPlanApiCase testPlanApiCase = new TestPlanApiCase();

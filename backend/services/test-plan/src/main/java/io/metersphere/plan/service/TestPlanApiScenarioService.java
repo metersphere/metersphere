@@ -213,6 +213,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @param testPlanApiScenarioList
      */
     private void buildTestPlanApiScenario(TestPlan testPlan, List<ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, List<LogDTO> logDTOS) {
+        super.checkCollection(testPlan.getId(), collectionId, CaseType.SCENARIO_CASE.getKey());
         AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         scenarios.forEach(scenario -> {
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();

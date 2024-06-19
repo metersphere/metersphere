@@ -602,6 +602,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param testPlanApiCaseList
      */
     private void buildTestPlanApiCase(TestPlan testPlan, List<ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, List<LogDTO> logDTOS) {
+        super.checkCollection(testPlan.getId(), collectionId, CaseType.API_CASE.getKey());
         AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         apiTestCases.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();

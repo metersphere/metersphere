@@ -25,7 +25,6 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -362,7 +361,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates = new HashMap<>();
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
         BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
-        baseCollectionAssociateRequest.setCollectionId("wxxx_1");
+        baseCollectionAssociateRequest.setCollectionId("123");
         baseCollectionAssociateRequest.setIds(List.of("fc_1"));
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
@@ -372,6 +371,11 @@ public class TestPlanCaseControllerTests extends BaseTest {
         userDTO.setLastOrganizationId("wxx_1234");
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
         testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, user);
+
+        baseCollectionAssociateRequest.setCollectionId("wxxx1231_1");
+        baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
+        collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
+        Assertions.assertThrows(Exception.class, () -> testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, user));
     }
 
     @Test

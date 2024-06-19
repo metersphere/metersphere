@@ -57,7 +57,9 @@ VALUES ('100001', 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIM
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene, ref_id) VALUES ('bug-template-id', 'bug_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', 'gyq_disassociate', 0, 'BUG', 'bug-template-id');
 -- 初始化项目默认模板内置字段, 项目默认模板内置字段
 
-
+INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `environment_id`, `test_resource_pool_id`, `pos`, `create_user`, `create_time`, `parent_id`)
+VALUES
+    ('123', 'plan_1', 'coll_1', 'FUNCTIONAL', 'NONE', 'NONE', 1, 'admin', 1716370415311, '123456');
 
 INSERT INTO `test_plan_case_execute_history`(`id`, `test_plan_case_id`, `test_plan_id`, `case_id`, `status`, `content`, `steps`, `deleted`, `notifier`, `create_user`, `create_time`)
 VALUES
