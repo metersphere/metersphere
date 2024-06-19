@@ -1284,7 +1284,7 @@
     showStatusDeleteModal.value = true;
   }
 
-  // 拖拽排序 TODO 待联调
+  // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
       await dragPlanOnGroup(params);
