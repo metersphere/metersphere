@@ -423,7 +423,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             //测试计划组归档
             updateGroupStatus(testPlan.getId(), userId);
             //关闭定时任务
-
+            this.deleteScheduleConfig(testPlan.getId());
         } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             //测试计划
             testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
@@ -476,6 +476,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (CollectionUtils.isEmpty(ids)) {
             throw new MSException(Translator.get("test_plan.group.not_plan"));
         }
+        ids.add(id);
         extTestPlanMapper.batchUpdateStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
     }
 
@@ -747,7 +748,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param tags
      */
     private void checkTagsLength(List<String> tags) {
-        if (tags.size() > MAX_TAG_SIZE) {
+        if (CollectionUtils.size(tags) > MAX_TAG_SIZE) {
             throw new MSException(Translator.getWithArgs("tags_length_large_than", String.valueOf(MAX_TAG_SIZE)));
         }
     }

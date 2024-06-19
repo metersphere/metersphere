@@ -136,7 +136,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             newCase.setCreateTime(operatorTime);
             newCase.setCreateUser(operator);
             newCase.setLastExecTime(0L);
-            newCase.setLastExecResult(null);
+            newCase.setLastExecResult(ExecStatus.PENDING.name());
             copyList.add(newCase);
         });
 

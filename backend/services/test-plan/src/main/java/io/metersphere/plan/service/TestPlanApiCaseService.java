@@ -158,7 +158,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             newCase.setCreateTime(operatorTime);
             newCase.setCreateUser(operator);
             newCase.setLastExecTime(0L);
-            newCase.setLastExecResult(null);
+            newCase.setLastExecResult(ExecStatus.PENDING.name());
             newCase.setLastExecReportId(null);
             copyList.add(newCase);
         });
