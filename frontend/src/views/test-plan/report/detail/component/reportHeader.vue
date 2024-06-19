@@ -8,7 +8,7 @@
       </div>
     </template>
     <template #headerRight>
-      <PlanDetailHeaderRight :share-id="shareId" :detail="detail" />
+      <PlanDetailHeaderRight :is-group="props.isGroup" :share-id="shareId" :detail="detail" />
     </template>
   </MsCard>
 </template>
@@ -25,6 +25,7 @@
     detail: PlanReportDetail;
     shareId?: string;
     isDrawer?: boolean;
+    isGroup: boolean;
   }>();
 </script>
 

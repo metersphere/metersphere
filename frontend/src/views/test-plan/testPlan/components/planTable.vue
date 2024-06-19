@@ -122,6 +122,7 @@
             theme="outline"
             class="ml-2"
             :tooltip-disabled="true"
+            @click="handleScheduledTask(record)"
             >{{ t('testPlan.testPlanIndex.timing') }}</MsTag
           >
           <template #content>
@@ -1005,6 +1006,7 @@
             name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
             query: {
               id,
+              type: 'featureCase',
             },
           });
         } else {
@@ -1251,6 +1253,9 @@
   const planSourceId = ref<string>();
   const planType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
   function handleScheduledTask(record: TestPlanItem) {
+    if (!hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])) {
+      return;
+    }
     planType.value = record.type;
     planSourceId.value = record.id;
     taskForm.value = defaultCountDetailMap.value[record.id]?.scheduleConfig;

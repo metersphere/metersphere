@@ -90,6 +90,7 @@
     (e: 'getModuleCount', params: TableQueryParams): void;
     (e: 'refresh'): void;
     (e: 'initModules'): void;
+    (e: 'update:selectedIds'): void;
   }>();
 
   const lastReportStatusListOptions = computed(() => {
@@ -268,7 +269,17 @@
       loadCaseList();
     }
   );
+  const innerSelectedIds = defineModel<string[]>('selectedIds', { required: true });
+  const selectIds = computed(() => {
+    return [...propsRes.value.selectedKeys];
+  });
 
+  watch(
+    () => selectIds.value,
+    (val) => {
+      innerSelectedIds.value = val;
+    }
+  );
   watch(
     () => props.activeModule,
     (val) => {

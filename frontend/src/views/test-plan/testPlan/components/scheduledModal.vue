@@ -4,6 +4,7 @@
     class="ms-modal-form ms-modal-small"
     title-align="start"
     :mask-closable="false"
+    @close="handleCancel"
   >
     <template #title>
       {{

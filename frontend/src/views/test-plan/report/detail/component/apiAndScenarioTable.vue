@@ -9,20 +9,12 @@
     <template #priority="{ record }">
       <caseLevel :case-level="record.priority" />
     </template>
-    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-      <ExecuteResult :execute-result="filterContent.key" />
+    <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+      <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
     </template>
+
     <template #lastExecResult="{ record }">
-      <ExecuteResult v-if="record.executeResult" :execute-result="record.executeResult" />
-      <span v-else>-</span>
-      <!-- TOTO 暂时不上 -->
-      <!-- <MsIcon
-        v-show="record.lastExecResult !== LastExecuteResults.PENDING"
-        type="icon-icon_take-action_outlined"
-        class="ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]"
-        size="16"
-        @click="showReport(record)"
-      /> -->
+      <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.executeResult" />
     </template>
   </MsBaseTable>
   <CaseAndScenarioReportDrawer
@@ -39,15 +31,16 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getApiPage, getScenarioPage } from '@/api/modules/test-plan/report';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  import { casePriorityOptions } from '@/views/api-test/components/config';
+  import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
@@ -88,10 +81,8 @@
       dataIndex: 'executeResult',
       slotName: 'lastExecResult',
       filterConfig: {
-        valueKey: 'key',
-        labelKey: 'statusText',
-        options: Object.values(executionResultMap),
-        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+        options: lastReportStatusListOptions.value,
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
       width: 150,
       showDrag: true,

@@ -41,6 +41,15 @@
           {{ characterLimit(record.name) }}
         </div>
       </template>
+      <template #integrated="{ record }">
+        <MsTag theme="light" :type="record.integrated ? 'primary' : undefined">
+          {{
+            record.integrated
+              ? t('report.detail.testPlanGroup.testGroupReport')
+              : t('report.detail.testPlanGroup.testReport')
+          }}
+        </MsTag>
+      </template>
 
       <!-- 通过率 -->
       <template #passRateColumn>
@@ -101,6 +110,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
 
@@ -181,9 +191,15 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      ellipsis: true,
       showDrag: false,
       columnSelectorDisabled: true,
+    },
+    {
+      title: 'report.type',
+      slotName: 'integrated',
+      dataIndex: 'integrated',
+      width: 150,
+      showDrag: true,
     },
     {
       title: 'report.plan.name',
@@ -192,7 +208,6 @@
       width: 200,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       showDrag: true,
       columnSelectorDisabled: true,
     },

@@ -481,6 +481,9 @@
   }
 
   onBeforeMount(() => {
+    if (route.query.type === 'featureCase') {
+      activeTab.value = 'featureCase';
+    }
     initDetail();
     initPlanTree();
   });

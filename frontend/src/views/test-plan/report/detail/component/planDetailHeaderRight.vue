@@ -48,6 +48,7 @@
   const props = defineProps<{
     detail: PlanReportDetail;
     shareId?: string;
+    isGroup?: boolean;
   }>();
 
   const appStore = useAppStore();
@@ -63,7 +64,9 @@
         projectId: appStore.currentProjectId,
       });
       const { origin } = window.location;
-      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_TEST_PLAN}${res.shareUrl}`;
+      shareLink.value = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_REPORT_TEST_PLAN}${res.shareUrl}&type=${
+        props.isGroup ? 'GROUP' : 'TEST_PLAN'
+      }`;
       if (isSupported) {
         copy(shareLink.value);
         Message.info(t('bugManagement.detail.shareTip'));

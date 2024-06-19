@@ -47,4 +47,6 @@ export default {
   'report.detail.testPlanGroup.result': '结果',
   'report.detail.testPlanGroup.useCasesCount': '用例数',
   'report.detail.testPlanGroup.viewReport': '查看报告',
+  'report.detail.testPlanGroup.testGroupReport': '测试组报告',
+  'report.detail.testPlanGroup.testReport': '测试报告',
 };
