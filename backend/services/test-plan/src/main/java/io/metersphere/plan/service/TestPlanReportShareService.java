@@ -31,6 +31,7 @@ import java.util.List;
 import static io.metersphere.sdk.util.ShareUtil.getTimeMills;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TestPlanReportShareService {
 
 	@Resource
@@ -94,15 +95,27 @@ public class TestPlanReportShareService {
 	 * @return 分享信息
 	 */
 	public TestPlanShareResponse get(String id) {
-		ShareInfo shareInfo = checkResource(id);
 		TestPlanShareResponse dto = new TestPlanShareResponse();
+		ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(id);
+		// 无分享记录, 过期直接返回
+		if (shareInfo == null) {
+			dto.setExpired(true);
+			return dto;
+		}
 		BeanUtils.copyBean(dto, shareInfo);
 		dto.setReportId(new String(shareInfo.getCustomData()));
-		//检查报告ID是否存在
-		dto.setDeleted(false);
+		// 检查报告ID是否存在
 		TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(dto.getReportId());
 		if (testPlanReport == null || testPlanReport.getDeleted()) {
 			dto.setDeleted(true);
+		}
+		// 报告正常, 校验分享时间是否过期
+		if (!dto.isDeleted()) {
+			try {
+				validateExpired(shareInfo);
+			} catch (Exception e) {
+				dto.setExpired(true);
+			}
 		}
 		return dto;
 	}

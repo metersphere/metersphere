@@ -21,5 +21,8 @@ public class TestPlanShareResponse {
 	private String reportId;
 
 	@Schema(description = "分享链接是否被删")
-	private Boolean deleted;
+	private boolean deleted;
+
+	@Schema(description = "分享链接是否过期")
+	private boolean expired;
 }
