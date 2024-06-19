@@ -230,7 +230,12 @@ ALTER TABLE test_plan_report_function_case ADD `function_case_execute_report_id`
 CREATE INDEX idx_test_plan_collection_id ON test_plan_report_function_case(test_plan_collection_id);
 CREATE INDEX idx_pos ON test_plan_report_function_case(pos);
 
+-- 修改测试计划标签字段长度
+ALTER TABLE `test_plan`
+    MODIFY COLUMN `tags` VARCHAR(1000);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
+
 
 
