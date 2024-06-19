@@ -22,7 +22,7 @@
           <template v-if="showExpandApi">
             <a-doption class="api-expend w-full">
               {{ t('apiScenario.api') }}
-              <a-switch v-model:model-value="isExpandApi" size="small" @click.stop @change="emit('changeApiExpand')" />
+              <a-switch v-model:model-value="isExpandApi" size="small" @click.stop @change="changeApiExpand" />
             </a-doption>
             <a-dsubmenu>
               <template #default>{{ t('ms.paramsInput.protocol') }}</template>
@@ -35,8 +35,8 @@
                   >{{ t('common.all') }}
                 </a-checkbox>
                 <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
-                  <a-checkbox v-for="item in allProtocolList" :key="item.value" :value="item.value">
-                    {{ item.label }}
+                  <a-checkbox v-for="item in allProtocolList" :key="item" :value="item">
+                    {{ item }}
                   </a-checkbox>
                 </a-checkbox-group>
               </template>
@@ -52,8 +52,8 @@
               >{{ t('common.all') }}
             </a-checkbox>
             <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
-              <a-checkbox v-for="item in allProtocolList" :key="item.value" :value="item.value">
-                {{ item.label }}
+              <a-checkbox v-for="item in allProtocolList" :key="item" :value="item">
+                {{ item }}
               </a-checkbox>
             </a-checkbox-group>
           </template>
@@ -67,14 +67,13 @@
 </template>
 
 <script setup lang="ts">
-  import { CheckboxOption } from '@arco-design/web-vue';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFolderAll from '@/components/business/ms-folder-all/index.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
   const props = defineProps<{
     activeFolder?: string; // 选中的节点
@@ -105,45 +104,43 @@
   const appStore = useAppStore();
 
   const visible = ref(false);
-  const selectedList = ref<CheckboxOption[]>([]); // 已选
-  const allProtocolList = ref<CheckboxOption[]>([]); // 全部
+  const allProtocolList = ref<string[]>([]); // 全部
   const isCheckedAll = computed(() => {
-    return selectedList.value.length === allProtocolList.value.length;
+    return selectedProtocols.value.length === allProtocolList.value.length;
   });
   const indeterminate = computed(() => {
-    return selectedList.value.length > 0 && selectedList.value.length < allProtocolList.value.length;
+    return selectedProtocols.value.length > 0 && selectedProtocols.value.length < allProtocolList.value.length;
   });
   const handleChangeAll = (value: boolean | (string | number | boolean)[]) => {
     if (value) {
-      selectedList.value = allProtocolList.value;
+      selectedProtocols.value = allProtocolList.value;
     } else {
-      selectedList.value = [];
+      selectedProtocols.value = [];
     }
   };
   const handleGroupChange = (value: (string | number | boolean)[]) => {
-    selectedList.value = allProtocolList.value.filter((e: CheckboxOption) => value.includes(e.value));
+    selectedProtocols.value = value as string[];
   };
 
   async function initProtocolList() {
     try {
       const res = await getProtocolList(appStore.currentOrgId);
-      allProtocolList.value = res.map((e) => ({
-        label: e.protocol,
-        value: e.protocol,
-        polymorphicName: e.polymorphicName,
-        pluginId: e.pluginId,
-      }));
-      selectedList.value = allProtocolList.value;
+      allProtocolList.value = res.map((e) => e.protocol);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
+  function changeApiExpand(value: string | number | boolean) {
+    setLocalStorage('isExpandApi', value);
+    emit('changeApiExpand');
+  }
+
   watch(
-    () => selectedList.value,
+    () => selectedProtocols.value,
     (val) => {
-      selectedProtocols.value = val.map((e) => e.value as string);
+      setLocalStorage('selectedProtocols', val);
       emit('selectedProtocolsChange');
     }
   );
@@ -159,8 +156,15 @@
     }
   );
 
-  onBeforeMount(() => {
-    initProtocolList();
+  onBeforeMount(async () => {
+    await initProtocolList();
+    isExpandApi.value = getLocalStorage('isExpandApi') === 'true';
+    const protocols = getLocalStorage<string[]>('selectedProtocols');
+    if (!protocols) {
+      selectedProtocols.value = allProtocolList.value;
+    } else {
+      selectedProtocols.value = allProtocolList.value.filter((item) => protocols.includes(item as string));
+    }
   });
 </script>
 
