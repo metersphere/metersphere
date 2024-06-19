@@ -219,7 +219,7 @@
           :module-id="props.activeFolder"
           :modules-count="props.modulesCount"
           :module-name="props.moduleName"
-          @save="emitTableParams"
+          @save="handleMinderSave"
         />
         <MsDrawer v-model:visible="visible" :width="480" :mask="false">
           {{ nodeData.text }}
@@ -390,7 +390,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'init', params: CaseModuleQueryParams): void;
+    (e: 'init', params: CaseModuleQueryParams, refreshModule?: boolean): void;
     (e: 'import', type: 'Excel' | 'Xmind'): void;
   }>();
 
@@ -894,14 +894,22 @@
     };
   }
   // 获取父组件模块数量
-  async function emitTableParams() {
+  async function emitTableParams(refreshModule = false) {
     const tableParams = await initTableParams();
-    emit('init', {
-      ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-      filter: propsRes.value.filter,
-    });
+    emit(
+      'init',
+      {
+        ...tableParams,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        filter: propsRes.value.filter,
+      },
+      refreshModule
+    );
+  }
+
+  function handleMinderSave() {
+    emitTableParams(true);
   }
 
   const tableSelected = ref<(string | number)[]>([]);

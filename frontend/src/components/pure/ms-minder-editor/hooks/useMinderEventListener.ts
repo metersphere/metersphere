@@ -90,7 +90,7 @@ export default function useEventListener(listener: UseEventListenerProps) {
 
   // 监听脑图自定义事件
   watch(
-    () => minderStore.event.timestamp,
+    () => minderStore.event.eventId,
     () => {
       if (listener.handleMinderEvent) {
         listener.handleMinderEvent(minderStore.event);

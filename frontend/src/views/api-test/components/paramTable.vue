@@ -927,7 +927,8 @@
           return item;
         });
         if (
-          (!props.disabledExceptParam || !props.disabledParamValue) &&
+          !props.disabledExceptParam &&
+          !props.disabledParamValue &&
           hasNoIdItem &&
           !filterKeyValParams(arr, defaultLineData.value, !props.selectable).lastDataIsDefault &&
           !props.isTreeTable
@@ -935,7 +936,7 @@
           addTableLine(arr.length - 1, false, true);
         }
       } else {
-        if (props.disabledExceptParam) return;
+        if (props.disabledExceptParam || props.disabledParamValue) return;
         const id = getGenerateId();
         paramsData.value = [
           {

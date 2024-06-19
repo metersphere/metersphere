@@ -2,7 +2,7 @@
   <div class="flex h-full flex-col p-[16px]">
     <MsNotRemind tip="testPlan.planTip" class="mb-[16px]" type="info" visited-key="testPlanTip" />
     <div class="flex-1 overflow-hidden">
-      <MsTestPlanMinder :plan-id="props.planId" @save="emit('refresh')" />
+      <MsTestPlanMinder :plan-id="props.planId" :status="props.status" @save="emit('refresh')" />
     </div>
   </div>
 </template>
@@ -13,6 +13,7 @@
 
   const props = defineProps<{
     planId: string;
+    status: string;
   }>();
   const emit = defineEmits<{
     (e: 'refresh'): void;

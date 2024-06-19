@@ -990,6 +990,7 @@
           maskClosable: false,
           onBeforeOk: async () => {
             deleteNode(steps.value, node.uniqueId, 'uniqueId');
+            delete stepDetails.value[node.id];
             scenario.value.unSaved = true;
           },
           hideCancel: false,
