@@ -38,17 +38,17 @@
     </select>
 
     <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
-        select tprfc.function_case_execute_result as status, count(id) as count from test_plan_report_function_case tprfc
+        select ifnull(tprfc.function_case_execute_result, 'PENDING') as status, count(id) as count from test_plan_report_function_case tprfc
         where tprfc.test_plan_report_id = #{id}
         group by tprfc.function_case_execute_result
     </select>
 
     <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
-        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
-        select distinct tprfc.function_case_id as id, tprfc.function_case_num as num, tprfc.function_case_name as name,
-                        tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority,
-                        tprfc.function_case_execute_result as executeResult, tprfc.function_case_execute_user as executeUser,
-                        ifnull(tprfc.function_case_bug_count, 0) as bugCount, tprfc.function_case_execute_report_id reportId
+        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数、报告ID -->
+        select tprfc.function_case_id as id, tprfc.function_case_num as num, tprfc.function_case_name as name,
+            tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority,
+            ifnull(tprfc.function_case_execute_result, 'PENDING') as executeResult, tprfc.function_case_execute_user as executeUser,
+            ifnull(tprfc.function_case_bug_count, 0) as bugCount, tprfc.function_case_execute_report_id reportId
         from test_plan_report_function_case tprfc
         where tprfc.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
@@ -64,11 +64,12 @@
             <foreach collection="request.filter.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
-                        <!-- 执行状态 -->
+                        <!-- 执行结果 -->
                         <when test="key == 'executeResult'">
                             and tprfc.function_case_execute_result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 等级 -->
                         <when test="key == 'priority'">
                             and tprfc.function_case_priority in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>

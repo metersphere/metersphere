@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportApiCaseMapper">
     <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
-        select tprac.api_case_execute_result as status, count(id) as count from test_plan_report_api_case tprac
+        select ifnull(tprac.api_case_execute_result, 'PENDING') as status, count(id) as count from test_plan_report_api_case tprac
         where tprac.test_plan_report_id = #{id}
         group by tprac.api_case_execute_result
     </select>
@@ -25,10 +25,10 @@
     </select>
 
     <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
-        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数 -->
-        select distinct tprac.api_case_id as id, tprac.api_case_num as num, tprac.api_case_name as name,
+        <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数、 接口报告ID -->
+        select tprac.api_case_id as id, tprac.api_case_num as num, tprac.api_case_name as name,
         tprac.api_case_module as moduleName, tprac.api_case_priority as priority, tprac.api_case_execute_report_id reportId,
-        tprac.api_case_execute_result as executeResult, tprac.api_case_execute_user as executeUser, 0 as bugCount
+        ifnull(tprac.api_case_execute_result, 'PENDING') as executeResult, tprac.api_case_execute_user as executeUser, 0 as bugCount
         from test_plan_report_api_case tprac
         where tprac.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
@@ -45,11 +45,12 @@
             <foreach collection="request.filter.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
-                        <!-- 执行状态 -->
+                        <!-- 执行结果 -->
                         <when test="key == 'executeResult'">
-                            and tprfc.function_case_execute_result in
+                            and tprac.api_case_execute_result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 等级 -->
                         <when test="key == 'priority'">
                             and tprac.api_case_priority in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
