@@ -61,6 +61,9 @@ public class TestPlanExecuteSupportService {
     public void summaryTestPlanReport(String reportId, boolean isGroupReport, boolean isStop) {
         LogUtils.info("开始合并报告： --- 报告ID[{}],是否是报告组[{}]", reportId, isGroupReport);
         try {
+            // 如果是停止的计划任务, 报告用例状态改成STOPPED
+            updateReportDetailStopped(reportId);
+
             if (isGroupReport) {
                 testPlanReportService.summaryGroupReport(reportId);
             } else {
@@ -160,6 +163,11 @@ public class TestPlanExecuteSupportService {
         testPlanReport.setExecStatus(ExecStatus.STOPPED.name());
         testPlanReportMapper.updateByPrimaryKeySelective(testPlanReport);
 
+        // 用例明细未执行的更新为Stopped
+        updateReportDetailStopped(testPlanReportId);
+    }
+
+    public void updateReportDetailStopped(String testPlanReportId) {
         TestPlanReportApiCaseExample apiCaseExample = new TestPlanReportApiCaseExample();
         apiCaseExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId).andApiCaseExecuteResultIsNull();
         TestPlanReportApiCase testPlanReportApiCase = new TestPlanReportApiCase();
