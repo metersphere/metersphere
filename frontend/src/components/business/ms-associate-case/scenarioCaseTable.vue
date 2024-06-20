@@ -49,6 +49,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
   import { ApiCaseDetail } from '@/models/apiTest/management';
@@ -57,6 +58,7 @@
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getPublicLinkCaseListMap } from './utils/page';
@@ -85,6 +87,7 @@
   }>();
 
   const appStore = useAppStore();
+  const tableStore = useTableStore();
 
   const statusList = computed(() => {
     return Object.keys(ReportStatus).map((key) => {
@@ -180,6 +183,13 @@
       isStringTag: true,
       showDrag: true,
     },
+    {
+      title: '',
+      dataIndex: 'action',
+      width: 24,
+      slotName: SpecialColumnEnum.ACTION,
+      fixed: 'right',
+    },
   ];
   const getPageList = computed(() => {
     return getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType];
@@ -194,8 +204,10 @@
     resetFilterParams,
     setTableSelected,
   } = useTable(getPageList.value, {
-    columns,
-    showSetting: false,
+    tableKey: TableKeyEnum.ASSOCIATE_CASE_API_SCENARIO,
+    showSetting: true,
+    isSimpleSetting: true,
+    onlyPageSize: true,
     selectable: true,
     showSelectAll: true,
     heightUsed: 310,
@@ -304,6 +316,12 @@
     getScenarioSaveParams,
     loadScenarioList,
   });
+
+  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API_SCENARIO, columns, 'drawer');
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-table-cell-align-left) {
+    padding: 0 8px !important;
+  }
+</style>

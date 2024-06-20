@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1717664244652') format('woff2'), url('iconfont.woff?t=1717664244652') format('woff'),
-    url('iconfont.ttf?t=1717664244652') format('truetype'), url('iconfont.svg?t=1717664244652#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1718876831031') format('woff2'), url('iconfont.woff?t=1718876831031') format('woff'),
+    url('iconfont.ttf?t=1718876831031') format('truetype'), url('iconfont.svg?t=1718876831031#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,135 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_test_set1::before {
+  content: '\e7ea';
+}
+.icon-icon_test_set::before {
+  content: '\e7e9';
+}
+.icon-a-icon_left_and_right_layout::before {
+  content: '\e7e7';
+}
+.icon-icon_top_and_bottom_layout::before {
+  content: '\e7e8';
+}
+.icon-icon_phone_outlined::before {
+  content: '\e7c0';
+}
+.icon-icon_application_filled::before {
+  content: '\e7c1';
+}
+.icon-icon_livestream-start_outlined::before {
+  content: '\e7c2';
+}
+.icon-icon_busy_outlined::before {
+  content: '\e7c3';
+}
+.icon-icon_member_filled::before {
+  content: '\e7c4';
+}
+.icon-icon_jira-filter_filled::before {
+  content: '\e7c5';
+}
+.icon-icon_jira-filter_filled-1::before {
+  content: '\e7c6';
+}
+.icon-icon_feedback_filled::before {
+  content: '\e7c7';
+}
+.icon-icon_copy_filled1::before {
+  content: '\e7c8';
+}
+.icon-icon_livestream-start_filled::before {
+  content: '\e7c9';
+}
+.icon-icon_account_filled::before {
+  content: '\e7ca';
+}
+.icon-icon_dashboard_outlined1::before {
+  content: '\e7cb';
+}
+.icon-icon_pause_outlined::before {
+  content: '\e7cc';
+}
+.icon-icon_application_outlined::before {
+  content: '\e7cd';
+}
+.icon-icon_qr_filled::before {
+  content: '\e7ce';
+}
+.icon-icon_login_filled::before {
+  content: '\e7cf';
+}
+.icon-icon_license_shape::before {
+  content: '\e7d0';
+}
+.icon-icon_resolve_outlined::before {
+  content: '\e7d1';
+}
+.icon-icon_notification-setting_outlined::before {
+  content: '\e7d2';
+}
+.icon-icon_play_outlined::before {
+  content: '\e7d3';
+}
+.icon-icon_sheet-datareference_outlined::before {
+  content: '\e7d4';
+}
+.icon-icon_delete-trash_filled1::before {
+  content: '\e7d5';
+}
+.icon-icon_plugin_filled::before {
+  content: '\e7d6';
+}
+.icon-icon_cloud_filled::before {
+  content: '\e7d7';
+}
+.icon-icon_approval_outlined1::before {
+  content: '\e7d8';
+}
+.icon-icon_emoji_filled::before {
+  content: '\e7d9';
+}
+.icon-icon_setting-inter_filled::before {
+  content: '\e7da';
+}
+.icon-icon_trace_outlined::before {
+  content: '\e7db';
+}
+.icon-icon_token_filled::before {
+  content: '\e7dc';
+}
+.icon-icon_jira-filter_outlined::before {
+  content: '\e7dd';
+}
+.icon-icon_status-vacation_filled::before {
+  content: '\e7de';
+}
+.icon-icon_database_filled::before {
+  content: '\e7df';
+}
+.icon-icon_more-vertical_outlined::before {
+  content: '\e7e0';
+}
+.icon-icon_account_outlined::before {
+  content: '\e7e1';
+}
+.icon-icon_reference_outlined::before {
+  content: '\e7e2';
+}
+.icon-icon_schedule-report_outlined::before {
+  content: '\e7e3';
+}
+.icon-icon_sheet-datareference_filled::before {
+  content: '\e7e4';
+}
+.icon-icon_vc-reaction_filled::before {
+  content: '\e7e5';
+}
+.icon-icon_setting-inter_outlined::before {
+  content: '\e7e6';
 }
 .icon-icon_title-top-align_outlined1::before {
   content: '\e7be';

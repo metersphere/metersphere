@@ -87,6 +87,10 @@ export enum TableKeyEnum {
   TASK_PLAN_SYSTEM = 'taskCenterPlanSystem',
   TASK_PLAN_ORGANIZATION = 'taskCenterPlanOrganization',
   TASK_PLAN_PROJECT = 'taskCenterPlanProject',
+  ASSOCIATE_CASE_API = 'associateCaseApi',
+  ASSOCIATE_CASE_API_CASE = 'associateCaseApiCase',
+  ASSOCIATE_CASE_API_SCENARIO = 'associateCaseApiScenario',
+  ASSOCIATE_CASE = 'associateCase',
 }
 
 // 具有特殊功能的列

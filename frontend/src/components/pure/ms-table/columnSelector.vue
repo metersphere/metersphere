@@ -14,14 +14,15 @@
           <span class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.mode') }}</span>
           <a-tooltip position="right">
             <template #content>
-              <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span
-              ><br />
+              <span>{{ t('msTable.columnSetting.tooltipContentDrawer') }}</span>
+              <br />
               <span>{{ t('msTable.columnSetting.tooltipContentWindow') }}</span>
             </template>
-            <span class="inline-block align-middle"
-              ><icon-question-circle
+            <span class="inline-block align-middle">
+              <icon-question-circle
                 class="ml-[4px] mt-[3px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-            /></span>
+              />
+            </span>
           </a-tooltip>
         </div>
         <a-radio-group class="mb-2" :model-value="currentMode" type="button" @change="handleModeChange">
@@ -51,9 +52,9 @@
       <template v-if="props.showSubdirectory">
         <div class="mt-[24px] flex items-center">
           <a-switch v-model="subdirectoryVal" size="small" @change="handleSubSwitch" />
-          <span class="mx-[4px] font-medium text-[var(--color-text-4)]">{{
-            t('msTable.columnSetting.showSubdirectoryTips')
-          }}</span>
+          <span class="mx-[4px] font-medium text-[var(--color-text-4)]">
+            {{ t('msTable.columnSetting.showSubdirectoryTips') }}
+          </span>
           <a-tooltip position="rt">
             <icon-question-circle class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]" size="16" />
             <template #content>
@@ -263,7 +264,7 @@
   }
 </style>
 
-<style>
+<style lang="less">
   .column-drawer {
     .ms-drawer-body {
       min-width: auto !important;
