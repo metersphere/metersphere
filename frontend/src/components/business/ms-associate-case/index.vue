@@ -471,8 +471,6 @@
     selectedProtocols.value = _protocols || [];
     if (props.associatedType === CaseLinkEnum.API) {
       loadCaseList();
-    } else {
-      activeFolder.value = 'all';
     }
   }
 
@@ -514,6 +512,7 @@
     (val) => {
       if (val) {
         associationType.value = props.associatedType;
+        activeFolder.value = 'all';
         initProjectList();
       }
       selectPopVisible.value = false;

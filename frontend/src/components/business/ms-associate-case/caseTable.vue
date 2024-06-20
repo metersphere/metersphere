@@ -305,18 +305,6 @@
     });
   }
 
-  watch(
-    () => props.currentProject,
-    () => {
-      setPagination({
-        current: 1,
-      });
-      resetSelector();
-      resetFilterParams();
-      emit('refresh');
-    }
-  );
-
   const selectIds = computed(() => {
     return [...propsRes.value.selectedKeys];
   });
@@ -328,14 +316,11 @@
     }
   );
 
-  watch(
-    () => props.activeModule,
-    () => {
-      resetSelector();
-      resetFilterParams();
-      loadCaseList();
-    }
-  );
+  watch([() => props.currentProject, () => props.activeModule], () => {
+    resetSelector();
+    resetFilterParams();
+    loadCaseList();
+  });
 
   onMounted(() => {
     loadCaseList();
