@@ -103,6 +103,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     private static final int MAX_TAG_SIZE = 10;
     private static final int MAX_CHILDREN_COUNT = 20;
+    @Autowired
+    private TestPlanReportService testPlanReportService;
 
     /**
      * 创建测试计划
@@ -1060,8 +1062,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
-    public void setExecuteConfig(String sourceID) {
-        this.setActualStartTime(sourceID);
-        this.setTestPlanUnderway(sourceID);
+    public void setExecuteConfig(String testPlanId, String testPlanReportId) {
+        this.setActualStartTime(testPlanId);
+        this.setTestPlanUnderway(testPlanId);
+        if (StringUtils.isNotBlank(testPlanReportId)) {
+            testPlanReportService.updateExecuteTimeAndStatus(testPlanReportId);
+        }
     }
 }

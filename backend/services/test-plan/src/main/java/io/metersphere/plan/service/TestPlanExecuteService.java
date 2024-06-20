@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static io.metersphere.plan.service.TestPlanExecuteSupportService.*;
 
@@ -138,37 +137,27 @@ public class TestPlanExecuteService {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
     public String singleExecuteTestPlan(TestPlanExecuteRequest request, String userId) {
-        TestPlanExecutionQueue executionQueue = new TestPlanExecutionQueue();
-        executionQueue.setSourceID(request.getExecuteId());
-        executionQueue.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        executionQueue.setExecutionSource(request.getExecutionSource());
-        executionQueue.setQueueId(IDGenerator.nextStr());
-        executionQueue.setQueueType(QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
-        executionQueue.setCreateUser(userId);
-        executionQueue.setPrepareReportId(IDGenerator.nextStr());
 
+        String queueId = IDGenerator.nextStr();
         TestPlanExecutionQueue singleExecuteRootQueue = new TestPlanExecutionQueue(
                 0,
                 userId,
                 System.currentTimeMillis(),
-                executionQueue.getQueueId(),
+                queueId,
                 QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE,
-                executionQueue.getQueueId(),
-                executionQueue.getQueueType(),
+                null,
+                null,
                 request.getExecuteId(),
-                executionQueue.getRunMode(),
-                executionQueue.getExecutionSource(),
+                request.getRunMode(),
+                request.getExecutionSource(),
                 IDGenerator.nextStr()
         );
 
-        String redisKey = testPlanExecuteSupportService.genQueueKey(executionQueue.getQueueId(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
-        redisTemplate.opsForList().rightPush(redisKey, JSON.toJSONString(singleExecuteRootQueue));
-        redisTemplate.expire(redisKey, 1, TimeUnit.DAYS);
-
+        testPlanExecuteSupportService.setRedisForList(
+                testPlanExecuteSupportService.genQueueKey(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE), List.of(JSON.toJSONString(singleExecuteRootQueue)));
+        TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
         LogUtils.info("测试计划（组）的单独执行start！计划报告[{}] , 资源ID[{}]", singleExecuteRootQueue.getPrepareReportId(), singleExecuteRootQueue.getSourceID());
-
-        String returnId = executeTestPlanOrGroup(executionQueue);
-        return returnId;
+        return executeTestPlanOrGroup(nextQueue);
     }
 
     /**
@@ -235,7 +224,6 @@ public class TestPlanExecuteService {
         genReportRequest.setProjectId(testPlan.getProjectId());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             //更改测试计划组的状态
-            testPlanService.setExecuteConfig(executionQueue.getSourceID());
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
@@ -264,6 +252,7 @@ public class TestPlanExecuteService {
 
             LogUtils.info("计划组的执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}]", queueId, queueType, executionQueue.getParentQueueId(), executionQueue.getParentQueueType());
 
+            testPlanService.setExecuteConfig(executionQueue.getSourceID(), executionQueue.getPrepareReportId());
             if (CollectionUtils.isEmpty(childrenQueue)) {
                 //本次的测试计划组执行完成
                 this.testPlanGroupQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
@@ -273,14 +262,12 @@ public class TestPlanExecuteService {
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行
                     TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueId, queueType);
-                    testPlanReportService.updateExecuteTimeAndStatus(nextQueue.getPrepareReportId());
-                    testPlanService.setExecuteConfig(nextQueue.getSourceID());
+                    testPlanService.setExecuteConfig(nextQueue.getSourceID(), nextQueue.getPrepareReportId());
                     executeTestPlan(nextQueue);
                 } else {
                     //并行
                     childrenQueue.forEach(childQueue -> {
-                        testPlanReportService.updateExecuteTimeAndStatus(childQueue.getPrepareReportId());
-                        testPlanService.setExecuteConfig(childQueue.getSourceID());
+                        testPlanService.setExecuteConfig(childQueue.getSourceID(), childQueue.getPrepareReportId());
                         executeTestPlan(childQueue);
                     });
                 }
@@ -290,8 +277,7 @@ public class TestPlanExecuteService {
         } else {
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
-            testPlanReportService.updateExecuteTimeAndStatus(executionQueue.getPrepareReportId());
-            testPlanService.setExecuteConfig(executionQueue.getSourceID());
+            testPlanService.setExecuteConfig(executionQueue.getSourceID(), executionQueue.getPrepareReportId());
             this.executeTestPlan(executionQueue);
             return executionQueue.getPrepareReportId();
         }
@@ -570,6 +556,8 @@ public class TestPlanExecuteService {
         if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
             this.executeTestPlanOrGroup(queue);
         } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
+            //执行下一个测试计划之前，将要修改的数据修改一下
+            testPlanService.setExecuteConfig(queue.getSourceID(), queue.getPrepareReportId());
             this.executeTestPlan(queue);
         } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.executeByTestPlanCollection(queue);
