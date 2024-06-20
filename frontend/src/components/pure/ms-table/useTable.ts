@@ -453,13 +453,17 @@ export default function useTableProps<T>(
 
     // 表格SelectAll change
     selectAllChange: (v: SelectAllEnum, onlyCurrent: boolean) => {
-      const { data, rowKey } = propsRes.value;
+      const { data, rowKey, selectorStatus } = propsRes.value;
       if (v === SelectAllEnum.NONE) {
         // 清空选中项
         resetSelector(false);
       } else if (v === SelectAllEnum.CURRENT) {
-        // 先清空选中项选，当再选中当前页面所有数据,
-        propsRes.value.selectedKeys.clear();
+        // 如果是全选先清空选中项选和排除项，再选中当前页面所有数据,
+        if (selectorStatus === SelectAllEnum.ALL) {
+          propsRes.value.selectedKeys.clear();
+          propsRes.value.excludeKeys.clear();
+        }
+
         collectIds(data as MsTableDataItem<T>[], rowKey);
       } else if (v === SelectAllEnum.ALL) {
         // 全选所有页的时候先清空排除项，再选中所有数据
