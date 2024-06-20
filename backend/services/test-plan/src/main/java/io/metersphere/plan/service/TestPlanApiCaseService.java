@@ -344,7 +344,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private Map<String, Long> getCollectionCount(TestPlanApiCaseModuleRequest request) {
         request.setCollectionId(null);
         Map<String, Long> projectModuleCountMap = new HashMap<>();
-        List<ModuleCountDTO> list = extTestPlanApiCaseMapper.collectionCountByRequest(request.getTestPlanId());
+        List<ModuleCountDTO> list = extTestPlanApiCaseMapper.collectionCountByRequest(request);
         list.forEach(item -> {
             projectModuleCountMap.put(item.getModuleId(), (long) item.getDataCount());
         });

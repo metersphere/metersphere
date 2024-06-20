@@ -44,7 +44,7 @@ public interface ExtTestPlanApiScenarioMapper {
 
     List<String> selectIdByProjectIdAndTestPlanId(@Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
 
-    List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
+    List<ModuleCountDTO> collectionCountByRequest(@Param("request") TestPlanApiScenarioModuleRequest request);
 
     List<ProjectOptionDTO> selectRootIdByTestPlanId(@Param("testPlanId") String testPlanId);
 

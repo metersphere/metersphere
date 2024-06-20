@@ -641,18 +641,20 @@
         </foreach>
     </update>
 
-    <select id="collectionCountByRequest" parameterType="java.lang.String" resultType="io.metersphere.project.dto.ModuleCountDTO">
+    <select id="collectionCountByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT
-            test_plan_api_case.test_plan_collection_id AS moduleId,
-            count( test_plan_api_case.id ) AS dataCount
+            t.test_plan_collection_id AS moduleId,
+            count( t.id ) AS dataCount
         FROM
-            api_test_case
-                INNER JOIN test_plan_api_case ON api_test_case.id = test_plan_api_case.api_case_id
+            api_test_case atc
+                INNER JOIN test_plan_api_case t ON atc.id = t.api_case_id
+        INNER JOIN api_definition a on atc.api_definition_id = a.id
         WHERE
-            api_test_case.deleted = FALSE
-          AND test_plan_api_case.test_plan_id = #{testPlanId}
+        atc.deleted = FALSE
+          AND t.test_plan_id = #{request.testPlanId}
+        <include refid="queryApiCaseWhereCondition"/>
         GROUP BY
-            test_plan_api_case.test_plan_collection_id
+            t.test_plan_collection_id
     </select>
 
     <select id="getMaxPosByCollectionId" resultType="java.lang.Long">

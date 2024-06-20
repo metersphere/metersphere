@@ -541,7 +541,7 @@
         WHERE test_plan_collection_id = #{0}
     </select>
 
-    <select id="collectionCountByRequest" parameterType="java.lang.String" resultType="io.metersphere.project.dto.ModuleCountDTO">
+    <select id="collectionCountByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT
             test_plan_functional_case.test_plan_collection_id AS moduleId,
             count( test_plan_functional_case.id ) AS dataCount
@@ -550,7 +550,8 @@
                 INNER JOIN test_plan_functional_case ON functional_case.id = test_plan_functional_case.functional_case_id
         WHERE
             functional_case.deleted = FALSE
-          AND test_plan_functional_case.test_plan_id = #{testPlanId}
+          AND test_plan_functional_case.test_plan_id = #{request.testPlanId}
+        <include refid="queryWhereCondition"/>
         GROUP BY
             test_plan_functional_case.test_plan_collection_id
     </select>

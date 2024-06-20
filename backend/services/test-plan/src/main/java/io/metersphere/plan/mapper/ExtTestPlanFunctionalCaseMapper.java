@@ -7,6 +7,7 @@ import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.project.dto.DropNode;
@@ -62,5 +63,5 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     Long getMaxPosByCollectionId(String collectionId);
 
-    List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
+    List<ModuleCountDTO> collectionCountByRequest(@Param("request") TestPlanCaseModuleRequest request);
 }
