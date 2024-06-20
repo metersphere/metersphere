@@ -2,6 +2,7 @@ package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.job.TestPlanScheduleJob;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
@@ -12,7 +13,11 @@ import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -33,7 +38,10 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private TestPlanMapper testPlanMapper;
-
+    @Resource
+    private ScheduleService scheduleService;
+    @Resource
+    private TestPlanScheduleService testPlanScheduleService;
     @Resource
     private TestPlanGroupService testPlanGroupService;
     @Resource
@@ -237,6 +245,10 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         beansOfType.forEach((k, v) -> {
             v.copyResource(originalTestPlan.getId(), testPlan.getId(), oldCollectionIdToNewCollectionId, operator, operatorTime);
         });
+
+        // 复制计划-定时任务信息
+        copySchedule(originalTestPlan.getId(), testPlan.getId(), operator);
+
         return testPlan;
     }
 
@@ -280,7 +292,30 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         for (TestPlan child : childList) {
             copyPlan(child, testPlanGroup.getId(), TestPlanConstants.TEST_PLAN_TYPE_GROUP, operatorTime, operator);
         }
+
+        // 复制计划组-定时任务信息
+        copySchedule(originalGroup.getId(), testPlanGroup.getId(), operator);
         return testPlanGroup;
+    }
+
+    /**
+     * 复制 计划/计划组 定时任务
+     * @param resourceId 来源ID
+     * @param targetId 目标ID
+     * @param operator 操作人
+     */
+    private void copySchedule(String resourceId, String targetId, String operator) {
+        Schedule originalSchedule = scheduleService.getScheduleByResource(resourceId, TestPlanScheduleJob.class.getName());
+        if (originalSchedule != null) {
+            // 来源的 "计划/计划组" 存在定时任务即复制, 无论开启或关闭
+            BaseScheduleConfigRequest scheduleRequest = new BaseScheduleConfigRequest();
+            scheduleRequest.setEnable(originalSchedule.getEnable());
+            scheduleRequest.setCron(originalSchedule.getValue());
+            // noinspection unchecked
+            scheduleRequest.setRunConfig(JSON.parseMap(originalSchedule.getConfig()));
+            scheduleRequest.setResourceId(targetId);
+            testPlanScheduleService.scheduleConfig(scheduleRequest, operator);
+        }
     }
 
     private String getCopyName(String name, long oldNum, long newNum) {
