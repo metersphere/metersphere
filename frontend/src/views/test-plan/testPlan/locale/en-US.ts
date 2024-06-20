@@ -66,7 +66,7 @@ export default {
   'testPlan.testPlanIndex.TotalCases': 'Total use cases',
   'testPlan.testPlanIndex.functionalUseCase': 'case',
   'testPlan.testPlanIndex.apiCase': 'Api use case',
-  'testPlan.testPlanIndex.apiScenarioCase': 'Api scenario use cases',
+  'testPlan.testPlanIndex.apiScenarioCase': 'Scenario use cases',
   'testPlan.testPlanIndex.scheduledTask': 'stop and delete scheduled tasks, ',
   'testPlan.testPlanIndex.operateWithCaution': 'please operate with caution!',
   'testPlan.testPlanIndex.deleteArchivedPlan': 'After the program has been archived, delete data unrecoverable,',

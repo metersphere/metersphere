@@ -132,7 +132,7 @@
     color: var(--color-text-4);
   }
   .popover-value-td {
-    @apply font-medium;
+    @apply text-right font-medium;
 
     padding-top: 8px;
     color: var(--color-text-1);

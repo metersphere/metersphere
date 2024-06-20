@@ -32,7 +32,7 @@
         ></a-textarea>
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
           <a-button @click="cancelClick">{{ t('common.cancel') }}</a-button>
-          <a-button type="primary" :disabled="!currentContent" @click="publish">{{ t('common.publish') }}</a-button>
+          <a-button type="primary" :disabled="isDisabled" @click="publish">{{ t('common.publish') }}</a-button>
         </div>
       </div>
     </div>
@@ -100,6 +100,11 @@
   });
   onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleGlobalKeyDown);
+  });
+
+  const isDisabled = computed(() => {
+    // 此处如果富文本输入内容后就算手动清空，还是会触发文本行内容为<p style=""></p>
+    return !currentContent.value || currentContent.value === '<p style=""></p>';
   });
 
   defineExpose({

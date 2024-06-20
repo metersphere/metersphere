@@ -64,7 +64,7 @@ export default {
   'testPlan.testPlanIndex.TotalCases': '用例总数',
   'testPlan.testPlanIndex.functionalUseCase': '功能用例',
   'testPlan.testPlanIndex.apiCase': '接口用例',
-  'testPlan.testPlanIndex.apiScenarioCase': '接口场景用例',
+  'testPlan.testPlanIndex.apiScenarioCase': '场景用例',
   'testPlan.testPlanIndex.scheduledTask': '定时任务停止并删除，',
   'testPlan.testPlanIndex.operateWithCaution': '请谨慎操作！',
   'testPlan.testPlanIndex.deleteArchivedPlan': '计划 已归档，删除后数据不可恢复，',
