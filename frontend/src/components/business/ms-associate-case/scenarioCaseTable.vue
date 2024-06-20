@@ -268,18 +268,6 @@
     }
   );
 
-  watch(
-    () => props.currentProject,
-    () => {
-      setPagination({
-        current: 1,
-      });
-      resetSelector();
-      resetFilterParams();
-      emit('refresh');
-    }
-  );
-
   function getScenarioSaveParams() {
     const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
     const tableParams = getTableParams();
@@ -298,19 +286,15 @@
       pId: record.projectId,
     });
   }
+  watch([() => props.currentProject, () => props.activeModule], () => {
+    resetSelector();
+    resetFilterParams();
+    loadScenarioList();
+  });
 
   onMounted(() => {
     loadScenarioList();
   });
-
-  watch(
-    () => props.activeModule,
-    () => {
-      resetSelector();
-      resetFilterParams();
-      loadScenarioList();
-    }
-  );
 
   defineExpose({
     getScenarioSaveParams,

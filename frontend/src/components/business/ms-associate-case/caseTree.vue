@@ -132,7 +132,7 @@
   /**
    * 初始化模块树
    */
-  async function initModules() {
+  async function initModules(setDefault = false) {
     try {
       moduleLoading.value = true;
       const getModuleParams = {
@@ -149,6 +149,9 @@
           count: props.modulesCount?.[node.id] || 0,
         };
       });
+      if (setDefault) {
+        setActiveFolder('all');
+      }
       emit('init', caseTree.value, selectedProtocols.value);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -190,8 +193,10 @@
 
   watch(
     () => props.currentProject,
-    () => {
-      initModules();
+    (val) => {
+      if (val) {
+        initModules(true);
+      }
     }
   );
 </script>
