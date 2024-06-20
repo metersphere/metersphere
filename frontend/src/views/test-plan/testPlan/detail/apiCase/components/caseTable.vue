@@ -590,6 +590,7 @@
   function toDetail(record: PlanDetailApiCaseItem) {
     openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
       cId: record.apiTestCaseId,
+      pId: record.projectId,
     });
   }
 
