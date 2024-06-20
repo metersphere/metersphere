@@ -635,7 +635,7 @@ public class FunctionalCaseMinderService {
                     FunctionalCaseCustomField customField = new FunctionalCaseCustomField();
                     customField.setCaseId(caseId);
                     customField.setFieldId(defaultCustomFieldValueMap.get("priorityFieldId").toString());
-                    customField.setValue("P" + (functionalCaseChangeRequest.getPriority() - 1));
+                    customField.setValue("P" + (functionalCaseChangeRequest.getPriority() == 0 ? 0 : functionalCaseChangeRequest.getPriority() - 1));
                     caseCustomFieldMapper.insertSelective(customField);
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, functionalCaseCustomFields, new ArrayList<>(), new ArrayList<>());
