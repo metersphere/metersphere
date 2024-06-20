@@ -47,6 +47,8 @@ public class TestPlanController {
     @Resource
     private TestPlanService testPlanService;
     @Resource
+    private TestPlanScheduleService testPlanScheduleService;
+    @Resource
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanStatisticsService testPlanStatisticsService;
@@ -245,7 +247,7 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "test_plan")
     public String scheduleConfig(@Validated @RequestBody BaseScheduleConfigRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getResourceId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        return testPlanService.scheduleConfig(request, SessionUtils.getUserId());
+        return testPlanScheduleService.scheduleConfig(request, SessionUtils.getUserId());
     }
 
     @GetMapping(value = "/schedule-config-delete/{testPlanId}")

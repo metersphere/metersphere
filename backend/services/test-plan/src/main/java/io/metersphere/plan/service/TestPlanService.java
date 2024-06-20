@@ -13,14 +13,15 @@ import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.domain.TestPlanModule;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.LogInsertModule;
-import io.metersphere.system.dto.request.ScheduleConfig;
-import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -880,40 +881,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanGroupService.sort(request);
         testPlanLogService.saveMoveLog(testPlanMapper.selectByPrimaryKey(request.getMoveId()), request.getMoveId(), logInsertModule);
         return new TestPlanOperationResponse(1);
-    }
-
-    public String scheduleConfig(BaseScheduleConfigRequest request, String operator) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getResourceId());
-        if (testPlan == null) {
-            throw new MSException(Translator.get("test_plan.not.exist"));
-        }
-        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
-                .resourceId(testPlan.getId())
-                .key(testPlan.getId())
-                .projectId(testPlan.getProjectId())
-                .name(testPlan.getName())
-                .enable(request.isEnable())
-                .cron(request.getCron())
-                .resourceType(ScheduleResourceType.TEST_PLAN.name())
-                .config(JSON.toJSONString(request.getRunConfig()))
-                .build();
-
-        if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            //配置开启的测试计划组定时任务，要将组下的所有测试计划定时任务都关闭掉
-            List<TestPlan> children = this.selectNotArchivedChildren(testPlan.getId());
-            for (TestPlan child : children) {
-                scheduleService.updateIfExist(child.getId(), false, TestPlanScheduleJob.getJobKey(testPlan.getId()),
-                        TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
-                        TestPlanScheduleJob.class, operator);
-            }
-        }
-
-        return scheduleService.scheduleConfig(
-                scheduleConfig,
-                TestPlanScheduleJob.getJobKey(testPlan.getId()),
-                TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
-                TestPlanScheduleJob.class,
-                operator);
     }
 
     public void deleteScheduleConfig(String testPlanId) {

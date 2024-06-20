@@ -2176,24 +2176,26 @@ public class TestPlanTests extends BaseTest {
     @Test
     @Order(303)
     public void testCopy() throws Exception {
-        //1. 已归档的不能再归档计划  无用例
+        // 1. 已归档的不能再归档计划  无用例
         requestGet(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_1")).andExpect(status().is5xxServerError());
 
 
-        //2.计划 有用例
+        // 2.计划 有用例
         MvcResult mvcResult1 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_4"));
         String returnStr1 = mvcResult1.getResponse().getContentAsString();
         ResultHolder holder1 = JSON.parseObject(returnStr1, ResultHolder.class);
         String returnId1 = holder1.getData().toString();
         Assertions.assertNotNull(returnId1);
 
-        //3.计划组 无计划
+        // 3.计划组 无计划
         MvcResult mvcResult2 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_2"));
         String returnStr2 = mvcResult2.getResponse().getContentAsString();
         ResultHolder holder2 = JSON.parseObject(returnStr2, ResultHolder.class);
         String returnId2 = holder2.getData().toString();
         Assertions.assertNotNull(returnId2);
 
+        // 4.计划组 有子计划
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_COPY, "oasis_test_plan_id_1"));
     }
 
     @Test
