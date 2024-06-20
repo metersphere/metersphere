@@ -6,8 +6,8 @@
     :tags="[]"
     :insert-node="(node, type) => insertNode(node as PlanMinderNode,type)"
     :can-show-enter-node="false"
-    :insert-sibling-menus="insertSiblingMenus"
-    :insert-son-menus="insertSonMenus"
+    :insert-sibling-menus="[]"
+    :insert-son-menus="[]"
     :can-show-paste-menu="false"
     :can-show-more-menu="false"
     :can-show-priority-menu="false"
@@ -23,6 +23,11 @@
     @save="handleMinderSave"
   >
     <template #extractMenu>
+      <a-tooltip v-if="canShowAddTestPointsMenu" :content="t('ms.minders.addTestSet')">
+        <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="addTestSet">
+          <MsIcon type="icon-icon_test_set1" class="text-[var(--color-text-4)]" />
+        </MsButton>
+      </a-tooltip>
       <a-tooltip
         v-if="showAssociateCaseMenu && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION'])"
         :content="t('ms.case.associate.title')"
@@ -257,7 +262,6 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import {
-    InsertMenuItem,
     MinderEvent,
     MinderJson,
     MinderJsonNode,
@@ -306,8 +310,7 @@
   const envTag = t('ms.minders.env');
 
   const canShowFloatMenu = ref(false);
-  const insertSiblingMenus = ref<InsertMenuItem[]>([]);
-  const insertSonMenus = ref<InsertMenuItem[]>([]);
+  const canShowAddTestPointsMenu = ref(false);
   const showAssociateCaseMenu = ref(false);
   const canShowExecuteMethodMenu = ref(false);
   const executeMethodMenuVisible = ref(false);
@@ -335,8 +338,7 @@
         showAssociateCaseMenu.value = false;
         canShowExecuteMethodMenu.value = false;
         canShowDeleteMenu.value = false;
-        insertSiblingMenus.value = [];
-        insertSonMenus.value = [];
+        canShowAddTestPointsMenu.value = false;
       }
       return;
     }
@@ -350,14 +352,8 @@
         canShowExecuteMethodMenu.value = true;
       }
       if (data?.level === 1) {
-        // 测试分类只能添加下级测试集
-        insertSiblingMenus.value = [];
-        insertSonMenus.value = [
-          {
-            value: 'testSet',
-            label: t('ms.minders.testSet'),
-          },
-        ];
+        // 测试分类只能添加下级测试点
+        canShowAddTestPointsMenu.value = true;
         if (data?.type === PlanMinderCollectionType.FUNCTIONAL) {
           // 功能用例分类不能配置任何东西
           showConfigMenu.value = false;
@@ -367,14 +363,8 @@
         showAssociateCaseMenu.value = false;
         canShowDeleteMenu.value = false;
       } else {
-        // 测试集只能添加同级测试集
-        insertSiblingMenus.value = [
-          {
-            value: 'testSet',
-            label: t('ms.minders.testSet'),
-          },
-        ];
-        insertSonMenus.value = [];
+        // 测试点只能添加同级测试点
+        canShowAddTestPointsMenu.value = true;
         showAssociateCaseMenu.value = true;
         showConfigMenu.value = true;
         canShowDeleteMenu.value = true;
@@ -414,7 +404,7 @@
       text: t('ms.minders.item', { count: 0 }),
       resource: [caseCountTag],
       level: 3,
-      disabled: true, // 只有测试集能改文本
+      disabled: true, // 只有测试点能改文本
       isNew: true,
     };
     // 环境子节点
@@ -423,7 +413,7 @@
       text: t('case.execute.defaultEnv'),
       resource: [envTag],
       level: 3,
-      disabled: true, // 只有测试集能改文本
+      disabled: true, // 只有测试点能改文本
       isNew: true,
     };
     // 资源池子节点
@@ -432,27 +422,27 @@
       resource: [resourcePoolTag],
       text: t('ms.minders.defaultResourcePool'),
       level: 3,
-      disabled: true, // 只有测试集能改文本
+      disabled: true, // 只有测试点能改文本
       isNew: true,
     };
     if (node.data?.level === 1) {
-      // 测试分类下插入测试集
+      // 测试分类下插入测试点
       child = {
         ...node.data,
         id: getGenerateId(),
         text: t('ms.minders.defaultTestSet'),
         level: 2,
-        disabled: false, // 只有测试集能改文本
+        disabled: false, // 只有测试点能改文本
         isNew: true,
       };
     } else if (node.parent?.data) {
-      // 测试集同级插入测试集
+      // 测试点同级插入测试点
       child = {
         ...(node.parent.data as PlanMinderNodeData),
         id: getGenerateId(),
         text: t('ms.minders.defaultTestSet'),
         level: 2,
-        disabled: false, // 只有测试集能改文本
+        disabled: false, // 只有测试点能改文本
         isNew: true,
       };
     }
@@ -461,7 +451,7 @@
       nextTick(() => {
         execInert('AppendChildNode', caseCountNodeData);
         if (node.data?.type !== PlanMinderCollectionType.FUNCTIONAL) {
-          // 功能用例测试集没有环境和资源池
+          // 功能用例测试点没有环境和资源池
           execInert('AppendSiblingNode', envNodeData);
           execInert('AppendSiblingNode', resourcePoolNodeData);
         }
@@ -469,7 +459,19 @@
     }
   }
 
-  // 当前激活的测试集节点
+  /**
+   * 添加测试点
+   */
+  function addTestSet() {
+    const node: PlanMinderNode = window.minder.getSelectedNode();
+    if (node?.data?.level === 1) {
+      insertNode(node, 'AppendChildNode');
+    } else if (node?.data?.level === 2) {
+      insertNode(node, 'AppendSiblingNode');
+    }
+  }
+
+  // 当前激活的测试点节点
   const activePlanSet = ref<PlanMinderNode>();
 
   const currentPriority = ref<RunMode>(RunMode.SERIAL);
@@ -517,13 +519,6 @@
   const switchingConfigFormData = ref(false);
   const configFormUnsaved = ref(false);
 
-  function handleConfigCancel() {
-    extraVisible.value = false;
-    activePlanSet.value = undefined;
-    configForm.value = undefined;
-    configFormUnsaved.value = false;
-  }
-
   /**
    * 检查配置表单是否未保存
    */
@@ -545,7 +540,7 @@
   }
 
   /**
-   * 切换测试集配置显示
+   * 切换测试点配置显示
    */
   function toggleConfig() {
     if (checkConfigFormUnsaved()) {
@@ -621,13 +616,16 @@
     }
   }
 
+  /**
+   * 触发关联用例
+   */
   function associateCase() {
     const node: PlanMinderNode = window.minder.getSelectedNode();
     activePlanSet.value = node;
     switchingConfigFormData.value = true;
-    configForm.value = cloneDeep(activePlanSet.value.data);
+    configForm.value = cloneDeep(activePlanSet.value?.data);
     extraVisible.value = true;
-    currentSelectCase.value = (node.data?.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
+    currentSelectCase.value = (activePlanSet.value?.data.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
     caseAssociateVisible.value = true;
     nextTick(() => {
       switchingConfigFormData.value = false;
@@ -652,6 +650,14 @@
     }
   );
 
+  function handleConfigCancel() {
+    clearSelectedCases();
+    extraVisible.value = false;
+    activePlanSet.value = undefined;
+    configForm.value = undefined;
+    configFormUnsaved.value = false;
+  }
+
   /**
    * 处理节点选中
    * @param node 节点
@@ -660,20 +666,33 @@
     if (checkConfigFormUnsaved()) {
       return;
     }
-    checkNodeCanShowMenu(node);
-    if (extraVisible.value) {
-      if (node.data?.type === PlanMinderCollectionType.FUNCTIONAL && node.data?.level === 1) {
-        // 功能用例分类没有配置
-        extraVisible.value = false;
-        return;
+    if (node.data?.level === 3 && node.data?.resource?.[0] === caseCountTag) {
+      window.minder.toggleSelect(node);
+      window.minder.selectById(node.parent?.data?.id);
+      associateCase();
+    } else if (
+      node.data?.level === 3 &&
+      (node.data?.resource?.[0] === resourcePoolTag || node.data?.resource?.[0] === envTag)
+    ) {
+      window.minder.toggleSelect(node);
+      window.minder.selectById(node.parent?.data?.id);
+    } else {
+      checkNodeCanShowMenu(node);
+      if (extraVisible.value) {
+        if (node.data?.type === PlanMinderCollectionType.FUNCTIONAL && node.data?.level === 1) {
+          // 功能用例分类没有配置
+          extraVisible.value = false;
+          return;
+        }
+        activePlanSet.value = node;
+        switchingConfigFormData.value = true;
+        configForm.value = cloneDeep(activePlanSet.value.data);
+        nextTick(() => {
+          switchingConfigFormData.value = false;
+        });
+      } else if (showConfigMenu.value) {
+        toggleConfig();
       }
-      clearSelectedCases();
-      activePlanSet.value = node;
-      switchingConfigFormData.value = true;
-      configForm.value = cloneDeep(activePlanSet.value.data);
-      nextTick(() => {
-        switchingConfigFormData.value = false;
-      });
     }
   }
 
@@ -689,7 +708,7 @@
     for (let i = 0; i < dragNodes.length; i++) {
       const dragNode = (dragNodes as MinderJsonNode[])[i];
       if (dragNode.parent?.data?.id !== dropNode.parent?.data?.id && dragNode.data?.level !== 2) {
-        // 不允许跨节点拖拽，只允许拖拽同一节点内的测试集排序
+        // 不允许跨节点拖拽，只允许拖拽同一节点内的测试点排序
         return true;
       }
     }
@@ -770,7 +789,7 @@
           level,
           isNew: false,
           changed: false,
-          disabled: level !== 2, // 只有测试集能改文本
+          disabled: level !== 2, // 只有测试点能改文本
         };
         return node;
       });
@@ -845,7 +864,7 @@
   }
 
   /**
-   * 保存测试集配置
+   * 保存测试点配置
    */
   function handleConfigSave() {
     configFormRef.value?.validate((errors) => {

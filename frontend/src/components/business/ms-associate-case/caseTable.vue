@@ -52,12 +52,14 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useTableStore from '@/hooks/useTableStore';
 
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getPublicLinkCaseListMap } from './utils/page';
@@ -84,6 +86,9 @@
     (e: 'initModules'): void;
     (e: 'update:selectedIds'): void;
   }>();
+
+  const tableStore = useTableStore();
+
   const innerSelectedIds = defineModel<string[]>('selectedIds', { required: true });
 
   const reviewResultOptions = computed(() => {
@@ -183,6 +188,13 @@
       width: 200,
       showDrag: true,
     },
+    {
+      title: '',
+      dataIndex: 'action',
+      width: 24,
+      slotName: SpecialColumnEnum.ACTION,
+      fixed: 'right',
+    },
   ];
 
   const getPageList = computed(() => {
@@ -209,8 +221,10 @@
   } = useTable(
     getPageList.value,
     {
-      columns,
-      showSetting: false,
+      tableKey: TableKeyEnum.ASSOCIATE_CASE,
+      showSetting: true,
+      isSimpleSetting: true,
+      onlyPageSize: true,
       selectable: true,
       showSelectAll: true,
       heightUsed: 310,
@@ -331,6 +345,12 @@
     getFunctionalSaveParams,
     loadCaseList,
   });
+
+  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE, columns, 'drawer');
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-table-cell-align-left) {
+    padding: 0 8px !important;
+  }
+</style>

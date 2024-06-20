@@ -99,8 +99,11 @@
                 "
                 :table-key="(attrs.tableKey as TableKeyEnum)"
                 :is-simple="(attrs.isSimpleSetting as boolean)"
+                :only-page-size="!!attrs.onlyPageSize"
+                :show-pagination="!!attrs.showPagination"
                 @show-setting="handleShowSetting"
                 @init-data="handleInitColumn"
+                @page-size-change="pageSizeChange"
               />
               <DefaultFilter
                 v-else-if="(item.filterConfig && item.filterConfig.options?.length) || item?.filterConfig?.remoteMethod"

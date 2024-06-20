@@ -57,6 +57,7 @@
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useTableStore from '@/hooks/useTableStore';
   import { characterLimit } from '@/utils';
 
   import { ApiCaseDetail } from '@/models/apiTest/management';
@@ -65,6 +66,7 @@
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getPublicLinkCaseListMap } from './utils/page';
@@ -93,6 +95,8 @@
     (e: 'initModules'): void;
     (e: 'update:selectedIds'): void;
   }>();
+
+  const tableStore = useTableStore();
 
   const lastReportStatusListOptions = computed(() => {
     return Object.keys(ReportStatus).map((key) => {
@@ -178,6 +182,13 @@
       width: 200,
       showDrag: true,
     },
+    {
+      title: '',
+      dataIndex: 'action',
+      width: 24,
+      slotName: SpecialColumnEnum.ACTION,
+      fixed: 'right',
+    },
   ];
 
   const getPageList = computed(() => {
@@ -206,8 +217,10 @@
   } = useTable(
     getPageList.value,
     {
-      columns,
-      showSetting: false,
+      tableKey: TableKeyEnum.ASSOCIATE_CASE_API_CASE,
+      showSetting: true,
+      isSimpleSetting: true,
+      onlyPageSize: true,
       selectable: true,
       showSelectAll: true,
       heightUsed: 310,
@@ -325,6 +338,12 @@
     getApiCaseSaveParams,
     loadCaseList,
   });
+
+  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API_CASE, columns, 'drawer');
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-table-cell-align-left) {
+    padding: 0 8px !important;
+  }
+</style>

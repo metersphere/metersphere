@@ -6,6 +6,307 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "40794959",
+      "name": "icon_test_set",
+      "font_class": "icon_test_set1",
+      "unicode": "e7ea",
+      "unicode_decimal": 59370
+    },
+    {
+      "icon_id": "40780341",
+      "name": "icon_test_set",
+      "font_class": "icon_test_set",
+      "unicode": "e7e9",
+      "unicode_decimal": 59369
+    },
+    {
+      "icon_id": "40748078",
+      "name": "icon_left _and_right_layout",
+      "font_class": "a-icon_left_and_right_layout",
+      "unicode": "e7e7",
+      "unicode_decimal": 59367
+    },
+    {
+      "icon_id": "40748077",
+      "name": "icon_top_and_bottom_layout",
+      "font_class": "icon_top_and_bottom_layout",
+      "unicode": "e7e8",
+      "unicode_decimal": 59368
+    },
+    {
+      "icon_id": "40654821",
+      "name": "icon_phone_outlined",
+      "font_class": "icon_phone_outlined",
+      "unicode": "e7c0",
+      "unicode_decimal": 59328
+    },
+    {
+      "icon_id": "40654822",
+      "name": "icon_application_filled",
+      "font_class": "icon_application_filled",
+      "unicode": "e7c1",
+      "unicode_decimal": 59329
+    },
+    {
+      "icon_id": "40654823",
+      "name": "icon_livestream-start_outlined",
+      "font_class": "icon_livestream-start_outlined",
+      "unicode": "e7c2",
+      "unicode_decimal": 59330
+    },
+    {
+      "icon_id": "40654824",
+      "name": "icon_busy_outlined",
+      "font_class": "icon_busy_outlined",
+      "unicode": "e7c3",
+      "unicode_decimal": 59331
+    },
+    {
+      "icon_id": "40654825",
+      "name": "icon_member_filled",
+      "font_class": "icon_member_filled",
+      "unicode": "e7c4",
+      "unicode_decimal": 59332
+    },
+    {
+      "icon_id": "40654826",
+      "name": "icon_jira-filter_filled",
+      "font_class": "icon_jira-filter_filled",
+      "unicode": "e7c5",
+      "unicode_decimal": 59333
+    },
+    {
+      "icon_id": "40654827",
+      "name": "icon_jira-filter_filled-1",
+      "font_class": "icon_jira-filter_filled-1",
+      "unicode": "e7c6",
+      "unicode_decimal": 59334
+    },
+    {
+      "icon_id": "40654828",
+      "name": "icon_feedback_filled",
+      "font_class": "icon_feedback_filled",
+      "unicode": "e7c7",
+      "unicode_decimal": 59335
+    },
+    {
+      "icon_id": "40654829",
+      "name": "icon_copy_filled",
+      "font_class": "icon_copy_filled1",
+      "unicode": "e7c8",
+      "unicode_decimal": 59336
+    },
+    {
+      "icon_id": "40654831",
+      "name": "icon_livestream-start_filled",
+      "font_class": "icon_livestream-start_filled",
+      "unicode": "e7c9",
+      "unicode_decimal": 59337
+    },
+    {
+      "icon_id": "40654832",
+      "name": "icon_account_filled",
+      "font_class": "icon_account_filled",
+      "unicode": "e7ca",
+      "unicode_decimal": 59338
+    },
+    {
+      "icon_id": "40654833",
+      "name": "icon_dashboard_outlined",
+      "font_class": "icon_dashboard_outlined1",
+      "unicode": "e7cb",
+      "unicode_decimal": 59339
+    },
+    {
+      "icon_id": "40654835",
+      "name": "icon_pause_outlined",
+      "font_class": "icon_pause_outlined",
+      "unicode": "e7cc",
+      "unicode_decimal": 59340
+    },
+    {
+      "icon_id": "40654836",
+      "name": "icon_application_outlined",
+      "font_class": "icon_application_outlined",
+      "unicode": "e7cd",
+      "unicode_decimal": 59341
+    },
+    {
+      "icon_id": "40654837",
+      "name": "icon_qr_filled",
+      "font_class": "icon_qr_filled",
+      "unicode": "e7ce",
+      "unicode_decimal": 59342
+    },
+    {
+      "icon_id": "40654838",
+      "name": "icon_login_filled",
+      "font_class": "icon_login_filled",
+      "unicode": "e7cf",
+      "unicode_decimal": 59343
+    },
+    {
+      "icon_id": "40654839",
+      "name": "icon_license_shape",
+      "font_class": "icon_license_shape",
+      "unicode": "e7d0",
+      "unicode_decimal": 59344
+    },
+    {
+      "icon_id": "40654840",
+      "name": "icon_resolve_outlined",
+      "font_class": "icon_resolve_outlined",
+      "unicode": "e7d1",
+      "unicode_decimal": 59345
+    },
+    {
+      "icon_id": "40654841",
+      "name": "icon_notification-setting_outlined",
+      "font_class": "icon_notification-setting_outlined",
+      "unicode": "e7d2",
+      "unicode_decimal": 59346
+    },
+    {
+      "icon_id": "40654842",
+      "name": "icon_play_outlined",
+      "font_class": "icon_play_outlined",
+      "unicode": "e7d3",
+      "unicode_decimal": 59347
+    },
+    {
+      "icon_id": "40654843",
+      "name": "icon_sheet-datareference_outlined",
+      "font_class": "icon_sheet-datareference_outlined",
+      "unicode": "e7d4",
+      "unicode_decimal": 59348
+    },
+    {
+      "icon_id": "40654844",
+      "name": "icon_delete-trash_filled",
+      "font_class": "icon_delete-trash_filled1",
+      "unicode": "e7d5",
+      "unicode_decimal": 59349
+    },
+    {
+      "icon_id": "40654845",
+      "name": "icon_plugin_filled",
+      "font_class": "icon_plugin_filled",
+      "unicode": "e7d6",
+      "unicode_decimal": 59350
+    },
+    {
+      "icon_id": "40654846",
+      "name": "icon_cloud_filled",
+      "font_class": "icon_cloud_filled",
+      "unicode": "e7d7",
+      "unicode_decimal": 59351
+    },
+    {
+      "icon_id": "40654847",
+      "name": "icon_approval_outlined",
+      "font_class": "icon_approval_outlined1",
+      "unicode": "e7d8",
+      "unicode_decimal": 59352
+    },
+    {
+      "icon_id": "40654848",
+      "name": "icon_emoji_filled",
+      "font_class": "icon_emoji_filled",
+      "unicode": "e7d9",
+      "unicode_decimal": 59353
+    },
+    {
+      "icon_id": "40654849",
+      "name": "icon_setting-inter_filled",
+      "font_class": "icon_setting-inter_filled",
+      "unicode": "e7da",
+      "unicode_decimal": 59354
+    },
+    {
+      "icon_id": "40654850",
+      "name": "icon_trace_outlined",
+      "font_class": "icon_trace_outlined",
+      "unicode": "e7db",
+      "unicode_decimal": 59355
+    },
+    {
+      "icon_id": "40654851",
+      "name": "icon_token_filled",
+      "font_class": "icon_token_filled",
+      "unicode": "e7dc",
+      "unicode_decimal": 59356
+    },
+    {
+      "icon_id": "40654852",
+      "name": "icon_jira-filter_outlined",
+      "font_class": "icon_jira-filter_outlined",
+      "unicode": "e7dd",
+      "unicode_decimal": 59357
+    },
+    {
+      "icon_id": "40654853",
+      "name": "icon_status-vacation_filled",
+      "font_class": "icon_status-vacation_filled",
+      "unicode": "e7de",
+      "unicode_decimal": 59358
+    },
+    {
+      "icon_id": "40654854",
+      "name": "icon_database_filled",
+      "font_class": "icon_database_filled",
+      "unicode": "e7df",
+      "unicode_decimal": 59359
+    },
+    {
+      "icon_id": "40654855",
+      "name": "icon_more-vertical_outlined",
+      "font_class": "icon_more-vertical_outlined",
+      "unicode": "e7e0",
+      "unicode_decimal": 59360
+    },
+    {
+      "icon_id": "40654856",
+      "name": "icon_account_outlined",
+      "font_class": "icon_account_outlined",
+      "unicode": "e7e1",
+      "unicode_decimal": 59361
+    },
+    {
+      "icon_id": "40654857",
+      "name": "icon_reference_outlined",
+      "font_class": "icon_reference_outlined",
+      "unicode": "e7e2",
+      "unicode_decimal": 59362
+    },
+    {
+      "icon_id": "40654858",
+      "name": "icon_schedule-report_outlined",
+      "font_class": "icon_schedule-report_outlined",
+      "unicode": "e7e3",
+      "unicode_decimal": 59363
+    },
+    {
+      "icon_id": "40654859",
+      "name": "icon_sheet-datareference_filled",
+      "font_class": "icon_sheet-datareference_filled",
+      "unicode": "e7e4",
+      "unicode_decimal": 59364
+    },
+    {
+      "icon_id": "40654860",
+      "name": "icon_vc-reaction_filled",
+      "font_class": "icon_vc-reaction_filled",
+      "unicode": "e7e5",
+      "unicode_decimal": 59365
+    },
+    {
+      "icon_id": "40654861",
+      "name": "icon_setting-inter_outlined",
+      "font_class": "icon_setting-inter_outlined",
+      "unicode": "e7e6",
+      "unicode_decimal": 59366
+    },
+    {
       "icon_id": "40628129",
       "name": "icon_title-top-align_outlined",
       "font_class": "icon_title-top-align_outlined1",
