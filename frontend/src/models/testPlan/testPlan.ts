@@ -92,7 +92,7 @@ export interface TestPlanItem {
   name: string;
   status: planStatusType;
   type: keyof typeof testPlanTypeEnum;
-  tags: string[];
+  tags: string[] | { id: string; name: string }[];
   schedule: string; // 是否定时
   createUser: string;
   createTime: string;
