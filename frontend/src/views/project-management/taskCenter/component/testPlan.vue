@@ -159,17 +159,17 @@
     organization: {
       stop: ['ORGANIZATION_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
       jump: ['PROJECT_TEST_PLAN:READ'],
-      report: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
+      report: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN_REPORT:READ'],
     },
     system: {
       stop: ['SYSTEM_TASK_CENTER:READ+STOP', 'PROJECT_TEST_PLAN:READ+EXECUTE'],
       jump: ['PROJECT_TEST_PLAN:READ'],
-      report: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
+      report: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN_REPORT:READ'],
     },
     project: {
       stop: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
       jump: ['PROJECT_TEST_PLAN:READ'],
-      report: ['PROJECT_TEST_PLAN:READ', 'PROJECT_TEST_PLAN_REPORT:READ'],
+      report: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN_REPORT:READ'],
     },
   };
 
@@ -428,6 +428,9 @@
   }
 
   function showDetail(id: string) {
+    if (!hasJumpPermission.value) {
+      return;
+    }
     openNewPage(RouteEnum.TEST_PLAN_INDEX_DETAIL, {
       id,
     });

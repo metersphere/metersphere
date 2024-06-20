@@ -190,4 +190,5 @@ export default {
   'common.name': 'name',
   'common.stopped': 'Stopped',
   'common.config': 'Config',
+  'common.executionResult': 'Execution result',
 };

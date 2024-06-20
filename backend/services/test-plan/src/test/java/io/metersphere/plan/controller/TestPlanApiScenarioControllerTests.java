@@ -500,7 +500,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport1);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/plan-test-scenario-report-id");
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_REPORT_READ, "/report/get/plan-test-scenario-report-id");
         List<ApiScenarioReportDetail> reportsDetails = new ArrayList<>();
         List<ApiScenarioReportDetailBlob> reportBlogs = new ArrayList<>();
 
@@ -527,7 +527,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
 
         this.requestGetWithOk("/report/get/detail/plan-test-scenario-report-id/plan-test-scenario-report-step-id1")
                 .andReturn();
-        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/detail/plan-test-scenario-report-id/plan-test-scenario-report-step-id1");
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_REPORT_READ, "/report/get/detail/plan-test-scenario-report-id/plan-test-scenario-report-step-id1");
     }
 
 }

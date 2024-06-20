@@ -128,7 +128,7 @@ public class TestPlanApiScenarioController {
     @GetMapping("/report/get/{id}")
     @Operation(summary = "测试计划-计划详情-场景用例列表-查看执行结果")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
-    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_REPORT_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     public ApiScenarioReportDTO get(@PathVariable String id) {
         testPlanApiScenarioService.checkReportIsTestPlan(id);
         return apiScenarioReportService.get(id);
@@ -137,7 +137,7 @@ public class TestPlanApiScenarioController {
     @GetMapping("report/get/detail/{reportId}/{stepId}")
     @Operation(summary = "测试计划-计划详情-场景用例列表-执行结果详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
-    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_REPORT_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String reportId,
                                                       @PathVariable String stepId) {
         testPlanApiScenarioService.checkReportIsTestPlan(reportId);
