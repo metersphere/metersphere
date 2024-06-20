@@ -53,6 +53,12 @@
           and tpc.test_plan_id = #{testPlanId}
     </select>
     <select id="selectDefaultCollectionId" resultType="java.lang.String">
-        SELECT id FROM test_plan_collection WHERE test_plan_id = #{testPlanId} AND parent_id!='NONE' and type = #{type}
+        SELECT id
+        FROM test_plan_collection
+        WHERE test_plan_id = #{testPlanId}
+          AND parent_id != 'NONE'
+          and type = #{type}
+        ORDER BY pos
+        limit 1
     </select>
 </mapper>

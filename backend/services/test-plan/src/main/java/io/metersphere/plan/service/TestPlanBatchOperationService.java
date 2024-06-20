@@ -170,7 +170,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
                     throw new MSException(Translator.get("test_plan.group.error"));
                 }
                 pos = testPlanGroupService.getNextOrder(targetId);
-                moduleId = group.getId();
+                moduleId = group.getModuleId();
             }
             groupId = targetId;
         } else {
