@@ -111,9 +111,15 @@
         </div>
 
         <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" :class="`one-line-text ${hasIndent(record)}`"
-          ><MsButton type="text" @click="openDetail(record.id)">{{ record.num }}</MsButton></div
+          ><MsButton type="text" @click="openDetail(record.id)"
+            ><a-tooltip :content="record.num.toString()"
+              ><span>{{ record.num }}</span></a-tooltip
+            ></MsButton
+          ></div
         >
-        <div v-else :class="`one-line-text ${hasIndent(record)}`">{{ record.num }}</div>
+        <a-tooltip v-else :content="record.num.toString()"
+          ><div :class="`one-line-text ${hasIndent(record)}`">{{ record.num }}</div></a-tooltip
+        >
         <a-tooltip position="right" :disabled="!getSchedule(record.id)" :mouse-enter-delay="300">
           <MsTag
             v-if="getSchedule(record.id)"
@@ -550,7 +556,6 @@
       dataIndex: 'moduleId',
       showInTable: true,
       showDrag: true,
-      showTooltip: true,
       width: 200,
     },
     {
@@ -814,6 +819,21 @@
     draggableCondition: true,
   });
 
+  function getTags(record: TestPlanItem) {
+    if (record.children && record.children.length) {
+      record.children = record.children.map((child: TestPlanItem) => getTags(child));
+    }
+    return {
+      ...record,
+      tags: (record.tags || []).map((item: any, i: number) => {
+        return {
+          id: `${record.id}-${i}`,
+          name: item,
+        };
+      }),
+    };
+  }
+
   const {
     propsRes,
     propsEvent,
@@ -826,11 +846,8 @@
   } = useTable(
     getTestPlanList,
     tableProps.value,
-    (item) => {
-      return {
-        ...item,
-        tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
-      };
+    (item: any) => {
+      return getTags(item);
     },
     updatePlanName
   );
