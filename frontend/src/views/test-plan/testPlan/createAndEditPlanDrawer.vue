@@ -252,13 +252,20 @@
 
   function handleTimeSelect(value: (Date | string | number | undefined)[]) {
     if (value) {
+      // 要用 留着
       // const start = dayjs(value[0]);
       // const end = dayjs(value[1]);
       // if (start.isSame(end, 'D') && end.hour() === 0 && end.minute() === 0 && end.second() === 0) {
       //   const newEnd = end.hour(23).minute(59).second(59);
       //   value[1] = newEnd.valueOf();
       // }
-      tempRange.value = value as number[];
+      const start = (value as number[])[0];
+      const end = (value as number[])[1];
+      if (start > end) {
+        tempRange.value = [end, start];
+      } else {
+        tempRange.value = value as number[];
+      }
     }
   }
 
