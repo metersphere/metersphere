@@ -307,7 +307,12 @@ public class FunctionalCaseMinderService {
         //处理用例
         Map<String, String> sourceIdAndInsertCaseIdMap = dealCase(request, userId, sqlSession, sourceIdAndInsertModuleIdMap, functionalMinderUpdateDTO);
         List<String> needToTurnCaseIds = new ArrayList<>(sourceIdAndInsertCaseIdMap.keySet().stream().distinct().toList());
-
+        //删除模块
+        if (CollectionUtils.isNotEmpty(needToTurnCaseIds)) {
+            FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
+            functionalCaseModuleExample.createCriteria().andIdIn(needToTurnCaseIds);
+            moduleMapper.deleteByExample(functionalCaseModuleExample);
+        }
         //删除已转为模块或用例的空白节点
         needToTurnCaseIds.addAll(needToTurnModuleIds);
         if (CollectionUtils.isNotEmpty(needToTurnCaseIds)) {
@@ -337,7 +342,7 @@ public class FunctionalCaseMinderService {
         if (CollectionUtils.isNotEmpty(targetIds)) {
             FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
             functionalCaseModuleExample.createCriteria().andIdIn(targetIds);
-            List<FunctionalCaseModule> targetModuleIds = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+            List<FunctionalCaseModule> targetModuleIds = moduleMapper.selectByExample(functionalCaseModuleExample);
             Map<String, String> targetModuleMap = new HashMap<>();
             List<String> targetModuleParentIds = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(targetModuleIds)) {
@@ -348,7 +353,7 @@ public class FunctionalCaseMinderService {
             if (CollectionUtils.isNotEmpty(targetModuleParentIds)) {
                 functionalCaseModuleExample = new FunctionalCaseModuleExample();
                 functionalCaseModuleExample.createCriteria().andParentIdIn(targetModuleParentIds);
-                allChildrenInDB = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+                allChildrenInDB = moduleMapper.selectByExample(functionalCaseModuleExample);
             }
 
             FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
@@ -377,14 +382,14 @@ public class FunctionalCaseMinderService {
             if (CollectionUtils.isNotEmpty(caseModuleIds)) {
                 functionalCaseModuleExample = new FunctionalCaseModuleExample();
                 functionalCaseModuleExample.createCriteria().andParentIdIn(caseModuleIds);
-                allChildrenByCaseInDB = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+                allChildrenByCaseInDB = moduleMapper.selectByExample(functionalCaseModuleExample);
             }
             allChildrenInDB.addAll(allChildrenByCaseInDB);
 
 
             MindAdditionalNodeExample mindAdditionalNodeExample = new MindAdditionalNodeExample();
             mindAdditionalNodeExample.createCriteria().andIdIn(targetIds);
-            List<MindAdditionalNode> mindAdditionalNodes = mindAdditionalNodeMapper.selectByExample(mindAdditionalNodeExample);
+            List<MindAdditionalNode> mindAdditionalNodes = additionalNodeMapper.selectByExample(mindAdditionalNodeExample);
             Map<String, String> targetTextMap = new HashMap<>();
             List<String> targetTextParentIds = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(mindAdditionalNodes)) {
@@ -401,7 +406,7 @@ public class FunctionalCaseMinderService {
             if (CollectionUtils.isNotEmpty(targetTextParentNoRepeatIds)) {
                 mindAdditionalNodeExample = new MindAdditionalNodeExample();
                 mindAdditionalNodeExample.createCriteria().andParentIdIn(targetTextParentNoRepeatIds);
-                allChildrenTextInDB = mindAdditionalNodeMapper.selectByExample(mindAdditionalNodeExample);
+                allChildrenTextInDB = additionalNodeMapper.selectByExample(mindAdditionalNodeExample);
                 parentChildrenTextMap = allChildrenTextInDB.stream().collect(Collectors.groupingBy(MindAdditionalNode::getParentId));
             }
 
@@ -411,7 +416,7 @@ public class FunctionalCaseMinderService {
             if (CollectionUtils.isNotEmpty(textModuleIds)) {
                 functionalCaseModuleExample = new FunctionalCaseModuleExample();
                 functionalCaseModuleExample.createCriteria().andParentIdIn(textModuleIds);
-                List<FunctionalCaseModule> allChildrenByTextInDB = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
+                List<FunctionalCaseModule> allChildrenByTextInDB = moduleMapper.selectByExample(functionalCaseModuleExample);
                 allChildrenInDB.addAll(allChildrenByTextInDB);
             }
             List<String> textModuleFilterCaseIds = targetTextParentIds.stream().filter(t -> !targetCaseParentIdsNoRepeat.contains(t)).distinct().toList();

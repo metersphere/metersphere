@@ -45,8 +45,9 @@ VALUES
     ('TEST_MINDER_MODULE_ID_GYQ7', 'project-case-minder-test', '测试所属模块7', 'TEST_MINDER_MODULE_ID_GYQ', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
     ('TEST_MINDER_MODULE_ID_GYQ8', 'project-case-minder-test', '测试所属模块8', 'TEST_MINDER_MODULE_ID_GYQ', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
     ('TEST_MINDER_MODULE_ID_GYQ6', 'project-case-minder-test-xx', '测试所属模块1', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
-    ('TEST_MINDER_MODULE_ID_GYQ9', 'project-case-minder-test', '用来删除', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
-;
+    ('TEST_MINDER_MODULE_ID_GYQ9', 'project-case-minder-test', '用来删除', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
+    ('TEST_MINDER_MODULE_ID_GYQ_A', 'project-case-minder-test', '模块转用例', 'TEST_MINDER_MODULE_ID_GYQ8', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+
 
 
 INSERT INTO test_plan(id, num, project_id, group_id, module_id, name, status, type, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)

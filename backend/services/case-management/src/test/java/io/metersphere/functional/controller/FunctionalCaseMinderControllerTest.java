@@ -197,6 +197,21 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequests.add(caseChangeRequest);
         request.setUpdateCaseList(caseChangeRequests);
 
+        caseChangeRequest = new FunctionalCaseChangeRequest();
+        caseChangeRequest.setId("TEST_MINDER_MODULE_ID_GYQ_A");
+        caseChangeRequest.setName("模块转用例");
+        caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ8");
+        caseChangeRequest.setTemplateId("100001");
+        caseChangeRequest.setMoveMode("BEFORE");
+        caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
+        caseChangeRequest.setType("ADD");
+        caseChangeRequest.setPrerequisite("前置条件");
+        caseChangeRequest.setCaseEditType("TEXT");
+        customFields = new ArrayList<>();
+        caseChangeRequest.setCustomFields(customFields);
+        caseChangeRequests.add(caseChangeRequest);
+        request.setUpdateCaseList(caseChangeRequests);
+
         List<FunctionalCaseModuleEditRequest> functionalCaseModuleEditRequests = new ArrayList<>();
         FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest = new FunctionalCaseModuleEditRequest();
         functionalCaseModuleEditRequest.setId("uuuId");
@@ -226,7 +241,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         mindAdditionalNodeRequest = new MindAdditionalNodeRequest();
         mindAdditionalNodeRequest.setId("additional2");
         mindAdditionalNodeRequest.setType("UPDATE");
-        mindAdditionalNodeRequest.setName("additional2");
+        mindAdditionalNodeRequest.setName("additional2更新");
         mindAdditionalNodeRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
         additionalNodeList.add(mindAdditionalNodeRequest);
         request.setAdditionalNodeList(additionalNodeList);
@@ -255,11 +270,25 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.get(0).getValue(),"P0"));
 
-        MindAdditionalNode mindAdditionalNode = mindAdditionalNodeMapper.selectByPrimaryKey("additional2");
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(mindAdditionalNode.getParentId(),"TEST_MINDER_MODULE_ID_GYQ"));
+        FunctionalCaseModule functionalCaseModule = functionalCaseModuleMapper.selectByPrimaryKey("TEST_MINDER_MODULE_ID_GYQ7");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseModule.getName(),"移动7"));
+
+        FunctionalCaseModule functionalCaseModule1 = functionalCaseModuleMapper.selectByPrimaryKey("TEST_MINDER_MODULE_ID_GYQ_A");
+        Assertions.assertNull(functionalCaseModule1);
+
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
-        functionalCaseExample.createCriteria().andNameEqualTo("新增用例");
+        functionalCaseExample.createCriteria().andNameEqualTo("模块转用例");
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
+
+        MindAdditionalNode mindAdditionalNode = mindAdditionalNodeMapper.selectByPrimaryKey("additional2");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(mindAdditionalNode.getName(),"additional2更新"));
+
+
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(mindAdditionalNode.getParentId(),"TEST_MINDER_MODULE_ID_GYQ"));
+        functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andNameEqualTo("新增用例");
+        functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
         Assertions.assertTrue(functionalCases.get(0).getPos() > 0L);
 
