@@ -129,7 +129,6 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDeleteFunctionalCaseDTO(#request.id)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "functional_case")
     public void deleteFunctionalCase(@Validated @RequestBody FunctionalCaseDeleteRequest request) {
         String userId = SessionUtils.getUserId();
