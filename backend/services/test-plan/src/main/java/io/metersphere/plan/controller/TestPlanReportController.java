@@ -62,7 +62,7 @@ public class TestPlanReportController {
     @Operation(summary = "测试计划-报告-重命名")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan_report")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = TestPlanReportLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.renameLog(#id, #name)", msClass = TestPlanReportLogService.class)
     public void rename(@PathVariable String id, @RequestBody Object name) {
         testPlanReportService.rename(id, name.toString());
     }

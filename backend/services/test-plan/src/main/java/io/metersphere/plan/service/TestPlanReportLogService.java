@@ -68,6 +68,24 @@ public class TestPlanReportLogService {
         return dto;
     }
 
+    public LogDTO renameLog(String id, Object name) {
+        TestPlanReport report = testPlanReportMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(report.getProjectId());
+        LogDTO dto = new LogDTO(
+                report.getProjectId(),
+                project.getOrganizationId(),
+                report.getId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.TEST_PLAN_REPORT,
+                name.toString());
+
+        dto.setPath(OperationLogAspect.getPath());
+        dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(report));
+        return dto;
+    }
+
     public LogDTO updateDetailLog(TestPlanReportDetailEditRequest request) {
         return updateLog(request.getId());
     }
