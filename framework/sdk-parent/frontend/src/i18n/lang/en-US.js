@@ -1351,7 +1351,7 @@ const message = {
       ActiveThreadsChart: "Users",
       TransactionsChart: "Req/Trans",
       ErrorsChart: "Error",
-      ResponseTimeChart: "Response",
+      ResponseTimeChart: "Response time",
       ResponseTimePercentilesChart: "Response percentage",
       ResponseCodeChart: "Response Code",
       LatencyChart: "Latency",
