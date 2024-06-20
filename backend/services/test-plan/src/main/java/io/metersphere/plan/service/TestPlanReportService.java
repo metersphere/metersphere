@@ -922,7 +922,7 @@ public class TestPlanReportService {
         Map<String, Long> resultMap = resultMapList.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
         caseCount.setSuccess(resultMap.getOrDefault(ExecStatus.SUCCESS.name(), 0L).intValue());
         caseCount.setError(resultMap.getOrDefault(ExecStatus.ERROR.name(), 0L).intValue());
-        caseCount.setPending(resultMap.getOrDefault(ExecStatus.PENDING.name(), 0L).intValue());
+        caseCount.setPending(resultMap.getOrDefault(ExecStatus.PENDING.name(), 0L).intValue() + resultMap.getOrDefault(ExecStatus.STOPPED.name(), 0L).intValue());
         caseCount.setBlock(resultMap.getOrDefault(ExecStatus.BLOCKED.name(), 0L).intValue());
         caseCount.setFakeError(resultMap.getOrDefault(ExecStatus.FAKE_ERROR.name(), 0L).intValue());
         return caseCount;
