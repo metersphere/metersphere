@@ -12,7 +12,7 @@
     @filter-change="getModuleCount"
   >
     <template #num="{ record }">
-      <MsButton type="text">{{ record.num }}</MsButton>
+      <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
     </template>
     <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
       <apiMethodName :method="filterContent.value" />
@@ -39,18 +39,23 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
 
+  import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import type { TableQueryParams } from '@/models/common';
   import { RequestMethods } from '@/enums/apiEnum';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getPublicLinkCaseListMap } from './utils/page';
 
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
   const appStore = useAppStore();
+
   const props = defineProps<{
     associationType: string; // 关联类型 项目 | 测试计划 | 用例评审
     activeModule: string;
@@ -274,6 +279,14 @@
       selectAll: selectorStatus === 'all',
       associateApiType: 'API',
     };
+  }
+
+  // 去接口详情页面
+  function toDetail(record: ApiDefinitionDetail) {
+    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+      dId: record.id,
+      pId: record.projectId,
+    });
   }
 
   defineExpose({

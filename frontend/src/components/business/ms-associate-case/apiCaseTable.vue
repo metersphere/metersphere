@@ -11,7 +11,7 @@
     @filter-change="getModuleCount"
   >
     <template #num="{ record }">
-      <MsButton type="text">{{ record.num }}</MsButton>
+      <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
     </template>
     <template #lastReportStatus="{ record }">
       <ExecutionStatus
@@ -57,19 +57,21 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { characterLimit } from '@/utils';
 
+  import { ApiCaseDetail } from '@/models/apiTest/management';
   import type { TableQueryParams } from '@/models/common';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getPublicLinkCaseListMap } from './utils/page';
   import { casePriorityOptions } from '@/views/api-test/components/config';
 
-  const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     associationType: string; // 关联类型 项目 | 测试计划 | 用例评审
@@ -328,6 +330,14 @@
       selectAll: selectorStatus === 'all',
       associateApiType: 'API_CASE',
     };
+  }
+
+  // 去接口用例详情页面
+  function toDetail(record: ApiCaseDetail) {
+    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+      cId: record.id,
+      pId: record.projectId,
+    });
   }
 
   defineExpose({
