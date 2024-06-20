@@ -147,13 +147,8 @@ public class FunctionalCaseMinderService {
         List<String> fieldIds = getFieldIds(request);
         List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted, fieldIds);
 
-
         Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
 
-        List<FunctionalMinderTreeDTO> functionalMinderTreeDTOS = buildAdditionalData(request.getModuleId());
-        if (CollectionUtils.isNotEmpty(functionalMinderTreeDTOS)) {
-            list.addAll(functionalMinderTreeDTOS);
-        }
         //构造父子级数据
         buildList(functionalCaseMindDTOList, list, priorityMap);
         return list;
