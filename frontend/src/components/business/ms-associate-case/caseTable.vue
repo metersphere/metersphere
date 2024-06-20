@@ -11,7 +11,7 @@
     @filter-change="getModuleCount"
   >
     <template #num="{ record }">
-      <MsButton type="text">{{ record.num }}</MsButton>
+      <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
@@ -51,18 +51,20 @@
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
 
+  import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getPublicLinkCaseListMap } from './utils/page';
   import { casePriorityOptions } from '@/views/api-test/components/config';
   import { executionResultMap, statusIconMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
-  const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     associationType: string; // 关联类型 项目 | 测试计划 | 用例评审
@@ -271,7 +273,6 @@
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
 
   function getFunctionalSaveParams() {
-    console.log(111);
     const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
     const tableParams = getTableParams();
     return {
@@ -280,6 +281,14 @@
       selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
       selectAll: selectorStatus === 'all',
     };
+  }
+
+  // 去功能用例详情页面
+  function toDetail(record: CaseManagementTable) {
+    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
+      id: record.id,
+      pId: record.projectId,
+    });
   }
 
   watch(
