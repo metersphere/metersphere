@@ -23,6 +23,7 @@
           :upload-image="props.uploadImage"
           :preview-url="props.previewUrl"
           class="w-full"
+          :limit-length="1000"
           placeholder="ms.comment.enterPlaceHolderTip"
         />
         <a-textarea

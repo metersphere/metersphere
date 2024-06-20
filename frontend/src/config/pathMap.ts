@@ -976,8 +976,15 @@ export const pathMap: PathMapItem[] = [
     level: MENU_LEVEL[2],
     children: [
       {
-        key: 'TEST_PLAN_INDEX', // 测试计划-测试计划
-        locale: 'menu.testPlan',
+        key: 'TEST_PLAN_PLAN', // 测试计划-计划
+        locale: 'menu.testPlanShort',
+        route: RouteEnum.TEST_PLAN_INDEX_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'TEST_PLAN_GROUP', // 测试计划-计划组
+        locale: 'menu.testPlanGroup',
         route: RouteEnum.TEST_PLAN_INDEX,
         permission: [],
         level: MENU_LEVEL[2],

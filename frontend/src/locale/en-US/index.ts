@@ -21,6 +21,7 @@ export default {
   message: {
     'menu.workbench': 'Workbench',
     'menu.testPlan': 'Test Plan',
+    'menu.testPlanGroup': 'Planning groups',
     'menu.testPlanShort': 'Plan',
     'menu.testPlan.testPlanDetail': 'Test plan details',
     'menu.bugManagement': 'Bug',
