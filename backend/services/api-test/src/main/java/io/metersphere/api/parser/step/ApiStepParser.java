@@ -83,6 +83,7 @@ public class ApiStepParser extends StepParser {
         if (refBody == null || valueBody == null) {
             return;
         }
+        refBody.setBodyType(valueBody.getBodyType());
         if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.FORM_DATA.name()) &&
                 valueBody.getFormDataBody() != null && refBody.getFormDataBody() != null) {
             replaceKvParam(valueBody.getFormDataBody().getFormValues(), valueBody.getFormDataBody().getFormValues());
