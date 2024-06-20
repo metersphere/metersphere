@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionModuleMapper;
@@ -213,7 +214,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         if (CollectionUtils.isEmpty(request.getProtocols())) {
             return new ArrayList<>();
         }
-        return apiTestCaseService.page(request, false, isRepeat, request.getTestPlanId());
+        ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();
+        BeanUtils.copyBean(pageRequest, request);
+        return apiTestCaseService.page(pageRequest, false, isRepeat, request.getTestPlanId());
     }
 
 
@@ -245,9 +248,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private Map<String, String> getModuleName(List<TestPlanApiCasePageResponse> apiCaseList) {
         List<String> moduleIds = apiCaseList.stream().map(TestPlanApiCasePageResponse::getModuleId).toList();
         List<ApiDefinitionModule> modules = extApiDefinitionModuleMapper.getNameInfoByIds(moduleIds);
-        Map<String, String> moduleNameMap = modules.stream()
+        return modules.stream()
                 .collect(Collectors.toMap(ApiDefinitionModule::getId, ApiDefinitionModule::getName));
-        return moduleNameMap;
     }
 
     private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId, Map<String, String> moduleNameMap) {
@@ -363,7 +365,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         request.setModuleIds(null);
         List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanApiCaseMapper.countModuleIdByRequest(request, false);
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
-        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        //projectModuleCountDTOList转新的map key 是moduleId value是数量 stream实现
+        Map<String, Long> projectModuleCountMap = projectModuleCountDTOList.stream()
+                .collect(Collectors.groupingBy(
+                        FunctionalCaseModuleCountDTO::getModuleId,
+                        Collectors.summingLong(FunctionalCaseModuleCountDTO::getDataCount)));
+
         projectCountMap.forEach((projectId, moduleCountDTOList) -> {
             List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
             for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {
@@ -444,27 +451,37 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      */
     private List<BaseTreeNode> getModuleTree(String testPlanId) {
         List<BaseTreeNode> returnList = new ArrayList<>();
-        List<ProjectOptionDTO> rootIds = extTestPlanApiCaseMapper.selectRootIdByTestPlanId(testPlanId);
-        Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
+        List<ProjectOptionDTO> moduleLists = extTestPlanApiCaseMapper.selectRootIdByTestPlanId(testPlanId);
+        // 获取所有的项目id
+        List<String> projectIds = moduleLists.stream().map(ProjectOptionDTO::getName).distinct().toList();
+        // moduleLists中id=root的数据
+        List<ProjectOptionDTO> rootModuleList = moduleLists.stream().filter(item -> StringUtils.equals(item.getId(), ModuleConstants.DEFAULT_NODE_ID)).toList();
+
+        Map<String, List<ProjectOptionDTO>> projectRootMap = rootModuleList.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
         List<ApiCaseModuleDTO> apiCaseModuleIds = extTestPlanApiCaseMapper.selectBaseByProjectIdAndTestPlanId(testPlanId);
         Map<String, List<ApiCaseModuleDTO>> projectModuleMap = apiCaseModuleIds.stream().collect(Collectors.groupingBy(ApiCaseModuleDTO::getProjectId));
-        if (MapUtils.isEmpty(projectModuleMap)) {
-            projectRootMap.forEach((projectId, projectOptionDTOList) -> {
-                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
-                returnList.add(projectNode);
-                BaseTreeNode defaultNode = apiDefinitionModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
-                projectNode.addChild(defaultNode);
-            });
-            return returnList;
-        }
-        projectModuleMap.forEach((projectId, moduleList) -> {
-            BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
+        projectIds.forEach(projectId -> {
+            // 如果projectRootMap中没有projectId，说明该项目没有根节点 不需要创建
+            // projectModuleMap中没有projectId，说明该项目没有模块 不需要创建
+            // 如果都有  需要创建完整的数结构
+            boolean needCreateRoot = MapUtils.isNotEmpty(projectRootMap) && projectRootMap.containsKey(projectId);
+            boolean needCreateModule = MapUtils.isNotEmpty(projectModuleMap) && projectModuleMap.containsKey(projectId);
+            // 项目名称是
+            String projectName = needCreateModule ? projectModuleMap.get(projectId).getFirst().getProjectName() : projectRootMap.get(projectId).getFirst().getProjectName();
+            // 构建项目那一层级
+            BaseTreeNode projectNode = new BaseTreeNode(projectId, projectName, "PROJECT");
             returnList.add(projectNode);
-            List<String> projectModuleIds = moduleList.stream().map(ApiCaseModuleDTO::getId).toList();
-            List<BaseTreeNode> nodeByNodeIds = apiDefinitionModuleService.getNodeByNodeIds(projectModuleIds);
-            boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
-            List<BaseTreeNode> baseTreeNodes = apiDefinitionModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
+            List<BaseTreeNode> nodeByNodeIds = new ArrayList<>();
+            if (needCreateModule) {
+                List<String> projectModuleIds = projectModuleMap.get(projectId).stream().map(ApiCaseModuleDTO::getId).toList();
+                nodeByNodeIds = apiDefinitionModuleService.getNodeByNodeIds(projectModuleIds);
+            }
+            List<BaseTreeNode> baseTreeNodes = apiDefinitionModuleService.buildTreeAndCountResource(nodeByNodeIds, needCreateRoot, Translator.get("api_unplanned_request"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
+                if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                    // 默认拼项目id
+                    baseTreeNode.setId(projectId + "_" + ModuleConstants.DEFAULT_NODE_ID);
+                }
                 projectNode.addChild(baseTreeNode);
             }
         });

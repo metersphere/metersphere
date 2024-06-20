@@ -27,4 +27,7 @@ public class BasePlanCaseBatchRequest extends TableBatchProcessDTO implements Se
 
     @Schema(description = "计划集id")
     private String collectionId;
+
+    @Schema(description = "项目Id")
+    private String projectId;
 }
