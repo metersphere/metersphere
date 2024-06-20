@@ -168,9 +168,10 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
     public TestPlanOperationResponse copy(@PathVariable String id) {
-        return new TestPlanOperationResponse(
-                testPlanService.copy(id, SessionUtils.getUserId())
-        );
+        long copyCount = testPlanService.copy(id, SessionUtils.getUserId());
+        //copy完成之后的刷新一下状态
+        testPlanService.refreshTestPlanStatus(id);
+        return new TestPlanOperationResponse(copyCount);
     }
 
     @PostMapping("/batch-copy")

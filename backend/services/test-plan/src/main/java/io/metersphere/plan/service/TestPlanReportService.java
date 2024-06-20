@@ -254,6 +254,10 @@ public class TestPlanReportService {
 			plans.forEach(plan -> {
 				request.setTestPlanId(plan.getId());
 				TestPlanReportGenPreParam genPreParam = buildReportGenParam(request, plan, prepareReportId);
+				if (!manual) {
+					//不是手动保存的测试计划报告，不存储startTime
+					genPreParam.setStartTime(null);
+				}
 				genPreParam.setUseManual(manual);
                 //如果是测试计划的独立报告，使用参数中的预生成的报告id。否则只有测试计划组报告使用该id
                 String prepareItemReportId = isGroupReports ? IDGenerator.nextStr() : prepareReportId;
@@ -983,7 +987,6 @@ public class TestPlanReportService {
         return extTestPlanReportMapper.getPlanReportListById(request);
     }
 
-	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
 	public void updateExecuteTimeAndStatus(String prepareReportId) {
 		extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), Collections.singletonList(prepareReportId));
 	}
