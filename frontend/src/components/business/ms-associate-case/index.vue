@@ -41,7 +41,6 @@
               :popup-visible="selectVisible"
               class="w-[240px]"
               :default-value="innerProject"
-              allow-search
               :placeholder="t('common.pleaseSelect')"
               @popup-visible-change="changeProjectHandler"
             >
