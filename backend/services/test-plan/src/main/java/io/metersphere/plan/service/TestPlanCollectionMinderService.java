@@ -371,6 +371,9 @@ public class TestPlanCollectionMinderService {
         } else {
             testPlanCollection.setParentId(parent.getId());
         }
+        if (testPlanCollectionMinderEditDTO.getText().length()>255) {
+            testPlanCollectionMinderEditDTO.setText(testPlanCollectionMinderEditDTO.getText().substring(0,249));
+        }
         testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setType(testPlanCollectionMinderEditDTO.getType());
@@ -393,6 +396,9 @@ public class TestPlanCollectionMinderService {
             BeanUtils.copyBean(testPlanCollection, testPlanCollectionMinderEditDTO);
         }
         testPlanCollection.setParentId(parent.getId());
+        if (testPlanCollectionMinderEditDTO.getText().length()>255) {
+            testPlanCollectionMinderEditDTO.setText(testPlanCollectionMinderEditDTO.getText().substring(0,249));
+        }
         testPlanCollection.setName(testPlanCollectionMinderEditDTO.getText());
         testPlanCollection.setId(IDGenerator.nextStr());
         testPlanCollection.setTestPlanId(request.getPlanId());
