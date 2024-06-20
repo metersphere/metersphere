@@ -2,8 +2,6 @@ export default {
   'project.fileManagement.myFile': 'My files',
   'project.fileManagement.allFile': 'All files',
   'project.fileManagement.defaultFile': 'Default files',
-  'project.fileManagement.expandAll': 'Expand all submodules',
-  'project.fileManagement.collapseAll': 'Collapse all submodules',
   'project.fileManagement.addSubModule': 'Add submodule',
   'project.fileManagement.addStorage': 'Add repository',
   'project.fileManagement.rename': 'Rename',

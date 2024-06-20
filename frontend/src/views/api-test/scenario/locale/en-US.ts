@@ -230,8 +230,6 @@ export default {
   'apiScenario.quoteTreeNoData': 'No quotable data available, switch projects to retrieve data',
   'apiScenario.quoteTreeSearchTip': 'Enter module name to search',
   'apiScenario.quoteTableSearchTip': 'Search by path or name',
-  'apiScenario.collapseAll': 'Collapse All Submodules',
-  'apiScenario.expandAll': 'Expand All Submodules',
 
   'apiScenario.scriptOperationName': 'Script Operation Name',
   'apiScenario.scriptOperationNamePlaceholder': 'Please enter script operation name',

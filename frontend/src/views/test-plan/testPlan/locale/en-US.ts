@@ -4,8 +4,6 @@ export default {
   'testPlan.testPlanIndex.updateTestPlan': 'update test plan',
   'testPlan.testPlanIndex.copyTestPlan': 'copy test plan',
   'testPlan.testPlanIndex.allTestPlan': 'All test Plans',
-  'testPlan.testPlanIndex.collapseAll': 'Collapse all submodules',
-  'testPlan.testPlanIndex.expandAll': 'Expand all submodules',
   'testPlan.testPlanIndex.addSubModule': 'Add submodule',
   'testPlan.testPlanIndex.addGroupTip': 'Please enter the group name, press enter to save',
   'testPlan.testPlanIndex.planEmptyContent': 'No test plan data, please tap the button above to create or import',

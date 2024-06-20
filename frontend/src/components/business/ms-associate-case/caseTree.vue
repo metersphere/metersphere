@@ -17,7 +17,7 @@
       allow-clear
       :max-length="255"
     />
-    <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
+    <a-tooltip :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.common.expandAllSubModule')">
       <a-button
         type="outline"
         class="expand-btn arco-btn-outline--secondary"

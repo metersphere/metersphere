@@ -56,7 +56,7 @@
             allow-clear
             :max-length="255"
           />
-          <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('ms.comment.expandAllModule')">
+          <a-tooltip :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.expandAllSubModule')">
             <a-button
               type="outline"
               class="expand-btn arco-btn-outline--secondary"
@@ -76,7 +76,7 @@
           </div>
           <!-- <div class="ml-auto flex items-center">
             <a-tooltip
-              :content="isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')"
+              :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.expandAllSubModule')"
             >
               <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
                 <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />

@@ -17,9 +17,7 @@
               <div class="folder-count">({{ allFileCount }})</div>
             </div>
             <div class="ml-auto flex items-center">
-              <a-tooltip
-                :content="isExpandAll ? t('project.fileManagement.collapseAll') : t('project.fileManagement.expandAll')"
-              >
+              <a-tooltip :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.expandAllSubModule')">
                 <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
                   <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
                 </MsButton>

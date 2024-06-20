@@ -2,7 +2,7 @@
   <div>
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiScenario.quoteTreeSearchTip')" allow-clear />
-      <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('ms.comment.expandAllModule')">
+      <a-tooltip :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.expandAllSubModule')">
         <a-button
           type="outline"
           class="expand-btn arco-btn-outline--secondary"

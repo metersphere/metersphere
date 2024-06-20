@@ -4,8 +4,6 @@ export default {
   'testPlan.testPlanIndex.updateTestPlan': '更新测试计划',
   'testPlan.testPlanIndex.copyTestPlan': '复制测试计划',
   'testPlan.testPlanIndex.allTestPlan': '全部测试计划',
-  'testPlan.testPlanIndex.collapseAll': '收起全部子模块',
-  'testPlan.testPlanIndex.expandAll': '展开全部子模块',
   'testPlan.testPlanIndex.addSubModule': '添加子模块',
   'testPlan.testPlanIndex.addGroupTip': '请输入分组名称，按回车键保存',
   'testPlan.testPlanIndex.planEmptyContent': '暂无测试计划数据，请点击上方按钮创建或导入',

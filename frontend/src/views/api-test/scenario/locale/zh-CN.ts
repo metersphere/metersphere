@@ -228,8 +228,6 @@ export default {
   'apiScenario.quoteTreeSearchTip': '输入模块名称搜索',
   'apiScenario.quoteTableSearchTip': '通过路径或名称搜索',
   'apiScenario.quoteTableSearchTip2': '通过名称搜索',
-  'apiScenario.collapseAll': '收起全部子模块',
-  'apiScenario.expandAll': '展开全部子模块',
 
   'apiScenario.scriptOperationName': '脚本操作名称',
   'apiScenario.scriptOperationNamePlaceholder': '请输入脚本操作名称',

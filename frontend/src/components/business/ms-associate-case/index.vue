@@ -20,7 +20,8 @@
       >
         <div class="float-left">
           <a-input-group>
-            <a-select
+            <!-- TODO 这个版本不上 -->
+            <!-- <a-select
               v-model="functionalType"
               class="ml-2 w-[100px]"
               :default-value="innerProject"
@@ -34,12 +35,12 @@
                   {{ item.name }}
                 </a-option>
               </a-tooltip>
-            </a-select>
+            </a-select> -->
 
             <a-select
               v-model="innerProject"
               :popup-visible="selectVisible"
-              class="w-[240px]"
+              class="ml-2 w-[240px]"
               :default-value="innerProject"
               :placeholder="t('common.pleaseSelect')"
               @popup-visible-change="changeProjectHandler"
@@ -72,7 +73,8 @@
       </a-popconfirm>
       <div v-else class="float-left">
         <a-input-group>
-          <a-select
+          <!-- TODO 这个版本不上 -->
+          <!-- <a-select
             v-model="functionalType"
             class="ml-2 w-[100px]"
             :default-value="innerProject"
@@ -87,13 +89,13 @@
                 {{ item.name }}
               </a-option>
             </a-tooltip>
-          </a-select>
+          </a-select> -->
 
           <a-select
             id="typeRadioGroupRef"
             v-model:model-value="innerProject"
             :popup-visible="selectVisible"
-            class="w-[240px]"
+            class="ml-2 w-[240px]"
             :default-value="innerProject"
             allow-search
             :placeholder="t('common.pleaseSelect')"
@@ -415,10 +417,14 @@
     emit('close');
   }
 
-  async function initProjectList(setDefault: boolean) {
+  async function initProjectList() {
     try {
       projectList.value = await getAssociatedProjectOptions(appStore.currentOrgId, associationType.value);
-      if (setDefault) {
+      const hasProjectPermission = projectList.value.map((item) => item.id).includes(appStore.currentProjectId);
+      // 如果项目模块未开启则不选中它该项目
+      if (hasProjectPermission) {
+        innerProject.value = appStore.currentProjectId;
+      } else {
         innerProject.value = projectList.value[0].id;
       }
     } catch (error) {
@@ -508,8 +514,7 @@
     (val) => {
       if (val) {
         associationType.value = props.associatedType;
-        initProjectList(false);
-        innerProject.value = appStore.currentProjectId;
+        initProjectList();
       }
       selectPopVisible.value = false;
       keyword.value = '';
