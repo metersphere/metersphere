@@ -187,7 +187,7 @@ export interface DisassociateCaseParams {
 export interface BatchFeatureCaseParams extends BatchActionQueryParams {
   testPlanId: string;
   moduleIds?: string[];
-  projectId: string;
+  projectId?: string;
 }
 
 export interface ExecuteFeatureCaseFormParams {

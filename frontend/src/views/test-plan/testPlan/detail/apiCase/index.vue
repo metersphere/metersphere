@@ -18,6 +18,7 @@
         :tree-type="props.treeType"
         :modules-count="modulesCount"
         :module-name="moduleName"
+        :module-parent-id="moduleParentId"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :module-tree="moduleTree"
@@ -73,15 +74,17 @@
   const caseTableRef = ref<InstanceType<typeof CaseTable>>();
   const activeFolderId = ref<string>('all');
   const moduleName = ref<string>('');
+  const moduleParentId = ref<string>('');
   const offspringIds = ref<string[]>([]);
   const selectedKeys = computed({
     get: () => [activeFolderId.value],
     set: (val) => val,
   });
-  function handleFolderNodeSelect(ids: string[], _offspringIds: string[], name?: string) {
+  function handleFolderNodeSelect(ids: string[], _offspringIds: string[], name?: string, parentId?: string) {
     [activeFolderId.value] = ids;
     offspringIds.value = [..._offspringIds];
     moduleName.value = name ?? '';
+    moduleParentId.value = parentId ?? '';
     caseTableRef.value?.resetSelector();
   }
 

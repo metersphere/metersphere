@@ -183,6 +183,7 @@
   const props = defineProps<{
     modulesCount: Record<string, number>; // 模块数量统计对象
     moduleName: string;
+    moduleParentId: string;
     activeModule: string;
     offspringIds: string[];
     planId: string;
@@ -385,7 +386,6 @@
     const selectModules = await getModuleIds();
     const commonParams = {
       testPlanId: props.planId,
-      projectId: appStore.currentProjectId,
       ...(props.treeType === 'COLLECTION' ? { collectionId: collectionId.value } : { moduleIds: selectModules }),
     };
     if (isBatch) {
@@ -394,6 +394,7 @@
           keyword: keyword.value,
           filter: propsRes.value.filter,
         },
+        projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
         ...commonParams,
       };
     }
@@ -421,7 +422,10 @@
 
   async function loadCaseList(refreshTreeCount = true) {
     const tableParams = await getTableParams(false);
-    setLoadListParams(tableParams);
+    setLoadListParams({
+      ...tableParams,
+      projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
+    });
     loadList();
     if (refreshTreeCount) {
       emit('getModuleCount', {
