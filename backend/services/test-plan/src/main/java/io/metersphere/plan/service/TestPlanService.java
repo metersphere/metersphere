@@ -840,10 +840,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 groupStatus = TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY;
             }
         }
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andIdEqualTo(testPlanGroupId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         TestPlan updateGroupPlan = new TestPlan();
-        updateGroupPlan.setId(testPlanGroupId);
         updateGroupPlan.setStatus(groupStatus);
-        testPlanMapper.updateByPrimaryKeySelective(updateGroupPlan);
+        testPlanMapper.updateByExampleSelective(updateGroupPlan, testPlanExample);
         if (StringUtils.equalsIgnoreCase(updateGroupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)) {
             extTestPlanMapper.setActualEndTime(testPlanGroupId, System.currentTimeMillis());
         }
