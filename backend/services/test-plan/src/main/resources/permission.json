@@ -22,7 +22,7 @@
           },
           {
             "id": "PROJECT_TEST_PLAN:READ+ASSOCIATION",
-            "name": "permission.association"
+            "name": "permission.association_and_disassociation"
           },
           {
             "id": "PROJECT_TEST_PLAN:READ+EXECUTE"

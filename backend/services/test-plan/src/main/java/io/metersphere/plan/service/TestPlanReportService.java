@@ -521,7 +521,7 @@ public class TestPlanReportService {
 			// 计划组报告, 需要统计计划的执行数据
 			planReportDetail.setPlanCount(reportSummary.getPlanCount().intValue());
 			TestPlanReportExample reportExample = new TestPlanReportExample();
-			reportExample.createCriteria().andParentIdEqualTo(reportId);
+			reportExample.createCriteria().andParentIdEqualTo(reportId).andIntegratedEqualTo(false);
 			List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(reportExample);
 			long planPassCount = testPlanReports.stream().filter(report -> StringUtils.equals(ExecStatus.SUCCESS.name(), report.getResultStatus())).count();
 			planReportDetail.setPassCountOfPlan((int) planPassCount);
