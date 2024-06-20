@@ -573,6 +573,7 @@
   function toDetail(record: PlanDetailApiScenarioItem) {
     openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
       id: record.apiScenarioId,
+      pId: record.projectId,
     });
   }
 
