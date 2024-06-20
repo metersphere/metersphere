@@ -191,4 +191,6 @@ export default {
   'common.stopped': 'Stopped',
   'common.config': 'Config',
   'common.executionResult': 'Execution result',
+  'common.expandAllSubModule': 'Expand all submodules',
+  'common.collapseAllSubModule': 'Collapse all submodules',
 };

@@ -7,5 +7,4 @@ export default {
   'ms.comment.deleteConfirm': 'Are you sure you want to delete this comment?',
   'ms.comment.deleteContent': 'After deletion, the comment cannot be replied to. Please proceed with caution.',
   'ms.comment.enterPlaceHolderTip': 'Please enter a comment and press  ⌘ + Enter to finish.',
-  'ms.comment.expandAllModule': 'Expand all submodules',
 };

@@ -33,7 +33,7 @@
               allow-clear
               :max-length="255"
             ></a-input>
-            <a-tooltip :content="isExpandAll ? t('apiScenario.collapseAll') : t('ms.comment.expandAllModule')">
+            <a-tooltip :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.expandAllSubModule')">
               <a-button
                 type="outline"
                 class="expand-btn arco-btn-outline--secondary"

@@ -191,4 +191,6 @@ export default {
   'common.name': '名称',
   'common.stopped': '已停止',
   'common.config': '配置',
+  'common.expandAllSubModule': '展开全部子模块',
+  'common.collapseAllSubModule': '收起全部子模块',
 };

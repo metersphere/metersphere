@@ -2,8 +2,6 @@ export default {
   'project.fileManagement.myFile': '我的文件',
   'project.fileManagement.allFile': '全部文件',
   'project.fileManagement.defaultFile': '默认文件',
-  'project.fileManagement.expandAll': '展开全部子模块',
-  'project.fileManagement.collapseAll': '收起全部子模块',
   'project.fileManagement.addSubModule': '添加子模块',
   'project.fileManagement.addStorage': '添加存储库',
   'project.fileManagement.rename': '重命名',
