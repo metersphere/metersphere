@@ -193,6 +193,7 @@
       excludeIds: [...excludeKeys],
       condition: {
         keyword: props.keyword,
+        filter: propsRes.value.filter,
       },
       ...props.extraTableParams,
     };

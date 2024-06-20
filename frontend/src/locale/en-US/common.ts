@@ -166,6 +166,7 @@ export default {
   'common.resourceDeleted': 'Resource has been deleted',
   'common.resourceExpired': 'Link has failed, please get it again',
   'common.refresh': 'Refresh',
+  'common.searchByIdName': 'Search by ID or name',
   'common.searchByNameAndId': 'Search by ID, name, or tag',
   'common.archive': 'archive',
   'common.running': 'Running',

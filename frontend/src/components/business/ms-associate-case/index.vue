@@ -136,7 +136,7 @@
           :filter-config-list="[]"
           :custom-fields-config-list="[]"
           :row-count="0"
-          :search-placeholder="t('ms.case.associate.searchPlaceholder')"
+          :search-placeholder="t('common.searchByIdName')"
           @keyword-search="loadCaseList"
           @adv-search="loadCaseList"
           @refresh="loadCaseList"
@@ -528,13 +528,6 @@
       if (val) {
         selectedIds.value = [];
       }
-    }
-  );
-
-  watch(
-    () => innerProject.value,
-    (val) => {
-      innerProject.value = val;
     }
   );
 </script>
