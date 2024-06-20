@@ -179,6 +179,21 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         caseChangeRequests.add(caseChangeRequest);
 
         caseChangeRequest = new FunctionalCaseChangeRequest();
+        caseChangeRequest.setId("123dd44dd");
+        caseChangeRequest.setName("对很多司机凤凰师傅节点师傅叫可视电话国际快递符合国际快递发货根据客户个人空间规划人口结构和空间和光可鉴人规划股好方式打开房间好的师傅即可获得师傅叫好的师傅好sad个好师傅和师傅黑色粉丝互粉晚对很多司机凤凰师傅节点师傅叫可视电话国际快递符合国际快递发货根据客户个人空间规划人口结构和空间和光可鉴人规划股好方式打开房间好的师傅即可获得师傅叫好的师傅好sad个好师傅和师傅黑色粉丝互粉晚饭还未发觉饿而gui额外的红包v味道规划为v风格和v晚饭过后v微风个v的师傅v的师傅黄金时代v分饭还未发觉饿而gui额外的红包v味道规划为v风格和v晚饭过后v微风个v的师傅v的师傅黄金时代v分");
+        caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ2");
+        caseChangeRequest.setMoveMode("AFTER");
+        caseChangeRequest.setPriority(3);
+        caseChangeRequest.setTargetId("TEST_FUNCTIONAL_MINDER_CASE_ID_3");
+        caseChangeRequest.setTemplateId("100001");
+        caseChangeRequest.setType("ADD");
+        caseChangeRequest.setPrerequisite("前置条件");
+        caseChangeRequest.setCaseEditType("TEXT");
+        customFields = new ArrayList<>();
+        caseChangeRequest.setCustomFields(customFields);
+        caseChangeRequests.add(caseChangeRequest);
+
+        caseChangeRequest = new FunctionalCaseChangeRequest();
         caseChangeRequest.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_1");
         caseChangeRequest.setName("TEST_MINDER_MODULE_ID_GYQ_更新");
         caseChangeRequest.setModuleId("TEST_MINDER_MODULE_ID_GYQ");

@@ -7,6 +7,48 @@ update functional_case set last_execute_result = 'SUCCESS' where last_execute_re
 update functional_case set last_execute_result = 'ERROR' where last_execute_result = 'FAILED';
 update functional_case set last_execute_result = 'PENDING' where last_execute_result = 'SKIPPED';
 
+
+DELIMITER //
+
+CREATE PROCEDURE insert_into_message()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE a_id VARCHAR(50);
+    DECLARE cur CURSOR FOR
+SELECT id
+FROM project
+WHERE project.id != '100001100001';
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+OPEN cur;
+
+read_loop: LOOP
+        FETCH cur INTO a_id;
+        IF done THEN
+            LEAVE read_loop;
+END IF;
+
+        -- 插入到表B中
+        SET @robot_in_site_id  = (select id as robotId from project_robot where project_id = a_id limit 1);
+
+        SET @test_plan_task_report_id = UUID_SHORT();
+INSERT INTO message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES (@test_plan_task_report_id, 'DELETE', '["CREATE_USER"]', @robot_in_site_id, 'TEST_PLAN_REPORT_TASK', 'NONE', a_id, true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.test_plan_report_task_delete');
+INSERT INTO message_task_blob(id, template)
+VALUES (@test_plan_task_report_id, 'message.test_plan_report_task_delete');
+
+END LOOP;
+
+CLOSE cur;
+END//
+
+DELIMITER ;
+CALL insert_into_message();
+DROP PROCEDURE IF EXISTS insert_into_message;
+
+
+
 -- 初始化计划相关的权限 (删除V3.0.0_11_1测试计划模块相关的权限, 重新初始化, 模块树不单独拥有权限)
 delete from user_role_permission where permission_id like 'PROJECT_TEST_PLAN_MODULE%' or permission_id like 'PROJECT_TEST_PLAN%';
 -- 项目管理员(测试计划相关的权限)
