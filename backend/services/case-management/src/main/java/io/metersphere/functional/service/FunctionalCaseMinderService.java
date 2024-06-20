@@ -779,6 +779,9 @@ public class FunctionalCaseMinderService {
     private MindAdditionalNode updateNode(String userId, MindAdditionalNodeRequest mindAdditionalNodeRequest, MindAdditionalNodeMapper mindAdditionalNodeMapper) {
         MindAdditionalNode mindAdditionalNode = new MindAdditionalNode();
         mindAdditionalNode.setId(mindAdditionalNodeRequest.getId());
+        if (mindAdditionalNodeRequest.getName().length()>255) {
+            mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0,249));
+        }
         mindAdditionalNode.setName(mindAdditionalNodeRequest.getName());
         mindAdditionalNode.setParentId(mindAdditionalNodeRequest.getParentId());
         mindAdditionalNode.setUpdateTime(System.currentTimeMillis());
@@ -791,6 +794,9 @@ public class FunctionalCaseMinderService {
     private MindAdditionalNode buildNode(FunctionalCaseMinderEditRequest request, String userId, MindAdditionalNodeRequest mindAdditionalNodeRequest, MindAdditionalNodeMapper additionalNodeMapper) {
         MindAdditionalNode mindAdditionalNode = new MindAdditionalNode();
         mindAdditionalNode.setId(IDGenerator.nextStr());
+        if (mindAdditionalNodeRequest.getName().length()>255) {
+            mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0,249));
+        }
         mindAdditionalNode.setName(mindAdditionalNodeRequest.getName());
         mindAdditionalNode.setParentId(mindAdditionalNodeRequest.getParentId());
         mindAdditionalNode.setProjectId(request.getProjectId());
@@ -813,7 +819,7 @@ public class FunctionalCaseMinderService {
             if (CollectionUtils.isNotEmpty(addList)) {
                 List<FunctionalCaseModule> modules = new ArrayList<>();
                 //查出已存在同层级的节点
-                Map<String, List<FunctionalCaseModule>> parentIdInDBMap = getParentIdInDBMap(addList);
+                Map<String, List<FunctionalCaseModule>> parentIdInDBMap = getParentIdInDBMap(addList,request.getProjectId());
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : addList) {
                     FunctionalCaseModule functionalCaseModule = buildModule(request, userId, functionalCaseModuleEditRequest);
                     modules.add(functionalCaseModule);
@@ -832,7 +838,7 @@ public class FunctionalCaseMinderService {
             List<FunctionalCaseModuleEditRequest> updateList = resourceMap.get(OperationLogType.UPDATE.toString());
             if (CollectionUtils.isNotEmpty(updateList)) {
                 List<FunctionalCaseModule> modules = new ArrayList<>();
-                Map<String, List<FunctionalCaseModule>> parentIdInDBMap = getParentIdInDBMap(updateList);
+                Map<String, List<FunctionalCaseModule>> parentIdInDBMap = getParentIdInDBMap(updateList, request.getProjectId());
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : updateList) {
                     FunctionalCaseModule updateModule = updateModule(userId, functionalCaseModuleEditRequest);
                     modules.add(updateModule);
@@ -843,7 +849,7 @@ public class FunctionalCaseMinderService {
                         module.setParentId(sourceIdAndInsertIdMap.get(module.getParentId()));
                     }
                     checkModules(module, parentIdInDBMap, OperationLogType.UPDATE.toString());
-                    moduleMapper.updateByPrimaryKeySelective(module);
+                     moduleMapper.updateByPrimaryKeySelective(module);
                 }
             }
         }
@@ -856,10 +862,10 @@ public class FunctionalCaseMinderService {
     }
 
     @NotNull
-    private Map<String, List<FunctionalCaseModule>> getParentIdInDBMap(List<FunctionalCaseModuleEditRequest> functionalCaseModuleEditRequests) {
+    private Map<String, List<FunctionalCaseModule>> getParentIdInDBMap(List<FunctionalCaseModuleEditRequest> functionalCaseModuleEditRequests, String projectId) {
         List<String> parentIds = functionalCaseModuleEditRequests.stream().map(FunctionalCaseModuleEditRequest::getParentId).toList();
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
-        functionalCaseModuleExample.createCriteria().andParentIdIn(parentIds);
+        functionalCaseModuleExample.createCriteria().andParentIdIn(parentIds).andProjectIdEqualTo(projectId);
         List<FunctionalCaseModule> sameParentListInDB = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
         return sameParentListInDB.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getParentId));
     }
@@ -963,6 +969,9 @@ public class FunctionalCaseMinderService {
     private FunctionalCaseModule buildModule(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest) {
         FunctionalCaseModule functionalCaseModule = new FunctionalCaseModule();
         functionalCaseModule.setId(IDGenerator.nextStr());
+        if (functionalCaseModuleEditRequest.getName().length()>255) {
+            functionalCaseModuleEditRequest.setName(functionalCaseModuleEditRequest.getName().substring(0,249));
+        }
         functionalCaseModule.setName(functionalCaseModuleEditRequest.getName());
         functionalCaseModule.setParentId(functionalCaseModuleEditRequest.getParentId());
         functionalCaseModule.setProjectId(request.getProjectId());
@@ -978,6 +987,9 @@ public class FunctionalCaseMinderService {
     private FunctionalCaseModule updateModule(String userId, FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest) {
         FunctionalCaseModule updateModule = new FunctionalCaseModule();
         updateModule.setId(functionalCaseModuleEditRequest.getId());
+        if (functionalCaseModuleEditRequest.getName().length()>255) {
+            functionalCaseModuleEditRequest.setName(functionalCaseModuleEditRequest.getName().substring(0,249));
+        }
         updateModule.setName(functionalCaseModuleEditRequest.getName());
         updateModule.setParentId(functionalCaseModuleEditRequest.getParentId());
         updateModule.setUpdateTime(System.currentTimeMillis());
@@ -990,6 +1002,9 @@ public class FunctionalCaseMinderService {
     private FunctionalCase updateCase(FunctionalCaseChangeRequest request, String userId, FunctionalCaseMapper caseMapper) {
         FunctionalCase functionalCase = new FunctionalCase();
         BeanUtils.copyBean(functionalCase, request);
+        if (functionalCase.getName().length()>255) {
+            functionalCase.setName(functionalCase.getName().substring(0,249));
+        }
         functionalCase.setUpdateUser(userId);
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCase.setCreateUser(null);
@@ -1112,6 +1127,9 @@ public class FunctionalCaseMinderService {
         if (StringUtils.isNotBlank(sourceIdAndInsertModuleIdMap.get(functionalCaseChangeRequest.getModuleId()))) {
             functionalCase.setModuleId(sourceIdAndInsertModuleIdMap.get(functionalCaseChangeRequest.getModuleId()));
         }
+        if (functionalCase.getName().length()>255) {
+            functionalCase.setName(functionalCase.getName().substring(0,249));
+        }
         functionalCase.setProjectId(request.getProjectId());
         functionalCase.setVersionId(request.getVersionId());
         functionalCase.setNum(functionalCaseService.getNextNum(request.getProjectId()));
@@ -1153,7 +1171,7 @@ public class FunctionalCaseMinderService {
             }
             List<MinderOptionDTO> additionalOptionDTOS = resourceMap.get(ModuleConstants.ROOT_NODE_PARENT_ID);
             if (CollectionUtils.isNotEmpty(additionalOptionDTOS)) {
-                List<String> mindAdditionalNodeIds = caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+                List<String> mindAdditionalNodeIds = additionalOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
                 dealMindAdditionalMode(mindAdditionalNodeIds, mindAdditionalNodeMapper);
             }
         }
