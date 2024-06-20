@@ -8,7 +8,6 @@
       moreAction: [],
     }"
     v-on="propsEvent"
-    @filter-change="getModuleCount"
   >
     <template #num="{ record }">
       <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -238,24 +237,11 @@
       excludeIds: [...excludeKeys],
       condition: {
         keyword: props.keyword,
+        filter: propsRes.value.filter,
       },
       protocols: props.protocols,
       ...props.extraTableParams,
     };
-  }
-
-  async function getModuleCount() {
-    if (props.associatedIds && props.associatedIds.length) {
-      props.associatedIds.forEach((hasNotAssociatedId) => {
-        setTableSelected(hasNotAssociatedId);
-      });
-    }
-    const tableParams = await getTableParams();
-    emit('getModuleCount', {
-      ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    });
   }
 
   async function loadCaseList() {
@@ -267,11 +253,6 @@
     const tableParams = await getTableParams();
     setLoadListParams(tableParams);
     loadList();
-    emit('getModuleCount', {
-      ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    });
   }
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
