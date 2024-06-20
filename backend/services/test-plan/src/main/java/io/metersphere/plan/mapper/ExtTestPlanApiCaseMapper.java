@@ -60,13 +60,13 @@ public interface ExtTestPlanApiCaseMapper {
 
     Long getMaxPosByCollectionId(String collectionId);
 
-	/**
-	 * 获取计划下的功能用例集合
-	 *
-	 * @param planIds 测试计划ID集合
-	 * @return 计划功能用例集合
-	 */
-	List<TestPlanApiCase> getPlanApiCaseByIds(@Param("planIds") List<String> planIds);
+    /**
+     * 获取计划下的功能用例集合
+     *
+     * @param planIds 测试计划ID集合
+     * @return 计划功能用例集合
+     */
+    List<TestPlanApiCase> getPlanApiCaseByIds(@Param("planIds") List<String> planIds);
 
     List<TestPlanApiCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
 

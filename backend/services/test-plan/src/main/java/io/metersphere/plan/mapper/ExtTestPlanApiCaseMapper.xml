@@ -451,6 +451,9 @@
         <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
             and atc.api_definition_id = #{request.apiDefinitionId}
         </if>
+        <if test="request.projectId != null and request.projectId!=''">
+            and atc.project_id = #{request.projectId}
+        </if>
         <if test="request.keyword != null and request.keyword !=''">
             and (
             atc.name like concat('%', #{request.keyword},'%')
@@ -462,7 +465,14 @@
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and a.module_id in
             <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                #{nodeId}
+                <choose>
+                    <when test="nodeId.contains('_root')">
+                        'root'
+                    </when>
+                    <otherwise>
+                        #{nodeId}
+                    </otherwise>
+                </choose>
             </foreach>
         </if>
         <if test="request.collectionId != null and request.collectionId != ''">
@@ -540,7 +550,8 @@
     </sql>
 
     <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT a.module_id AS moduleId, count(atc.id) AS dataCount, atc.project_id AS projectId, project.name AS projectName
+        SELECT CASE WHEN a.module_id = 'root' THEN CONCAT(atc.project_id, '_', a.module_id) ELSE a.module_id END AS moduleId,
+               count(atc.id) AS dataCount, atc.project_id AS projectId, project.name AS projectName
         FROM test_plan_api_case t
         INNER JOIN api_test_case atc ON t.api_case_id = atc.id
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
@@ -548,7 +559,7 @@
         WHERE t.test_plan_id = #{request.testPlanId}
         AND atc.deleted = #{deleted}
         <include refid="queryApiCaseWhereCondition"/>
-        GROUP BY module_id
+        GROUP BY moduleId
     </select>
 
     <select id="selectIdByProjectIdAndTestPlanId" resultType="java.lang.String">
@@ -577,7 +588,7 @@
                  LEFT JOIN project p ON atc.project_id = p.id
                  LEFT JOIN api_definition a on atc.api_definition_id = a.id
         WHERE tpac.test_plan_id = #{testPlanId}
-          AND atc.deleted = false AND a.module_id = 'root'
+          AND atc.deleted = false
         ORDER BY atc.pos
     </select>
 
