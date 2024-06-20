@@ -453,7 +453,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/plan-test-report-id");
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_REPORT_READ, "/report/get/plan-test-report-id");
 
         List<ApiReportDetail> reportsDetail = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -471,7 +471,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
         this.requestGetWithOk("/report/get/detail/plan-test-report-id" + "/" + "plan-test-report-step-id1")
                 .andReturn();
-        requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, "/report/get/detail/plan-test-report-id" + "/" + "plan-test-report-step-id1");
+        requestGetPermissionTest(PermissionConstants.TEST_PLAN_REPORT_READ, "/report/get/detail/plan-test-report-id" + "/" + "plan-test-report-step-id1");
     }
 
     @Test

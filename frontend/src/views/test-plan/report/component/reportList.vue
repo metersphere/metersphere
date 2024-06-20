@@ -45,8 +45,8 @@
         <MsTag theme="light" :type="record.integrated ? 'primary' : undefined">
           {{
             record.integrated
-              ? t('report.detail.testPlanGroup.testGroupReport')
-              : t('report.detail.testPlanGroup.testReport')
+              ? t('report.detail.testPlanGroupReport')
+              : t('report.detail.testReport')
           }}
         </MsTag>
       </template>

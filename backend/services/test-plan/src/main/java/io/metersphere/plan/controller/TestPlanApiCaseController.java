@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.service.definition.ApiReportService;
-import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -148,7 +147,7 @@ public class TestPlanApiCaseController {
     @GetMapping("/report/get/{id}")
     @Operation(summary = "测试计划-用例列表-执行结果获取")
     @CheckOwner(resourceId = "#id", resourceType = "api_report")
-    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_REPORT_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     public ApiReportDTO get(@PathVariable String id) {
         testPlanApiCaseService.checkReportIsTestPlan(id);
         return apiReportService.get(id);
@@ -157,7 +156,7 @@ public class TestPlanApiCaseController {
     @GetMapping("/report/get/detail/{reportId}/{stepId}")
     @Operation(summary = "测试计划-用例列表-执行结果获取-报告详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_report")
-    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_READ, PermissionConstants.TEST_PLAN_REPORT_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     public List<ApiReportDetailDTO> getDetail(@PathVariable String reportId,
                                               @PathVariable String stepId) {
         testPlanApiCaseService.checkReportIsTestPlan(reportId);
