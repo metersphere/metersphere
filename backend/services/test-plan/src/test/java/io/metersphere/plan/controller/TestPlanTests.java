@@ -1108,6 +1108,8 @@ public class TestPlanTests extends BaseTest {
 
         //修改标签
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
+        updateRequest.setTags(new LinkedHashSet<>());
+        this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         updateRequest.setTags(new LinkedHashSet<>(Arrays.asList("tag1", "tag2", "tag3", "tag3")));
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
@@ -1121,6 +1123,7 @@ public class TestPlanTests extends BaseTest {
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setPlannedStartTime(System.currentTimeMillis());
         updateRequest.setPlannedEndTime(updateRequest.getPlannedStartTime() - 10000);
+        updateRequest.setTags(new LinkedHashSet<>(testPlan.getTags()));
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -1132,6 +1135,7 @@ public class TestPlanTests extends BaseTest {
         //修改描述
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setDescription("This is desc");
+        updateRequest.setTags(new LinkedHashSet<>(testPlan.getTags()));
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -1145,6 +1149,7 @@ public class TestPlanTests extends BaseTest {
         updateRequest.setAutomaticStatusUpdate(true);
         updateRequest.setRepeatCase(true);
         updateRequest.setPassThreshold(43.12);
+        updateRequest.setTags(new LinkedHashSet<>(testPlan.getTags()));
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -1156,6 +1161,7 @@ public class TestPlanTests extends BaseTest {
         updateRequest.setAutomaticStatusUpdate(false);
         updateRequest.setRepeatCase(false);
         updateRequest.setPassThreshold(56.47);
+        updateRequest.setTags(new LinkedHashSet<>(testPlan.getTags()));
         mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         returnStr = mvcResult.getResponse().getContentAsString();
         holder = JSON.parseObject(returnStr, ResultHolder.class);

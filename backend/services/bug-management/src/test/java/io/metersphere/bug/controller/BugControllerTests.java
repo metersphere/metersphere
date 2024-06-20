@@ -836,7 +836,7 @@ public class BugControllerTests extends BaseTest {
             handleUserField.setId("assignee");
             handleUserField.setName("处理人");
             handleUserField.setType("select");
-            handleUserField.setValue("60f68f7952162b0068de6a2d");
+            handleUserField.setValue("5f44bb528d89e300469effed");
             BugCustomFieldDTO statusField = new BugCustomFieldDTO();
             statusField.setId("status");
             statusField.setName("状态");

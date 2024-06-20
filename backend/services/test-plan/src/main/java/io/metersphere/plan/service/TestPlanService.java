@@ -367,6 +367,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             }
             if (CollectionUtils.isNotEmpty(request.getTags())) {
                 updateTestPlan.setTags(new ArrayList<>(request.getTags()));
+            } else {
+                updateTestPlan.setTags(new ArrayList<>());
             }
             updateTestPlan.setPlannedStartTime(request.getPlannedStartTime());
             updateTestPlan.setPlannedEndTime(request.getPlannedEndTime());
