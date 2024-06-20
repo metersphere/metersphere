@@ -43,6 +43,7 @@
     "@form-create/arco-design": "^3.1.23",
     "@halo-dev/richtext-editor": "0.0.0-alpha.33",
     "@tanstack/vue-query": "^5.17.15",
+    "@tiptap/extension-character-count": "^2.4.0",
     "@tiptap/extension-image": "^2.1.15",
     "@tiptap/extension-mention": "^2.1.13",
     "@tiptap/suggestion": "^2.1.13",
