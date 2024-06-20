@@ -1,7 +1,7 @@
 export default {
   'organization.member.addMember': 'Add Member',
   'organization.member.updateMember': 'Update Member（{name}）',
-  'organization.member.searchMember': 'Search by name or email address or phone',
+  'organization.member.searchMember': 'Search by name/email/phone',
   'organization.member.remove': 'Remove',
   'organization.member.edit': 'Edit',
   'organization.member.batchActionAddProject': 'Add to project',

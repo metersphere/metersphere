@@ -4,7 +4,7 @@ export default {
   'ms.personal.baseInfo': 'Basic Information',
   'ms.personal.setPsw': 'Password settings',
   'ms.personal.setting': 'Personal settings',
-  'ms.personal.apiKey': 'APIKEY',
+  'ms.personal.apiKey': 'API KEY',
   'ms.personal.tripartite': 'Tripartite account',
   'ms.personal.changeAvatar': 'Change avatar',
   'ms.personal.name': 'User name',
@@ -28,7 +28,7 @@ export default {
   'ms.personal.changePswTip': 'After changing the password, you need to use the new password to log in to the system',
   'ms.personal.updatePswSuccess':
     'The password has been modified successfully and will automatically log out in {count} seconds. Please log in with the new password.',
-  'ms.personal.apiKeyTip': 'The MeterSphere API is accessible through the APIKEY',
+  'ms.personal.apiKeyTip': 'The MeterSphere API is accessible through the API KEY',
   'ms.personal.expireTime': 'Expiration',
   'ms.personal.expired': 'Expired',
   'ms.personal.expiredTip': 'The expiration time can be changed in [Settings]',
@@ -36,7 +36,7 @@ export default {
   'ms.personal.setValidTime': 'Set effective time',
   'ms.personal.createTime': 'Created time',
   'ms.personal.copySuccess': 'Copied successfully',
-  'ms.personal.maxTip': 'Up to 5 APIKEYs can be added',
+  'ms.personal.maxTip': 'Up to 5 API KEYs can be added',
   'ms.personal.confirmClose': 'Confirm to close?',
   'ms.personal.closeTip':
     'After closing, the test tasks executed using the Access Key will fail. Please operate with caution!',

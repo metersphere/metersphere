@@ -48,6 +48,7 @@
     tagProps,
     viewMenuProps,
   } from './props';
+  import { isNodeInMinderView } from './script/tool/utils';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;
@@ -97,9 +98,13 @@
     (val) => {
       const node: MinderJsonNode = window.minder.getSelectedNode();
       if (val && node) {
-        setTimeout(() => {
-          window.minder.execCommand('camera', node, 100);
-        }, 100);
+        const nodePosition = node?.getRenderBox();
+        // 如果节点不在视图中，将节点移动到视图中
+        if (nodePosition && !isNodeInMinderView(undefined, nodePosition, nodePosition.width / 2)) {
+          setTimeout(() => {
+            window.minder.execCommand('camera', node, 100);
+          }, 300); // 抽屉动画 300ms
+        }
       }
     }
   );

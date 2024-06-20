@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-4 grid grid-cols-4 gap-2">
+    <div class="mb-[16px] grid grid-cols-4 gap-2">
       <div class="col-span-2">
         <a-button v-permission="['PROJECT_USER:READ+ADD']" class="mr-3" type="primary" @click="addMember">
           {{ t('project.member.addMember') }}

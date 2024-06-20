@@ -99,7 +99,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { mapTree } from '@/utils';
+  import { mapTree, traverseTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
@@ -386,12 +386,9 @@
   watch(
     () => props.modulesCount,
     (obj) => {
-      caseTree.value = mapTree<ModuleTreeNode>(caseTree.value, (node) => {
-        return {
-          ...node,
-          hideMoreAction: node.id === 'root' || props.isModal,
-          count: obj?.[node.id] || 0,
-        };
+      traverseTree(caseTree.value, (node) => {
+        node.count = obj?.[node.id] || 0;
+        node.hideMoreAction = node.id === 'root' || props.isModal;
       });
     }
   );

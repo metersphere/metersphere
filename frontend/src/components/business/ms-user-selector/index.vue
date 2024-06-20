@@ -26,11 +26,7 @@
 
   import MsSelect from '@/components/business/ms-select/index';
 
-  import { useUserStore } from '@/store';
-
   import initOptionsFunc, { UserRequestTypeEnum } from './utils';
-
-  const userStore = useUserStore();
 
   defineOptions({ name: 'MsUserSelector' });
 
@@ -99,7 +95,7 @@
   };
   const optionLabelRender = (option: SelectOptionData) => {
     if (option.email !== '') {
-      return `<span class='text-[var(--color-text-1)]'>${option.name}</span><span class='text-[var(--color-text-4)] ml-[4px]'>(${option.email})</span>`;
+      return `<span class='text-[var(--color-text-1)]'>${option.name}</span><span class='text-[var(--color-text-4)] ml-[4px]'>（${option.email}）</span>`;
     }
     return `<span class='text-[var(--color-text-1)]'>${option.name}</span>`;
   };

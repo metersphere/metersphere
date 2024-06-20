@@ -239,6 +239,7 @@
                 v-model:params="requestVModel.body"
                 :disabled-param-value="!isEditableApi && !isEditableParamValue"
                 :disabled-except-param="!isEditableApi"
+                :disabled-body-type="!isEditableApi"
                 :upload-temp-file-api="uploadTempFile"
                 :file-save-as-source-id="props.step?.id"
                 :file-save-as-api="stepTransferFile"

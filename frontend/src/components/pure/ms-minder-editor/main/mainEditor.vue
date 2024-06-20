@@ -12,7 +12,12 @@
         </a-breadcrumb-item>
       </a-breadcrumb>
     </div>
-    <nodeFloatMenu v-if="props.canShowFloatMenu" v-bind="props" @close="emit('floatMenuClose')">
+    <nodeFloatMenu
+      v-if="props.canShowFloatMenu"
+      v-bind="props"
+      v-model:visible="floatMenuVisible"
+      @close="emit('floatMenuClose')"
+    >
       <template #extractMenu>
         <slot name="extractMenu"></slot>
       </template>
@@ -21,13 +26,15 @@
 </template>
 
 <script lang="ts" name="minderContainer" setup>
+  import { cloneDeep } from 'lodash-es';
+
   import nodeFloatMenu from '../menu/nodeFloatMenu.vue';
   import minderHeader from './header.vue';
   import Navigator from './navigator.vue';
 
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useMinderStore from '@/store/modules/components/minder-editor';
-  import { findNodePathByKey, replaceNodeInTree } from '@/utils';
+  import { findNodePathByKey, mapTree, replaceNodeInTree } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
@@ -139,9 +146,6 @@
     });
   });
 
-  const menuVisible = ref(false);
-  const menuPopupOffset = ref([0, 0]);
-
   function getCurrentTreePath() {
     if (innerImportJson.value.root.id === 'NONE' || innerImportJson.value.treePath?.length <= 1) {
       return [];
@@ -176,11 +180,14 @@
     const root: MinderJsonNode = window.minder.getRoot();
     window.minder.toggleSelect(root); // 先取消选中
     window.minder.select(root); // 再选中，才能触发选中变化事件
+    window.minder.execCommand('ExpandToLevel', 1);
     currentTreePath.value = getCurrentTreePath();
     setTimeout(() => {
       window.minder.execCommand('camera', root);
     }, 100); // TODO:暂未知渲染时机，临时延迟解决
   }
+
+  const floatMenuVisible = ref(false);
 
   function save() {
     let data = importJson.value;
@@ -193,25 +200,33 @@
         'id'
       );
     } else {
-      data = window.minder.exportJson();
+      const fullJson = window.minder.exportJson();
+      data = cloneDeep(fullJson);
+      importJson.value = fullJson;
     }
     emit('save', data, () => {
+      importJson.value.root.children = mapTree<MinderJsonNode>(importJson.value.root.children || [], (node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isNew: false,
+          changed: false,
+        },
+      }));
+      if (innerImportJson.value.treePath?.length > 1) {
+        switchNode(innerImportJson.value.root.data);
+      } else {
+        innerImportJson.value = importJson.value;
+        window.minder.importJson(importJson.value);
+      }
       minderStore.setMinderUnsaved(false);
-      menuVisible.value = false;
+      floatMenuVisible.value = false;
     });
   }
 
   watch(
     () => minderStore.event.eventId,
     () => {
-      if (minderStore.event.name === MinderEventName.HOTBOX && minderStore.event.nodePosition) {
-        const nodeDomWidth = minderStore.event.nodeDom?.getBoundingClientRect().width || 0;
-        menuPopupOffset.value = [
-          minderStore.event.nodePosition.x + nodeDomWidth / 2,
-          minderStore.event.nodePosition.y - nodeDomWidth / 4,
-        ];
-        menuVisible.value = true;
-      }
       if (minderStore.event.name === MinderEventName.ENTER_NODE && minderStore.event.nodes) {
         switchNode(minderStore.event.nodes[0]);
       }

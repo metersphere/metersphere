@@ -615,7 +615,10 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
       }
       if ([stepTag, textDescTag].some((tag) => node.data?.resource?.includes(tag))) {
         // 用例下的文本描述和步骤描述节点
-        if (node.data?.resource?.includes(stepExpectTag)) {
+        if (
+          node.children?.length === 0 &&
+          minderStore.clipboard.every((e) => e.data?.resource?.includes(stepExpectTag))
+        ) {
           // 粘贴的是期望结果节点
           return false;
         }

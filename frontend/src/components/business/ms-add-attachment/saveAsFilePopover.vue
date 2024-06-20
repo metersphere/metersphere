@@ -12,7 +12,7 @@
       }
     "
   >
-    <span class="mx-[2px]"></span>
+    <span class="mx-[2px]"><slot></slot></span>
     <template #content>
       <div class="flex flex-col gap-[16px] text-[14px]">
         <div class="font-semibold text-[var(--color-text-1)]">
@@ -68,7 +68,6 @@
 
   const props = withDefaults(
     defineProps<{
-      visible: boolean;
       savingFile?: MsFileItem;
       fileSaveAsSourceId: string | number;
       sourceIdKey?: string; // 资源id对应key
@@ -89,7 +88,7 @@
   const { t } = useI18n();
 
   const saveFilePopoverVisible = defineModel<boolean>('visible', {
-    required: true,
+    default: false,
   });
   const saveFileForm = ref({
     name: '',

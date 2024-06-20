@@ -2,7 +2,7 @@ export default {
   'system.user.createUser': 'Create User',
   'system.user.emailInvite': 'Email Invite',
   'system.user.importUser': 'Import User',
-  'system.user.searchUser': 'Search by name or email or phone',
+  'system.user.searchUser': 'Search by name/email/phone',
   'system.user.editUser': 'Edit',
   'system.user.resetPassword': 'Reset PSW',
   'system.user.disable': 'Disable',
