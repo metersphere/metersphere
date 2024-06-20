@@ -81,7 +81,10 @@
     }
     const { height } = useWindowSize();
     appStore.innerHeight = height.value;
-    userStore.initLocalConfig(); // 获取本地执行配置
+    if (userStore.id) {
+      userStore.initLocalConfig(); // 获取本地执行配置
+    }
+
     // @desc: TODO待优化主要是为了拿到初始化配置的项目模块方便接下来过滤菜单权限 解决刷新菜单空白问题
     appStore.getProjectInfos();
   });
