@@ -458,7 +458,8 @@ export default function useTableProps<T>(
         // 清空选中项
         resetSelector(false);
       } else if (v === SelectAllEnum.CURRENT) {
-        // 选中当前页面所有数据
+        // 先清空选中项选，当再选中当前页面所有数据,
+        propsRes.value.selectedKeys.clear();
         collectIds(data as MsTableDataItem<T>[], rowKey);
       } else if (v === SelectAllEnum.ALL) {
         // 全选所有页的时候先清空排除项，再选中所有数据
