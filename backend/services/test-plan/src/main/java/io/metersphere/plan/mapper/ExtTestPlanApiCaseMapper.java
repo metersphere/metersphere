@@ -9,6 +9,7 @@ import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanApiCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
@@ -55,7 +56,7 @@ public interface ExtTestPlanApiCaseMapper {
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 
-    List<ModuleCountDTO> collectionCountByRequest(@Param("testPlanId") String testPlanId);
+    List<ModuleCountDTO> collectionCountByRequest(@Param("request") TestPlanApiCaseModuleRequest request);
 
     Long getMaxPosByCollectionId(String collectionId);
 
