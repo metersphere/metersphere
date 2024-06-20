@@ -9,7 +9,7 @@ export default {
   'project.environmental.requestHeader': 'Request Header',
   'project.environmental.allParams': 'All Parameters',
   'project.environmental.mustContain': 'Must Contain',
-  'project.environmental.searchParamsHolder': 'Search by name or tag',
+  'project.environmental.searchParamsHolder': 'Search by name/tag',
   'project.environmental.paramName': 'Parameter Name',
   'project.environmental.globalVariable': 'Parameter',
   'project.environmental.paramType': 'Type',

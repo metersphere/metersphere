@@ -23,7 +23,10 @@
     @save="handleMinderSave"
   >
     <template #extractMenu>
-      <a-tooltip v-if="showAssociateCaseMenu" :content="t('ms.case.associate.title')">
+      <a-tooltip
+        v-if="showAssociateCaseMenu && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION'])"
+        :content="t('ms.case.associate.title')"
+      >
         <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="associateCase">
           <MsIcon type="icon-icon_add_outlined" class="text-[var(--color-text-4)]" />
         </MsButton>
@@ -86,7 +89,11 @@
           </a-tooltip>
         </div>
         <a-form ref="configFormRef" :model="configForm" :disabled="!hasEditPermission" layout="vertical">
-          <a-form-item v-if="hasEditPermission && configForm.level === 2">
+          <a-form-item
+            v-if="
+              hasEditPermission && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION']) && configForm.level === 2
+            "
+          >
             <template #label>
               <div class="flex items-center">
                 <div>{{ t('testPlan.planForm.pickCases') }}</div>
@@ -116,7 +123,6 @@
                 </div>
                 <a-divider margin="8px" direction="vertical" />
                 <MsButton
-                  v-permission="['CASE_REVIEW:READ+RELEVANCE']"
                   type="text"
                   class="font-medium"
                   :disabled="!hasEditPermission"
@@ -125,6 +131,15 @@
                   {{ t('ms.case.associate.title') }}
                 </MsButton>
               </div>
+            </div>
+          </a-form-item>
+          <a-form-item
+            v-if="configForm.type !== PlanMinderCollectionType.FUNCTIONAL && configForm.level === 2"
+            class="hidden-item"
+          >
+            <div class="flex items-center gap-[8px]">
+              <a-switch v-model:model-value="configForm.extended" size="small" @change="handleExtendChange"></a-switch>
+              <div>{{ t('ms.minders.extend') }}</div>
             </div>
           </a-form-item>
           <template v-if="configForm.type !== PlanMinderCollectionType.FUNCTIONAL">
@@ -211,15 +226,6 @@
               </a-form-item>
             </template> -->
           </template>
-          <a-form-item
-            v-if="configForm.type !== PlanMinderCollectionType.FUNCTIONAL && configForm.level === 2"
-            class="hidden-item"
-          >
-            <div class="flex items-center gap-[8px]">
-              <a-switch v-model:model-value="configForm.extended" size="small" @change="handleExtendChange"></a-switch>
-              <div>{{ t('ms.minders.extend') }}</div>
-            </div>
-          </a-form-item>
         </a-form>
         <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white pb-[16px]">
           <a-button
@@ -539,30 +545,6 @@
   }
 
   /**
-   * 处理节点选中
-   * @param node 节点
-   */
-  function handleNodeSelect(node: PlanMinderNode) {
-    if (checkConfigFormUnsaved()) {
-      return;
-    }
-    checkNodeCanShowMenu(node);
-    if (extraVisible.value) {
-      if (node.data?.type === PlanMinderCollectionType.FUNCTIONAL && node.data?.level === 1) {
-        // 功能用例分类没有配置
-        extraVisible.value = false;
-        return;
-      }
-      activePlanSet.value = node;
-      switchingConfigFormData.value = true;
-      configForm.value = cloneDeep(activePlanSet.value.data);
-      nextTick(() => {
-        switchingConfigFormData.value = false;
-      });
-    }
-  }
-
-  /**
    * 切换测试集配置显示
    */
   function toggleConfig() {
@@ -633,6 +615,10 @@
       refId: '',
       projectId: '',
     };
+    const node: PlanMinderNode = window.minder.getNodeById(activePlanSet.value?.data.id);
+    if (node?.data) {
+      node.data.associateDTOS = [];
+    }
   }
 
   function associateCase() {
@@ -658,12 +644,38 @@
     () => {
       if (!switchingConfigFormData.value && configForm.value) {
         configFormUnsaved.value = true;
+        minderStore.setMinderUnsaved(true);
       }
     },
     {
       deep: true,
     }
   );
+
+  /**
+   * 处理节点选中
+   * @param node 节点
+   */
+  function handleNodeSelect(node: PlanMinderNode) {
+    if (checkConfigFormUnsaved()) {
+      return;
+    }
+    checkNodeCanShowMenu(node);
+    if (extraVisible.value) {
+      if (node.data?.type === PlanMinderCollectionType.FUNCTIONAL && node.data?.level === 1) {
+        // 功能用例分类没有配置
+        extraVisible.value = false;
+        return;
+      }
+      clearSelectedCases();
+      activePlanSet.value = node;
+      switchingConfigFormData.value = true;
+      configForm.value = cloneDeep(activePlanSet.value.data);
+      nextTick(() => {
+        switchingConfigFormData.value = false;
+      });
+    }
+  }
 
   /**
    * 是否停止拖拽排序动作
@@ -828,7 +840,7 @@
         editList: [],
         deletedIds: [],
       };
-      selectedAssociateCasesParams.value.selectIds = [];
+      clearSelectedCases();
     }
   }
 

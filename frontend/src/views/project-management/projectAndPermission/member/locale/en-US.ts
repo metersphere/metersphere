@@ -1,7 +1,7 @@
 export default {
   'project.member.addMember': 'Add Member',
   'project.member.updateMember': 'Update Member',
-  'project.member.searchMember': 'Search by name or email address or phone',
+  'project.member.searchMember': 'Search by name/email/phone',
   'project.member.remove': 'Remove',
   'project.member.edit': 'Edit',
   'project.member.add': 'Add',

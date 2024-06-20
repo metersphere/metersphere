@@ -87,7 +87,7 @@
   import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
-  import { filterTree, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
+  import { filterTree, findNodeByKey, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import {
@@ -156,69 +156,65 @@
   /**
    * 初始化用例模块树
    */
-  async function initCaseTree(notRemote = false) {
+  async function initCaseTree() {
     try {
       loading.value = true;
-      if (!notRemote) {
-        const res = await getCaseMinderTree({
-          projectId: appStore.currentProjectId,
-          moduleId: '', // 始终加载全部，然后再进入对应的模块节点
-        });
-        caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
-          ...e,
-          data: {
-            ...e.data,
-            id: e.id || e.data?.id || '',
-            text: e.name || e.data?.text || '',
-            resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
-            expandState: e.level === 1 ? 'expand' : 'collapse',
-            count: props.modulesCount[e.id],
-            isNew: false,
-            changed: false,
-          },
-          children:
-            props.modulesCount[e.id] > 0 && !e.children?.length
-              ? [
-                  {
-                    data: {
-                      id: 'fakeNode',
-                      text: 'fakeNode',
-                      resource: ['fakeNode'],
-                      isNew: false,
-                      changed: false,
-                    },
+      const res = await getCaseMinderTree({
+        projectId: appStore.currentProjectId,
+        moduleId: '', // 始终加载全部，然后再进入对应的模块节点
+      });
+      caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
+        ...e,
+        data: {
+          ...e.data,
+          id: e.id || e.data?.id || '',
+          text: e.name || e.data?.text || '',
+          resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
+          expandState: e.level === 0 ? 'expand' : 'collapse',
+          count: props.modulesCount[e.id],
+          isNew: false,
+          changed: false,
+        },
+        children:
+          props.modulesCount[e.id] > 0 && !e.children?.length
+            ? [
+                {
+                  data: {
+                    id: 'fakeNode',
+                    text: 'fakeNode',
+                    resource: ['fakeNode'],
+                    isNew: false,
+                    changed: false,
                   },
-                ]
-              : e.children,
-        }));
-        importJson.value.root = {
-          children: caseTree.value,
-          data: {
-            id: 'NONE',
-            text: t('ms.minders.allModule'),
-            resource: [moduleTag],
-            disabled: true,
-          },
-        };
-        importJson.value.treePath = [];
-        window.minder.importJson(importJson.value);
-      }
-      if (notRemote) {
-        if (props.moduleId !== 'all') {
-          // 携带具体的模块 ID 加载时，进入该模块内
-          nextTick(() => {
-            minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
-              window.minder.getNodeById(props.moduleId),
-            ]);
-          });
-        } else {
-          // 携带具体的模块 ID 加载时，进入该模块内
-          nextTick(() => {
-            minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
-              importJson.value.root,
-            ]);
-          });
-        }
+                },
+              ]
+            : e.children,
+      }));
+      importJson.value.root = {
+        children: caseTree.value,
+        data: {
+          id: 'NONE',
+          text: t('ms.minders.allModule'),
+          resource: [moduleTag],
+          disabled: true,
+        },
+      };
+      importJson.value.treePath = [];
+      window.minder.importJson(importJson.value);
+      if (props.moduleId !== 'all') {
+        // 携带具体的模块 ID 加载时，进入该模块内
+        nextTick(() => {
+          minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
+            findNodeByKey(importJson.value.root.children || [], props.moduleId, 'id', 'data') as MinderJsonNode,
+          ]);
+        });
+      } else {
+        // 刷新时不需要重新请求数据，进入根节点
+        nextTick(() => {
+          minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
+            importJson.value.root,
+          ]);
+        });
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -291,7 +287,10 @@
     try {
       baseInfoLoading.value = true;
       const res = await getCaseDetail(data?.id || activeCase.value.id);
-      activeCase.value = res;
+      activeCase.value = {
+        ...res,
+        isNew: false,
+      };
       const fileIds = (res.attachments || []).map((item: any) => item.id) || [];
       if (fileIds.length) {
         checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
@@ -389,7 +388,7 @@
           projectId: appStore.currentProjectId,
           moduleId: data.id,
         });
-        const fakeNode = node.children?.find((e) => e.data?.id === undefined); // 移除占位的虚拟节点
+        const fakeNode = node.children?.find((e) => e.data?.id === 'fakeNode'); // 移除占位的虚拟节点
         if (fakeNode) {
           window.minder.removeNode(fakeNode);
         }
@@ -464,6 +463,10 @@
       extraVisible.value = false;
       showDetailMenu.value = false;
       resetExtractInfo();
+      const fakeNode = node.children?.find((e) => e.data?.id === 'fakeNode'); // 移除占位的虚拟节点
+      if (fakeNode) {
+        window.minder.removeNode(fakeNode);
+      }
     }
     setPriorityView(true, 'P');
   }
@@ -483,20 +486,16 @@
         node.data.isNew = true;
         window.minder.execCommand('priority');
         if (index === nodes.length - 1) {
-          nextTick(() => {
-            handleNodeSelect(node);
-          });
+          window.minder.toggleSelect(node);
         }
-      } else if (node.data?.resource?.includes(caseTag)) {
+      } else if (tag === caseTag && node.data) {
         // 排除是从模块节点切换到用例节点的数据
         tempMinderParams.value.updateModuleList = tempMinderParams.value.updateModuleList.filter(
           (e) => e.id !== node.data?.id
         );
         node.data.isNew = true;
         if (index === nodes.length - 1) {
-          nextTick(() => {
-            handleNodeSelect(node);
-          });
+          window.minder.toggleSelect(node);
         }
       } else if (node.data?.resource?.some((e) => caseOffspringTags.includes(e))) {
         // 用例子孙节点更新，标记用例节点变化
@@ -522,7 +521,13 @@
         case MinderEventName.CUT_NODE:
           // TODO:循环优化
           nodes.forEach((node) => {
-            if (!caseOffspringTags.some((e) => node.data?.resource?.includes(e))) {
+            if (!node.data?.resource || node.data?.resource.length === 0) {
+              // 删除文本节点
+              tempMinderParams.value.deleteResourceList.push({
+                id: node.data?.id || '',
+                type: 'NONE',
+              });
+            } else if (!caseOffspringTags.some((e) => node.data?.resource?.includes(e))) {
               // 非用例下的子孙节点的移除，才加入删除资源队列
               tempMinderParams.value.deleteResourceList.push({
                 id: node.data?.id || '',
@@ -619,7 +624,7 @@
       versionId: '',
       updateCaseList: [],
       updateModuleList: [],
-      deleteResourceList: [],
+      deleteResourceList: tempMinderParams.value.deleteResourceList, // 删除的资源不清空，避免请求错误导致数据丢失
       additionalNodeList: [],
     };
   }
@@ -702,7 +707,7 @@
   watch(
     () => props.moduleId,
     () => {
-      initCaseTree(true);
+      initCaseTree();
     },
     {
       deep: true,

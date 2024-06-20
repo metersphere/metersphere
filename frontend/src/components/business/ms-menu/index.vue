@@ -2,7 +2,7 @@
   import { computed, defineComponent, h, ref } from 'vue';
   import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -407,7 +407,7 @@
       // 渲染菜单项
       const renderMenuItem = (element: RouteRecordRaw | null, icon: (() => any) | null) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
-          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
+          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={debounce(() => goto(element), 100)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
               {collapsed.value ? (
                 <div class="text-center text-[12px] leading-[16px]">
@@ -436,7 +436,7 @@
             </div>
           </a-menu-item>
         ) : (
-          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
+          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={debounce(() => goto(element), 100)}>
             {collapsed.value ? (
               <div class="text-center text-[12px] leading-[16px]">
                 {t(element?.meta?.collapsedLocale || element?.meta?.locale || '')}

@@ -37,23 +37,19 @@
           >
             {{ t('ms.upload.preview') }}
           </MsButton>
+          <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
+            {{ t('caseManagement.featureCase.storage') }}
+          </MsButton>
           <SaveAsFilePopover
-            v-model:visible="transferVisible"
+            v-if="item.status !== 'init'"
             :saving-file="activeTransferFileParams"
             :file-save-as-source-id="activeCase.id || ''"
             :file-save-as-api="transferFileRequest"
             :file-module-options-api="getTransferFileTree"
             source-id-key="caseId"
-          />
-          <MsButton
-            v-if="item.status !== 'init'"
-            type="button"
-            status="primary"
-            class="!mr-[4px]"
-            @click="transferFile(item)"
           >
-            {{ t('caseManagement.featureCase.storage') }}
-          </MsButton>
+            <span :id="item.uid"></span>
+          </SaveAsFilePopover>
           <MsButton
             v-if="item.status !== 'init'"
             type="button"
@@ -198,7 +194,7 @@
           return item;
         });
       }
-      Message.success(t('ms.upload.uploadSuccess'));
+      Message.success(t('common.linkSuccess'));
       emit('uploadSuccess');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -244,14 +240,12 @@
     }
   }
 
-  const transferVisible = ref<boolean>(false);
-
   const activeTransferFileParams = ref<MsFileItem>();
 
   // 转存
   function transferFile(item: MsFileItem) {
     activeTransferFileParams.value = { ...item };
-    transferVisible.value = true;
+    document.getElementById(item.uid)?.click();
   }
 
   // 删除本地文件

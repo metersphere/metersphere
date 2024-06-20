@@ -4,6 +4,7 @@
       v-model:model-value="innerParams.bodyType"
       type="button"
       size="small"
+      :disabled="props.disabledBodyType"
       @change="(val) => changeBodyFormat(val as RequestBodyFormat)"
     >
       <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">
@@ -109,7 +110,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
   import { TableColumnData } from '@arco-design/web-vue';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -132,7 +132,7 @@
   import { defaultBodyParamsItem } from '@/views/api-test/components/config';
 
   const props = defineProps<{
-    params: ExecuteBody;
+    disabledBodyType?: boolean; // 禁用body类型切换
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
@@ -148,15 +148,24 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  const innerParams = useVModel(props, 'params', emit);
+  const innerParams = defineModel<ExecuteBody>('params', {
+    required: true,
+  });
   const batchAddKeyValVisible = ref(false);
   const fileList = ref<MsFileItem[]>([]);
 
-  onBeforeMount(() => {
-    if (innerParams.value.binaryBody && innerParams.value.binaryBody.file) {
-      fileList.value = [innerParams.value.binaryBody.file as unknown as MsFileItem];
+  watch(
+    () => innerParams.value.binaryBody?.file,
+    () => {
+      if (innerParams.value.binaryBody?.file) {
+        fileList.value = [innerParams.value.binaryBody.file as unknown as MsFileItem];
+      }
+    },
+    {
+      immediate: true,
+      deep: true,
     }
-  });
+  );
 
   async function handleFileChange(files: MsFileItem[], file?: MsFileItem) {
     try {

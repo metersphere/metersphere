@@ -295,26 +295,32 @@
   });
   const buttonDropDownVisible = ref(false);
 
-  onBeforeMount(() => {
-    // 回显文件
-    const defaultFiles = fileList.value.filter((item) => item) || [];
-    if (defaultFiles.length > 0) {
-      if (props.multiple) {
-        inputFiles.value = defaultFiles.map((item) => ({
-          ...item,
-          // 这里取自定义的字段名，因为存在查看的场景时不会与刚选择的文件信息一样
-          value: item?.[props.fields.id] || item.uid || '', // 取uid是因为有可能是本地上传然后组件卸载然后重新挂载，这时候取自定义 id 会是空的
-          label: item?.[props.fields.name] || item?.name || '',
-        }));
-      } else {
-        inputFileName.value = defaultFiles[0]?.[props.fields.name] || defaultFiles[0]?.name || '';
+  watch(
+    () => fileList.value,
+    () => {
+      // 回显文件
+      const defaultFiles = fileList.value.filter((item) => item) || [];
+      if (defaultFiles.length > 0) {
+        if (props.multiple) {
+          inputFiles.value = defaultFiles.map((item) => ({
+            ...item,
+            // 这里取自定义的字段名，因为存在查看的场景时不会与刚选择的文件信息一样
+            value: item?.[props.fields.id] || item.uid || '', // 取uid是因为有可能是本地上传然后组件卸载然后重新挂载，这时候取自定义 id 会是空的
+            label: item?.[props.fields.name] || item?.name || '',
+          }));
+        } else {
+          inputFileName.value = defaultFiles[0]?.[props.fields.name] || defaultFiles[0]?.name || '';
+        }
+        getListFunParams.value.combine.hiddenIds = defaultFiles
+          .filter((item) => !item?.local)
+          .map((item) => item?.[props.fields.id] || '')
+          .filter((item) => item);
       }
-      getListFunParams.value.combine.hiddenIds = defaultFiles
-        .filter((item) => !item?.local)
-        .map((item) => item?.[props.fields.id] || '')
-        .filter((item) => item);
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
     if (props.multiple) {

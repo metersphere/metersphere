@@ -184,11 +184,19 @@
   import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
-  import { getGenerateId, sleep, traverseTree } from '@/utils';
+  import { getGenerateId, sleep } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
-  import { floatMenuProps, insertProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
+  import {
+    floatMenuProps,
+    insertProps,
+    mainEditorProps,
+    MinderJsonNode,
+    MinderJsonNodeData,
+    priorityProps,
+    tagProps,
+  } from '../props';
   import { isDisableNode, isNodeInMinderView, setPriorityView } from '../script/tool/utils';
 
   const props = defineProps({
@@ -208,7 +216,9 @@
   const currentNodeTags = ref<string[]>([]);
   const tags = ref<string[]>([]);
 
-  const menuVisible = ref(false);
+  const menuVisible = defineModel<boolean>('visible', {
+    default: false,
+  });
   const menuPopupOffset = ref<TriggerPopupTranslate>([0, 0]);
 
   watch(
@@ -310,6 +320,9 @@
       }
       window.minder.execCommand('resource', origin);
       minderStore.dispatchEvent(MinderEventName.SET_TAG, undefined, undefined, undefined, selectedNodes);
+      if (props.afterTagEdit) {
+        props.afterTagEdit(selectedNodes, value);
+      }
     }
   }
 
@@ -362,21 +375,15 @@
         case 'paste':
           minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, undefined, selectedNodes);
           window.minder.execCommand('Paste');
-          const pastedNode: MinderJsonNode = window.minder.getSelectedNode();
-          if (pastedNode) {
-            pastedNode.data = {
-              ...pastedNode.data,
-              text: pastedNode.data?.text || '',
-              isNew: true,
-              id: getGenerateId(),
-            };
-            traverseTree(pastedNode.children || [], (node) => {
-              node.data = {
-                ...node.data,
-                text: node.data?.text || '',
+          let pastedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+          if (pastedNodes.length > 0) {
+            pastedNodes = pastedNodes.map((e) => {
+              e.data = {
+                ...(e.data as MinderJsonNodeData),
                 isNew: true,
                 id: getGenerateId(),
               };
+              return e;
             });
           }
           break;

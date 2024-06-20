@@ -780,7 +780,7 @@
   /**
    * 设置插件表单数据
    */
-  function setPluginFormData() {
+  async function setPluginFormData() {
     const tempForm = temporaryPluginFormMap[requestVModel.value.id];
     if (tempForm || !requestVModel.value.isNew || requestVModel.value.isCopy) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
@@ -809,6 +809,7 @@
         isInitPluginForm.value = true;
       });
     }
+    await nextTick();
   }
 
   const pluginError = ref(false);
@@ -823,7 +824,7 @@
     pluginError.value = false;
     isInitPluginForm.value = false;
     if (pluginScriptMap.value[requestVModel.value.protocol] !== undefined) {
-      setPluginFormData();
+      await setPluginFormData();
       // 已经初始化过
       return;
     }
@@ -831,7 +832,7 @@
       pluginLoading.value = true;
       const res = await getPluginScript(pluginId);
       pluginScriptMap.value[requestVModel.value.protocol] = res;
-      setPluginFormData();
+      await setPluginFormData();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -1191,7 +1192,13 @@
       }
       if (props.request.isExecute && !requestVModel.value.executeLoading) {
         // 如果是执行操作打开接口详情，且该接口不在执行状态中，则立即执行
-        execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+        if (requestVModel.value.protocol !== 'HTTP') {
+          setTimeout(() => {
+            execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+          }, 100);
+        } else {
+          execute(isPriorityLocalExec.value ? 'localExec' : 'serverExec');
+        }
       } else if (temporaryResponseMap[props.request.reportId]) {
         // 如果有缓存的报告未读取，则直接赋值
         requestVModel.value.response = temporaryResponseMap[props.request.reportId];

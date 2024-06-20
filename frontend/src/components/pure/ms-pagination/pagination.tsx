@@ -238,7 +238,7 @@ export default defineComponent({
     const computedCurrent = computed(() => props.current ?? _current.value);
     const computedPageSize = computed(() => props.pageSize ?? _pageSize.value);
 
-    const pages = computed(() => Math.ceil(props.total / computedPageSize.value));
+    const pages = computed(() => Math.ceil(props.total / computedPageSize.value) || 1); // 页码最小是 1
 
     const handleClick = (page: number) => {
       // when pageJumper blur and input.value is undefined, page is illegal
@@ -375,14 +375,6 @@ export default defineComponent({
           emit('update:current', newPage);
           emit('change', newPage);
         }
-      }
-    });
-
-    watch(pages, (curPages, prePages) => {
-      if (props.autoAdjust && curPages !== prePages && computedCurrent.value > 1 && computedCurrent.value > curPages) {
-        _current.value = curPages;
-        emit('update:current', curPages);
-        emit('change', curPages);
       }
     });
 
