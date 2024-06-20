@@ -10,7 +10,7 @@
       {{ t('project.messageManagement.WE_COM') }}
     </template>
 
-    <a-form class="ms-form rounded-[4px]" :model="weComForm" layout="vertical">
+    <a-form ref="weComFormRef" class="ms-form rounded-[4px]" :model="weComForm" layout="vertical">
       <a-form-item
         field="corpId"
         :label="t('system.config.qrCodeConfig.corpId')"
@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   import { getWeComInfo, saveWeComConfig, validateWeComConfig } from '@/api/modules/setting/qrCode';
   import { useI18n } from '@/hooks/useI18n';
@@ -96,6 +97,8 @@
     enable: false,
     valid: false,
   });
+
+  const weComFormRef = ref<FormInstance | null>(null);
 
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
@@ -137,30 +140,38 @@
   }
 
   async function validateInfo() {
-    loading.value = true;
-    try {
-      await validateWeComConfig(weComForm.value);
-      weComForm.value.valid = true;
-      Message.success(t('organization.service.testLinkStatusTip'));
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
+    weComFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
+      if (!errors) {
+        loading.value = true;
+        try {
+          await validateWeComConfig(weComForm.value);
+          weComForm.value.valid = true;
+          Message.success(t('organization.service.testLinkStatusTip'));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          loading.value = false;
+        }
+      }
+    });
   }
 
   async function saveInfo() {
-    loading.value = true;
-    try {
-      await saveWeComConfig(weComForm.value);
-      Message.success(t('organization.service.testLinkStatusTip'));
-      emits('success');
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loading.value = false;
-      detailVisible.value = false;
-    }
+    weComFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
+      if (!errors) {
+        loading.value = true;
+        try {
+          await saveWeComConfig(weComForm.value);
+          Message.success(t('organization.service.testLinkStatusTip'));
+          emits('success');
+        } catch (error) {
+          console.log(error);
+        } finally {
+          loading.value = false;
+          detailVisible.value = false;
+        }
+      }
+    });
   }
 </script>
 

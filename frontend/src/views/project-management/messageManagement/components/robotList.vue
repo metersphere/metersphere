@@ -130,7 +130,6 @@
               {{ platform.name }}
             </div>
             <div
-              v-xpack
               :class="['platform-card-custom', robotForm.platform === 'CUSTOM' ? 'platform-card--active' : '']"
               @click="robotForm.platform = 'CUSTOM'"
             >
