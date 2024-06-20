@@ -22,8 +22,8 @@
             <a-radio :value="testPlanTypeEnum.GROUP" class="show-type-icon p-[2px]">{{
               t('testPlan.testPlanIndex.testPlanGroup')
             }}</a-radio>
-          </a-radio-group></div
-        >
+          </a-radio-group>
+        </div>
         <div class="mr-[24px]">
           <a-switch v-model="isArchived" size="small" type="line" @change="archivedChangeHandler" />
           <span class="ml-1 text-[var(--color-text-3)]">{{ t('testPlan.testPlanGroup.seeArchived') }}</span>
@@ -110,16 +110,16 @@
           <span :class="getIconClass(record)">{{ record.childrenCount || 0 }}</span>
         </div>
 
-        <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" :class="`one-line-text ${hasIndent(record)}`"
-          ><MsButton type="text" @click="openDetail(record.id)"
+        <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" :class="`one-line-text ${hasIndent(record)}`">
+          <MsButton type="text" @click="openDetail(record.id)"
             ><a-tooltip :content="record.num.toString()"
               ><span>{{ record.num }}</span></a-tooltip
             ></MsButton
-          ></div
-        >
-        <a-tooltip v-else :content="record.num.toString()"
-          ><div :class="`one-line-text ${hasIndent(record)}`">{{ record.num }}</div></a-tooltip
-        >
+          >
+        </div>
+        <a-tooltip v-else :content="record.num.toString()">
+          <div :class="`one-line-text ${hasIndent(record)}`">{{ record.num }}</div>
+        </a-tooltip>
         <a-tooltip position="right" :disabled="!getSchedule(record.id)" :mouse-enter-delay="300">
           <MsTag
             v-if="getSchedule(record.id)"
@@ -160,9 +160,9 @@
     </template>
     <template #moduleId="{ record }">
       <a-tooltip :content="getModules(record.moduleId, props.moduleTree)" position="top">
-        <span class="one-line-text inline-block">
+        <div class="one-line-text">
           {{ getModules(record.moduleId, props.moduleTree) }}
-        </span>
+        </div>
       </a-tooltip>
     </template>
     <template #planStartToEndTime="{ record }">

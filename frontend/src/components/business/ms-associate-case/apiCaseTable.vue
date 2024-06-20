@@ -152,6 +152,13 @@
       showDrag: true,
     },
     {
+      title: 'common.tag',
+      slotName: 'tags',
+      dataIndex: 'tags',
+      isTag: true,
+      width: 300,
+    },
+    {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createName',
       dataIndex: 'createName',
