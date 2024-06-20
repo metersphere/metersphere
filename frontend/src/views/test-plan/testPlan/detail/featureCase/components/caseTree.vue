@@ -61,6 +61,7 @@
   import { getFeatureCaseModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { mapTree } from '@/utils';
+  import { getNodeParentId } from '@/utils/tree';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -70,7 +71,7 @@
     treeType: 'MODULE' | 'COLLECTION';
   }>();
   const emit = defineEmits<{
-    (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], nodeName?: string): void;
+    (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], nodeName?: string, parentId?: string): void;
     (e: 'init', params: ModuleTreeNode[]): void;
   }>();
 
@@ -144,7 +145,7 @@
       return e;
     });
     activeFolder.value = node.id;
-    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name);
+    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name, getNodeParentId(node));
   }
 
   onBeforeMount(() => {

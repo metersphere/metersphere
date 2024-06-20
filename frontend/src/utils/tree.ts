@@ -1,3 +1,5 @@
+import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+
 interface Tree {
   id?: string | number;
   groupId?: number;
@@ -156,4 +158,12 @@ export function deleteNodesByGroupId(tree: Tree[], targetGroupId: number): void 
 
   // 对树的每个根节点调用 deleteMatchingNodes 函数，并更新树
   tree.splice(0, tree.length, ...deleteMatchingNodes(tree));
+}
+
+// 找到树结构最顶层的父节点id
+export function getNodeParentId(node: MsTreeNodeData): string {
+  while (node?.parent) {
+    node = node.parent;
+  }
+  return node.id;
 }
