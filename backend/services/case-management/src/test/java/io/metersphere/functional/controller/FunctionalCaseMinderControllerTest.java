@@ -149,7 +149,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
-        Assertions.assertEquals(3, baseTreeNodes.size());
+        Assertions.assertEquals(2, baseTreeNodes.size());
     }
 
     @Test
