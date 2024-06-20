@@ -212,7 +212,9 @@
   const unReadCount = ref<number>(0);
 
   async function checkMessageRead() {
-    unReadCount.value = await getMessageUnReadCount(appStore.currentProjectId);
+    if (appStore.currentProjectId) {
+      unReadCount.value = await getMessageUnReadCount(appStore.currentProjectId);
+    }
   }
   watch(
     () => appStore.currentOrgId,

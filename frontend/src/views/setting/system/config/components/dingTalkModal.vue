@@ -10,7 +10,7 @@
       {{ t('project.messageManagement.DING_TALK') }}
     </template>
 
-    <a-form class="ms-form rounded-[4px]" :model="dingTalkForm" layout="vertical">
+    <a-form ref="dingTalkFormRef" class="ms-form rounded-[4px]" :model="dingTalkForm" layout="vertical">
       <a-form-item
         field="appKey"
         :label="t('system.config.qrCodeConfig.appKey')"
@@ -82,6 +82,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   import { getDingInfo, saveDingTalkConfig, validateDingTalkConfig } from '@/api/modules/setting/qrCode';
   import { useI18n } from '@/hooks/useI18n';
@@ -99,6 +100,8 @@
     enable: false,
     valid: false,
   });
+
+  const dingTalkFormRef = ref<FormInstance | null>(null);
 
   const loading = ref<boolean>(false);
   const detailVisible = ref<boolean>(false);
@@ -140,30 +143,38 @@
   }
 
   async function validateInfo() {
-    loading.value = true;
-    try {
-      await validateDingTalkConfig(dingTalkForm.value);
-      dingTalkForm.value.valid = true;
-      Message.success(t('organization.service.testLinkStatusTip'));
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
+    dingTalkFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
+      if (!errors) {
+        loading.value = true;
+        try {
+          await validateDingTalkConfig(dingTalkForm.value);
+          dingTalkForm.value.valid = true;
+          Message.success(t('organization.service.testLinkStatusTip'));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          loading.value = false;
+        }
+      }
+    });
   }
 
   async function saveInfo() {
-    loading.value = true;
-    try {
-      await saveDingTalkConfig(dingTalkForm.value);
-      Message.success(t('organization.service.testLinkStatusTip'));
-      emits('success');
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loading.value = false;
-      detailVisible.value = false;
-    }
+    dingTalkFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
+      if (!errors) {
+        loading.value = true;
+        try {
+          await saveDingTalkConfig(dingTalkForm.value);
+          Message.success(t('organization.service.testLinkStatusTip'));
+          emits('success');
+        } catch (error) {
+          console.log(error);
+        } finally {
+          loading.value = false;
+          detailVisible.value = false;
+        }
+      }
+    });
   }
 </script>
 

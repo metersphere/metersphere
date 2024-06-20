@@ -161,29 +161,6 @@ public class FunctionalCaseMinderService {
         return customFields.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
     }
 
-    private List<FunctionalMinderTreeDTO> buildAdditionalData(String moduleId) {
-        List<FunctionalMinderTreeDTO> list = new ArrayList<>();
-        MindAdditionalNodeExample mindAdditionalNodeExample = new MindAdditionalNodeExample();
-        mindAdditionalNodeExample.createCriteria().andParentIdEqualTo(moduleId);
-        mindAdditionalNodeExample.setOrderByClause("pos asc");
-        List<MindAdditionalNode> mindAdditionalNodes = mindAdditionalNodeMapper.selectByExample(mindAdditionalNodeExample);
-        if (CollectionUtils.isEmpty(mindAdditionalNodes)) {
-            return new ArrayList<>();
-        }
-        for (MindAdditionalNode mindAdditionalNode : mindAdditionalNodes) {
-            FunctionalMinderTreeDTO root = new FunctionalMinderTreeDTO();
-            FunctionalMinderTreeNodeDTO rootData = new FunctionalMinderTreeNodeDTO();
-            rootData.setId(mindAdditionalNode.getId());
-            rootData.setPos(mindAdditionalNode.getPos());
-            rootData.setText(mindAdditionalNode.getName());
-            rootData.setResource(new ArrayList<>());
-            root.setChildren(buildAdditionalData(mindAdditionalNode.getId()));
-            root.setData(rootData);
-            list.add(root);
-        }
-        return list;
-    }
-
     private void buildList(List<FunctionalCaseMindDTO> functionalCaseMindDTOList, List<FunctionalMinderTreeDTO> list, Map<String, String> priorityMap) {
         //构造父子级数据
         for (FunctionalCaseMindDTO functionalCaseMindDTO : functionalCaseMindDTOList) {
