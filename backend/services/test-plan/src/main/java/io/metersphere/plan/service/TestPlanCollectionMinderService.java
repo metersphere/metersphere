@@ -374,7 +374,7 @@ public class TestPlanCollectionMinderService {
         testPlanCollection.setId(testPlanCollectionMinderEditDTO.getId());
         testPlanCollection.setCreateUser(userId);
         testPlanCollection.setCreateTime(null);
-        testPlanCollection.setPos(testPlanCollectionMinderEditDTO.getNum());
+        testPlanCollection.setPos((testPlanCollectionMinderEditDTO.getNum()+1) * 4096);
         collectionMapper.updateByPrimaryKeySelective(testPlanCollection);
         return testPlanCollection;
     }
@@ -398,7 +398,7 @@ public class TestPlanCollectionMinderService {
         testPlanCollection.setTestPlanId(request.getPlanId());
         testPlanCollection.setCreateUser(userId);
         testPlanCollection.setCreateTime(System.currentTimeMillis());
-        testPlanCollection.setPos(testPlanCollectionMinderEditDTO.getNum());
+        testPlanCollection.setPos((testPlanCollectionMinderEditDTO.getNum()+1) * 4096);
         collectionMapper.insert(testPlanCollection);
         return testPlanCollection;
     }

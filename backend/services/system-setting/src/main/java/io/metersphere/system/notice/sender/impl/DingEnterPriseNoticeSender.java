@@ -8,11 +8,11 @@ import com.aliyun.tea.TeaException;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.Common;
 import com.aliyun.teautil.models.RuntimeOptions;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.Receiver;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
-import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -94,11 +94,11 @@ public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
 
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
+        String context = super.getContext(messageDetail, noticeModel);
         List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
         if (CollectionUtils.isEmpty(receivers)) {
             return;
         }
-        String context = super.getContext(messageDetail, noticeModel);
         try {
             sendDing(messageDetail, context);
             LogUtils.debug("发送钉钉内部机器人结束");

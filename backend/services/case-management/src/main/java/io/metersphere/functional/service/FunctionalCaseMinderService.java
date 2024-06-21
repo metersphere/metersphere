@@ -1114,7 +1114,6 @@ public class FunctionalCaseMinderService {
                 caseIds= caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
                 functionalCaseService.handDeleteFunctionalCase(caseIds, false, userId, request.getProjectId());
                 functionalCaseLogService.batchDeleteFunctionalCaseLogByIds(caseIds, "/functional/mind/case/edit");
-                functionalCaseNoticeService.batchSendNotice(request.getProjectId(), caseIds, user, NoticeConstants.Event.DELETE);
 
             }
             List<MinderOptionDTO> caseModuleOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.module"));
@@ -1123,7 +1122,10 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), userId);
                 functionalCaseModuleService.batchDelLog(functionalCases, request.getProjectId());
                 List<String> finalCaseIds = caseIds;
-                functionalCaseNoticeService.batchSendNotice(request.getProjectId(), functionalCases.stream().map(FunctionalCase::getId).filter(id ->!finalCaseIds.contains(id)).toList(), user, NoticeConstants.Event.DELETE);
+                List<String> caseIdList = functionalCases.stream().map(FunctionalCase::getId).filter(id -> !finalCaseIds.contains(id)).toList();
+                if (CollectionUtils.isNotEmpty(caseIdList)) {
+                    functionalCaseNoticeService.batchSendNotice(request.getProjectId(), caseIdList, user, NoticeConstants.Event.DELETE);
+                }
             }
             List<MinderOptionDTO> additionalOptionDTOS = resourceMap.get(ModuleConstants.ROOT_NODE_PARENT_ID);
             if (CollectionUtils.isNotEmpty(additionalOptionDTOS)) {
