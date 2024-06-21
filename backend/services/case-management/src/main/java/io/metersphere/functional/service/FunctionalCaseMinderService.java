@@ -32,7 +32,6 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.CustomFieldMapper;
-import io.metersphere.system.mapper.ExtCheckOwnerMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
@@ -85,9 +84,6 @@ public class FunctionalCaseMinderService {
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
 
     @Resource
-    private ExtCheckOwnerMapper extCheckOwnerMapper;
-
-    @Resource
     private FunctionalCaseService functionalCaseService;
 
     @Resource
@@ -126,10 +122,6 @@ public class FunctionalCaseMinderService {
     @Resource
     private ProjectTemplateService projectTemplateService;
 
-
-    private static final String FUNCTIONAL_CASE = "functional_case";
-    private static final String FUNCTIONAL_CASE_MODULE = "functional_case_module";
-    private static final String CHECK_OWNER_CASE = "check_owner_case";
 
     /**
      * 功能用例-脑图用例列表查询

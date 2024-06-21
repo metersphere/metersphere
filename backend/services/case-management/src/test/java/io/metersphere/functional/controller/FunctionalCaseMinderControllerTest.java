@@ -1,10 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.dto.CaseCustomFieldDTO;
-import io.metersphere.functional.dto.FunctionalCaseStepDTO;
-import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
-import io.metersphere.functional.dto.MinderOptionDTO;
+import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.sdk.util.JSON;
@@ -12,6 +9,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,17 +62,21 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     public void testGetPageList() throws Exception {
         FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
+        request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        Assertions.assertNotNull(resultHolder);
+        Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData);
         request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ");
+        request.setCurrent(1);
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        Assertions.assertNotNull(resultHolder);
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData);
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
         functionalCaseBlob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
         functionalCaseBlob.setSteps(JSON.toJSONString(new ArrayList<>()).getBytes(StandardCharsets.UTF_8));
@@ -92,9 +94,10 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlob6.setDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        Assertions.assertNotNull(resultHolder);
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData);
         List<FunctionalCaseStepDTO> list = new ArrayList<>();
         FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
         functionalCaseStepDTO.setId("12455");
@@ -130,9 +133,11 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseBlob6.setDescription(description.getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob6);
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        Assertions.assertNotNull(resultHolder);
+
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData);
         expectedResult = "文本描述的结果";
         functionalCaseBlob = new FunctionalCaseBlob();
         functionalCaseBlob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_2");
@@ -145,11 +150,12 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
 
 
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
-        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
-        Assertions.assertNotNull(baseTreeNodes);
-        Assertions.assertEquals(2, baseTreeNodes.size());
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData);
+        Assertions.assertNotNull(tableData.getList());
+        Assertions.assertEquals(2, tableData.getList().size());
     }
 
     @Test
@@ -330,6 +336,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     public void testGetCaseModuleNodeList() throws Exception {
         FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
+        request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_NODE_MODULE_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -350,6 +357,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setProjectId("project-case-minder-test");
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
         request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ");
+        request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -362,6 +370,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ2");
         request.setViewFlag(true);
         request.setViewStatusFlag(true);
+        request.setCurrent(1);
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
         contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -377,6 +386,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setProjectId("project-case-minder-test");
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
         request.setPlanId("TEST_MINDER_PLAN_ID_1");
+        request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_PLAN_LIST_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
