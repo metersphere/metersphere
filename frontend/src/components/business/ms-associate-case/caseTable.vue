@@ -29,7 +29,8 @@
       <CaseLevel :case-level="filterContent.value" />
     </template>
     <template #caseLevel="{ record }">
-      <CaseLevel :case-level="record.caseLevel" />
+      <CaseLevel v-if="record.caseLevel" :case-level="record.caseLevel" />
+      <span v-else>-</span>
     </template>
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
       <ExecuteResult :execute-result="filterContent.value" />
@@ -204,7 +205,7 @@
   function getCaseLevel(record: TableData) {
     if (record.customFields && record.customFields.length) {
       const caseItem = record.customFields.find((item: any) => item.fieldName === '用例等级' && item.internal);
-      return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue)?.text || 'P0';
+      return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue)?.text;
     }
     return undefined;
   }
