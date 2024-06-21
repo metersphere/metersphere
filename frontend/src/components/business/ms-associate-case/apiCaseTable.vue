@@ -248,10 +248,7 @@
       projectId: props.currentProject,
       moduleIds: props.activeModule === 'all' || !props.activeModule ? [] : [props.activeModule, ...props.offspringIds],
       excludeIds: [...excludeKeys],
-      condition: {
-        keyword: props.keyword,
-        filter: propsRes.value.filter,
-      },
+      filter: propsRes.value.filter,
       protocols: props.protocols,
       ...props.extraTableParams,
     };

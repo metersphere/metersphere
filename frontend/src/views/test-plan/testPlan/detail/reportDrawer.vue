@@ -18,6 +18,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -37,10 +38,14 @@
     required: true,
   });
 
+  const route = useRoute();
+
+  const shareId = ref<string>(route.query.shareId as string);
+
   const detail = ref<PlanReportDetail>(cloneDeep(defaultReportDetail));
   async function getDetail() {
     try {
-      detail.value = await getReportDetail(props.reportId);
+      detail.value = await getReportDetail(props.reportId, shareId.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

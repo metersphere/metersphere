@@ -45,6 +45,6 @@ export default {
   'report.detail.testPlanGroup.result': 'Result',
   'report.detail.testPlanGroup.useCasesCount': 'Use cases',
   'report.detail.testPlanGroup.viewReport': 'View Report',
-  'report.detail.testReport': 'Test report',
-  'report.detail.testPlanGroupReport': 'Test group report',
+  'report.detail.testReport': 'Planning report',
+  'report.detail.testPlanGroupReport': 'Planning groups report',
 };
