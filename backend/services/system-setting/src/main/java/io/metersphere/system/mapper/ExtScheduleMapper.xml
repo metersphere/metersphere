@@ -200,11 +200,20 @@
         </if>
         <if test="request.scheduleTagType == 'TEST_PLAN'">
             SELECT
-            schedule.*,
+            schedule.id,
+            schedule.name,
+            schedule.project_id,
+            schedule.resource_id,
+            schedule.value,
+            schedule.enable,
+            schedule.key,
+            schedule.job,
+            schedule.resource_type,
+            schedule.config,
             test_plan.type,
             test_plan.num as resource_num,
             test_plan.name as resource_name
-            FROM
+            from
             schedule
             inner join test_plan on schedule.resource_id = test_plan.id
         </if>
