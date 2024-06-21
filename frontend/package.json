@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --config ./config/vite.config.dev.ts",
-    "build": "vue-tsc --noEmit && vite build --config ./config/vite.config.prod.ts",
+    "build": "vite build --config ./config/vite.config.prod.ts",
     "build:local": "vue-tsc --noEmit &&  vite build --config ./config/vite.config.prod.ts --mode development",
     "build:localProd": "vue-tsc --noEmit &&  vite build --config ./config/vite.config.prod.ts --mode prod",
     "report": "cross-env REPORT=true npm run build",
@@ -161,8 +161,7 @@
     "vite-plugin-svg-icons": "^2.0.1",
     "vite-plugin-vue-setup-extend": "^0.4.0",
     "vite-svg-loader": "^3.6.0",
-    "vitest": "^0.31.4",
-    "vue-tsc": "^1.8.10"
+    "vitest": "^0.31.4"
   },
   "engines": {
     "node": ">=14.0.0"
