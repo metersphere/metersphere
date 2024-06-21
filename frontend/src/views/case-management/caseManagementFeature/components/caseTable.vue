@@ -1045,8 +1045,8 @@
       }
       isMove.value = false;
       emitTableParams();
-      loadList();
       resetSelector();
+      loadList();
     } catch (error) {
       console.log(error);
     } finally {
