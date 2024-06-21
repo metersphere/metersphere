@@ -147,8 +147,6 @@
 </template>
 
 <script setup lang="ts">
-  import { defineModel, ref } from 'vue';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { Language } from '@/components/pure/ms-code-editor/types';

@@ -188,8 +188,8 @@ export function saveCaseMinder(data: FeatureCaseMinderUpdateParams) {
 }
 
 // 获取脑图
-export function getCaseMinder(data: { projectId: string; moduleId: string }) {
-  return MSR.post<MinderJsonNode[]>({ url: `${GetCaseMinderUrl}`, data });
+export function getCaseMinder(data: { projectId: string; moduleId: string; current: number }) {
+  return MSR.post<CommonList<MinderJsonNode>>({ url: `${GetCaseMinderUrl}`, data });
 }
 
 // 获取脑图模块树（包含文本节点）

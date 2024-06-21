@@ -138,7 +138,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineModel } from 'vue';
   import { useVModel } from '@vueuse/core';
   import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';

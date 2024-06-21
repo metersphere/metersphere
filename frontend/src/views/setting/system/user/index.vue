@@ -834,14 +834,14 @@
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {
-      filed: 'name',
+      field: 'name',
       type: 'input',
       label: 'system.user.createUserName',
       rules: [{ required: true, message: t('system.user.createUserNameNotNull') }, { validator: checkUerName }],
       placeholder: 'system.user.createUserNamePlaceholder',
     },
     {
-      filed: 'email',
+      field: 'email',
       type: 'input',
       label: 'system.user.createUserEmail',
       rules: [
@@ -852,7 +852,7 @@
       placeholder: 'system.user.createUserEmailPlaceholder',
     },
     {
-      filed: 'phone',
+      field: 'phone',
       type: 'input',
       label: 'system.user.createUserPhone',
       rules: [{ validator: checkUerPhone }],

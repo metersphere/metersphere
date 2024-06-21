@@ -224,12 +224,9 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineModel } from 'vue';
   import { Message, ValidatedError } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   import { getEnvModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';

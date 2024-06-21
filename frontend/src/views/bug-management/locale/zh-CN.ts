@@ -119,7 +119,7 @@ export default {
       permanentlyDeleteTip: '是否彻底删除 {name} 缺陷?',
       deleteContent: '删除后，缺陷无法恢复，请谨慎操作！',
       batchDelete: '是否彻底删除{count}条缺陷?',
-      searchPlaceholder: '通过 ID 或名称搜索',
+      searchPlaceholder: '通过 ID/名称搜索',
       deleteTime: '删除时间',
       deleteMan: '删除人',
     },

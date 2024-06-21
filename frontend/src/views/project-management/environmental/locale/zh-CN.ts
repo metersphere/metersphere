@@ -15,7 +15,7 @@ export default {
   'project.environmental.supportFormat': '仅支持MeterSphere导出的Json文件，单个大小不超过 50M',
   'project.environmental.importTile': '注意！导入后会覆盖原全局参数',
   'project.environmental.mustContain': '必含',
-  'project.environmental.searchParamsHolder': '通过名称或标签搜索',
+  'project.environmental.searchParamsHolder': '通过名称/标签搜索',
   'project.environmental.paramName': '参数名称',
   'project.environmental.paramNamePlaceholder': '请输入参数名称',
   'project.environmental.paramType': '类型',

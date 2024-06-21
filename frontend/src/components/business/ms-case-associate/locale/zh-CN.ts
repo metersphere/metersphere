@@ -7,6 +7,6 @@ export default {
   'ms.case.associate.version': '版本',
   'ms.case.associate.versionPlaceholder': '默认最新版本',
   'ms.case.associate.tags': '标签',
-  'ms.case.associate.searchPlaceholder': '通过 ID 或名称搜索',
+  'ms.case.associate.searchPlaceholder': '通过 ID/名称搜索',
   'ms.case.associate.associateSuccess': '关联成功',
 };

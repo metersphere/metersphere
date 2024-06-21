@@ -15,7 +15,7 @@ export default {
   'project.projectVersion.publishTime': '发布时间',
   'project.projectVersion.createTime': '创建时间',
   'project.projectVersion.creator': '创建人',
-  'project.projectVersion.searchPlaceholder': '通过ID/名称搜索',
+  'project.projectVersion.searchPlaceholder': '通过 ID/名称搜索',
   'project.projectVersion.quickCreate': '快速创建版本',
   'project.projectVersion.versionNamePlaceholder': '请输入版本名称',
   'project.projectVersion.versionNameRequired': '版本名称不能为空',

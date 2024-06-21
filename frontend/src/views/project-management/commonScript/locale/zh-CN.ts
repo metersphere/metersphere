@@ -44,7 +44,7 @@ export default {
   'project.commonScript.commonScriptList': '公共脚本列表',
   'project.commonScript.folderSearchPlaceholder': '请输入模块名称',
   'project.commonScript.allApis': '全部接口',
-  'project.commonScript.searchPlaceholder': '通过 ID 或名称搜索',
+  'project.commonScript.searchPlaceholder': '通过 ID/名称搜索',
   'project.commonScript.noTreeData': '暂无接口数据',
   'project.commonScript.apiName': '接口名称',
   'project.commonScript.requestType': '请求类型',

@@ -23,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-  import { defineModel } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import { validateJIRAKey } from '@/api/modules/project-management/menuManagement';

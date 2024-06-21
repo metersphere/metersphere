@@ -212,7 +212,7 @@
 
   // 批量表单-1.仅选项情况
   const onlyOptions: Ref<FormItemModel> = ref({
-    filed: 'text',
+    field: 'text',
     type: 'input',
     label: '',
     rules: [
@@ -227,7 +227,7 @@
   // 批量表单-2 缺陷情况
   const bugBatchFormRules = ref<FormItemModel[]>([
     {
-      filed: 'text',
+      field: 'text',
       type: 'input',
       label: '',
       rules: [
@@ -239,7 +239,7 @@
       hideLabel: true,
     },
     {
-      filed: 'value',
+      field: 'value',
       type: 'input',
       label: '',
       rules: [

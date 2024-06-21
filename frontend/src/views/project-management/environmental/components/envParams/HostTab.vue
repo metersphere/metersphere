@@ -74,7 +74,7 @@
   type UserModalMode = 'create' | 'edit';
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {
-      filed: 'ip',
+      field: 'ip',
       type: 'input',
       label: 'project.environmental.host.ip',
       placeholder: 'project.environmental.host.ipPlaceholder',
@@ -84,14 +84,14 @@
       ],
     },
     {
-      filed: 'domain',
+      field: 'domain',
       type: 'input',
       label: 'project.environmental.host.hostName',
       placeholder: 'project.environmental.host.hostNamePlaceholder',
       rules: [{ required: true, message: t('project.environmental.host.hostNameIsRequire') }],
     },
     {
-      filed: 'description',
+      field: 'description',
       type: 'input',
       label: 'common.desc',
       placeholder: 'project.environmental.host.descPlaceholder',

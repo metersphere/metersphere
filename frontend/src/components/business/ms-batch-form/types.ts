@@ -1,6 +1,6 @@
 import { FieldRule, SelectFieldNames, SelectOptionData, SelectOptionGroup } from '@arco-design/web-vue';
 
-export type FormItemType = 'input' | 'select' | 'inputNumber' | 'tagInput' | 'multiple' | 'switch';
+export type FormItemType = 'input' | 'select' | 'inputNumber' | 'tagInput' | 'multiple' | 'switch' | 'textarea';
 export type FormMode = 'create' | 'edit';
 export type ValueType = 'Array' | 'string';
 // 自定义检验器，为了传入动态渲染的表单项下标
@@ -9,7 +9,7 @@ export interface CustomValidator {
 }
 
 export interface FormItemModel {
-  filed: string;
+  field: string;
   type: FormItemType;
   rules?: (FieldRule & CustomValidator)[];
   label?: string;
@@ -26,4 +26,5 @@ export interface FormItemModel {
   defaultValue?: string | string[] | number | number[] | boolean; // 默认值
   hasRedStar?: boolean; // 是否有红星
   tooltip?: string;
+  [key: string]: any;
 }
