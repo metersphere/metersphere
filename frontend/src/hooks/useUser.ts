@@ -8,7 +8,7 @@ import { useAppStore, useUserStore } from '@/store';
 export default function useUser() {
   const { t } = useI18n();
 
-  const logout = async (logoutTo?: string) => {
+  const logout = async (logoutTo?: string, noRedirect?: boolean) => {
     try {
       const userStore = useUserStore();
       await userStore.logout();
@@ -19,10 +19,12 @@ export default function useUser() {
       Message.success(t('message.logoutSuccess'));
       router.push({
         name: logoutTo && typeof logoutTo === 'string' ? logoutTo : 'login',
-        query: {
-          ...router.currentRoute.value.query,
-          redirect: currentRoute.name as string,
-        },
+        query: noRedirect
+          ? {}
+          : {
+              ...router.currentRoute.value.query,
+              redirect: currentRoute.name as string,
+            },
       });
     } catch (error) {
       // eslint-disable-next-line no-console
