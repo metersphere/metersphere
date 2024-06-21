@@ -204,7 +204,7 @@
   function getCaseLevel(record: TableData) {
     if (record.customFields && record.customFields.length) {
       const caseItem = record.customFields.find((item: any) => item.fieldName === '用例等级' && item.internal);
-      return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue).text;
+      return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue)?.text || 'P0';
     }
     return undefined;
   }
