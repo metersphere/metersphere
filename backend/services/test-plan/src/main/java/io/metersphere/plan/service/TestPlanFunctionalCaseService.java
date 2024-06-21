@@ -30,7 +30,6 @@ import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.plugin.platform.dto.SelectOption;
-import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
@@ -130,7 +129,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
         List<TestPlanFunctionalCase> copyList = new ArrayList<>();
-        String defaultCollectionId = extTestPlanCollectionMapper.selectDefaultCollectionId(newTestPlanId,CaseType.SCENARIO_CASE.getKey());
+        String defaultCollectionId = extTestPlanCollectionMapper.selectDefaultCollectionId(newTestPlanId, CaseType.SCENARIO_CASE.getKey());
         extTestPlanFunctionalCaseMapper.selectByTestPlanIdAndNotDeleted(originalTestPlanId).forEach(originalCase -> {
             TestPlanFunctionalCase newCase = new TestPlanFunctionalCase();
             BeanUtils.copyBean(newCase, originalCase);
@@ -323,27 +322,38 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      */
     private List<BaseTreeNode> getModuleTree(String testPlanId) {
         List<BaseTreeNode> returnList = new ArrayList<>();
-        List<ProjectOptionDTO> rootIds = extTestPlanFunctionalCaseMapper.selectRootIdByTestPlanId(testPlanId);
-        Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
+        List<ProjectOptionDTO> moduleLists = extTestPlanFunctionalCaseMapper.selectRootIdByTestPlanId(testPlanId);
+        // 获取所有的项目id
+        List<String> projectIds = moduleLists.stream().map(ProjectOptionDTO::getName).distinct().toList();
+        // moduleLists中id=root的数据
+        List<ProjectOptionDTO> rootModuleList = moduleLists.stream().filter(item -> StringUtils.equals(item.getId(), ModuleConstants.DEFAULT_NODE_ID)).toList();
+
+        Map<String, List<ProjectOptionDTO>> projectRootMap = rootModuleList.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
         List<FunctionalCaseModuleDTO> functionalModuleIds = extTestPlanFunctionalCaseMapper.selectBaseByProjectIdAndTestPlanId(testPlanId);
         Map<String, List<FunctionalCaseModuleDTO>> projectModuleMap = functionalModuleIds.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getProjectId));
-        if (MapUtils.isEmpty(projectModuleMap)) {
-            projectRootMap.forEach((projectId, projectOptionDTOList) -> {
-                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
-                returnList.add(projectNode);
-                BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
-                projectNode.addChild(defaultNode);
-            });
-            return returnList;
-        }
-        projectModuleMap.forEach((projectId, moduleList) -> {
-            BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
+
+        projectIds.forEach(projectId -> {
+            // 如果projectRootMap中没有projectId，说明该项目没有根节点 不需要创
+            // projectModuleMap中没有projectId，说明该项目没有模块 不需要创建
+            // 如果都有 需要创建完整的数结构
+            boolean needCreatRoot = MapUtils.isNotEmpty(projectRootMap) && projectRootMap.containsKey(projectId);
+            boolean needCreatModule = MapUtils.isNotEmpty(projectModuleMap) && projectModuleMap.containsKey(projectId);
+            // 项目名称是
+            String projectName = needCreatModule ? projectModuleMap.get(projectId).getFirst().getProjectName() : projectRootMap.get(projectId).getFirst().getProjectName();
+            // 构建项目那一层级
+            BaseTreeNode projectNode = new BaseTreeNode(projectId, projectName, "PROJECT");
             returnList.add(projectNode);
-            List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
-            List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
-            boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
-            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
+            List<BaseTreeNode> nodeByNodeIds = new ArrayList<>();
+            if (needCreatModule) {
+                List<String> projectModuleIds = projectModuleMap.get(projectId).stream().map(FunctionalCaseModuleDTO::getId).toList();
+                nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
+            }
+            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, needCreatRoot, Translator.get("functional_case.module.default.name"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
+                if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                    // 默认拼项目id
+                    baseTreeNode.setId(projectId + "_" + ModuleConstants.DEFAULT_NODE_ID);
+                }
                 projectNode.addChild(baseTreeNode);
             }
         });
@@ -391,7 +401,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         request.setModuleIds(null);
         List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanFunctionalCaseMapper.countModuleIdByRequest(request, false);
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
-        Map<String, Long> projectModuleCountMap = new HashMap<>();
+        Map<String, Long> projectModuleCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getModuleId, Collectors.summingLong(FunctionalCaseModuleCountDTO::getDataCount)));
         projectCountMap.forEach((projectId, moduleCountDTOList) -> {
             List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
             for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {

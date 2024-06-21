@@ -22,7 +22,6 @@ public class TestPlanCaseRequest extends BasePageRequest implements Serializable
     private String testPlanId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "版本id")
