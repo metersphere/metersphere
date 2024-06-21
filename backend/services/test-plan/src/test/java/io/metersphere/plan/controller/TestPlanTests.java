@@ -599,6 +599,7 @@ public class TestPlanTests extends BaseTest {
                     testPlanReport.setProjectId(project.getId());
                     testPlanReport.setIntegrated(false);
                     testPlanReport.setDeleted(false);
+                    testPlanReport.setTestPlanName("test");
                     batchInsert.insert(testPlanReport);
                 }
                 sqlSession.flushStatements();
