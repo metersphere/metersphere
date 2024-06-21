@@ -35,7 +35,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
   function canShowFloatMenu() {
     if (window.minder) {
       const node: MinderJsonNode = window.minder.getSelectedNode();
-      if (node.data?.type === 'tmp') {
+      if (node?.data?.type === 'tmp') {
         // 临时节点不展示浮动菜单
         return false;
       }
