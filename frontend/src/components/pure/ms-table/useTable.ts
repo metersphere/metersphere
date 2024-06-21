@@ -381,7 +381,7 @@ export default function useTableProps<T>(
   watch(
     () => props?.draggableCondition,
     () => {
-      setTableDraggable();
+      setTableDraggable(Object.keys(sortItem.value).length === 0 && Object.keys(filterItem.value).length === 0);
     },
     {
       immediate: true,
