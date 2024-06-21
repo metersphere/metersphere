@@ -1109,8 +1109,9 @@ public class FunctionalCaseMinderService {
             User user = userMapper.selectByPrimaryKey(userId);
             Map<String, List<MinderOptionDTO>> resourceMap = request.getDeleteResourceList().stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
             List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.case"));
+            List<String> caseIds = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
-                List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+                caseIds= caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
                 functionalCaseService.handDeleteFunctionalCase(caseIds, false, userId, request.getProjectId());
                 functionalCaseLogService.batchDeleteFunctionalCaseLogByIds(caseIds, "/functional/mind/case/edit");
                 functionalCaseNoticeService.batchSendNotice(request.getProjectId(), caseIds, user, NoticeConstants.Event.DELETE);
@@ -1121,7 +1122,8 @@ public class FunctionalCaseMinderService {
                 List<String> moduleIds = caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
                 List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), userId);
                 functionalCaseModuleService.batchDelLog(functionalCases, request.getProjectId());
-                functionalCaseNoticeService.batchSendNotice(request.getProjectId(), functionalCases.stream().map(FunctionalCase::getId).toList(), user, NoticeConstants.Event.DELETE);
+                List<String> finalCaseIds = caseIds;
+                functionalCaseNoticeService.batchSendNotice(request.getProjectId(), functionalCases.stream().map(FunctionalCase::getId).filter(id ->!finalCaseIds.contains(id)).toList(), user, NoticeConstants.Event.DELETE);
             }
             List<MinderOptionDTO> additionalOptionDTOS = resourceMap.get(ModuleConstants.ROOT_NODE_PARENT_ID);
             if (CollectionUtils.isNotEmpty(additionalOptionDTOS)) {
