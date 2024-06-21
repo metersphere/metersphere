@@ -105,7 +105,7 @@
             <!-- 开始执行 -->
             <div
               v-if="canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
-              class="px-[16px] py-[8px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+              class="z-[101] px-[16px] py-[8px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
             >
               <div class="mb-[12px] flex items-center justify-between">
                 <div class="font-medium text-[var(--color-text-1)]">
