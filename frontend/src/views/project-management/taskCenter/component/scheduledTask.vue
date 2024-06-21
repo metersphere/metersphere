@@ -43,7 +43,10 @@
     >
       <template #resourceNum="{ record }">
         <div
-          v-if="props.moduleType === TaskCenterEnum.API_SCENARIO"
+          v-if="
+            props.moduleType === TaskCenterEnum.API_SCENARIO ||
+            (props.moduleType === TaskCenterEnum.TEST_PLAN && record.type === TaskCenterEnum.TEST_PLAN)
+          "
           type="text"
           class="one-line-text w-full"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
@@ -53,7 +56,10 @@
       </template>
       <template #resourceName="{ record }">
         <div
-          v-if="props.moduleType === TaskCenterEnum.API_SCENARIO"
+          v-if="
+            props.moduleType === TaskCenterEnum.API_SCENARIO ||
+            (props.moduleType === TaskCenterEnum.TEST_PLAN && record.type === TaskCenterEnum.TEST_PLAN)
+          "
           class="one-line-text max-w-[300px]"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
           @click="showDetail(record.resourceId)"
@@ -548,8 +554,13 @@
     if (!hasJumpPermission.value) {
       return;
     }
-    if (props.moduleType === 'API_SCENARIO') {
+    if (props.moduleType === TaskCenterEnum.API_SCENARIO) {
       openNewPage(RouteEnum.API_TEST_SCENARIO, {
+        id,
+      });
+    }
+    if (props.moduleType === TaskCenterEnum.TEST_PLAN) {
+      openNewPage(RouteEnum.TEST_PLAN_INDEX_DETAIL, {
         id,
       });
     }
