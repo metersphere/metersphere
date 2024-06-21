@@ -64,4 +64,7 @@ public interface ExtTestPlanFunctionalCaseMapper {
     Long getMaxPosByCollectionId(String collectionId);
 
     List<ModuleCountDTO> collectionCountByRequest(@Param("request") TestPlanCaseModuleRequest request);
+
+    List<TestPlanFunctionalCase> getPlanCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
+
 }

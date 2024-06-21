@@ -67,4 +67,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanApiScenario> getSelectIdAndCollectionId(@Param("request")  TestPlanApiScenarioBatchRunRequest request);
 
     List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
+
+    List<TestPlanApiScenario> getPlanScenarioCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
 }

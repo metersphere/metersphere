@@ -440,6 +440,17 @@
           AND atc.deleted = false
     </select>
 
+    <select id="getPlanApiCaseNotDeletedByCollectionIds" resultType="io.metersphere.plan.domain.TestPlanApiCase">
+        SELECT t.*
+        FROM test_plan_api_case t
+                 INNER JOIN api_test_case atc ON t.api_case_id = atc.id
+        WHERE t.test_plan_collection_id IN
+        <foreach collection="collectionIds" item="collectionId" separator="," open="(" close=")">
+            #{collectionId}
+        </foreach>
+          AND atc.deleted = false
+    </select>
+
 
     <sql id="queryApiCaseWhereCondition">
         <if test="request.protocols != null and request.protocols.size() > 0">

@@ -474,6 +474,17 @@
         </if>
     </sql>
 
+    <select id="getPlanScenarioCaseNotDeletedByCollectionIds" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+        SELECT t.*
+        FROM test_plan_api_scenario t
+                 INNER JOIN api_scenario a ON t.api_scenario_id = a.id
+        WHERE t.test_plan_collection_id IN
+        <foreach collection="collectionIds" item="collectionId" separator="," open="(" close=")">
+            #{collectionId}
+        </foreach>
+          AND a.deleted = false
+    </select>
+
 
     <update id="batchUpdateExecutor">
         update test_plan_api_scenario
