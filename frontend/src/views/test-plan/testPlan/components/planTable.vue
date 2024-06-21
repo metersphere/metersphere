@@ -1320,6 +1320,7 @@
 
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
+    setLoading(true);
     try {
       await dragPlanOnGroup(params);
       Message.success(t('caseManagement.featureCase.sortSuccess'));
@@ -1327,6 +1328,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 
