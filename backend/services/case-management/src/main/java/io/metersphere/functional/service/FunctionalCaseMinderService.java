@@ -256,14 +256,6 @@ public class FunctionalCaseMinderService {
         return functionalMinderTreeDTO;
     }
 
-    private void checkPermission(List<String> sourceIds, String tableName, String userId) {
-        if (CollectionUtils.isNotEmpty(sourceIds)) {
-            if (!extCheckOwnerMapper.checkoutOwner(tableName, userId, sourceIds)) {
-                throw new MSException(Translator.get(CHECK_OWNER_CASE));
-            }
-        }
-    }
-
     public void editFunctionalCaseBatch(FunctionalCaseMinderEditRequest request, String userId) {
         //处理删除的模块和用例和空白节点
         deleteResource(request, userId);
@@ -1127,7 +1119,6 @@ public class FunctionalCaseMinderService {
             List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.case"));
             if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
                 List<String> caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-                checkPermission(caseIds, FUNCTIONAL_CASE, userId);
                 functionalCaseService.handDeleteFunctionalCase(caseIds, false, userId, request.getProjectId());
                 functionalCaseLogService.batchDeleteFunctionalCaseLogByIds(caseIds, "/functional/mind/case/edit");
                 functionalCaseNoticeService.batchSendNotice(request.getProjectId(), caseIds, user, NoticeConstants.Event.DELETE);
@@ -1136,7 +1127,6 @@ public class FunctionalCaseMinderService {
             List<MinderOptionDTO> caseModuleOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.module"));
             if (CollectionUtils.isNotEmpty(caseModuleOptionDTOS)) {
                 List<String> moduleIds = caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
-                checkPermission(moduleIds, FUNCTIONAL_CASE_MODULE, userId);
                 List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), userId);
                 functionalCaseModuleService.batchDelLog(functionalCases, request.getProjectId());
                 functionalCaseNoticeService.batchSendNotice(request.getProjectId(), functionalCases.stream().map(FunctionalCase::getId).toList(), user, NoticeConstants.Event.DELETE);
