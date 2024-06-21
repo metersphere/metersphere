@@ -1472,9 +1472,6 @@
   );
 
   onBeforeMount(() => {
-    if (route.query.id) {
-      openDetail(route.query.id as string);
-    }
     fetchData();
   });
 
