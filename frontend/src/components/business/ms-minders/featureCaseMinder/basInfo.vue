@@ -48,6 +48,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
+  import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
   import {
@@ -84,7 +85,7 @@
     name: '',
     tags: [] as string[],
     templateId: '',
-    moduleId: 'root',
+    moduleId: props.activeCase.moduleId || 'root',
   });
   const baseInfoLoading = ref(false);
 
@@ -143,6 +144,7 @@
   function makeParams() {
     return {
       ...baseInfoForm.value,
+      moduleId: props.activeCase.moduleId || 'root',
       id: props.activeCase.id,
       projectId: appStore.currentProjectId,
       caseEditType: props.activeCase.caseEditType || 'STEP',
@@ -162,9 +164,10 @@
           if (valid === true) {
             try {
               saveLoading.value = true;
+              const params = makeParams();
               if (props.activeCase.isNew !== false) {
                 const res = await createCaseRequest({
-                  request: makeParams(),
+                  request: params,
                   fileList: [],
                 });
                 const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
@@ -173,13 +176,23 @@
                 }
               } else {
                 await updateCaseRequest({
-                  request: makeParams(),
+                  request: params,
                   fileList: [],
                 });
               }
               const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+              const priority = (formItem.value.find(
+                (item) => item.title === 'Case Priority' || item.title === '用例等级'
+              )?.value || 'P0') as string;
+              const priorityNumber = Number(priority.match(/\d+/)?.[0]) || 0;
               if (selectedNode?.data) {
-                selectedNode.data.text = baseInfoForm.value.name;
+                selectedNode.data = {
+                  ...selectedNode.data,
+                  text: baseInfoForm.value.name,
+                  priority: priorityNumber,
+                };
+                window.minder.execCommand('priority', priorityNumber + 1);
+                setPriorityView(true, 'P');
               }
               Message.success(t('common.saveSuccess'));
             } catch (error) {

@@ -345,6 +345,7 @@
           activeCase.value = {
             id: data.id,
             name: data.text,
+            moduleId: node.parent?.data?.id || '',
             isNew: true,
           };
         }
@@ -618,13 +619,13 @@
     };
   }
 
-  function resetMinderParams() {
+  function resetMinderParams(clearDeleteResource = false) {
     tempMinderParams.value = {
       projectId: appStore.currentProjectId,
       versionId: '',
       updateCaseList: [],
       updateModuleList: [],
-      deleteResourceList: tempMinderParams.value.deleteResourceList, // 删除的资源不清空，避免请求错误导致数据丢失
+      deleteResourceList: clearDeleteResource ? [] : tempMinderParams.value.deleteResourceList, // 请求错误的时候，删除的资源不清空，因为此时节点已经被脑图删除
       additionalNodeList: [],
     };
   }
@@ -698,7 +699,7 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      resetMinderParams();
+      resetMinderParams(true);
     } finally {
       loading.value = false;
     }

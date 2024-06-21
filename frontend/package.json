@@ -114,7 +114,7 @@
     "color": "^4.2.3",
     "consola": "^2.15.3",
     "cross-env": "^7.0.3",
-    "eslint": "^8.49.0",
+    "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.10.0",
     "eslint-import-resolver-typescript": "^3.6.0",
@@ -162,7 +162,7 @@
     "vite-plugin-vue-setup-extend": "^0.4.0",
     "vite-svg-loader": "^3.6.0",
     "vitest": "^0.31.4",
-    "vue-tsc": "^1.8.10"
+    "vue-tsc": "^2.0.21"
   },
   "engines": {
     "node": ">=14.0.0"

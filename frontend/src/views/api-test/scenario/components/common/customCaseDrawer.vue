@@ -1076,7 +1076,9 @@
         }
         handleActiveDebugProtocolChange(requestVModel.value.protocol);
         nextTick(() => {
-          setDefaultActiveTab();
+          if (requestVModel.value.protocol === 'HTTP') {
+            setDefaultActiveTab();
+          }
           isSwitchingContent.value = false;
         });
       }
