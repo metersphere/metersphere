@@ -290,7 +290,7 @@ public class TestPlanReportService {
 	 * 预生成报告内容(汇总前调用)
 	 * @return 报告
 	 */
-	public TestPlanReport preGenReport(String prepareId,TestPlanReportGenPreParam genParam, String currentUser, String logPath, TestPlanReportModuleParam moduleParam, List<String> childPlanIds) {
+	public TestPlanReport preGenReport(String prepareId, TestPlanReportGenPreParam genParam, String currentUser, String logPath, TestPlanReportModuleParam moduleParam, List<String> childPlanIds) {
 		// 计划配置
 		TestPlanConfig config = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
 

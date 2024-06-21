@@ -16,6 +16,8 @@ public class TestPlanReportDetailResponse {
     private String id;
     @Schema(description = "报告名称")
     private String name;
+    @Schema(description = "计划名称")
+    private String testPlanName;
     @Schema(description = "报告创建时间")
     private Long createTime;
     @Schema(description = "报告开始(执行)时间")

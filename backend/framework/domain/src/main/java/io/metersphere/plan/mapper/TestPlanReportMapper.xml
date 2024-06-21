@@ -19,6 +19,7 @@
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="execute_rate" jdbcType="DECIMAL" property="executeRate" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="test_plan_name" jdbcType="VARCHAR" property="testPlanName" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,7 +82,7 @@
   <sql id="Base_Column_List">
     id, test_plan_id, `name`, create_user, create_time, start_time, end_time, exec_status, 
     result_status, pass_rate, trigger_mode, pass_threshold, project_id, integrated, deleted, 
-    execute_rate, parent_id
+    execute_rate, parent_id, test_plan_name
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanReportExample" resultMap="BaseResultMap">
     select
@@ -119,13 +120,15 @@
       end_time, exec_status, result_status, 
       pass_rate, trigger_mode, pass_threshold, 
       project_id, integrated, deleted, 
-      execute_rate, parent_id)
+      execute_rate, parent_id, test_plan_name
+      )
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{execStatus,jdbcType=VARCHAR}, #{resultStatus,jdbcType=VARCHAR}, 
       #{passRate,jdbcType=DECIMAL}, #{triggerMode,jdbcType=VARCHAR}, #{passThreshold,jdbcType=DECIMAL}, 
       #{projectId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, #{deleted,jdbcType=BIT}, 
-      #{executeRate,jdbcType=DECIMAL}, #{parentId,jdbcType=VARCHAR})
+      #{executeRate,jdbcType=DECIMAL}, #{parentId,jdbcType=VARCHAR}, #{testPlanName,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanReport">
     insert into test_plan_report
@@ -181,6 +184,9 @@
       <if test="parentId != null">
         parent_id,
       </if>
+      <if test="testPlanName != null">
+        test_plan_name,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -233,6 +239,9 @@
       </if>
       <if test="parentId != null">
         #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanName != null">
+        #{testPlanName,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -296,6 +305,9 @@
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
+      <if test="record.testPlanName != null">
+        test_plan_name = #{record.testPlanName,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -319,7 +331,8 @@
       integrated = #{record.integrated,jdbcType=BIT},
       deleted = #{record.deleted,jdbcType=BIT},
       execute_rate = #{record.executeRate,jdbcType=DECIMAL},
-      parent_id = #{record.parentId,jdbcType=VARCHAR}
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      test_plan_name = #{record.testPlanName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -375,6 +388,9 @@
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
       </if>
+      <if test="testPlanName != null">
+        test_plan_name = #{testPlanName,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -395,14 +411,15 @@
       integrated = #{integrated,jdbcType=BIT},
       deleted = #{deleted,jdbcType=BIT},
       execute_rate = #{executeRate,jdbcType=DECIMAL},
-      parent_id = #{parentId,jdbcType=VARCHAR}
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      test_plan_name = #{testPlanName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_report
     (id, test_plan_id, `name`, create_user, create_time, start_time, end_time, exec_status, 
       result_status, pass_rate, trigger_mode, pass_threshold, project_id, integrated, 
-      deleted, execute_rate, parent_id)
+      deleted, execute_rate, parent_id, test_plan_name)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
@@ -410,7 +427,8 @@
         #{item.endTime,jdbcType=BIGINT}, #{item.execStatus,jdbcType=VARCHAR}, #{item.resultStatus,jdbcType=VARCHAR}, 
         #{item.passRate,jdbcType=DECIMAL}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.passThreshold,jdbcType=DECIMAL}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, #{item.deleted,jdbcType=BIT}, 
-        #{item.executeRate,jdbcType=DECIMAL}, #{item.parentId,jdbcType=VARCHAR})
+        #{item.executeRate,jdbcType=DECIMAL}, #{item.parentId,jdbcType=VARCHAR}, #{item.testPlanName,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -473,6 +491,9 @@
         </if>
         <if test="'parent_id'.toString() == column.value">
           #{item.parentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_plan_name'.toString() == column.value">
+          #{item.testPlanName,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

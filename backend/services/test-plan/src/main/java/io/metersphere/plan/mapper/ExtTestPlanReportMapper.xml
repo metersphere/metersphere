@@ -99,19 +99,17 @@
     <select id="getPlanReportListById"
             resultType="io.metersphere.plan.dto.response.TestPlanReportDetailResponse">
 
-        SELECT tpr.id,
-               tp.name,
-               tpr.result_status,
-               tpr.pass_rate,
-               tpc.pass_threshold,
+        SELECT  tpr.id,
+                tpr.test_plan_name,
+                tpr.result_status,
+                tpr.pass_rate,
+                tpr.pass_threshold,
         (tprs.functional_case_count + tprs.api_case_count + tprs.api_scenario_count + tprs.bug_count) as caseTotal,
         tpr.create_time,
         tpr.deleted
 
         from test_plan_report tpr
-                 INNER JOIN test_plan tp on tpr.test_plan_id = tp.id
-                 INNER JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
-        INNER JOIN test_plan_config tpc on tp.id = tpc.test_plan_id
+            INNER JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
 
         <include refid="queryWhereConditionByParentId"/>
     </select>
