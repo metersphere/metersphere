@@ -226,7 +226,6 @@ public class TestPlanTests extends BaseTest {
         testPlanTableRequest.setProjectId(DEFAULT_PROJECT_ID);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
     }
-
     @Test
     @Order(2)
     public void addModuleTest() throws Exception {
@@ -1538,6 +1537,15 @@ public class TestPlanTests extends BaseTest {
         List<TestPlanResponse> copyChild = this.selectByGroupId(copyGroup.getId());
         childs = childs.stream().filter(item -> !StringUtils.equalsIgnoreCase(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)).collect(Collectors.toList());
         Assertions.assertTrue(copyChild.size() == childs.size());
+
+
+        //赋值超过20个数据到测试计划组
+        request = new TestPlanBatchRequest();
+        request.setProjectId(project.getId());
+        request.setTargetId(groupTestPlanId7);
+        request.setMoveType("GROUP");
+        request.setSelectIds(Collections.singletonList(simpleTestPlan.getId()));
+        this.requestPost(URL_TEST_PLAN_BATCH_COPY, request).andExpect(status().is5xxServerError());
 
         //删除
         this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, copyGroup.getId())).andExpect(status().isOk());
