@@ -24,6 +24,7 @@
         :module-tree="moduleTree"
         :can-edit="props.canEdit"
         :selected-protocols="selectedProtocols"
+        :all-protocol-list="allProtocolList"
         @get-module-count="getModuleCount"
         @refresh="emit('refresh')"
         @init-modules="initModules"
@@ -108,6 +109,8 @@
       }
     });
   }
+
+  const allProtocolList = computed(() => caseTreeRef.value?.allProtocolList ?? []);
 
   defineExpose({
     getCaseTableList,

@@ -154,6 +154,7 @@
     moduleTree: ModuleTreeNode[];
     canEdit: boolean;
     selectedProtocols: string[];
+    allProtocolList: string[];
     treeType: 'MODULE' | 'COLLECTION';
   }>();
 
@@ -359,8 +360,9 @@
     const selectModules = await getModuleIds();
     const commonParams = {
       testPlanId: props.planId,
-      protocols: props.selectedProtocols,
-      ...(props.treeType === 'COLLECTION' ? { collectionId: collectionId.value } : { moduleIds: selectModules }),
+      ...(props.treeType === 'COLLECTION'
+        ? { protocols: props.allProtocolList, collectionId: collectionId.value }
+        : { protocols: props.selectedProtocols, moduleIds: selectModules }),
     };
     if (isBatch) {
       return {

@@ -12,6 +12,7 @@
       :max-length="255"
     />
     <TreeFolderAll
+      ref="treeFolderAllRef"
       v-model:isExpandAll="isExpandAll"
       v-model:selectedProtocols="selectedProtocols"
       :not-show-operation="props.treeType === 'COLLECTION'"
@@ -91,10 +92,25 @@
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
     };
   });
+  const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
+  const allProtocolList = computed(() => treeFolderAllRef.value?.allProtocolList);
 
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
-  const isExpandAll = ref<boolean | undefined>(false);
+  const isExpandAll = ref<boolean | undefined>(undefined);
+  function setIsExpandAll() {
+    if (props.treeType === 'COLLECTION') {
+      isExpandAll.value = undefined;
+    } else {
+      isExpandAll.value = false;
+    }
+  }
+  watch(
+    () => props.treeType,
+    () => {
+      setIsExpandAll();
+    }
+  );
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;
@@ -157,8 +173,13 @@
     initModules();
   }
 
+  onBeforeMount(() => {
+    setIsExpandAll();
+  });
+
   defineExpose({
     initModules,
     setActiveFolder,
+    allProtocolList,
   });
 </script>
