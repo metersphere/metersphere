@@ -74,6 +74,8 @@
         t.module_id as moduleId,
         t.type,
         t.description,
+        t.actual_start_time AS actualStartTime,
+        t.actual_end_time AS actualEndTime,
         t.pos,
         t.group_id AS parent,
         t.tags

@@ -78,6 +78,7 @@ public class TestPlanManagementService {
     public List<TestPlan> groupList(String projectId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_GROUP).andProjectIdEqualTo(projectId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        example.setOrderByClause("num desc");
         return testPlanMapper.selectByExample(example);
     }
 
