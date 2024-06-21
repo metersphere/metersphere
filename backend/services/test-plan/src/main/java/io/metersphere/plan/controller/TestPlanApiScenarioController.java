@@ -101,7 +101,6 @@ public class TestPlanApiScenarioController {
         batchRequest.setTestPlanId(request.getTestPlanId());
         batchRequest.setSelectIds(List.of(request.getId()));
         TestPlanAssociationResponse response = testPlanApiScenarioService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/disassociate", HttpMethodConstants.POST.name()));
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
 
@@ -112,7 +111,6 @@ public class TestPlanApiScenarioController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody BasePlanCaseBatchRequest request) {
         TestPlanAssociationResponse response = testPlanApiScenarioService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/batch/disassociate", HttpMethodConstants.POST.name()));
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
 

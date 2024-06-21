@@ -85,7 +85,6 @@ public class TestPlanApiCaseBatchRunService {
      */
     public void asyncBatchRun(TestPlanApiCaseBatchRunRequest request, String userId) {
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
-        testPlanService.setTestPlanUnderway(request.getTestPlanId());
         testPlanService.setActualStartTime(request.getTestPlanId());
         Thread.startVirtualThread(() -> batchRun(request, userId));
     }
