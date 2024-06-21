@@ -29,7 +29,6 @@ export default {
   'report.detail.featureCaseDetails': 'Feature case details',
   'report.detail.executionAnalysis': 'Execution Analysis',
   'report.detail.threshold': 'Pass threshold',
-  'report.detail.reportPassRate': 'The report pass',
   'report.detail.performCompletion': 'Perform completion',
   'report.detail.totalDefects': 'Total defects',
   'report.detail.useCaseAnalysis': 'Function of use case analysis',

@@ -156,16 +156,19 @@
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
       showDrag: true,
-      showInTable: false,
       width: 100,
+    },
+    {
+      title: 'apiScenario.table.columns.tags',
+      dataIndex: 'tags',
+      isTag: true,
+      isStringTag: true,
+      showDrag: true,
     },
     {
       title: 'apiScenario.table.columns.createUser',
       dataIndex: 'createUser',
       slotName: 'createUserName',
-      showInTable: false,
-      showTooltip: true,
-      showDrag: true,
       width: 109,
       filterConfig: {
         mode: 'remote',
@@ -177,42 +180,28 @@
       },
     },
     {
-      title: 'apiScenario.table.columns.tags',
-      dataIndex: 'tags',
-      isTag: true,
-      isStringTag: true,
-      showDrag: true,
-    },
-    {
       title: '',
       dataIndex: 'action',
       width: 24,
       slotName: SpecialColumnEnum.ACTION,
       fixed: 'right',
+      cellClass: 'operator-class',
     },
   ];
   const getPageList = computed(() => {
     return getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType];
   });
-  const {
-    propsRes,
-    propsEvent,
-    loadList,
-    setLoadListParams,
-    resetSelector,
-    setPagination,
-    resetFilterParams,
-    setTableSelected,
-  } = useTable(getPageList.value, {
-    tableKey: TableKeyEnum.ASSOCIATE_CASE_API_SCENARIO,
-    showSetting: true,
-    isSimpleSetting: true,
-    onlyPageSize: true,
-    selectable: true,
-    showSelectAll: true,
-    heightUsed: 310,
-    showSelectorAll: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams, setTableSelected } =
+    useTable(getPageList.value, {
+      tableKey: TableKeyEnum.ASSOCIATE_CASE_API_SCENARIO,
+      showSetting: true,
+      isSimpleSetting: true,
+      onlyPageSize: true,
+      selectable: true,
+      showSelectAll: true,
+      heightUsed: 310,
+      showSelectorAll: false,
+    });
 
   async function getTableParams() {
     const { excludeKeys } = propsRes.value;
@@ -302,7 +291,9 @@
 </script>
 
 <style lang="less" scoped>
-  :deep(.arco-table-cell-align-left) {
-    padding: 0 8px !important;
+  :deep(.operator-class) {
+    .arco-table-cell-align-left {
+      padding: 0 8px !important;
+    }
   }
 </style>

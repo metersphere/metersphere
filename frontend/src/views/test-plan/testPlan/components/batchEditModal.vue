@@ -165,6 +165,7 @@
             },
             ...form.value,
             type: props.showType,
+            editColumn: 'TAGS',
           };
           await batchEditTestPlan(params);
           Message.success(t('caseManagement.featureCase.editSuccess'));

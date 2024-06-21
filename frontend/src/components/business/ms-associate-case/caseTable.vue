@@ -122,7 +122,6 @@
       fixed: 'left',
       width: 150,
       showTooltip: true,
-      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseName',
@@ -175,7 +174,7 @@
       slotName: 'createUserName',
       dataIndex: 'createUserName',
       showTooltip: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     {
@@ -195,6 +194,7 @@
       width: 24,
       slotName: SpecialColumnEnum.ACTION,
       fixed: 'right',
+      cellClass: 'operator-class',
     },
   ];
 
@@ -210,40 +210,32 @@
     return undefined;
   }
 
-  const {
-    propsRes,
-    propsEvent,
-    loadList,
-    setLoadListParams,
-    resetSelector,
-    setPagination,
-    resetFilterParams,
-    setTableSelected,
-  } = useTable(
-    getPageList.value,
-    {
-      tableKey: TableKeyEnum.ASSOCIATE_CASE,
-      showSetting: true,
-      isSimpleSetting: true,
-      onlyPageSize: true,
-      selectable: true,
-      showSelectAll: true,
-      heightUsed: 310,
-      showSelectorAll: false,
-    },
-    (record) => {
-      return {
-        ...record,
-        caseLevel: getCaseLevel(record),
-        tags: (record.tags || []).map((item: string, i: number) => {
-          return {
-            id: `${record.id}-${i}`,
-            name: item,
-          };
-        }),
-      };
-    }
-  );
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams, setTableSelected } =
+    useTable(
+      getPageList.value,
+      {
+        tableKey: TableKeyEnum.ASSOCIATE_CASE,
+        showSetting: true,
+        isSimpleSetting: true,
+        onlyPageSize: true,
+        selectable: true,
+        showSelectAll: true,
+        heightUsed: 310,
+        showSelectorAll: false,
+      },
+      (record) => {
+        return {
+          ...record,
+          caseLevel: getCaseLevel(record),
+          tags: (record.tags || []).map((item: string, i: number) => {
+            return {
+              id: `${record.id}-${i}`,
+              name: item,
+            };
+          }),
+        };
+      }
+    );
 
   async function getTableParams() {
     const { excludeKeys } = propsRes.value;
@@ -333,7 +325,9 @@
 </script>
 
 <style lang="less" scoped>
-  :deep(.arco-table-cell-align-left) {
-    padding: 0 8px !important;
+  :deep(.operator-class) {
+    .arco-table-cell-align-left {
+      padding: 0 8px !important;
+    }
   }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <ReportHeader v-if="!props.isDrawer" :detail="detail" :share-id="shareId" :is-group="false" />
-  <div class="analysis-wrapper">
+  <div class="analysis-wrapper" :data-cards="cardCount">
     <div class="analysis min-w-[238px]">
       <div class="block-title">{{ t('report.detail.api.reportAnalysis') }}</div>
       <ReportMetricsItem
@@ -12,10 +12,7 @@
     <div class="analysis min-w-[410px]">
       <ExecuteAnalysis :detail="detail" />
     </div>
-  </div>
-
-  <div class="analysis-wrapper">
-    <div class="analysis min-w-[330px]">
+    <div v-if="functionalCaseTotal" class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.useCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
@@ -45,8 +42,7 @@
         </div>
       </div>
     </div>
-    <!-- TODO 接口用例&场景用例待联调 -->
-    <div class="analysis min-w-[330px]">
+    <div v-if="apiCaseTotal" class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.apiUseCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
@@ -76,7 +72,7 @@
         </div>
       </div>
     </div>
-    <div class="analysis min-w-[330px]">
+    <div v-if="scenarioCaseTotal" class="analysis min-w-[330px]">
       <div class="block-title">{{ t('report.detail.scenarioUseCaseAnalysis') }}</div>
       <div class="flex">
         <div class="w-[70%]">
@@ -107,6 +103,7 @@
       </div>
     </div>
   </div>
+
   <Summary
     v-model:richText="richText"
     :share-id="shareId"
@@ -297,7 +294,7 @@
       icon: 'threshold',
     },
     {
-      name: t('report.detail.reportPassRate'),
+      name: t('report.passRate'),
       value: detail.value.passRate,
       unit: '%',
       icon: 'passRate',
@@ -330,6 +327,42 @@
     const apiScenarioDetail = getSummaryDetail(detail.value.apiScenarioCount || defaultCount);
     return apiScenarioDetail.successRate;
   });
+  const functionalCaseTotal = computed(() => getSummaryDetail(detail.value.functionalCount).caseTotal);
+  const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
+  const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
+
+  const getFunctionalTab = computed(() => {
+    return functionalCaseTotal.value
+      ? [
+          {
+            value: 'featureCase',
+            label: t('report.detail.featureCaseDetails'),
+          },
+        ]
+      : [];
+  });
+
+  const getApiTab = computed(() => {
+    return apiCaseTotal.value
+      ? [
+          {
+            value: 'apiCase',
+            label: t('report.detail.apiCaseDetails'),
+          },
+        ]
+      : [];
+  });
+
+  const getScenarioTab = computed(() => {
+    return scenarioCaseTotal.value
+      ? [
+          {
+            value: 'scenarioCase',
+            label: t('report.detail.scenarioCaseDetails'),
+          },
+        ]
+      : [];
+  });
 
   const activeTab = ref('bug');
   const contentTabList = ref([
@@ -337,19 +370,21 @@
       value: 'bug',
       label: t('report.detail.bugDetails'),
     },
-    {
-      value: 'featureCase',
-      label: t('report.detail.featureCaseDetails'),
-    },
-    {
-      value: 'apiCase',
-      label: t('report.detail.apiCaseDetails'),
-    },
-    {
-      value: 'scenarioCase',
-      label: t('report.detail.scenarioCaseDetails'),
-    },
+    ...getFunctionalTab.value,
+    ...getApiTab.value,
+    ...getScenarioTab.value,
   ]);
+
+  const cardCount = computed(() => {
+    const totalList = [functionalCaseTotal.value, apiCaseTotal.value, scenarioCaseTotal.value];
+    let count = 2;
+    totalList.forEach((item: number) => {
+      if (item > 0) {
+        count++;
+      }
+    });
+    return count;
+  });
 
   watchEffect(() => {
     if (props.detailInfo) {
@@ -383,12 +418,12 @@
     @apply mb-4 font-medium;
   }
   .analysis-wrapper {
-    @apply mb-4 flex flex-wrap items-center gap-4;
+    @apply mb-4 grid items-center gap-4;
     .analysis {
       padding: 24px;
       height: 250px;
       box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-      @apply flex-1 rounded-xl bg-white;
+      @apply rounded-xl bg-white;
       .charts {
         top: 36%;
         right: 0;
@@ -396,6 +431,24 @@
         left: 0;
         z-index: 99;
         margin: auto;
+      }
+    }
+    &[data-cards='2'],
+    &[data-cards='4'] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    &[data-cards='3'] {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    // 有5个的时候，上面2个，下面3个
+    &[data-cards='5'] {
+      grid-template-columns: repeat(6, 1fr);
+      & > .analysis:nth-child(1),
+      & > .analysis:nth-child(2) {
+        grid-column: span 3;
+      }
+      & > .analysis:nth-child(n + 3) {
+        grid-column: span 2;
       }
     }
   }

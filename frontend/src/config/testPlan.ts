@@ -90,6 +90,7 @@ export const defaultReportDetail: PlanReportDetail = {
   functionalBugCount: 0, // 用例明细bug总数
   apiBugCount: 0, // 接口用例明细bug总数
   scenarioBugCount: 0, // 场景用例明细bug总数
+  testPlanName: '',
 };
 
 export const statusConfig: StatusListType[] = [

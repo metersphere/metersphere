@@ -63,7 +63,9 @@
             @change="() => handleStatusChange(record)"
           >
             <template #label>
-              <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
+              <span class="text-[var(--color-text-2)]">
+                <caseLevel :case-level="record.caseLevel" />
+              </span>
             </template>
             <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
               <caseLevel :case-level="item.text" />
@@ -462,20 +464,19 @@
 
   const firstStaticColumn: MsTableColumn = [
     {
-      'title': 'caseManagement.featureCase.tableColumnID',
-      'slotName': 'num',
+      'title': 'ID',
       'dataIndex': 'num',
-      'width': 130,
-      'showInTable': true,
+      'slotName': 'num',
+      'sortIndex': 1,
       'sortable': {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      'filter-icon-align-left': true,
+      'fixed': 'left',
+      'width': 150,
       'showTooltip': true,
-      'ellipsis': true,
-      'showDrag': false,
       'columnSelectorDisabled': true,
+      'filter-icon-align-left': true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',

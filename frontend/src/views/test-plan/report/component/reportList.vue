@@ -33,12 +33,8 @@
       @filter-change="filterChange"
     >
       <template #name="{ record }">
-        <div
-          type="text"
-          class="one-line-text flex w-full text-[rgb(var(--primary-5))]"
-          @click="showReportDetail(record.id, record.integrated)"
-        >
-          {{ characterLimit(record.name) }}
+        <div class="one-line-text text-[rgb(var(--primary-5))]" @click="showReportDetail(record.id, record.integrated)">
+          {{ record.name }}
         </div>
       </template>
       <template #integrated="{ record }">

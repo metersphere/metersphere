@@ -408,6 +408,10 @@ export default function useTableProps<T>(
         filterItem.value = { [`custom_${multiple ? 'multiple' : 'single'}_${dataIndex}`]: filteredValues };
       } else {
         filterItem.value = { ...getTableQueryParams().filter, [dataIndex]: filteredValues };
+        loadListParams.value.filter = {
+          ...loadListParams.value.filter,
+          [dataIndex]: filteredValues,
+        };
       }
       propsRes.value.filter = cloneDeep(filterItem.value);
       setTableDraggable((filterItem.value[dataIndex] || []).length === 0);
