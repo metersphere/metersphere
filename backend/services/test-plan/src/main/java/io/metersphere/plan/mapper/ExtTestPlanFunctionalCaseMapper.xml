@@ -508,6 +508,18 @@
             </if>
         </where>
     </select>
+
+    <select id="getPlanCaseNotDeletedByCollectionIds" resultType="io.metersphere.plan.domain.TestPlanFunctionalCase">
+        SELECT t.*
+        from test_plan_functional_case t
+                 INNER JOIN functional_case f ON t.functional_case_id = f.id
+        WHERE t.test_plan_collection_id IN
+        <foreach collection="collectionIds" item="collectionId" separator="," open="(" close=")">
+            #{collectionId}
+        </foreach>
+          AND f.deleted = false
+    </select>
+
     <select id="selectCaseExecResultCount" resultType="io.metersphere.plan.dto.TestPlanCaseRunResultCount">
         select test_plan_functional_case.last_exec_result as result, count(test_plan_functional_case.id) as resultCount
         from test_plan_functional_case
