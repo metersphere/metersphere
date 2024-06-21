@@ -41,7 +41,6 @@ export default {
   'testPlan.testPlanIndex.confirmBatchArchivePlan': '确认归档 {count} 个测试计划吗？',
   'testPlan.testPlanIndex.confirmBatchArchivePlanContent':
     '仅 已完成 测试计划可归档！\r\n 归档后，执行信息不再更新且不可编辑，数据不可恢复，请谨慎操作!',
-  'testPlan.testPlanIndex.selectedCount': '(已选 {count} 项数据)',
   'testPlan.testPlanIndex.createScheduledTask': '创建定时任务',
   'testPlan.testPlanIndex.updateScheduledTask': '更新定时任务',
   'testPlan.testPlanIndex.deleteScheduledTask': '删除定时任务',

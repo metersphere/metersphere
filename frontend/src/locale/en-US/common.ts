@@ -194,4 +194,5 @@ export default {
   'common.executionResult': 'Execution result',
   'common.expandAllSubModule': 'Expand all submodules',
   'common.collapseAllSubModule': 'Collapse all submodules',
+  'common.selectedCount': '{count} data selected',
 };

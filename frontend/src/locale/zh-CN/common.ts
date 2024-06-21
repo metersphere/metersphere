@@ -193,4 +193,5 @@ export default {
   'common.config': '配置',
   'common.expandAllSubModule': '展开全部子模块',
   'common.collapseAllSubModule': '收起全部子模块',
+  'common.selectedCount': '(已选 {count} 项数据)',
 };

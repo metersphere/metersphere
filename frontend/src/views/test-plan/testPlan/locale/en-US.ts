@@ -43,7 +43,6 @@ export default {
   'testPlan.testPlanIndex.confirmBatchArchivePlan': 'Are you sure to archive {count} test plans?',
   'testPlan.testPlanIndex.confirmBatchArchivePlanContent':
     'Only completed test plans can be archived! \n after filing, implement information no longer update and editing, data unrecoverable, please careful operation.',
-  'testPlan.testPlanIndex.selectedCount': '{count} data selected',
   'testPlan.testPlanIndex.createScheduledTask': 'Create Scheduled Task',
   'testPlan.testPlanIndex.updateScheduledTask': 'Update Scheduled Task',
   'testPlan.testPlanIndex.deleteScheduledTask': 'Delete Scheduled Task',

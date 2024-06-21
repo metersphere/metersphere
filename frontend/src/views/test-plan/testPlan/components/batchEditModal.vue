@@ -4,7 +4,7 @@
       {{ t('common.edit') }}
       <div class="text-[var(--color-text-4)]">
         {{
-          t('case.batchModalSubTitle', {
+          t('common.selectedCount', {
             count: props.batchParams.currentSelectCount,
           })
         }}
