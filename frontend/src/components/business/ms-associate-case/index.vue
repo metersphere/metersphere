@@ -136,7 +136,7 @@
           :filter-config-list="[]"
           :custom-fields-config-list="[]"
           :row-count="0"
-          :search-placeholder="t('common.searchByIdName')"
+          :search-placeholder="searchPlaceholder"
           @keyword-search="loadCaseList"
           @adv-search="loadCaseList"
           @refresh="loadCaseList"
@@ -364,6 +364,19 @@
         return t('apiTestManagement.allApi');
       case CaseLinkEnum.SCENARIO:
         return t('apiScenario.allScenario');
+      default:
+        return '';
+    }
+  });
+
+  const searchPlaceholder = computed(() => {
+    switch (associationType.value) {
+      case CaseLinkEnum.FUNCTIONAL:
+        return t('common.searchByIdName');
+      case CaseLinkEnum.API:
+        return t('apiTestManagement.searchPlaceholder');
+      case CaseLinkEnum.SCENARIO:
+        return t('common.searchByIdName');
       default:
         return '';
     }
