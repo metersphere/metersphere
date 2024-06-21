@@ -191,7 +191,7 @@
         {
           label: t('personal.exit'),
           icon: <MsIcon type="icon-icon_into-item_outlined" class="text-[var(--color-text-4)]" />,
-          event: () => logout(),
+          event: () => logout(undefined, true),
         },
       ]);
 

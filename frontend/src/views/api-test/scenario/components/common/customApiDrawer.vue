@@ -1302,7 +1302,9 @@
           });
         }
         requestVModel.value.activeTab = contentTabList.value[0].value;
-        setDefaultActiveTab();
+        if (requestVModel.value.protocol === 'HTTP') {
+          setDefaultActiveTab();
+        }
         nextTick(() => {
           isSwitchingContent.value = false;
         });
