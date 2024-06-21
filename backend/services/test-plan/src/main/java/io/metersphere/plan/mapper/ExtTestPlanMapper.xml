@@ -87,7 +87,7 @@
         <foreach collection="groupIds" item="groupId" separator="," open="(" close=")">
             #{groupId}
             </foreach>
-        ORDER BY t.pos ASC
+        ORDER BY t.pos DESC
     </select>
 
     <sql id="queryByTableRequest">
@@ -451,6 +451,12 @@
         SELECT IF(MAX(pos) IS NULL, 0, MAX(pos)) AS pos
         FROM test_plan
         WHERE group_id = #{0}
+    </select>
+    <select id="selectMaxPosByProjectIdAndGroupId" resultType="java.lang.Long">
+        SELECT IF(MAX(pos) IS NULL, 0, MAX(pos)) AS pos
+        FROM test_plan
+        WHERE project_id = #{projectId}
+          AND group_id = #{groupId}
     </select>
     <select id="selectRightfulIdsForExecute" resultType="java.lang.String">
         SELECT id FROM test_plan WHERE id IN

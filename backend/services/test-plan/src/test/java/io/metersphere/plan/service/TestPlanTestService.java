@@ -10,6 +10,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.job.TestPlanScheduleJob;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.project.domain.Project;
@@ -432,6 +433,13 @@ public class TestPlanTestService {
 
 
         });
+    }
+
+    public List<TestPlanResponse> getTestPlanResponse(String returnData) {
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Pager<Object> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        List<TestPlanResponse> returnList = JSON.parseArray(JSON.toJSONString(result.getList()), TestPlanResponse.class);
+        return returnList;
     }
 
     public void checkTestPlanPage(String returnData, long current, long pageSize, long allData) {

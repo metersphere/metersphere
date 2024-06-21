@@ -57,6 +57,8 @@ public interface ExtTestPlanMapper {
 
     long selectMaxPosByGroupId(String groupId);
 
+    long selectMaxPosByProjectIdAndGroupId(@Param("projectId") String projectId, @Param("groupId") String groupId);
+
     List<TestPlanResponse> selectByGroupIds(@Param("groupIds") List<String> groupIds);
 
     List<String> selectRightfulIdsForExecute(@Param("ids") List<String> ids);

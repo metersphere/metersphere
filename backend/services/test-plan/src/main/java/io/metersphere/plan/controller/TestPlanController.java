@@ -6,10 +6,7 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanDetailResponse;
-import io.metersphere.plan.dto.response.TestPlanOperationResponse;
-import io.metersphere.plan.dto.response.TestPlanResponse;
-import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
+import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -168,11 +165,8 @@ public class TestPlanController {
     @Operation(summary = "测试计划-复制测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
-    public TestPlanOperationResponse copy(@PathVariable String id) {
-        long copyCount = testPlanService.copy(id, SessionUtils.getUserId());
-        //copy完成之后的刷新一下状态
-        testPlanService.refreshTestPlanStatus(id);
-        return new TestPlanOperationResponse(copyCount);
+    public TestPlanSingleOperationResponse copy(@PathVariable String id) {
+        return new TestPlanSingleOperationResponse(testPlanService.copy(id, SessionUtils.getUserId()));
     }
 
     @PostMapping("/batch-copy")
@@ -208,17 +202,6 @@ public class TestPlanController {
         testPlanService.batchArchived(request, SessionUtils.getUserId());
     }
 
-    @PostMapping(value = "/association")
-    @Operation(summary = "测试计划功能用例-关联功能用例")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
-    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public void association(@Validated @RequestBody TestPlanAssociationRequest request) {
-        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
-        testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
-        testPlanService.association(request, SessionUtils.getUserId());
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
-    }
-
     @PostMapping("/batch-edit")
     @Operation(summary = "测试计划-批量编辑")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
@@ -236,7 +219,7 @@ public class TestPlanController {
     @CheckOwner(resourceId = "#request.getMoveId()", resourceType = "test_plan")
     public TestPlanOperationResponse sortTestPlan(@Validated @RequestBody PosRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getMoveId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        return testPlanService.sortInGroup(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/move", HttpMethodConstants.POST.name()));
+        return testPlanService.sort(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/sort", HttpMethodConstants.POST.name()));
     }
 
     @PostMapping(value = "/schedule-config")

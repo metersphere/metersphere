@@ -97,7 +97,6 @@ public class TestPlanFunctionalCaseController {
         batchRequest.setTestPlanId(request.getTestPlanId());
         batchRequest.setSelectIds(List.of(request.getId()));
         TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/disassociate", HttpMethodConstants.POST.name()));
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
 
@@ -108,7 +107,6 @@ public class TestPlanFunctionalCaseController {
     public TestPlanAssociationResponse batchDisassociate(@Validated @RequestBody BasePlanCaseBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));
         TestPlanAssociationResponse response = testPlanFunctionalCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/disassociate", HttpMethodConstants.POST.name()));
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
 
@@ -144,7 +142,6 @@ public class TestPlanFunctionalCaseController {
     public void run(@Validated @RequestBody TestPlanCaseRunRequest request) {
         testPlanFunctionalCaseService.run(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/run", HttpMethodConstants.POST.name()));
         testPlanService.setActualStartTime(request.getTestPlanId());
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
     @PostMapping("/batch/run")
@@ -154,7 +151,6 @@ public class TestPlanFunctionalCaseController {
     public void batchRun(@Validated @RequestBody TestPlanCaseBatchRunRequest request) {
         testPlanFunctionalCaseService.batchRun(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/batch/run", HttpMethodConstants.POST.name()));
         testPlanService.setActualStartTime(request.getTestPlanId());
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
     }
 
     @PostMapping("/has/associate/bug/page")

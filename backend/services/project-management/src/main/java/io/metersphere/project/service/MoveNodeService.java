@@ -91,6 +91,12 @@ public abstract class MoveNodeService {
         return new MoveNodeSortDTO(sortRangeId, dragNode, previousNode, nextNode);
     }
 
+    //判断是否存在需要提前排序的异常数据
+    public boolean needRefreshBeforeSort(DropNode previousNode, DropNode nextNode) {
+        long previousPos = previousNode == null ? -1 : previousNode.getPos();
+        long nextPos = nextNode == null ? -1 : nextNode.getPos();
+        return nextPos - previousPos <= 1 || previousPos == 0 || nextPos == 0;
+    }
     //排序
     public void sort(MoveNodeSortDTO sortDTO) {
         // 获取相邻节点
