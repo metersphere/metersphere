@@ -223,6 +223,7 @@ ALTER TABLE test_plan_report ADD `execute_rate` DECIMAL(10, 4) COMMENT '执行�
 ALTER TABLE test_plan_report ADD `parent_id` VARCHAR(50)  COMMENT '独立报告的父级ID';
 ALTER TABLE test_plan_report DROP `execute_time`;
 ALTER TABLE test_plan_report ADD `test_plan_name` VARCHAR(255) NOT NULL COMMENT '测试计划名称';
+ALTER TABLE test_plan_report MODIFY `pass_threshold` DECIMAL(10, 2) NULL COMMENT '通过阈值';
 
 -- 计划报告功能用例明细表
 ALTER TABLE test_plan_report_function_case ADD `test_plan_collection_id` VARCHAR(50) NOT NULL  COMMENT '测试集ID';
