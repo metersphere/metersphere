@@ -684,7 +684,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiCase testPlanApiCase = checkResourceExist(id);
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
-        testPlanService.setTestPlanUnderway(testPlanApiCase.getTestPlanId());
         testPlanService.setActualStartTime(testPlanApiCase.getTestPlanId());
         ApiTestCase apiTestCase = apiTestCaseService.checkResourceExist(testPlanApiCase.getApiCaseId());
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiCase.getTestPlanCollectionId());

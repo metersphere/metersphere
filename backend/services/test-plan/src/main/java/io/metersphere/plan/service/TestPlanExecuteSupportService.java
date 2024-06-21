@@ -79,13 +79,6 @@ public class TestPlanExecuteSupportService {
             postParam.setEndTime(System.currentTimeMillis());
             postParam.setExecStatus(isStop ? ExecStatus.STOPPED.name() : ExecStatus.COMPLETED.name());
             testPlanReportService.postHandleReport(postParam, false);
-
-            if (!isGroupReport) {
-                TestPlanReport testPlanReport = testPlanReportService.selectById(reportId);
-                if (testPlanReport != null) {
-                    testPlanService.refreshTestPlanStatus(testPlanReport.getTestPlanId());
-                }
-            }
         } catch (Exception e) {
             LogUtils.error("测试计划报告汇总失败!reportId:" + reportId, e);
             TestPlanReport stopReport = testPlanReportService.selectById(reportId);

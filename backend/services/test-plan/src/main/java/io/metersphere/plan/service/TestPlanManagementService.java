@@ -65,7 +65,7 @@ public class TestPlanManagementService {
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
         this.initDefaultFilter(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                MapUtils.isEmpty(request.getSort()) ? "t.num desc" : request.getSortString());
+                MapUtils.isEmpty(request.getSort()) ? "t.pos desc, t.id desc" : request.getSortString("id", "t"));
         return PageUtils.setPageInfo(page, this.list(request));
     }
 
@@ -102,7 +102,7 @@ public class TestPlanManagementService {
     public List<TestPlan> groupList(String projectId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_GROUP).andProjectIdEqualTo(projectId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
-        example.setOrderByClause("num desc");
+        example.setOrderByClause("pos desc, id desc");
         return testPlanMapper.selectByExample(example);
     }
 

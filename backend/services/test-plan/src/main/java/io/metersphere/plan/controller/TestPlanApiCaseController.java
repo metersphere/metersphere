@@ -95,7 +95,6 @@ public class TestPlanApiCaseController {
         batchRequest.setTestPlanId(request.getTestPlanId());
         batchRequest.setSelectIds(List.of(request.getId()));
         TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(batchRequest, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/disassociate", HttpMethodConstants.POST.name()));
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
 
@@ -109,7 +108,6 @@ public class TestPlanApiCaseController {
             return new TestPlanAssociationResponse();
         }
         TestPlanAssociationResponse response = testPlanApiCaseService.disassociate(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/case/batch/disassociate", HttpMethodConstants.POST.name()));
-        testPlanService.refreshTestPlanStatus(request.getTestPlanId());
         return response;
     }
 

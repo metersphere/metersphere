@@ -8,7 +8,6 @@ import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -64,42 +63,45 @@ public class TestPlanGroupService extends TestPlanSortService {
         validateMoveRequest(dropPlan, targetPlan, request.getMoveMode());
         MoveNodeSortDTO sortDTO = super.getNodeSortDTO(
                 targetPlan.getGroupId(),
-                this.getNodeMoveRequest(request, false),
+                this.getNodeMoveRequest(request, true),
                 extTestPlanMapper::selectDragInfoById,
                 extTestPlanMapper::selectNodeByPosOperator
         );
 
+        //判断是否需要刷新排序
+        if (this.needRefreshBeforeSort(sortDTO.getPreviousNode(), sortDTO.getNextNode())) {
+            this.refreshPos(sortDTO.getSortRangeId());
+            dropPlan = testPlanMapper.selectByPrimaryKey(request.getMoveId());
+            targetPlan = testPlanMapper.selectByPrimaryKey(request.getTargetId());
+            sortDTO = super.getNodeSortDTO(
+                    targetPlan.getGroupId(),
+                    this.getNodeMoveRequest(request, true),
+                    extTestPlanMapper::selectDragInfoById,
+                    extTestPlanMapper::selectNodeByPosOperator
+            );
+        }
         this.sort(sortDTO);
     }
 
     private void validateMoveRequest(TestPlan dropPlan, TestPlan targetPlan, String moveType) {
         //测试计划组不能进行移动操作
-        if (dropPlan == null || StringUtils.equalsIgnoreCase(dropPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+        if (dropPlan == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
-        if (targetPlan == null || StringUtils.equalsIgnoreCase(targetPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+        if (targetPlan == null) {
             throw new MSException(Translator.get("test_plan.drag.node.error"));
-        }
-        if (StringUtils.equalsIgnoreCase(MoveTypeEnum.APPEND.name(), moveType)) {
-            if (!StringUtils.equalsIgnoreCase(targetPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                throw new MSException(Translator.get("test_plan.drag.node.error"));
-            }
-        } else if (StringUtils.equalsAnyIgnoreCase(moveType, MoveTypeEnum.BEFORE.name(), MoveTypeEnum.AFTER.name())) {
-            if (StringUtils.equalsAny(TestPlanConstants.TEST_PLAN_TYPE_GROUP, dropPlan.getType())) {
-                throw new MSException(Translator.get("test_plan.drag.node.error"));
-            }
-        } else {
-            throw new MSException(Translator.get("test_plan.drag.position.error"));
         }
     }
 
-    public void validateGroupCapacity(String groupId, int size) {
-        if (!StringUtils.equals(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+    public TestPlan validateGroupCapacity(String groupId, int size) {
             // 判断测试计划组是否存在
             TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
             if (groupPlan == null) {
                 throw new MSException(Translator.get("test_plan.group.error"));
             }
+        if (!StringUtils.equalsIgnoreCase(groupPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            throw new MSException(Translator.get("test_plan.group.error"));
+        }
             //判断并未归档
             if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
                 throw new MSException(Translator.get("test_plan.group.error"));
@@ -110,6 +112,6 @@ public class TestPlanGroupService extends TestPlanSortService {
             if (testPlanMapper.countByExample(example) + size > 20) {
                 throw new MSException(Translator.getWithArgs("test_plan.group.children.max", MAX_CHILDREN_COUNT));
             }
-        }
+        return groupPlan;
     }
 }

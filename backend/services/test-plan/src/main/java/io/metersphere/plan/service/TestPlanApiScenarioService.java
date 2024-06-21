@@ -51,7 +51,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -285,7 +284,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public TaskRequestDTO run(String id, String reportId, String userId) {
         TestPlanApiScenario testPlanApiScenario = checkResourceExist(id);
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
-        testPlanService.setTestPlanUnderway(testPlanApiScenario.getTestPlanId());
         testPlanService.setActualStartTime(testPlanApiScenario.getTestPlanId());
         ApiScenario apiScenario = apiScenarioService.checkResourceExist(testPlanApiScenario.getApiScenarioId());
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiScenario.getTestPlanCollectionId());
