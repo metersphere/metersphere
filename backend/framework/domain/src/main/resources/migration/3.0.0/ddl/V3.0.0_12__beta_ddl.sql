@@ -195,6 +195,9 @@ SELECT id, report_id, content FROM api_scenario_report_detail;
 -- 删除原有的内容字段
 ALTER TABLE api_scenario_report_detail DROP COLUMN content;
 
+-- 修改 expression 为 text 类型
+ALTER TABLE fake_error DROP INDEX project_id_status;
+ALTER TABLE fake_error MODIFY COLUMN expression text NOT NULL COMMENT '期望值';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
