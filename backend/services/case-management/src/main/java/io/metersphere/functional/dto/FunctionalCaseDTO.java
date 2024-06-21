@@ -25,4 +25,7 @@ public class FunctionalCaseDTO extends FunctionalCaseMessageDTO {
     @Schema(description =  "触发方式：功能用例执行相关（测试计划/定时任务/用例评审）")
     private String triggerMode;
 
+    @Schema(description = "message.follow_people")
+    private List<String> followUsers;
+
 }

@@ -3,17 +3,11 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.CaseReviewMapper;
-import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanExample;
-import io.metersphere.plan.domain.TestPlanFunctionalCase;
-import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.util.BeanUtils;
@@ -42,6 +36,9 @@ public class FunctionalCaseNoticeService {
 
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
+
+    @Resource
+    private FunctionalCaseFollowerMapper functionalCaseFollowerMapper;
 
     @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
@@ -264,6 +261,15 @@ public class FunctionalCaseNoticeService {
             Map<String, List<TestPlanFunctionalCase>> casePlanMap = testPlanFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getFunctionalCaseId));
             Map<String, String> finalReviewMap = reviewMap;
             Map<String, String> finalPlanMap = planMap;
+
+            FunctionalCaseFollowerExample example = new FunctionalCaseFollowerExample();
+            example.createCriteria().andCaseIdIn(ids);
+            List<FunctionalCaseFollower> functionalCaseFollowers = functionalCaseFollowerMapper.selectByExample(example);
+            Map<String, List<FunctionalCaseFollower>> followMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(functionalCaseFollowers)) {
+               followMap = functionalCaseFollowers.stream().collect(Collectors.groupingBy(FunctionalCaseFollower::getCaseId));
+            }
+            Map<String, List<FunctionalCaseFollower>> finalFollowMap = followMap;
             ids.forEach(id -> {
                 FunctionalCase functionalCase = functionalCaseMap.get(id);
                 if (functionalCase != null) {
@@ -276,8 +282,13 @@ public class FunctionalCaseNoticeService {
                     functionalCaseDTO.setName(functionalCase.getName());
                     functionalCaseDTO.setProjectId(functionalCase.getProjectId());
                     functionalCaseDTO.setCaseEditType(functionalCase.getCaseEditType());
-                    functionalCaseDTO.setCreateUser(null);
+                    functionalCaseDTO.setCreateUser(StringUtils.isBlank(functionalCase.getCreateUser()) ? null : functionalCase.getCreateUser());
                     functionalCaseDTO.setFields(optionDTOS.get());
+                    List<FunctionalCaseFollower> caseFollowers = finalFollowMap.get(id);
+                    if (CollectionUtils.isNotEmpty(caseFollowers)) {
+                        List<String> followUsers = caseFollowers.stream().map(FunctionalCaseFollower::getUserId).toList();
+                        functionalCaseDTO.setFollowUsers(followUsers);
+                    }
                     List<CaseReviewFunctionalCase> caseReviewFunctionalCases1 = caseReviewMap.get(id);
                     List<String> reviewName = new ArrayList<>();
                     if (CollectionUtils.isNotEmpty(caseReviewFunctionalCases1)) {
