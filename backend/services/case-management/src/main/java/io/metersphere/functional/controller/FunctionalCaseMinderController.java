@@ -4,10 +4,7 @@ import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
-import io.metersphere.functional.request.FunctionalCaseMindRequest;
-import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
-import io.metersphere.functional.request.FunctionalCasePlanMindRequest;
-import io.metersphere.functional.request.FunctionalCaseReviewMindRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -42,7 +39,7 @@ public class FunctionalCaseMinderController {
     @Operation(summary = "用例管理-功能用例-脑图-获取空白节点和模块的组合树")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<BaseTreeNode> getTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
+    public List<BaseTreeNode> getTree(@Validated @RequestBody FunctionalCaseMindTreeRequest request) {
         return functionalCaseMinderService.getTree(request);
     }
 

@@ -1162,7 +1162,7 @@ public class FunctionalCaseMinderService {
     }
 
 
-    public List<BaseTreeNode> getTree(FunctionalCaseMindRequest request) {
+    public List<BaseTreeNode> getTree(FunctionalCaseMindTreeRequest request) {
         List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(request.getProjectId());
         List<BaseTreeNode> baseTreeNodes = extFunctionalCaseMapper.selectBaseMindNodeByProjectId(request.getProjectId());
         functionalModuleList.addAll(baseTreeNodes);
