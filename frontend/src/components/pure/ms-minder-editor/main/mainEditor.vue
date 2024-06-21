@@ -120,6 +120,7 @@
           'camera',
           'copy',
           'expand',
+          'expandtolevel',
           'hand',
           'layout',
           'template',
