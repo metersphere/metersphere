@@ -334,9 +334,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     @Test
     @Order(3)
     public void testGetCaseModuleNodeList() throws Exception {
-        FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
+        FunctionalCaseMindTreeRequest request = new FunctionalCaseMindTreeRequest();
         request.setProjectId("project-case-minder-test");
-        request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_NODE_MODULE_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
