@@ -13,7 +13,6 @@ import java.util.List;
 public class TestPlanCaseBatchRunRequest extends BasePlanCaseBatchRequest {
 
     @Schema(description = "项目Id")
-    @NotBlank(message = "{test_plan.project_id.not_blank}")
     private String projectId;
 
     @Schema(description = "最终执行结果")
