@@ -83,17 +83,13 @@ public class ApiStepParser extends StepParser {
         if (refBody == null || valueBody == null) {
             return;
         }
-        refBody.setBodyType(valueBody.getBodyType());
-        if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.FORM_DATA.name()) &&
-                valueBody.getFormDataBody() != null && refBody.getFormDataBody() != null) {
-            replaceKvParam(valueBody.getFormDataBody().getFormValues(), valueBody.getFormDataBody().getFormValues());
+        if (valueBody.getFormDataBody() != null && refBody.getFormDataBody() != null) {
+            replaceKvParam(valueBody.getFormDataBody().getFormValues(), refBody.getFormDataBody().getFormValues());
         }
-        if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.WWW_FORM.name()) &&
-                valueBody.getWwwFormBody() != null && refBody.getWwwFormBody() != null) {
-            replaceKvParam(valueBody.getWwwFormBody().getFormValues(), valueBody.getWwwFormBody().getFormValues());
+        if (valueBody.getWwwFormBody() != null && refBody.getWwwFormBody() != null) {
+            replaceKvParam(valueBody.getWwwFormBody().getFormValues(), refBody.getWwwFormBody().getFormValues());
         }
-        if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.BINARY.name()) &&
-                valueBody.getBinaryBody() != null && refBody.getBinaryBody() != null) {
+        if (valueBody.getBinaryBody() != null && refBody.getBinaryBody() != null) {
             refBody.getBinaryBody().setFile(valueBody.getBinaryBody().getFile());
         }
         // todo JsonSchema body
