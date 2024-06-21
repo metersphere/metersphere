@@ -663,7 +663,9 @@
       }
       params.targetId = newDragData[targetIndex]?.id ?? newDragData[newIndex]?.id;
 
-      emit('dragChange', params);
+      if (params.targetId !== params.moveId) {
+        emit('dragChange', params);
+      }
     }
   };
 
