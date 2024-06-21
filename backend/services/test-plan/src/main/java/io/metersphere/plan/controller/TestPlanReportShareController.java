@@ -93,8 +93,7 @@ public class TestPlanReportShareController {
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.function_case_num, tprfc.id desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), null);
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
     }
 
@@ -103,8 +102,7 @@ public class TestPlanReportShareController {
     public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.api_case_num, tprac.id desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), null);
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
     }
 
@@ -113,8 +111,7 @@ public class TestPlanReportShareController {
     public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.api_scenario_num, tpras.id desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), null);
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
     }
 
