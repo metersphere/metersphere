@@ -608,13 +608,30 @@ public class FunctionalCaseService {
         //更新附属表信息
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
         functionalCaseBlob.setId(request.getId());
-        functionalCaseBlob.setSteps(StringUtils.defaultIfBlank(request.getSteps(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setTextDescription(StringUtils.defaultIfBlank(request.getTextDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(request.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(request.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(request.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
-
+        boolean hasUpdate = false;
+        if (request.getSteps() != null) {
+            hasUpdate=true;
+            functionalCaseBlob.setSteps(StringUtils.defaultIfEmpty(request.getSteps(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+        }
+        if (request.getTextDescription()!=null) {
+            hasUpdate=true;
+            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getTextDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+        }
+        if (request.getExpectedResult()!=null) {
+            hasUpdate=true;
+            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+        }
+        if (request.getPrerequisite()!=null) {
+            hasUpdate=true;
+            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+        }
+        if (request.getDescription()!=null) {
+            hasUpdate=true;
+            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+        }
+        if (hasUpdate) {
+            functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+        }
         //更新自定义字段
         List<CaseCustomFieldDTO> customFields = request.getCustomFields();
         if (CollectionUtils.isNotEmpty(customFields)) {
