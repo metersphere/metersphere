@@ -185,7 +185,7 @@
     currentTreePath.value = getCurrentTreePath();
     setTimeout(() => {
       window.minder.execCommand('camera', root);
-    }, 100); // TODO:暂未知渲染时机，临时延迟解决
+    }, 300); // TODO:暂未知渲染时机，临时延迟解决
   }
 
   const floatMenuVisible = ref(false);
