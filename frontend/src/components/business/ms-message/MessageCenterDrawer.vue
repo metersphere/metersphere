@@ -306,6 +306,8 @@
       key = 'SCHEDULE';
     } else if (key === 'TEST_PLAN_MANAGEMENT') {
       key = 'TEST_PLAN';
+    } else if (key === 'JENKINS_TASK_MANAGEMENT') {
+      key = 'JENKINS';
     } else {
       key = '';
     }
@@ -372,6 +374,12 @@
     }
     if (type === 'TEST_PLAN_MANAGEMENT') {
       const module = options.value.find((item) => item.id === 'TEST_PLAN');
+      if (module) {
+        count = module.name;
+      }
+    }
+    if (type === 'JENKINS_TASK_MANAGEMENT') {
+      const module = options.value.find((item) => item.id === 'JENKINS');
       if (module) {
         count = module.name;
       }
