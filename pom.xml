@@ -70,7 +70,7 @@
         <mysql-connector-java.version>8.3.0</mysql-connector-java.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
-        <node.version>v20.8.1</node.version>
+        <node.version>v22.3.0</node.version>
         <pnpm.version>9.0.6</pnpm.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
