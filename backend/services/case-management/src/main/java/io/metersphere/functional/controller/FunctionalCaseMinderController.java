@@ -1,6 +1,8 @@
 package io.metersphere.functional.controller;
 
 import com.alibaba.excel.util.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.request.FunctionalCaseMindRequest;
 import io.metersphere.functional.request.FunctionalCaseMinderEditRequest;
@@ -10,6 +12,8 @@ import io.metersphere.functional.service.FunctionalCaseMinderService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +50,10 @@ public class FunctionalCaseMinderController {
     @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public List<FunctionalMinderTreeDTO> getFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
-        return functionalCaseMinderService.getMindFunctionalCase(request, false);
+    public Pager<List<FunctionalMinderTreeDTO>> getFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCaseMindRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), 100 );
+        return PageUtils.setPageInfo(page, functionalCaseMinderService.getMindFunctionalCase(request, false));
+
     }
 
     @PostMapping("/edit")
