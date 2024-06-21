@@ -702,6 +702,7 @@
     try {
       await updateFile(currentProjectId.value, item.associationId);
       Message.success(t('common.updateSuccess'));
+      emit('updateSuccess');
     } catch (error) {
       console.log(error);
     }

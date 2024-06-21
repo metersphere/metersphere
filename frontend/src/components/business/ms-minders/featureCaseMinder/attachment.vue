@@ -323,6 +323,7 @@
     try {
       await updateFile(appStore.currentProjectId, item.associationId);
       Message.success(t('common.updateSuccess'));
+      emit('uploadSuccess');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

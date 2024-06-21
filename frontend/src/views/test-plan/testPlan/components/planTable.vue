@@ -452,7 +452,6 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const router = useRouter();
-  const route = useRoute();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -888,10 +887,6 @@
       selectAll: !!batchParams.value?.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      condition: {
-        filter: filterParams,
-        keyword: keyword.value,
-      },
       filter: filterParams,
       combine: {
         ...batchParams.value.condition,

@@ -173,6 +173,7 @@
       width: 24,
       slotName: SpecialColumnEnum.ACTION,
       fixed: 'right',
+      cellClass: 'operator-class',
     },
   ];
 
@@ -309,7 +310,9 @@
 </script>
 
 <style lang="less" scoped>
-  :deep(.arco-table-cell-align-left) {
-    padding: 0 8px !important;
+  :deep(.operator-class) {
+    .arco-table-cell-align-left {
+      padding: 0 8px !important;
+    }
   }
 </style>

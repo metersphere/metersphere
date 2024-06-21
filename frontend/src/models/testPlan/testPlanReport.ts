@@ -27,6 +27,7 @@ export interface PlanReportDetail {
   functionalBugCount: number; // 用例明细bug总数
   apiBugCount: number; // 接口用例明细bug总数
   scenarioBugCount: number; // 场景用例明细bug总数
+  testPlanName: string;
 }
 
 export type AnalysisType = 'FUNCTIONAL' | 'API' | 'SCENARIO';
