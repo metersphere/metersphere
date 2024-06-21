@@ -60,10 +60,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -587,8 +584,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).collect(Collectors.toList());
-                    buildTestPlanApiCase(testPlan, apiTestCases, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
+                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).toList();
+                    Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
+                    buildTestPlanApiCase(testPlan, apiCaseIds, apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
                 }
             });
         }
@@ -601,9 +599,16 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             List<ApiTestCase> apiTestCaseList = extTestPlanApiCaseMapper.selectApiCaseByDefinitionIds(ids, isRepeat, testPlan.getId());
             apiCaseList.forEach(apiCase -> {
                 List<String> apiCaseIds = apiCase.getIds();
-                if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).collect(Collectors.toList());
-                    buildTestPlanApiCase(testPlan, apiTestCases, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
+                if (CollectionUtils.isNotEmpty(apiCaseIds) && CollectionUtils.isNotEmpty(apiTestCaseList)) {
+                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).toList();
+                    //生成map集合 key是apiDefinitionId value是apiTestCase
+                    Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
+                    // apiTestCases 生成map key是apiDefinitionId value是List<String> id
+                    Map<String, List<String>> apiTestCaseMapIds = apiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId, Collectors.mapping(ApiTestCase::getId, Collectors.toList())));
+                    Collections.reverse(apiCaseIds);
+                    apiCaseIds.forEach(apiCaseId -> {
+                        buildTestPlanApiCase(testPlan, apiTestCaseMapIds.get(apiCaseId), apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
+                    });
                 }
             });
         }
@@ -618,10 +623,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param user
      * @param testPlanApiCaseList
      */
-    private void buildTestPlanApiCase(TestPlan testPlan, List<ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, List<LogDTO> logDTOS) {
+    private void buildTestPlanApiCase(TestPlan testPlan, List<String> ids, Map<String, ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, List<LogDTO> logDTOS) {
         super.checkCollection(testPlan.getId(), collectionId, CaseType.API_CASE.getKey());
         AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
-        apiTestCases.forEach(apiTestCase -> {
+        Collections.reverse(ids);
+        ids.forEach(id -> {
+            ApiTestCase apiTestCase = apiTestCases.get(id);
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(IDGenerator.nextStr());
             testPlanApiCase.setTestPlanCollectionId(collectionId);

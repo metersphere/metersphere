@@ -787,6 +787,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(example);
             AtomicLong nextOrder = new AtomicLong(getNextOrder(functional.getCollectionId()));
             Map<String, FunctionalCase> collect = functionalCases.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
+            // 需要按列表顺序插入，所以需要反转列表
+            Collections.reverse(functionalIds);
             functionalIds.forEach(functionalId -> {
                 FunctionalCase functionalCase = collect.get(functionalId);
                 TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();

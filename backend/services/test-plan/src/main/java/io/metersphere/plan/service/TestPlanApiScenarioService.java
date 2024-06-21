@@ -58,10 +58,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -197,8 +194,10 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             apiScenarioList.forEach(apiScenario -> {
                 List<String> apiScenarioIds = apiScenario.getIds();
                 if (CollectionUtils.isNotEmpty(apiScenarioIds)) {
-                    List<ApiScenario> scenarios = apiScenarios.stream().filter(item -> apiScenarioIds.contains(item.getId())).collect(Collectors.toList());
-                    buildTestPlanApiScenario(testPlan, scenarios, apiScenario.getCollectionId(), user, testPlanApiScenarioList, logDTOS);
+                    List<ApiScenario> scenarios = apiScenarios.stream().filter(item -> apiScenarioIds.contains(item.getId())).toList();
+                    // 生成map key为id value为scenario
+                    Map<String, ApiScenario> scenarioMap = scenarios.stream().collect(Collectors.toMap(ApiScenario::getId, Function.identity()));
+                    buildTestPlanApiScenario(testPlan, apiScenarioIds, scenarioMap, apiScenario.getCollectionId(), user, testPlanApiScenarioList, logDTOS);
                 }
             });
         }
@@ -213,10 +212,12 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @param user
      * @param testPlanApiScenarioList
      */
-    private void buildTestPlanApiScenario(TestPlan testPlan, List<ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, List<LogDTO> logDTOS) {
+    private void buildTestPlanApiScenario(TestPlan testPlan, List<String> ids, Map<String, ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, List<LogDTO> logDTOS) {
         super.checkCollection(testPlan.getId(), collectionId, CaseType.SCENARIO_CASE.getKey());
         AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
-        scenarios.forEach(scenario -> {
+        Collections.reverse(ids);
+        ids.forEach(id -> {
+            ApiScenario scenario = scenarios.get(id);
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(IDGenerator.nextStr());
             testPlanApiScenario.setTestPlanId(testPlan.getId());
