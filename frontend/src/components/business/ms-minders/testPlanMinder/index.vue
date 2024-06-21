@@ -379,6 +379,7 @@
     }
   }
 
+  const inInsertingNode = ref(false);
   /**
    * 执行插入节点
    * @param command 插入命令
@@ -447,6 +448,7 @@
       };
     }
     if (child) {
+      inInsertingNode.value = true;
       execInert(type, child);
       nextTick(() => {
         execInert('AppendChildNode', caseCountNodeData);
@@ -454,6 +456,9 @@
           // 功能用例测试点没有环境和资源池
           execInert('AppendSiblingNode', envNodeData);
           execInert('AppendSiblingNode', resourcePoolNodeData);
+          setTimeout(() => {
+            inInsertingNode.value = false;
+          }, 0);
         }
       });
     }
@@ -669,7 +674,10 @@
     if (node.data?.level === 3 && node.data?.resource?.[0] === caseCountTag) {
       window.minder.toggleSelect(node);
       window.minder.selectById(node.parent?.data?.id);
-      associateCase();
+      if (!inInsertingNode.value && hasEditPermission && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION'])) {
+        // 新增测试点时不自动弹出关联用例
+        associateCase();
+      }
     } else if (
       node.data?.level === 3 &&
       (node.data?.resource?.[0] === resourcePoolTag || node.data?.resource?.[0] === envTag)

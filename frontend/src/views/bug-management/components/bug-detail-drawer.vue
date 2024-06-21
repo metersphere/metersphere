@@ -168,7 +168,6 @@
 </template>
 
 <script setup lang="ts">
-  import { defineModel, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';

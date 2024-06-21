@@ -574,21 +574,21 @@
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {
-      filed: 'ip',
+      field: 'ip',
       type: 'input',
       label: 'system.resourcePool.ip',
       rules: [{ required: true, message: t('system.resourcePool.ipRequired') }],
       placeholder: 'system.resourcePool.ipPlaceholder',
     },
     {
-      filed: 'port',
+      field: 'port',
       type: 'input',
       label: 'system.resourcePool.port',
       rules: [{ required: true, message: t('system.resourcePool.portRequired') }],
       placeholder: 'system.resourcePool.portPlaceholder',
     },
     {
-      filed: 'concurrentNumber',
+      field: 'concurrentNumber',
       type: 'inputNumber',
       label: 'system.resourcePool.concurrentNumber',
       rules: [

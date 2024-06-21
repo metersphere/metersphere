@@ -34,7 +34,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineModel, ref } from 'vue';
   import dayjs from 'dayjs';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';

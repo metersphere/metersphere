@@ -42,7 +42,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineModel, onBeforeMount, ref } from 'vue';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';

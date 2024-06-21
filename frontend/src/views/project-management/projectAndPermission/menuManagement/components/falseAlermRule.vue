@@ -6,9 +6,9 @@
       </div>
     </div>
     <div class="mb-4 flex items-center justify-between">
-      <a-button v-permission="['PROJECT_APPLICATION_API:UPDATE']" type="primary" @click="showAddRule(undefined)">{{
-        t('project.menu.addFalseAlertRules')
-      }}</a-button>
+      <a-button v-permission="['PROJECT_APPLICATION_API:UPDATE']" type="primary" @click="showAddRule(undefined)">
+        {{ t('project.menu.addFalseAlertRules') }}
+      </a-button>
       <a-input-search
         v-model="keyword"
         :placeholder="t('project.menu.nameSearch')"
@@ -29,9 +29,9 @@
         <template v-if="!record.enable">
           <div class="flex flex-row">
             <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row">
-              <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">{{
-                t('common.enable')
-              }}</MsButton>
+              <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">
+                {{ t('common.enable') }}
+              </MsButton>
               <a-divider direction="vertical" />
             </span>
             <span>
@@ -50,9 +50,9 @@
             <a-divider class="h-[16px]" direction="vertical" />
           </span>
           <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row items-center">
-            <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">{{
-              t('common.disable')
-            }}</MsButton>
+            <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">
+              {{ t('common.disable') }}
+            </MsButton>
             <a-divider class="h-[16px]" direction="vertical" />
           </span>
           <MsTableMoreAction
@@ -174,7 +174,7 @@
   };
   const initBatchFormModels: FormItemModel[] = [
     {
-      filed: 'name',
+      field: 'name',
       type: 'input',
       label: 'project.menu.rule.ruleName',
       rules: [
@@ -183,34 +183,35 @@
       ],
     },
     {
-      filed: 'type',
+      field: 'type',
       type: 'tagInput',
       label: 'project.menu.rule.label',
     },
     {
-      filed: 'rule',
+      field: 'rule',
       type: 'multiple',
       label: 'project.menu.rule.rule',
       hasRedStar: true,
       children: [
         {
-          filed: 'respType', // 匹配规则-内容类型/header/data/body
+          field: 'respType', // 匹配规则-内容类型/header/data/body
           type: 'select',
           options: headerOptions.value,
           className: 'w-[205px]',
           defaultValue: 'RESPONSE_HEADERS',
         },
         {
-          filed: 'relation', // 匹配规则-操作类型
+          field: 'relation', // 匹配规则-操作类型
           type: 'select',
           options: relationOptions.value,
           defaultValue: 'CONTAINS',
           className: 'w-[120px]',
         },
         {
-          filed: 'expression', // 匹配规则-表达式
-          type: 'input',
+          field: 'expression', // 匹配规则-表达式
+          type: 'textarea',
           rules: [{ required: true, message: t('project.menu.rule.expressionNotNull') }],
+          title: t('project.menu.rule.ruleExpression'),
           className: 'w-[301px]',
         },
       ],
@@ -410,7 +411,7 @@
     addVisible.value = true;
   };
 
-  const handleCancel = (shouldSearch: boolean, isClose = true) => {
+  const handleCancel = (shouldSearch: boolean) => {
     if (shouldSearch) {
       fetchData();
     }
@@ -441,7 +442,7 @@
           Message.success(t('common.updateSuccess'));
         }
 
-        handleCancel(true, false);
+        handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);

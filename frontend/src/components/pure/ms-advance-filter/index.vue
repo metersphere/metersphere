@@ -72,8 +72,6 @@
 </template>
 
 <script setup lang="ts">
-  import { defineModel } from 'vue';
-
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '../ms-tag/ms-tag.vue';
   import FilterForm from './FilterForm.vue';

@@ -41,8 +41,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineModel, ref } from 'vue';
-
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 

@@ -80,6 +80,7 @@ export default {
   'project.menu.rule.updateTime': '更新时间',
   'project.menu.rule.operation': '操作',
   'project.menu.rule.ruleName': '规则名称',
+  'project.menu.rule.ruleExpression': '限制条件',
   'project.menu.rule.ruleNameNotNull': '规则名称不能为空',
   'project.menu.rule.ruleNameRepeat': '名称重复请修改',
   'project.menu.rule.expressionNotNull': '限制条件不能为空',

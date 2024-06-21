@@ -595,13 +595,13 @@
     body-class="!p-0"
     :width="480"
     title-align="start"
-    :auto-size="{ minRows: 2 }"
     @ok="applyQuickInputDesc"
     @close="clearQuickInputDesc"
   >
     <a-textarea
       v-model:model-value="quickInputDescValue"
       :placeholder="t('apiTestDebug.descPlaceholder')"
+      :auto-size="{ minRows: 2 }"
       :max-length="1000"
     ></a-textarea>
   </a-modal>

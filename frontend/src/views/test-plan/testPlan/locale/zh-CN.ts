@@ -111,7 +111,7 @@ export default {
   'testPlan.featureCase.richTextDblclickPlaceholder': '双击可全屏输入',
   'testPlan.featureCase.autoNextTip1': '开启：提交结果后，跳转至下一条用例',
   'testPlan.featureCase.autoNextTip2': '关闭：提交结果后，还在当前',
-  'testPlan.api.testSetRequired': '测试集不能为空',
+  'testPlan.api.testSetRequired': '测试点不能为空',
   'testPlan.executeHistory.executionStartAndEndTime': '执行起止时间',
   'testPlan.executeHistory.testPlanHasTimedOut': '测试计划已超时',
   'testPlan.testPlanGroup.seeArchived': '只看已归档',
@@ -134,6 +134,6 @@ export default {
   'testPlan.testPlanGroup.enableScheduleTaskSuccess': '开启定时任务成功',
   'testPlan.testPlanGroup.closeScheduleTaskSuccess': '关闭定时任务成功',
   'testPlan.plan': '测试规划',
-  'testPlan.planTip': '1.创建测试集进行业务分类测试；2.选择测试集关联用例',
+  'testPlan.planTip': '1.创建测试点进行业务分类测试；2.选择测试点关联用例',
   'testPlan.planStartToEndTimeTip': '测试计划已超时',
 };

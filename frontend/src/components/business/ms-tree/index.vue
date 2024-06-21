@@ -399,6 +399,10 @@
     (val) => {
       if (typeof val === 'boolean') {
         treeRef.value?.expandAll(val);
+        filterTreeData.value = mapTree(filterTreeData.value, (node) => {
+          node.expanded = val;
+          return node;
+        });
       }
     }
   );

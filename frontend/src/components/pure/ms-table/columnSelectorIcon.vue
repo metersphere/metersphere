@@ -4,7 +4,9 @@
     <template #content>
       <div class="mb-2 flex items-center justify-between">
         <div class="font-medium text-[var(--color-text-1)]">{{ t('msTable.columnSetting.display') }}</div>
-        <MsButton :disabled="!hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
+        <MsButton v-if="!props.onlyPageSize" :disabled="!hasChange" @click="handleReset">
+          {{ t('msTable.columnSetting.resetDefault') }}
+        </MsButton>
       </div>
       <template v-if="props.showPagination">
         <div class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.pageSize') }} </div>

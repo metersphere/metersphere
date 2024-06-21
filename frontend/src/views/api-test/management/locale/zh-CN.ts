@@ -146,7 +146,7 @@ export default {
   'apiTestManagement.quoteType': '引用类型',
   'apiTestManagement.belongOrg': '所属组织',
   'apiTestManagement.belongProject': '所属项目',
-  'apiTestManagement.quoteSearchPlaceholder': '输入 ID 或名称搜索',
+  'apiTestManagement.quoteSearchPlaceholder': '输入 ID/名称搜索',
   'apiTestManagement.click': '点击',
   'apiTestManagement.getResponse': '获取响应内容',
   'apiTestManagement.tableNoDataAndPlease': '暂无数据，请',
