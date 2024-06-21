@@ -89,16 +89,18 @@
 
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
-  const isExpandAll = ref<boolean | undefined>(false);
-
+  const isExpandAll = ref<boolean | undefined>(undefined);
+  function setIsExpandAll() {
+    if (props.treeType === 'COLLECTION') {
+      isExpandAll.value = undefined;
+    } else {
+      isExpandAll.value = false;
+    }
+  }
   watch(
     () => props.treeType,
-    (val) => {
-      if (val === 'COLLECTION') {
-        isExpandAll.value = undefined;
-      } else {
-        isExpandAll.value = false;
-      }
+    () => {
+      setIsExpandAll();
     }
   );
 
@@ -144,6 +146,7 @@
   }
 
   onBeforeMount(() => {
+    setIsExpandAll();
     initModules();
   });
 

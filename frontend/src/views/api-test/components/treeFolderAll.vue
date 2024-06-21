@@ -166,6 +166,10 @@
       selectedProtocols.value = allProtocolList.value.filter((item) => protocols.includes(item as string));
     }
   });
+
+  defineExpose({
+    allProtocolList,
+  });
 </script>
 
 <style lang="less" scoped>
