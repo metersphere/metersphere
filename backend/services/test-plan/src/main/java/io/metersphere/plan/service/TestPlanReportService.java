@@ -308,6 +308,7 @@ public class TestPlanReportService {
         report.setDeleted(false);
         report.setPassThreshold(config == null ? null : config.getPassThreshold());
         report.setParentId(genParam.getGroupReportId());
+		report.setTestPlanName(genParam.getTestPlanName());
         testPlanReportMapper.insertSelective(report);
 
 		TestPlanReportDetailCaseDTO reportCaseDetail;

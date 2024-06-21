@@ -196,7 +196,7 @@ public class TestPlanSendNoticeService {
             paramMap.put("Language", user.getLanguage());
             NoticeModel noticeModel = NoticeModel.builder().operator(currentUser).excludeSelf(false)
                     .context(template).subject(subject).paramMap(paramMap).event(StringUtils.equals(executeResult, ReportStatus.SUCCESS.name()) ?
-                            NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_SUCCESSFUL : NoticeConstants.TemplateText.TEST_PLAN_TASK_EXECUTE_FAILED).build();
+                            NoticeConstants.Event.EXECUTE_SUCCESSFUL : NoticeConstants.Event.EXECUTE_FAIL).build();
             noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         }
     }
