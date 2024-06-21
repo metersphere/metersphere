@@ -10,9 +10,13 @@ import com.aliyun.teautil.Common;
 import com.aliyun.teautil.models.RuntimeOptions;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.Receiver;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.sdk.util.LogUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
@@ -90,6 +94,10 @@ public class DingEnterPriseNoticeSender extends AbstractNoticeSender {
 
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
+        List<Receiver> receivers = super.getReceivers(noticeModel.getReceivers(), noticeModel.isExcludeSelf(), noticeModel.getOperator());
+        if (CollectionUtils.isEmpty(receivers)) {
+            return;
+        }
         String context = super.getContext(messageDetail, noticeModel);
         try {
             sendDing(messageDetail, context);
