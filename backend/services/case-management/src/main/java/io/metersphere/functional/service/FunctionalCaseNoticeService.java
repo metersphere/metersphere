@@ -100,6 +100,7 @@ public class FunctionalCaseNoticeService {
                 List<String> notifierList = Arrays.asList(notifier.split(";"));
                 StringBuilder notifierStr = new StringBuilder();
                 if (notifierList.contains(replyUser)) {
+                    notifierStr.append(replyUser).append(";");
                     for (String notifierId : notifierList) {
                         if (!StringUtils.equals(notifierId, replyUser)) {
                             notifierStr.append(notifierId).append(";");
