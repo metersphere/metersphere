@@ -71,7 +71,7 @@ public class CaseReviewController {
 
     @PostMapping("/copy")
     @Operation(summary = "用例管理-用例评审-复制用例评审")
-    @Log(type = OperationLogType.COPY, expression = "#msClass.copyCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.copyCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")

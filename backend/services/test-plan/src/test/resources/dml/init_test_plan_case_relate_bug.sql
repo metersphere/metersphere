@@ -27,7 +27,7 @@ VALUES
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES
        ('fc_1', 1, 't_1', '123', '100001', '111', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
-       ('fc_2', 2, 't_1', '123', '100001', '222', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('fc_2', 2, 'root', '123', '100001', '222', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
        ('fc_3', 3, 'root', '123', '100001', '333', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'TEST_FUNCTIONAL_MINDER_CASE_ID_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
        ('gyq_disassociate_fc_1', 4, 'root', 'gyq_disassociate', '100001', 'disassociate1', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'gyq_disassociate_fc_1', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
        ('gyq_disassociate_fc_2', 5, 'root', 'gyq_disassociate', '100001', 'disassociate2', 'UN_REVIEWED', NULL, 'TEXT', 55000, 'v3.0.0', 'gyq_disassociate_fc_2', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
