@@ -9,6 +9,7 @@ import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.utils.NodeSortUtils;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -56,7 +57,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         for (TestPlan testPlan : testPlanList) {
             // 已归档的测试计划无法操作
             if (StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                continue;
+                throw new MSException(Translator.get("test_plan.is.archived"));
             }
             if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
                 // 测试计划组下的测试计划不单独处理， 如果勾选了他的测试计划组，会在下面进行逻辑补足。
@@ -124,6 +125,10 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
     public long batchCopy(List<TestPlan> copyPlanList, String targetId, String targetType, String userId) {
         long copyCount = 0;
         long operatorTime = System.currentTimeMillis();
+        //如果目标ID是测试计划组， 需要进行容量校验
+        if (!StringUtils.equalsIgnoreCase(targetType, ModuleConstants.NODE_TYPE_DEFAULT)) {
+            testPlanGroupService.validateGroupCapacity(targetId, copyPlanList.size());
+        }
         /*
             此处不选择批量操作，原因有两点：
             1） 测试计划内（或者测试计划组内）数据量不可控，选择批量操作时更容易出现数据太多不走索引、数据太多内存溢出等问题。不批量操作可以减少这些问题出现的概率，代价是速度会变慢。

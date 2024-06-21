@@ -27,6 +27,8 @@ public class TestPlanGroupService extends TestPlanSortService {
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
 
+    private static final int MAX_CHILDREN_COUNT = 20;
+    
     @Override
     public long getNextOrder(String groupId) {
         long maxPos = extTestPlanMapper.selectMaxPosByGroupId(groupId);
@@ -88,6 +90,26 @@ public class TestPlanGroupService extends TestPlanSortService {
             }
         } else {
             throw new MSException(Translator.get("test_plan.drag.position.error"));
+        }
+    }
+
+    public void validateGroupCapacity(String groupId, int size) {
+        if (!StringUtils.equals(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            // 判断测试计划组是否存在
+            TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
+            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                throw new MSException(Translator.get("test_plan.group.error"));
+            }
+            //判断并未归档
+            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                throw new MSException(Translator.get("test_plan.group.error"));
+            }
+            //判断测试计划组下的测试计划数量是否超过20
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andGroupIdEqualTo(groupId);
+            if (testPlanMapper.countByExample(example) + size > 20) {
+                throw new MSException(Translator.getWithArgs("test_plan.group.children.max", MAX_CHILDREN_COUNT));
+            }
         }
     }
 }

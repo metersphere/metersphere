@@ -223,7 +223,7 @@ public class TestPlanExecuteService {
         genReportRequest.setTestPlanId(executionQueue.getSourceID());
         genReportRequest.setProjectId(testPlan.getProjectId());
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-            //更改测试计划组的状态
+
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
@@ -251,12 +251,12 @@ public class TestPlanExecuteService {
             }
 
             LogUtils.info("计划组的执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}]", queueId, queueType, executionQueue.getParentQueueId(), executionQueue.getParentQueueType());
-
-            testPlanService.setExecuteConfig(executionQueue.getSourceID(), executionQueue.getPrepareReportId());
             if (CollectionUtils.isEmpty(childrenQueue)) {
                 //本次的测试计划组执行完成
                 this.testPlanGroupQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
             } else {
+                //更改测试计划组的状态
+                testPlanService.setExecuteConfig(executionQueue.getSourceID(), executionQueue.getPrepareReportId());
                 testPlanExecuteSupportService.setRedisForList(testPlanExecuteSupportService.genQueueKey(queueId, queueType), childrenQueue.stream().map(JSON::toJSONString).toList());
 
                 if (StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {

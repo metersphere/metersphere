@@ -103,7 +103,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     private static final int MAX_TAG_SIZE = 10;
-    private static final int MAX_CHILDREN_COUNT = 20;
+
     @Autowired
     private TestPlanReportService testPlanReportService;
 
@@ -142,7 +142,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
-        validateTestPlanGroup(createTestPlan.getGroupId(), 1);
+        testPlanGroupService.validateGroupCapacity(createTestPlan.getGroupId(), 1);
 
         if (!StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             // 判断测试计划组是否存在
@@ -169,33 +169,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insertSelective(testPlanConfig);
         return createTestPlan;
-    }
-
-
-    /**
-     * 校验测试计划组
-     *
-     * @param groupId     测试计划组Id
-     * @param preAddCount 准备添加的数量
-     */
-    private void validateTestPlanGroup(String groupId, int preAddCount) {
-        if (!StringUtils.equals(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-            // 判断测试计划组是否存在
-            TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
-            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                throw new MSException(Translator.get("test_plan.group.error"));
-            }
-            //判断并未归档
-            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                throw new MSException(Translator.get("test_plan.group.error"));
-            }
-            //判断测试计划组下的测试计划数量是否超过20
-            TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andGroupIdEqualTo(groupId);
-            if (testPlanMapper.countByExample(example) + preAddCount > 20) {
-                throw new MSException(Translator.getWithArgs("test_plan.group.children.max", MAX_CHILDREN_COUNT));
-            }
-        }
     }
 
     //校验测试计划
@@ -658,7 +631,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 moveTestPlanList = moveTestPlanList.stream().filter(
                         item -> StringUtils.equalsIgnoreCase(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !StringUtils.equalsIgnoreCase(item.getGroupId(), request.getTargetId())
                 ).collect(Collectors.toList());
-                this.validateTestPlanGroup(request.getTargetId(), moveTestPlanList.size());
+                testPlanGroupService.validateGroupCapacity(request.getTargetId(), moveTestPlanList.size());
                 moveCount = testPlanBatchOperationService.batchMoveGroup(moveTestPlanList, request.getTargetId(), userId);
             } else {
                 moveCount = testPlanBatchOperationService.batchMoveModule(moveTestPlanList, request.getTargetId(), userId);
