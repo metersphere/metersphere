@@ -666,12 +666,12 @@
     {
       label: 'testPlan.testPlanIndex.openTimingTask',
       eventTag: 'openTimingTask',
-      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
     },
     {
       label: 'testPlan.testPlanIndex.closeTimingTask',
       eventTag: 'closeTimingTask',
-      permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
     },
     {
       label: 'common.move',
