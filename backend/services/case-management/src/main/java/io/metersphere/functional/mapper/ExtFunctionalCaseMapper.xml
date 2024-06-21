@@ -115,7 +115,8 @@
         functional_case.last_execute_result,
         functional_case.delete_user,
         functional_case.delete_time,
-        functional_case.tags
+        functional_case.tags,
+        functional_case.project_id
         FROM
             functional_case
         LEFT JOIN project_version ON  functional_case.version_id = project_version.id
