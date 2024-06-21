@@ -135,7 +135,6 @@
             >
               <MsIcon type="icon-icon_add_outlined" size="14" class="text-[rgb(var(--primary-6))]" />
               <div class="ml-[8px] text-[rgb(var(--primary-6))]">{{ t('project.messageManagement.CUSTOM') }}</div>
-              <div class="text-[var(--color-text-n4)]">{{ t('project.messageManagement.business') }}</div>
             </div>
           </div>
         </a-form-item>
