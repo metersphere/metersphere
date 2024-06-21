@@ -97,7 +97,7 @@
         {{ t('testPlan.testPlanIndex.batchExecution') }}
         <div class="text-[var(--color-text-4)]">
           {{
-            t('testPlan.testPlanIndex.selectedCount', {
+            t('common.selectedCount', {
               count: batchParams.currentSelectCount || tableSelected.length,
             })
           }}

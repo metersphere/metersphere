@@ -10,7 +10,7 @@
       {{ t('common.batchMove') }}
       <div class="ml-1 text-[var(--color-text-4)]">
         {{
-          t('testPlan.testPlanIndex.selectedCount', {
+          t('common.selectedCount', {
             count: props.count,
           })
         }}

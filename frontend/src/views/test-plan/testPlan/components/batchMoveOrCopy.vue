@@ -11,7 +11,7 @@
         <div>
           {{ props.mode === 'move' ? t('common.batchMove') : t('common.batchCopy') }}
           <span class="ml-[4px] text-[var(--color-text-4)]">
-            {{ t('testPlan.testPlanIndex.selectedCount', { count: props.currentSelectCount }) }}
+            {{ t('common.selectedCount', { count: props.currentSelectCount }) }}
           </span>
         </div>
       </div>
