@@ -45,7 +45,6 @@ public class TestPlanExecuteTests extends BaseTest {
     private static TestPlan noGroupPlan;
 
     private static final String URL_POST_TEST_PLAN_SINGLE_EXECUTE = "/test-plan-execute/single";
-    private static final String URL_POST_TEST_PLAN_BATCH_EXECUTE = "/test-plan-execute/batch";
 
     @Resource
     private CommonProjectService commonProjectService;
@@ -242,8 +241,7 @@ public class TestPlanExecuteTests extends BaseTest {
         batchExecuteRequest.setExecuteIds(execIds);
         batchExecuteRequest.setProjectId(project.getId());
         batchExecuteRequest.setRunMode(runMode);
-
-        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_EXECUTE, batchExecuteRequest);
+        testPlanExecuteService.batchExecuteTestPlan(batchExecuteRequest, "admin");
 
         //检查队列
         List<String> allQueueIds = new ArrayList<>();

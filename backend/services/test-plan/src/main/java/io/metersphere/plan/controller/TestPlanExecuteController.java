@@ -51,7 +51,9 @@ public class TestPlanExecuteController {
     @Log(type = OperationLogType.EXECUTE, expression = "#msClass.batchExecuteLog(#request)", msClass = TestPlanLogService.class)
     public void startExecute(@Validated @RequestBody TestPlanBatchExecuteRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
-        testPlanExecuteService.batchExecuteTestPlan(request, SessionUtils.getUserId());
+        Thread.startVirtualThread(() ->
+                testPlanExecuteService.batchExecuteTestPlan(request, SessionUtils.getUserId())
+        );
     }
 
 }

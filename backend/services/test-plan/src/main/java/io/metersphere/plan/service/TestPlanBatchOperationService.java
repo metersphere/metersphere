@@ -86,10 +86,13 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
 
         List<String> movePlanIds = new ArrayList<>();
         for (TestPlan testPlan : testPlanList) {
+            // 已归档的测试计划无法操作
+            if (StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                throw new MSException(Translator.get("test_plan.is.archived"));
+            }
             // 已归档的测试计划无法操作 测试计划组无法操作
-            if (StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)
-                    || StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                continue;
+            if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+                throw new MSException(Translator.get("test_plan.group.error"));
             }
             movePlanIds.add(testPlan.getId());
         }
@@ -195,6 +198,8 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         testPlan.setModuleId(moduleId);
         testPlan.setGroupId(groupId);
         testPlan.setPos(pos);
+        testPlan.setActualEndTime(null);
+        testPlan.setActualStartTime(null);
         testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
         testPlanMapper.insert(testPlan);
 
@@ -282,6 +287,8 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         testPlanGroup.setUpdateUser(operator);
         testPlanGroup.setUpdateTime(operatorTime);
         testPlanGroup.setModuleId(moduleId);
+        testPlanGroup.setActualEndTime(null);
+        testPlanGroup.setActualStartTime(null);
         testPlanGroup.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
         testPlanMapper.insert(testPlanGroup);
 

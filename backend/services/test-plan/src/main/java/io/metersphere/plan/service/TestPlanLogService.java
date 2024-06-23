@@ -257,7 +257,7 @@ public class TestPlanLogService {
     }
 
     private String getLogModule(TestPlan testPlan) {
-        if (StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+        if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
             return OperationLogModule.TEST_PLAN_TEST_PLAN;
         } else {
             return OperationLogModule.TEST_PLAN_TEST_PLAN_GROUP;
