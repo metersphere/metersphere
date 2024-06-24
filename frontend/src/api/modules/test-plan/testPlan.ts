@@ -7,7 +7,6 @@ import {
   ApiScenarioReportDetailStepUrl,
   ApiScenarioReportDetailUrl,
   archivedPlanUrl,
-  associationCaseToPlanUrl,
   batchArchivedPlanUrl,
   batchCopyPlanUrl,
   batchDeletePlanUrl,
@@ -220,10 +219,6 @@ export function generateReport(data: TestPlanBaseParams) {
 // 关注
 export function followPlanRequest(data: FollowPlanParams) {
   return MSR.post({ url: followPlanUrl, data });
-}
-// 关联用例到测试计划
-export function associationCaseToPlan(data: AssociateCaseRequestType) {
-  return MSR.post({ url: associationCaseToPlanUrl, data });
 }
 // 测试计划通过率执行进度
 export function getPlanPassRate(data: (string | undefined)[]) {

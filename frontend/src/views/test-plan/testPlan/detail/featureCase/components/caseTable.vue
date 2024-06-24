@@ -66,7 +66,11 @@
         >
           {{ t('common.execute') }}
         </MsButton>
-        <a-divider v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" direction="vertical" :margin="8"></a-divider>
+        <a-divider
+          v-if="hasAllPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION'])"
+          direction="vertical"
+          :margin="8"
+        ></a-divider>
         <MsPopconfirm
           :title="t('testPlan.featureCase.disassociateTip', { name: characterLimit(record.name) })"
           :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
@@ -164,7 +168,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type {
@@ -311,7 +315,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 200 : 50,
+      width: hasOperationPermission.value ? 150 : 50,
     },
   ]);
 
