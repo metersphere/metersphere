@@ -48,8 +48,9 @@
         select tprfc.function_case_id as id, tprfc.function_case_num as num, tprfc.function_case_name as name,
             tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority,
             ifnull(tprfc.function_case_execute_result, 'PENDING') as executeResult, tprfc.function_case_execute_user as executeUser,
-            ifnull(tprfc.function_case_bug_count, 0) as bugCount, tprfc.function_case_execute_report_id reportId
+            ifnull(tprfc.function_case_bug_count, 0) as bugCount, tprfc.function_case_execute_report_id reportId, fc.project_id projectId
         from test_plan_report_function_case tprfc
+            left join functional_case fc on fc.id = tprfc.function_case_id
         where tprfc.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
     </select>

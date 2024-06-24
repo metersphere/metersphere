@@ -28,4 +28,6 @@ public class ReportDetailCasePageDTO {
 	private Long bugCount;
 	@Schema(description = "报告详情ID")
 	private String reportId;
+	@Schema(description = "项目ID")
+	private String projectId;
 }
