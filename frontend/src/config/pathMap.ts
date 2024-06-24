@@ -352,6 +352,17 @@ export const pathMap: PathMapItem[] = [
                       type: TaskCenterEnum.API_SCENARIO,
                     },
                   },
+                  {
+                    key: 'SETTING_SYSTEM_TASK_CENTER_REAL_TIME_TEST_PLAN', // 系统设置-系统-任务中心-实时任务-测试计划
+                    locale: 'project.taskCenter.testPlan',
+                    route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[0],
+                    routeQuery: {
+                      tab: 'real',
+                      type: TaskCenterEnum.TEST_PLAN,
+                    },
+                  },
                 ],
               },
               {
@@ -384,6 +395,17 @@ export const pathMap: PathMapItem[] = [
                     routeQuery: {
                       tab: 'timeTask',
                       type: TaskCenterEnum.API_IMPORT,
+                    },
+                  },
+                  {
+                    key: 'SETTING_SYSTEM_TASK_CENTER_TIME_TEST_PLAN', // 系统设置-系统-任务中心-定时任务-测试计划
+                    locale: 'project.taskCenter.testPlan',
+                    route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[0],
+                    routeQuery: {
+                      tab: 'timeTask',
+                      type: TaskCenterEnum.TEST_PLAN,
                     },
                   },
                 ],
@@ -470,6 +492,17 @@ export const pathMap: PathMapItem[] = [
                       type: TaskCenterEnum.API_SCENARIO,
                     },
                   },
+                  {
+                    key: 'SETTING_ORGANIZATION_TASK_CENTER_REAL_TIME_TEST_PLAN', // 系统设置-组织-任务中心-实时任务-测试计划
+                    locale: 'project.taskCenter.testPlan',
+                    route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                    routeQuery: {
+                      tab: 'real',
+                      type: TaskCenterEnum.TEST_PLAN,
+                    },
+                  },
                 ],
               },
               {
@@ -502,6 +535,17 @@ export const pathMap: PathMapItem[] = [
                     routeQuery: {
                       tab: 'timeTask',
                       type: TaskCenterEnum.API_IMPORT,
+                    },
+                  },
+                  {
+                    key: 'SETTING_ORGANIZATION_TASK_CENTER_TIME_TEST_PLAN', // 系统设置-组织-任务中心-定时任务-测试计划
+                    locale: 'project.taskCenter.testPlan',
+                    route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+                    permission: [],
+                    level: MENU_LEVEL[1],
+                    routeQuery: {
+                      tab: 'timeTask',
+                      type: TaskCenterEnum.TEST_PLAN,
                     },
                   },
                 ],
