@@ -320,6 +320,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public TestPlan update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         this.checkTestPlanNotArchived(request.getId());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
+        String testPlanGroup = testPlan.getGroupId();
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
             updateTestPlan.setId(request.getId());
@@ -363,6 +364,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             testPlanConfig.setRepeatCase(request.getRepeatCase());
             testPlanConfig.setPassThreshold(request.getPassThreshold());
             testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
+        }
+
+        if (!StringUtils.equalsIgnoreCase(testPlanGroup, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            this.updateTestPlanGroupStatus(testPlanGroup);
         }
         testPlanLogService.saveUpdateLog(testPlan, testPlanMapper.selectByPrimaryKey(request.getId()), testPlan.getProjectId(), userId, requestUrl, requestMethod);
         return testPlan;
@@ -824,6 +829,17 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     }
 
     public void refreshTestPlanStatus(String testPlanId) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+            this.updateTestPlanStatus(testPlanId);
+        } else {
+            if (!StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                this.updateTestPlanGroupStatus(testPlan.getGroupId());
+            }
+        }
+    }
+
+    private void updateTestPlanStatus(String testPlanId) {
         Map<String, Long> caseExecResultCount = new HashMap<>();
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
         beansOfType.forEach((k, v) -> {
