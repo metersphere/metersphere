@@ -76,7 +76,7 @@
     },
     {
       title: 'report.plan.name',
-      dataIndex: 'name',
+      dataIndex: 'testPlanName',
       showTooltip: true,
       width: 180,
     },
@@ -88,7 +88,6 @@
         options: statusResultOptions.value,
         filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
       },
-      showTooltip: true,
       width: 200,
     },
     {

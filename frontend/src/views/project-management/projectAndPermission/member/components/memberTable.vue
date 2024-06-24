@@ -30,7 +30,7 @@
     <MsBaseTable
       v-bind="propsRes"
       :action-config="tableBatchActions"
-      :selectable="hasAnyPermission(['ORGANIZATION_MEMBER:READ+UPDATE', 'PROJECT_USER:READ+DELETE'])"
+      :selectable="hasAnyPermission(['PROJECT_USER:READ+UPDATE', 'PROJECT_USER:READ+DELETE'])"
       @selected-change="handleTableSelect"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
