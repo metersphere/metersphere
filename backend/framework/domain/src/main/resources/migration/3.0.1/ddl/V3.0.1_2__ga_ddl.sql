@@ -35,7 +35,6 @@ CREATE INDEX idx_create_user ON mind_additional_node(create_user);
 CREATE INDEX idx_update_user ON mind_additional_node(update_user);
 CREATE INDEX idx_create_time ON mind_additional_node(create_time);
 CREATE INDEX idx_update_time ON mind_additional_node(update_time);
-CREATE UNIQUE INDEX uq_name_project_parent ON mind_additional_node(project_id,name,parent_id);
 
 -- 测试计划增加排序字段
 alter table test_plan
