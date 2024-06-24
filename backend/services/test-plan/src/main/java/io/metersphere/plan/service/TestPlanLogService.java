@@ -185,6 +185,9 @@ public class TestPlanLogService {
      * @param typeKey       类型Key
      */
     public void saveBatchLog(List<TestPlan> plans, String operator, String requestUrl, String requestMethod, String requestType, String typeKey) {
+        if (CollectionUtils.isEmpty(plans)) {
+            return;
+        }
         Project project = projectMapper.selectByPrimaryKey(plans.get(0).getProjectId());
         List<LogDTO> list = new ArrayList<>();
         for (TestPlan plan : plans) {

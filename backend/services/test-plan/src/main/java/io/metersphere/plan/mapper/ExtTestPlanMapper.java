@@ -62,4 +62,6 @@ public interface ExtTestPlanMapper {
     List<String> selectRightfulIdsForExecute(@Param("ids") List<String> ids);
 
     List<TestPlanExecuteHisDTO> listHis(@Param("request")TestPlanExecuteHisPageRequest request);
+
+    List<String> selectGroupIdByKeyword(@Param("projectId") String projectId, @Param("keyword") String keyword);
 }

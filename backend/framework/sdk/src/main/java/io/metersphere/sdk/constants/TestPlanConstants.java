@@ -13,7 +13,6 @@ public class TestPlanConstants {
 
     //测试计划状态-未开始
     public static final String TEST_PLAN_STATUS_PREPARED = "PREPARED";
-
     //测试计划状态-进行中
     public static final String TEST_PLAN_STATUS_UNDERWAY = "UNDERWAY";
     //测试计划状态-已完成

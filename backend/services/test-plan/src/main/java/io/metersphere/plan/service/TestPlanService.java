@@ -433,7 +433,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             ).collect(Collectors.toList());
             archivedPlanList.forEach(item -> this.archived(item.getId(), currentUser));
             //日志
-            testPlanLogService.saveBatchLog(archivedPlanList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.UPDATE.name(), "archive");
+            testPlanLogService.saveBatchLog(archivedPlanList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.ARCHIVED.name(), "archive");
         }
     }
 
@@ -601,7 +601,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             //日志
             if (CollectionUtils.isNotEmpty(copyTestPlanList)) {
                 copyCount = testPlanBatchOperationService.batchCopy(copyTestPlanList, request.getTargetId(), request.getMoveType(), userId);
-                testPlanLogService.saveBatchLog(copyTestPlanList, userId, url, method, OperationLogType.COPY.name(), "copy");
+                testPlanLogService.saveBatchLog(copyTestPlanList, userId, url, method, OperationLogType.ADD.name(), "copy");
             }
 
         }
@@ -814,7 +814,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             }
         }
         TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andIdEqualTo(testPlanGroupId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        testPlanExample.createCriteria().andIdEqualTo(testPlanGroupId);
         TestPlan updateGroupPlan = new TestPlan();
         updateGroupPlan.setStatus(groupStatus);
         testPlanMapper.updateByExampleSelective(updateGroupPlan, testPlanExample);

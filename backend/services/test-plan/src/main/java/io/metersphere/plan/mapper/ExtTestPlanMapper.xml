@@ -90,27 +90,19 @@
 
     <sql id="queryByTableRequest">
         <include refid="baseConditionQuery"/>
+
         <if test="request.keyword != null and request.keyword != ''">
             and (
             t.name like concat('%', #{request.keyword},'%')
             or t.num like concat('%', #{request.keyword},'%')
             or t.tags like concat('%', #{request.keyword}, '%')
+            <if test="request.keywordFilterIds != null and request.keywordFilterIds.size() > 0">
+                or t.id in
+                <foreach collection="request.keywordFilterIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
             )
-        </if>
-        <if test="request.type != null and request.type != ''">
-            <choose>
-                <when test="request.type == 'ALL'">
-                    and t.group_id = 'NONE'
-                </when>
-                <when test="request.type == 'TEST_PLAN'">
-                    and t.group_id = 'NONE'
-                    and t.type = 'TEST_PLAN'
-                </when>
-                <when test="request.type == 'GROUP'">
-                    and t.group_id = 'NONE'
-                    and t.type = 'GROUP'
-                </when>
-            </choose>
         </if>
         <choose>
             <when test='request.searchMode == "AND"'>
@@ -471,6 +463,16 @@
                tpr.create_user operationUser, tpr.start_time startTime, tpr.end_time endTime, tpr.deleted deleted from test_plan_report tpr
         where tpr.test_plan_id = #{request.testPlanId}
         <include refid="filter"/>
+    </select>
+    <select id="selectGroupIdByKeyword" resultType="java.lang.String">
+        SELECT t.group_id
+        FROM test_plan t
+        WHERE t.project_id = #{projectId}
+          AND (
+            t.name like concat('%', #{keyword}, '%')
+                or t.num like concat('%', #{keyword}, '%')
+                or t.tags like concat('%', #{keyword}, '%')
+            )
     </select>
 
     <update id="batchUpdate">

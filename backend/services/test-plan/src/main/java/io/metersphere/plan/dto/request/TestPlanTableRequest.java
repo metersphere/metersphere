@@ -23,6 +23,8 @@ public class TestPlanTableRequest extends BasePageRequest {
     @NotBlank(message = "{test_plan.type.not_blank}")
     private String type;
 
+    @Schema(description = "通过Keyword过滤出的测试子计划的测试计划组id")
+    private List<String> keywordFilterIds;
 
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {
