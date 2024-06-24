@@ -149,7 +149,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getDrawerDebugPage,
     {
-      scroll: { x: 'auto' },
+      scroll: { x: '100%' },
       columns,
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
       selectable: true,
