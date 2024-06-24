@@ -57,7 +57,6 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
             TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(associationIdList, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), logInsertModule.getOperator());
             disassociate.accept(associationParam);
             response.setAssociationCount(associationIdList.size());
-            testPlanResourceLogService.saveDisassociateLog(testPlan, new ResourceLogInsertModule(resourceType, logInsertModule));
         }
         return response;
     }
