@@ -96,7 +96,11 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                     TemplateCustomFieldDTO templateCustomFieldDTO = customField.get(entry.getKey());
                     List<String> strings = caseLevelAndStatusValueMap.get(entry.getKey());
                     if (StringUtils.equalsAnyIgnoreCase(templateCustomFieldDTO.getType(), CustomFieldType.MULTIPLE_MEMBER.name(), CustomFieldType.MEMBER.name())) {
-                        setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.member"));
+                        if (templateCustomFieldDTO.getRequired()) {
+                            setComment(fieldMap.get(entry.getKey()), Translator.get("required").concat(",").concat(Translator.get("excel.template.member")));
+                        } else {
+                            setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required").concat(",").concat(Translator.get("excel.template.member")));
+                        }
                     } else {
                         if (templateCustomFieldDTO.getRequired()) {
                             if (CollectionUtils.isNotEmpty(strings)) {
