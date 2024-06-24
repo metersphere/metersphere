@@ -254,7 +254,7 @@ public class TestPlanTaskCenterService {
     }
 
     private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String module) {
-        List<ReportDTO> reports = new ArrayList<>();
+        List<ReportDTO> reports;
         if (request.isSelectAll()) {
             reports = extTestPlanReportMapper.getReports(request, projectIds, null, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
         } else {

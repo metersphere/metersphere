@@ -83,8 +83,10 @@ public class PlanRunTestPlanApiScenarioService {
             return true;
         }
 
+        String queueId = testPlanExecutionQueue.getPrepareReportId() + "_" + collection.getId();
+
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(ids, runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name(), parentQueueId, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(queueId, ids, runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name(), parentQueueId, userId);
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
         executeNextTask(queue, nextDetail);

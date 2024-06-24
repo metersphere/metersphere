@@ -263,7 +263,7 @@ public class ApiTestCaseController {
     @Operation(summary = "用例调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO debug(@Validated @RequestBody ApiCaseRunRequest request) {
-        return apiTestCaseService.debug(request);
+        return apiTestCaseService.debug(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/run/{id}")

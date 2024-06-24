@@ -41,7 +41,21 @@ public class ApiBatchRunBaseService {
      * @return
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
+        return initExecutionqueue(null, resourceIds, runModeConfig, resourceType, parentQueueId, userId);
+    }
+
+    /**
+     * 初始化执行队列
+     *
+     * @param resourceIds
+     * @param runModeConfig
+     * @return
+     */
+    public ExecutionQueue initExecutionqueue(String queueId, List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        if (StringUtils.isNotBlank(queueId)) {
+            queue.setQueueId(queueId);
+        }
         queue.setParentQueueId(parentQueueId);
         List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
@@ -55,10 +69,7 @@ public class ApiBatchRunBaseService {
      * @return
      */
     public ExecutionQueue initExecutionqueue(List<String> resourceIds, String resourceType, String userId) {
-        ExecutionQueue queue = getExecutionQueue(null, resourceType, userId);
-        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
-        apiExecutionQueueService.insertQueue(queue, queueDetails);
-        return queue;
+        return initExecutionqueue(resourceIds, null, resourceType, null, userId);
     }
 
     public List<ExecutionQueueDetail> getExecutionQueueDetails(List<String> resourceIds) {

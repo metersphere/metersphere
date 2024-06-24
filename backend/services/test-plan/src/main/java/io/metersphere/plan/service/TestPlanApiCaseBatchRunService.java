@@ -297,6 +297,7 @@ public class TestPlanApiCaseBatchRunService {
         TaskRequestDTO taskRequest = getTaskRequestDTO(reportId, testPlanApiCase.getId(), apiTestCase, runModeConfig);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
+        taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskItem().setRequestCount(1L);
 
         apiExecuteService.execute(taskRequest);

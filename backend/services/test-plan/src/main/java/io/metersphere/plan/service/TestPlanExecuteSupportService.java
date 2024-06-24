@@ -13,12 +13,13 @@ import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -30,7 +31,7 @@ public class TestPlanExecuteSupportService {
     @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
     @Resource
     private TestPlanReportApiCaseMapper testPlanReportApiCaseMapper;
     @Resource
@@ -47,14 +48,14 @@ public class TestPlanExecuteSupportService {
 
 
     public void setRedisForList(String key, List<String> list) {
-        redisTemplate.opsForList().rightPushAll(key, list);
-        redisTemplate.expire(key, 1, TimeUnit.DAYS);
+        stringRedisTemplate.opsForList().rightPushAll(key, list);
+        stringRedisTemplate.expire(key, 1, TimeUnit.DAYS);
     }
 
     public void deleteRedisKey(String redisKey) {
         //清除list的key 和 last key节点
-        redisTemplate.delete(redisKey);
-        redisTemplate.delete(genQueueKey(redisKey, LAST_QUEUE_PREFIX));
+        stringRedisTemplate.delete(redisKey);
+        stringRedisTemplate.delete(genQueueKey(redisKey, LAST_QUEUE_PREFIX));
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -105,7 +106,7 @@ public class TestPlanExecuteSupportService {
         }
 
         String queueKey = this.genQueueKey(queueId, queueType);
-        ListOperations<String, String> listOps = redisTemplate.opsForList();
+        ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
         String queueDetail = listOps.leftPop(queueKey);
         if (StringUtils.isBlank(queueDetail)) {
             // 重试1次获取
@@ -113,7 +114,7 @@ public class TestPlanExecuteSupportService {
                 Thread.sleep(1000);
             } catch (Exception ignore) {
             }
-            queueDetail = redisTemplate.opsForList().leftPop(queueKey);
+            queueDetail = stringRedisTemplate.opsForList().leftPop(queueKey);
         }
 
         if (StringUtils.isNotBlank(queueDetail)) {
@@ -123,14 +124,14 @@ public class TestPlanExecuteSupportService {
                 returnQueue.setLastOne(true);
                 if (StringUtils.equalsIgnoreCase(returnQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
                     //串行的执行方式意味着最后一个节点要单独存储
-                    redisTemplate.opsForValue().setIfAbsent(genQueueKey(queueKey, LAST_QUEUE_PREFIX), JSON.toJSONString(returnQueue), 1, TimeUnit.DAYS);
+                    stringRedisTemplate.opsForValue().setIfAbsent(genQueueKey(queueKey, LAST_QUEUE_PREFIX), JSON.toJSONString(returnQueue), 1, TimeUnit.DAYS);
                 }
                 // 最后一个节点清理队列
                 deleteQueue(queueKey);
             }
             return returnQueue;
         } else {
-            String lastQueueJson = redisTemplate.opsForValue().getAndDelete(genQueueKey(queueKey, LAST_QUEUE_PREFIX));
+            String lastQueueJson = stringRedisTemplate.opsForValue().getAndDelete(genQueueKey(queueKey, LAST_QUEUE_PREFIX));
             if (StringUtils.isNotBlank(lastQueueJson)) {
                 TestPlanExecutionQueue nextQueue = JSON.parseObject(lastQueueJson, TestPlanExecutionQueue.class);
                 nextQueue.setExecuteFinish(true);
@@ -144,8 +145,12 @@ public class TestPlanExecuteSupportService {
     }
 
 
-    public void deleteQueue(String queueKey) {
-        redisTemplate.delete(queueKey);
+    public Boolean deleteQueue(String queueKey) {
+       return stringRedisTemplate.delete(queueKey);
+    }
+
+    public Set<String> keys(String queueKey) {
+        return stringRedisTemplate.keys(queueKey);
     }
 
     //生成队列key
