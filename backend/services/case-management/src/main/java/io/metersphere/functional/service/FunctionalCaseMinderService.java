@@ -738,6 +738,9 @@ public class FunctionalCaseMinderService {
         if (mindAdditionalNodeRequest.getName().length()>255) {
             mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0,249));
         }
+        if (StringUtils.isBlank(mindAdditionalNodeRequest.getName())) {
+            throw new MSException(Translator.get("minder_extra_node.text_node_empty"));
+        }
         mindAdditionalNode.setName(mindAdditionalNodeRequest.getName());
         mindAdditionalNode.setParentId(mindAdditionalNodeRequest.getParentId());
         mindAdditionalNode.setUpdateTime(System.currentTimeMillis());
@@ -752,6 +755,9 @@ public class FunctionalCaseMinderService {
         mindAdditionalNode.setId(IDGenerator.nextStr());
         if (mindAdditionalNodeRequest.getName().length()>255) {
             mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0,249));
+        }
+        if (StringUtils.isBlank(mindAdditionalNodeRequest.getName())) {
+            throw new MSException(Translator.get("minder_extra_node.text_node_empty"));
         }
         mindAdditionalNode.setName(mindAdditionalNodeRequest.getName());
         mindAdditionalNode.setParentId(mindAdditionalNodeRequest.getParentId());
