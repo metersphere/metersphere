@@ -26,9 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +46,7 @@ public class TestPlanManagementService {
     private TestPlanMapper testPlanMapper;
 
     public Map<String, Long> moduleCount(TestPlanTableRequest request) {
+        this.initDefaultFilter(request);
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         request.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extTestPlanMapper.countModuleIdByConditions(request);
@@ -64,9 +63,34 @@ public class TestPlanManagementService {
      * 测试计划列表查询
      */
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
+        this.initDefaultFilter(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 MapUtils.isEmpty(request.getSort()) ? "t.num desc" : request.getSortString());
         return PageUtils.setPageInfo(page, this.list(request));
+    }
+
+    private void initDefaultFilter(TestPlanTableRequest request) {
+        if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
+            List<String> defaultStatusList = new ArrayList<>();
+            defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+            defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+            defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
+            if (request.getFilter() == null) {
+                request.setFilter(new HashMap<>() {{
+                    this.put("status", defaultStatusList);
+                }});
+            } else {
+                request.getFilter().put("status", defaultStatusList);
+            }
+        }
+
+        if (StringUtils.isNotBlank(request.getKeyword())) {
+            List<String> groupIdList = extTestPlanMapper.selectGroupIdByKeyword(request.getProjectId(), request.getKeyword());
+            if (CollectionUtils.isNotEmpty(groupIdList)) {
+                request.setKeywordFilterIds(groupIdList);
+            }
+
+        }
     }
 
     public List<TestPlanResponse> list(TestPlanTableRequest request) {

@@ -951,7 +951,6 @@ public class TestPlanTests extends BaseTest {
             groupRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
             onlyPlanRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
 
-
             BaseTreeNode a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1");
             BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
             BaseTreeNode a3Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a3");
@@ -959,17 +958,27 @@ public class TestPlanTests extends BaseTest {
             BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-b1");
             assert a1Node != null & a2Node != null & a3Node != null & a1a1Node != null & a1b1Node != null;
 
+            //此时有一个归档的
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    1010);
+                    1010 - 1);
+            //查询归档的
+            dataRequest.setFilter(new HashMap<>() {{
+                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED));
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    1);
             //只查询组
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, groupRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    3);
+                    3 - 1);
             //只查询计划
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, onlyPlanRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
@@ -981,11 +990,12 @@ public class TestPlanTests extends BaseTest {
             dataRequest.setSort(new HashMap<>() {{
                 this.put("name", "desc");
             }});
+            dataRequest.setFilter(null);
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    1010);
+                    1010 - 1);
 
 
             //指定模块ID查询 (查询count时，不会因为选择了模块而更改了总量
@@ -998,7 +1008,7 @@ public class TestPlanTests extends BaseTest {
                             URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    910);
+                    910 - 1);
 
             //测试根据名称模糊查询： Plan_2  预期结果： a1Node下有11条（testPlan_2,testPlan_20~testPlan_29), a1b1Node下有100条（testPlan_200~testPlan_299）
             dataRequest.setModuleIds(null);
