@@ -443,7 +443,7 @@
     <select id="getIdsByReportIdAndCollectionId" resultType="java.lang.String">
         select id from test_plan_report_api_scenario
         where test_plan_report_id = #{testPlanReportId} and test_plan_collection_id = #{collectionId}
-        order by pos
+        order by pos desc
     </select>
     <sql id="queryWhereConditionByBatchQueryRequest">
         <if test="request.condition.keyword != null and request.condition.keyword != ''">

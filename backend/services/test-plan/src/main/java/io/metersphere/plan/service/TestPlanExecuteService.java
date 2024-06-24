@@ -21,7 +21,6 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,9 +51,6 @@ public class TestPlanExecuteService {
     private PlanRunTestPlanApiScenarioService planRunTestPlanApiScenarioService;
     @Resource
     private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
-
-    @Resource
-    private RedisTemplate<String, String> redisTemplate;
 
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
@@ -119,16 +115,9 @@ public class TestPlanExecuteService {
     }
 
     private void deepDeleteTestPlanCaseType(TestPlanReport report) {
-        testPlanExecuteSupportService.deleteRedisKey(
-                testPlanExecuteSupportService.genQueueKey(report.getId(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE));
-        TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
-        collectionExample.createCriteria().andTestPlanIdEqualTo(report.getTestPlanId()).andParentIdEqualTo(TestPlanConstants.DEFAULT_PARENT_ID);
-        List<TestPlanCollection> parentTestPlanCollectionList = testPlanCollectionMapper.selectByExample(collectionExample);
-        parentTestPlanCollectionList.forEach(parentCollection -> {
-            testPlanExecuteSupportService.deleteRedisKey(
-                    testPlanExecuteSupportService.genQueueKey(report.getId() + "_" + parentCollection.getId(), QUEUE_PREFIX_TEST_PLAN_COLLECTION));
-            //todo @Chen-Jianxing 这里要同步清理用例/场景的执行队列
-        });
+        // 删除该任务相关的队列
+        testPlanExecuteSupportService.keys("*" + report.getId() + "*")
+                .forEach(key -> testPlanExecuteSupportService.deleteQueue(key));
     }
 
     /**
@@ -411,13 +400,13 @@ public class TestPlanExecuteService {
             TestPlanCollection extendedRootCollection = testPlanApiBatchRunBaseService.getExtendedRootCollection(collection);
             String executeMethod = extendedRootCollection == null ? collection.getExecuteMethod() : extendedRootCollection.getExecuteMethod();
             if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.API_CASE.getKey())) {
-                if (StringUtils.equals(executeMethod, ApiBatchRunMode.PARALLEL.name())) {
+                if (isParallel(executeMethod)) {
                     execOver = planRunTestPlanApiCaseService.parallelExecute(testPlanExecutionQueue);
                 } else {
                     execOver = planRunTestPlanApiCaseService.serialExecute(testPlanExecutionQueue);
                 }
             } else if (StringUtils.equalsIgnoreCase(collection.getType(), CaseType.SCENARIO_CASE.getKey())) {
-                if (StringUtils.equals(executeMethod, ApiBatchRunMode.PARALLEL.name())) {
+                if (isParallel(executeMethod)) {
                     execOver = planRunTestPlanApiScenarioService.parallelExecute(testPlanExecutionQueue);
                 } else {
                     execOver = planRunTestPlanApiScenarioService.serialExecute(testPlanExecutionQueue);
@@ -432,6 +421,10 @@ public class TestPlanExecuteService {
             // 如果没有要执行的用例（可能会出现空测试集的情况），直接调用回调
             collectionExecuteQueueFinish(queueId);
         }
+    }
+
+    private boolean isParallel(String executeMethod) {
+        return StringUtils.equals(executeMethod, ApiBatchRunMode.PARALLEL.name());
     }
 
     //测试集执行完成

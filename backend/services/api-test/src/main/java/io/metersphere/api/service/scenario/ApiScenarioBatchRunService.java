@@ -93,7 +93,7 @@ public class ApiScenarioBatchRunService {
      *
      * @param request
      */
-    public void serialExecute(ApiScenarioBatchRunRequest request, String userId) throws Exception {
+    public void serialExecute(ApiScenarioBatchRunRequest request, String userId) {
         List<String> ids = apiScenarioService.doSelectIds(request, false);
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
         // 初始化集成报告
@@ -143,6 +143,7 @@ public class ApiScenarioBatchRunService {
                 }).toList();
         TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(request.getProjectId(), runModeConfig);
         taskRequest.setTaskItems(taskItems);
+        taskRequest.getTaskInfo().setUserId(userId);
 
         apiExecuteService.batchExecute(taskRequest);
     }
@@ -268,6 +269,7 @@ public class ApiScenarioBatchRunService {
         TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
         taskRequest.setTaskItem(taskItem);
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
+        taskRequest.getTaskInfo().setUserId(queue.getUserId());
 
         apiExecuteService.execute(taskRequest);
     }

@@ -717,6 +717,7 @@ public class ApiTestCaseService extends MoveNodeService {
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         taskInfo.getRunModeConfig().setPoolId(poolId);
         taskInfo.setSaveResult(true);
+        taskInfo.setUserId(userId);
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
@@ -740,11 +741,12 @@ public class ApiTestCaseService extends MoveNodeService {
      * @param request
      * @return
      */
-    public TaskRequestDTO debug(ApiCaseRunRequest request) {
+    public TaskRequestDTO debug(ApiCaseRunRequest request, String userId) {
         TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
                 request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         taskRequest.getTaskInfo().setSaveResult(false);
         taskRequest.getTaskInfo().setRealTime(true);
+        taskRequest.getTaskInfo().setUserId(userId);
 
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
 

@@ -1,7 +1,7 @@
 package io.metersphere.api.service.queue;
 
 import jakarta.annotation.Resource;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class ApiExecutionSetService {
     public static final String SET_PREFIX = "set:";
 
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 初始化执行集合
@@ -23,8 +23,8 @@ public class ApiExecutionSetService {
      */
     public void initSet(String setId, List<String> resourceIds) {
         String key = getKey(setId);
-        redisTemplate.opsForSet().add(key, resourceIds.toArray(new String[0]));
-        redisTemplate.expire(key, 1, TimeUnit.DAYS);
+        stringRedisTemplate.opsForSet().add(key, resourceIds.toArray(new String[0]));
+        stringRedisTemplate.expire(key, 1, TimeUnit.DAYS);
     }
 
     private String getKey(String setId) {
@@ -35,11 +35,11 @@ public class ApiExecutionSetService {
      * 从执行集合中去除选项
      */
     public void removeItem(String setId, String resourceId) {
-        redisTemplate.opsForSet().remove(SET_PREFIX + setId, resourceId);
-        Long size = redisTemplate.opsForSet().size(SET_PREFIX + setId);
+        stringRedisTemplate.opsForSet().remove(SET_PREFIX + setId, resourceId);
+        Long size = stringRedisTemplate.opsForSet().size(SET_PREFIX + setId);
         if (size == null || size == 0) {
             // 集合没有元素，则删除集合
-            redisTemplate.delete(SET_PREFIX + setId);
+            stringRedisTemplate.delete(SET_PREFIX + setId);
         }
     }
 }

@@ -110,6 +110,9 @@ public class MessageListener {
     private void executeNextTask(ApiNoticeDTO dto) {
         try {
             ExecutionQueue queue = apiExecutionQueueService.getQueue(dto.getQueueId());
+            if (queue == null) {
+                return;
+            }
             if (isStopOnFailure(dto)) {
                 ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, queue.getResourceType());
                 // 补充集成报告
@@ -118,7 +121,7 @@ public class MessageListener {
                 apiExecutionQueueService.deleteQueue(queue.getQueueId());
                 // 失败停止，删除父队列等
                 ApiExecuteCallbackServiceInvoker.stopCollectionOnFailure(dto.getResourceType(), dto.getParentQueueId());
-            } else if (queue != null) {
+            } else {
                 // queue 不为 null 说明有下个任务
                 ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(dto.getQueueId());
                 if (nextDetail != null) {

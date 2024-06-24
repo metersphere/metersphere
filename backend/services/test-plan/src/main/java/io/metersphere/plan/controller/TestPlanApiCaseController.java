@@ -126,7 +126,7 @@ public class TestPlanApiCaseController {
     @GetMapping("/run/{id}")
     @Operation(summary = "用例执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-//    @CheckOwner(resourceId = "#id", resourceType = "test_plan_api_case") todo
+    @CheckOwner(resourceId = "#id", resourceType = "test_plan_api_case", relationType = "test_plan")
     public TaskRequestDTO run(@PathVariable String id,
                               @Schema(description = "报告ID，传了可以实时获取结果，不传则不支持实时获取")
                               @RequestParam(required = false) String reportId) {
@@ -137,7 +137,7 @@ public class TestPlanApiCaseController {
     @PostMapping("/batch/run")
     @Operation(summary = "批量执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-//    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_api_case") todo
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_api_case", relationType = "test_plan")
     public void batchRun(@Validated @RequestBody TestPlanApiCaseBatchRunRequest request) {
         testPlanApiCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }

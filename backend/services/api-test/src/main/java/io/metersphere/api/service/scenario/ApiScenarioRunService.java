@@ -191,6 +191,7 @@ public class ApiScenarioRunService {
         taskInfo.setSaveResult(true);
         taskInfo.getRunModeConfig().setEnvironmentId(parseParam.getEnvironmentId());
         taskRequest.getTaskItem().setRequestCount(tmpParam.getRequestCount().get());
+        taskInfo.setUserId(userId);
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
