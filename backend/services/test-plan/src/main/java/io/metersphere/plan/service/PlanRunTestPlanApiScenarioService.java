@@ -27,6 +27,7 @@ import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -100,7 +101,7 @@ public class PlanRunTestPlanApiScenarioService {
      * @return 是否执行完毕
      */
     public boolean parallelExecute(TestPlanExecutionQueue testPlanExecutionQueue) {
-        String parentQueueId = testPlanExecutionQueue.getQueueId();
+        String parentQueueId = testPlanExecutionQueue.getQueueId() + "_" + IDGenerator.nextStr();
         String testPlanReportId = testPlanExecutionQueue.getPrepareReportId();
         String userId = testPlanExecutionQueue.getCreateUser();
         TestPlanCollection collection = JSON.parseObject(testPlanExecutionQueue.getTestPlanCollectionJson(), TestPlanCollection.class);
