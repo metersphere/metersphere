@@ -19,7 +19,8 @@ public enum OperationLogType {
     DISASSOCIATE,
     ASSOCIATE,
     QRCODE,
-    ARCHIVED;
+    ARCHIVED,
+    STOP;
 
     public boolean contains(OperationLogType keyword) {
         return this.name().contains(keyword.name());

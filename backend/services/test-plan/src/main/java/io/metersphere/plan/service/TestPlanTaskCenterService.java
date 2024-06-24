@@ -350,12 +350,12 @@ public class TestPlanTaskCenterService {
             LogDTO dto = LogDTOBuilder.builder()
                     .projectId(reportDTO.getProjectId())
                     .organizationId(orgMap.get(reportDTO.getProjectId()))
-                    .type(OperationLogType.UPDATE.name())
+                    .type(OperationLogType.STOP.name())
                     .module(module)
                     .method(OperationLogAspect.getMethod())
                     .path(OperationLogAspect.getPath())
                     .sourceId(reportDTO.getId())
-                    .content(String.format("停止任务：%s", reportDTO.getName()))
+                    .content(reportDTO.getName())
                     .createUser(userId)
                     .build().getLogDTO();
             logs.add(dto);

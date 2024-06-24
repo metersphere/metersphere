@@ -35,4 +35,5 @@ export default {
   'system.log.log': 'Operation log',
   'system.log.time': 'Operation time',
   'system.log.content': 'in {module} under {range}',
+    'system.log.operateType.stop': 'Stop',
 };

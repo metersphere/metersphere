@@ -455,6 +455,10 @@
       label: 'system.log.operateType.archived',
       value: 'ARCHIVED',
     },
+    {
+      label: 'system.log.operateType.stop',
+      value: 'STOP',
+    },
   ];
 
   function resetFilter() {
