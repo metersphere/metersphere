@@ -233,12 +233,7 @@
           </template>
         </a-form>
         <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white pb-[16px]">
-          <a-button
-            v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
-            type="primary"
-            :loading="loading"
-            @click="handleConfigSave"
-          >
+          <a-button type="primary" :loading="loading" @click="handleConfigSave">
             {{ t('common.save') }}
           </a-button>
           <a-button type="secondary" :disabled="loading" @click="handleConfigCancel">{{ t('common.cancel') }}</a-button>

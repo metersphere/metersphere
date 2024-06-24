@@ -39,7 +39,7 @@
         <div class="bug-item">
           <div class="mb-[4px] flex items-center justify-between">
             <MsButton type="text" @click="goBug(item.bugId)">{{ item.num }}</MsButton>
-            <MsButton v-if="hasEditPermission" type="text" @click="disassociateBug(item.id)">
+            <MsButton v-if="hasEditPermission && showType === 'link'" type="text" @click="disassociateBug(item.id)">
               {{ t('ms.add.attachment.cancelAssociate') }}
             </MsButton>
           </div>
