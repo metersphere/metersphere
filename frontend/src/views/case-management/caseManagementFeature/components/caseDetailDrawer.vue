@@ -2,7 +2,7 @@
   <MsDetailDrawer
     ref="detailDrawerRef"
     v-model:visible="showDrawerVisible"
-    :width="880"
+    :width="860"
     :footer="false"
     :mask="false"
     :title="t('caseManagement.featureCase.caseDetailTitle', { id: detailInfo?.num, name: detailInfo?.name })"
@@ -89,14 +89,16 @@
     </template>
     <template #default="{ detail, loading }">
       <div ref="wrapperRef" class="bg-white">
-        <div class="header relative h-[48px] pl-2">
-          <MsTab
-            v-model:active-key="activeTab"
-            :content-tab-list="tabSetting"
-            :get-text-func="getTotal"
-            class="no-content relative border-b"
-            @change="clickMenu"
-          />
+        <div class="header relative h-[48px] border-b pl-2">
+          <div class="max-w-[calc(100%-72px)]"
+            ><MsTab
+              v-model:active-key="activeTab"
+              :content-tab-list="tabSetting"
+              :get-text-func="getTotal"
+              class="no-content relative"
+              @change="clickMenu"
+          /></div>
+
           <span class="display-setting h-full text-[var(--color-text-2)]" @click="showMenuSetting">{{
             t('caseManagement.featureCase.detailDisplaySetting')
           }}</span>

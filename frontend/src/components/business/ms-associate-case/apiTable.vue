@@ -134,7 +134,6 @@
       width: 200,
       showDrag: true,
     },
-
     {
       title: 'common.tag',
       dataIndex: 'tags',

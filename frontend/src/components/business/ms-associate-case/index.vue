@@ -374,7 +374,7 @@
       case CaseLinkEnum.FUNCTIONAL:
         return t('common.searchByIdName');
       case CaseLinkEnum.API:
-        return t('apiTestManagement.searchPlaceholder');
+        return t('ms.case.associate.apiSearchPlaceholder');
       case CaseLinkEnum.SCENARIO:
         return t('common.searchByIdName');
       default:

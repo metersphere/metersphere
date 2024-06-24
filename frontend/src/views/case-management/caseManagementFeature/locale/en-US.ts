@@ -135,7 +135,7 @@ export default {
   'caseManagement.featureCase.tabShowSetting': 'tab display setting',
   'caseManagement.featureCase.closeModuleTab': 'Close: in the drawer not show related modules',
   'caseManagement.featureCase.enableModuleTab': 'Open: Display the relevant modules in the drawer',
-  'caseManagement.featureCase.recoverDefault': 'Restore default',
+  'caseManagement.featureCase.recoverDefault': 'Undo modify',
   'caseManagement.featureCase.detail': 'details',
   'caseManagement.featureCase.nonClosableTab': 'These attributes cannot be turned off',
   'caseManagement.featureCase.case': 'case',

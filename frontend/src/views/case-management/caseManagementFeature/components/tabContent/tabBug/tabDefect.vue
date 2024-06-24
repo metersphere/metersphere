@@ -78,7 +78,12 @@
       </template>
       <template #handleUserName="{ record }">
         <a-tooltip :content="record.handleUserName">
-          <div class="one-line-text max-w-[200px]">{{ characterLimit(record.handleUserName) || '-' }}</div>
+          <div class="one-line-text">{{ record.handleUserName || '-' }}</div>
+        </a-tooltip>
+      </template>
+      <template #createUserName="{ record }">
+        <a-tooltip :content="record.handleUserName">
+          <div class="one-line-text">{{ record.createUserName || '-' }}</div>
         </a-tooltip>
       </template>
       <template #testPlanName="{ record }">

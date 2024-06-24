@@ -12,7 +12,7 @@
                 :max-length="255"
               />
               <a-dropdown-button
-                v-if="hasAllPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+IMPORT'])"
+                v-if="hasAllPermission(['FUNCTIONAL_CASE:READ+IMPORT', 'FUNCTIONAL_CASE:READ+ADD'])"
                 class="ml-2"
                 type="primary"
                 @click="handleSelect('newCase')"
@@ -31,14 +31,33 @@
                   </a-doption>
                 </template>
               </a-dropdown-button>
+              <a-button
+                v-else-if="
+                  !hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD']) && hasAnyPermission(['FUNCTIONAL_CASE:READ+IMPORT'])
+                "
+                class="ml-2"
+                type="primary"
+                @click="handleSelect('import', 'Excel')"
+              >
+                {{ t('caseManagement.featureCase.importExcel') }}
+              </a-button>
+              <a-button
+                v-else
+                v-permission="['FUNCTIONAL_CASE:READ+ADD']"
+                class="ml-2"
+                type="primary"
+                @click="handleSelect('newCase')"
+              >
+                {{ t('common.newCreate') }}
+              </a-button>
             </div>
 
             <div class="case h-[38px]">
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
                 <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.allCase') }}</div>
-                <div class="folder-count">({{ modulesCount.all || 0 }})</div></div
-              >
+                <div class="folder-count">({{ modulesCount.all || 0 }})</div>
+              </div>
               <div class="ml-auto flex items-center">
                 <a-tooltip :content="isExpandAll ? t('common.expandAllSubModule') : t('common.collapseAllSubModule')">
                   <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
@@ -82,7 +101,7 @@
               @case-node-select="caseNodeSelect"
               @init="setRootModules"
               @drag-update="dragUpdate"
-            ></FeatureCaseTree>
+            />
           </div>
         </div>
         <div class="flex-1">
@@ -110,7 +129,7 @@
             :module-name="activeFolderName"
             @init="initModulesCount"
             @import="importCase"
-          ></CaseTable>
+          />
         </div>
       </template>
     </MsSplitBox>
@@ -435,7 +454,7 @@
   .case {
     padding: 8px 4px;
     border-radius: var(--border-radius-small);
-    @apply flex cursor-pointer  items-center justify-between;
+    @apply flex cursor-pointer items-center justify-between;
     &:hover {
       background-color: rgb(var(--primary-1));
     }
@@ -471,7 +490,7 @@
     }
   }
   .recycle {
-    @apply absolute bottom-0 bg-white  pb-4;
+    @apply absolute bottom-0 bg-white pb-4;
     :deep(.arco-divider-horizontal) {
       margin: 8px 0;
     }

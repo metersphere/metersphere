@@ -170,6 +170,14 @@
       showDrag: true,
     },
     {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      isTag: true,
+      isStringTag: true,
+      width: 400,
+      showDrag: true,
+    },
+    {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUserName',
       dataIndex: 'createUserName',
@@ -227,12 +235,6 @@
         return {
           ...record,
           caseLevel: getCaseLevel(record),
-          tags: (record.tags || []).map((item: string, i: number) => {
-            return {
-              id: `${record.id}-${i}`,
-              name: item,
-            };
-          }),
         };
       }
     );

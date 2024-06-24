@@ -27,21 +27,19 @@
         ></a-input-search>
       </div>
     </div>
-    <div>
-      <ms-base-table
-        ref="tableRef"
-        v-bind="propsRes"
-        :action-config="{
-          baseAction: [],
-          moreAction: [],
-        }"
-        v-on="propsEvent"
-      >
-        <template #name="{ record }">
-          <BugNamePopover :name="record.name" :content="record.content" />
-        </template>
-      </ms-base-table>
-    </div>
+    <ms-base-table
+      ref="tableRef"
+      v-bind="propsRes"
+      :action-config="{
+        baseAction: [],
+        moreAction: [],
+      }"
+      v-on="propsEvent"
+    >
+      <template #name="{ record }">
+        <BugNamePopover :name="record.name" :content="record.content" />
+      </template>
+    </ms-base-table>
   </MsDrawer>
 </template>
 
@@ -87,7 +85,6 @@
       width: 150,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -105,7 +102,6 @@
       showInTable: true,
       showTooltip: true,
       width: 200,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -124,7 +120,6 @@
       showInTable: true,
       showTooltip: true,
       width: 200,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -134,7 +129,6 @@
       showInTable: true,
       showTooltip: true,
       width: 200,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateTime',

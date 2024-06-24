@@ -331,7 +331,7 @@
   ]);
 
   const featureCaseStore = useFeatureCaseStore();
-  const modelId = computed(() => featureCaseStore.moduleId[0]);
+  const modelId = computed(() => featureCaseStore.moduleId[0] || 'root');
 
   const initForm: DetailCase = {
     id: '',
