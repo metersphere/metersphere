@@ -708,6 +708,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
         TestPlanCaseDetailResponse response = new TestPlanCaseDetailResponse();
         BeanUtils.copyBean(response, functionalCaseDetail);
+        response.setLastExecuteResult(planFunctionalCase.getLastExecResult());
 
         TestPlanCaseExecuteHistoryExample testPlanCaseExecuteHistoryExample = new TestPlanCaseExecuteHistoryExample();
         testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(caseId).andTestPlanCaseIdEqualTo(id).andDeletedEqualTo(false);
