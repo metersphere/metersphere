@@ -128,8 +128,6 @@
           'zoom',
           'zoomin',
           'zoomout',
-          'appendchildnode',
-          'appendsiblingnode',
         ]);
         if (selectNodes.length > 0 && !notChangeCommands.has(event.commandName.toLocaleLowerCase())) {
           minderStore.setMinderUnsaved(true);
