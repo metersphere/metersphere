@@ -365,7 +365,7 @@ public class TestPlanExecuteService {
                     }}
             );
         }
-        LogUtils.info("测试计划不同用例类型的执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}],执行模式[{}]", queueId, queueType, executionQueue.getParentQueueId(), executionQueue.getParentQueueType(), executionQueue.getRunMode());
+        LogUtils.info("测试计划不同用例类型的执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}],执行模式[{}]", executionQueue.getQueueId(), executionQueue.getQueueType(), executionQueue.getParentQueueId(), executionQueue.getParentQueueType(), executionQueue.getRunMode());
         if (CollectionUtils.isEmpty(childrenQueue)) {
             //本次的测试集执行完成
             this.caseTypeExecuteQueueFinish(executionQueue.getQueueId(), executionQueue.getQueueType());
@@ -393,7 +393,9 @@ public class TestPlanExecuteService {
      */
     private void executeCase(TestPlanExecutionQueue testPlanExecutionQueue) {
         String queueId = testPlanExecutionQueue.getQueueId();
-        LogUtils.info("测试集执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}],执行模式[{}]", queueId, testPlanExecutionQueue.getQueueType(), testPlanExecutionQueue.getParentQueueId(), testPlanExecutionQueue.getParentQueueType(), testPlanExecutionQueue.getRunMode());
+        LogUtils.info("测试集执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}],执行模式[{},资源ID[{}]",
+                queueId, testPlanExecutionQueue.getQueueType(), testPlanExecutionQueue.getParentQueueId(), testPlanExecutionQueue.getParentQueueType(),
+                testPlanExecutionQueue.getRunMode(), testPlanExecutionQueue.getSourceID());
         boolean execOver = false;
         try {
             TestPlanCollection collection = JSON.parseObject(testPlanExecutionQueue.getTestPlanCollectionJson(), TestPlanCollection.class);
@@ -428,10 +430,17 @@ public class TestPlanExecuteService {
     }
 
     //测试集执行完成
-    public void collectionExecuteQueueFinish(String queueID) {
+    public void collectionExecuteQueueFinish(String paramQueueId) {
+        LogUtils.info("收到测试集执行完成的信息： [{}]", paramQueueId);
+        String queueID = paramQueueId;
+        String[] queueIdArr = queueID.split("_");
+        if (queueIdArr.length > 2) {
+            queueID = queueIdArr[0] + "_" + queueIdArr[1];
+        }
         String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
-        LogUtils.info("收到测试集执行完成的信息： 队列ID[{}],队列类型[{}]，下一个节点的执行工作准备中...", queueID, queueType);
         TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueID, queueType);
+        LogUtils.info("获取执行节点完成： 队列ID[{}],队列类型[{},串并行:[{}]执行是否结束[{}],是否是最后一个[{}],当前查出节点的资源ID[{}]]，下一个节点的执行工作准备中...",
+                queueID, queueType, nextQueue.getRunMode(), nextQueue.isExecuteFinish(), nextQueue.isLastOne(), nextQueue.getSourceID());
         if (StringUtils.equalsIgnoreCase(nextQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
             //串行时，由于是先拿出节点再判断执行，所以要判断节点的isExecuteFinish
             if (!nextQueue.isExecuteFinish()) {
