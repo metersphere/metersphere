@@ -12,10 +12,8 @@
       :max-length="255"
     />
     <TreeFolderAll
-      ref="treeFolderAllRef"
       v-model:isExpandAll="isExpandAll"
       v-model:selectedProtocols="selectedProtocols"
-      :not-show-operation="props.treeType === 'COLLECTION'"
       :active-folder="activeFolder"
       :folder-name="t('testPlan.testPlanIndex.apiCase')"
       :all-count="allCount"
@@ -92,8 +90,6 @@
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
     };
   });
-  const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
-  const allProtocolList = computed(() => treeFolderAllRef.value?.allProtocolList);
 
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
@@ -180,6 +176,5 @@
   defineExpose({
     initModules,
     setActiveFolder,
-    allProtocolList,
   });
 </script>
