@@ -502,7 +502,6 @@
   ];
   const selectedModuleKeys = ref<string[]>([]);
   const tableStore = useTableStore();
-  await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer', true);
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
     getReviewList,
     {
@@ -769,6 +768,12 @@
       },
     });
   }
+
+  defineExpose({
+    searchReview,
+  });
+
+  await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer', true);
 </script>
 
 <style lang="less" scoped></style>

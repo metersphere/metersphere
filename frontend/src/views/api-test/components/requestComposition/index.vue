@@ -1483,6 +1483,7 @@
             Message.success(t('common.saveSuccess'));
             handleSaveCaseCancel();
             saveCaseLoading.value = false;
+            done(true);
           }
         } catch (error) {
           // eslint-disable-next-line no-console

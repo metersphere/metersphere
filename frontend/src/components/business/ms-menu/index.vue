@@ -23,7 +23,6 @@
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
-  import type { RouteMeta } from 'vue-router';
 
   export default defineComponent({
     emit: ['collapse'],
@@ -50,37 +49,43 @@
       const openKeys = ref<string[]>([]);
       const selectedKey = ref<string[]>([]);
 
-      const goto = (item: RouteRecordRaw | null) => {
-        if (item) {
-          // 如果菜单是外链
-          if (regexUrl.test(item.path)) {
-            openWindow(item.path);
-            selectedKey.value = [item.name as string];
-            return;
-          }
-          // 已激活的菜单重复点击不处理
-          const { hideInMenu, activeMenu } = item.meta as RouteMeta;
-          if (route.name === item.name && !hideInMenu && !activeMenu) {
-            selectedKey.value = [item.name as string];
-            return;
-          }
-          if (item.meta?.hideChildrenInMenu) {
-            // 顶级菜单路由跳转到该菜单下有权限的第一个顶部子菜单
-            const childName = getFirstRouterNameByCurrentRoute(item.name as string);
-            router.push({
-              name: childName,
-            });
+      const goto = debounce(
+        (item: RouteRecordRaw | null) => {
+          if (item) {
+            // 如果菜单是外链
+            if (regexUrl.test(item.path)) {
+              openWindow(item.path);
+              selectedKey.value = [item.name as string];
+              return;
+            }
+            // 已激活的菜单重复点击不处理
+            if (
+              route.name === item.name ||
+              ((route.name as string).includes(item.name as string) && route.meta?.hideChildrenInMenu)
+            ) {
+              selectedKey.value = [item.name as string];
+              return;
+            }
+            if (item.meta?.hideChildrenInMenu) {
+              // 顶级菜单路由跳转到该菜单下有权限的第一个顶部子菜单
+              const childName = getFirstRouterNameByCurrentRoute(item.name as string);
+              router.push({
+                name: childName,
+              });
+            } else {
+              router.push({
+                name: item.name,
+              });
+            }
           } else {
             router.push({
-              name: item.name,
+              name: 'notFound',
             });
           }
-        } else {
-          router.push({
-            name: 'notFound',
-          });
-        }
-      };
+        },
+        500,
+        { leading: true, trailing: false, maxWait: 500 }
+      );
       /**
        * 查找激活的菜单项
        * @param target 目标菜单名
@@ -407,7 +412,7 @@
       // 渲染菜单项
       const renderMenuItem = (element: RouteRecordRaw | null, icon: (() => any) | null) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
-          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={debounce(() => goto(element), 100)}>
+          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
               {collapsed.value ? (
                 <div class="text-center text-[12px] leading-[16px]">
@@ -436,7 +441,7 @@
             </div>
           </a-menu-item>
         ) : (
-          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={debounce(() => goto(element), 100)}>
+          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             {collapsed.value ? (
               <div class="text-center text-[12px] leading-[16px]">
                 {t(element?.meta?.collapsedLocale || element?.meta?.locale || '')}
