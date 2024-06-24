@@ -45,9 +45,9 @@ public class TestPlanExecuteController {
     }
 
     @PostMapping("/batch")
-    @Operation(summary = "测试计划-开始自行")
+    @Operation(summary = "测试计划-批量执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getExecuteIds()", resourceType = "test_plan")
     @Log(type = OperationLogType.EXECUTE, expression = "#msClass.batchExecuteLog(#request)", msClass = TestPlanLogService.class)
     public void startExecute(@Validated @RequestBody TestPlanBatchExecuteRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
