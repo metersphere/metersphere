@@ -325,7 +325,7 @@ export const pathMap: PathMapItem[] = [
             children: [
               {
                 key: 'SETTING_SYSTEM_TASK_CENTER_REAL_TIME', // 系统设置-系统-任务中心-实时任务
-                locale: 'project.taskCenter.real',
+                locale: 'project.taskCenter.realTimeTask',
                 route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
                 permission: [],
                 level: MENU_LEVEL[0],
@@ -372,7 +372,7 @@ export const pathMap: PathMapItem[] = [
                 permission: [],
                 level: MENU_LEVEL[0],
                 routeQuery: {
-                  tab: 'timeTask',
+                  tab: 'timing',
                 },
                 children: [
                   {
@@ -382,7 +382,7 @@ export const pathMap: PathMapItem[] = [
                     permission: [],
                     level: MENU_LEVEL[0],
                     routeQuery: {
-                      tab: 'timeTask',
+                      tab: 'timing',
                       type: TaskCenterEnum.API_SCENARIO,
                     },
                   },
@@ -393,7 +393,7 @@ export const pathMap: PathMapItem[] = [
                     permission: [],
                     level: MENU_LEVEL[0],
                     routeQuery: {
-                      tab: 'timeTask',
+                      tab: 'timing',
                       type: TaskCenterEnum.API_IMPORT,
                     },
                   },
@@ -404,7 +404,7 @@ export const pathMap: PathMapItem[] = [
                     permission: [],
                     level: MENU_LEVEL[0],
                     routeQuery: {
-                      tab: 'timeTask',
+                      tab: 'timing',
                       type: TaskCenterEnum.TEST_PLAN,
                     },
                   },
@@ -465,7 +465,7 @@ export const pathMap: PathMapItem[] = [
             children: [
               {
                 key: 'SETTING_ORGANIZATION_TASK_CENTER_REAL_TIME', // 系统设置-组织-任务中心-实时任务
-                locale: 'project.taskCenter.real',
+                locale: 'project.taskCenter.realTimeTask',
                 route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
                 permission: [],
                 level: MENU_LEVEL[1],
