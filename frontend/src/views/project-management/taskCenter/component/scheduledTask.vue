@@ -50,7 +50,7 @@
           type="text"
           class="one-line-text w-full"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail(record.resourceId)"
+          @click="showDetail(record)"
           >{{ record.resourceNum }}
         </div>
       </template>
@@ -62,7 +62,7 @@
           "
           class="one-line-text max-w-[300px]"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail(record.resourceId)"
+          @click="showDetail(record)"
           >{{ record.resourceName }}
         </div>
       </template>
@@ -550,18 +550,22 @@
    * 跳转接口用例详情
    */
 
-  function showDetail(id: string) {
+  function showDetail(record: any) {
     if (!hasJumpPermission.value) {
       return;
     }
     if (props.moduleType === TaskCenterEnum.API_SCENARIO) {
       openNewPage(RouteEnum.API_TEST_SCENARIO, {
-        id,
+        orgId: record.organizationId,
+        pId: record.projectId,
+        id: record.resourceId,
       });
     }
     if (props.moduleType === TaskCenterEnum.TEST_PLAN) {
       openNewPage(RouteEnum.TEST_PLAN_INDEX_DETAIL, {
-        id,
+        orgId: record.organizationId,
+        pId: record.projectId,
+        id: record.resourceId,
       });
     }
   }

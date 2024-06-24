@@ -25,6 +25,9 @@ public class TaskCenterScheduleDTO implements Serializable {
     @Schema(description = "项目id")
     private String projectId;
 
+    @Schema(description = "组织id")
+    private String organizationId;
+
     @Schema(description = "任务id")
     private String id;
 

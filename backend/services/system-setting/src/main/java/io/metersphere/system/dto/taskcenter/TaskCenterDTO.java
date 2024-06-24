@@ -24,6 +24,8 @@ public class TaskCenterDTO implements Serializable {
 
     @Schema(description = "项目id")
     private String projectId;
+    @Schema(description = "组织id")
+    private String organizationId;
 
     @Schema(description = "报告id")
     private String id;

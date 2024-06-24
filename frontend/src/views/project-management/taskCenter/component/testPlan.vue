@@ -28,7 +28,7 @@
           type="text"
           class="one-line-text w-full"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail(record.resourceId)"
+          @click="showDetail(record)"
           >{{ record.resourceNum }}
         </div>
       </template>
@@ -37,7 +37,7 @@
           v-if="!record.integrated"
           class="one-line-text max-w-[300px]"
           :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail(record.resourceId)"
+          @click="showDetail(record)"
           >{{ record.resourceName }}
         </div>
       </template>
@@ -75,7 +75,7 @@
             <MsButton
               class="!mr-0"
               :disabled="record.historyDeleted || !hasAnyPermission(permissionsMap[props.group].report)"
-              @click="viewReport(record.id, record.integrated)"
+              @click="viewReport(record)"
               >{{ t('project.taskCenter.viewReport') }}
             </MsButton>
           </a-tooltip>
@@ -84,7 +84,7 @@
           <MsButton
             class="!mr-0"
             :disabled="record.historyDeleted || !hasAnyPermission(permissionsMap[props.group].report)"
-            @click="viewReport(record.id, record.integrated)"
+            @click="viewReport(record)"
             >{{ t('project.taskCenter.viewReport') }}
           </MsButton>
         </div>
@@ -420,19 +420,23 @@
     }
   }
 
-  function viewReport(id: string, type: boolean) {
+  function viewReport(record: any) {
     openNewPage(RouteEnum.TEST_PLAN_REPORT_DETAIL, {
-      id,
-      type: type ? 'GROUP' : 'TEST_PLAN',
+      orgId: record.organizationId,
+      pId: record.projectId,
+      id: record.id,
+      type: record.integrated ? 'GROUP' : 'TEST_PLAN',
     });
   }
 
-  function showDetail(id: string) {
+  function showDetail(record: any) {
     if (!hasJumpPermission.value) {
       return;
     }
     openNewPage(RouteEnum.TEST_PLAN_INDEX_DETAIL, {
-      id,
+      orgId: record.organizationId,
+      pId: record.projectId,
+      id: record.resourceId,
     });
   }
 
