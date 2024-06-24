@@ -188,7 +188,7 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'case.caseName',
+      title: 'apiScenario.table.columns.name',
       dataIndex: 'name',
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -206,7 +206,7 @@
       showDrag: true,
     },
     {
-      title: 'case.caseLevel',
+      title: 'apiScenario.table.columns.level',
       dataIndex: 'priority',
       slotName: 'caseLevel',
       filterConfig: {
