@@ -1,6 +1,8 @@
 <template>
-  <div class="one-line-text max-w-[calc(100%-32px)]"> {{ props.name }}</div>
-  <a-popover class="bug-content-popover" title="" position="right" style="width: 480px" tri>
+  <a-tooltip :content="props.name">
+    <div class="one-line-text max-w-[calc(100%-32px)]"> {{ props.name }}</div>
+  </a-tooltip>
+  <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
     <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
     <template #content>
       <div v-dompurify-html="props.content" class="markdown-body bug-content"> </div>
@@ -9,8 +11,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();

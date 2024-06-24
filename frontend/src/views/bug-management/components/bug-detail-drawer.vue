@@ -91,7 +91,7 @@
         </MsButton>
       </div>
     </template>
-    <template #default="{ detail }">
+    <template #default>
       <div
         ref="wrapperRef"
         :class="[
@@ -130,7 +130,7 @@
                 v-if="activeTab === 'basicInfo'"
                 v-model:tags="tags"
                 :form-rule="formRules"
-                :detail="detail"
+                :detail="detailInfo"
                 :current-platform="props.currentPlatform"
                 :is-platform-default-template="isPlatformDefaultTemplate"
                 :loading="rightLoading"
