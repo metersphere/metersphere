@@ -134,7 +134,7 @@ export default {
   'caseManagement.featureCase.tabShowSetting': 'tab 显示设置',
   'caseManagement.featureCase.closeModuleTab': '关闭： 在抽屉内不展示相关模块',
   'caseManagement.featureCase.enableModuleTab': '开启： 在抽屉内展示相关模块',
-  'caseManagement.featureCase.recoverDefault': '恢复默认',
+  'caseManagement.featureCase.recoverDefault': '撤销修改',
   'caseManagement.featureCase.detail': '详情',
   'caseManagement.featureCase.nonClosableTab': '以上属性不可关闭',
   'caseManagement.featureCase.case': '用例',

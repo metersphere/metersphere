@@ -21,4 +21,5 @@ export default {
   'ms.case.associate.gotIt': 'I got it',
   'ms.case.associate.switchProject': 'Switch project?',
   'ms.case.associate.switchProjectPopTip': 'After switching, the selected data will be cleared',
+  'ms.case.associate.apiSearchPlaceholder': 'Support ID/ name/tag/ path search',
 };

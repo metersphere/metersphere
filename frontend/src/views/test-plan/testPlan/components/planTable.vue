@@ -36,7 +36,7 @@
     ref="tableRef"
     class="mt-4"
     :action-config="testPlanBatchActions"
-    :selectable="hasOperationPermission && showType !== testPlanTypeEnum.ALL"
+    :selectable="hasOperationPermission && showType !== testPlanTypeEnum.ALL && !isArchived"
     filter-icon-align-left
     :expanded-keys="expandedKeys"
     :disabled-config="{
@@ -1287,7 +1287,7 @@
     }
     planType.value = record.type;
     planSourceId.value = record.id;
-    taskForm.value = defaultCountDetailMap.value[record.id]?.scheduleConfig;
+    taskForm.value = cloneDeep(defaultCountDetailMap.value[record.id]?.scheduleConfig);
     showScheduledTaskModal.value = true;
   }
 

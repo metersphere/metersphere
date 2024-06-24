@@ -66,10 +66,10 @@ export default {
   'testPlan.testPlanIndex.apiScenarioCase': 'Scenario use cases',
   'testPlan.testPlanIndex.scheduledTask': 'stop and delete scheduled tasks, ',
   'testPlan.testPlanIndex.operateWithCaution': 'please operate with caution!',
-  'testPlan.testPlanIndex.deleteArchivedPlan': 'After the program has been archived, delete data unrecoverable,',
-  'testPlan.testPlanIndex.deletePendingPlan': 'The plan is not executed, the data cannot be recovered after deletion,',
+  'testPlan.testPlanIndex.deleteArchivedPlan': 'Archived. Data cannot be recovered after deletion.',
+  'testPlan.testPlanIndex.deletePendingPlan': 'Not executed. Data cannot be recovered after deletion.',
   'testPlan.testPlanIndex.deleteRunningPlan':
-    'The plan is in progress. After deletion, the execution will be terminated and cannot be restored,',
+    'In progress. After deletion, execution terminates and cannot be recovered.',
   'testPlan.testPlanIndex.deleteCompletedPlan':
     'Suggest that completed plans, choose archiving, and retain use case information and execution results; If the deletion continues, the data will not be restored,',
   'testPlan.testPlanIndex.confirmArchivePlan':
@@ -134,7 +134,7 @@ export default {
   'testPlan.testPlanGroup.planGroupArchiveContent':
     'After archived, plan and carry out information no longer update and edit data unrecoverable, please careful operation.',
   'testPlan.testPlanGroup.planGroupDeleteContent':
-    'Planning groups choose file has been completed and the case information, and the results will be retained, If you continue to delete, the data will not be recovered, please be careful!',
+    'It is recommended to select the archive, and the use case information and execution results will be retained;The data will not be restored if continue to delete,',
   'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': 'Please select the Plan group',
   'testPlan.testPlanGroup.batchArchivedGroup': 'Confirm archive: {count} test plan groups',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': 'Are you sure to delete {count} test plan groups?',

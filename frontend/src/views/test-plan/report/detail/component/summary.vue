@@ -79,6 +79,13 @@
     return data;
   }
 
+  function getResultText(isPass: boolean, text: string) {
+    const successColor = 'rgb(76, 217, 100)';
+    const errorColor = 'rgb(255, 59, 48)';
+    const color = isPass ? successColor : errorColor;
+    return `<strong><span style="color: ${color}" color="${color}" fontsize="">${text}</span></strong>`;
+  }
+
   const summaryContent = computed(() => {
     const { functionalCount, apiCaseCount, apiScenarioCount } = props.detail;
     const functionalCaseDetail = getSummaryDetail(functionalCount);
@@ -91,17 +98,30 @@
 
     // 通过率
     const allSuccessCount = (allSuccessCase / allCaseTotal) * 100;
-    const allSuccessRate = `${Number.isNaN(allSuccessCount) ? 0 : allSuccessCount.toFixed(2)}%`;
-    // TODO 待联调
+    const allSuccessRate = `${Number.isNaN(allSuccessCount) ? 0 : allSuccessCount.toFixed(2)}`;
+
     if (props.isPlanGroup) {
       return `<p style=""><span color="" fontsize=""> <strong>${props.detail.testPlanName}</strong>包含 ${props.detail.planCount}个子计划。
              其中 ${props.detail.passCountOfPlan} 个子计划通过， ${props.detail.failCountOfPlan} 个子计划不通过。</span></p>`;
     }
+    const functionalCasText = `（1）本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共发现缺陷${props.detail.functionalBugCount}个。<br>`;
+    const functionCaseDesc = functionalCaseDetail.caseTotal ? `${functionalCasText}` : ``;
+
+    const apiCaseText = `（2）本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共发现缺陷 ${props.detail.apiBugCount} 个。<br>`;
+    const apiCaseDesc = apiCaseDetail.caseTotal ? `${apiCaseText}` : ``;
+
+    const scenarioCaseText = `（3）本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}%，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共发现缺陷${props.detail.scenarioBugCount}个`;
+    const scenarioCaseDesc = apiScenarioDetail.caseTotal ? `${scenarioCaseText}` : ``;
+
+    const isPass = Number(allSuccessRate) >= Number(props.detail.passThreshold);
+
+    const isAchieveText = getResultText(isPass, isPass ? '达到' : '未达到');
+    const isMeetText = getResultText(isPass, isPass ? '满足' : '不满足');
     // 接口用例通过率
-    return `<p style=""><span color="" fontsize=""> <strong>${props.detail.testPlanName}</strong> 包含功能测试、接口用例、场景用例, 共 ${allCaseTotal}条用例，已执行 ${allHasExecutedCase} 条，通过用例 ${allSuccessCase} 条，通过率为 ${allSuccessRate}，达到/未达到通过阈值（通过阈值为${props.detail.passThreshold}%），<strong>${props.detail.testPlanName}</strong> 计划满足/不满足发布要求。<br>
-      （1）本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共发现缺陷${props.detail.functionalBugCount}个。<br>
-      （2）本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共发现缺陷 ${props.detail.apiBugCount} 个。<br>
-      （3）本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}%，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共发现缺陷${props.detail.scenarioBugCount}个</span></p>
+    return `<p style=""><span color="" fontsize=""> <strong>${props.detail.testPlanName}</strong> 包含功能测试、接口用例、场景用例, 共 ${allCaseTotal}条用例，已执行 ${allHasExecutedCase} 条，通过用例 ${allSuccessCase} 条，通过率为 ${allSuccessRate}%，${isAchieveText}通过阈值（通过阈值为${props.detail.passThreshold}%），<strong>${props.detail.testPlanName}</strong> 计划${isMeetText}发布要求。<br>
+      ${functionCaseDesc}
+      ${apiCaseDesc}
+      ${scenarioCaseDesc}</span></p>
   `;
   });
 

@@ -285,24 +285,25 @@
     return customFieldToColumns(res);
   };
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps } = useTable(
-    getRecycleList,
-    {
-      tableKey: TableKeyEnum.BUG_MANAGEMENT_RECYCLE,
-      selectable: true,
-      noDisable: true,
-      showSetting: true,
-      scroll: { x: '1900px' },
-      heightUsed: 256,
-    },
-    (record: TableData) => ({
-      ...record,
-      handleUser: record.handleUserName,
-      createUser: record.createUserName,
-      updateUser: record.updateUserName,
-      ...customFieldDataToTableData(record.customFields, customFields.value),
-    })
-  );
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps, resetSelector, resetFilterParams } =
+    useTable(
+      getRecycleList,
+      {
+        tableKey: TableKeyEnum.BUG_MANAGEMENT_RECYCLE,
+        selectable: true,
+        noDisable: true,
+        showSetting: true,
+        scroll: { x: '1900px' },
+        heightUsed: 256,
+      },
+      (record: TableData) => ({
+        ...record,
+        handleUser: record.handleUserName,
+        createUser: record.createUserName,
+        updateUser: record.updateUserName,
+        ...customFieldDataToTableData(record.customFields, customFields.value),
+      })
+    );
 
   const tableAction = {
     baseAction: [
@@ -354,6 +355,8 @@
     try {
       await recoverSingleByRecycle(record.id);
       Message.success(t('bugManagement.recycle.recoverSuccess'));
+      resetSelector();
+      resetFilterParams();
       fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -370,6 +373,8 @@
       appStore.hideLoading();
       Message.success(t('bugManagement.recycle.recoverSuccess'));
       keyword.value = '';
+      resetSelector();
+      resetFilterParams();
       fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -386,6 +391,8 @@
         try {
           await deleteSingleByRecycle(record.id);
           Message.success(t('common.deleteSuccess'));
+          resetSelector();
+          resetFilterParams();
           fetchData();
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -405,6 +412,8 @@
           await deleteBatchByRecycle(tmpObj);
           Message.success(t('common.deleteSuccess'));
           keyword.value = '';
+          resetSelector();
+          resetFilterParams();
           fetchData();
         } catch (error) {
           // eslint-disable-next-line no-console

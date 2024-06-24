@@ -64,9 +64,9 @@ export default {
   'testPlan.testPlanIndex.apiScenarioCase': '场景用例',
   'testPlan.testPlanIndex.scheduledTask': '定时任务停止并删除，',
   'testPlan.testPlanIndex.operateWithCaution': '请谨慎操作！',
-  'testPlan.testPlanIndex.deleteArchivedPlan': '计划 已归档，删除后数据不可恢复，',
-  'testPlan.testPlanIndex.deletePendingPlan': '计划 未执行，删除后数据不可恢复，',
-  'testPlan.testPlanIndex.deleteRunningPlan': '计划 进行中，删除后，终止执行且不可恢复，',
+  'testPlan.testPlanIndex.deleteArchivedPlan': ' 已归档，删除后数据不可恢复，',
+  'testPlan.testPlanIndex.deletePendingPlan': ' 未执行，删除后数据不可恢复，',
+  'testPlan.testPlanIndex.deleteRunningPlan': ' 进行中，删除后，终止执行且不可恢复，',
   'testPlan.testPlanIndex.deleteCompletedPlan':
     '建议计划 已完成 ，选择归档，用例信息及执行结果都将被保留；若继续删除，数据将不会恢复，',
   'testPlan.testPlanIndex.confirmArchivePlan': '归档后，执行信息不再更新且不可编辑，数据不可恢复，请谨慎操作！',
@@ -124,7 +124,7 @@ export default {
   'testPlan.testPlanGroup.planGroupArchiveContent':
     '归档后，计划执行信息不再更新且不可编辑，数据不可恢复，请谨慎操作！',
   'testPlan.testPlanGroup.planGroupDeleteContent':
-    '计划组 已完成 选择归档，用例信息及执行结果都将被保留；若继续删除，数据将不会恢复，请谨慎操作！',
+    ' 已完成 建议选择归档，用例信息及执行结果都将被保留；若继续删除，数据将不会恢复，',
   'testPlan.testPlanGroup.module': '模块',
   'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': '请选择计划组',
   'testPlan.testPlanGroup.batchArchivedGroup': '确认归档：{count} 个测试计划组吗',

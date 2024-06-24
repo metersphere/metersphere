@@ -1,7 +1,7 @@
 <template>
   <MsBaseTable v-bind="currentCaseTable.propsRes.value" v-on="currentCaseTable.propsEvent.value">
     <template #num="{ record }">
-      <MsButton type="text" @click="showReport(record)">{{ record.num }}</MsButton>
+      <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
     </template>
     <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
       <caseLevel :case-level="filterContent.value" />
@@ -14,7 +14,12 @@
     </template>
 
     <template #lastExecResult="{ record }">
-      <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.executeResult" />
+      <ExecutionStatus
+        :module-type="ReportEnum.API_REPORT"
+        :status="record.executeResult"
+        :class="[!record.executeResult ? '' : 'cursor-pointer']"
+        @click="showReport(record)"
+      />
     </template>
   </MsBaseTable>
   <CaseAndScenarioReportDrawer
@@ -44,12 +49,17 @@
     reportScenarioDetail,
     reportStepDetail,
   } from '@/api/modules/test-plan/report';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
+  import type { PlanDetailApiCaseItem } from '@/models/testPlan/testPlan';
   import { ReportEnum } from '@/enums/reportEnum';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
+
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     reportId: string;
@@ -153,8 +163,24 @@
   const apiReportId = ref<string>('');
 
   function showReport(record: ApiOrScenarioCaseItem) {
+    if (!record.executeResult || record.executeResult === 'STOPPED') return;
     reportVisible.value = true;
     apiReportId.value = record.reportId;
+  }
+
+  // 去接口用例详情页面
+  function toDetail(record: PlanDetailApiCaseItem) {
+    if (props.activeTab === 'scenarioCase') {
+      openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
+        id: record.id,
+        pId: record.projectId,
+      });
+    } else {
+      openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+        cId: record.id,
+        pId: record.projectId,
+      });
+    }
   }
 
   watch(
