@@ -10,7 +10,6 @@
             and (
             b.title like concat('%', #{request.keyword},'%')
             or b.num like concat('%', #{request.keyword},'%')
-            or b.tags like concat('%', #{request.keyword}, '%')
             )
         </if>
         <include refid="filters">
