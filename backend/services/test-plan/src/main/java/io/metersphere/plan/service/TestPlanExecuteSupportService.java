@@ -62,7 +62,9 @@ public class TestPlanExecuteSupportService {
         LogUtils.info("开始合并报告： --- 报告ID[{}],是否是报告组[{}]", reportId, isGroupReport);
         try {
             // 如果是停止的计划任务, 报告用例状态改成STOPPED
-            updateReportDetailStopped(reportId);
+            if (isStop) {
+                updateReportDetailStopped(reportId);
+            }
 
             if (isGroupReport) {
                 testPlanReportService.summaryGroupReport(reportId);
