@@ -7,3 +7,5 @@ export const GetDingTalkInfoUrl = '/ding_talk/info/with_detail';
 export const PostDingTalkSaveUrl = '/ding_talk/save';
 export const PostDingTalkEnableUrl = '/ding_talk/enable';
 export const GetPlatformInfoUrl = '/setting/get/platform/info';
+export const PostWeComValidateFalseUrl = '/we_com/change/validate';
+export const PostDingTalkValidateFalseUrl = '/ding_talk/change/validate';

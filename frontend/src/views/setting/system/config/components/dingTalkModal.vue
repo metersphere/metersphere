@@ -149,7 +149,7 @@
         try {
           await validateDingTalkConfig(dingTalkForm.value);
           dingTalkForm.value.valid = true;
-          Message.success(t('organization.service.testLinkStatusTip'));
+          Message.success(t('common.saveSuccess'));
         } catch (error) {
           console.log(error);
         } finally {

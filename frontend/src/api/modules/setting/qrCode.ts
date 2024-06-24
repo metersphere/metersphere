@@ -5,10 +5,12 @@ import {
   GetWeComInfoUrl,
   PostDingTalkEnableUrl,
   PostDingTalkSaveUrl,
+  PostDingTalkValidateFalseUrl,
   PostValidateDingTalkUrl,
   PostValidateWeComUrl,
   PostWeComEnableUrl,
   PostWeComSaveUrl,
+  PostWeComValidateFalseUrl,
 } from '@/api/requrls/setting/qrCode';
 
 import { DingTalkInfo, EnableEditorRequest, PlatformSourceList, WeComInfo } from '@/models/setting/qrCode';
@@ -56,4 +58,14 @@ export function enableDingTalk(data: EnableEditorRequest) {
 // 获取所有平台配置基础信息
 export function getPlatformSourceList() {
   return MSR.get<PlatformSourceList>({ url: GetPlatformInfoUrl });
+}
+
+// 开启企业微信登陆
+export function closeValidateWeCom() {
+  return MSR.post({ url: PostWeComValidateFalseUrl });
+}
+
+// 开启钉钉登陆
+export function closeValidateDingTalk() {
+  return MSR.post({ url: PostDingTalkValidateFalseUrl });
 }
