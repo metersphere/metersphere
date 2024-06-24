@@ -151,6 +151,7 @@
           dingTalkForm.value.valid = true;
           Message.success(t('common.saveSuccess'));
         } catch (error) {
+          dingTalkForm.value.valid = false;
           console.log(error);
         } finally {
           loading.value = false;

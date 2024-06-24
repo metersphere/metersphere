@@ -148,6 +148,7 @@
           weComForm.value.valid = true;
           Message.success(t('organization.service.testLinkStatusTip'));
         } catch (error) {
+          weComForm.value.valid = false;
           console.log(error);
         } finally {
           loading.value = false;
