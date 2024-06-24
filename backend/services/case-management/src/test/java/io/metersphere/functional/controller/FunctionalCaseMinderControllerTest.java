@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
@@ -329,6 +331,27 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_EDIT_URL, request);
         functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
+
+        mindAdditionalNodeRequest = new MindAdditionalNodeRequest();
+        mindAdditionalNodeRequest.setId("sss2");
+        mindAdditionalNodeRequest.setType("ADD");
+        mindAdditionalNodeRequest.setName("");
+        mindAdditionalNodeRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
+        additionalNodeList.add(mindAdditionalNodeRequest);
+        request.setAdditionalNodeList(additionalNodeList);
+
+        this.requestPost(FUNCTIONAL_CASE_EDIT_URL, request).andExpect(status().is5xxServerError());
+        request.getAdditionalNodeList().remove(additionalNodeList.size()-1);
+        mindAdditionalNodeRequest = new MindAdditionalNodeRequest();
+        mindAdditionalNodeRequest.setId("additional2");
+        mindAdditionalNodeRequest.setType("UPDATE");
+        mindAdditionalNodeRequest.setName("");
+        mindAdditionalNodeRequest.setParentId("TEST_MINDER_MODULE_ID_GYQ");
+        additionalNodeList.add(mindAdditionalNodeRequest);
+        request.setAdditionalNodeList(additionalNodeList);
+
+        this.requestPost(FUNCTIONAL_CASE_EDIT_URL, request).andExpect(status().is5xxServerError());
+
     }
 
     @Test
