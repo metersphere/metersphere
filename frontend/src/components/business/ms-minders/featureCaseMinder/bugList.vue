@@ -1,11 +1,28 @@
 <template>
   <a-spin :loading="bugListLoading" class="block h-full pl-[16px]">
-    <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
-      {{ t('caseManagement.featureCase.linkDefect') }}
-    </a-button>
-    <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
-      {{ t('caseManagement.featureCase.createDefect') }}
-    </a-button>
+    <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between">
+        <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
+          {{ t('caseManagement.featureCase.linkDefect') }}
+        </a-button>
+        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
+          {{ t('caseManagement.featureCase.createDefect') }}
+        </a-button>
+      </div>
+      <a-radio-group
+        v-model:model-value="showType"
+        type="button"
+        class="file-show-type ml-[4px]"
+        @change="handleShowTypeChange"
+      >
+        <a-radio value="link" class="show-type-icon p-[2px]">
+          {{ t('caseManagement.featureCase.directLink') }}
+        </a-radio>
+        <a-radio value="testPlan" class="show-type-icon p-[2px]">
+          {{ t('caseManagement.featureCase.testPlan') }}
+        </a-radio>
+      </a-radio-group>
+    </div>
     <MsList
       v-model:data="bugList"
       mode="remote"
@@ -91,6 +108,7 @@
     pageSize: 10,
     current: 1,
   });
+  const showType = ref<'link' | 'testPlan'>('link');
   const bugListLoading = ref(false);
 
   async function loadBugList() {
@@ -99,7 +117,8 @@
       const res = await getLinkedCaseBugList({
         keyword: '',
         projectId: appStore.currentProjectId,
-        caseId: props.activeCase.id,
+        testPlanCaseId: showType.value === 'testPlan' ? props.activeCase.id : undefined,
+        caseId: showType.value === 'link' ? props.activeCase.id : undefined,
         current: pageNation.value.current || 1,
         pageSize: pageNation.value.pageSize,
       });
@@ -115,6 +134,11 @@
     } finally {
       bugListLoading.value = false;
     }
+  }
+
+  function handleShowTypeChange() {
+    pageNation.value.current = 1;
+    loadBugList();
   }
 
   // 滚动翻页

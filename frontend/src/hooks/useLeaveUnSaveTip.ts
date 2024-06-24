@@ -1,4 +1,4 @@
-import { onBeforeRouteLeave } from 'vue-router';
+import { type NavigationGuardNext, onBeforeRouteLeave } from 'vue-router';
 
 import { useI18n } from '@/hooks/useI18n';
 import type { ModalType } from '@/hooks/useModal';
@@ -27,6 +27,25 @@ export default function useLeaveUnSaveTip(leaveProp = leaveProps) {
   const setIsSave = (flag: boolean) => {
     isSave.value = flag;
   };
+
+  function openUnsavedTip(next: NavigationGuardNext | (() => void)) {
+    openModal({
+      type: tipType,
+      title: t(leaveTitle),
+      content: t(leaveContent),
+      okText: t('common.leave'),
+      cancelText: t('common.stay'),
+      okButtonProps: {
+        status: 'normal',
+      },
+      onBeforeOk: async () => {
+        isSave.value = true;
+        next();
+      },
+      hideCancel: false,
+    });
+  }
+
   onBeforeRouteLeave((to, from, next) => {
     if (to.path === from.path) {
       next();
@@ -34,26 +53,14 @@ export default function useLeaveUnSaveTip(leaveProp = leaveProps) {
     }
 
     if (!isSave.value) {
-      openModal({
-        type: tipType,
-        title: t(leaveTitle),
-        content: t(leaveContent),
-        okText: t('common.leave'),
-        cancelText: t('common.stay'),
-        okButtonProps: {
-          status: 'normal',
-        },
-        onBeforeOk: async () => {
-          isSave.value = true;
-          next();
-        },
-        hideCancel: false,
-      });
+      openUnsavedTip(next);
     } else {
       next();
     }
   });
   return {
     setIsSave,
+    openUnsavedTip,
+    isSave,
   };
 }
