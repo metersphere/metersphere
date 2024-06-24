@@ -162,7 +162,7 @@
         loading.value = true;
         try {
           await saveWeComConfig(weComForm.value);
-          Message.success(t('organization.service.testLinkStatusTip'));
+          Message.success(t('common.saveSuccess'));
           emits('success');
         } catch (error) {
           console.log(error);

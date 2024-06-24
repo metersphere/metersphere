@@ -116,6 +116,8 @@
   import WeComModal from '@/views/setting/system/config/components/weComModal.vue';
 
   import {
+    closeValidateDingTalk,
+    closeValidateWeCom,
     enableDingTalk,
     enableWeCom,
     getPlatformSourceList,
@@ -224,10 +226,15 @@
         await validateDingTalkConfig(dingTalkInfo.value);
       }
       Message.success(t('organization.service.testLinkStatusTip'));
-      loadList();
     } catch (error) {
+      if (key === 'WE_COM') {
+        await closeValidateWeCom();
+      } else if (key === 'DING_TALK') {
+        await closeValidateDingTalk();
+      }
       console.log(error);
     } finally {
+      loadList();
       loading.value = false;
     }
   };
