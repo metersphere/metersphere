@@ -123,6 +123,7 @@
     'dragUpdate',
     'getNodeName',
     'update:groupKeyword',
+    'deleteNode',
   ]);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -206,8 +207,14 @@
       onBeforeOk: async () => {
         try {
           await deletePlanModuleTree(node.id);
+          initModules();
+          if (selectedNodeKeys.value[0] === node.id) {
+            selectedNodeKeys.value = ['all'];
+            emits('update:selectedKeys', selectedNodeKeys.value);
+            emits('planTreeNodeSelect', selectedNodeKeys.value, []);
+          }
+          emits('deleteNode');
           Message.success(t('common.deleteSuccess'));
-          initModules(true);
         } catch (error) {
           console.log(error);
         }

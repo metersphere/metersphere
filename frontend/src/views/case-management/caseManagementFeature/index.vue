@@ -101,6 +101,7 @@
               @case-node-select="caseNodeSelect"
               @init="setRootModules"
               @drag-update="dragUpdate"
+              @delete-node="deleteNode"
             />
           </div>
         </div>
@@ -275,12 +276,8 @@
    * 设置根模块名称列表
    * @param names 根模块名称列表
    */
-  function setRootModules(names: string[], isDelete = false) {
+  function setRootModules(names: string[]) {
     rootModulesName.value = names;
-    if (isDelete) {
-      caseTreeRef.value?.initModules(true);
-      caseTableRef.value?.initData();
-    }
   }
 
   // 表格搜索参数
@@ -443,6 +440,10 @@
       default:
         break;
     }
+  }
+
+  function deleteNode() {
+    caseTableRef.value.initData();
   }
 
   function dragUpdate() {

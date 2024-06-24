@@ -74,6 +74,7 @@
               @plan-tree-node-select="planNodeSelect"
               @init="setRootModules"
               @drag-update="dragUpdate"
+              @delete-node="deleteNode"
             ></TestPlanTree>
           </div>
         </div>
@@ -270,6 +271,10 @@
   }
   function dragUpdate() {
     planTableRef.value?.emitTableParams();
+  }
+
+  function deleteNode() {
+    planTableRef.value?.fetchData();
   }
 
   function createTestPlan(type: string) {

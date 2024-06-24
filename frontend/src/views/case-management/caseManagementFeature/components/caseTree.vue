@@ -123,7 +123,14 @@
     groupKeyword: string; // 搜索关键字
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init', 'dragUpdate', 'update:groupKeyword']);
+  const emits = defineEmits([
+    'update:selectedKeys',
+    'caseNodeSelect',
+    'init',
+    'dragUpdate',
+    'update:groupKeyword',
+    'deleteNode',
+  ]);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -220,12 +227,14 @@
       onBeforeOk: async () => {
         try {
           await deleteCaseModuleTree(node.id);
+          initModules();
+          if (selectedNodeKeys.value[0] === node.id) {
+            selectedNodeKeys.value = ['all'];
+            emits('update:selectedKeys', selectedNodeKeys.value);
+            emits('caseNodeSelect', selectedNodeKeys.value, []);
+          }
+          emits('deleteNode');
           Message.success(t('caseManagement.featureCase.deleteSuccess'));
-          emits(
-            'init',
-            caseTree.value.map((e) => e.name),
-            true
-          );
         } catch (error) {
           console.log(error);
         }
