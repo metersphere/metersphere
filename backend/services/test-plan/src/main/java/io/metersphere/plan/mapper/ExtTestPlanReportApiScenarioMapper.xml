@@ -27,8 +27,8 @@
         <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数、报告ID -->
         select distinct tpras.api_scenario_id as id, tpras.api_scenario_num as num, tpras.api_scenario_name as name,
         tpras.api_scenario_module as moduleName, tpras.api_scenario_priority as priority, tpras.api_scenario_execute_report_id reportId,
-        ifnull(tpras.api_scenario_execute_result, 'PENDING') as executeResult, tpras.api_scenario_execute_user as executeUser, 0 as bugCount
-        from test_plan_report_api_scenario tpras
+        ifnull(tpras.api_scenario_execute_result, 'PENDING') as executeResult, tpras.api_scenario_execute_user as executeUser, 0 as bugCount, aso.project_id projectId
+        from test_plan_report_api_scenario tpras left join  api_scenario aso on tpras.api_scenario_id = aso.id
         where tpras.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
     </select>

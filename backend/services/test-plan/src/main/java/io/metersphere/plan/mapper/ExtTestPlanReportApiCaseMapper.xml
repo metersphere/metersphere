@@ -28,8 +28,8 @@
         <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数、 接口报告ID -->
         select tprac.api_case_id as id, tprac.api_case_num as num, tprac.api_case_name as name,
         tprac.api_case_module as moduleName, tprac.api_case_priority as priority, tprac.api_case_execute_report_id reportId,
-        ifnull(tprac.api_case_execute_result, 'PENDING') as executeResult, tprac.api_case_execute_user as executeUser, 0 as bugCount
-        from test_plan_report_api_case tprac
+        ifnull(tprac.api_case_execute_result, 'PENDING') as executeResult, tprac.api_case_execute_user as executeUser, 0 as bugCount, atc.project_id projectId
+        from test_plan_report_api_case tprac left join api_test_case atc on tprac.api_case_id = atc.id
         where tprac.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
     </select>
