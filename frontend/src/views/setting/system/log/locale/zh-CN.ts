@@ -35,4 +35,5 @@ export default {
   'system.log.log': '操作日志',
   'system.log.time': '操作时间',
   'system.log.content': '{operator} 在 {range} 下的 {module} 中 ',
+  'system.log.operateType.stop': '停止',
 };
