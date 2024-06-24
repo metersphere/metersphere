@@ -116,4 +116,13 @@ public class ServiceUtils {
         }
         throw new MSException(MsHttpResultCode.VALIDATE_FAILED, tips.toString());
     }
+
+    public static String compressName(String name, int maxSize) {
+        String newName = name;
+        // 限制名称长度 （数据库里最大的长度是255，这里判断超过250时截取到200附近）
+        if (newName.length() > maxSize) {
+            newName = newName.substring(0, maxSize - 3) + "...";
+        }
+        return newName;
+    }
 }

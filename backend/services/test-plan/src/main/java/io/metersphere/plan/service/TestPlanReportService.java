@@ -31,6 +31,7 @@ import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.SimpleUserService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -385,6 +386,8 @@ public class TestPlanReportService {
 				reportApiCase.setTestPlanReportId(report.getId());
 				reportApiCase.setApiCaseModule(moduleParam.getApiModuleMap().getOrDefault(reportApiCase.getApiCaseModule(),
 						ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiCase.getApiCaseModule()));
+				//根据不超过数据库字段最大长度压缩模块名
+				reportApiCase.setApiCaseModule(ServiceUtils.compressName(reportApiCase.getApiCaseModule(), 450));
 				if (!genParam.getUseManual()) {
 					// 接口执行时才更新结果
 					reportApiCase.setApiCaseExecuteResult(null);
@@ -405,6 +408,8 @@ public class TestPlanReportService {
 				reportApiScenario.setTestPlanReportId(report.getId());
 				reportApiScenario.setApiScenarioModule(moduleParam.getScenarioModuleMap().getOrDefault(reportApiScenario.getApiScenarioModule(),
 						ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiScenario.getApiScenarioModule()));
+				//根据不超过数据库字段最大长度压缩模块名
+				reportApiScenario.setApiScenarioModule(ServiceUtils.compressName(reportApiScenario.getApiScenarioModule(), 450));
 				if (!genParam.getUseManual()) {
 					// 接口执行时才更新结果
 					reportApiScenario.setApiScenarioExecuteResult(null);
