@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.consul.CacheNode;
 import io.metersphere.system.dto.pool.TestResourcePoolDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolRequest;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
@@ -33,7 +32,6 @@ public class TestResourcePoolController {
     private TestResourcePoolService testResourcePoolService;
 
     @PostMapping("/update")
-    @CacheNode // 把监控节点缓存起来
     @Operation(summary = "系统设置-系统-资源池-更新资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = TestResourcePoolService.class)
