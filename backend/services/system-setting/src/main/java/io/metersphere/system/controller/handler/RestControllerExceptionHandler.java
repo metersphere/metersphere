@@ -114,11 +114,17 @@ public class RestControllerExceptionHandler {
     }
 
     @ExceptionHandler({Exception.class})
-    public ResponseEntity<ResultHolder> handlerException(Exception e) {
-        if (e instanceof EofException) {
-            return ResponseEntity.internalServerError()
-                    .body(ResultHolder.error(MsHttpResultCode.FAILED.getCode(),
-                            e.getMessage(), null));
+    public ResponseEntity<ResultHolder> handleException(Exception e) {
+        return ResponseEntity.internalServerError()
+                .body(ResultHolder.error(MsHttpResultCode.FAILED.getCode(),
+                        e.getMessage(), getStackTraceAsString(e)));
+    }
+
+    @ExceptionHandler({EofException.class})
+    public ResponseEntity<Object> handleEofException(HttpServletRequest request, Exception e) {
+        String requestURI = request.getRequestURI();
+        if (StringUtils.startsWith(requestURI, "/assets")) {
+            return ResponseEntity.internalServerError().body(null);
         }
         return ResponseEntity.internalServerError()
                 .body(ResultHolder.error(MsHttpResultCode.FAILED.getCode(),
