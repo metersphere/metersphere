@@ -331,49 +331,42 @@
   const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
   const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
 
-  const getFunctionalTab = computed(() => {
-    return functionalCaseTotal.value
-      ? [
-          {
-            value: 'featureCase',
-            label: t('report.detail.featureCaseDetails'),
-          },
-        ]
-      : [];
-  });
-
-  const getApiTab = computed(() => {
-    return apiCaseTotal.value
-      ? [
-          {
-            value: 'apiCase',
-            label: t('report.detail.apiCaseDetails'),
-          },
-        ]
-      : [];
-  });
-
-  const getScenarioTab = computed(() => {
-    return scenarioCaseTotal.value
-      ? [
-          {
-            value: 'scenarioCase',
-            label: t('report.detail.scenarioCaseDetails'),
-          },
-        ]
-      : [];
-  });
+  const featureCaseTab = [
+    {
+      value: 'featureCase',
+      label: t('report.detail.featureCaseDetails'),
+    },
+  ];
+  const scenarioCaseTab = [
+    {
+      value: 'scenarioCase',
+      label: t('report.detail.scenarioCaseDetails'),
+    },
+  ];
+  const apiCaseTab = [
+    {
+      value: 'apiCase',
+      label: t('report.detail.apiCaseDetails'),
+    },
+  ];
 
   const activeTab = ref('bug');
-  const contentTabList = ref([
-    {
-      value: 'bug',
-      label: t('report.detail.bugDetails'),
-    },
-    ...getFunctionalTab.value,
-    ...getApiTab.value,
-    ...getScenarioTab.value,
-  ]);
+
+  const contentTabList = computed(() => {
+    const featureTab = functionalCaseTotal.value ? featureCaseTab : [];
+    const apiTab = apiCaseTotal.value ? apiCaseTab : [];
+    const scenarioTab = scenarioCaseTotal.value ? scenarioCaseTab : [];
+
+    return [
+      {
+        value: 'bug',
+        label: t('report.detail.bugDetails'),
+      },
+      ...featureTab,
+      ...apiTab,
+      ...scenarioTab,
+    ];
+  });
 
   const cardCount = computed(() => {
     const totalList = [functionalCaseTotal.value, apiCaseTotal.value, scenarioCaseTotal.value];
