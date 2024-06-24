@@ -487,7 +487,7 @@ public class TestPlanReportService {
 
 		// 发送计划执行通知
 		if (!useManual) {
-			testPlanSendNoticeService.sendExecuteNotice(planReport.getCreateUser(), planReport.getTestPlanId(), planReport.getProjectId(), planReport.getResultStatus());
+			testPlanSendNoticeService.sendExecuteNotice(planReport.getCreateUser(), planReport.getTestPlanId(), planReport.getProjectId(), planReport.getResultStatus(), planReport.getTriggerMode());
 		}
     }
 
