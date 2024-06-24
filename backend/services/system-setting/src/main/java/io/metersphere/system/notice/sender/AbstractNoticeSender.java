@@ -16,8 +16,10 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanFollower;
 import io.metersphere.plan.domain.TestPlanFollowerExample;
+import io.metersphere.plan.domain.TestPlanReport;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Schedule;
@@ -74,6 +76,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ScheduleMapper scheduleMapper;
+    @Resource
+    private TestPlanReportMapper testPlanReportMapper;
 
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
@@ -249,6 +253,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 Schedule schedule = scheduleMapper.selectByPrimaryKey(id);
                 if (schedule != null) {
                     receiver = new Receiver(schedule.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
+                }
+            }
+            case NoticeConstants.TaskType.TEST_PLAN_REPORT_TASK -> {
+                TestPlanReport report = testPlanReportMapper.selectByPrimaryKey(id);
+                if (report != null) {
+                    receiver = new Receiver(report.getCreateUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
                 }
             }
             default -> {

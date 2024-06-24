@@ -10,6 +10,7 @@ import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -178,7 +179,7 @@ public class TestPlanSendNoticeService {
      * @param executeResult 执行结果
      */
     @Async
-    public void sendExecuteNotice(String currentUser, String planId, String projectId, String executeResult) {
+    public void sendExecuteNotice(String currentUser, String planId, String projectId, String executeResult, String triggerMode) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan != null) {
             User user = userMapper.selectByPrimaryKey(currentUser);
@@ -193,11 +194,13 @@ public class TestPlanSendNoticeService {
             paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
             paramMap.put("name", testPlan.getName());
             paramMap.put("projectId", projectId);
+            paramMap.put("id", planId);
             paramMap.put("Language", user.getLanguage());
             NoticeModel noticeModel = NoticeModel.builder().operator(currentUser).excludeSelf(false)
                     .context(template).subject(subject).paramMap(paramMap).event(StringUtils.equals(executeResult, ReportStatus.SUCCESS.name()) ?
-                            NoticeConstants.Event.EXECUTE_SUCCESSFUL : NoticeConstants.Event.EXECUTE_FAIL).build();
-            noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+                            NoticeConstants.Event.EXECUTE_SUCCESSFUL : NoticeConstants.Event.EXECUTE_FAILED).build();
+            noticeSendService.send(StringUtils.equals(TaskTriggerMode.API.name(), triggerMode) ?
+                    NoticeConstants.TaskType.JENKINS_TASK : NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         }
     }
 }
