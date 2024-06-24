@@ -2,7 +2,6 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
@@ -243,7 +242,7 @@ public class TestPlanController {
     @PostMapping(value = "/schedule-config")
     @Operation(summary = "接口测试-接口场景管理-定时任务配置")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#testPlanId)", msClass = TestPlanLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#request.getResourceId())", msClass = TestPlanLogService.class)
     @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "test_plan")
     public String scheduleConfig(@Validated @RequestBody BaseScheduleConfigRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getResourceId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
@@ -253,7 +252,7 @@ public class TestPlanController {
     @GetMapping(value = "/schedule-config-delete/{testPlanId}")
     @Operation(summary = "接口测试-接口场景管理-删除定时任务配置")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#testPlanId)", msClass = ApiScenarioLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#testPlanId)", msClass = TestPlanLogService.class)
     @CheckOwner(resourceId = "#testPlanId", resourceType = "test_plan")
     public void deleteScheduleConfig(@PathVariable String testPlanId) {
         testPlanManagementService.checkModuleIsOpen(testPlanId, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
