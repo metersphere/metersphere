@@ -759,14 +759,12 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         List<TestPlanFunctionalCase> testPlanFunctionalCaseList = new ArrayList<>();
         List<BaseCollectionAssociateRequest> functionalList = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
-        List<LogDTO> logDTOS = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(functionalList)) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-            functionalList.forEach(functional -> buildTestPlanFunctionalCase(testPlan, functional, user, testPlanFunctionalCaseList, logDTOS));
+            functionalList.forEach(functional -> buildTestPlanFunctionalCase(testPlan, functional, user, testPlanFunctionalCaseList));
         }
         if (CollectionUtils.isNotEmpty(testPlanFunctionalCaseList)) {
             testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
-            operationLogService.batchAdd(logDTOS);
         }
     }
 
@@ -778,7 +776,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param user
      * @param testPlanFunctionalCaseList
      */
-    private void buildTestPlanFunctionalCase(TestPlan testPlan, BaseCollectionAssociateRequest functional, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList, List<LogDTO> logDTOS) {
+    private void buildTestPlanFunctionalCase(TestPlan testPlan, BaseCollectionAssociateRequest functional, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList) {
         super.checkCollection(testPlan.getId(), functional.getCollectionId(), CaseType.FUNCTIONAL_CASE.getKey());
         List<String> functionalIds = functional.getIds();
         if (CollectionUtils.isNotEmpty(functionalIds)) {
@@ -802,24 +800,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 testPlanFunctionalCase.setExecuteUser(functionalCase.getCreateUser());
                 testPlanFunctionalCase.setLastExecResult(ExecStatus.PENDING.name());
                 testPlanFunctionalCaseList.add(testPlanFunctionalCase);
-                buildLog(logDTOS, testPlan, user, functionalCase);
             });
         }
-    }
-
-    private void buildLog(List<LogDTO> logDTOS, TestPlan testPlan, SessionUser user, FunctionalCase functionalCase) {
-        LogDTO dto = new LogDTO(
-                testPlan.getProjectId(),
-                user.getLastOrganizationId(),
-                testPlan.getId(),
-                user.getId(),
-                OperationLogType.ASSOCIATE.name(),
-                OperationLogModule.TEST_PLAN,
-                Translator.get("log.test_plan.functional_case") + ":" + functionalCase.getName());
-        dto.setHistory(true);
-        dto.setPath("/test-plan/mind/data/edit");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        logDTOS.add(dto);
     }
 
     @Override

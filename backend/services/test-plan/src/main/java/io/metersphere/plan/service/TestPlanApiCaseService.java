@@ -41,9 +41,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -564,18 +561,16 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Override
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         List<TestPlanApiCase> testPlanApiCaseList = new ArrayList<>();
-        List<LogDTO> logDTOS = new ArrayList<>();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         //处理数据
-        handleApiData(collectionAssociates.get(AssociateCaseType.API), user, testPlanApiCaseList, testPlan, logDTOS);
-        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), user, testPlanApiCaseList, testPlan, logDTOS);
+        handleApiData(collectionAssociates.get(AssociateCaseType.API), user, testPlanApiCaseList, testPlan);
+        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), user, testPlanApiCaseList, testPlan);
         if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
             testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
-            operationLogService.batchAdd(logDTOS);
         }
     }
 
-    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan, List<LogDTO> logDTOS) {
+    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
             ApiTestCaseExample example = new ApiTestCaseExample();
@@ -586,13 +581,13 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {
                     List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).toList();
                     Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
-                    buildTestPlanApiCase(testPlan, apiCaseIds, apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
+                    buildTestPlanApiCase(testPlan, apiCaseIds, apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList);
                 }
             });
         }
     }
 
-    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan, List<LogDTO> logDTOS) {
+    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
             boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
@@ -607,7 +602,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     Map<String, List<String>> apiTestCaseMapIds = apiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId, Collectors.mapping(ApiTestCase::getId, Collectors.toList())));
                     Collections.reverse(apiCaseIds);
                     apiCaseIds.forEach(apiCaseId -> {
-                        buildTestPlanApiCase(testPlan, apiTestCaseMapIds.get(apiCaseId), apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList, logDTOS);
+                        buildTestPlanApiCase(testPlan, apiTestCaseMapIds.get(apiCaseId), apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList);
                     });
                 }
             });
@@ -623,7 +618,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param user
      * @param testPlanApiCaseList
      */
-    private void buildTestPlanApiCase(TestPlan testPlan, List<String> ids, Map<String, ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, List<LogDTO> logDTOS) {
+    private void buildTestPlanApiCase(TestPlan testPlan, List<String> ids, Map<String, ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
         super.checkCollection(testPlan.getId(), collectionId, CaseType.API_CASE.getKey());
         AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         Collections.reverse(ids);
@@ -641,23 +636,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             testPlanApiCase.setExecuteUser(apiTestCase.getCreateUser());
             testPlanApiCase.setLastExecResult(ExecStatus.PENDING.name());
             testPlanApiCaseList.add(testPlanApiCase);
-            buildLog(logDTOS, testPlan, user, apiTestCase);
         });
-    }
-
-    private void buildLog(List<LogDTO> logDTOS, TestPlan testPlan, SessionUser user, ApiTestCase apiTestCase) {
-        LogDTO dto = new LogDTO(
-                testPlan.getProjectId(),
-                user.getLastOrganizationId(),
-                testPlan.getId(),
-                user.getId(),
-                OperationLogType.ASSOCIATE.name(),
-                OperationLogModule.TEST_PLAN,
-                Translator.get("log.test_plan.api_case") + ":" + apiTestCase.getName());
-        dto.setHistory(true);
-        dto.setPath("/test-plan/mind/data/edit");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        logDTOS.add(dto);
     }
 
     @Override

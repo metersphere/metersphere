@@ -40,9 +40,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -177,15 +174,14 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Override
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         List<TestPlanApiScenario> testPlanApiScenarioList = new ArrayList<>();
-        List<LogDTO> logDTOS = new ArrayList<>();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        handleApiScenarioData(collectionAssociates.get(AssociateCaseType.API_SCENARIO), user, testPlanApiScenarioList, testPlan, logDTOS);
+        handleApiScenarioData(collectionAssociates.get(AssociateCaseType.API_SCENARIO), user, testPlanApiScenarioList, testPlan);
         if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
             testPlanApiScenarioMapper.batchInsert(testPlanApiScenarioList);
         }
     }
 
-    private void handleApiScenarioData(List<BaseCollectionAssociateRequest> apiScenarioList, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, TestPlan testPlan, List<LogDTO> logDTOS) {
+    private void handleApiScenarioData(List<BaseCollectionAssociateRequest> apiScenarioList, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, TestPlan testPlan) {
         if (CollectionUtils.isNotEmpty(apiScenarioList)) {
             List<String> ids = apiScenarioList.stream().flatMap(item -> item.getIds().stream()).toList();
             ApiScenarioExample scenarioExample = new ApiScenarioExample();
@@ -197,7 +193,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                     List<ApiScenario> scenarios = apiScenarios.stream().filter(item -> apiScenarioIds.contains(item.getId())).toList();
                     // 生成map key为id value为scenario
                     Map<String, ApiScenario> scenarioMap = scenarios.stream().collect(Collectors.toMap(ApiScenario::getId, Function.identity()));
-                    buildTestPlanApiScenario(testPlan, apiScenarioIds, scenarioMap, apiScenario.getCollectionId(), user, testPlanApiScenarioList, logDTOS);
+                    buildTestPlanApiScenario(testPlan, apiScenarioIds, scenarioMap, apiScenario.getCollectionId(), user, testPlanApiScenarioList);
                 }
             });
         }
@@ -212,7 +208,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @param user
      * @param testPlanApiScenarioList
      */
-    private void buildTestPlanApiScenario(TestPlan testPlan, List<String> ids, Map<String, ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, List<LogDTO> logDTOS) {
+    private void buildTestPlanApiScenario(TestPlan testPlan, List<String> ids, Map<String, ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
         super.checkCollection(testPlan.getId(), collectionId, CaseType.SCENARIO_CASE.getKey());
         AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         Collections.reverse(ids);
@@ -231,23 +227,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             testPlanApiScenario.setExecuteUser(scenario.getCreateUser());
             testPlanApiScenario.setLastExecResult(ExecStatus.PENDING.name());
             testPlanApiScenarioList.add(testPlanApiScenario);
-            buildLog(logDTOS, testPlan, user, scenario);
         });
-    }
-
-    private void buildLog(List<LogDTO> logDTOS, TestPlan testPlan, SessionUser user, ApiScenario scenario) {
-        LogDTO dto = new LogDTO(
-                testPlan.getProjectId(),
-                user.getLastOrganizationId(),
-                testPlan.getId(),
-                user.getId(),
-                OperationLogType.ASSOCIATE.name(),
-                OperationLogModule.TEST_PLAN,
-                Translator.get("log.test_plan.api_scenario") + ":" + scenario.getName());
-        dto.setHistory(true);
-        dto.setPath("/test-plan/mind/data/edit");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        logDTOS.add(dto);
     }
 
     @Override
