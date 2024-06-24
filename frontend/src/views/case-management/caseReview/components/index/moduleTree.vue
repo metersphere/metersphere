@@ -134,7 +134,13 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
-  const emit = defineEmits(['init', 'folderNodeSelect', 'create']);
+  const emit = defineEmits<{
+    (e: 'init', data: ModuleTreeNode[], nodePathObj: Record<string, any>): void;
+    (e: 'folderNodeSelect', selectedKeys: string[], offspringIds: string[]): void;
+    (e: 'create'): void;
+    (e: 'nodeDelete'): void;
+    (e: 'nodeDrop'): void;
+  }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -263,6 +269,7 @@
           await deleteReviewModule(node.id);
           Message.success(t('caseManagement.caseReview.deleteSuccess'));
           initModules(selectedKeys.value[0] === node.id);
+          emit('nodeDelete');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -334,6 +341,7 @@
         dropPosition,
       });
       Message.success(t('caseManagement.caseReview.moduleMoveSuccess'));
+      emit('nodeDrop');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

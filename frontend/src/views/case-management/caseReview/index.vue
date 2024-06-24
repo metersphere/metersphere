@@ -11,11 +11,14 @@
             @folder-node-select="handleFolderNodeSelect"
             @init="initModuleTree"
             @create="goCreateReview"
+            @node-delete="handleModuleTreeChange"
+            @node-drop="handleModuleTreeChange"
           />
         </div>
       </template>
       <template #second>
         <ReviewTable
+          ref="reviewTableRef"
           v-model:show-type="showType"
           :active-folder="activeFolderId"
           :module-tree="moduleTree"
@@ -41,14 +44,12 @@
   import ReviewTable from './components/index/reviewTable.vue';
 
   import { reviewModuleCount } from '@/api/modules/case-management/caseReview';
-  import { useI18n } from '@/hooks/useI18n';
 
   import { ReviewListQueryParams } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
-  const { t } = useI18n();
 
   type ShowType = 'all' | 'reviewByMe' | 'createByMe';
 
@@ -60,6 +61,7 @@
   const moduleTree = ref<ModuleTreeNode[]>([]);
   const moduleTreePathMap = ref<Record<string, any>>({});
   const modulesCount = ref<Record<string, number>>({});
+  const reviewTableRef = ref<InstanceType<typeof ReviewTable>>();
 
   function initModuleTree(tree: ModuleTreeNode[], pathMap: Record<string, any>) {
     moduleTree.value = unref(tree);
@@ -79,6 +81,10 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function handleModuleTreeChange() {
+    reviewTableRef.value?.searchReview();
   }
 
   function goCreateReview() {

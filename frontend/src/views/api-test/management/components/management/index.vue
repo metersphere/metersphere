@@ -301,7 +301,9 @@
    * @param isModule 是否是删除模块
    */
   function handleDeleteApiFromModuleTree(id: string, isModule = false) {
-    if (isModule) {
+    if (activeApiTab.value.id === 'all') {
+      apiRef.value?.refreshTable();
+    } else if (isModule) {
       // 删除整个模块
       apiTabs.value = apiTabs.value.filter((item) => {
         if (activeApiTab.value.id === item.id) {
