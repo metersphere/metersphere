@@ -295,7 +295,6 @@
   } = useTable(getLinkedCaseBugList, {
     columns: testPlanColumns,
     heightUsed: 354,
-    draggable: { type: 'handle' },
   });
 
   function initTableParams() {
