@@ -390,7 +390,13 @@
 
   const editLoading = ref<boolean>(false);
 
+  async function getDetail() {
+    const res = await getBugDetail(props.detailId);
+    loadedBug(res);
+  }
+
   function updateSuccess() {
+    getDetail();
     emit('submit');
   }
 
@@ -539,11 +545,6 @@
       fileList: [file],
     });
     return data;
-  }
-
-  async function getDetail() {
-    const res = await getBugDetail(props.detailId);
-    loadedBug(res);
   }
 
   watch(
