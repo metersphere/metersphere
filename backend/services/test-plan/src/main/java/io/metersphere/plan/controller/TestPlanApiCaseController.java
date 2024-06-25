@@ -137,7 +137,7 @@ public class TestPlanApiCaseController {
     @PostMapping("/batch/run")
     @Operation(summary = "批量执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_api_case", relationType = "test_plan")
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "test_plan_api_case", relationType = "test_plan")
     public void batchRun(@Validated @RequestBody TestPlanApiCaseBatchRunRequest request) {
         testPlanApiCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
