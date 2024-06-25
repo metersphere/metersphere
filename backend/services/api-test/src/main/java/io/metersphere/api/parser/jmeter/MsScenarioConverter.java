@@ -98,7 +98,10 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         if (scenarioConfig == null || scenarioConfig.getVariable() == null || CollectionUtils.isEmpty(scenarioConfig.getVariable().getCsvVariables())) {
             return;
         }
-        List<CsvVariable> csvVariables = scenarioConfig.getVariable().getCsvVariables();
+        List<CsvVariable> csvVariables = scenarioConfig.getVariable().getCsvVariables()
+                .stream()
+                .filter(csvVariable -> StringUtils.equals(csvVariable.getScope(), CsvVariable.CsvVariableScope.SCENARIO.name()))
+                .toList();
         MsCsvChildPreConverter.addCsvDataSet(tree, JmeterProperty.CSVDataSetProperty.SHARE_MODE_GROUP, csvVariables);
     }
 
