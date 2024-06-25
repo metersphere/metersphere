@@ -400,6 +400,7 @@
     [MessageResourceType.API_DEFINITION_TASK]: ApiTestRouteEnum.API_TEST_MANAGEMENT,
     [MessageResourceType.API_SCENARIO_TASK]: ApiTestRouteEnum.API_TEST_SCENARIO,
     [MessageResourceType.TEST_PLAN_TASK]: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+    [MessageResourceType.JENKINS_TASK]: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
   };
 
   // 点击名称跳转
