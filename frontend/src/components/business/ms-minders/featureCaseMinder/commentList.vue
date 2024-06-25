@@ -42,7 +42,6 @@
       v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
       :preview-url="PreviewEditorImageUrl"
       :is-active="isActive"
-      mode="textarea"
       is-show-avatar
       is-use-bottom
       :upload-image="handleUploadImage"

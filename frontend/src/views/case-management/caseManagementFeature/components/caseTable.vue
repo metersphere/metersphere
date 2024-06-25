@@ -315,7 +315,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, TableChangeExtra, TableData, TreeNodeData } from '@arco-design/web-vue';
+  import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
