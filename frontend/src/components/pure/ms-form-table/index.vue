@@ -117,6 +117,16 @@
                 </template>
               </a-auto-complete>
             </template>
+            <a-input-number
+              v-else-if="item.inputType === 'inputNumber'"
+              v-model:model-value="record[item.dataIndex as string]"
+              :min="item.min"
+              :max="item.max"
+            ></a-input-number>
+            <a-textarea
+              v-else-if="item.inputType === 'textarea'"
+              v-model:model-value="record[item.dataIndex as string]"
+            ></a-textarea>
             <template v-else-if="item.inputType === 'text'">
               {{
                 typeof item.valueFormat === 'function'
@@ -188,9 +198,23 @@
   export interface FormTableColumn extends MsTableColumnData {
     enable?: boolean; // 是否启用
     required?: boolean; // 是否必填
-    inputType?: 'input' | 'select' | 'tags' | 'switch' | 'text' | 'checkbox' | 'autoComplete'; // 输入组件类型
+    inputType?:
+      | 'input'
+      | 'select'
+      | 'tags'
+      | 'switch'
+      | 'text'
+      | 'checkbox'
+      | 'autoComplete'
+      | 'textarea'
+      | 'inputNumber'; // 输入组件类型
     autoCompleteParams?: SelectOptionData[]; // 自动补全参数
     needValidRepeat?: boolean; // 是否需要判断重复
+    maxLength?: number;
+    // 数字输入框属性
+    min?: number;
+    max?: number;
+    step?: number;
     valueFormat?: (record: Record<string, any>) => string; // 展示值格式化，仅在inputType为text时生效
     [key: string]: any; // 扩展属性
   }

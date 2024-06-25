@@ -57,6 +57,25 @@
             :status="record.lastReportStatus"
           />
         </template>
+        <template #operation="{ record }">
+          <MsButton
+            v-permission="['PROJECT_API_SCENARIO:READ+DELETE']"
+            type="text"
+            class="!mr-0"
+            @click="recover(record)"
+          >
+            {{ t('api_scenario.recycle.recover') }}
+          </MsButton>
+          <a-divider v-permission="['PROJECT_API_SCENARIO:READ+DELETE']" direction="vertical" :margin="8"></a-divider>
+          <MsButton
+            v-permission="['PROJECT_API_SCENARIO:READ+DELETE']"
+            type="text"
+            class="!mr-0"
+            @click="deleteOperation(record)"
+          >
+            {{ t('api_scenario.recycle.batchCleanOut') }}
+          </MsButton>
+        </template>
       </ms-base-table>
     </a-spin>
   </div>
@@ -510,15 +529,12 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
-
       .arco-input::placeholder {
         @apply invisible;
       }
-
       .arco-select-view-icon {
         @apply invisible;
       }
-
       .arco-select-view-value {
         color: var(--color-text-brand);
       }

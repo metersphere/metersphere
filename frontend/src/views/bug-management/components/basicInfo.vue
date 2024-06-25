@@ -13,6 +13,7 @@
             v-model:form-rule="innerFormRules"
             class="w-full"
             :option="options"
+            :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
             @change="handelFormCreateChange"
           />
           <!-- 自定义字段结束 -->
@@ -53,7 +54,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
@@ -163,6 +163,7 @@
         }
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;

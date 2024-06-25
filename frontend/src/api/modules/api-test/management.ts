@@ -115,7 +115,6 @@ import {
   DefinitionHistoryItem,
   DefinitionHistoryPageParams,
   DefinitionReferencePageParams,
-  Environment,
   EnvModule,
   ImportApiDefinitionParams,
   mockParams,

@@ -634,15 +634,7 @@
   );
 
   watch(
-    () => props.activeModule,
-    () => {
-      resetSelector();
-      loadApiList(true);
-    }
-  );
-
-  watch(
-    () => props.selectedProtocols,
+    () => [props.activeModule, props.selectedProtocols],
     () => {
       resetSelector();
       loadApiList(true);
@@ -664,7 +656,6 @@
 
   onBeforeMount(() => {
     initProtocolList();
-    loadApiList(true);
   });
 
   const tableSelected = ref<(string | number)[]>([]);

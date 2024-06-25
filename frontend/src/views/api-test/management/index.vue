@@ -85,9 +85,11 @@
   import { ModuleTreeNode } from '@/models/common';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
+  const appStore = useAppStore();
   const route = useRoute();
   const { t } = useI18n();
   const router = useRouter();
+
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const folderTreePathMap = ref<Record<string, any>>({});
@@ -97,12 +99,6 @@
   const activeNodeId = ref<string | number>('all');
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const managementRef = ref<InstanceType<typeof management>>();
-
-  function handleModuleInit(tree: ModuleTreeNode[], _protocols: string[], pathMap: Record<string, any>) {
-    folderTree.value = tree;
-    selectedProtocols.value = _protocols;
-    folderTreePathMap.value = pathMap;
-  }
 
   function newApi() {
     importDrawerVisible.value = false;
@@ -132,7 +128,6 @@
     selectedProtocols.value = val;
   }
 
-  const appStore = useAppStore();
   const recycleModulesCount = ref(0);
   async function selectRecycleCount() {
     const res = await getTrashModuleCount({
@@ -142,6 +137,13 @@
       protocols: selectedProtocols.value,
     });
     recycleModulesCount.value = res.all;
+  }
+
+  function handleModuleInit(tree: ModuleTreeNode[], _protocols: string[], pathMap: Record<string, any>) {
+    folderTree.value = tree;
+    selectedProtocols.value = _protocols;
+    folderTreePathMap.value = pathMap;
+    selectRecycleCount();
   }
 
   async function refreshModuleTree() {
@@ -179,7 +181,6 @@
       // 携带 cId 参数，自动打开接口用例详情 tab
       managementRef.value?.newCaseTab(route.query.cId as string);
     }
-    selectRecycleCount();
   });
 
   // 获取激活用例类型样式
