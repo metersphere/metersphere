@@ -519,7 +519,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         ...tableParams,
       });
-      Message.success(t('common.executionSuccess'));
+      Message.success(t('common.operationSuccess'));
       resetSelectorAndCaseList();
       emit('refresh');
     } catch (error) {
