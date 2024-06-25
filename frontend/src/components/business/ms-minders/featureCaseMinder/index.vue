@@ -751,7 +751,7 @@
     };
   }
 
-  function resetMinderParams(clearDeleteResource = false) {
+  function resetMinderParams(clearDeleteResource = true) {
     tempMinderParams.value = {
       projectId: appStore.currentProjectId,
       versionId: '',
@@ -808,7 +808,11 @@
           });
         }
       }
-
+      const minderNode: MinderJsonNode = window.minder.getNodeById(node.data.id);
+      if (minderNode.data) {
+        minderNode.data.isNew = false;
+        minderNode.data.changed = false;
+      }
       return true;
     });
     return tempMinderParams.value;
@@ -831,7 +835,7 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      resetMinderParams(true);
+      resetMinderParams(false);
     } finally {
       loading.value = false;
     }
