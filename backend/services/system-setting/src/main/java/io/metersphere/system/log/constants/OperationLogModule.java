@@ -26,7 +26,7 @@ public class OperationLogModule {
     // 场景管理
     public static final String API_SCENARIO_MANAGEMENT_SCENARIO = "API_TEST_SCENARIO_MANAGEMENT_SCENARIO";
     public static final String API_SCENARIO_MANAGEMENT_MODULE = "API_TEST_SCENARIO_MANAGEMENT_MODULE";
-    public static final String API_TEST_SCENARIO_RECYCLE = "API_TEST_SCENARIO_RECYCLE";
+    public static final String API_TEST_SCENARIO_RECYCLE = "API_TEST_SCENARIO_MANAGEMENT_RECYCLE";
     public static final String API_TEST_MANAGEMENT_RECYCLE = "API_TEST_MANAGEMENT_RECYCLE";
 
     public static final String API_REPORT = "API_TEST_REPORT_CASE";

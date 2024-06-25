@@ -2030,7 +2030,7 @@ public class ApiScenarioService extends MoveNodeService {
                 scenarioIds,
                 sublist -> operationGC(sublist, isDeleteOperation, deleteTime, logInsertModule.getOperator()));
         apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(),
-                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule, OperationLogModule.API_TEST_SCENARIO_RECYCLE, false);
+                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO, false);
         apiScenarioNoticeService.batchSendNotice(scenarioIds, logInsertModule.getOperator(), request.getProjectId(), NoticeConstants.Event.DELETE);
         return response;
     }
