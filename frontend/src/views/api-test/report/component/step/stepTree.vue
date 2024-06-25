@@ -245,8 +245,6 @@
     ScenarioStepType.TEST_PLAN_API_CASE,
   ]);
 
-  const innerNumber = ref<number>(0);
-
   /**
    * 处理步骤展开折叠
    */
@@ -256,10 +254,11 @@
     if (isNotAllowExpand && data.node && data.node.children) {
       data.node.stepChildren = cloneDeep(data.node.children);
       data.node.children = [];
-    }
-    const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
-    if (realStep) {
-      realStep.expanded = !realStep.expanded;
+    } else {
+      const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
+      if (realStep) {
+        realStep.expanded = !realStep.expanded;
+      }
     }
   }
 
