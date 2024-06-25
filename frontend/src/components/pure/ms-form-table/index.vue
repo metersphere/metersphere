@@ -12,8 +12,11 @@
     >
       <!-- 展开行-->
       <template #expand-icon="{ expanded, record }">
-        <div class="flex items-center gap-[2px] text-[var(--color-text-4)]">
-          <MsIcon :type="expanded ? 'icon-icon_split_turn-down_arrow' : 'icon-icon_split-turn-down-left'" />
+        <div
+          class="flex items-center gap-[2px] text-[var(--color-text-4)]"
+          :class="expanded ? 'rgb(var(--primary-5))' : ''"
+        >
+          <MsIcon type="icon_split-turn-down-left" />
           <div v-if="record.children">{{ record.children.length }}</div>
         </div>
       </template>

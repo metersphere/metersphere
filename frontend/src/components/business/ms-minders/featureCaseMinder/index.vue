@@ -49,6 +49,7 @@
           :active-case="activeCase"
           @init-template="(id) => (templateId = id)"
           @cancel="handleBaseInfoCancel"
+          @saved="handleBaseInfoSaved"
         />
         <attachment
           v-else-if="activeExtraKey === 'attachment'"
@@ -325,6 +326,13 @@
   function handleBaseInfoCancel() {
     extraVisible.value = false;
     resetExtractInfo();
+  }
+
+  function handleBaseInfoSaved() {
+    const node: MinderJsonNode = window.minder.getSelectedNode();
+    if (node.data) {
+      initCaseDetail(node.data);
+    }
   }
 
   /**

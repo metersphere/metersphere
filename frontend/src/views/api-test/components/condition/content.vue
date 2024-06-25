@@ -77,7 +77,7 @@
 
       <div
         v-if="!condition.enableCommonScript"
-        class="relative flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)]"
+        class="relative min-w-[500px] flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)]"
       >
         <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] top-[12px] z-10 w-[calc(100%-24px)]">
           <a-input
