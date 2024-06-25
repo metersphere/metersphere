@@ -107,7 +107,7 @@
                   {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
                 </div>
               </div>
-              <div v-else class="ms-message-item">
+              <div v-else class="ms-message-item" @click.stop="setReadMessage(item)">
                 <MSAvatar v-if="item.avatar" :avatar="item.avatar" :word="item.userName" />
                 <div class="ml-[8px] flex flex-col">
                   <div class="flex items-center">
@@ -183,6 +183,7 @@
   import MsList from '@/components/pure/ms-list/index.vue';
 
   import {
+    getMessageRead,
     getMessageReadAll,
     MessageHistoryItem,
     OptionItem,
@@ -268,7 +269,7 @@
       current: pageNation.value.current || 1,
       pageSize: pageNation.value.pageSize,
     });
-    res.list.forEach((item) => messageHistoryList.value.push(item));
+    messageHistoryList.value = res.list || [];
     pageNation.value.total = res.total;
   }
 
@@ -433,6 +434,18 @@
     // 左侧消息总数
     await loadTotalCount('');
     await loadMessageHistoryList(position.value, currentResourceType.value);
+  }
+
+  async function setReadMessage(item: MessageHistoryItem) {
+    if (item.status === 'READ') {
+      return;
+    }
+    try {
+      await getMessageRead(item.id);
+      loadMessageHistoryList(position.value, currentResourceType.value);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   watch(

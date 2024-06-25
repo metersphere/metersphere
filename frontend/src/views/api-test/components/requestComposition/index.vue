@@ -354,6 +354,7 @@
               threshold: 200,
             },
           }"
+          :filter-tree-node="filterTreeNode"
           allow-search
         >
           <template #tree-slot-title="node">
@@ -451,7 +452,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { filterTree, getGenerateId, parseQueryParams } from '@/utils';
+  import { filterTree, filterTreeNode, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';

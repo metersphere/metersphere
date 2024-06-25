@@ -8,7 +8,7 @@
         v-model:raw="innerSummary.summary"
         v-model:filedIds="innerSummary.richTextTmpFileIds"
         :upload-image="handleUploadImage"
-        :preview-url="PreviewEditorImageUrl"
+        :preview-url="ReportPlanPreviewImageUrl"
         class="mt-[8px] w-full"
         :editable="!!shareId"
       />
@@ -39,7 +39,7 @@
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
   import { editorUploadFile } from '@/api/modules/test-plan/report';
-  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
+  import { ReportPlanPreviewImageUrl } from '@/api/requrls/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';
 

@@ -201,6 +201,7 @@
                   height: 200,
                 },
               }"
+              :filter-tree-node="filterTreeNode"
             >
               <template #tree-slot-title="node">
                 <a-tooltip :content="`${node.name}`" position="tl">
@@ -287,7 +288,7 @@
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
-  import { downloadByteFile, getGenerateId } from '@/utils';
+  import { downloadByteFile, filterTreeNode, getGenerateId } from '@/utils';
 
   import type {
     AssociatedList,

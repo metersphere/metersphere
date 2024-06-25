@@ -34,6 +34,7 @@
               threshold: 200,
             },
           }"
+          :filter-tree-node="filterTreeNode"
           allow-search
         >
           <template #tree-slot-title="node">
@@ -63,6 +64,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { filterTreeNode } from '@/utils';
 
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
 

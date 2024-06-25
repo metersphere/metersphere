@@ -137,7 +137,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { FormInstance, Message, SelectOptionData, TreeNodeData, ValidatedError } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
@@ -153,6 +153,7 @@
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { filterTreeNode } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
   import type { AddTestPlanParams, SwitchListModel } from '@/models/testPlan/testPlan';
@@ -202,10 +203,6 @@
     baseAssociateCaseRequest: { selectIds: [], selectAll: false, condition: {} },
   };
   const form = ref<AddTestPlanParams>(cloneDeep(initForm));
-
-  function filterTreeNode(searchValue: string, nodeData: TreeNodeData) {
-    return (nodeData as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
-  }
 
   const tempRange = ref<(Date | string | number)[]>(['00:00:00', '00:00:00']);
 

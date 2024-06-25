@@ -208,11 +208,6 @@
         try {
           await deletePlanModuleTree(node.id);
           initModules();
-          if (selectedNodeKeys.value[0] === node.id) {
-            selectedNodeKeys.value = ['all'];
-            emits('update:selectedKeys', selectedNodeKeys.value);
-            emits('planTreeNodeSelect', selectedNodeKeys.value, []);
-          }
           emits('deleteNode');
           Message.success(t('common.deleteSuccess'));
         } catch (error) {
@@ -358,15 +353,6 @@
       buffer: 15,
     };
   });
-
-  watch(
-    () => props.activeFolder,
-    (val) => {
-      if (val === 'all') {
-        initModules();
-      }
-    }
-  );
 
   /**
    * 初始化模块文件数量

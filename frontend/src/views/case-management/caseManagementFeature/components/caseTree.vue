@@ -228,11 +228,6 @@
         try {
           await deleteCaseModuleTree(node.id);
           initModules();
-          if (selectedNodeKeys.value[0] === node.id) {
-            selectedNodeKeys.value = ['all'];
-            emits('update:selectedKeys', selectedNodeKeys.value);
-            emits('caseNodeSelect', selectedNodeKeys.value, []);
-          }
           emits('deleteNode');
           Message.success(t('caseManagement.featureCase.deleteSuccess'));
         } catch (error) {

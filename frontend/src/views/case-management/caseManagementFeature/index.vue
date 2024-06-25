@@ -443,7 +443,13 @@
   }
 
   function deleteNode() {
-    caseTableRef.value.initData();
+    nextTick(() => {
+      if (activeFolder.value !== 'all') {
+        setActiveFolder('all');
+      } else {
+        caseTableRef.value?.initData();
+      }
+    });
   }
 
   function dragUpdate() {
