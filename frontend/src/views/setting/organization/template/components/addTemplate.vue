@@ -63,7 +63,6 @@
         <!-- 系统内置的字段 {处理人, 状态...} -->
         <DefectTemplateRightSystemField v-if="route.query.type === 'BUG'" />
         <CaseTemplateRightSystemField v-else />
-
         <!-- 自定义字段开始 -->
         <VueDraggable v-model="selectData" handle=".form" ghost-class="ghost" @change="changeDrag">
           <div v-for="(formItem, index) of selectData" :key="formItem.id" class="customWrapper">
@@ -73,8 +72,9 @@
                   v-model="formItem.required"
                   class="mr-1"
                   @change="(value) => changeState(value, formItem as DefinedFieldItem)"
-                  >{{ t('system.orgTemplate.required') }}</a-checkbox
                 >
+                  {{ t('system.orgTemplate.required') }}
+                </a-checkbox>
               </span>
               <div class="actionList">
                 <a-tooltip :content="t('system.orgTemplate.toTop')">
@@ -131,6 +131,7 @@
                 v-model:api="formItem.fApi"
                 v-model:rule="formItem.formRules"
                 :option="configOptions"
+                is-in-for
                 @click="activeHandler(index)"
               />
               <a-form
@@ -418,28 +419,27 @@
     }
   }
 
+  // 校验全部必选
+  function validateAll() {
+    const validationPromises = selectData.value.map((item) => {
+      if (item.fApi && typeof item.fApi.validate === 'function') {
+        return item.fApi.validate();
+      }
+      return Promise.resolve(false);
+    });
+    return validationPromises;
+  }
+
   // 保存
   function saveHandler(isContinue = false) {
     isContinueFlag.value = isContinue;
-    formRef.value?.validate().then((res) => {
+    formRef.value?.validate().then(async (res) => {
       if (!res) {
-        // const allThirdApi = selectData.value.filter(
-        //   (item: any) =>
-        //     item.formRules[0].value || (Array.isArray(item.formRules[0].value) && item.formRules[0].value.length)
-        // );
-
-        // const allThirdApiIds = allThirdApi.map((item) => item.fieldId);
-        // const allValidatePromises = Object.keys(refStepMap).map((key) => {
-        //   return refStepMap[key].validate();
-        // });
-
-        // Promise.all(allValidatePromises).then((results) => {
-        //   const allValid = results.every((result) => !result);
-        //   if (allValid) {
-        //     return save();
-        //   }
-        // });
-        return save();
+        const results = await Promise.all(validateAll());
+        const allValid = results.every((result) => result === true);
+        if (allValid) {
+          return save();
+        }
       }
       return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
     });
@@ -475,7 +475,6 @@
       title.value = t('system.orgTemplate.createTemplateType', {
         type: getTemplateName('organization', route.query.type as string),
       });
-      // templateForm.value.name = title.value;
     }
   });
 
@@ -582,7 +581,6 @@
       } else {
         initValue = item.defaultValue;
       }
-
       return {
         ...item,
         id: item.fieldId,
@@ -667,7 +665,9 @@
     selectData.value = [];
     totalTemplateField.value = [];
     await getClassifyField();
-    getFieldOptionList();
+    if (!isEdit.value) {
+      getFieldOptionList();
+    }
     if (isEdit.value) {
       getTemplateInfo();
     }
@@ -784,30 +784,6 @@
   :deep(.selfClass) {
     margin-bottom: 0;
   }
-
-  // :deep(.contentClass > .arco-input-wrapper) {
-  // border-color: transparent;
-  // &:hover {
-  //   border-color: var(--color-text-input-border);
-  // }
-  // &:hover > .arco-input {
-  //   font-weight: normal;
-  //   text-decoration: none;
-  //   color: var(--color-text-1);
-  // }
-  // & > .arco-input {
-  //   font-weight: 500;
-  //   text-decoration: underline;
-  //   color: var(--color-text-1);
-  // }
-  // }
-  // :deep(.contentClass > .arco-input-focus) {
-  //   border-color: rgb(var(--primary-5));
-  //   & > .arco-input {
-  //     font-weight: normal;
-  //     text-decoration: none;
-  //   }
-  // }
   .ghost {
     border: 1px solid rgba(var(--primary-5));
     background-color: var(--color-text-n9);

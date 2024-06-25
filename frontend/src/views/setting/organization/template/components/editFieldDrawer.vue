@@ -273,7 +273,6 @@
   const confirmHandler = async (isContinue = false) => {
     try {
       drawerLoading.value = true;
-      console.log(fieldForm.value);
       const formCopy = cloneDeep(fieldForm.value);
 
       formCopy.scene = route.query.type;
