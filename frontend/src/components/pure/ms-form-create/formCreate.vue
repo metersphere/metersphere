@@ -3,6 +3,7 @@
     v-model:api="formApi"
     :rule="formRules"
     :option="props.option || options"
+    :in-for="props.isInFor"
     @mounted="handleMounted"
     @reload="handleReload"
     @change="handleChange"
@@ -28,6 +29,7 @@
 
   const props = defineProps<{
     option: any; // 全局配置项
+    isInFor?: boolean; // 是否处于循环中
   }>();
 
   const emits = defineEmits<{

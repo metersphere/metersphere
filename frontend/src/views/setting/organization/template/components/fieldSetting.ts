@@ -284,7 +284,7 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
           title: item.name,
           field: item.id,
           effect: {
-            required: false,
+            required: item.internal,
           },
           props: {
             ...currentFormRules.props,
@@ -294,7 +294,7 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
         },
       ],
       fApi: null,
-      required: false,
+      required: item.internal,
     };
   });
 };
