@@ -125,7 +125,7 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[2],
           },
           {
-            key: 'API_TEST_SCENARIO_RECYCLE', // 接口测试-场景-回收站
+            key: 'API_TEST_SCENARIO_MANAGEMENT_RECYCLE', // 接口测试-场景-回收站
             locale: 'menu.apiTest.scenario.recycle',
             route: RouteEnum.API_TEST_SCENARIO_RECYCLE,
             permission: [],
