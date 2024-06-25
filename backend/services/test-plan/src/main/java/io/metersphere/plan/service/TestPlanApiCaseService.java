@@ -321,6 +321,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
 
     public Map<String, Long> moduleCount(TestPlanApiCaseModuleRequest request) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return Collections.emptyMap();
+        }
         switch (request.getTreeType()) {
             case TreeTypeEnums.MODULE:
                 return getModuleCount(request);
