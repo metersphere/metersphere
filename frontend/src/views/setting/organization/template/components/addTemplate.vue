@@ -448,7 +448,9 @@
   // 处理表单数据格式
   const getFieldOptionList = () => {
     totalTemplateField.value = getTotalFieldOptionList(totalTemplateField.value as DefinedFieldItem[]);
-    selectData.value = totalTemplateField.value.filter((item) => item.internal);
+    if (!isEdit.value) {
+      selectData.value = totalTemplateField.value.filter((item) => item.internal);
+    }
   };
 
   // 获取字段列表数据
@@ -665,9 +667,7 @@
     selectData.value = [];
     totalTemplateField.value = [];
     await getClassifyField();
-    if (!isEdit.value) {
-      getFieldOptionList();
-    }
+    getFieldOptionList();
     if (isEdit.value) {
       getTemplateInfo();
     }
