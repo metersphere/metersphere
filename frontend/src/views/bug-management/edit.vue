@@ -626,14 +626,15 @@
                   // 如果是保存并继续创建
                   const { templateId } = form.value;
                   // 用当前模板初始化自定义字段
-                  await templateChange(templateId);
                   form.value = {
                     projectId: appStore.currentProjectId, // 取当前项目id
                     title: '',
                     description: '',
                     templateId,
                     tags: [],
+                    platformSystemFields: {},
                   };
+                  await templateChange(templateId);
                   // 清空文件列表
                   fileList.value = [];
                 } else {
