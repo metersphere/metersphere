@@ -144,6 +144,8 @@ public class ApiScenarioService extends MoveNodeService {
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
     private ProjectMapper projectMapper;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
@@ -157,8 +159,6 @@ public class ApiScenarioService extends MoveNodeService {
     private OperationHistoryService operationHistoryService;
     @Resource
     private ApiCommonService apiCommonService;
-    @Resource
-    private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ApiScenarioNoticeService apiScenarioNoticeService;
     @Resource
@@ -211,9 +211,7 @@ public class ApiScenarioService extends MoveNodeService {
         Map<String, Schedule> scheduleMap = schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
         //获取所有的lastResultId
         List<String> lastResultIds = scenarioLists.stream().map(ApiScenarioDTO::getLastReportId).toList();
-        ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
-        reportExample.createCriteria().andIdIn(lastResultIds);
-        List<ApiScenarioReport> reports = apiScenarioReportMapper.selectByExample(reportExample);
+        List<ApiScenarioReport> reports = apiScenarioReportService.getApiScenarioReportByIds(lastResultIds);
         // 生成map key是id value是ScriptIdentifier  但是getScriptIdentifier为空的不放入
         Map<String, String> reportMap = reports.stream().filter(report -> StringUtils.isNotBlank(report.getScriptIdentifier())).collect(Collectors.toMap(ApiScenarioReport::getId, ApiScenarioReport::getScriptIdentifier));
         scenarioLists.forEach(item -> {

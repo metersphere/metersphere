@@ -377,4 +377,13 @@ public class ApiScenarioReportService {
         scenarioReport.setUpdateTime(System.currentTimeMillis());
         apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
     }
+
+    public List<ApiScenarioReport> getApiScenarioReportByIds(List<String> reportIds) {
+        if (CollectionUtils.isEmpty(reportIds)) {
+            return List.of();
+        }
+        ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
+        reportExample.createCriteria().andIdIn(reportIds);
+        return apiScenarioReportMapper.selectByExample(reportExample);
+    }
 }
