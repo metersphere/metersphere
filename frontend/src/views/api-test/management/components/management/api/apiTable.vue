@@ -406,14 +406,14 @@
       dataIndex: 'protocol',
       slotName: 'protocol',
       showTooltip: true,
-      width: 150,
+      width: 80,
       showDrag: true,
     },
     {
       title: 'apiTestManagement.apiType',
       dataIndex: 'method',
       slotName: 'method',
-      width: 140,
+      width: 100,
       showDrag: true,
       filterConfig: {
         options: [],
@@ -458,7 +458,6 @@
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
-      width: 400,
       showDrag: true,
     },
     {

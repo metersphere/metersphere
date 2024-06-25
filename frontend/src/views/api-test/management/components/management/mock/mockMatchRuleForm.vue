@@ -205,7 +205,7 @@
   });
 
   watch(
-    () => props.formKey,
+    () => [props.formKey, props.disabled],
     () => {
       formModel.value = {
         matchAll: matchAll.value,

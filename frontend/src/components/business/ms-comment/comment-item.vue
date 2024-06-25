@@ -19,7 +19,7 @@
             <span class="text-[var(--color-text-4)]">({{ element.childComments?.length }})</span>
           </div>
           <div
-            v-if="hasAnyPermission(['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'])"
+            v-if="hasAnyPermission(props.permissions)"
             class="comment-btn hover:bg-[var(--color-bg-3)]"
             :class="{ 'bg-[var(--color-text-n8)]': status === 'reply' }"
             @click="replyClick"
@@ -55,6 +55,7 @@
   const props = defineProps<{
     element: CommentItem; // 评论的具体内容
     mode: 'parent' | 'child'; // 父级评论还是子级评论
+    permissions: string[]; // 权限列表
     onReply?: () => void; // 回复
     onEdit?: () => void; // 编辑
     onDelete?: () => void; // 删除
@@ -62,10 +63,7 @@
 
   // 是否拥有编辑｜删除权限
   const hasAuth = computed(() => {
-    return (
-      props.element.createUser === userStore.id &&
-      hasAnyPermission(['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'])
-    );
+    return props.element.createUser === userStore.id && hasAnyPermission(props.permissions);
   });
 
   const status = defineModel<'normal' | 'edit' | 'reply' | 'delete'>('status', { default: 'normal' });

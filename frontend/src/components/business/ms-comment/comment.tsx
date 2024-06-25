@@ -22,12 +22,15 @@ export default defineComponent({
     },
     uploadImage: {
       type: Function,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       default: (file: File) => Promise<any>,
     },
     previewUrl: {
       type: String as PropType<string>,
       default: '',
+    },
+    permissions: {
+      type: Array as PropType<string[]>,
+      default: () => [],
     },
   },
   emits: {
@@ -179,6 +182,7 @@ export default defineComponent({
           {/* {expendedIds.value}--expendedIds */}
           <Item
             mode={'parent'}
+            permissions={props.permissions}
             onReply={() => handleReply(item)}
             onEdit={() => handelEdit(item)}
             onDelete={() => handleDelete(item)}

@@ -139,7 +139,6 @@
       dataIndex: 'tags',
       isTag: true,
       isStringTag: true,
-      width: 400,
       showDrag: true,
     },
     {

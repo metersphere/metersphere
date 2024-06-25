@@ -20,6 +20,7 @@
         v-if="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
         :review-comment-list="reviewCommentList"
         :active-comment="activeComment"
+        :permissions="['FUNCTIONAL_CASE:READ+COMMENT']"
       />
       <template v-else>
         <MsComment

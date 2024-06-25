@@ -409,7 +409,7 @@
       dataIndex: 'protocol',
       slotName: 'protocol',
       showTooltip: true,
-      width: 150,
+      width: 80,
       showDrag: true,
     },
     {
@@ -420,7 +420,7 @@
         options: casePriorityOptions,
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
-      width: 150,
+      width: 100,
       showDrag: true,
     },
     {
@@ -451,7 +451,6 @@
       isTag: true,
       isStringTag: true,
       showDrag: true,
-      width: 400,
     },
     {
       title: 'case.lastReportStatus',
