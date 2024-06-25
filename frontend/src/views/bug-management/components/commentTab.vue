@@ -6,6 +6,7 @@
       :preview-url="EditorPreviewFileUrl"
       :comment-list="commentList"
       :upload-image="handleUploadImage"
+      :permissions="['PROJECT_BUG:READ+COMMENT']"
       @delete="handleDelete"
       @update-or-add="handleUpdate"
     />

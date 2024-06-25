@@ -14,6 +14,7 @@
         :upload-image="handleUploadImage"
         :comment-list="commentList"
         :preview-url="PreviewEditorImageUrl"
+        :permissions="['FUNCTIONAL_CASE:READ+COMMENT']"
         @delete="handleDelete"
         @update-or-add="handleUpdateOrAdd"
       />

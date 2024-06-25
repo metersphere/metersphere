@@ -26,7 +26,7 @@
             <a-radio value="Module">{{ t('project.fileManagement.module') }}</a-radio>
             <a-radio value="Storage">{{ t('project.fileManagement.storage') }}</a-radio>
           </a-radio-group>
-          <div class="mb-[8px] flex items-center gap-[8px]">
+          <div v-show="showType === 'Module'" class="mb-[8px] flex items-center gap-[8px]">
             <a-input
               v-model:model-value="moduleKeyword"
               :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
@@ -94,9 +94,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useVModel } from '@vueuse/core';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import FileTree from './fileTree.vue';
@@ -154,10 +152,6 @@
   const fileAllCountByStorage = ref<number>(0);
 
   const isExpandAll = ref(false);
-
-  function changeExpand() {
-    isExpandAll.value = !isExpandAll.value;
-  }
 
   type FileShowType = 'Module' | 'Storage';
   const showType = ref<FileShowType>('Module');
