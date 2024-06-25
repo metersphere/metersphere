@@ -56,4 +56,5 @@ export const ReportShareScenarioUrlGetDetail = '/test-plan/report/share/detail/s
 // 测试计划-报告明细-场景报告
 export const ReportScenarioUrl = '/test-plan/api/scenario/report/get';
 export const ReportDetailScenarioUrl = '/test-plan/api/scenario/report/get/detail';
-
+// 测试计划-报告-报告富文本预览压缩图
+export const ReportPlanPreviewImageUrl = '/test-plan/report/preview/md';

@@ -48,6 +48,7 @@
               :draggable="false"
               allow-search
               allow-clear
+              :filter-tree-node="filterTreeNode"
             >
               <template #tree-slot-title="node">
                 <a-tooltip :content="`${node.name}`" position="tl">
@@ -252,6 +253,7 @@
               class="w-[500px]"
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
+              :filter-tree-node="filterTreeNode"
             >
               <template #tree-slot-title="node">
                 <a-tooltip :content="`${node.name}`" position="tl">
@@ -361,7 +363,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { filterTree, TreeNode } from '@/utils';
+  import { filterTree, filterTreeNode, TreeNode } from '@/utils';
 
   import type { ImportApiDefinitionParams, ImportApiDefinitionRequest } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';

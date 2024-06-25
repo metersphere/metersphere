@@ -128,12 +128,13 @@
           :data="envTree"
           class="w-full"
           :tree-checkable="true"
-          :allow-search="true"
+          allow-search
           :field-names="{
             title: 'name',
             key: 'id',
             children: 'children',
           }"
+          :filter-tree-node="filterTreeNode"
           tree-checked-strategy="child"
           :tree-props="{
             virtualListProps: {
@@ -232,7 +233,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
-  import { getGenerateId } from '@/utils';
+  import { filterTreeNode, getGenerateId } from '@/utils';
 
   import type { ModuleTreeNode } from '@/models/common';
   import { HttpForm } from '@/models/projectManagement/environmental';

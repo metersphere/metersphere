@@ -106,6 +106,7 @@
               key: 'id',
               children: 'children',
             }"
+            :filter-tree-node="filterTreeNode"
             :tree-props="{
               virtualListProps: {
                 height: 200,
@@ -357,7 +358,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor';
-  import { characterLimit, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
+  import { characterLimit, filterTreeNode, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -876,11 +877,11 @@
 
   async function initTableParams() {
     let moduleIds: string[] = [];
-    if (props.activeFolder && props.activeFolder !== 'all') {
-      moduleIds = [props.activeFolder];
+    if (props.activeFolder) {
+      const activeModuleIds = props.activeFolder === 'all' ? [] : [props.activeFolder];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_TABLE);
       if (getAllChildren) {
-        moduleIds = [props.activeFolder, ...props.offspringIds];
+        moduleIds = [...activeModuleIds, ...props.offspringIds];
       }
     }
 
@@ -917,10 +918,6 @@
 
   function handleTableSelect(selectArr: (string | number)[]) {
     tableSelected.value = selectArr;
-  }
-
-  function filterTreeNode(searchValue: string, nodeValue: TreeNodeData) {
-    return (nodeValue as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   const caseLevelFields = ref<Record<string, any>>({});

@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message, TreeNodeData } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -69,6 +69,7 @@
   import { addTestPlan, getTestPlanDetail, updateTestPlan } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { filterTreeNode } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
   import type { AddTestPlanParams } from '@/models/testPlan/testPlan';
@@ -165,10 +166,6 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  }
-
-  function filterTreeNode(searchValue: string, nodeData: TreeNodeData) {
-    return (nodeData as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   const okText = computed(() => {

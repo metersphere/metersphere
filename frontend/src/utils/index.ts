@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
 
 import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
+import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
 import { BugEditCustomField, CustomFieldItem } from '@/models/bug-management';
 
@@ -1043,3 +1044,12 @@ export function formatDuration(ms: number) {
 
 export const operationWidth = (enWidth: number, zhWidth: number) =>
   localStorage.getItem('MS-locale') === 'en-US' ? enWidth : zhWidth;
+
+/**
+ * 下拉树查询检索
+ * @param searchValue 搜索关键字
+ * @param nodeData 树节点
+ */
+export function filterTreeNode(searchValue: string, nodeData: MsTreeNodeData, nameKey = 'name') {
+  return nodeData[nameKey].toLowerCase().includes(searchValue.toLowerCase());
+}

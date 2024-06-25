@@ -206,7 +206,7 @@
    */
   import { onBeforeMount } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, SelectOptionData, TreeNodeData } from '@arco-design/web-vue';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -225,9 +225,9 @@
   } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { filterTreeNode } from '@/utils';
 
   import type { BaseAssociateCaseRequest, ReviewPassRule } from '@/models/caseManagement/caseReview';
-  import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { FormInstance } from '@arco-design/web-vue';
@@ -309,10 +309,6 @@
 
   function writeAssociateCases(param: BaseAssociateCaseRequest) {
     selectedAssociateCasesParams.value = { ...param };
-  }
-
-  function filterTreeNode(searchValue: string, nodeValue: TreeNodeData) {
-    return (nodeValue as ModuleTreeNode).name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1;
   }
 
   function clearSelectedCases() {

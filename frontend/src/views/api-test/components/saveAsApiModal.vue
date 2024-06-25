@@ -35,6 +35,7 @@
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
           v-model:modelValue="saveModalForm.moduleId"
+          :filter-tree-node="filterTreeNode"
           :data="apiModuleTree"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           :tree-props="{
@@ -72,6 +73,7 @@
   import { addCase, addDefinition, getModuleTreeOnlyModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { filterTreeNode } from '@/utils';
 
   import { AddApiCaseParams } from '@/models/apiTest/management';
   import { RequestCaseStatus, RequestDefinitionStatus } from '@/enums/apiEnum';

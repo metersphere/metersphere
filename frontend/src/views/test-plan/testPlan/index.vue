@@ -228,12 +228,9 @@
    */
   const rootModulesName = ref<string[]>([]);
   const folderTree = ref<ModuleTreeNode[]>([]);
-  function setRootModules(treeNode: ModuleTreeNode[], isSetDefaultKey: boolean) {
+  function setRootModules(treeNode: ModuleTreeNode[]) {
     folderTree.value = treeNode;
     rootModulesName.value = treeNode.map((e) => e.name);
-    if (isSetDefaultKey) {
-      activeFolder.value = 'all';
-    }
   }
 
   const showPlanDrawer = ref<boolean>(false);
@@ -274,7 +271,13 @@
   }
 
   function deleteNode() {
-    planTableRef.value?.fetchData();
+    nextTick(() => {
+      if (activeFolder.value !== 'all') {
+        setActiveFolder('all');
+      } else {
+        planTableRef.value?.fetchData();
+      }
+    });
   }
 
   function createTestPlan(type: string) {
