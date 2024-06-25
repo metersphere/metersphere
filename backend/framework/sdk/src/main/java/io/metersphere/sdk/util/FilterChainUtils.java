@@ -41,6 +41,8 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/review/functional/case/download/file/**", "anon");
         //缺陷管理富文本访问
         filterChainDefinitionMap.put("/bug/attachment/preview/md/**", "anon");
+        //计划报告富文本访问
+        filterChainDefinitionMap.put("/test-plan/report/preview/md/**", "anon");
 
         filterChainDefinitionMap.put("/system/version/current", "anon");
 

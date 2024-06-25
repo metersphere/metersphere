@@ -26,6 +26,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -165,5 +166,11 @@ public class TestPlanReportController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpr.create_time desc");
         return PageUtils.setPageInfo(page, testPlanReportService.planReportList(request));
+    }
+
+    @GetMapping(value = "/preview/md/{projectId}/{fileId}/{compressed}")
+    @Operation(summary = "缺陷管理-富文本缩略图-预览")
+    public ResponseEntity<byte[]> previewMd(@PathVariable String projectId, @PathVariable String fileId, @PathVariable("compressed") boolean compressed) {
+        return testPlanReportService.previewMd(projectId, fileId, compressed);
     }
 }
