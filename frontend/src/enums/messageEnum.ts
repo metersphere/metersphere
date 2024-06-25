@@ -13,6 +13,7 @@ export enum MessageResourceType {
   LOAD_TEST_TASK = 'LOAD_TEST_TASK',
   LOAD_REPORT_TASK = 'LOAD_REPORT_TASK',
   SCHEDULE_TASK = 'SCHEDULE_TASK',
+  JENKINS_TASK = 'JENKINS_TASK',
 }
 
 export default {};
