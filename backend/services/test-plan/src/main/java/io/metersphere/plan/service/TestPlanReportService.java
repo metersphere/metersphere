@@ -14,10 +14,8 @@ import io.metersphere.plan.utils.CountUtils;
 import io.metersphere.plan.utils.ModuleTreeUtils;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.ReportStatus;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.project.service.FileService;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileCopyRequest;
@@ -39,6 +37,9 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,10 @@ public class TestPlanReportService {
     private TestPlanReportMapper testPlanReportMapper;
     @Resource
     private ExtTestPlanReportMapper extTestPlanReportMapper;
+	@Resource
+	private FileService fileService;
+	@Resource
+	private TestPlanReportAttachmentMapper testPlanReportAttachmentMapper;
     @Resource
     private ExtTestPlanReportBugMapper extTestPlanReportBugMapper;
     @Resource
@@ -89,8 +94,6 @@ public class TestPlanReportService {
 	private TestPlanReportApiScenarioMapper testPlanReportApiScenarioMapper;
     @Resource
     private TestPlanReportBugMapper testPlanReportBugMapper;
-    @Resource
-    private TestPlanReportAttachmentMapper testPlanReportAttachmentMapper;
     @Resource
     private BaseUserMapper baseUserMapper;
 	@Resource
@@ -993,7 +996,97 @@ public class TestPlanReportService {
         return extTestPlanReportMapper.getPlanReportListById(request);
     }
 
+	public ResponseEntity<byte[]> previewMd(String projectId, String fileId, boolean compressed) {
+		byte[] bytes;
+		String fileName;
+		TestPlanReportAttachmentExample example = new TestPlanReportAttachmentExample();
+		example.createCriteria().andFileIdEqualTo(fileId);
+		List<TestPlanReportAttachment> reportAttachments = testPlanReportAttachmentMapper.selectByExample(example);
+		if (CollectionUtils.isEmpty(reportAttachments)) {
+			//在临时文件获取
+			fileName = getTempFileNameByFileId(fileId);
+			bytes = getPreviewImg(fileName, fileId, compressed);
+		} else {
+			//在正式目录获取
+			TestPlanReportAttachment attachment = reportAttachments.get(0);
+			fileName = attachment.getFileName();
+			FileRequest fileRequest = buildPlanFileRequest(projectId, attachment.getTestPlanReportId(), attachment.getFileId(), attachment.getFileName());
+			try {
+				bytes = fileService.download(fileRequest);
+			} catch (Exception e) {
+				throw new MSException("get file error");
+			}
+		}
+		return ResponseEntity.ok()
+				.contentType(MediaType.parseMediaType("application/octet-stream"))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+				.body(bytes);
+	}
+
 	public void updateExecuteTimeAndStatus(String prepareReportId) {
 		extTestPlanReportMapper.batchUpdateExecuteTimeAndStatus(System.currentTimeMillis(), Collections.singletonList(prepareReportId));
+	}
+
+	/**
+	 * 构建计划报告文件请求
+	 * @param projectId 项目ID
+	 * @param resourceId 资源ID
+	 * @param fileId 文件ID
+	 * @param fileName 文件名称
+	 * @return 文件请求对象
+	 */
+	private FileRequest buildPlanFileRequest(String projectId, String resourceId, String fileId, String fileName) {
+		FileRequest fileRequest = new FileRequest();
+		fileRequest.setFolder(DefaultRepositoryDir.getPlanReportDir(projectId, resourceId) + "/" + fileId);
+		fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
+		fileRequest.setStorage(StorageType.MINIO.name());
+		return fileRequest;
+	}
+
+	public byte[] getPreviewImg(String fileName, String fileId, boolean isCompressed) {
+		String systemTempDir;
+		if (isCompressed) {
+			systemTempDir = DefaultRepositoryDir.getSystemTempCompressDir();
+		} else {
+			systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+		}
+		FileRequest previewRequest = new FileRequest();
+		previewRequest.setFileName(fileName);
+		previewRequest.setStorage(StorageType.MINIO.name());
+		previewRequest.setFolder(systemTempDir + "/" + fileId);
+		byte[] previewImg = null;
+		try {
+			previewImg = fileService.download(previewRequest);
+		} catch (Exception e) {
+			LogUtils.error("获取预览图失败：{}", e);
+		}
+
+		if (previewImg == null || previewImg.length == 0) {
+			try {
+				if (isCompressed) {
+					previewImg = this.compressPicWithFileMetadata(fileName, fileId);
+					previewRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
+					fileService.upload(previewImg, previewRequest);
+				}
+				return previewImg;
+			} catch (Exception e) {
+				LogUtils.error("获取预览图失败：{}", e);
+			}
+		}
+		return previewImg;
+	}
+
+	//获取文件并压缩的方法需要上锁，防止并发超过一定数量时内存溢出
+	private synchronized byte[] compressPicWithFileMetadata(String fileName, String fileId) throws Exception {
+		byte[] fileBytes = this.getFile(fileName, fileId);
+		return TempFileUtils.compressPic(fileBytes);
+	}
+
+	public byte[] getFile(String fileName, String fileId) throws Exception {
+		FileRequest fileRequest = new FileRequest();
+		fileRequest.setFileName(fileName);
+		fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+		fileRequest.setStorage(StorageType.MINIO.name());
+		return fileService.download(fileRequest);
 	}
 }
