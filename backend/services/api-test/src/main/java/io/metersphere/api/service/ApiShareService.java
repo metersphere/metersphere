@@ -47,7 +47,7 @@ public class ApiShareService {
     public ShareInfoDTO genApiDocShareInfo(ApiDefinitionDocRequest request, SessionUser user) {
         ShareInfo shareInfoRequest = new ShareInfo();
         String customData = genCustomData(request, shareInfoRequest);
-        String lang = user.getLanguage() == null ? LocaleContextHolder.getLocale().toString() : user.getLanguage();
+        String lang = user.getLanguage() == null ? LocaleContextHolder.getLocale().toString().split("_#")[0] : user.getLanguage();
 
         Optional.ofNullable(customData)
                 .ifPresent(data -> {
