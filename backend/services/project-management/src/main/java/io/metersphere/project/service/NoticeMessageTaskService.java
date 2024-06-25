@@ -167,11 +167,13 @@ public class NoticeMessageTaskService {
         MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
         messageTaskBlobExample.createCriteria().andIdIn(messageTaskIds);
         List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(messageTaskBlobExample);
+        List<String>messageTaskEqualsRobotIDs = new ArrayList<>();
         for (MessageTask messageTask : messageTasks) {
             messageTask.setUpdateTime(System.currentTimeMillis());
             messageTask.setUpdateUser(userId);
             //如果有机器人id,则是修改机器人开关和消息配置
             if (StringUtils.isNotBlank(messageTaskRequest.getRobotId()) && StringUtils.equalsIgnoreCase(messageTask.getProjectRobotId(), messageTaskRequest.getRobotId())) {
+                messageTaskEqualsRobotIDs.add(messageTask.getId());
                 messageTask.setEnable(enable);
                 messageTask.setUseDefaultSubject(useDefaultSubject);
                 messageTask.setUseDefaultTemplate(useDefaultTemplate);
@@ -183,7 +185,7 @@ public class NoticeMessageTaskService {
             mapper.updateByPrimaryKeySelective(messageTask);
         }
         for (MessageTaskBlob messageTaskBlob : messageTaskBlobs) {
-            if (StringUtils.isNotBlank(messageTaskRequest.getRobotId()) && !useDefaultTemplate) {
+            if (StringUtils.isNotBlank(messageTaskRequest.getRobotId()) && !useDefaultTemplate && messageTaskEqualsRobotIDs.contains(messageTaskBlob.getId())) {
                 messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
                 blobMapper.updateByPrimaryKeyWithBLOBs(messageTaskBlob);
             }
