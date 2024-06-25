@@ -357,7 +357,7 @@ public class FunctionalCaseMinderService {
             targetTextParentIds.addAll(targetModuleParentIds);
             targetTextParentIds.addAll(targetCaseParentIds);
             List<String> targetTextParentNoRepeatIds = targetTextParentIds.stream().distinct().toList();
-            List<MindAdditionalNode> allChildrenTextInDB = new ArrayList<>();
+            List<MindAdditionalNode> allChildrenTextInDB;
             Map<String, List<MindAdditionalNode>> parentChildrenTextMap = new HashMap<>();
             if (CollectionUtils.isNotEmpty(targetTextParentNoRepeatIds)) {
                 mindAdditionalNodeExample = new MindAdditionalNodeExample();
