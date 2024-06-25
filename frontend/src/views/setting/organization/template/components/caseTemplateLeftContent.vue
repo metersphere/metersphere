@@ -169,7 +169,6 @@
     size: 'default',
     showSetting: true,
     showPagination: false,
-    enableDrag: false,
   });
 
   const addStep = () => {};

@@ -56,7 +56,6 @@
     scroll: { x: '100%' },
     showSelectorAll: false,
     heightUsed: 340,
-    enableDrag: false,
     showPagination: false,
   });
 

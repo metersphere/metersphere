@@ -432,7 +432,6 @@
         showSetting: true,
         selectable: hasOperationPermission.value,
         heightUsed: 300,
-        enableDrag: false,
         showSelectorAll: true,
       },
       // eslint-disable-next-line no-return-assign

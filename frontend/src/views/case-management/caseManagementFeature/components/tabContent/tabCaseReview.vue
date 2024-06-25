@@ -133,7 +133,7 @@
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_REVIEW,
     scroll: { x: '100%' },
     heightUsed: 360,
-    enableDrag: true,
+    draggable: { type: 'handle' },
   });
 
   async function initData() {

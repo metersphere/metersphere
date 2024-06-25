@@ -104,7 +104,6 @@
     noDisable: true,
     showSetting: false,
     showPagination: false,
-    enableDrag: false,
     showMode: false,
     heightUsed: 644,
     debug: true,

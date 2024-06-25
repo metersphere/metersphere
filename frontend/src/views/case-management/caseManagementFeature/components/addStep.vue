@@ -218,7 +218,7 @@
     size: 'default',
     showSetting: false,
     showPagination: false,
-    enableDrag: true,
+    draggable: { type: 'handle' },
   });
 
   // 复制步骤

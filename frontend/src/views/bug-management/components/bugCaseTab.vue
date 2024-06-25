@@ -191,7 +191,6 @@
     columns,
     scroll: { x: '100%' },
     heightUsed: 310,
-    enableDrag: false,
   });
 
   const innerVisible = ref(false);

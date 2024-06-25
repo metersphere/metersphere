@@ -76,7 +76,6 @@
     scroll: { x: '100%' },
     showSelectorAll: false,
     heightUsed: 340,
-    enableDrag: false,
     showPagination: false,
   });
   const { propsRes, propsEvent, setLoading } = useTable(undefined, tableProps.value);

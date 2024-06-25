@@ -162,7 +162,6 @@
     selectable: false,
     noDisable: true,
     showSetting: false,
-    enableDrag: false,
   });
 
   function getParams() {

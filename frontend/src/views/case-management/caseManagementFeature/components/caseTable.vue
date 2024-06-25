@@ -838,7 +838,7 @@
       selectable: true,
       showSetting: true,
       heightUsed: 236,
-      enableDrag: true,
+      draggable: { type: 'handle' },
       showSubdirectory: true,
       paginationSize: 'mini',
     },

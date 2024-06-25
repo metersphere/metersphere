@@ -144,7 +144,6 @@
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_TEST_PLAN,
       scroll: { x: '100%' },
       heightUsed: 340,
-      enableDrag: false,
     },
     (item) => {
       return {

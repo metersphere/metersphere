@@ -149,7 +149,6 @@
       selectable: true,
       showSelectorAll: props.showSelectorAll,
       heightUsed: 340,
-      enableDrag: false,
     },
     (record) => {
       return {
