@@ -49,7 +49,7 @@ public abstract class AbstractCustomFieldValidator {
 
     protected void validateArrayRequired(TemplateCustomFieldDTO customField, String value) throws CustomFieldValidateException {
         if (customField.getRequired() && (StringUtils.isBlank(value) || StringUtils.equals(value, "[]"))) {
-            CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_required_tip"), customField.getFieldId()));
+            CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_required_tip"), customField.getFieldName()));
         }
     }
 
