@@ -99,7 +99,6 @@
     columns: props.bugColumns,
     scroll: { x: '100%' },
     heightUsed: 340,
-    enableDrag: false,
   });
 
   const innerKeyword = useVModel(props, 'keyword', emit);

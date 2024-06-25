@@ -178,7 +178,7 @@
     noDisable: true,
     showSetting: true,
     showPagination: false,
-    enableDrag: true,
+    draggable: { type: 'handle' },
     showMode: false,
     heightUsed: 644,
     debug: true,

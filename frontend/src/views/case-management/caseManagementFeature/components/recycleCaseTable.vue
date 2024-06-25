@@ -232,7 +232,7 @@
       selectable: true,
       showSetting: true,
       heightUsed: 380,
-      enableDrag: true,
+      draggable: { type: 'handle' },
       showSubdirectory: true,
     },
     (record) => ({

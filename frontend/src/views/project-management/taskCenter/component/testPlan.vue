@@ -346,7 +346,6 @@
       showSetting: true,
       selectable: hasOperationPermission.value,
       heightUsed: 330,
-      enableDrag: false,
       showSelectAll: true,
     }
   );

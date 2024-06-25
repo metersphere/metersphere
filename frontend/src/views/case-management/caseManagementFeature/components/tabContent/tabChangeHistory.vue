@@ -159,7 +159,6 @@
     scroll: { x: '100%' },
     selectable: false,
     heightUsed: 340,
-    enableDrag: false,
   });
 
   const form = ref({

@@ -66,7 +66,6 @@ export default function useTableProps<T>(
     selectorStatus: SelectAllEnum.NONE, // 选择器状态
     showSelectorAll: true, // 是否显示全选
     /** end */
-    enableDrag: false, // 是否可拖拽
     showSetting: false, // 是否展示列选择器
     columnResizable: true,
     pagination: false, // 禁用 arco-table 的分页
@@ -112,11 +111,6 @@ export default function useTableProps<T>(
       hideOnSinglePage: appStore.hideOnSinglePage,
       simple: defaultProps.pageSimple,
     };
-  }
-
-  // 是否可拖拽
-  if (propsRes.value.enableDrag) {
-    propsRes.value.draggable = { type: 'handle' };
   }
 
   // 加载效果
