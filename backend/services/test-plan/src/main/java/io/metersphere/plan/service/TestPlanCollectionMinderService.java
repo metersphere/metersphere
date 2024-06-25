@@ -245,7 +245,6 @@ public class TestPlanCollectionMinderService {
         beansOfType.forEach((k, v) -> {
             v.associateCollection(request.getPlanId(), associateMap, user);
         });
-        List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(new TestPlanCollectionExample());
         //更新测试计划
         testPlanService.refreshTestPlanStatus(request.getPlanId());
     }
