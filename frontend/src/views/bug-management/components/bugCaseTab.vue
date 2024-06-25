@@ -17,7 +17,7 @@
     <template #relateCaseNum="{ record }">
       <a-tooltip :content="`${record.relateCaseNum}`">
         <!-- TOTO 暂时没有用例id的字段 需要后台加caseId -->
-        <a-button type="text" class="px-0" @click="openDetail(record.relateCaseId)">
+        <a-button type="text" class="px-0" @click="openDetail(record.relateCaseId, record.projectId)">
           <div class="one-line-text max-w-[168px]">{{ record.relateCaseNum }}</div>
         </a-button>
       </a-tooltip>
@@ -104,6 +104,7 @@
     getUnAssociatedList,
   } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -111,7 +112,7 @@
 
   import type { TableQueryParams } from '@/models/common';
   import { CaseLinkEnum } from '@/enums/caseEnum';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { RouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -119,6 +120,7 @@
   const featureCaseStore = useFeatureCaseStore();
   const router = useRouter();
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -268,15 +270,14 @@
     await loadList();
   }
 
-  async function openDetail(id: string) {
+  async function openDetail(id: string, projectId: string) {
     try {
       const res = await checkCasePermission(currentProjectId.value, 'FUNCTIONAL');
       if (res) {
-        window.open(
-          `${window.location.origin}#${
-            router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE }).fullPath
-          }?id=${id}`
-        );
+        openNewPage(RouteEnum.CASE_MANAGEMENT_CASE, {
+          pId: projectId,
+          id,
+        });
       } else {
         window.open(`${window.location.origin}#${router.resolve({ name: NO_RESOURCE_ROUTE_NAME }).fullPath}`);
       }
