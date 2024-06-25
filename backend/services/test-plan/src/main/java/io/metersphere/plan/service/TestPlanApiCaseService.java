@@ -69,7 +69,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
+    private TestPlanService testPlanService;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
@@ -790,5 +790,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public void refreshTestPlanStatus(String resourceId) {
+        TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(resourceId);
+        if (testPlanApiCase != null) {
+            testPlanService.refreshTestPlanStatus(testPlanApiCase.getTestPlanId());
+        }
     }
 }

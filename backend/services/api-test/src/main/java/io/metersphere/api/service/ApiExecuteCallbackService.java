@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -34,4 +35,10 @@ public interface ApiExecuteCallbackService {
      * @param parentQueueId
      */
     default void stopCollectionOnFailure(String parentQueueId) {}
+
+    /**
+     * 单个任务执行完的回调
+     * @param apiNoticeDTO
+     */
+    default void handleExecuteEnd(ApiNoticeDTO apiNoticeDTO) {}
 }

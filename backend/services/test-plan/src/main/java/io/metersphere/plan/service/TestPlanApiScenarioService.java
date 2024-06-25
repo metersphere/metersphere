@@ -78,7 +78,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
+    private TestPlanService testPlanService;
     @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
@@ -695,6 +695,13 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 }
             }
             return testPlanApiScenarios;
+        }
+    }
+
+    public void refreshTestPlanStatus(String resourceId) {
+        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(resourceId);
+        if (testPlanApiScenario != null) {
+            testPlanService.refreshTestPlanStatus(testPlanApiScenario.getTestPlanId());
         }
     }
 }

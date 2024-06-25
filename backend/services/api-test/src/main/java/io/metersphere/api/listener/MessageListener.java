@@ -70,6 +70,8 @@ public class MessageListener {
                     }
                 }
 
+                ApiExecuteCallbackServiceInvoker.handleExecuteEnd(dto.getResourceType(), dto);
+
                 if (dto.getRunModeConfig().isSerial()) {
                     // 执行串行的下一个任务
                     executeNextTask(dto);

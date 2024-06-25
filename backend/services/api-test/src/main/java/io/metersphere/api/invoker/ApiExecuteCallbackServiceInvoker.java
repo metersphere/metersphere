@@ -2,6 +2,7 @@ package io.metersphere.api.invoker;
 
 import io.metersphere.api.service.ApiExecuteCallbackService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -41,6 +42,10 @@ public class ApiExecuteCallbackServiceInvoker {
 
     public static void stopCollectionOnFailure(String resourceType, String collectionQueueId) {
         getCallbackService(getApiExecuteResourceType(resourceType)).stopCollectionOnFailure(collectionQueueId);
+    }
+
+    public static void handleExecuteEnd(String resourceType, ApiNoticeDTO apiNoticeDTO) {
+        getCallbackService(getApiExecuteResourceType(resourceType)).handleExecuteEnd(apiNoticeDTO);
     }
 
     public static ApiExecuteResourceType getApiExecuteResourceType(String resourceType) {

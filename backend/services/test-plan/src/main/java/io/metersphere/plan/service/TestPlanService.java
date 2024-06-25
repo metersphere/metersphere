@@ -52,6 +52,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,8 +78,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanBatchOperationService testPlanBatchOperationService;
     @Resource
     private TestPlanStatisticsService testPlanStatisticsService;
-    @Resource
-    private TestPlanCaseService testPlanCaseService;
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource
@@ -106,6 +105,16 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     @Autowired
     private TestPlanReportService testPlanReportService;
+
+    /**
+     * 记录正在更新状态的测试计划
+     */
+    private static final CopyOnWriteArraySet<String> updatingStatusPlanSet = new CopyOnWriteArraySet<>();
+
+    /**
+     * 记录更新测试计划状态的任务
+     */
+    private static final CopyOnWriteArraySet<String> updateStatusPlanTask = new CopyOnWriteArraySet<>();
 
     /**
      * 创建测试计划
@@ -829,6 +838,23 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     }
 
     public void refreshTestPlanStatus(String testPlanId) {
+        if (updatingStatusPlanSet.add(testPlanId)) {
+            // 如果当前测试计划状态没有在更新中，即更新状态
+            doRefreshTestPlanStatus(testPlanId);
+            // 更新完判断是否有其他线程触发的更新任务，有的话，继续更新
+            while (updateStatusPlanTask.remove(testPlanId)) {
+                doRefreshTestPlanStatus(testPlanId);
+            }
+            // 标记为更新完成
+            updatingStatusPlanSet.remove(testPlanId);
+        } else {
+            // 如果当前测试计划状态正在更新中，则添加任务更新表示，等待更新
+            // 在并发高的情况下，只需要更新最后一次的任务
+            updateStatusPlanTask.add(testPlanId);
+        }
+    }
+
+    private void doRefreshTestPlanStatus(String testPlanId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
             this.updateTestPlanStatus(testPlanId);

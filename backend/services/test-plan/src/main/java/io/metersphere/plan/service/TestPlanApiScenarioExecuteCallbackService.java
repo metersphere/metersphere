@@ -3,6 +3,7 @@ package io.metersphere.plan.service;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.service.ApiExecuteCallbackService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -62,5 +63,10 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
     @Override
     public void stopCollectionOnFailure(String parentQueueId) {
         testPlanApiScenarioBatchRunService.stopCollectionOnFailure(parentQueueId);
+    }
+
+    @Override
+    public void handleExecuteEnd(ApiNoticeDTO apiNoticeDTO) {
+        testPlanApiScenarioService.refreshTestPlanStatus(apiNoticeDTO.getResourceId());
     }
 }
