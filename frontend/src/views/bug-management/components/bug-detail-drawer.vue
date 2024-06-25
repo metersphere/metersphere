@@ -71,14 +71,23 @@
           />
           {{ t('caseManagement.featureCase.follow') }}
         </MsButton>
-        <MsButton type="icon" status="secondary" class="mr-2 !rounded-[var(--border-radius-small)]">
+        <MsButton
+          v-permission="['PROJECT_BUG:READ+ADD', 'PROJECT_BUG:READ+DELETE']"
+          type="icon"
+          status="secondary"
+          class="mr-2 !rounded-[var(--border-radius-small)]"
+        >
           <a-dropdown position="br" :hide-on-select="false">
             <div>
               <icon-more class="mr-1" />
               <span> {{ t('caseManagement.featureCase.more') }}</span>
             </div>
             <template #content>
-              <a-doption :disabled="props.currentPlatform !== detailInfo.platform" @click="handleCopy">
+              <a-doption
+                v-permission="['PROJECT_BUG:READ+ADD']"
+                :disabled="props.currentPlatform !== detailInfo.platform"
+                @click="handleCopy"
+              >
                 <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />
                 {{ t('common.copy') }}
               </a-doption>
