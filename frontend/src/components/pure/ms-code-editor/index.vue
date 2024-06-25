@@ -305,6 +305,8 @@
           theme: currentTheme.value,
         });
 
+        editor.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF); // 设置换行符
+
         // 监听值的变化
         editor.onDidChangeModelContent(() => {
           const value = editor.getValue(); // 给父组件实时返回最新文本

@@ -29,7 +29,8 @@ export default {
   'apiScenario.params.csvScoped': '作用域',
   'apiScenario.params.file': '文件',
   'apiScenario.params.csvScopedTip1': '场景级：执行场景前加载CSV，当前场景任意步骤均可从CSV中读取到数据',
-  'apiScenario.params.csvScopedTip2': '步骤级：需在场景步骤中添加该CSV，执行该步骤时加载CSV，作用域为步骤内的请求',
+  'apiScenario.params.csvScopedTip2':
+    '步骤级：需在循环步骤中添加该CSV，执行该循环步骤时加载CSV，作用域为循环步骤内的请求',
   'apiScenario.params.config': '配置',
   'apiScenario.params.csvConfig': 'CSV 配置',
   'apiScenario.params.csvParamName': '参数名称',
