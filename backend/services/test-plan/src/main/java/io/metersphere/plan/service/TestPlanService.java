@@ -819,7 +819,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             }
         }
         TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andIdEqualTo(testPlanGroupId);
+        testPlanExample.createCriteria().andIdEqualTo(testPlanGroupId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         TestPlan updateGroupPlan = new TestPlan();
         updateGroupPlan.setStatus(groupStatus);
         testPlanMapper.updateByExampleSelective(updateGroupPlan, testPlanExample);
