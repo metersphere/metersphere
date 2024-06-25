@@ -372,11 +372,11 @@
   const searchPlaceholder = computed(() => {
     switch (associationType.value) {
       case CaseLinkEnum.FUNCTIONAL:
-        return t('common.searchByIdName');
+        return t('common.searchByIDNameTag');
       case CaseLinkEnum.API:
         return t('ms.case.associate.apiSearchPlaceholder');
       case CaseLinkEnum.SCENARIO:
-        return t('common.searchByIdName');
+        return t('common.searchByIDNameTag');
       default:
         return '';
     }
