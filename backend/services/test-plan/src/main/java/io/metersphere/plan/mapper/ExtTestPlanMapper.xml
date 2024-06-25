@@ -74,9 +74,11 @@
         t.module_id as moduleId,
         t.type,
         t.description,
+        t.pos,
         t.actual_start_time AS actualStartTime,
         t.actual_end_time AS actualEndTime,
-        t.pos,
+        t.planned_start_time AS plannedStartTime,
+        t.planned_end_time AS plannedEndTime,
         t.group_id AS parent,
         t.tags
         FROM test_plan t
