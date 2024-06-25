@@ -295,7 +295,7 @@
     CreateOrUpdateCase,
     CustomAttributes,
     DetailCase,
-    OptionsFieldId,
+    OptionsField,
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
@@ -404,7 +404,7 @@
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         let initValue = item.defaultValue;
-        const optionsValue: OptionsFieldId[] = item.options;
+        const optionsValue: OptionsField[] = item.options;
         if (memberType.includes(item.type)) {
           if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];

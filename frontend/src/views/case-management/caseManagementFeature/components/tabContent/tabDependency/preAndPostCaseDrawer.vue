@@ -165,7 +165,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { mapTree } from '@/utils';
 
-  import type { CaseManagementTable, CaseModuleQueryParams, OptionsFieldId } from '@/models/caseManagement/featureCase';
+  import type { CaseManagementTable, CaseModuleQueryParams, OptionsField } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -384,7 +384,7 @@
   // 用例等级表头检索
   const caseLevelFields = ref<Record<string, any>>({});
   const caseFilterVisible = ref(false);
-  const caseLevelList = ref<OptionsFieldId[]>([]);
+  const caseLevelList = ref<OptionsField[]>([]);
   const caseFilters = ref<string[]>([]);
 
   // 获取用例参数

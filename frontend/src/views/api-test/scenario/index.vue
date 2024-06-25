@@ -11,6 +11,7 @@
               @folder-node-select="handleNodeSelect"
               @init="handleModuleInit"
               @new-scenario="() => newTab()"
+              @change="handleModuleChange"
             ></scenarioModuleTree>
           </div>
           <a-divider margin="0" />
@@ -522,7 +523,12 @@
 
   const createRef = ref<InstanceType<typeof create>>();
   const detailRef = ref<InstanceType<typeof detail>>();
+  const apiTableRef = ref<InstanceType<typeof ScenarioTable>>();
   const saveLoading = ref(false);
+
+  function handleModuleChange() {
+    apiTableRef.value?.loadScenarioList();
+  }
 
   async function realSaveScenario() {
     try {

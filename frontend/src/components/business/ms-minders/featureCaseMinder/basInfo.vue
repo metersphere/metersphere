@@ -61,7 +61,7 @@
   import useUserStore from '@/store/modules/user';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { OptionsFieldId } from '@/models/caseManagement/featureCase';
+  import { customFieldsItem, OptionsField } from '@/models/caseManagement/featureCase';
 
   import { initFormCreate } from '@/views/case-management/caseManagementFeature/components/utils';
   import { Api } from '@form-create/arco-design';
@@ -73,6 +73,7 @@
   const emit = defineEmits<{
     (e: 'initTemplate', id: string): void;
     (e: 'cancel'): void;
+    (e: 'saved'): void;
   }>();
 
   const appStore = useAppStore();
@@ -103,14 +104,14 @@
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         let initValue = item.defaultValue;
-        const optionsValue: OptionsFieldId[] = item.options;
+        const optionsValue: OptionsField[] = item.options;
         if (memberType.includes(item.type)) {
           if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
           }
         }
         if (item.internal && item.type === 'SELECT') {
-          // TODO:过滤用例等级字段，等级字段后续可自定义，需要调整
+          // 这里不需要再展示用例等级字段。TODO:过滤用例等级字段，等级字段后续可自定义，需要调整
           return false;
         }
         return {
@@ -172,7 +173,7 @@
                 });
                 const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
                 if (selectedNode?.data) {
-                  selectedNode.data.id = res.id;
+                  selectedNode.data.id = res.data.id;
                 }
               } else {
                 await updateCaseRequest({
@@ -190,11 +191,14 @@
                   ...selectedNode.data,
                   text: baseInfoForm.value.name,
                   priority: priorityNumber,
+                  isNew: false,
                 };
                 window.minder.execCommand('priority', priorityNumber + 1);
                 setPriorityView(true, 'P');
+                selectedNode.data.changed = false;
               }
               Message.success(t('common.saveSuccess'));
+              emit('saved');
             } catch (error) {
               // eslint-disable-next-line no-console
               console.log(error);
@@ -215,7 +219,18 @@
     () => {
       baseInfoForm.value.name = props.activeCase.name;
       baseInfoForm.value.tags = props.activeCase.tags || [];
-      formRules.value = initFormCreate(props.activeCase.customFields || [], ['FUNCTIONAL_CASE:READ+UPDATE']);
+      if (props.activeCase.customFields) {
+        formRules.value = initFormCreate(
+          (props.activeCase.customFields || []).filter((item: customFieldsItem) => {
+            if (item.internal && item.type === 'SELECT') {
+              // 这里不需要再展示用例等级字段。TODO:过滤用例等级字段，等级字段后续可自定义，需要调整
+              return false;
+            }
+            return true;
+          }),
+          ['FUNCTIONAL_CASE:READ+UPDATE']
+        );
+      }
     },
     {
       immediate: true,

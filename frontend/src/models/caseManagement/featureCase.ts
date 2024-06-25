@@ -32,7 +32,7 @@ export interface customFieldsItem {
   [key: string]: any;
 }
 
-export interface OptionsFieldId {
+export interface OptionsField {
   fieldId: string;
   value: string;
   text: string;
@@ -46,7 +46,7 @@ export interface CustomAttributes {
   apiFieldId: null | undefined | 'string'; // 三方API
   defaultValue: string;
   type: string;
-  options: OptionsFieldId[];
+  options: OptionsField[];
 }
 
 // 功能用例表

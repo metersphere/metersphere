@@ -171,6 +171,7 @@
     'import',
     'folderNodeSelect',
     'changeProtocol',
+    'change',
   ]);
 
   const appStore = useAppStore();
@@ -351,6 +352,7 @@
         try {
           await deleteModule(node.id);
           Message.success(t('apiScenario.deleteSuccess'));
+          emit('change');
           await initModules();
           emit('countRecycleScenario');
         } catch (error) {
@@ -417,6 +419,7 @@
         dropPosition,
       });
       Message.success(t('apiScenario.moveSuccess'));
+      emit('change');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -441,7 +444,6 @@
     lastModuleCountParam.value = {
       projectId: appStore.currentProjectId,
     };
-
     await initModules();
   });
   defineExpose({
