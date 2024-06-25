@@ -931,6 +931,9 @@ public class FunctionalCaseMinderService {
     private FunctionalCaseModule buildModule(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest) {
         FunctionalCaseModule functionalCaseModule = new FunctionalCaseModule();
         functionalCaseModule.setId(IDGenerator.nextStr());
+        if (StringUtils.isBlank(functionalCaseModuleEditRequest.getName())) {
+            throw new MSException(Translator.get("api_definition_module.name.not_blank"));
+        }
         if (functionalCaseModuleEditRequest.getName().length()>255) {
             functionalCaseModuleEditRequest.setName(functionalCaseModuleEditRequest.getName().substring(0,249));
         }
@@ -949,6 +952,9 @@ public class FunctionalCaseMinderService {
     private FunctionalCaseModule updateModule(String userId, FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest) {
         FunctionalCaseModule updateModule = new FunctionalCaseModule();
         updateModule.setId(functionalCaseModuleEditRequest.getId());
+        if (StringUtils.isBlank(functionalCaseModuleEditRequest.getName())) {
+            throw new MSException(Translator.get("api_definition_module.name.not_blank"));
+        }
         if (functionalCaseModuleEditRequest.getName().length()>255) {
             functionalCaseModuleEditRequest.setName(functionalCaseModuleEditRequest.getName().substring(0,249));
         }
@@ -964,6 +970,9 @@ public class FunctionalCaseMinderService {
     private FunctionalCase updateCase(FunctionalCaseChangeRequest request, String userId, FunctionalCaseMapper caseMapper) {
         FunctionalCase functionalCase = new FunctionalCase();
         BeanUtils.copyBean(functionalCase, request);
+        if (StringUtils.isBlank(functionalCase.getName())) {
+            throw new MSException(Translator.get("minder_extra_node.case_node_empty"));
+        }
         if (functionalCase.getName().length()>255) {
             functionalCase.setName(functionalCase.getName().substring(0,249));
         }
@@ -1088,6 +1097,9 @@ public class FunctionalCaseMinderService {
         functionalCase.setId(caseId);
         if (StringUtils.isNotBlank(sourceIdAndInsertModuleIdMap.get(functionalCaseChangeRequest.getModuleId()))) {
             functionalCase.setModuleId(sourceIdAndInsertModuleIdMap.get(functionalCaseChangeRequest.getModuleId()));
+        }
+        if (StringUtils.isBlank(functionalCase.getName())) {
+            throw new MSException(Translator.get("minder_extra_node.case_node_empty"));
         }
         if (functionalCase.getName().length()>255) {
             functionalCase.setName(functionalCase.getName().substring(0,249));
