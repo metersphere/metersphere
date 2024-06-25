@@ -77,7 +77,11 @@
       if (!isHasChildren.value) {
         return (
           (props.selectedKeys.size > 0 && selectAllStatus.value === SelectAllEnum.ALL) ||
-          (props.selectedKeys.size > 0 && props.selectedKeys.size === props.total)
+          (props.selectedKeys.size > 0 && props.selectedKeys.size === props.total) ||
+          (props.selectedKeys.size > 0 &&
+            props.selectedKeys.size > props.total &&
+            props.currentData.length === props.total &&
+            props.currentData.every((e) => props.selectedKeys.has(e[props.rowKey])))
         );
       }
       // 含有子级 children全选条件
