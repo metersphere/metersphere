@@ -10,6 +10,7 @@ import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
+import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
@@ -50,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,6 +106,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ApiScenarioModuleMapper apiScenarioModuleMapper;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -354,8 +358,17 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             Map<String, String> projectMap = getProject(apiScenarioList);
             Map<String, String> userMap = getUserMap(apiScenarioList);
             Map<String, String> moduleNameMap = getModuleName(apiScenarioList);
-            handleScenarioAndEnv(apiScenarioList, projectMap, userMap, testPlanId, moduleNameMap);
+            Map<String, String> reportMap = getReportMap(apiScenarioList);
+            handleScenarioAndEnv(apiScenarioList, projectMap, userMap, testPlanId, moduleNameMap, reportMap);
         }
+    }
+
+    private Map<String, String> getReportMap(List<TestPlanApiScenarioPageResponse> apiScenarioList) {
+        List<String> reportIds = apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getLastExecReportId).toList();
+        List<ApiScenarioReport> reports = apiScenarioReportService.getApiScenarioReportByIds(reportIds);
+        // 生成map key是id value是ScriptIdentifier  但是getScriptIdentifier为空的不放入
+        return reports.stream().filter(report -> StringUtils.isNotBlank(report.getScriptIdentifier()))
+                .collect(Collectors.toMap(ApiScenarioReport::getId, ApiScenarioReport::getScriptIdentifier));
     }
 
     private Map<String, String> getModuleName(List<TestPlanApiScenarioPageResponse> apiScenarioList) {
@@ -367,7 +380,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         return moduleNameMap;
     }
 
-    private void handleScenarioAndEnv(List<TestPlanApiScenarioPageResponse> apiScenarioList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId, Map<String, String> moduleNameMap) {
+    private void handleScenarioAndEnv(List<TestPlanApiScenarioPageResponse> apiScenarioList, Map<String, String> projectMap,
+                                      Map<String, String> userMap, String testPlanId, Map<String, String> moduleNameMap,
+                                      Map<String, String> reportMap) {
         //获取二级节点环境
         List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.SCENARIO_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
@@ -383,6 +398,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setExecuteUserName(userMap.get(item.getExecuteUser()));
+            item.setScriptIdentifier(reportMap.get(item.getLastExecReportId()));
             item.setModuleName(StringUtils.isNotBlank(moduleNameMap.get(item.getModuleId())) ? moduleNameMap.get(item.getModuleId()) : Translator.get("api_unplanned_scenario"));
             if (secondEnvMap.containsKey(item.getTestPlanCollectionId())) {
                 TestPlanCollectionEnvDTO collectEnv = secondEnvMap.get(item.getTestPlanCollectionId());

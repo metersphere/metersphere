@@ -42,6 +42,7 @@
             :module-type="ReportEnum.API_REPORT"
             :status="record.lastExecResult"
             :class="[!record.lastExecReportId ? '' : 'cursor-pointer']"
+            :script-identifier="record.scriptIdentifier"
             @click="showReport(record)"
           />
         </template>
@@ -228,7 +229,7 @@
         options: lastReportStatusListOptions.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
-      width: 150,
+      width: 200,
       showDrag: true,
     },
     {
