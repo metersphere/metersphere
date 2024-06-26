@@ -10,7 +10,6 @@ import io.metersphere.engine.MsHttpClient;
 import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
 import io.metersphere.sdk.exception.MSException;
@@ -288,9 +287,9 @@ public class TestPlanTaskCenterService {
                         }
                     });
                     List<ReportDTO> apiReports = extTestPlanReportMapper.getCaseReports(subList);
-                    detailReport(request, apiReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+                    detailReport(request, apiReports);
                     List<ReportDTO> scenarioReports = extTestPlanReportMapper.getScenarioReports(subList);
-                    detailReport(request, scenarioReports, userId, module, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+                    detailReport(request, scenarioReports);
                     saveLog(subList, userId, StringUtils.join(module, "_REAL_TIME_TEST_PLAN"));
                 });
             }
@@ -299,27 +298,21 @@ public class TestPlanTaskCenterService {
     }
 
     private void detailReport(TaskCenterBatchRequest request,
-                              List<ReportDTO> reports,
-                              String userId,
-                              String module,
-                              String resourceType) {
+                              List<ReportDTO> reports) {
         Map<String, List<String>> poolIdMap = reports.stream()
                 .collect(Collectors.groupingBy(ReportDTO::getPoolId, Collectors.mapping(ReportDTO::getId, Collectors.toList())));
         poolIdMap.forEach((poolId, reportList) -> {
             TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(poolId);
             List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
             if (CollectionUtils.isNotEmpty(nodesList)) {
-                stopTask(request, reportList, nodesList, userId, module, resourceType);
+                stopTask(request, reportList, nodesList);
             }
         });
     }
 
     public void stopTask(TaskCenterBatchRequest request,
                          List<String> reportList,
-                         List<TestResourceNodeDTO> nodesList,
-                         String userId,
-                         String module,
-                         String resourceType) {
+                         List<TestResourceNodeDTO> nodesList) {
         nodesList.parallelStream().forEach(node -> {
             String endpoint = MsHttpClient.getEndpoint(node.getIp(), node.getPort());
             //需要去除取消勾选的report
