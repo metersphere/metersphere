@@ -27,6 +27,9 @@ public class CustomFieldOptions implements Serializable {
     @Schema(description = "是否内置字段")
     private Boolean internal;
 
+    @Schema(description = "内置字段的 key")
+    private String internalFieldKey;
+
     @Schema(description = "自定义字段选项值")
     private List<CustomFieldOption> options;
 }

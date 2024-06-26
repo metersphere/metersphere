@@ -424,6 +424,7 @@ public class ProjectTemplateService extends BaseTemplateService {
                 CustomFieldOptions optionDTO = new CustomFieldOptions();
                 optionDTO.setId(customField.getId());
                 if (customField.getInternal()) {
+                    optionDTO.setInternalFieldKey(customField.getName());
                     optionDTO.setName(baseCustomFieldService.translateInternalField(customField.getName()));
                 } else {
                     optionDTO.setName(customField.getName());
