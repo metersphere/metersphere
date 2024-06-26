@@ -926,12 +926,14 @@
           }
           return item;
         });
+        const { lastDataIsDefault } = filterKeyValParams(arr, defaultLineData.value, false);
         if (
-          !props.disabledExceptParam &&
-          !props.disabledParamValue &&
-          hasNoIdItem &&
-          !filterKeyValParams(arr, defaultLineData.value, !props.selectable).lastDataIsDefault &&
-          !props.isTreeTable
+          (arr.length === 1 && !lastDataIsDefault) ||
+          (hasNoIdItem &&
+            !props.disabledExceptParam &&
+            !props.disabledParamValue &&
+            !lastDataIsDefault &&
+            !props.isTreeTable)
         ) {
           addTableLine(arr.length - 1, false, true);
         }

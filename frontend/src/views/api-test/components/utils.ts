@@ -173,7 +173,7 @@ export function filterKeyValParams<T>(
   const defaultParam = cloneDeep(defaultParamItem);
   if (!lastData || !defaultParam) {
     return {
-      lastDataIsDefault: false,
+      lastDataIsDefault: true,
       validParams: params,
     };
   }
