@@ -251,6 +251,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             CustomField customField = customFields.get(i);
             customField.setCreateUser(userNameMap.get(customField.getCreateUser()));
             if (customField.getInternal()) {
+                Assertions.assertEquals(customFieldDTO.getInternalFieldKey(), customField.getName());
                 // 校验内置用户名称是否翻译
                 customField.setName(baseCustomFieldService.translateInternalField(customField.getName()));
             }
