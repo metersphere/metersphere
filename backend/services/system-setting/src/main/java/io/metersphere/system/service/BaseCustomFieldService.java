@@ -93,6 +93,7 @@ public class BaseCustomFieldService {
                         .map(TemplateRequiredCustomField::getName)
                         .collect(Collectors.toSet());
                 customFieldDTO.setTemplateRequired(templateRequiredCustomFieldSet.contains(item.getName()));
+                customFieldDTO.setInternalFieldKey(item.getName());
                 // 翻译内置字段名称
                 customFieldDTO.setName(translateInternalField(item.getName()));
             }
@@ -129,6 +130,7 @@ public class BaseCustomFieldService {
         BeanUtils.copyBean(customFieldDTO, customField);
         customFieldDTO.setOptions(baseCustomFieldOptionService.getByFieldId(customFieldDTO.getId()));
         if (customField.getInternal()) {
+            customFieldDTO.setInternalFieldKey(customField.getName());
             customField.setName(translateInternalField(customField.getName()));
         }
         return customFieldDTO;

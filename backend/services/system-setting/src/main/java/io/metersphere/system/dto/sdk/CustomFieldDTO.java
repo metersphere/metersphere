@@ -17,4 +17,8 @@ public class CustomFieldDTO extends CustomField {
      * 模板中该字段是否必选
      */
     private Boolean templateRequired = false;
+    /**
+     * 内置字段的 key
+     */
+    private String internalFieldKey;
 }
