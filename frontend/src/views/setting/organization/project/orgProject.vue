@@ -196,14 +196,15 @@
       title: 'system.organization.subordinateOrg',
       dataIndex: 'organizationName',
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'system.organization.creator',
       slotName: 'creator',
-      width: 180,
+      width: 200,
       showDrag: true,
       dataIndex: 'createUser',
-      showTooltip: true,
+      showTooltip: false,
     },
     {
       title: 'system.organization.createTime',
