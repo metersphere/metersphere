@@ -284,7 +284,7 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
           title: item.name,
           field: item.id,
           effect: {
-            required: item.internal,
+            required: false,
           },
           props: {
             ...currentFormRules.props,
@@ -294,7 +294,7 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
         },
       ],
       fApi: null,
-      required: item.internal,
+      required: item.internal && item.internalFieldKey === 'functional_priority',
     };
   });
 };
