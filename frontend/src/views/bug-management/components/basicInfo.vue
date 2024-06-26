@@ -17,10 +17,7 @@
             @change="handelFormCreateChange"
           />
           <!-- 自定义字段结束 -->
-          <div
-            v-if="!props.isPlatformDefaultTemplate && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
-            class="baseItem"
-          >
+          <div v-if="!props.isPlatformDefaultTemplate" class="baseItem">
             <a-form
               :model="{}"
               :label-col-props="{

@@ -656,6 +656,9 @@
 
   onBeforeMount(() => {
     initProtocolList();
+    if (props.selectedProtocols.length > 0) {
+      loadApiList(true);
+    }
   });
 
   const tableSelected = ref<(string | number)[]>([]);

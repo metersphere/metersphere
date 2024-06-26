@@ -6,6 +6,7 @@
       allow-search
       allow-clear
       :multiple="props.multiple"
+      :disabled="props.disabled"
       @search="searchHandler"
     >
       <a-option v-for="opt of optionsList" :key="opt.value" :value="opt.value">{{ opt.label }}</a-option>
@@ -37,6 +38,7 @@
       options?: { label: string; value: string }[];
       multiple?: boolean; // 是否多选
       placeholder?: string;
+      disabled?: boolean;
     }>(),
     {
       inputSearch: false,
