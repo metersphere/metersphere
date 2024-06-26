@@ -619,18 +619,18 @@ public class FunctionalCaseService {
         }
         if (request.getExpectedResult()!=null) {
             hasUpdate=true;
-            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            functionalCaseBlob.setExpectedResult(StringUtils.defaultIfEmpty(request.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
         }
         if (request.getPrerequisite()!=null) {
             hasUpdate=true;
-            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            functionalCaseBlob.setPrerequisite(StringUtils.defaultIfEmpty(request.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
         }
         if (request.getDescription()!=null) {
             hasUpdate=true;
-            functionalCaseBlob.setTextDescription(StringUtils.defaultIfEmpty(request.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            functionalCaseBlob.setDescription(StringUtils.defaultIfEmpty(request.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
         }
         if (hasUpdate) {
-            functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+            functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
         }
         //更新自定义字段
         List<CaseCustomFieldDTO> customFields = request.getCustomFields();
