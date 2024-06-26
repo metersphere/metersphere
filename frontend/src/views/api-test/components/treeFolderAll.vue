@@ -7,56 +7,44 @@
     @set-active-folder="(val: string) => emit('setActiveFolder', val)"
   >
     <template #expandLeft>
-      <a-dropdown v-model:popup-visible="visible" :hide-on-select="false">
+      <!-- 显示请求icon -->
+      <a-tooltip :content="!isExpandApi ? t('apiTestManagement.expandApi') : t('apiTestManagement.collapseApi')">
         <MsButton
-          v-show="!props.notShowOperation"
+          v-show="!props.notShowOperation && showExpandApi"
           type="icon"
           status="secondary"
           class="!mr-[4px] p-[4px]"
-          @click="visible = !visible"
+          @click="changeApiExpand"
         >
-          <MsIcon :type="`${showExpandApi ? 'icon-icon_more_outlined' : 'icon-icon_protocol'}`" />
+          <MsIcon :type="`${!isExpandApi ? 'icon-icon_visible_outlined1' : 'icon-icon_preview_close_one'}`" />
         </MsButton>
+      </a-tooltip>
+      <!-- 协议icon -->
+      <a-dropdown v-model:popup-visible="visible" :hide-on-select="false">
+        <a-tooltip :content="t('ms.paramsInput.protocol')">
+          <MsButton
+            v-show="!props.notShowOperation"
+            type="icon"
+            status="secondary"
+            :class="`!mr-[4px] p-[4px] ${visible ? 'bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-4))]' : ''}`"
+            @click="visible = !visible"
+          >
+            <MsIcon type="icon-icon_protocol" />
+          </MsButton>
+        </a-tooltip>
         <template #content>
-          <!-- 有 展开请求的开关 -->
-          <template v-if="showExpandApi">
-            <a-doption class="api-expend w-full">
-              {{ t('apiScenario.api') }}
-              <a-switch v-model:model-value="isExpandApi" size="small" @click.stop @change="changeApiExpand" />
-            </a-doption>
-            <a-dsubmenu>
-              <template #default>{{ t('ms.paramsInput.protocol') }}</template>
-              <template #content>
-                <a-checkbox
-                  class="checkbox-all"
-                  :model-value="isCheckedAll"
-                  :indeterminate="indeterminate"
-                  @change="handleChangeAll"
-                  >{{ t('common.all') }}
-                </a-checkbox>
-                <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
-                  <a-checkbox v-for="item in allProtocolList" :key="item" :value="item">
-                    {{ item }}
-                  </a-checkbox>
-                </a-checkbox-group>
-              </template>
-            </a-dsubmenu>
-          </template>
-          <!-- 没有 展开请求的开关 -->
-          <template v-else>
-            <a-checkbox
-              class="checkbox-all"
-              :model-value="isCheckedAll"
-              :indeterminate="indeterminate"
-              @change="handleChangeAll"
-              >{{ t('common.all') }}
+          <a-checkbox
+            class="checkbox-all"
+            :model-value="isCheckedAll"
+            :indeterminate="indeterminate"
+            @change="handleChangeAll"
+            >{{ t('common.all') }}
+          </a-checkbox>
+          <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
+            <a-checkbox v-for="item in allProtocolList" :key="item" :value="item">
+              {{ item }}
             </a-checkbox>
-            <a-checkbox-group direction="vertical" :model-value="selectedProtocols" @change="handleGroupChange">
-              <a-checkbox v-for="item in allProtocolList" :key="item" :value="item">
-                {{ item }}
-              </a-checkbox>
-            </a-checkbox-group>
-          </template>
+          </a-checkbox-group>
         </template>
       </a-dropdown>
     </template>
@@ -132,9 +120,12 @@
     }
   }
 
-  function changeApiExpand(value: string | number | boolean) {
-    setLocalStorage('isExpandApi', value);
-    emit('changeApiExpand');
+  function changeApiExpand() {
+    isExpandApi.value = !isExpandApi.value;
+    nextTick(() => {
+      setLocalStorage('isExpandApi', isExpandApi.value);
+      emit('changeApiExpand');
+    });
   }
 
   watch(

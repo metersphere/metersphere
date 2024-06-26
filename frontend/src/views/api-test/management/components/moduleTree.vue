@@ -192,6 +192,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { characterLimit, mapTree } from '@/utils';
+  import { getLocalStorage } from '@/utils/local-storage';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
@@ -348,7 +349,7 @@
   const allFileCount = computed(() => modulesCount.value.all || 0);
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
-  const isExpandApi = ref(false);
+  const isExpandApi = ref(getLocalStorage('isExpandApi') === 'true');
   const lastModuleCountParam = ref<ApiDefinitionGetModuleParams>({
     projectId: appStore.currentProjectId,
     keyword: '',
