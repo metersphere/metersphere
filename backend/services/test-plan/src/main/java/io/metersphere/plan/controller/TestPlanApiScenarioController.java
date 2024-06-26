@@ -79,7 +79,7 @@ public class TestPlanApiScenarioController {
     @GetMapping("/run/{id}")
     @Operation(summary = "接口测试-接口场景管理-场景执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @CheckOwner(resourceId = "#id", resourceType = "test_plan_api_scenario", relationType = "test_plan")
+    @CheckOwner(resourceId = "#id", resourceType = "test_plan", relationType = "test_plan_api_scenario")
     public TaskRequestDTO run(@PathVariable String id, @RequestParam(required = false) String reportId) {
         return testPlanApiScenarioService.run(id, reportId, SessionUtils.getUserId());
     }
@@ -87,7 +87,7 @@ public class TestPlanApiScenarioController {
     @PostMapping("/batch/run")
     @Operation(summary = "批量执行")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
-    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "test_plan_api_scenario", relationType = "test_plan")
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "test_plan", relationType = "test_plan_api_scenario")
     public void batchRun(@Validated @RequestBody TestPlanApiScenarioBatchRunRequest request) {
         testPlanApiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
