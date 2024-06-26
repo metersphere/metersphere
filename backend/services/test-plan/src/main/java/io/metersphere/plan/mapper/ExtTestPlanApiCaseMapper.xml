@@ -123,6 +123,7 @@
             api_definition.name like concat('%', #{request.keyword},'%')
             or api_definition.num like concat('%', #{request.keyword},'%')
             or api_definition.path like concat('%', #{request.keyword},'%')
+            or api_definition.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">
