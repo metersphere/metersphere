@@ -325,6 +325,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import { MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -832,17 +833,20 @@
   }
   const initDefaultFields = ref<CustomAttributes[]>([]);
 
+  const tableProps = ref<Partial<MsTableProps<CaseManagementTable>>>({
+    tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
+    selectable: true,
+    showSetting: true,
+    heightUsed: 236,
+    draggable: { type: 'handle' },
+    showSubdirectory: true,
+    paginationSize: 'mini',
+    draggableCondition: true,
+  });
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword, setAdvanceFilter } = useTable(
     getCaseList,
-    {
-      tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
-      selectable: true,
-      showSetting: true,
-      heightUsed: 236,
-      draggable: { type: 'handle' },
-      showSubdirectory: true,
-      paginationSize: 'mini',
-    },
+    tableProps.value,
     (record) => {
       return {
         ...record,
@@ -858,6 +862,18 @@
       };
     },
     updateCaseName
+  );
+
+  const hasUpdatePermission = computed(() => hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']));
+
+  watch(
+    () => hasUpdatePermission.value,
+    (val) => {
+      tableProps.value.draggableCondition = val;
+    },
+    {
+      immediate: true,
+    }
   );
 
   const batchParams = ref<BatchActionQueryParams>({
