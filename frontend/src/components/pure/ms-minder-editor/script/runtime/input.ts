@@ -9,7 +9,6 @@
  * @copyright: Baidu FEX, 2014
  */
 import Debug from '../tool/debug';
-import useLocaleNotVue from '../tool/useLocaleNotVue';
 import { isDisableNode, markChangeNode } from '../tool/utils';
 
 if (!('innerText' in document.createElement('a')) && 'getSelection' in window) {
@@ -45,7 +44,6 @@ if (!('innerText' in document.createElement('a')) && 'getSelection' in window) {
   });
 }
 
-const tran = useLocaleNotVue;
 const debug = new Debug('input') as any;
 
 function InputRuntime(this: any) {
@@ -400,27 +398,6 @@ function InputRuntime(this: any) {
   };
 
   setupFsm();
-
-  // edit entrance in hotbox
-  const setupHotbox = () => {
-    this.hotbox.state('main').button({
-      position: 'center',
-      label: tran('minder.commons.edit'),
-      key: 'F2',
-      enable: () => {
-        if (isDisableNode(this.minder)) {
-          return false;
-        }
-        return this.minder.queryCommandState('text') !== -1;
-      },
-      action: this.editText,
-      beforeShow() {
-        this.$button.children[0].innerHTML = tran('minder.commons.edit');
-      },
-    });
-  };
-
-  setupHotbox();
 }
 
 export default InputRuntime;

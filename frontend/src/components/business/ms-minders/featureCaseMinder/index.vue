@@ -809,9 +809,14 @@
         }
       }
       const minderNode: MinderJsonNode = window.minder.getNodeById(node.data.id);
-      if (minderNode.data) {
+      if (minderNode?.data) {
+        // 能找到对应的脑图节点，重置 isNew 和 changed 状态
         minderNode.data.isNew = false;
         minderNode.data.changed = false;
+      } else {
+        // 找不到对应的脑图节点，说明当前是进入了模块层级，之前更改的节点没有渲染，重置源数据 isNew 和 changed 状态
+        node.data.isNew = false;
+        node.data.changed = false;
       }
       return true;
     });

@@ -1,9 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-import useLocaleNotVue from '../tool/useLocaleNotVue';
-import { isDisableNode } from '../tool/utils';
-
-const tran = useLocaleNotVue;
-
 interface History {
   reset: () => void;
   undo: () => void;
@@ -12,8 +6,8 @@ interface History {
   hasRedo: () => boolean;
 }
 
-export default function HistoryRuntime(this: { minder: any; hotbox: any; editText: () => void; history: History }) {
-  const { minder, hotbox } = this;
+export default function HistoryRuntime(this: { minder: any; editText: () => void; history: History }) {
+  const { minder } = this;
   const MAX_HISTORY = 100;
 
   let lastSnap: string;
@@ -185,38 +179,4 @@ export default function HistoryRuntime(this: { minder: any; hotbox: any; editTex
   minder.on('contentchange', changed);
   minder.on('import', reset);
   minder.on('patch', updateSelection);
-
-  const main = hotbox.state('main');
-  main.button({
-    position: 'bottom',
-    label: tran('minder.main.history.undo'),
-    key: 'Ctrl + Z',
-    enable() {
-      if (isDisableNode(minder)) {
-        return false;
-      }
-      return hasUndo;
-    },
-    action: undo,
-    beforeShow() {
-      this.$button.children[0].innerHTML = tran('minder.main.history.undo');
-    },
-    next: 'idle',
-  });
-  main.button({
-    position: 'bottom',
-    label: tran('minder.main.history.redo'),
-    key: 'Ctrl + Y',
-    enable() {
-      if (isDisableNode(minder)) {
-        return false;
-      }
-      return hasRedo;
-    },
-    action: redo,
-    beforeShow() {
-      this.$button.children[0].innerHTML = tran('minder.main.history.undo');
-    },
-    next: 'idle',
-  });
 }
