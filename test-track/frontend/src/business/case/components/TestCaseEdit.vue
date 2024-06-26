@@ -318,24 +318,12 @@
 </template>
 
 <script>
-import {getProjectVersions} from "metersphere-frontend/src/api/version";
-import { TokenKey } from "metersphere-frontend/src/utils/constants";
+import {getProjectVersions, setLatestVersionById} from "metersphere-frontend/src/api/version";
+import {TokenKey} from "metersphere-frontend/src/utils/constants";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {
-  getCurrentProjectID,
-  getCurrentUser, setCurrentProjectID,
-} from "metersphere-frontend/src/utils/token";
-import {
-  hasLicense,
-  hasPermission,
-  hasPermissionForProjectId
-} from "metersphere-frontend/src/utils/permission";
-import {
-  getUUID,
-  listenGoBack,
-  removeGoBackListener,
-  handleCtrlSEvent,
-} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID, getCurrentUser, setCurrentProjectID,} from "metersphere-frontend/src/utils/token";
+import {hasLicense, hasPermission, hasPermissionForProjectId} from "metersphere-frontend/src/utils/permission";
+import {getUUID, handleCtrlSEvent, listenGoBack, removeGoBackListener,} from "metersphere-frontend/src/utils";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import CaseComment from "@/business/case/components/CaseComment";
 import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
@@ -356,7 +344,7 @@ import FormRichTextItem from "@/business/case/components/richtext/FormRichTextIt
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import MsChangeHistory from "metersphere-frontend/src/components/history/ChangeHistory";
-import { getTestTemplate } from "@/api/custom-field-template";
+import {getTestTemplate} from "@/api/custom-field-template";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import VersionCreateOtherInfoSelect from "@/business/case/components/VersionCreateOtherInfoSelect";
 import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
@@ -364,29 +352,29 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import {useCommonStore, useStore, useUserStore} from "@/store";
-import { getProjectApplicationConfig } from "@/api/project-application";
+import {getProjectApplicationConfig} from "@/api/project-application";
 import {
   deleteTestCaseVersion,
+  getEditSimpleTestCase,
+  getSimpleTestCase,
   getTestCase,
+  getTestCaseByVersionId,
   getTestCaseFollow,
   getTestCaseVersions,
   hasTestCaseOtherInfo,
+  testCaseDeleteToGc,
   testCaseEditFollows,
   testCaseGetByVersionId,
-  testCaseDeleteToGc,
-  getTestCaseByVersionId,
-  getEditSimpleTestCase,
-  getSimpleTestCase,
 } from "@/api/testCase";
 
 import {
   getProjectListAll,
-  getProjectMemberOption, parseCustomFilesForItem, parseMdImage, saveMarkDownImg,
+  getProjectMemberOption,
+  parseCustomFilesForItem,
+  parseMdImage,
+  saveMarkDownImg,
 } from "@/business/utils/sdk-utils";
-import { testCaseCommentList } from "@/api/test-case-comment";
-import {
-  setLatestVersionById,
-} from "metersphere-frontend/src/api/version";
+import {testCaseCommentList} from "@/api/test-case-comment";
 import CaseEditInfoComponent from "./case/CaseEditInfoComponent";
 import CaseBaseInfo from "./case/CaseBaseInfo";
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
@@ -1032,6 +1020,7 @@ export default {
       this.form.prerequisite = this.testCaseTemplate.prerequisite;
       this.form.stepDescription = this.testCaseTemplate.stepDescription;
       this.form.expectedResult = this.testCaseTemplate.expectedResult;
+      this.form.stepModel = this.testCaseTemplate.stepModel;
       if (this.testCaseTemplate.steps) {
         this.form.steps = JSON.parse(this.testCaseTemplate.steps);
       }
