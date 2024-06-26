@@ -280,10 +280,10 @@ INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((s
 
 -- 初始化组织缺陷严重程度
 INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUES(UUID_SHORT(), 'bug_degree', 'BUG', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001');
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '提示', 1, 1);
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '一般', 1, 2);
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '严重', 1, 3);
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '致命', 1, 4);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), 'suggestive', '提示', 1, 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), 'general', '一般', 1, 2);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), 'severity', '严重', 1, 3);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree'), 'deadly', '致命', 1, 4);
 
 -- 初始化组织功能用例默认模板, 缺陷默认模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene) VALUES (UUID_SHORT(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'FUNCTIONAL');
@@ -305,10 +305,10 @@ INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((s
 
 -- 初始化项目缺陷严重程度
 INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id, ref_id) VALUES(UUID_SHORT(), 'bug_degree', 'BUG', 'SELECT', '', 1, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001100001', (SELECT id FROM (SELECT * FROM custom_field) t where name = 'bug_degree'));
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '提示', 1, 1);
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '一般', 1, 2);
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '严重', 1, 3);
-INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '致命', 1, 4);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), 'suggestive', '提示', 1, 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), 'general', '一般', 1, 2);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), 'severity', '严重', 1, 3);
+INSERT INTO custom_field_option (field_id,value,`text`,internal, pos) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), 'deadly', '致命', 1, 4);
 
 -- 初始化项目功能用例默认模板, 缺陷默认模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene, ref_id) VALUES (UUID_SHORT(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 'FUNCTIONAL', (SELECT id FROM (SELECT * FROM template) t where name = 'functional_default'));
