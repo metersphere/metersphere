@@ -14,6 +14,11 @@
     <template #resultStatus="{ record }">
       <ExecutionStatus v-if="record.resultStatus !== '-'" :status="record.resultStatus" />
     </template>
+    <template #passRate="{ record }">
+      <div>
+        {{ `${record.passRate || '0.00'}%` }}
+      </div>
+    </template>
     <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
       <ExecutionStatus :status="filterContent.value" />
     </template>
