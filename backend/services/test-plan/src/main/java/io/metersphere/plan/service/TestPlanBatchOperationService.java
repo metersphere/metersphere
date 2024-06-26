@@ -172,10 +172,9 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
                 pos = 0L;
             } else {
                 TestPlan group = testPlanMapper.selectByPrimaryKey(targetId);
-                //已归档的无法操作
-                if (group == null || StringUtils.equalsIgnoreCase(group.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)
-                        || !StringUtils.equalsIgnoreCase(group.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                    throw new MSException(Translator.get("test_plan.group.error"));
+                //如果目标ID是测试计划组， 需要进行容量校验
+                if (!StringUtils.equalsIgnoreCase(targetType, ModuleConstants.NODE_TYPE_DEFAULT)) {
+                    testPlanGroupService.validateGroupCapacity(targetId, 1);
                 }
                 pos = testPlanGroupService.getNextOrder(targetId);
                 moduleId = group.getModuleId();
