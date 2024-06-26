@@ -330,9 +330,9 @@ public class CaseReviewFunctionalCaseService {
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.get(0).getTypeValue())) {
             if (!StringUtils.equals(name, request.getName())
-                    || !StringUtils.equals(new String(blob.getSteps(), StandardCharsets.UTF_8), request.getSteps())
-                    || !StringUtils.equals(new String(blob.getTextDescription(), StandardCharsets.UTF_8), request.getTextDescription())
-                    || !StringUtils.equals(new String(blob.getExpectedResult(), StandardCharsets.UTF_8), request.getExpectedResult())) {
+                    || !StringUtils.equals(new String(blob.getSteps() == null ? new byte[0] : blob.getSteps(), StandardCharsets.UTF_8), request.getSteps())
+                    || !StringUtils.equals(new String(blob.getTextDescription() == null ? new byte[0] : blob.getTextDescription(), StandardCharsets.UTF_8), request.getTextDescription())
+                    || !StringUtils.equals(new String(blob.getExpectedResult() == null ? new byte[0] : blob.getExpectedResult(), StandardCharsets.UTF_8), request.getExpectedResult())) {
                 doHandleStatusAndHistory(blob, userId);
             }
         }
