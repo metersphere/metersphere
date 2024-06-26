@@ -61,7 +61,6 @@
     "echarts": "^5.4.3",
     "fastq": "^1.15.0",
     "github-markdown-css": "^5.5.1",
-    "hotbox-minder": "1.0.15",
     "jsencrypt": "^3.3.2",
     "jsonpath-plus": "^8.0.0",
     "localforage": "^1.10.0",

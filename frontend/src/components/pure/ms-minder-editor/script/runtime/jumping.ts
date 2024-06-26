@@ -1,5 +1,3 @@
-const { HotBox } = window;
-
 /**
  * @Desc: 下方使用receiver.enable()和receiver.disable()通过
  *        修改div contenteditable属性的hack来解决开启热核后依然无法屏蔽浏览器输入的bug;
@@ -13,13 +11,6 @@ interface IReceiver {
   disable(): void;
   enable(): void;
   listen(type: string, callback: (e: KeyboardEvent) => void): void;
-}
-
-interface IHotbox {
-  state(): number;
-  $element: HTMLElement;
-  active(state: number): void;
-  dispatch(e: KeyboardEvent): void;
 }
 
 interface IMinder {
@@ -36,7 +27,6 @@ interface IJumpingRuntime {
   minder: IMinder;
   receiver: IReceiver;
   container: HTMLElement;
-  hotbox: IHotbox;
 }
 
 // Nice: http://unixpapa.com/js/key.html
@@ -63,22 +53,12 @@ function isIntendToInput(e: KeyboardEvent): boolean {
 }
 
 function JumpingRuntime(this: IJumpingRuntime): void {
-  const { fsm, minder, receiver, container, hotbox } = this;
+  const { fsm, minder, receiver } = this;
   const receiverElement = receiver.element;
   // normal -> *
   receiver.listen('normal', (e: KeyboardEvent) => {
     // 为了防止处理进入edit模式而丢失处理的首字母,此时receiver必须为enable
     receiver.enable();
-    // normal -> hotbox
-    if (e.code === 'Space') {
-      e.preventDefault();
-      // safari下Space触发hotbox,然而这时Space已在receiver上留下作案痕迹,因此抹掉
-      if (window.kity.Browser.safari) {
-        receiverElement.innerHTML = '';
-      }
-      return fsm.jump('hotbox', 'space-trigger');
-    }
-
     /**
      * check
      * @editor Naixor
@@ -104,15 +84,6 @@ function JumpingRuntime(this: IJumpingRuntime): void {
     }
   });
 
-  // hotbox -> normal
-  receiver.listen('hotbox', (e: KeyboardEvent) => {
-    receiver.disable();
-    e.preventDefault();
-    if (hotbox.state() === HotBox.STATE_IDLE && fsm.state() === 'hotbox') {
-      return fsm.jump('normal', 'hotbox-idle');
-    }
-  });
-
   // input => normal
   receiver.listen('input', (e: KeyboardEvent) => {
     receiver.enable();
@@ -132,68 +103,6 @@ function JumpingRuntime(this: IJumpingRuntime): void {
       e.preventDefault();
       return fsm.jump('normal', 'input-cancel');
     }
-  });
-
-  /// ///////////////////////////////////////////
-  /// 右键呼出热盒
-  /// 判断的标准是：按下的位置和结束的位置一致
-  /// ///////////////////////////////////////////
-  let downX: number;
-  let downY: number;
-  const MOUSE_LB = 1; // 左键
-  const MOUSE_RB = 2; // 右键
-
-  container.addEventListener(
-    'mousedown',
-    (e: MouseEvent) => {
-      if (e.button === MOUSE_RB) {
-        e.preventDefault();
-      }
-
-      if (fsm.state() === 'hotbox' && e.button === MOUSE_LB) {
-        fsm.jump('normal', 'blur');
-      } else if (e.button === MOUSE_RB) {
-        downX = e.clientX;
-        downY = e.clientY;
-      }
-    },
-    false
-  );
-
-  container.addEventListener(
-    'mousewheel',
-    () => {
-      if (fsm.state() === 'hotbox') {
-        fsm.jump('normal', 'mousemove-blur');
-      }
-    },
-    false
-  );
-
-  container.addEventListener('contextmenu', (e: MouseEvent) => {
-    e.preventDefault();
-  });
-
-  container.addEventListener(
-    'mouseup',
-    (e) => {
-      if (fsm.state() !== 'normal' && e.button === MOUSE_LB) {
-        return;
-      }
-      if (e.button !== MOUSE_RB || e.clientX !== downX || e.clientY !== downY) {
-        return;
-      }
-      if (!minder.getSelectedNode()) {
-        return false;
-      }
-      fsm.jump('hotbox', 'content-menu');
-    },
-    false
-  );
-
-  // 阻止热盒事件冒泡，在热盒正确执行前导致热盒关闭
-  hotbox.$element.addEventListener('mousedown', (e) => {
-    e.stopPropagation();
   });
 }
 

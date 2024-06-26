@@ -95,10 +95,9 @@ function ReceiverRuntime(this: any) {
   this.minder.on('beforemousedown', receiver.selectAll);
   this.minder.on('receiverfocus', receiver.selectAll);
   this.minder.on('readonly', () => {
-    // 屏蔽 minder 的事件接受，删除 receiver 和 hotbox
+    // 屏蔽 minder 的事件接受，删除 receiver
     this.minder.disable();
     window.editor.receiver.element.parentElement.removeChild(window.editor.receiver.element);
-    window.editor.hotbox.$container.removeChild(window.editor.hotbox.$element);
   });
 
   this.receiver = receiver as any;
