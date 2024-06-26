@@ -17,7 +17,6 @@
         </a-form-item>
         <MsFormCreate
           v-if="formRules.length"
-          ref="formCreateRef"
           v-model:api="fApi"
           v-model:form-item="formItem"
           :form-rule="formRules"
@@ -158,55 +157,62 @@
     };
   }
 
+  async function realSave() {
+    try {
+      saveLoading.value = true;
+      const params = makeParams();
+      if (props.activeCase.isNew !== false) {
+        const res = await createCaseRequest({
+          request: params,
+          fileList: [],
+        });
+        const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+        if (selectedNode?.data) {
+          selectedNode.data.id = res.data.id;
+        }
+      } else {
+        await updateCaseRequest({
+          request: params,
+          fileList: [],
+        });
+      }
+      const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+      const priority = (formItem.value.find((item) => item.title === 'Case Priority' || item.title === '用例等级')
+        ?.value || 'P0') as string;
+      const priorityNumber = Number(priority.match(/\d+/)?.[0]) || 0;
+      if (selectedNode?.data) {
+        selectedNode.data = {
+          ...selectedNode.data,
+          text: baseInfoForm.value.name,
+          priority: priorityNumber,
+          isNew: false,
+        };
+        window.minder.execCommand('priority', priorityNumber + 1);
+        setPriorityView(true, 'P');
+        selectedNode.data.changed = false;
+      }
+      Message.success(t('common.saveSuccess'));
+      emit('saved');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      saveLoading.value = false;
+    }
+  }
+
   function handleSave() {
     baseInfoFormRef.value?.validate((errors) => {
       if (!errors) {
-        fApi.value?.validate(async (valid) => {
-          if (valid === true) {
-            try {
-              saveLoading.value = true;
-              const params = makeParams();
-              if (props.activeCase.isNew !== false) {
-                const res = await createCaseRequest({
-                  request: params,
-                  fileList: [],
-                });
-                const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
-                if (selectedNode?.data) {
-                  selectedNode.data.id = res.data.id;
-                }
-              } else {
-                await updateCaseRequest({
-                  request: params,
-                  fileList: [],
-                });
-              }
-              const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
-              const priority = (formItem.value.find(
-                (item) => item.title === 'Case Priority' || item.title === '用例等级'
-              )?.value || 'P0') as string;
-              const priorityNumber = Number(priority.match(/\d+/)?.[0]) || 0;
-              if (selectedNode?.data) {
-                selectedNode.data = {
-                  ...selectedNode.data,
-                  text: baseInfoForm.value.name,
-                  priority: priorityNumber,
-                  isNew: false,
-                };
-                window.minder.execCommand('priority', priorityNumber + 1);
-                setPriorityView(true, 'P');
-                selectedNode.data.changed = false;
-              }
-              Message.success(t('common.saveSuccess'));
-              emit('saved');
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.log(error);
-            } finally {
-              saveLoading.value = false;
+        if (formRules.value.length > 0) {
+          fApi.value?.validate(async (valid) => {
+            if (valid === true) {
+              realSave();
             }
-          }
-        });
+          });
+        } else {
+          realSave();
+        }
       }
     });
   }
