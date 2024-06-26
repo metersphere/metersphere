@@ -183,7 +183,7 @@
       title: 'system.organization.creator',
       slotName: 'creator',
       dataIndex: 'createUser',
-      width: 125,
+      width: 200,
       showTooltip: false,
     },
     {
