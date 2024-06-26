@@ -439,6 +439,10 @@ public class TestPlanExecuteService {
         }
         String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
         TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueID, queueType);
+        if (nextQueue == null) {
+            LogUtils.info("没有获取到下一个执行节点！ 原始ID[{}]，队列ID[{}]", paramQueueId, queueID);
+            return;
+        }
         LogUtils.info("获取执行节点完成： 队列ID[{}],队列类型[{},串并行:[{}]执行是否结束[{}],是否是最后一个[{}],当前查出节点的资源ID[{}]]，下一个节点的执行工作准备中...",
                 queueID, queueType, nextQueue.getRunMode(), nextQueue.isExecuteFinish(), nextQueue.isLastOne(), nextQueue.getSourceID());
         if (StringUtils.equalsIgnoreCase(nextQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {

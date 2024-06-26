@@ -97,7 +97,7 @@ public class TestPlanGroupService extends TestPlanSortService {
         if (!StringUtils.equals(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             // 判断测试计划组是否存在
             TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
-            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+            if (groupPlan == null) {
                 throw new MSException(Translator.get("test_plan.group.error"));
             }
             //判断并未归档
