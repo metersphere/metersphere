@@ -89,6 +89,8 @@
   });
   const baseInfoLoading = ref(false);
 
+  const priorityField = ref('');
+
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref<Api>();
@@ -110,6 +112,7 @@
           }
         }
         if (item.internal && item.type === 'SELECT') {
+          priorityField.value = item.fieldId;
           // 这里不需要再展示用例等级字段。TODO:过滤用例等级字段，等级字段后续可自定义，需要调整
           return false;
         }
@@ -142,18 +145,27 @@
   const saveLoading = ref(false);
 
   function makeParams() {
+    const priority = formItem.value.find((item) => item.title === 'Case Priority' || item.title === '用例等级')?.field;
+    const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
+    const customFields = formItem.value.map((item: any) => {
+      return {
+        fieldId: item.field,
+        value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+      };
+    });
+    const selectedNodePriorityNumber = selectedNode?.data?.priority ? selectedNode?.data?.priority : 0;
+    const realPriorityNumber = selectedNodePriorityNumber > 0 ? selectedNodePriorityNumber - 1 : 0;
+    const priorityNumber = `P${realPriorityNumber}`;
+    if (!priority) {
+      customFields.push({ fieldId: priorityField.value, value: priorityNumber });
+    }
     return {
       ...baseInfoForm.value,
       moduleId: props.activeCase.moduleId || 'root',
       id: props.activeCase.id,
       projectId: appStore.currentProjectId,
       caseEditType: props.activeCase.caseEditType || 'STEP',
-      customFields: formItem.value.map((item: any) => {
-        return {
-          fieldId: item.field,
-          value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
-        };
-      }),
+      customFields,
     };
   }
 
