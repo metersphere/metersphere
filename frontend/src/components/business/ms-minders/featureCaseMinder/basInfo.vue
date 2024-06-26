@@ -179,7 +179,17 @@
       const selectedNode: MinderJsonNode = window.minder.getSelectedNode();
       const priority = (formItem.value.find((item) => item.title === 'Case Priority' || item.title === '用例等级')
         ?.value || 'P0') as string;
-      const priorityNumber = Number(priority.match(/\d+/)?.[0]) || 0;
+
+      const selectedNodePriorityNumber = selectedNode?.data?.priority ? selectedNode?.data?.priority : 0;
+      const realPriorityNumber = selectedNodePriorityNumber > 0 ? selectedNodePriorityNumber - 1 : 0;
+      const priorityNumber = Number(priority.match(/\d+/)?.[0]) || realPriorityNumber || 0;
+      formItem.value.forEach((item) => {
+        formRules.value.forEach((rule) => {
+          if (item.field === rule.name) {
+            rule.value = item.value;
+          }
+        });
+      });
       if (selectedNode?.data) {
         selectedNode.data = {
           ...selectedNode.data,
