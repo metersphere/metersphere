@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
@@ -105,12 +106,7 @@ public class BaseTemplateService {
         List<CustomField> customFields = baseCustomFieldService.getByIds(fieldIds);
         Map<String, CustomField> fieldMap = customFields
                 .stream()
-                .collect(Collectors.toMap(CustomField::getId, customField -> {
-                    if (customField.getInternal()) {
-                        customField.setName(baseCustomFieldService.translateInternalField(customField.getName()));
-                    }
-                    return customField;
-                }));
+                .collect(Collectors.toMap(CustomField::getId, Function.identity()));
 
         // 封装自定义字段信息
         List<TemplateCustomFieldDTO> fieldDTOS = templateCustomFields.stream()
@@ -121,6 +117,10 @@ public class BaseTemplateService {
                     TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
                     BeanUtils.copyBean(templateCustomFieldDTO, i);
                     templateCustomFieldDTO.setFieldName(customField.getName());
+                    if (BooleanUtils.isTrue(customField.getInternal())) {
+                        templateCustomFieldDTO.setInternalFieldKey(customField.getName());
+                        templateCustomFieldDTO.setFieldName(baseCustomFieldService.translateInternalField(customField.getName()));
+                    }
                     templateCustomFieldDTO.setType(customField.getType());
                     templateCustomFieldDTO.setInternal(customField.getInternal());
                     AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());

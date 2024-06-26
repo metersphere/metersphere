@@ -53,4 +53,7 @@ public class TemplateCustomFieldDTO {
 
     @Schema(description = "是否平台系统字段")
     private Boolean platformSystemField;
+
+    @Schema(description = "内置字段的 key")
+    private String internalFieldKey;
 }
