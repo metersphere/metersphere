@@ -43,6 +43,7 @@
     formRule: FormItem[]; // 表单的规则
     formItem: FormRuleItem[]; // 处理后的表单
     api: any; // 表单对象
+    disabled?: boolean; // 是否禁用
   }>();
 
   const emit = defineEmits(['update:api', 'update', 'update:formItem', 'change', 'mounted']);
@@ -328,6 +329,9 @@
 
   function handleMounted() {
     // setValue();
+    if (props.disabled) {
+      fApi.value.disabled(true);
+    }
     emit('mounted');
   }
 

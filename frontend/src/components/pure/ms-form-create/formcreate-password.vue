@@ -3,6 +3,7 @@
     v-model="inputValue"
     :placeholder="placeholder"
     :default-visibility="true"
+    :disabled="props.disabled"
     allow-clear
     @clear="clearHandler"
     @input="inputHandler"
@@ -12,9 +13,10 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
 
-  defineProps<{
+  const props = defineProps<{
     placeholder?: string;
     value?: string;
+    disabled?: boolean;
   }>();
   const inputValue = ref('');
   const emits = defineEmits<{

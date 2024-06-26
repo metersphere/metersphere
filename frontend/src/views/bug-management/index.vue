@@ -17,7 +17,7 @@
             </a-button>
             <a-button
               v-if="currentPlatform !== 'Local'"
-              v-permission="['PROJECT_BUG:READ+ADD']"
+              v-permission="['PROJECT_BUG:READ+UPDATE']"
               :loading="!isComplete"
               type="outline"
               @click="handleSync"
