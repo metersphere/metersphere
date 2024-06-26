@@ -344,11 +344,11 @@ public class FunctionalCaseService {
         FunctionalCaseDetailDTO functionalCaseDetailDTO = new FunctionalCaseDetailDTO();
         BeanUtils.copyBean(functionalCaseDetailDTO, functionalCase);
         FunctionalCaseBlob caseBlob = functionalCaseBlobMapper.selectByPrimaryKey(functionalCaseId);
-        functionalCaseDetailDTO.setSteps(new String(caseBlob.getSteps(), StandardCharsets.UTF_8));
-        functionalCaseDetailDTO.setTextDescription(new String(caseBlob.getTextDescription(), StandardCharsets.UTF_8));
-        functionalCaseDetailDTO.setExpectedResult(new String(caseBlob.getExpectedResult(), StandardCharsets.UTF_8));
-        functionalCaseDetailDTO.setPrerequisite(new String(caseBlob.getPrerequisite(), StandardCharsets.UTF_8));
-        functionalCaseDetailDTO.setDescription(new String(caseBlob.getDescription(), StandardCharsets.UTF_8));
+        functionalCaseDetailDTO.setSteps(new String(caseBlob.getSteps() == null ? new byte[0] : caseBlob.getSteps(), StandardCharsets.UTF_8));
+        functionalCaseDetailDTO.setTextDescription(new String(caseBlob.getTextDescription() == null ? new byte[0] : caseBlob.getTextDescription(), StandardCharsets.UTF_8));
+        functionalCaseDetailDTO.setExpectedResult(new String(caseBlob.getExpectedResult() == null ? new byte[0] : caseBlob.getExpectedResult(), StandardCharsets.UTF_8));
+        functionalCaseDetailDTO.setPrerequisite(new String(caseBlob.getPrerequisite() == null ? new byte[0] : caseBlob.getPrerequisite(), StandardCharsets.UTF_8));
+        functionalCaseDetailDTO.setDescription(new String(caseBlob.getDescription() == null ? new byte[0] : caseBlob.getDescription(), StandardCharsets.UTF_8));
 
         //模板校验 获取自定义字段
         checkTemplateCustomField(functionalCaseDetailDTO, functionalCase);
