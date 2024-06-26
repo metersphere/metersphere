@@ -321,6 +321,7 @@
     title-align="start"
     :mask="true"
     :mask-closable="false"
+    :on-before-cancel="handleBeforeCancel"
     @close="cancelHandler"
   >
     <template #title>
@@ -332,7 +333,7 @@
     </a-radio-group>
     <template #footer>
       <div class="flex justify-end">
-        <a-button type="secondary" @click="cancelHandler">
+        <a-button :disabled="confirmLoading" type="secondary" @click="cancelHandler">
           {{ t('common.cancel') }}
         </a-button>
         <a-button class="ml-3" type="primary" :loading="confirmLoading" @click="executeHandler">
@@ -377,7 +378,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -960,16 +961,19 @@
     executeVisible.value = true;
   }
 
+  const confirmLoading = ref<boolean>(false);
   function cancelHandler() {
     executeVisible.value = false;
     executeForm.value = cloneDeep(initExecuteForm);
   }
 
+  const handleBeforeCancel = () => {
+    return !confirmLoading.value;
+  };
+
   /**
    * 批量执行
    */
-
-  const confirmLoading = ref<boolean>(false);
 
   async function batchHandleExecute() {
     confirmLoading.value = true;
