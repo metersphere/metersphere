@@ -400,8 +400,9 @@
         select tpas.test_plan_id testPlanId, tpas.api_scenario_id apiScenarioId, tpas.last_exec_result lastExecResult
         from test_plan_api_scenario tpas join api_scenario asce on asce.id = tpas.api_scenario_id
         <where>
+            asce.deleted = false
             <if test="planIds != null and planIds.size() > 0">
-                tpas.test_plan_id in
+                and tpas.test_plan_id in
                 <foreach collection="planIds" item="id" separator="," open="(" close=")">
                     #{id}
                 </foreach>
