@@ -157,6 +157,21 @@
     <select id="selectLastReportByTestPlanId" resultType="java.lang.String">
         select `status` from test_plan_report where  test_plan_id =  #{testPlanId} and trigger_mode = 'SCHEDULE' ORDER BY create_time DESC LIMIT 1
     </select>
+    <select id="checkoutOwner" resultType="java.lang.Boolean">
+        SELECT count(1) > 0
+        FROM user_group
+        WHERE source_id IN (
+        SELECT project_id
+        FROM test_plan_report
+            left join test_plan on test_plan_report.test_plan_id = test_plan.id
+            Left JOIN project ON test_plan.project_id = project.id
+        WHERE test_plan_report.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        )
+        AND user_id = #{userId}
+    </select>
 
 
     <update id="setApiBaseCountAndPassRateIsNullById">
