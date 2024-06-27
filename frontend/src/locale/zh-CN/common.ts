@@ -131,7 +131,7 @@ export default {
   'common.batchCopySuccess': '批量复制成功',
   'common.batchMoveSuccess': '批量移动成功',
   'common.importSuccess': '导入成功',
-  'common.nameIsTooLang': '名称超过255个字符',
+  'common.nameIsTooLang': '名称不能超过 255 个字符',
   'common.validateSuccess': '验证成功',
   'common.to': '至',
   'common.tip': '温馨提示',
