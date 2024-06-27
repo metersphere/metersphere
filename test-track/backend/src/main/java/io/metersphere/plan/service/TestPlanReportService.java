@@ -5,6 +5,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
@@ -1756,5 +1757,20 @@ public class TestPlanReportService {
         LogUtil.info(" check illegality resource report size: " + deletedTestPlanReportIds.size());
         BatchProcessingUtil.consumerByStringList(deletedTestPlanReportIds, this::deleteReportBatch);
         LogUtil.info(" check illegality resource report over");
+    }
+
+    public void checkOwner(String reportId, String userId) {
+        long count = SessionUtils.getUser().getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getId(), UserGroupConstants.SUPER_GROUP))
+                .count();
+
+        if (count > 0) {
+            return;
+        }
+        if (!extTestPlanReportMapper.checkoutOwner(userId, List.of(reportId))) {
+            MSException.throwException(Translator.get("check_owner_case"));
+        }
+
     }
 }

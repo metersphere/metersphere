@@ -26,4 +26,6 @@ public interface ExtTestPlanReportMapper {
     void updateAllStatus();
 
     String selectLastReportByTestPlanId(@Param("testPlanId") String testPlanId);
+
+    boolean checkoutOwner(@Param("userId") String userId, @Param("ids") List<String> ids);
 }

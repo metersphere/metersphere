@@ -2197,16 +2197,17 @@ public class ApiScenarioService {
     }
 
     public void checkOwner(String scenarioId, String userId) {
-        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(scenarioId);
-        if (scenario == null) {
-            return;
-        }
         long count = SessionUtils.getUser().getGroups()
                 .stream()
-                .filter(g -> StringUtils.equals(userId, UserGroupConstants.SUPER_GROUP))
+                .filter(g -> StringUtils.equals(g.getId(), UserGroupConstants.SUPER_GROUP))
                 .count();
 
         if (count > 0) {
+            return;
+        }
+
+        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(scenarioId);
+        if (scenario == null) {
             return;
         }
         if (!extCheckOwnerMapper.checkoutOwner("api_scenario", userId, List.of(scenarioId))) {

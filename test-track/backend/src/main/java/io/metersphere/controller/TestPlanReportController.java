@@ -69,8 +69,8 @@ public class TestPlanReportController {
 
     @GetMapping("/status/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ)
-    @CheckOwner(resourceId = "#planId", resourceType = "test_plan_report")
     public String getStatus(@PathVariable String planId) {
+        testPlanReportService.checkOwner(planId, SessionUtils.getUserId());
         TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
         String status = report.getStatus();
         return status;
