@@ -649,13 +649,22 @@
     initRecycleList();
   };
 
+  function brashModule() {
+    resetSelector();
+    getRecycleModules();
+    if (activeFolder.value !== 'all') {
+      activeFolder.value = 'all';
+    } else {
+      initRecycleList();
+    }
+  }
+
   // 批量恢复
   async function handleBatchRecover() {
     try {
       await restoreCaseList(getBatchParams());
       Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
-      resetSelector();
-      initRecycleList();
+      brashModule();
     } catch (error) {
       console.log(error);
     }
@@ -675,10 +684,7 @@
         try {
           await batchDeleteRecycleCase(getBatchParams());
           Message.success(t('common.deleteSuccess'));
-          resetSelector();
-          getRecycleModules();
-          activeFolder.value = 'all';
-          initRecycleList();
+          brashModule();
         } catch (error) {
           console.log(error);
         }
@@ -715,8 +721,7 @@
     try {
       await recoverRecycleCase(id);
       Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
-      resetSelector();
-      initRecycleList();
+      brashModule();
     } catch (error) {
       console.log(error);
     }
@@ -737,10 +742,7 @@
         try {
           await deleteRecycleCaseList(record.id);
           Message.success(t('common.deleteSuccess'));
-          resetSelector();
-          getRecycleModules();
-          activeFolder.value = 'all';
-          initRecycleList();
+          brashModule();
         } catch (error) {
           console.log(error);
         }
