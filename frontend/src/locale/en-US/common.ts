@@ -131,7 +131,7 @@ export default {
   'common.batchCopySuccess': 'Batch copy successful',
   'common.batchMoveSuccess': 'Batch move successful',
   'common.importSuccess': 'Import successful',
-  'common.nameIsTooLang': 'The name exceeds 255 characters',
+  'common.nameIsTooLang': 'The name cannot exceed 255 characters',
   'common.validateSuccess': 'Validate success',
   'common.to': 'To',
   'common.tip': 'Tips',

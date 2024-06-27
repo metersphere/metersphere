@@ -52,7 +52,7 @@
           />
           <a-tooltip :content="record.name">
             <div
-              class="ellipsis max-w-[200px]"
+              class="ellipsis ml-[8px] max-w-[200px]"
               :class="{
                 'text-[rgb(var(--primary-5))]': isEnableTemplate,
                 'cursor-pointer': isEnableTemplate,
