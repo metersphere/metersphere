@@ -2201,6 +2201,14 @@ public class ApiScenarioService {
         if (scenario == null) {
             return;
         }
+        long count = SessionUtils.getUser().getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(userId, UserGroupConstants.SUPER_GROUP))
+                .count();
+
+        if (count > 0) {
+            return;
+        }
         if (!extCheckOwnerMapper.checkoutOwner("api_scenario", userId, List.of(scenarioId))) {
             MSException.throwException(Translator.get("check_owner_case"));
         }
