@@ -23,7 +23,7 @@
           /></span>
         </a-tooltip>
       </div>
-      <MsButton v-if="hasChange" class="cursor-pointer text-[rgb(var(--primary-5))]" @click="handleReset"
+      <MsButton :disabled="!hasChange" class="cursor-pointer text-[rgb(var(--primary-5))]" @click="handleReset"
         >{{ t('caseManagement.featureCase.recoverDefault') }}
       </MsButton>
     </div>
