@@ -11,10 +11,10 @@
 
 MeterSphere 是新一代的测试管理和接口测试工具，让软件测试工作更简单、更高效，不再成为持续交付的瓶颈。
 
--   **测试管理**: 从测试用例管理，到测试计划执行、缺陷管理、测试报告生成，具有远超禅道和 TestLink 的使用体验；
--   **接口测试**: 集 Postman 的易用与 JMeter 的灵活于一体，接口调试、接口定义、接口 Mock、场景自动化、接口报告，你想要的都有；
--   **团队协作**: 采用“系统-组织-项目”分层设计理念，帮助用户摆脱单机测试工具的束缚，方便快捷地开展团队协作；
--   **插件体系**: 提供各种类别的插件，用户可以按需取用，快速实现 MeterSphere 测试能力的扩展以及与 DevOps 流水线的集成。
+-   **测试管理**：从测试用例管理，到测试计划执行、缺陷管理、测试报告生成，具有远超禅道和 TestLink 的使用体验；
+-   **接口测试**：集 Postman 的易用与 JMeter 的灵活于一体，接口调试、接口定义、接口 Mock、场景自动化、接口报告，你想要的都有；
+-   **团队协作**：采用“系统-组织-项目”分层设计理念，帮助用户摆脱单机测试工具的束缚，方便快捷地开展团队协作；
+-   **插件体系**：提供各种类别的插件，用户可以按需取用，快速实现 MeterSphere 测试能力的扩展以及与 DevOps 流水线的集成。
 
 ## 快速开始
 
@@ -25,13 +25,16 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 # 密码: metersphere
 ```
 
-你也可以通过 [1Panel 应用商店](https://1panel.cn/) 快速部署 MeterSphere。如果是内网环境，推荐使用 [离线安装包方式](https://community.fit2cloud.com/#/products/metersphere/downloads) 进行安装部署。
+你也可以通过 [1Panel 应用商店](https://1panel.cn/) 快速部署 MeterSphere。
+
+如果是内网环境，推荐使用 [离线安装包方式](https://community.fit2cloud.com/#/products/metersphere/downloads) 进行安装部署。
 
 如你有更多问题，可以通过论坛和技术交流群与我们交流。
 
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
--   技术交流群     
-    <image height="150px" width="150px" src="https://github.com/metersphere/metersphere/assets/23045261/57314d2c-ea97-4a7d-b20c-0eb577c0ebbf"/>    
+-   技术交流群
+     
+<image height="150px" width="150px" src="https://github.com/metersphere/metersphere/assets/23045261/57314d2c-ea97-4a7d-b20c-0eb577c0ebbf"/>
 
 
 ## UI 展示
@@ -79,12 +82,12 @@ MeterSphere v3.x 的版本发布计划：
 -   基础设施: [Docker](https://www.docker.com/)
 -   测试引擎: [JMeter](https://jmeter.apache.org/)
 
-## 我们的其他明星开源项目
+## 飞致云的其他明星项目
 
 - [1Panel](https://github.com/1panel-dev/1panel/) - 现代化、开源的 Linux 服务器运维管理面板
+- [MaxKB](https://github.com/1panel-dev/maxkb) - 基于 LLM 大语言模型的知识库问答系统
 - [JumpServer](https://github.com/jumpserver/jumpserver/) - 广受欢迎的开源堡垒机
 - [DataEase](https://github.com/dataease/dataease/) - 人人可用的开源数据可视化分析工具
-- [MaxKB](https://github.com/1panel-dev/maxkb) - 基于 LLM 大语言模型的知识库问答系统
 - [Halo](https://github.com/halo-dev/halo/) - 强大易用的开源建站工具
 
 ## License & Copyright
