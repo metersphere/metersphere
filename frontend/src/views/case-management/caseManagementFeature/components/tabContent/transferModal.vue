@@ -28,7 +28,7 @@
     >
       <template #tree-slot-title="node">
         <a-tooltip :content="`${node.name}`" position="tl">
-          <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+          <div class="one-line-text w-[300px]">{{ node.name }}</div>
         </a-tooltip>
       </template>
     </a-tree-select>
