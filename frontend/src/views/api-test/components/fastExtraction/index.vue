@@ -119,7 +119,12 @@
       </div>
       <div class="match-result">
         <div v-if="isMatched && matchResult.length === 0">{{ t('apiTestDebug.noMatchResult') }}</div>
-        <pre v-for="(e, i) of matchResult" :key="i">{{ `${e}` }}</pre>
+        <template v-if="props.config.extractType === RequestExtractExpressionEnum.JSON_PATH">
+          <pre>{{ matchResult }}</pre>
+        </template>
+        <template v-else>
+          <pre v-for="(e, i) of matchResult" :key="i">{{ `${e}` }}</pre>
+        </template>
       </div>
     </div>
     <a-collapse
@@ -248,15 +253,18 @@
         break;
       case RequestExtractExpressionEnum.JSON_PATH:
         try {
-          matchResult.value =
-            JSONPath({
-              json: parseJson.value,
-              path: expressionForm.value.expression,
-            })?.map((e: any) =>
-              JSON.stringify(e)
-                .replace(/Number\(([^)]+)\)/g, '$1')
-                .replace(/^"|"$/g, '')
-            ) || [];
+          const results = JSONPath({
+            json: parseJson.value,
+            path: expressionForm.value.expression,
+            wrap: false,
+          });
+          matchResult.value = Array.isArray(results)
+            ? results.map((e: any) =>
+                JSON.stringify(e)
+                  .replace(/Number\(([^)]+)\)/g, '$1')
+                  .replace(/^"|"$/g, '')
+              )
+            : results;
         } catch (error) {
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];
         }

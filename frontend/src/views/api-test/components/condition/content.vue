@@ -416,7 +416,7 @@
                     type="icon-icon_flashlamp"
                     :size="15"
                     :class="!props.response ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'"
-                    @click.stop="() => showFastExtraction(record)"
+                    @click.stop="() => showFastExtraction(record as ExpressionConfig)"
                   />
                 </a-tooltip>
               </template>
@@ -437,7 +437,7 @@
                 <a-button type="secondary" size="mini" @click="record.moreSettingPopoverVisible = false">
                   {{ t('common.cancel') }}
                 </a-button>
-                <a-button type="primary" size="mini" @click="() => applyMoreSetting(record)">
+                <a-button type="primary" size="mini" @click="() => applyMoreSetting(record as ExpressionConfig)">
                   {{ t('common.confirm') }}
                 </a-button>
               </div>

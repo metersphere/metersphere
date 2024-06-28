@@ -6,7 +6,7 @@
       color: type.color,
     }"
   >
-    {{ type.label }}
+    {{ t(type.label) }}
   </div>
 </template>
 
