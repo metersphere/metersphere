@@ -195,4 +195,5 @@ export default {
   'common.expandAllSubModule': 'Expand all submodules',
   'common.collapseAllSubModule': 'Collapse all submodules',
   'common.selectedCount': '{count} data selected',
+  'common.advancedSettings': 'Advanced settings',
 };

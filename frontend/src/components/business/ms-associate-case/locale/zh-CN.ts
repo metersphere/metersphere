@@ -21,5 +21,5 @@ export default {
   'ms.case.associate.gotIt': '知道了',
   'ms.case.associate.switchProject': '切换项目？',
   'ms.case.associate.switchProjectPopTip': '切换后，已选数据将清空',
-  'ms.case.associate.apiSearchPlaceholder': '支持 ID/名称/标签/路径搜索',
+  'ms.case.associate.apiSearchPlaceholder': '通过 ID/名称/标签/路径搜索',
 };
