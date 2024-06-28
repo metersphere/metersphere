@@ -1050,18 +1050,26 @@ public class FunctionalCaseMinderService {
     private List<FunctionalCaseCustomField> addCustomFields(FunctionalCaseChangeRequest functionalCaseChangeRequest, String caseId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper, Map<String, Object> defaultValueMap) {
         List<CaseCustomFieldDTO> customFields = functionalCaseChangeRequest.getCustomFields();
         List<String> list = customFields.stream().map(CaseCustomFieldDTO::getFieldId).toList();
-        List<CaseCustomFieldDTO> customFieldDTOs = new ArrayList<>();
+        List<CaseCustomFieldDTO> defaultCustomFieldDTOs = new ArrayList<>();
         defaultValueMap.forEach((k, v) -> {
             if (!list.contains(k) && !StringUtils.equalsIgnoreCase(k, "priorityFieldId")) {
                 CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
                 customFieldDTO.setFieldId(k);
                 customFieldDTO.setValue(v.toString());
+                defaultCustomFieldDTOs.add(customFieldDTO);
+            }
+        });
+        List<CaseCustomFieldDTO> customFieldDTOs = new ArrayList<>();
+        customFields.forEach(t->{
+            if (!StringUtils.equalsIgnoreCase(t.getFieldId(), defaultValueMap.get("priorityFieldId").toString())) {
+                CaseCustomFieldDTO customFieldDTO = new CaseCustomFieldDTO();
+                customFieldDTO.setFieldId(t.getFieldId());
+                customFieldDTO.setValue(t.getValue());
                 customFieldDTOs.add(customFieldDTO);
             }
         });
-        customFields.addAll(customFieldDTOs);
-        customFields = customFields.stream().distinct().collect(Collectors.toList());
-        return saveCustomField(caseId, caseCustomFieldMapper, customFields);
+        customFieldDTOs.addAll(defaultCustomFieldDTOs);
+        return saveCustomField(caseId, caseCustomFieldMapper, customFieldDTOs.stream().distinct().collect(Collectors.toList()));
     }
 
     private List<FunctionalCaseCustomField> saveCustomField(String caseId, FunctionalCaseCustomFieldMapper caseCustomFieldMapper, List<CaseCustomFieldDTO> customFields) {
