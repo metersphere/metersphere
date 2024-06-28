@@ -38,7 +38,7 @@
           allow-search
         >
           <template #tree-slot-title="node">
-            <div class="one-line-text w-[300px] text-[var(--color-text-1)]">{{ node.name }}</div>
+            <div class="one-line-text w-[300px]">{{ node.name }}</div>
           </template>
         </a-tree-select>
         <div class="flex items-center justify-end gap-[12px]">

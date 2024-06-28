@@ -38,7 +38,7 @@
         <template #tree-slot-title="node">
           <a-tooltip :content="`${node.name}`" position="tl">
             <div class="inline-flex w-full">
-              <div class="one-line-text w-[240px] text-[var(--color-text-1)]">
+              <div class="one-line-text w-[240px]">
                 {{ node.name }}
               </div>
             </div>
