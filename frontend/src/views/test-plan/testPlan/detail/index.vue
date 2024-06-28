@@ -46,7 +46,8 @@
         v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && detail.status !== 'ARCHIVED'"
         type="button"
         status="default"
-        @click="editorCopyHandler(true)"
+        :loading="copyLoading"
+        @click="copyHandler"
       >
         <MsIcon type="icon-icon_copy_outlined" class="mr-[8px]" />
         {{ t('common.copy') }}
@@ -166,6 +167,7 @@
     getPlanPassRate,
     getTestPlanDetail,
     getTestPlanModule,
+    testPlanAndGroupCopy,
   } from '@/api/modules/test-plan/testPlan';
   import { defaultDetailCount, testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -178,6 +180,7 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import type { PassRateCountDetail, TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
 
   const userStore = useUserStore();
   const appStore = useAppStore();
@@ -473,6 +476,29 @@
       return;
     }
     done();
+  }
+
+  // 复制 TODO:待联调
+  const copyLoading = ref<boolean>(false);
+  async function copyHandler() {
+    copyLoading.value = true;
+    try {
+      const res = await testPlanAndGroupCopy(route.query.id as string);
+      Message.success(t('common.copySuccess'));
+      router.push({
+        name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+        // TODO 后台需要补id
+        query: {
+          id: res.id,
+        },
+      });
+      initDetail();
+      initPlanTree();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      copyLoading.value = false;
+    }
   }
 
   onBeforeMount(() => {
