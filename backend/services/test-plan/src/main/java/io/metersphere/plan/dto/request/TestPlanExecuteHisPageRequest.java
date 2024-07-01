@@ -9,6 +9,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class TestPlanExecuteHisPageRequest extends BasePageRequest {
 
-	@Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(description = "测试计划/计划组ID", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String testPlanId;
 }
