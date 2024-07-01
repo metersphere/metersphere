@@ -204,20 +204,24 @@
       importJson.value = fullJson;
     }
     emit('save', data, () => {
-      importJson.value.root.children = mapTree<MinderJsonNode>(importJson.value.root.children || [], (node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          isNew: false,
-          changed: false,
-        },
-      }));
-      if (innerImportJson.value.treePath?.length > 1) {
-        switchNode(innerImportJson.value.root.data);
-      } else {
-        innerImportJson.value = importJson.value;
-        window.minder.importJson(importJson.value);
-      }
+      importJson.value.root.children = mapTree<MinderJsonNode>(
+        importJson.value.root.children || [],
+        (node, path, level) => ({
+          ...node,
+          data: {
+            ...node.data,
+            level,
+            isNew: false,
+            changed: false,
+          },
+        })
+      );
+      // if (innerImportJson.value.treePath?.length > 1) {
+      //   switchNode(innerImportJson.value.root.data);
+      // } else {
+      //   innerImportJson.value = importJson.value;
+      //   window.minder.importJson(importJson.value);
+      // }
       minderStore.setMinderUnsaved(false);
       floatMenuVisible.value = false;
     });

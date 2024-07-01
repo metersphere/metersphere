@@ -2,6 +2,7 @@ export default {
   msTable: {
     current: '全选当前页',
     all: '全选所有页',
+    cancelAll: '取消全选所有页',
     enable: '启用',
     disable: '禁用',
     batch: {

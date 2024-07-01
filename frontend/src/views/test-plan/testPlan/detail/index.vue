@@ -105,28 +105,32 @@
   <MsCard class="mt-[16px]" :special-height="174" simple has-breadcrumb no-content-padding>
     <Plan v-if="activeTab === 'plan'" :plan-id="planId" :status="detail.status || 'PREPARED'" @refresh="initDetail" />
     <FeatureCase
-      v-if="activeTab === 'featureCase'"
+      v-else-if="activeTab === 'featureCase'"
       ref="featureCaseRef"
       :tree-type="treeType"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
-    <BugManagement v-if="activeTab === 'defectList'" :can-edit="detail.status !== 'ARCHIVED'" @refresh="initDetail" />
+    <BugManagement
+      v-else-if="activeTab === 'defectList'"
+      :can-edit="detail.status !== 'ARCHIVED'"
+      @refresh="initDetail"
+    />
     <ApiCase
-      v-if="activeTab === 'apiCase'"
+      v-else-if="activeTab === 'apiCase'"
       ref="apiCaseRef"
       :tree-type="treeType"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <ApiScenario
-      v-if="activeTab === 'apiScenario'"
+      v-else-if="activeTab === 'apiScenario'"
       ref="apiScenarioRef"
       :tree-type="treeType"
       :can-edit="detail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
-    <ExecuteHistory v-if="activeTab === 'executeHistory'" />
+    <ExecuteHistory v-else-if="activeTab === 'executeHistory'" />
   </MsCard>
   <CreateAndEditPlanDrawer
     v-model:visible="showPlanDrawer"

@@ -452,7 +452,10 @@ export default function useTableProps<T>(
     // 表格SelectAll change
     selectAllChange: (v: SelectAllEnum, onlyCurrent: boolean) => {
       const { data, rowKey, selectorStatus } = propsRes.value;
-      if (v === SelectAllEnum.NONE) {
+      if (v === SelectAllEnum.CANCEL_ALL) {
+        // 清空全选
+        resetSelector(true);
+      } else if (v === SelectAllEnum.NONE) {
         // 清空选中项
         resetSelector(false);
       } else if (v === SelectAllEnum.CURRENT) {

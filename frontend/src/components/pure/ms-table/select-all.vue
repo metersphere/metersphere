@@ -18,7 +18,10 @@
       </div>
       <template #content>
         <a-doption :value="SelectAllEnum.CURRENT">{{ t('msTable.current') }}</a-doption>
-        <a-doption :value="SelectAllEnum.ALL">{{ t('msTable.all') }}</a-doption>
+        <a-doption v-if="selectAllStatus === SelectAllEnum.ALL" :value="SelectAllEnum.CANCEL_ALL">
+          {{ t('msTable.cancelAll') }}
+        </a-doption>
+        <a-doption v-else :value="SelectAllEnum.ALL">{{ t('msTable.all') }}</a-doption>
       </template>
     </a-dropdown>
   </div>

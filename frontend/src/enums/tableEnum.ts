@@ -109,6 +109,7 @@ export enum SpecialColumnEnum {
 
 export enum SelectAllEnum {
   ALL = 'all',
+  CANCEL_ALL = 'cancelAll',
   CURRENT = 'current',
   NONE = 'none',
 }
