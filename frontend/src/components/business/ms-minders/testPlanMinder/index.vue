@@ -340,8 +340,8 @@
 
     if (data?.level === 1 || data?.level === 2) {
       canShowFloatMenu.value = true;
-      if (data?.type === PlanMinderCollectionType.FUNCTIONAL) {
-        // 功能用例分类没有执行方式
+      if (data?.type === PlanMinderCollectionType.FUNCTIONAL || (data?.level === 2 && data?.extended === true)) {
+        // 功能用例分类没有执行方式、继承上级配置的测试点节点不显示切换执行方式菜单
         canShowExecuteMethodMenu.value = false;
       } else {
         canShowExecuteMethodMenu.value = true;
@@ -474,7 +474,6 @@
   // 当前激活的测试点节点
   const activePlanSet = ref<PlanMinderNode>();
 
-  const currentPriority = ref<RunMode>(RunMode.SERIAL);
   // 优先级与串行/并行文本映射
   const priorityTextMap: Record<number, string> = {
     2: t('ms.minders.serial'),
@@ -491,18 +490,6 @@
       return activePlanSet.value?.data.executeMethod;
     }
     return data.priority === 2 ? RunMode.SERIAL : RunMode.PARALLEL;
-  }
-
-  /**
-   * 处理执行方式切换
-   * @param val 执行方式
-   */
-  function handleExecuteMethodMenuSelect(val: RunMode) {
-    currentPriority.value = val;
-    // 对节点执行优先级设置命令
-    window.minder.execCommand('priority', priorityMap[val]);
-    // 手动设置一次脑图的优先级 DOM 内容替换
-    setCustomPriorityView(priorityTextMap);
   }
 
   const configFormRef = ref<FormInstance>();
@@ -561,6 +548,22 @@
     nextTick(() => {
       switchingConfigFormData.value = false;
     });
+  }
+
+  /**
+   * 处理执行方式切换
+   * @param val 执行方式
+   */
+  function handleExecuteMethodMenuSelect(val: RunMode) {
+    // 对节点执行优先级设置命令
+    window.minder.execCommand('priority', priorityMap[val]);
+    // 手动设置一次脑图的优先级 DOM 内容替换
+    setCustomPriorityView(priorityTextMap);
+    const node: PlanMinderNode = window.minder.getSelectedNode();
+    if (configForm.value?.id === node?.data.id) {
+      // 更新表单的执行方式
+      configForm.value.executeMethod = val;
+    }
   }
 
   const currentSelectCase = ref<CaseLinkEnum>(CaseLinkEnum.FUNCTIONAL);
@@ -782,7 +785,7 @@
   /**
    * 初始化测试规划脑图
    */
-  async function initMinder() {
+  async function initMinder(firstInit = false) {
     try {
       loading.value = true;
       const res = await getPlanMinder(props.planId);
@@ -797,13 +800,15 @@
         return node;
       });
       window.minder.importJson(importJson.value);
-      window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[3]);
-      setTimeout(() => {
-        // 初始化脑图完毕后，中心节点移动至左侧边缘
-        const position = window.minder.getViewDragger().getMovement();
-        position.x -= position.x - 40;
-        window.minder.getViewDragger().moveTo(position);
-      }, 200);
+      if (firstInit) {
+        window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[3]);
+        setTimeout(() => {
+          // 初始化脑图完毕后，中心节点移动至左侧边缘
+          const position = window.minder.getViewDragger().getMovement();
+          position.x -= position.x - 40;
+          window.minder.getViewDragger().moveTo(position);
+        }, 200);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -847,11 +852,11 @@
       loading.value = true;
       await editPlanMinder(makeMinderParams(fullJson));
       Message.success(t('common.saveSuccess'));
+      emit('save');
       clearSelectedCases();
       handleConfigCancel();
-      initMinder();
       callback();
-      emit('save');
+      initMinder(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -901,7 +906,7 @@
   });
 
   onMounted(() => {
-    initMinder();
+    initMinder(true);
     nextTick(() => {
       window.minder.on('contentchange', () => {
         // 异步执行，否则执行完，还会被重置
