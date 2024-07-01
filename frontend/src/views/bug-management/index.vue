@@ -181,7 +181,6 @@
     getPlatform,
     getSyncStatus,
     syncBugEnterprise,
-    syncBugOpenSource,
   } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -579,23 +578,7 @@
   });
   // 同步缺陷按钮触发
   const handleSync = async () => {
-    if (isXpack.value) {
-      // 企业版
-      syncVisible.value = true;
-    } else {
-      try {
-        // 开源版
-        await syncBugOpenSource(appStore.currentProjectId);
-        Message.warning(t('bugManagement.synchronizing'));
-        isComplete.value = false;
-        isShowCompleteMsg.value = true;
-        // 开始轮询
-        resume();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-    }
+    syncVisible.value = true;
   };
   const handleSyncModalOk = async () => {
     try {

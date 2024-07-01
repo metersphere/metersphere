@@ -3,6 +3,7 @@ package io.metersphere.bug.service;
 import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.domain.*;
 import io.metersphere.bug.dto.BugExportHeaderModel;
+import io.metersphere.bug.dto.BugSyncSaveModel;
 import io.metersphere.bug.dto.BugTemplateInjectField;
 import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.dto.response.*;
@@ -11,6 +12,7 @@ import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.enums.BugTemplateCustomField;
 import io.metersphere.bug.mapper.*;
 import io.metersphere.bug.utils.ExportUtils;
+import io.metersphere.plugin.platform.dto.PlatformAttachment;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.dto.SyncBugResult;
 import io.metersphere.plugin.platform.dto.request.*;
@@ -76,6 +78,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -532,22 +538,8 @@ public class BugService {
      * @param currentUser 当前用户
      */
     @Async
-    public void syncPlatformAllBugs(BugSyncRequest request, Project project, String currentUser, String language) {
-        try {
-            XpackBugService bugService = CommonBeanFactory.getBean(XpackBugService.class);
-            if (bugService != null) {
-                bugService.syncPlatformBugs(project, request, currentUser, language, Translator.get("sync_mode.manual"));
-            }
-        } catch (Exception e) {
-            LogUtils.error(e);
-            // 异常或正常结束都得删除当前项目执行同步的唯一Key
-            bugSyncExtraService.deleteSyncKey(request.getProjectId());
-            // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
-            bugSyncExtraService.setSyncErrorMsg(request.getProjectId(), e.getMessage());
-        } finally {
-            // 异常或正常结束都得删除当前项目执行同步的唯一Key
-            bugSyncExtraService.deleteSyncKey(request.getProjectId());
-        }
+    public void syncPlatformAllBugs(BugSyncRequest request, Project project, String currentUser, String language, String triggerMode) {
+        doSyncAllPlatformBugs(project, request, currentUser, language, triggerMode);
     }
 
     /**
@@ -562,13 +554,13 @@ public class BugService {
             // 分页同步
             SubListUtils.dealForSubList(remainBugs, 100, (subBugs) -> doSyncPlatformBugs(subBugs, project));
         } catch (Exception e) {
-            LogUtils.error("Synchronization bugs exception occurred :" + e.getMessage());
+            LogUtils.error("Sync bugs exception occurred: " + e.getMessage());
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
             // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
             bugSyncExtraService.setSyncErrorMsg(project.getId(), e.getMessage());
         } finally {
-            LogUtils.info("Synchronization bugs end......");
+            LogUtils.info("Sync bugs end");
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
             // 发送同步通知
@@ -582,7 +574,6 @@ public class BugService {
      * @param project     项目
      * @param syncRequest 同步请求参数
      */
-    @SuppressWarnings("unused")
     public void execSyncAll(Project project, SyncAllBugRequest syncRequest) {
         syncRequest.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(project.getId()));
         // 获取平台
@@ -592,7 +583,7 @@ public class BugService {
     }
 
     /**
-     * 同步平台缺陷处理
+     * 处理平台存量缺陷
      *
      * @param subBugs 同步的分页缺陷
      * @param project 项目
@@ -679,6 +670,158 @@ public class BugService {
             throw new MSException(e);
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    /**
+     * 处理平台全量缺陷
+     * @param project 项目
+     * @param request 同步请求参数
+     * @param currentUser 当前用户
+     * @param language 语言
+     * @param triggerMode 触发方式
+     */
+    private void doSyncAllPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language, String triggerMode) {
+        // 批量操作
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        // 同步条数
+        AtomicInteger syncCount = new AtomicInteger();
+        // 缺陷POS
+        AtomicLong atomicPos = new AtomicLong(getNextPos(project.getId()));
+        // 同步缺陷ID集合(由于是分页同步)
+        AtomicReference<List<String>> allSyncIds = new AtomicReference<>(new ArrayList<>());
+        try {
+            BugMapper batchBugMapper = sqlSession.getMapper(BugMapper.class);
+            BugContentMapper batchBugContentMapper = sqlSession.getMapper(BugContentMapper.class);
+            // 获取项目所属平台
+            String platformName = projectApplicationService.getPlatformName(project.getId());
+            // 获取项目所属平台配置
+            ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(project.getId(), true);
+            if (serviceIntegration == null) {
+                // 项目未配置第三方平台
+                throw new MSException(Translator.get("third_party_not_config"));
+            }
+            // 获取配置平台, 插入平台缺陷
+            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
+                    new String(serviceIntegration.getConfiguration()));
+            boolean isIncrement = projectApplicationService.isPlatformSyncMethodByIncrement(project.getId());
+            // 获取当前平台下满足同步条件的原始缺陷
+            BugExample bugExample = new BugExample();
+            BugExample.Criteria criteria = bugExample.createCriteria();
+            criteria.andProjectIdEqualTo(project.getId()).andPlatformEqualTo(platformName);
+            if (request.getPre() != null) {
+                if (request.getPre()) {
+                    criteria.andCreateTimeLessThan(request.getCreateTime());
+                } else {
+                    criteria.andCreateTimeGreaterThan(request.getCreateTime());
+                }
+            }
+            List<Bug> originalBugs = batchBugMapper.selectByExample(bugExample);
+            Map<String, Bug> msOriginalBugMap = originalBugs.stream().collect(Collectors.toMap(Bug::getPlatformBugId, bug -> bug));
+            // 获取原始缺陷的模板字段信息(同步更新缺陷使用)
+            List<String> templateIds = originalBugs.stream().map(Bug::getTemplateId).distinct().toList();
+            List<TemplateCustomField> templateCustomsFields = baseTemplateCustomFieldService.getByTemplateIds(templateIds);
+            Map<String, List<TemplateCustomField>> templateFieldMap = templateCustomsFields.stream().collect(Collectors.groupingBy(TemplateCustomField::getTemplateId));
+            // 获取当前项目MS默认模板(同步新增缺陷使用)
+            TemplateDTO msDefaultTemplate = new TemplateDTO();
+            // 平台默认模板
+            Template pluginDefaultTemplate = projectTemplateService.getPluginBugTemplate(project.getId());
+            List<ProjectTemplateOptionDTO> templateOption = projectTemplateService.getOption(project.getId(), TemplateScene.BUG.name());
+            ProjectTemplateOptionDTO defaultProjectTemplate = templateOption.stream().filter(ProjectTemplateOptionDTO::getEnableDefault).toList().get(0);
+            if (isPluginDefaultTemplate(defaultProjectTemplate.getId(), pluginDefaultTemplate)) {
+                BeanUtils.copyBean(msDefaultTemplate, pluginDefaultTemplate);
+            } else {
+                // MS默认模板
+                msDefaultTemplate = projectTemplateService.getTemplateDTOById(defaultProjectTemplate.getId(), project.getId(), TemplateScene.BUG.name());
+            }
+
+            TemplateDTO defaultTemplate = msDefaultTemplate;
+            Consumer<SyncPostParamRequest> syncPostProcessFunc = (param) -> {
+                // 准备参数
+                List<PlatformBugDTO> needSyncBugs = param.getNeedSyncBugs();
+                Map<String, List<PlatformAttachment>> attachmentMap = param.getAttachmentMap();
+
+                // 比对MS原始缺陷, 筛选出同步缺陷中需要作为新增的缺陷, 以及需要作为更新的缺陷
+                List<PlatformBugDTO> syncToAddBugList = needSyncBugs.stream().filter(syncBug -> !msOriginalBugMap.containsKey(syncBug.getPlatformBugId())).collect(Collectors.toList());
+                List<PlatformBugDTO> syncToUpdateBugList = needSyncBugs.stream().filter(syncBug -> msOriginalBugMap.containsKey(syncBug.getPlatformBugId())).collect(Collectors.toList());
+                // 聚合每次同步的ID集合
+                allSyncIds.set(ListUtils.union(needSyncBugs.stream().map(PlatformBugDTO::getPlatformBugId).toList(), allSyncIds.get()));
+
+                // 处理缺陷
+                Map<String, List<PlatformAttachment>> handleAttachmentMap = new HashMap<>(16);
+                if (CollectionUtils.isNotEmpty(syncToAddBugList) || CollectionUtils.isNotEmpty(syncToUpdateBugList)) {
+                    List<PlatformBugDTO> combinaList;
+                    if (isIncrement) {
+                        // 增量同步
+                        if (CollectionUtils.isNotEmpty(syncToUpdateBugList)) {
+                            combinaList = new ArrayList<>(syncToUpdateBugList);
+                        } else {
+                            combinaList = new ArrayList<>();
+                        }
+                    } else {
+                        // 全量同步
+                        if (CollectionUtils.isNotEmpty(syncToAddBugList)) {
+                            combinaList = new ArrayList<>(syncToAddBugList);
+                            combinaList.addAll(syncToUpdateBugList);
+                        } else {
+                            combinaList = new ArrayList<>(syncToUpdateBugList);
+                            combinaList.addAll(syncToAddBugList);
+                        }
+                    }
+                    // 同时解析附件
+                    BugSyncSaveModel saveModel = BugSyncSaveModel.builder().platformName(platformName).project(project)
+                            .msDefaultTemplate(defaultTemplate).pluginDefaultTemplate(pluginDefaultTemplate).platform(platform).templateFieldMap(templateFieldMap).build();
+                    for (PlatformBugDTO platformBug : combinaList) {
+                        List<PlatformAttachment> bugAttachments = new ArrayList<>();
+                        if (attachmentMap.containsKey(platformBug.getId())) {
+                            bugAttachments = attachmentMap.get(platformBug.getId());
+                        }
+                        Bug bug = msOriginalBugMap.get(platformBug.getPlatformBugId());
+                        saveModel.setMsBug(bug);
+                        saveModel.setPlatformBug(platformBug);
+                        handleSaveBug(saveModel, atomicPos, batchBugMapper, batchBugContentMapper);
+                        handleAttachmentMap.put(platformBug.getId(), bugAttachments);
+                    }
+                    // 设置同步条数
+                    syncCount.addAndGet(combinaList.size());
+                }
+
+                // 附件处理
+                if (MapUtils.isNotEmpty(handleAttachmentMap)) {
+                    bugAttachmentService.syncAttachmentToMs(platform, handleAttachmentMap, project.getId());
+                }
+
+                sqlSession.commit();
+            };
+            SyncAllBugRequest syncAllBugRequest = new SyncAllBugRequest();
+            syncAllBugRequest.setPre(request.getPre());
+            syncAllBugRequest.setCreateTime(request.getCreateTime());
+            syncAllBugRequest.setSyncPostProcessFunc(syncPostProcessFunc);
+            execSyncAll(project, syncAllBugRequest);
+
+            // 删除缺陷在后置方法处理完再执行
+            List<String> syncToDeleteIds = originalBugs.stream().filter(msOriginalBug -> !allSyncIds.get().contains(msOriginalBug.getPlatformBugId())).map(Bug::getId).toList();
+            if (CollectionUtils.isNotEmpty(syncToDeleteIds)) {
+                syncCount.addAndGet(syncToDeleteIds.size());
+                // 删除缺陷(单独处理)
+                BugExample example = new BugExample();
+                example.createCriteria().andIdIn(syncToDeleteIds);
+                bugMapper.deleteByExample(example);
+                bugCommonService.clearAssociateResource(project.getId(), syncToDeleteIds);
+            }
+        } catch (Exception e) {
+            LogUtils.error("Sync bugs exception occurred: " + e.getMessage());
+            // 异常或正常结束都得删除当前项目执行同步的唯一Key
+            bugSyncExtraService.deleteSyncKey(request.getProjectId());
+            // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
+            bugSyncExtraService.setSyncErrorMsg(request.getProjectId(), e.getMessage());
+        } finally {
+            LogUtils.info("Sync bugs end");
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            // 异常或正常结束都得删除当前项目执行同步的唯一Key
+            bugSyncExtraService.deleteSyncKey(project.getId());
+            // 发送同步成功通知
+            bugSyncNoticeService.sendNotice(syncCount.get(), currentUser, language, triggerMode, project.getId());
         }
     }
 
@@ -1242,6 +1385,16 @@ public class BugService {
     }
 
     /**
+     * 是否插件默认模板
+     * @param templateId 模板ID
+     * @param pluginTemplate 插件模板
+     * @return 是否插件默认模板
+     */
+    private boolean isPluginDefaultTemplate(String templateId, Template pluginTemplate) {
+        return pluginTemplate != null && StringUtils.equals(pluginTemplate.getId(), templateId);
+    }
+
+    /**
      * 封装缺陷其他字段
      *
      * @param bugs 缺陷集合
@@ -1755,5 +1908,164 @@ public class BugService {
             option.setValue(user.getValue());
             return option;
         }).toList();
+    }
+
+    /**
+     *
+     * @param atomicPos 位置
+     * @param batchBugMapper 批量操作缺陷
+     * @param batchBugContentMapper 批量操作缺陷内容
+     */
+    private void handleSaveBug(BugSyncSaveModel saveModel, AtomicLong atomicPos, BugMapper batchBugMapper, BugContentMapper batchBugContentMapper) {
+        try {
+            Map<String, String> needSyncApiFieldMap = new HashMap<>(12);
+            PlatformBugDTO platformBug = saveModel.getPlatformBug();
+            Bug originalBug = saveModel.getMsBug();
+            // 设置缺陷基础信息
+            if (originalBug == null) {
+                // 新增
+                platformBug.setId(IDGenerator.nextStr());
+                platformBug.setNum(Long.valueOf(NumGenerator.nextNum(saveModel.getProject().getId(), ApplicationNumScope.BUG_MANAGEMENT)).intValue());
+                platformBug.setProjectId(saveModel.getProject().getId());
+                platformBug.setTemplateId(saveModel.getMsDefaultTemplate().getId());
+                platformBug.setPlatform(saveModel.getPlatformName());
+                platformBug.setPlatformDefaultTemplate(isPluginDefaultTemplate(platformBug.getTemplateId(), saveModel.getPluginDefaultTemplate()));
+                platformBug.setDeleteUser(platformBug.getCreateUser());
+                platformBug.setDeleteTime(platformBug.getCreateTime());
+                platformBug.setDeleted(false);
+                platformBug.setPos(atomicPos.getAndAdd(INTERVAL_POS));
+                // 非平台默认模板时, 设置需要处理的字段
+                if (!platformBug.getPlatformDefaultTemplate()) {
+                    List<TemplateCustomFieldDTO> defaultTemplateCustomFields = saveModel.getMsDefaultTemplate().getCustomFields();
+                    needSyncApiFieldMap  = defaultTemplateCustomFields.stream().filter(field -> StringUtils.isNotBlank(field.getApiFieldId()))
+                            .collect(Collectors.toMap(TemplateCustomFieldDTO::getApiFieldId, TemplateCustomFieldDTO::getFieldId));
+                }
+            } else {
+                // 更新
+                platformBug.setId(originalBug.getId());
+                if (!StringUtils.equals(originalBug.getHandleUser(), platformBug.getHandleUser())) {
+                    platformBug.setHandleUsers(originalBug.getHandleUsers() + "," + platformBug.getHandleUsers());
+                } else {
+                    platformBug.setHandleUser(originalBug.getHandleUser());
+                    platformBug.setHandleUsers(originalBug.getHandleUsers());
+                }
+                platformBug.setProjectId(originalBug.getProjectId());
+                platformBug.setTemplateId(originalBug.getTemplateId());
+                platformBug.setPlatform(originalBug.getPlatform());
+                platformBug.setCreateUser(null);
+                platformBug.setPlatformDefaultTemplate(isPluginDefaultTemplate(platformBug.getTemplateId(), saveModel.getPluginDefaultTemplate()));
+                // 非平台默认模板时, 设置需要处理的字段
+                if (!platformBug.getPlatformDefaultTemplate()) {
+                    List<TemplateCustomField> templateCustomFields = saveModel.getTemplateFieldMap().get(platformBug.getTemplateId());
+                    needSyncApiFieldMap  = templateCustomFields.stream().filter(field -> StringUtils.isNotBlank(field.getApiFieldId()))
+                            .collect(Collectors.toMap(TemplateCustomField::getApiFieldId, TemplateCustomField::getFieldId));
+                }
+            }
+            Bug bug = new Bug();
+            BeanUtils.copyBean(bug, platformBug);
+            // 如果缺陷需要同步第三方的富文本文件
+            List<BugLocalAttachment> richTextAttachments = new ArrayList<>();
+            if (MapUtils.isNotEmpty(platformBug.getRichTextImageMap())) {
+                Map<String, String> richTextImageMap = platformBug.getRichTextImageMap();
+                // 同步第三方的富文本文件
+                try {
+                    Platform platform = saveModel.getPlatform();
+                    richTextImageMap.keySet().forEach(key -> platform.getAttachmentContent(key, (in) -> {
+                        if (in == null) {
+                            return;
+                        }
+                        String fileId = IDGenerator.nextStr();
+                        // 第三方同步的文件名加上平台前缀, 防止同名
+                        String fileName = saveModel.getPlatformName() + "-" + richTextImageMap.get(key);
+                        byte[] bytes;
+                        try {
+                            // 获取第三方平台附件流, 并上传至Minio, 默认不压缩
+                            bytes = in.readAllBytes();
+                            FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(platformBug.getProjectId(), platformBug.getId(), fileId, fileName));
+                        } catch (Exception e) {
+                            throw new MSException(e.getMessage());
+                        }
+                        // 保存缺陷附件关系
+                        BugLocalAttachment localAttachment = new BugLocalAttachment();
+                        localAttachment.setId(IDGenerator.nextStr());
+                        localAttachment.setBugId(platformBug.getId());
+                        localAttachment.setFileId(fileId);
+                        localAttachment.setFileName(fileName);
+                        localAttachment.setSize((long) bytes.length);
+                        localAttachment.setCreateTime(System.currentTimeMillis());
+                        localAttachment.setCreateUser("admin");
+                        localAttachment.setSource(BugAttachmentSourceType.RICH_TEXT.name());
+                        richTextAttachments.add(localAttachment);
+                        // 替换富文本中的临时URL, 注意: 第三方的图片附件暂未存储在压缩目录, 因此不支持压缩访问
+                        if (StringUtils.contains(platformBug.getDescription(), "alt=\"" + key + "\"")) {
+                            platformBug.setDescription(platformBug.getDescription()
+                                    .replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + platformBug.getProjectId() + "/" + fileId + "/false\""));
+                            if (platformBug.getPlatformDefaultTemplate()) {
+                                // 来自富文本自定义字段
+                                PlatformCustomFieldItemDTO descriptionField = platformBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().get(0);
+                                descriptionField.setValue(platformBug.getDescription());
+                            }
+                        } else {
+                            // 来自富文本自定义字段
+                            PlatformCustomFieldItemDTO richTextField = platformBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getType(), PlatformCustomFieldType.RICH_TEXT.name())
+                                    && field.getValue() != null && StringUtils.contains(field.getValue().toString(), "alt=\"" + key + "\"")).toList().get(0);
+                            richTextField.setValue(richTextField.getValue().toString().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + platformBug.getProjectId() + "/" + fileId + "/false\""));
+                        }
+                    }));
+                } catch (Exception e) {
+                    LogUtils.error("sync platform bug rich text image error : " + e.getMessage());
+                }
+            }
+            BugContent bugContent = new BugContent();
+            bugContent.setBugId(platformBug.getId());
+            bugContent.setDescription(platformBug.getDescription());
+            // 设置缺陷自定义字段参数
+            BugEditRequest customEditRequest = new BugEditRequest();
+            customEditRequest.setId(platformBug.getId());
+            customEditRequest.setProjectId(platformBug.getProjectId());
+            List<PlatformCustomFieldItemDTO> platformCustomFields = platformBug.getCustomFieldList();
+            // 过滤出需要同步的自定义字段{默认模板时, 需要同步所有字段; 非默认模板时, 需要同步模板中映射的字段}
+            final Map<String, String> needSyncApiFieldFilterMap = needSyncApiFieldMap;
+            if (platformBug.getPlatformDefaultTemplate()) {
+                // 平台默认模板创建的缺陷
+                List<BugCustomFieldDTO> bugCustomFieldDTOList = platformCustomFields.stream()
+                        .map(platformField -> {
+                            BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
+                            bugCustomFieldDTO.setId(platformField.getId());
+                            bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
+                            return bugCustomFieldDTO;
+                        }).collect(Collectors.toList());
+                customEditRequest.setCustomFields(bugCustomFieldDTOList);
+            } else {
+                // 非平台默认模板创建的缺陷(使用模板API映射字段)
+                List<BugCustomFieldDTO> bugCustomFieldDTOList = platformCustomFields.stream()
+                        .filter(field -> needSyncApiFieldFilterMap.containsKey(field.getId()))
+                        .map(platformField -> {
+                            BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
+                            bugCustomFieldDTO.setId(needSyncApiFieldFilterMap.get(platformField.getId()));
+                            bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
+                            return bugCustomFieldDTO;
+                        }).collect(Collectors.toList());
+                customEditRequest.setCustomFields(bugCustomFieldDTOList);
+            }
+
+            // 保存缺陷
+            if (originalBug == null) {
+                // 新增
+                batchBugMapper.insertSelective(bug);
+                batchBugContentMapper.insertSelective(bugContent);
+                handleAndSaveCustomFields(customEditRequest, false, null);
+            } else {
+                // 更新
+                batchBugMapper.updateByPrimaryKeySelective(bug);
+                batchBugContentMapper.updateByPrimaryKeyWithBLOBs(bugContent);
+                handleAndSaveCustomFields(customEditRequest, true, null);
+            }
+            if (CollectionUtils.isNotEmpty(richTextAttachments)) {
+                extBugLocalAttachmentMapper.batchInsert(richTextAttachments);
+            }
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
     }
 }
