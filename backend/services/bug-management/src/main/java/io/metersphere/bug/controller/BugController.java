@@ -143,7 +143,7 @@ public class BugController {
     }
 
     @GetMapping("/sync/{projectId}")
-    @Operation(summary = "缺陷管理-列表-同步缺陷(开源)")
+    @Operation(summary = "缺陷管理-列表-同步存量缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void sync(@PathVariable String projectId) {
@@ -151,11 +151,11 @@ public class BugController {
     }
 
     @PostMapping("/sync/all")
-    @Operation(summary = "缺陷管理-列表-同步缺陷(企业)")
+    @Operation(summary = "缺陷管理-列表-同步全量缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void syncAll(@RequestBody BugSyncRequest request) {
-        bugSyncService.syncAllBugs(request, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage());
+        bugSyncService.syncAllBugs(request, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage(), Translator.get("sync_mode.manual"));
     }
 
     @GetMapping("/sync/check/{projectId}")

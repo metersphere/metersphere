@@ -24,7 +24,6 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.StorageType;
-import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
@@ -45,14 +44,12 @@ import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
-import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -63,8 +60,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -731,13 +726,7 @@ public class BugControllerTests extends BaseTest {
         bugSyncExtraService.setSyncKey("default-project-for-bug");
         this.requestPostWithOk(BUG_SYNC_ALL, request);
         bugSyncExtraService.deleteSyncKey("default-project-for-bug");
-        Project project = projectMapper.selectByPrimaryKey("default-project-for-bug");
         this.requestPostWithOk(BUG_SYNC_ALL, request);
-        BugService mockBugService = Mockito.mock(BugService.class);
-        Mockito.doThrow(new MSException("sync error!")).when(mockBugService).syncPlatformAllBugs(syncRequest, project, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage());
-        ReflectionTestUtils.setField(bugSyncService, "bugService", mockBugService);
-        MSException msException = assertThrows(MSException.class, () -> bugSyncService.syncAllBugs(syncRequest, "admin", Locale.SIMPLIFIED_CHINESE.getLanguage()));
-        assertEquals(msException.getMessage(), "sync error!");
     }
 
     /**

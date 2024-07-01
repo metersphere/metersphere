@@ -12,7 +12,6 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
@@ -51,11 +50,11 @@ public class BugSyncService {
     private ProjectApplicationService projectApplicationService;
 
     /**
-     * XPACK用户 (同步全量缺陷)
+     * 同步全量缺陷
      * @param request 同步全量参数
      * @param currentUser 当前用户
      */
-    public void syncAllBugs(BugSyncRequest request, String currentUser, String language) {
+    public void syncAllBugs(BugSyncRequest request, String currentUser, String language, String triggerMode) {
         try {
             // 获取当前项目同步缺陷唯一Key
             String syncValue = bugSyncExtraService.getSyncKey(request.getProjectId());
@@ -63,7 +62,7 @@ public class BugSyncService {
                 // 不存在, 设置保证唯一性, 并开始同步
                 bugSyncExtraService.setSyncKey(request.getProjectId());
                 Project project = getProjectById(request.getProjectId());
-                bugService.syncPlatformAllBugs(request, project, currentUser, language);
+                bugService.syncPlatformAllBugs(request, project, currentUser, language, triggerMode);
             }
         } catch (Exception e) {
             bugSyncExtraService.deleteSyncKey(request.getProjectId());
@@ -72,7 +71,7 @@ public class BugSyncService {
     }
 
     /**
-     * 开源用户 (同步存量缺陷)
+     * 同步存量缺陷
      * @param projectId 项目ID
      */
     public void syncBugs(String projectId, String currentUser, String language, String triggerMode) {
@@ -147,25 +146,9 @@ public class BugSyncService {
      * @param scheduleUser 任务触发用户
      */
     public void syncPlatformAllBugBySchedule(String projectId, String scheduleUser) {
-        try {
-            String syncValue = bugSyncExtraService.getSyncKey(projectId);
-            if (StringUtils.isEmpty(syncValue)) {
-                // 不存在, 设置保证唯一性, 并开始同步
-                bugSyncExtraService.setSyncKey(projectId);
-                XpackBugService bugService = CommonBeanFactory.getBean(XpackBugService.class);
-                if (bugService != null) {
-                    Project project = getProjectById(projectId);
-                    BugSyncRequest syncRequest = new BugSyncRequest();
-                    syncRequest.setProjectId(projectId);
-                    bugService.syncPlatformBugs(project, syncRequest, scheduleUser, Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.auto"));
-                }
-            }
-        } catch (Exception e) {
-            // 异常或正常结束都得删除当前项目执行同步的唯一Key
-            bugSyncExtraService.deleteSyncKey(projectId);
-            // 同步缺陷异常, 当前同步错误信息 -> Redis(check接口获取)
-            bugSyncExtraService.setSyncErrorMsg(projectId, e.getMessage());
-        }
+        BugSyncRequest syncRequest = new BugSyncRequest();
+        syncRequest.setProjectId(projectId);
+        syncAllBugs(syncRequest, scheduleUser, Locale.SIMPLIFIED_CHINESE.getLanguage(), Translator.get("sync_mode.auto"));
     }
 
     /**
