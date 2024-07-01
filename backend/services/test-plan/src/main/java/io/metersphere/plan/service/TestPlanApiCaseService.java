@@ -2,6 +2,7 @@ package io.metersphere.plan.service;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.mapper.ApiReportMapper;
@@ -48,6 +49,7 @@ import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -113,6 +115,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private OperationLogService operationLogService;
     @Resource
     private ExtApiDefinitionModuleMapper extApiDefinitionModuleMapper;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
+    private static final String DEBUG_MODULE_COUNT_ALL = "all";
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -791,4 +796,35 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
+
+    public Map<String, Long> getApiCaseModuleCount(ApiModuleRequest request, boolean deleted) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return Collections.emptyMap();
+        }
+        boolean isRepeat = true;
+        if (StringUtils.isNotEmpty(request.getTestPlanId())) {
+            isRepeat = this.checkTestPlanRepeatCase(request);
+        }
+        request.setModuleIds(null);
+        //查找根据moduleIds查找模块下的接口数量 查非delete状态的
+        List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.apiCaseCountModuleIdByRequest(request, deleted, isRepeat);
+        long allCount = getAllCount(moduleCountDTOList);
+        Map<String, Long> moduleCountMap = apiDefinitionModuleService.getModuleCountMap(request, moduleCountDTOList);
+        moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);
+        return moduleCountMap;
+    }
+
+    private boolean checkTestPlanRepeatCase(ApiModuleRequest request) {
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
+        return BooleanUtils.isTrue(testPlanConfig.getRepeatCase());
+    }
+
+    public long getAllCount(List<ModuleCountDTO> moduleCountDTOList) {
+        long count = 0;
+        for (ModuleCountDTO countDTO : moduleCountDTOList) {
+            count += countDTO.getDataCount();
+        }
+        return count;
+    }
+
 }

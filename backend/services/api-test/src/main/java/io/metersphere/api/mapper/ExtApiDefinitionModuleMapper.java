@@ -39,4 +39,13 @@ public interface ExtApiDefinitionModuleMapper {
     List<String> getModuleIdsByParentIds(@Param("parentIds") List<String> parentIds);
 
     List<ApiDefinitionModule> getNameInfoByIds(@Param("ids") List<String> ids);
+
+    /**
+     * 获取ApiCase的模块count
+     * @param request
+     * @param deleted
+     * @param isRepeat
+     * @return
+     */
+    List<ModuleCountDTO> apiCaseCountModuleIdByRequest(@Param("request") ApiModuleRequest request, @Param("deleted") boolean deleted, @Param("isRepeat") boolean isRepeat);
 }
