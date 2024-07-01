@@ -48,6 +48,7 @@ public class SystemParameterService {
 
     private static final String DEFAULT_LOG_TIME = "6D";
     private static final String DEFAULT_HISTORY_TIME = "10";
+    private static final String DEFAULT_API_CONCURRENT_CONFIG = "3";
 
     public void saveBaseInfo(List<SystemParameter> parameters) {
         SystemParameterExample example = new SystemParameterExample();
@@ -323,5 +324,13 @@ public class SystemParameterService {
             });
         }
         return configDTO;
+    }
+
+    public String getApiConcurrentConfig() {
+        List<SystemParameter> paramList = this.getParamList(ParamConstants.ApiConcurrentConfig.API_CONCURRENT_CONFIG.getValue());
+        if (CollectionUtils.isNotEmpty(paramList)) {
+            return paramList.get(0).getParamValue();
+        }
+        return DEFAULT_API_CONCURRENT_CONFIG;
     }
 }

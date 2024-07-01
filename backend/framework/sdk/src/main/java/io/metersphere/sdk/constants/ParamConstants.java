@@ -81,4 +81,20 @@ public interface ParamConstants {
             return value;
         }
     }
+
+    enum ApiConcurrentConfig implements ParamConstants {
+        API_CONCURRENT_CONFIG("api.concurrent.config");
+
+        private String value;
+
+        private ApiConcurrentConfig(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
 }
