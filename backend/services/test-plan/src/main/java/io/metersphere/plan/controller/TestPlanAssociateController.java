@@ -3,6 +3,7 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Tag(name = "测试计划关联用例弹窗接口相关")
@@ -111,6 +113,15 @@ public class TestPlanAssociateController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, testPlanApiScenarioService.getApiScenarioPage(request, isRepeat));
+    }
+
+
+    @PostMapping("/api/case/module/count")
+    @Operation(summary = "测试计划-关联用例弹窗-接口CASE模块数量(项目)")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public Map<String, Long> moduleCount(@Validated @RequestBody ApiModuleRequest request) {
+        return testPlanApiCaseService.getApiCaseModuleCount(request, false);
     }
 
 }

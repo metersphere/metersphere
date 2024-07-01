@@ -1,5 +1,6 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
@@ -26,6 +27,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
     public static final String API_ASSOCIATION_URL = "/test-plan/association/api/page";
     public static final String API_CASE_ASSOCIATION_URL = "/test-plan/association/api/case/page";
     public static final String API_SCENARIO_URL = "/test-plan/association/api/scenario/page";
+    public static final String API_CASE_MODULE_COUNT_URL = "/test-plan/association/api/case/module/count";
 
     @Test
     @Order(1)
@@ -114,4 +116,20 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
     }
+
+    @Test
+    @Order(5)
+    public void testApiCaseModuleCount() throws Exception {
+        ApiModuleRequest request = new ApiModuleRequest();
+        request.setProjectId("1234567");
+        request.setTestPlanId("wxx_1");
+        this.requestPostWithOkAndReturn(API_CASE_MODULE_COUNT_URL, request);
+        request.setProtocols(List.of("HTTP"));
+        request.setProjectId("wx_1234");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(API_CASE_MODULE_COUNT_URL, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+    }
+
 }

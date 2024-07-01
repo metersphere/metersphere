@@ -377,4 +377,33 @@
 
         </where>
     </sql>
+
+
+    <select id="apiCaseCountModuleIdByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT
+        module_id AS moduleId,
+        count( api_test_case.id ) AS dataCount
+        FROM
+        api_definition
+        INNER JOIN api_test_case ON api_definition.id = api_test_case.api_definition_id
+        WHERE
+        api_test_case.deleted = #{deleted}
+        <include refid="queryWhereCondition"/>
+        <if test="request.testPlanId != null and request.testPlanId != ''">
+            and exists (
+            select id
+            from api_test_case c
+            where c.api_definition_id = api_definition.id and c.deleted = false
+            <if test="!isRepeat">
+                and not exists (
+                select id
+                from test_plan_api_case t
+                where t.api_case_id = c.id
+                and t.test_plan_id = #{request.testPlanId}
+                )
+            </if>
+            )
+        </if>
+        GROUP BY api_definition.module_id
+    </select>
 </mapper>
