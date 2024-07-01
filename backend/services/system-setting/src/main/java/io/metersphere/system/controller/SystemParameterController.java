@@ -92,4 +92,12 @@ public class SystemParameterController {
     public BaseCleanConfigDTO getLogConfigInfo() {
         return systemParameterService.getLogConfigInfo();
     }
+
+
+    @GetMapping("/get/api-concurrent-config")
+    @Operation(summary = "系统设置-系统-系统参数-单接口任务并发数-获取")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
+    public String getApiConcurrentConfig() {
+        return systemParameterService.getApiConcurrentConfig();
+    }
 }
