@@ -1,13 +1,11 @@
 package io.metersphere.api.parser.jmeter.body;
 
 import io.metersphere.api.dto.request.http.body.JsonBody;
-import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.springframework.http.MediaType;
 
@@ -24,13 +22,7 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
     public String parse(HTTPSamplerProxy sampler, JsonBody body, ParameterConfig config) {
         sampler.setPostBodyRaw(true);
         try {
-            String raw;
-            if (body.getEnableJsonSchema()) {
-                String jsonString = JsonSchemaBuilder.jsonSchemaToJson(JSON.toJSONString(body.getJsonSchema()));
-                raw = StringEscapeUtils.unescapeJava(jsonString);
-            } else {
-                raw = parseJsonMock(body.getJsonValue());
-            }
+            String raw = parseJsonMock(body.getJsonValue());
             handleRowBody(sampler, raw);
         } catch (Exception e) {
             LogUtils.error("json mock value is abnormal", e);

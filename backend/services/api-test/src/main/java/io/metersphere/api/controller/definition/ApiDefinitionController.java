@@ -1,6 +1,5 @@
 package io.metersphere.api.controller.definition;
 
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
@@ -10,6 +9,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.ApiDefinitionImportService;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
@@ -20,6 +20,7 @@ import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
@@ -282,8 +283,8 @@ public class ApiDefinitionController {
     @PostMapping("/preview")
     @Operation(summary = "接口测试-接口管理-接口-json-schema-预览")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
-    public String preview(@RequestBody TextNode jsonSchema) {
-        return JsonSchemaBuilder.preview(jsonSchema.asText());
+    public String preview(@RequestBody JsonSchemaItem jsonSchemaItem) {
+        return JsonSchemaBuilder.preview(JSON.toJSONString(jsonSchemaItem));
     }
 
     @PostMapping("/debug")

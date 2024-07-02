@@ -92,6 +92,14 @@ public class JsonSchemaItem {
      */
     private BigDecimal maximum;
     /**
+     * 数组最大长度
+     */
+    private Integer maxItems;
+    /**
+     * 数组最小长度
+     */
+    private Integer minItems;
+    /**
      * 一般是选择日期格式
      */
     private String format;

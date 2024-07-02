@@ -231,7 +231,7 @@ public class MockServerService {
             boolean isMock = config != null;
             String resourceId = config != null ? config.getId() : apiId;
             return switch (responseBody.getBodyType()) {
-                case "JSON" -> responseEntity(responseCode, responseBody.getJsonBody().getJsonWithSchema(), headers);
+                case "JSON" -> responseEntity(responseCode, responseBody.getJsonBody().getJsonValue(), headers);
                 case "XML" -> responseEntity(responseCode, responseBody.getXmlBody().getValue(), headers);
                 case "RAW" -> responseEntity(responseCode, responseBody.getRawBody().getValue(), headers);
                 case "BINARY" -> handleBinaryBody(responseCode, responseBody, projectId, resourceId, isMock);

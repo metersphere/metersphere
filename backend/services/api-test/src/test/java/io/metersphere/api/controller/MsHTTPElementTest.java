@@ -86,7 +86,6 @@ public class MsHTTPElementTest {
         JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
         jsonSchemaItem.setId("11");
         jsonBody.setJsonSchema(jsonSchemaItem);
-        jsonBody.setEnableJsonSchema(false);
         body.setJsonBody(jsonBody);
 
         body.setNoneBody(new NoneBody());
