@@ -38,6 +38,7 @@
     delProps,
     editMenuProps,
     floatMenuProps,
+    headerProps,
     insertProps,
     mainEditorProps,
     MinderEvent,
@@ -63,6 +64,7 @@
   }>();
 
   const props = defineProps({
+    ...headerProps,
     ...floatMenuProps,
     ...insertProps,
     ...editMenuProps,

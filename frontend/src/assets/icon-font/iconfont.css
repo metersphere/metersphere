@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1719382977144') format('woff2'), url('iconfont.woff?t=1719382977144') format('woff'),
-    url('iconfont.ttf?t=1719382977144') format('truetype'), url('iconfont.svg?t=1719382977144#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1719821100136') format('woff2'), url('iconfont.woff?t=1719821100136') format('woff'),
+    url('iconfont.ttf?t=1719821100136') format('truetype'), url('iconfont.svg?t=1719821100136#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,21 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_right_branch::before {
+  content: '\e7ef';
+}
+.icon-icon_lower_branch1::before {
+  content: '\e7f0';
+}
+.icon-icon_left_and_right_branch::before {
+  content: '\e7ed';
+}
+.icon-icon_left_branch::before {
+  content: '\e7ee';
+}
+.icon-icon_structure::before {
+  content: '\e7ec';
 }
 .icon-icon_visible_outlined1::before {
   content: '\e7eb';
@@ -559,7 +574,7 @@
 .icon-icon_repositioning_outlined::before {
   content: '\e730';
 }
-.icon-icon_operation-analysis_outlined1::before {
+.icon-icon_screen_outlined::before {
   content: '\e731';
 }
 .icon-icon_right-align_outlined::before {
@@ -946,17 +961,11 @@
 .icon-icon_resubmit_filled::before {
   content: '\e6ef';
 }
-.icon-icon_switch_outlined1::before {
-  content: '\e6f0';
-}
 .icon-icon_test-tracking_filled::before {
   content: '\e6f1';
 }
 .icon-icon_add-comment_outlined::before {
   content: '\e6f2';
-}
-.icon-icon_sort_outlined2::before {
-  content: '\e6f3';
 }
 .icon-icon_setting_filled::before {
   content: '\e6f5';
@@ -1120,9 +1129,6 @@
 .icon-icon_organization_outlined::before {
   content: '\e6aa';
 }
-.icon-icon_sort_outlined1::before {
-  content: '\e6ab';
-}
 .icon-icon_share-label_filled::before {
   content: '\e6ac';
 }
@@ -1248,15 +1254,6 @@
 }
 .icon-icon_bottom-align_outlined::before {
   content: '\e659';
-}
-.icon-icon_admin_outlined::before {
-  content: '\e65a';
-}
-.icon-icon_expand-right_filled::before {
-  content: '\e65b';
-}
-.icon-icon_delete-trash_outlined::before {
-  content: '\e65c';
 }
 .icon-icon_sort_outlined::before {
   content: '\e65d';

@@ -15,9 +15,11 @@
       class="ms-description-item"
       :style="{ marginBottom: props.descriptions.length - index <= props.column ? '' : '16px' }"
     >
-      <div class="ms-description-item-label" :style="{ width: props.labelWidth || '120px' }">
-        <slot name="item-label">{{ item.label }}</slot>
-      </div>
+      <a-tooltip :content="item.label">
+        <div :class="`ms-description-item-label one-line-text max-w-[${props.labelWidth || '120px'}]`">
+          <slot name="item-label">{{ item.label }}</slot>
+        </div>
+      </a-tooltip>
       <div :class="getValueClass(item)">
         <slot name="item-value" :item="item">
           <template v-if="item.isTag">
@@ -277,7 +279,7 @@
       width: calc(100% / v-bind(column));
     }
     .ms-description-item-label {
-      @apply whitespace-pre-wrap font-normal;
+      @apply font-normal;
 
       padding-right: 16px;
       color: var(--color-text-3);

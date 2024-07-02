@@ -1,23 +1,27 @@
 <template>
   <div class="flex flex-row items-center justify-between">
     <slot name="left">
-      <a-popover v-if="props.name" title="" position="bottom">
-        <div class="flex">
-          <div class="one-line-text mr-1 max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
-            {{ props.name }}
+      <div class="flex">
+        <a-popover v-if="props.name" title="" position="bottom">
+          <div class="flex">
+            <div class="one-line-text mr-1 max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
+              {{ props.name }}
+            </div>
+            <span class="text-[var(--color-text-4)]"> ({{ props.count }})</span>
           </div>
-          <span class="text-[var(--color-text-4)]"> ({{ props.count }})</span>
-        </div>
-        <template #content>
-          <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
-            {{ props.name }}
-            <span class="text-[var(--color-text-4)]">({{ props.count }})</span>
-          </div>
-        </template>
-      </a-popover>
+          <template #content>
+            <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
+              {{ props.name }}
+              <span class="text-[var(--color-text-4)]">({{ props.count }})</span>
+            </div>
+          </template>
+        </a-popover>
+        <slot name="nameRight"></slot>
+      </div>
     </slot>
     <div class="flex flex-row gap-[12px]">
       <a-input-search
+        v-if="!props.notShowInputSearch"
         v-model:modelValue="keyword"
         size="small"
         :placeholder="props.searchPlaceholder"
@@ -85,6 +89,7 @@
     searchPlaceholder?: string;
     name?: string;
     count?: number;
+    notShowInputSearch?: boolean;
   }>();
 
   const emit = defineEmits<{

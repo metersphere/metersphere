@@ -1,6 +1,7 @@
 <template>
   <a-spin :loading="attachmentLoading" class="block h-full pl-[16px]">
     <MsAddAttachment
+      v-if="!props.notShowAddButton"
       v-model:file-list="fileList"
       :disabled="!hasEditPermission"
       multiple
@@ -132,6 +133,7 @@
 
   const props = defineProps<{
     activeCase: Record<string, any>;
+    notShowAddButton?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'uploadSuccess'): void;

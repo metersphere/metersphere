@@ -6,6 +6,41 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "40886382",
+      "name": "icon_right_branch",
+      "font_class": "icon_right_branch",
+      "unicode": "e7ef",
+      "unicode_decimal": 59375
+    },
+    {
+      "icon_id": "40886381",
+      "name": "icon_lower_branch",
+      "font_class": "icon_lower_branch1",
+      "unicode": "e7f0",
+      "unicode_decimal": 59376
+    },
+    {
+      "icon_id": "40886384",
+      "name": "icon_left_and_right_branch",
+      "font_class": "icon_left_and_right_branch",
+      "unicode": "e7ed",
+      "unicode_decimal": 59373
+    },
+    {
+      "icon_id": "40886383",
+      "name": "icon_left_branch",
+      "font_class": "icon_left_branch",
+      "unicode": "e7ee",
+      "unicode_decimal": 59374
+    },
+    {
+      "icon_id": "40885431",
+      "name": "icon_structure",
+      "font_class": "icon_structure",
+      "unicode": "e7ec",
+      "unicode_decimal": 59372
+    },
+    {
       "icon_id": "40877565",
       "name": "icon_visible_outlined",
       "font_class": "icon_visible_outlined1",
@@ -1288,8 +1323,8 @@
     },
     {
       "icon_id": "36471613",
-      "name": "icon_operation-analysis_outlined",
-      "font_class": "icon_operation-analysis_outlined1",
+      "name": "icon_screen_outlined",
+      "font_class": "icon_screen_outlined",
       "unicode": "e731",
       "unicode_decimal": 59185
     },
@@ -2190,13 +2225,6 @@
       "unicode_decimal": 59119
     },
     {
-      "icon_id": "33794385",
-      "name": "icon_switch_outlined",
-      "font_class": "icon_switch_outlined1",
-      "unicode": "e6f0",
-      "unicode_decimal": 59120
-    },
-    {
       "icon_id": "33794386",
       "name": "icon_test-tracking_filled",
       "font_class": "icon_test-tracking_filled",
@@ -2209,13 +2237,6 @@
       "font_class": "icon_add-comment_outlined",
       "unicode": "e6f2",
       "unicode_decimal": 59122
-    },
-    {
-      "icon_id": "33794388",
-      "name": "icon_sort_outlined",
-      "font_class": "icon_sort_outlined2",
-      "unicode": "e6f3",
-      "unicode_decimal": 59123
     },
     {
       "icon_id": "33794390",
@@ -2596,13 +2617,6 @@
       "unicode_decimal": 59050
     },
     {
-      "icon_id": "32849857",
-      "name": "icon_sort_outlined",
-      "font_class": "icon_sort_outlined1",
-      "unicode": "e6ab",
-      "unicode_decimal": 59051
-    },
-    {
       "icon_id": "32849858",
       "name": "icon_share-label_outlined-1",
       "font_class": "icon_share-label_filled",
@@ -2895,27 +2909,6 @@
       "font_class": "icon_bottom-align_outlined",
       "unicode": "e659",
       "unicode_decimal": 58969
-    },
-    {
-      "icon_id": "32849503",
-      "name": "icon_admin_outlined",
-      "font_class": "icon_admin_outlined",
-      "unicode": "e65a",
-      "unicode_decimal": 58970
-    },
-    {
-      "icon_id": "32849510",
-      "name": "icon_expand-right_filled",
-      "font_class": "icon_expand-right_filled",
-      "unicode": "e65b",
-      "unicode_decimal": 58971
-    },
-    {
-      "icon_id": "32849513",
-      "name": "icon_delete-trash_outlined",
-      "font_class": "icon_delete-trash_outlined",
-      "unicode": "e65c",
-      "unicode_decimal": 58972
     },
     {
       "icon_id": "32849573",

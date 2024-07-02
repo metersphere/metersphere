@@ -1,3 +1,5 @@
+import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
+
 import MSR from '@/api/http/index';
 import {
   AddReviewModuleUrl,
@@ -15,6 +17,7 @@ import {
   GetAssociatedIdsUrl,
   getCaseReviewerListUrl,
   GetCaseReviewHistoryListUrl,
+  GetCaseReviewMinderUrl,
   GetReviewDetailCasePageUrl,
   GetReviewDetailModuleCountUrl,
   GetReviewDetailModuleTreeUrl,
@@ -38,6 +41,7 @@ import {
   BatchMoveReviewParams,
   BatchReviewCaseParams,
   CaseReviewFunctionalCaseUserItem,
+  CaseReviewMinderParams,
   CommitReviewResultParams,
   CopyReviewParams,
   CopyReviewResponse,
@@ -202,3 +206,8 @@ export const saveCaseReviewResult = (data: CommitReviewResultParams) => {
 export const getCaseReviewerList = (reviewId: string, caseId: string) => {
   return MSR.get<CaseReviewFunctionalCaseUserItem[]>({ url: `${getCaseReviewerListUrl}/${reviewId}/${caseId}` });
 };
+
+// 获取脑图
+export function getCaseReviewMinder(data: CaseReviewMinderParams) {
+  return MSR.post<CommonList<MinderJsonNode>>({ url: `${GetCaseReviewMinderUrl}`, data });
+}

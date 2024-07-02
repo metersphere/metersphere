@@ -250,3 +250,13 @@ export interface CaseReviewFunctionalCaseUserItem {
   reviewId: string;
   userId: string;
 }
+
+// 获取脑图请求参数
+export interface CaseReviewMinderParams {
+  projectId: string;
+  moduleId: string;
+  current?: number;
+  reviewId: string;
+  viewFlag: boolean; // 是否只看我的
+  viewStatusFlag: boolean; // 我的评审结果
+}

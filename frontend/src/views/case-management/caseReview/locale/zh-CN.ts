@@ -5,6 +5,7 @@ export default {
   'caseManagement.caseReview.searchPlaceholder': '通过 ID/名称搜索',
   'caseManagement.caseReview.list.searchPlaceholder': '通过 ID/名称/标签搜索',
   'caseManagement.caseReview.archive': '归档',
+  'caseManagement.caseReview.cannotReviewTip': 'Tips:非评审人不可评审',
   'caseManagement.caseReview.tableNoData': '暂无数据，请',
   'caseManagement.caseReview.tableNoDataNoPermission': '暂无数据',
   'caseManagement.caseReview.name': '评审名称',
