@@ -44,3 +44,5 @@ INSERT INTO test_resource_pool (id, name, type, description, enable, create_time
 VALUES ('gyq_123_pool', '默认资源池', 'Node', '系统初始化资源池', true, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', true, false);
 
 
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `case_run_mode`)
+VALUES ('gyq_plan_1', b'0', b'0', 100.00, 'PARALLEL');

@@ -11,9 +11,9 @@ import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseExample;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.*;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
@@ -22,10 +22,7 @@ import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TreeTypeEnums;
 import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.ResourceLogInsertModule;
-import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
-import io.metersphere.plan.dto.TestPlanCollectionDTO;
-import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.mapper.*;
@@ -36,6 +33,7 @@ import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -49,7 +47,6 @@ import io.metersphere.system.log.aspect.OperationLogAspect;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
@@ -118,13 +115,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private ExtUserMapper extUserMapper;
     private static final String CASE_MODULE_COUNT_ALL = "all";
     @Resource
-    private FunctionalCaseMapper functionalCaseMapper;
-    @Resource
-    private OperationLogService operationLogService;
-    @Resource
     private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
     @Resource
     private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
+    @Resource
+    private TestPlanConfigService testPlanConfigService;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
     @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
@@ -762,7 +759,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<BaseCollectionAssociateRequest> functionalList = collectionAssociates.get(AssociateCaseType.FUNCTIONAL);
         if (CollectionUtils.isNotEmpty(functionalList)) {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-            functionalList.forEach(functional -> buildTestPlanFunctionalCase(testPlan, functional, user, testPlanFunctionalCaseList));
+            boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
+            functionalList.forEach(functional -> buildTestPlanFunctionalCase(testPlan, functional, user, testPlanFunctionalCaseList, isRepeat));
         }
         if (CollectionUtils.isNotEmpty(testPlanFunctionalCaseList)) {
             testPlanFunctionalCaseMapper.batchInsert(testPlanFunctionalCaseList);
@@ -777,32 +775,37 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param user
      * @param testPlanFunctionalCaseList
      */
-    private void buildTestPlanFunctionalCase(TestPlan testPlan, BaseCollectionAssociateRequest functional, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList) {
+    private void buildTestPlanFunctionalCase(TestPlan testPlan, BaseCollectionAssociateRequest functional, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList, boolean isRepeat) {
         super.checkCollection(testPlan.getId(), functional.getCollectionId(), CaseType.FUNCTIONAL_CASE.getKey());
-        List<String> functionalIds = functional.getIds();
-        if (CollectionUtils.isNotEmpty(functionalIds)) {
-            FunctionalCaseExample example = new FunctionalCaseExample();
-            example.createCriteria().andIdIn(functionalIds);
-            List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(example);
-            AtomicLong nextOrder = new AtomicLong(getNextOrder(functional.getCollectionId()));
-            Map<String, FunctionalCase> collect = functionalCases.stream().collect(Collectors.toMap(FunctionalCase::getId, functionalCase -> functionalCase));
-            // 需要按列表顺序插入，所以需要反转列表
-            Collections.reverse(functionalIds);
-            functionalIds.forEach(functionalId -> {
-                FunctionalCase functionalCase = collect.get(functionalId);
-                TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
-                testPlanFunctionalCase.setId(IDGenerator.nextStr());
-                testPlanFunctionalCase.setTestPlanCollectionId(functional.getCollectionId());
-                testPlanFunctionalCase.setTestPlanId(testPlan.getId());
-                testPlanFunctionalCase.setFunctionalCaseId(functionalId);
-                testPlanFunctionalCase.setCreateUser(user.getId());
-                testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
-                testPlanFunctionalCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
-                testPlanFunctionalCase.setExecuteUser(functionalCase.getCreateUser());
-                testPlanFunctionalCase.setLastExecResult(ExecStatus.PENDING.name());
-                testPlanFunctionalCaseList.add(testPlanFunctionalCase);
-            });
+        boolean selectAllModule = functional.getModules().isSelectAllModule();
+        List<Map<String, ModuleSelectDTO>> moduleMaps = functional.getModules().getModuleMaps();
+
+        if (selectAllModule) {
+            // 选择了全部模块
+            List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.selectAllFunctionalCase(isRepeat, functional.getModules().getProjectId(), testPlan.getId());
+            bulidTestPlanFunctionalCaseDTO(functional, functionalCaseList, testPlan, user, testPlanFunctionalCaseList);
+        } else {
+            AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
+            List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.selectCaseByModules(isRepeat, functional.getModules().getProjectId(), dto, testPlan.getId());
+            bulidTestPlanFunctionalCaseDTO(functional, functionalCaseList, testPlan, user, testPlanFunctionalCaseList);
         }
+    }
+
+    private void bulidTestPlanFunctionalCaseDTO(BaseCollectionAssociateRequest functional, List<FunctionalCase> functionalCaseList, TestPlan testPlan, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(functional.getCollectionId()));
+        functionalCaseList.forEach(functionalCase -> {
+            TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
+            testPlanFunctionalCase.setId(IDGenerator.nextStr());
+            testPlanFunctionalCase.setTestPlanCollectionId(functional.getCollectionId());
+            testPlanFunctionalCase.setTestPlanId(testPlan.getId());
+            testPlanFunctionalCase.setFunctionalCaseId(functionalCase.getId());
+            testPlanFunctionalCase.setCreateUser(user.getId());
+            testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
+            testPlanFunctionalCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
+            testPlanFunctionalCase.setExecuteUser(functionalCase.getCreateUser());
+            testPlanFunctionalCase.setLastExecResult(ExecStatus.PENDING.name());
+            testPlanFunctionalCaseList.add(testPlanFunctionalCase);
+        });
     }
 
     @Override

@@ -20,6 +20,8 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
+import io.metersphere.plan.dto.ModuleSelectDTO;
+import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
@@ -268,7 +270,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
         BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
         baseCollectionAssociateRequest.setCollectionId("wxxx_collection_3");
-        baseCollectionAssociateRequest.setIds(List.of("wxxx_api_scenario_1"));
+        baseCollectionAssociateRequest.setModules(buildModulesAll());
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.API_SCENARIO, baseCollectionAssociateRequests);
 
@@ -278,6 +280,38 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         userDTO.setLastOrganizationId("wxx_1234");
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
         testPlanApiScenarioService.associateCollection("wxxx_plan_2", collectionAssociates, user);
+
+        baseCollectionAssociateRequest.setModules(buildModules());
+        testPlanApiScenarioService.associateCollection("wxxx_plan_2", collectionAssociates, user);
+    }
+
+    private TestPlanCollectionAssociateDTO buildModules() {
+        TestPlanCollectionAssociateDTO associateDTO = new TestPlanCollectionAssociateDTO();
+        associateDTO.setSelectAllModule(false);
+        associateDTO.setAssociateType(AssociateCaseType.API_SCENARIO);
+        associateDTO.setProjectId("wxx_project_1234");
+        associateDTO.setModuleMaps(buildModuleMap());
+        return associateDTO;
+    }
+
+    private List<Map<String, ModuleSelectDTO>> buildModuleMap() {
+        List<Map<String, ModuleSelectDTO>> moduleMaps = new ArrayList<>();
+        Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
+        ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
+        moduleSelectDTO.setSelectAll(false);
+        moduleSelectDTO.setSelectIds(List.of("wxxx_api_scenario_1"));
+        moduleMap.put("wx_scenario_module_123", moduleSelectDTO);
+        moduleMaps.add(moduleMap);
+        return moduleMaps;
+    }
+
+
+    private TestPlanCollectionAssociateDTO buildModulesAll() {
+        TestPlanCollectionAssociateDTO associateDTO = new TestPlanCollectionAssociateDTO();
+        associateDTO.setSelectAllModule(true);
+        associateDTO.setAssociateType(AssociateCaseType.API_SCENARIO);
+        associateDTO.setProjectId("wxx_project_1234");
+        return associateDTO;
     }
 
     @Test

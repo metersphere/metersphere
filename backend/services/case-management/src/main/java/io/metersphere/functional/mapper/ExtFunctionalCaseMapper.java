@@ -11,6 +11,7 @@ import io.metersphere.functional.request.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
@@ -87,7 +88,7 @@ public interface ExtFunctionalCaseMapper {
      */
     List<FunctionalCaseMindDTO> getMinderCaseList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted);
 
-    List<FunctionalCaseCustomField> getCaseCustomFieldList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted, @Param("fieldIds") List<String>fieldIds);
+    List<FunctionalCaseCustomField> getCaseCustomFieldList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted, @Param("fieldIds") List<String> fieldIds);
 
 
     /**
@@ -97,5 +98,9 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCaseMindDTO> getMinderTestPlanList(@Param("request") FunctionalCasePlanMindRequest request, @Param("deleted") boolean delete);
 
-    List<BaseTreeNode> selectBaseMindNodeByProjectId(@Param("projectId")String projectId);
+    List<BaseTreeNode> selectBaseMindNodeByProjectId(@Param("projectId") String projectId);
+
+    List<FunctionalCase> selectAllFunctionalCase(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
+
+    List<FunctionalCase> selectCaseByModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("dto") AssociateCaseDTO dto, @Param("testPlanId") String testPlanId);
 }

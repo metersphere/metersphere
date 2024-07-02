@@ -69,3 +69,6 @@ INSERT INTO functional_case_blob(id, steps, text_description, expected_result, p
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
 VALUES
     ('123', 2, 1, 'wx', 'wx', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000,'["bugManagement","caseManagement","apiTest","testPlan"]');
+
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `case_run_mode`)
+VALUES ('plan_1', b'0', b'0', 100.00, 'PARALLEL');

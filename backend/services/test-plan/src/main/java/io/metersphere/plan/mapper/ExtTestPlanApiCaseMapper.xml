@@ -709,31 +709,6 @@
         </foreach>
     </select>
 
-    <select id="selectApiCaseByDefinitionIds" resultType="io.metersphere.api.domain.ApiTestCase">
-        SELECT
-        api_test_case.id,
-        api_test_case.name,
-        api_test_case.api_definition_id,
-        api_test_case.environment_id,
-        api_test_case.create_user
-        FROM
-        api_test_case
-        WHERE
-        api_test_case.deleted = false
-        and api_test_case.api_definition_id IN
-        <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-        <if test="!isRepeat">
-            AND api_test_case.id NOT IN (
-            SELECT
-            api_case_id
-            FROM
-            test_plan_api_case
-            where test_plan_api_case.test_plan_id = #{testPlanId}
-            )
-        </if>
-    </select>
     <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.domain.TestPlanApiCase">
         SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id
         FROM test_plan_api_case t

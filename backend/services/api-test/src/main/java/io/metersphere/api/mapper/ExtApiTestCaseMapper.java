@@ -10,6 +10,7 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -101,4 +102,10 @@ public interface ExtApiTestCaseMapper {
     ApiTestCase getCaseByResourceId(String resourceId);
 
     ApiTestCase getCaseByReportId(String resourceId);
+
+    List<ApiTestCase> selectAllApiCase(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
+
+    List<ApiTestCase> selectCaseByModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("dto") AssociateCaseDTO dto, @Param("testPlanId") String testPlanId);
+
+    List<ApiTestCase> selectCaseByApiModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("dto") AssociateCaseDTO dto, @Param("testPlanId") String testPlanId);
 }

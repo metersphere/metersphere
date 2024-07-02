@@ -4,9 +4,9 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioPageRequest;
-import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioModuleMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
+import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
@@ -32,6 +32,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -51,13 +52,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,8 +83,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
-    @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
     private ApiScenarioRunService apiScenarioRunService;
@@ -103,11 +104,13 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
-    private ApiScenarioMapper apiScenarioMapper;
-    @Resource
     private ApiScenarioModuleMapper apiScenarioModuleMapper;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private TestPlanConfigService testPlanConfigService;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -179,25 +182,27 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         List<TestPlanApiScenario> testPlanApiScenarioList = new ArrayList<>();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        handleApiScenarioData(collectionAssociates.get(AssociateCaseType.API_SCENARIO), user, testPlanApiScenarioList, testPlan);
+        boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
+        handleApiScenarioData(collectionAssociates.get(AssociateCaseType.API_SCENARIO), user, testPlanApiScenarioList, testPlan, isRepeat);
         if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
             testPlanApiScenarioMapper.batchInsert(testPlanApiScenarioList);
         }
     }
 
-    private void handleApiScenarioData(List<BaseCollectionAssociateRequest> apiScenarioList, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, TestPlan testPlan) {
+    private void handleApiScenarioData(List<BaseCollectionAssociateRequest> apiScenarioList, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList, TestPlan testPlan, boolean isRepeat) {
         if (CollectionUtils.isNotEmpty(apiScenarioList)) {
-            List<String> ids = apiScenarioList.stream().flatMap(item -> item.getIds().stream()).toList();
-            ApiScenarioExample scenarioExample = new ApiScenarioExample();
-            scenarioExample.createCriteria().andIdIn(ids);
-            List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(scenarioExample);
             apiScenarioList.forEach(apiScenario -> {
-                List<String> apiScenarioIds = apiScenario.getIds();
-                if (CollectionUtils.isNotEmpty(apiScenarioIds)) {
-                    List<ApiScenario> scenarios = apiScenarios.stream().filter(item -> apiScenarioIds.contains(item.getId())).toList();
-                    // 生成map key为id value为scenario
-                    Map<String, ApiScenario> scenarioMap = scenarios.stream().collect(Collectors.toMap(ApiScenario::getId, Function.identity()));
-                    buildTestPlanApiScenario(testPlan, apiScenarioIds, scenarioMap, apiScenario.getCollectionId(), user, testPlanApiScenarioList);
+                super.checkCollection(testPlan.getId(), apiScenario.getCollectionId(), CaseType.SCENARIO_CASE.getKey());
+                boolean selectAllModule = apiScenario.getModules().isSelectAllModule();
+                List<Map<String, ModuleSelectDTO>> moduleMaps = apiScenario.getModules().getModuleMaps();
+                if (selectAllModule) {
+                    // 选择了全部模块
+                    List<ApiScenario> scenarioList = extApiScenarioMapper.selectAllCase(isRepeat, apiScenario.getModules().getProjectId(), testPlan.getId());
+                    buildTestPlanApiScenarioDTO(apiScenario, scenarioList, testPlan, user, testPlanApiScenarioList);
+                } else {
+                    AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
+                    List<ApiScenario> scenarioList = extApiScenarioMapper.selectCaseByModules(isRepeat, apiScenario.getModules().getProjectId(), dto, testPlan.getId());
+                    buildTestPlanApiScenarioDTO(apiScenario, scenarioList, testPlan, user, testPlanApiScenarioList);
                 }
             });
         }
@@ -206,23 +211,20 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     /**
      * 构建测试计划场景用例对象
      *
+     * @param apiScenario
+     * @param scenarioList
      * @param testPlan
-     * @param scenarios
-     * @param collectionId
      * @param user
      * @param testPlanApiScenarioList
      */
-    private void buildTestPlanApiScenario(TestPlan testPlan, List<String> ids, Map<String, ApiScenario> scenarios, String collectionId, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
-        super.checkCollection(testPlan.getId(), collectionId, CaseType.SCENARIO_CASE.getKey());
-        AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
-        Collections.reverse(ids);
-        ids.forEach(id -> {
-            ApiScenario scenario = scenarios.get(id);
+    private void buildTestPlanApiScenarioDTO(BaseCollectionAssociateRequest apiScenario, List<ApiScenario> scenarioList, TestPlan testPlan, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(apiScenario.getCollectionId()));
+        scenarioList.forEach(scenario -> {
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(IDGenerator.nextStr());
             testPlanApiScenario.setTestPlanId(testPlan.getId());
             testPlanApiScenario.setApiScenarioId(scenario.getId());
-            testPlanApiScenario.setTestPlanCollectionId(collectionId);
+            testPlanApiScenario.setTestPlanCollectionId(apiScenario.getCollectionId());
             testPlanApiScenario.setGrouped(scenario.getGrouped());
             testPlanApiScenario.setEnvironmentId(scenario.getEnvironmentId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
