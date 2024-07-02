@@ -381,11 +381,12 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ");
         request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
-        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
-        Assertions.assertNotNull(baseTreeNodes);
-        Assertions.assertEquals(1, baseTreeNodes.size());
+        Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+
+        Assertions.assertNotNull(tableData.getList());
+        Assertions.assertEquals(1, tableData.getList().size());
         request = new FunctionalCaseReviewMindRequest();
         request.setProjectId("project-case-minder-test");
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
@@ -394,11 +395,11 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setViewStatusFlag(true);
         request.setCurrent(1);
         mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
-        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
-        Assertions.assertNotNull(baseTreeNodes);
-        Assertions.assertEquals(1, baseTreeNodes.size());
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData.getList());
+        Assertions.assertEquals(1, tableData.getList().size());
     }
 
     @Test
@@ -410,12 +411,11 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setPlanId("TEST_MINDER_PLAN_ID_1");
         request.setCurrent(1);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_PLAN_LIST_URL, request);
-        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<FunctionalMinderTreeDTO> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
-        Assertions.assertNotNull(baseTreeNodes);
-        Assertions.assertEquals(2, baseTreeNodes.size());
-        System.out.println(baseTreeNodes);
+        Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData.getList());
+        Assertions.assertEquals(2, tableData.getList().size());
     }
 
 }

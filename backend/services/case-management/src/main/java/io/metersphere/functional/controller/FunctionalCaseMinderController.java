@@ -65,7 +65,7 @@ public class FunctionalCaseMinderController {
     @Operation(summary = "用例管理-功能用例-脑图用例跟根据模块ID查询列表")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
-    public List<FunctionalMinderTreeDTO> getReviewMindFunctionalCase(@Validated @RequestBody FunctionalCaseReviewMindRequest request) {
+    public Pager<List<FunctionalMinderTreeDTO>> getReviewMindFunctionalCase(@Validated @RequestBody FunctionalCaseReviewMindRequest request) {
         String userId = StringUtils.EMPTY;
         if (request.isViewFlag()) {
             userId = SessionUtils.getUserId();
@@ -74,15 +74,16 @@ public class FunctionalCaseMinderController {
         if (request.isViewStatusFlag()) {
             viewStatusUserId = SessionUtils.getUserId();
         }
-        return functionalCaseMinderService.getReviewMindFunctionalCase(request, false, userId, viewStatusUserId);
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), 100 );
+        return PageUtils.setPageInfo(page, functionalCaseMinderService.getReviewMindFunctionalCase(request, false, userId, viewStatusUserId));
     }
 
     @PostMapping("/plan/list")
     @Operation(summary = "测试计划-功能用例-脑图用例跟根据模块ID查询列表")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public List<FunctionalMinderTreeDTO> getPlanFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCasePlanMindRequest request) {
-        return functionalCaseMinderService.getPlanMindFunctionalCase(request, false);
+    public  Pager<List<FunctionalMinderTreeDTO>> getPlanFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCasePlanMindRequest request) { Page<Object> page = PageHelper.startPage(request.getCurrent(), 100 );
+        return PageUtils.setPageInfo(page, functionalCaseMinderService.getPlanMindFunctionalCase(request, false));
     }
 
 }
