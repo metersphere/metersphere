@@ -845,8 +845,6 @@
         case_review_functional_case crfc
         LEFT JOIN functional_case fc ON crfc.case_id = fc.id
         LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
-        LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
-        LEFT JOIN custom_field cf ON cf.id = fccf.field_id
         LEFT JOIN ( SELECT crh.case_id, crh.`status`, crh.`create_user` from case_review_history crh where crh.review_id = #{request.reviewId}
         <if test="viewStatusUserId != null and viewStatusUserId != ''">
             AND crh.create_user = #{viewStatusUserId}
@@ -862,10 +860,6 @@
         fc.project_Id = #{request.projectId}
         AND
         fc.module_id = #{request.moduleId}
-        AND
-        cf.name = 'functional_priority'
-        AND cf.scene = 'FUNCTIONAL'
-        AND cf.internal= true
     </select>
 
     <select id="getMinderTestPlanList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
@@ -879,8 +873,6 @@
         test_plan_functional_case tpfc
         LEFT JOIN functional_case fc ON tpfc.functional_case_id = fc.id
         LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
-        LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
-        LEFT JOIN custom_field cf ON cf.id = fccf.field_id
         LEFT JOIN ( SELECT GROUP_CONCAT(DISTINCT tpceh.test_plan_case_id) AS test_plan_case_id, tpceh.`status` from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId}
                     GROUP BY test_plan_case_id order by tpceh.create_time desc ) as history  ON history.test_plan_case_id = tpfc.id
         WHERE
@@ -890,10 +882,6 @@
         fc.project_Id = #{request.projectId}
         AND
         fc.module_id = #{request.moduleId}
-        AND
-        cf.name = 'functional_priority'
-        AND cf.scene = 'FUNCTIONAL'
-        AND cf.internal= true
     </select>
 
     <select id="selectBaseMindNodeByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
