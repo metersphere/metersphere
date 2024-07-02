@@ -59,8 +59,9 @@
                 <div>*</div>
               </MsButton>
             </a-tooltip>
+            <div v-if="item.isNull && item.isNull(record)" class="ms-form-table-td-text">-</div>
             <a-input
-              v-if="item.inputType === 'input'"
+              v-else-if="item.inputType === 'input'"
               v-model:model-value="record[item.dataIndex as string]"
               :placeholder="t(item.locale)"
               class="ms-form-table-input"
@@ -71,7 +72,7 @@
             <a-select
               v-else-if="item.inputType === 'select'"
               v-model:model-value="record[item.dataIndex as string]"
-              :options="item.typeOptions || []"
+              :options="item.options || []"
               class="ms-form-table-input w-full"
               :size="item.size || 'medium'"
               @change="() => handleFormChange(record, rowIndex, item)"
@@ -249,6 +250,7 @@
     step?: number;
     precision?: number;
     valueFormat?: (record: Record<string, any>) => string; // 展示值格式化，仅在inputType为text时生效
+    isNull?: (record: Record<string, any>) => boolean; // 需要判断是否为空，为空展示‘-’，不展示表单或文本
     [key: string]: any; // 扩展属性
   }
 
@@ -511,6 +513,9 @@
           border-radius: 0;
         }
       }
+    }
+    .ms-form-table-td-text {
+      padding: 0 8px;
     }
     .arco-table-col-fixed-right {
       .arco-table-cell {

@@ -603,7 +603,7 @@
       showDrag: true,
       columnSelectorDisabled: true,
       addLineDisabled: true,
-      typeOptions: [
+      options: [
         { label: 'object', value: 'object' },
         { label: 'array', value: 'array' },
         { label: 'string', value: 'string' },

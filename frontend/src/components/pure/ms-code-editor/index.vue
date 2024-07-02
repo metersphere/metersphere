@@ -305,6 +305,7 @@
           theme: currentTheme.value,
           lineNumbersMinChars: 3,
           lineDecorationsWidth: 0,
+          tabSize: 2,
         });
 
         editor.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF); // 设置换行符

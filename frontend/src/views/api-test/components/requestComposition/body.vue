@@ -86,22 +86,36 @@
     </div> -->
   </div>
   <div v-else class="h-[calc(100%-34px)]">
-    <div class="mb-[8px] flex items-center gap-[8px]">
-      <MsButton
-        type="text"
-        class="!mr-0"
-        :class="jsonType === 'Schema' ? 'font-medium !text-[rgb(var(--primary-5))]' : '!text-[var(--color-text-4)]'"
-        @click="jsonType = 'Schema'"
-        >Schema</MsButton
+    <div class="mb-[8px] flex items-center justify-between">
+      <div class="flex items-center gap-[8px]">
+        <MsButton
+          type="text"
+          class="!mr-0"
+          :class="jsonType === 'Schema' ? 'font-medium !text-[rgb(var(--primary-5))]' : '!text-[var(--color-text-4)]'"
+          @click="jsonType = 'Schema'"
+          >Schema</MsButton
+        >
+        <a-divider :margin="0" direction="vertical"></a-divider>
+        <MsButton
+          type="text"
+          class="!mr-0"
+          :class="jsonType === 'Json' ? 'font-medium !text-[rgb(var(--primary-5))]' : '!text-[var(--color-text-4)]'"
+          @click="jsonType = 'Json'"
+          >Json</MsButton
+        >
+      </div>
+      <a-button
+        v-show="jsonType === 'Schema'"
+        type="outline"
+        class="arco-btn-outline--secondary px-[8px]"
+        size="small"
+        @click="previewJsonSchema"
       >
-      <a-divider :margin="0" direction="vertical"></a-divider>
-      <MsButton
-        type="text"
-        class="!mr-0"
-        :class="jsonType === 'Json' ? 'font-medium !text-[rgb(var(--primary-5))]' : '!text-[var(--color-text-4)]'"
-        @click="jsonType = 'Json'"
-        >Json</MsButton
-      >
+        <div class="flex items-center gap-[8px]">
+          <icon-eye />
+          {{ t('common.preview') }}
+        </div>
+      </a-button>
     </div>
     <MsCodeEditor
       v-if="jsonType === 'Json'"
@@ -116,7 +130,7 @@
       is-adaptive
     >
     </MsCodeEditor>
-    <MsJsonSchema v-else />
+    <MsJsonSchema v-else ref="jsonSchemaRef" />
   </div>
   <batchAddKeyVal
     v-if="showParamTable"
@@ -222,7 +236,7 @@
     }
   }
 
-  const typeOptions = computed(() => {
+  const options = computed(() => {
     const fullOptions = Object.values(RequestParamsType).map((val) => ({
       label: val,
       value: val,
@@ -246,7 +260,7 @@
         dataIndex: 'paramType',
         slotName: 'paramType',
         hasRequired: true,
-        typeOptions: typeOptions.value,
+        options: options.value,
         width: 130,
       },
       {
@@ -307,6 +321,14 @@
   });
 
   const jsonType = ref<'Schema' | 'Json'>('Schema');
+  const jsonSchemaRef = ref<InstanceType<typeof MsJsonSchema>>();
+
+  function previewJsonSchema() {
+    if (jsonType.value === 'Schema') {
+      jsonSchemaRef.value?.previewSchema();
+    }
+  }
+
   // 当前显示的代码
   const currentBodyCode = computed({
     get() {

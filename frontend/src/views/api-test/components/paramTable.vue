@@ -167,7 +167,7 @@
       <a-select
         v-model:model-value="record.paramType"
         :disabled="props.disabledExceptParam"
-        :options="columnConfig.typeOptions || []"
+        :options="columnConfig.options || []"
         class="ms-form-table-input w-full"
         @change="(val) => handleTypeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
@@ -177,7 +177,7 @@
       <a-select
         v-model:model-value="record.extractType"
         :disabled="props.disabledExceptParam"
-        :options="columnConfig.typeOptions || []"
+        :options="columnConfig.options || []"
         class="ms-form-table-input w-[110px]"
         @change="() => addTableLine(rowIndex)"
       />
@@ -187,7 +187,7 @@
       <a-select
         v-model:model-value="record.variableType"
         :disabled="props.disabledExceptParam"
-        :options="columnConfig.typeOptions || []"
+        :options="columnConfig.options || []"
         class="ms-form-table-input w-[110px]"
         @change="() => addTableLine(rowIndex)"
       />
@@ -197,7 +197,7 @@
       <a-select
         v-model:model-value="record.extractScope"
         :disabled="props.disabledExceptParam || record.extractType !== RequestExtractExpressionEnum.REGEX"
-        :options="columnConfig.typeOptions || []"
+        :options="columnConfig.options || []"
         class="ms-form-table-input w-[180px]"
         @change="() => addTableLine(rowIndex)"
       />
@@ -211,7 +211,7 @@
       <a-select
         v-model:model-value="record.scope"
         :disabled="props.disabledExceptParam"
-        :options="columnConfig.typeOptions || []"
+        :options="columnConfig.options || []"
         class="ms-form-table-input w-[180px]"
         @change="(val) => handleScopeChange(val, record, rowIndex, columnConfig.addLineDisabled)"
       />
@@ -625,7 +625,7 @@
     isAutoComplete?: boolean; // 用于 key 列区分是否是请求/响应头联想输入
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
     hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
-    typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
+    options?: { label: string; value: string }[]; // 用于 type 列选择器选项
     typeTitleTooltip?: string | string[]; // 用于 type 表头列展示的 tooltip
     hasDisable?: boolean; // 用于 operation 列区分是否有 enable 开关
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
@@ -847,7 +847,7 @@
       // 最后一行的更改才会触发添加新一行
       const id = getGenerateId();
       const lastLineData = paramsData.value[rowIndex]; // 上一行数据
-      const selectColumnKeys = props.columns.filter((e) => e.typeOptions).map((e) => e.dataIndex); // 找到下拉框选项的列
+      const selectColumnKeys = props.columns.filter((e) => e.options).map((e) => e.dataIndex); // 找到下拉框选项的列
       const nextLine = {
         id,
         enable: true, // 是否勾选

@@ -13,9 +13,12 @@ export default {
   'ms.json.schema.enum': '枚举值',
   'ms.json.schema.enumPlaceholder': '1 行 1 个枚举值',
   'ms.json.schema.regex': '正则表达式',
-  'ms.json.schema.regexPlaceholder': '如 /<title(.*?)</title>',
+  'ms.json.schema.regexPlaceholder': '如 {reg}',
   'ms.json.schema.format': '格式化',
   'ms.json.schema.preview': '预览',
   'ms.json.schema.batchAdd': '批量添加',
   'ms.json.schema.batchAddTip': '书写格式："键":"值"，如"nama":"natural"',
+  'ms.json.schema.convertFailed': '数据转换失败，请重试',
+  'ms.json.schema.minItems': '最小元素数量',
+  'ms.json.schema.maxItems': '最大元素数量',
 };

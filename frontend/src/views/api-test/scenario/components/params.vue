@@ -90,7 +90,7 @@
       title: 'apiScenario.params.type',
       dataIndex: 'paramType',
       slotName: 'paramType',
-      typeOptions: [
+      options: [
         {
           label: t('common.constant'),
           value: 'CONSTANT',

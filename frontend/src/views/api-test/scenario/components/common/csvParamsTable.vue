@@ -146,7 +146,7 @@
       title: 'apiScenario.params.csvScoped',
       dataIndex: 'scope',
       slotName: 'scope',
-      typeOptions: [
+      options: [
         {
           label: t('apiScenario.scenario'),
           value: 'SCENARIO',
