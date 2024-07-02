@@ -126,7 +126,7 @@ public class JsonSchemaBuilder {
     }
 
     public static String preview(String jsonSchema) {
-        String jsonString = JsonSchemaBuilder.jsonSchemaToJson(jsonSchema);
+        String jsonString = jsonSchemaToJson(jsonSchema);
         //需要匹配到mock函数  然后换成mock数据
         if (StringUtils.isNotBlank(jsonString)) {
             String pattern = "@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";

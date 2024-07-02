@@ -41,7 +41,7 @@ import java.io.InputStream;
 import java.util.*;
 
 
-public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImport> {
+public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport> {
 
     protected String projectId;
     private Components components;
@@ -184,7 +184,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             if (value != null && !StringUtils.equals(PropertyConstant.OBJECT, value.getType())) {
                 FormDataKV formDataKV = new FormDataKV();
                 formDataKV.setKey(key);
-                formDataKV.setValue(String.valueOf(value.getExample()));
+                formDataKV.setValue(value.getExample());
                 formDataKV.setRequired(CollectionUtils.isNotEmpty(required) && required.contains(key));
                 formDataKV.setDescription(value.getDescription());
                 formDataKV.setParamType(value.getType());
@@ -209,7 +209,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             if (value != null && !StringUtils.equals(PropertyConstant.OBJECT, value.getType())) {
                 FormDataKV formDataKV = new FormDataKV();
                 formDataKV.setKey(key);
-                formDataKV.setValue(String.valueOf(value.getExample()));
+                formDataKV.setValue(value.getExample());
                 formDataKV.setRequired(CollectionUtils.isNotEmpty(required) && required.contains(key));
                 formDataKV.setDescription(value.getDescription());
                 formDataKV.setParamType(value.getType());
@@ -670,56 +670,47 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
 
 
     private JsonSchemaItem parseString(StringSchema stringSchema) {
-        JsonSchemaItem jsonSchemaString = new JsonSchemaItem();
-        jsonSchemaString.setType(PropertyConstant.STRING);
-        jsonSchemaString.setId(IDGenerator.nextStr());
-        jsonSchemaString.setFormat(StringUtils.isNotBlank(stringSchema.getFormat()) ? stringSchema.getFormat() : StringUtils.EMPTY);
-        jsonSchemaString.setDescription(getDefaultStringValue(stringSchema.getDescription()));
-        jsonSchemaString.setExample(stringSchema.getExample());
-        if (stringSchema.getMaxLength() != null) {
-            jsonSchemaString.setMaxLength(stringSchema.getMaxLength());
-        }
-        if (stringSchema.getMinLength() != null) {
-            jsonSchemaString.setMinLength(stringSchema.getMinLength());
-        }
-        jsonSchemaString.setPattern(stringSchema.getPattern());
-        jsonSchemaString.setEnumString(stringSchema.getEnum());
-        if (stringSchema.getExample() == null && CollectionUtils.isNotEmpty(stringSchema.getEnum())) {
-            jsonSchemaString.setExample(stringSchema.getEnum().getFirst());
-        }
-        return jsonSchemaString;
+        JsonSchemaItem jsonSchemaItem = parseSchemaItem(stringSchema);
+        jsonSchemaItem.setType(PropertyConstant.STRING);
+        jsonSchemaItem.setFormat(getDefaultStringValue(stringSchema.getFormat()));
+        jsonSchemaItem.setDescription(getDefaultStringValue(stringSchema.getDescription()));
+        jsonSchemaItem.setMaxLength(stringSchema.getMaxLength());
+        jsonSchemaItem.setMinLength(stringSchema.getMinLength());
+        jsonSchemaItem.setPattern(stringSchema.getPattern());
+        jsonSchemaItem.setEnumValues(stringSchema.getEnum());
+        return jsonSchemaItem;
     }
 
     private JsonSchemaItem parseInteger(IntegerSchema integerSchema) {
-        JsonSchemaItem jsonSchemaInteger = new JsonSchemaItem();
-        jsonSchemaInteger.setType(PropertyConstant.INTEGER);
-        jsonSchemaInteger.setId(IDGenerator.nextStr());
-        jsonSchemaInteger.setFormat(StringUtils.isNotBlank(integerSchema.getFormat()) ? integerSchema.getFormat() : StringUtils.EMPTY);
-        jsonSchemaInteger.setDescription(StringUtils.isNotBlank(integerSchema.getDescription()) ? integerSchema.getDescription() : StringUtils.EMPTY);
-        jsonSchemaInteger.setExample(integerSchema.getExample());
-        jsonSchemaInteger.setMaximum(integerSchema.getMaximum());
-        jsonSchemaInteger.setMinimum(integerSchema.getMinimum());
-        jsonSchemaInteger.setEnumInteger(integerSchema.getEnum());
-        return jsonSchemaInteger;
+        JsonSchemaItem jsonSchemaItem = parseSchemaItem(integerSchema);
+        jsonSchemaItem.setType(PropertyConstant.INTEGER);
+        jsonSchemaItem.setFormat(StringUtils.isNotBlank(integerSchema.getFormat()) ? integerSchema.getFormat() : StringUtils.EMPTY);
+        jsonSchemaItem.setMaximum(integerSchema.getMaximum());
+        jsonSchemaItem.setMinimum(integerSchema.getMinimum());
+        jsonSchemaItem.setEnumValues(integerSchema.getEnum());
+        return jsonSchemaItem;
     }
 
     private JsonSchemaItem parseNumber(NumberSchema numberSchema) {
-        JsonSchemaItem jsonSchemaNumber = new JsonSchemaItem();
-        jsonSchemaNumber.setType(PropertyConstant.NUMBER);
-        jsonSchemaNumber.setId(IDGenerator.nextStr());
-        jsonSchemaNumber.setDescription(StringUtils.isNotBlank(numberSchema.getDescription()) ? numberSchema.getDescription() : StringUtils.EMPTY);
-        jsonSchemaNumber.setExample(numberSchema.getExample());
-        jsonSchemaNumber.setEnumNumber(numberSchema.getEnum());
-        return jsonSchemaNumber;
+        JsonSchemaItem jsonSchemaItem = parseSchemaItem(numberSchema);
+        jsonSchemaItem.setType(PropertyConstant.NUMBER);
+        return jsonSchemaItem;
     }
 
     private JsonSchemaItem parseBoolean(BooleanSchema booleanSchema) {
-        JsonSchemaItem jsonSchemaBoolean = new JsonSchemaItem();
-        jsonSchemaBoolean.setType(PropertyConstant.BOOLEAN);
-        jsonSchemaBoolean.setId(IDGenerator.nextStr());
-        jsonSchemaBoolean.setDescription(getDefaultStringValue(booleanSchema.getDescription()));
-        jsonSchemaBoolean.setExample(booleanSchema.getExample());
-        return jsonSchemaBoolean;
+        JsonSchemaItem jsonSchemaItem = parseSchemaItem(booleanSchema);
+        jsonSchemaItem.setType(PropertyConstant.NUMBER);
+        return jsonSchemaItem;
+    }
+
+    private JsonSchemaItem parseSchemaItem(Schema schema) {
+        JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
+        jsonSchemaItem.setId(IDGenerator.nextStr());
+        jsonSchemaItem.setDescription(getDefaultStringValue(schema.getDescription()));
+        Optional.ofNullable(schema.getExample()).ifPresent(example -> jsonSchemaItem.setExample(example.toString()));
+        jsonSchemaItem.setEnumValues(schema.getEnum());
+        jsonSchemaItem.setDefaultValue(schema.getDefault());
+        return jsonSchemaItem;
     }
 
     private JsonSchemaItem parseNull() {
