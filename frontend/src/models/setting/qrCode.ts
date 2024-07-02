@@ -7,6 +7,14 @@ export interface DingTalkInfo {
   valid: boolean;
 }
 
+export interface LarkInfo {
+  agentId: string;
+  appSecret: string;
+  callBack: string;
+  enable: boolean;
+  valid: boolean;
+}
+
 export interface WeComInfo {
   corpId: string;
   agentId: string;

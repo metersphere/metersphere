@@ -7,19 +7,10 @@
     :loading="loading"
   >
     <template #title>
-      {{ t('project.messageManagement.DING_TALK') }}
+      {{ t('project.messageManagement.LARK_SUITE') }}
     </template>
 
-    <a-form ref="dingTalkFormRef" class="ms-form rounded-[4px]" :model="dingTalkForm" layout="vertical">
-      <a-form-item
-        field="appKey"
-        :label="t('system.config.qrCodeConfig.appKey')"
-        :rules="[{ required: true, message: t('system.config.qrCodeConfig.appKey.required') }]"
-        :validate-trigger="['blur', 'input']"
-        asterisk-position="end"
-      >
-        <a-input v-model="dingTalkForm.appKey" :max-length="255" :placeholder="t('formCreate.PleaseEnter')" />
-      </a-form-item>
+    <a-form ref="larkSuiteFormRef" class="ms-form rounded-[4px]" :model="larkSuiteForm" layout="vertical">
       <a-form-item
         field="agentId"
         :label="t('system.config.qrCodeConfig.agentId')"
@@ -27,7 +18,7 @@
         :validate-trigger="['blur', 'input']"
         asterisk-position="end"
       >
-        <a-input v-model="dingTalkForm.agentId" :max-length="255" :placeholder="t('formCreate.PleaseEnter')" />
+        <a-input v-model="larkSuiteForm.agentId" :max-length="255" :placeholder="t('formCreate.PleaseEnter')" />
       </a-form-item>
       <a-form-item
         field="appSecret"
@@ -37,7 +28,7 @@
         asterisk-position="end"
       >
         <a-input-password
-          v-model="dingTalkForm.appSecret"
+          v-model="larkSuiteForm.appSecret"
           allow-clear
           :max-length="255"
           :placeholder="t('formCreate.PleaseEnter')"
@@ -48,7 +39,7 @@
       <div class="footer-button">
         <div class="ms-switch">
           <a-switch
-            v-model="dingTalkForm.enable"
+            v-model="larkSuiteForm.enable"
             class="ms-form-table-input-switch execute-form-table-input-switch"
             size="small"
           />
@@ -61,12 +52,17 @@
           <a-button
             type="outline"
             class="ml-[14px]"
-            :disabled="dingTalkForm.appKey == '' && dingTalkForm.appSecret == '' && dingTalkForm.agentId == ''"
+            :disabled="larkSuiteForm.appSecret == '' && larkSuiteForm.agentId == ''"
             @click="validateInfo"
           >
             {{ t('organization.service.testLink') }}
           </a-button>
-          <a-button type="primary" class="ml-[14px]" @click="saveInfo">
+          <a-button
+            type="primary"
+            :disabled="larkSuiteForm.appSecret == '' && larkSuiteForm.agentId == ''"
+            class="ml-[14px]"
+            @click="saveInfo"
+          >
             {{ t('common.confirm') }}
           </a-button>
         </div>
@@ -79,24 +75,23 @@
   import { ref } from 'vue';
   import { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
-  import { getDingInfo, saveDingTalkConfig, validateDingTalkConfig } from '@/api/modules/setting/qrCode';
+  import { getLarkSuiteInfo, saveLarkSuiteConfig, validateLarkSuiteConfig } from '@/api/modules/setting/qrCode';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { DingTalkInfo } from '@/models/setting/qrCode';
+  import { LarkInfo } from '@/models/setting/qrCode';
 
   import Message from '@arco-design/web-vue/es/message';
 
   const { t } = useI18n();
-  const dingTalkForm = ref<DingTalkInfo>({
+  const larkSuiteForm = ref<LarkInfo>({
     agentId: '',
-    appKey: '',
     appSecret: '',
     callBack: '',
     enable: false,
     valid: false,
   });
 
-  const dingTalkFormRef = ref<FormInstance | null>(null);
+  const larkSuiteFormRef = ref<FormInstance | null>(null);
 
   const loading = ref<boolean>(false);
   const detailVisible = ref<boolean>(false);
@@ -113,7 +108,7 @@
   const loadList = async () => {
     loading.value = true;
     try {
-      dingTalkForm.value = await getDingInfo();
+      larkSuiteForm.value = await getLarkSuiteInfo();
     } catch (error) {
       console.log(error);
     } finally {
@@ -138,15 +133,15 @@
   }
 
   async function validateInfo() {
-    dingTalkFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
+    larkSuiteFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
         loading.value = true;
         try {
-          await validateDingTalkConfig(dingTalkForm.value);
-          dingTalkForm.value.valid = true;
+          await validateLarkSuiteConfig(larkSuiteForm.value);
+          larkSuiteForm.value.valid = true;
           Message.success(t('organization.service.testLinkStatusTip'));
         } catch (error) {
-          dingTalkForm.value.valid = false;
+          larkSuiteForm.value.valid = false;
           console.log(error);
         } finally {
           loading.value = false;
@@ -156,11 +151,11 @@
   }
 
   async function saveInfo() {
-    dingTalkFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
+    larkSuiteFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
         loading.value = true;
         try {
-          await saveDingTalkConfig(dingTalkForm.value);
+          await saveLarkSuiteConfig(larkSuiteForm.value);
           Message.success(t('common.saveSuccess'));
           emits('success');
         } catch (error) {
