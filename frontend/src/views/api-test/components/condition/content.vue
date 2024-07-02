@@ -388,10 +388,10 @@
             class="ms-params-input-popover"
           >
             <template #content>
-              <div class="param-popover-title">
+              <div class="ms-params-popover-title">
                 {{ t('apiTestDebug.expression') }}
               </div>
-              <div class="param-popover-value">
+              <div class="ms-params-popover-value">
                 {{ record.expression }}
               </div>
             </template>
@@ -1117,21 +1117,5 @@ if (!result){
         color: rgb(var(--primary-5));
       }
     }
-  }
-  .param-popover-title {
-    @apply font-medium;
-
-    margin-bottom: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    color: var(--color-text-1);
-  }
-  .param-popover-value {
-    min-width: 100px;
-    max-width: 280px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-1);
   }
 </style>

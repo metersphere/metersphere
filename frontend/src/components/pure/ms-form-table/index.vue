@@ -2,22 +2,26 @@
   <a-form ref="formRef" :model="propsRes" layout="vertical">
     <MsBaseTable
       v-bind="propsRes"
+      v-model:original-selected-keys="originalSelectedKeys"
+      v-model:expanded-keys="expandedKeys"
       :hoverable="false"
       is-simple-setting
       :span-method="props.spanMethod"
       :class="!props.selectable && !props.draggable ? 'ms-form-table-no-left-action' : ''"
+      bordered
       v-on="propsEvent"
       @drag-change="tableChange"
       @init-end="validateAndUpdateErrorMessageList"
+      @select="handleSelect"
     >
       <!-- 展开行-->
       <template #expand-icon="{ expanded, record }">
         <div
-          class="flex items-center gap-[2px] text-[var(--color-text-4)]"
-          :class="expanded ? 'rgb(var(--primary-5))' : ''"
+          class="flex items-end gap-[2px] text-[var(--color-text-4)]"
+          :class="expanded ? '!text-[rgb(var(--primary-5))]' : ''"
         >
-          <MsIcon type="icon_split-turn-down-left" />
-          <div v-if="record.children">{{ record.children.length }}</div>
+          <MsIcon type="icon-icon_split_turn-down_arrow" />
+          <div v-if="record.children" class="break-keep">{{ record.children.length }}</div>
         </div>
       </template>
       <template
@@ -33,6 +37,7 @@
               validRepeat(rowIndex, item.dataIndex as string, value, callback);
             },
           }"
+          :disabled="item.disabled || record.disabled"
         >
           <slot
             :name="item.slotName"
@@ -48,7 +53,7 @@
                   record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
                   '!mr-[4px] !p-[4px]',
                 ]"
-                size="mini"
+                :size="item.size || 'medium'"
                 @click="toggleRequired(record, rowIndex, item)"
               >
                 <div>*</div>
@@ -60,7 +65,7 @@
               :placeholder="t(item.locale)"
               class="ms-form-table-input"
               :max-length="255"
-              size="mini"
+              :size="item.size || 'medium'"
               @input="() => handleFormChange(record, rowIndex, item)"
             />
             <a-select
@@ -68,7 +73,7 @@
               v-model:model-value="record[item.dataIndex as string]"
               :options="item.typeOptions || []"
               class="ms-form-table-input w-full"
-              size="mini"
+              :size="item.size || 'medium'"
               @change="() => handleFormChange(record, rowIndex, item)"
             />
             <MsTagsInput
@@ -76,14 +81,14 @@
               v-model:model-value="record[item.dataIndex as string]"
               :max-tag-count="1"
               input-class="ms-form-table-input"
-              size="mini"
+              :size="item.size || 'medium'"
               @change="() => handleFormChange(record, rowIndex, item)"
               @clear="() => handleFormChange(record, rowIndex, item)"
             />
             <a-switch
               v-else-if="item.inputType === 'switch'"
               v-model:model-value="record[item.dataIndex as string]"
-              size="small"
+              :size="(item.size as any) || 'medium'"
               class="ms-form-table-input-switch"
               type="line"
               @change="() => handleFormChange(record, rowIndex, item)"
@@ -91,6 +96,7 @@
             <a-checkbox
               v-else-if="item.inputType === 'checkbox'"
               v-model:model-value="record[item.dataIndex as string]"
+              :size="item.size || 'medium'"
               @change="() => handleFormChange(record, rowIndex, item)"
             />
             <template v-else-if="item.inputType === 'autoComplete'">
@@ -100,7 +106,7 @@
                 class="ms-form-table-input"
                 :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
                 :filter-option="false"
-                size="small"
+                :size="item.size || 'medium'"
                 @search="(val) => handleSearchParams(val, item)"
                 @change="() => handleFormChange(record, rowIndex, item)"
                 @select="(val) => selectAutoComplete(val, record, item)"
@@ -120,13 +126,30 @@
             <a-input-number
               v-else-if="item.inputType === 'inputNumber'"
               v-model:model-value="record[item.dataIndex as string]"
+              class="ms-form-table-input-number"
               :min="item.min"
               :max="item.max"
+              :size="item.size || 'medium'"
+              :precision="item.precision"
+              @change="() => handleFormChange(record, rowIndex, item)"
             ></a-input-number>
             <a-textarea
               v-else-if="item.inputType === 'textarea'"
               v-model:model-value="record[item.dataIndex as string]"
+              class="ms-form-table-input"
+              :auto-size="{ minRows: 1, maxRows: 1 }"
+              :size="item.size || 'medium'"
+              @change="() => handleFormChange(record, rowIndex, item)"
             ></a-textarea>
+            <MsQuickInput
+              v-else-if="item.inputType === 'quickInput'"
+              v-model:model-value="record[item.dataIndex as string]"
+              :title="item.title as string || ''"
+              class="ms-form-table-input"
+              type="textarea"
+              @change="() => handleFormChange(record, rowIndex, item)"
+            >
+            </MsQuickInput>
             <template v-else-if="item.inputType === 'text'">
               {{
                 typeof item.valueFormat === 'function'
@@ -149,12 +172,17 @@
                   :list="getMoreActionList(item.moreAction, record)"
                   @select="(e) => handleMoreActionSelect(e, record, item, rowIndex)"
                 />
-                <icon-minus-circle
-                  v-if="dataLength > 1 && rowIndex !== dataLength - 1"
-                  class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
-                  size="20"
-                  @click="deleteParam(record, rowIndex)"
-                />
+                <slot
+                  name="operationDelete"
+                  v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
+                >
+                  <icon-minus-circle
+                    v-if="dataLength > 1 && rowIndex !== dataLength - 1"
+                    class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
+                    size="20"
+                    @click="deleteParam(record, rowIndex)"
+                  />
+                </slot>
               </div>
             </template>
           </slot>
@@ -185,6 +213,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import MsQuickInput from '@/components/business/ms-quick-input/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
@@ -192,7 +221,7 @@
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { ActionsItem } from '../ms-table-more-action/types';
-  import type { SelectOptionData, TableColumnData, TableData } from '@arco-design/web-vue';
+  import type { SelectOptionData, TableColumnData, TableData, TableRowSelection } from '@arco-design/web-vue';
   import { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
 
   export interface FormTableColumn extends MsTableColumnData {
@@ -207,14 +236,18 @@
       | 'checkbox'
       | 'autoComplete'
       | 'textarea'
-      | 'inputNumber'; // 输入组件类型
+      | 'inputNumber'
+      | 'quickInput'; // 输入组件类型
     autoCompleteParams?: SelectOptionData[]; // 自动补全参数
     needValidRepeat?: boolean; // 是否需要判断重复
     maxLength?: number;
+    disabled?: boolean; // 是否禁用
+    size?: 'mini' | 'small' | 'medium' | 'large'; // 输入框大小
     // 数字输入框属性
     min?: number;
     max?: number;
     step?: number;
+    precision?: number;
     valueFormat?: (record: Record<string, any>) => string; // 展示值格式化，仅在inputType为text时生效
     [key: string]: any; // 扩展属性
   }
@@ -237,6 +270,7 @@
       tableKey?: TableKeyEnum; // 表格key showSetting为true时必传
       disabled?: boolean; // 是否禁用
       showSelectorAll?: boolean; // 是否显示全选
+      rowSelection?: TableRowSelection;
       spanMethod?: (data: {
         record: TableData;
         column: TableColumnData | TableOperationColumn;
@@ -261,10 +295,14 @@
       columnConfig: FormTableColumn,
       rowIndex: number
     ): void;
+    (e: 'select', rowKeys: (string | number)[], _rowKey: string | number, record: TableData): void;
   }>();
 
   const { t } = useI18n();
   const tableStore = useTableStore();
+
+  const expandedKeys = defineModel<string[]>('expandedKeys', { default: [] });
+  const originalSelectedKeys = defineModel<(string | number)[]>('originalSelectedKeys', { default: [] });
 
   async function initColumns() {
     if (props.showSetting && props.tableKey) {
@@ -284,8 +322,8 @@
     disabled: props.disabled,
     showSelectorAll: props.showSelectorAll,
     showPagination: false,
+    rowSelection: props.selectable ? undefined : props.rowSelection,
   });
-
   const selectedKeys = computed(() => propsRes.value.data.filter((e) => e.enable).map((e) => e.id));
   propsEvent.value.rowSelectChange = (record: Record<string, any>) => {
     propsRes.value.data = propsRes.value.data.map((e) => {
@@ -448,16 +486,66 @@
     record[item.dataIndex as string] = val;
   }
 
+  function handleSelect(rowKeys: (string | number)[], rowKey: string | number, record: TableData) {
+    emit('select', rowKeys, rowKey, record);
+  }
+
   await initColumns();
 </script>
 
 <style lang="less" scoped>
+  :deep(.ms-base-table) {
+    .arco-table-th {
+      .arco-table-cell {
+        padding: 5px 8px !important;
+        line-height: 1.5715;
+      }
+    }
+    .arco-table-td {
+      height: 32px;
+      .arco-table-cell {
+        padding: 0 !important;
+        .arco-select-view-single,
+        .arco-input-wrapper,
+        .arco-textarea-wrapper {
+          border-radius: 0;
+        }
+      }
+    }
+    .arco-table-col-fixed-right {
+      .arco-table-cell {
+        padding: 0 8px !important;
+      }
+    }
+    .arco-table-tr-checked {
+      .arco-table-td {
+        background-color: white;
+      }
+    }
+    .arco-scrollbar-track-direction-horizontal {
+      bottom: -8px;
+    }
+  }
+  :deep(.arco-table-content) {
+    border-top: 1px solid var(--color-text-n8) !important;
+    border-right: 1px solid var(--color-text-n8) !important;
+    border-left: 1px solid var(--color-text-n8) !important;
+    border-radius: var(--border-radius-small);
+  }
   :deep(.arco-table-th) {
-    background-color: var(--color-text-n9);
     line-height: normal;
   }
   :deep(.arco-table .arco-table-cell) {
     padding: 8px 2px;
+  }
+  :deep(.arco-table-expand-btn) {
+    padding: 0 5px;
+    width: auto;
+  }
+  :deep(.arco-table-cell-expand-icon) {
+    .arco-table-cell-inline-icon {
+      margin-right: 0;
+    }
   }
   .ms-form-table-no-left-action {
     :deep(.arco-table .arco-table-cell) {
@@ -485,7 +573,7 @@
       color: var(--color-text-4) !important;
     }
   }
-  :deep(.ms-form-table-input:not(.arco-input-focus, .arco-select-view-focus)) {
+  :deep(.ms-form-table-input:not(.arco-input-focus, .arco-select-view-focus, .arco-textarea-focus)) {
     &:not(:hover) {
       @apply bg-transparent;
 
@@ -516,14 +604,14 @@
   }
   :deep(.ms-form-table-input-number) {
     @apply bg-transparent pr-0;
-    .arco-input {
-      @apply text-right;
-    }
+
+    border-color: transparent !important;
     .arco-input-suffix {
       @apply hidden;
     }
     &:hover,
     &.arco-input-focus {
+      border-color: rgb(var(--primary-5)) !important;
       .arco-input {
         @apply text-left;
       }
@@ -534,22 +622,6 @@
   }
   :deep(.arco-table-expand-btn) {
     background: transparent;
-  }
-  .ms-form-table-popover-title {
-    @apply font-medium;
-
-    margin-bottom: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    color: var(--color-text-1);
-  }
-  .ms-form-table-popover-value {
-    min-width: 100px;
-    max-width: 280px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-1);
   }
   :deep(.arco-form-item) {
     margin-bottom: 0;

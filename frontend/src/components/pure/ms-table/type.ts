@@ -2,7 +2,13 @@ import type { TableQueryParams } from '@/models/common';
 import { ColumnEditTypeEnum, SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-import type { TableChangeExtra, TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
+import type {
+  TableChangeExtra,
+  TableColumnData,
+  TableData,
+  TableDraggable,
+  TableRowSelection,
+} from '@arco-design/web-vue';
 
 export interface MsPaginationI {
   current: number;
@@ -96,6 +102,7 @@ export interface MsTableProps<T> {
   excludeKeys: Set<string>; // 排除的key
   selectorStatus: SelectAllEnum; // 选择器状态
   showSelectorAll?: boolean; // 是否显示跨页全选选择器
+  rowSelection?: TableRowSelection; // 行选择器
   /** end */
   loading?: boolean; // 加载效果
   bordered?: boolean; // 是否显示边框

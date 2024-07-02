@@ -65,7 +65,7 @@
           </a-tooltip>
         </div>
       </template>
-      <a-divider class="!mt-[24px]" />
+      <a-divider v-if="showJumpMethod || props.showPagination || props.showSubdirectory" class="!mt-[24px]" />
       <div class="mb-[4px] flex items-center justify-between">
         <div class="font-medium text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
         <a-tooltip :content="t('msTable.columnSetting.default')" :disabled="hasChange">

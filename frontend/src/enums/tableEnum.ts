@@ -91,6 +91,7 @@ export enum TableKeyEnum {
   ASSOCIATE_CASE_API_CASE = 'associateCaseApiCase',
   ASSOCIATE_CASE_API_SCENARIO = 'associateCaseApiScenario',
   ASSOCIATE_CASE = 'associateCase',
+  JSON_SCHEMA = 'jsonSchema',
 }
 
 // 具有特殊功能的列
