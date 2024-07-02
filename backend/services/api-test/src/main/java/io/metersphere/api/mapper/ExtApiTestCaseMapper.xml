@@ -617,4 +617,92 @@
             and ac.api_definition_id = #{request.apiDefinitionId}
         </if>
     </sql>
+
+    <select id="selectAllApiCase" resultType="io.metersphere.api.domain.ApiTestCase">
+        select
+        api_test_case.id,
+        api_test_case.create_user,
+        api_test_case.environment_id
+        from api_test_case
+        where api_test_case.deleted = false
+        and api_test_case.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND api_test_case.id not in (
+            select test_plan_api_case.api_case_id from test_plan_api_case where test_plan_api_case.test_plan_id = #{testPlanId}
+            )
+        </if>
+        order by api_test_case.pos asc
+    </select>
+
+    <select id="selectCaseByModules" resultType="io.metersphere.api.domain.ApiTestCase">
+        select
+        api_test_case.id,
+        api_test_case.create_user,
+        api_test_case.environment_id
+        from api_test_case
+        inner join api_definition on api_definition.id = api_test_case.api_definition_id
+        where api_test_case.deleted = false
+        and api_test_case.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND api_test_case.id not in (
+            select test_plan_api_case.api_case_id from test_plan_api_case where test_plan_api_case.test_plan_id = #{testPlanId}
+            )
+        </if>
+        <if test="dto.moduleIds != null and dto.moduleIds.size() > 0">
+            and api_definition.module_id in
+            <foreach collection="dto.moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+        <if test="dto.excludeIds != null and dto.excludeIds.size() > 0">
+            AND api_test_case.id not in
+            <foreach collection="dto.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
+        <if test="dto.selectIds != null and dto.selectIds.size() > 0">
+            or api_test_case.id in
+            <foreach collection="dto.selectIds" item="selectId" separator="," open="(" close=")">
+                #{selectId}
+            </foreach>
+        </if>
+        order by api_test_case.pos asc
+    </select>
+
+    <select id="selectCaseByApiModules" resultType="io.metersphere.api.domain.ApiTestCase">
+        select
+        api_test_case.id,
+        api_test_case.create_user,
+        api_test_case.environment_id
+        from api_test_case
+        inner join api_definition on api_definition.id = api_test_case.api_definition_id
+        where api_test_case.deleted = false
+        and api_test_case.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND api_test_case.id not in (
+            select test_plan_api_case.api_case_id from test_plan_api_case where test_plan_api_case.test_plan_id =
+            #{testPlanId}
+            )
+        </if>
+        <if test="dto.moduleIds != null and dto.moduleIds.size() > 0">
+            and api_definition.module_id in
+            <foreach collection="dto.moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+        <if test="dto.excludeIds != null and dto.excludeIds.size() > 0">
+            AND api_definition.id not in
+            <foreach collection="dto.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
+        <if test="dto.selectIds != null and dto.selectIds.size() > 0">
+            or api_definition.id in
+            <foreach collection="dto.selectIds" item="selectId" separator="," open="(" close=")">
+                #{selectId}
+            </foreach>
+        </if>
+        order by api_test_case.pos asc
+    </select>
+
 </mapper>

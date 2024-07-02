@@ -676,4 +676,56 @@
             </foreach>
         </if>
     </sql>
+
+    <select id="selectAllCase" resultType="io.metersphere.api.domain.ApiScenario">
+        select
+        api_scenario.id,
+        api_scenario.create_user,
+        api_scenario.environment_id,
+        api_scenario.grouped
+        from api_scenario
+        where api_scenario.deleted = false
+        and api_scenario.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND api_scenario.id not in (
+            select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where test_plan_api_scenario.test_plan_id = #{testPlanId}
+            )
+        </if>
+        order by api_scenario.pos asc
+    </select>
+
+    <select id="selectCaseByModules" resultType="io.metersphere.api.domain.ApiScenario">
+        select
+        api_scenario.id,
+        api_scenario.create_user,
+        api_scenario.environment_id,
+        api_scenario.grouped
+        from api_scenario
+        where api_scenario.deleted = false
+        and api_scenario.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND api_scenario.id not in (
+            select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where test_plan_api_scenario.test_plan_id = #{testPlanId}
+            )
+        </if>
+        <if test="dto.moduleIds != null and dto.moduleIds.size() > 0">
+            and api_scenario.module_id in
+            <foreach collection="dto.moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+        <if test="dto.excludeIds != null and dto.excludeIds.size() > 0">
+            AND api_scenario.id not in
+            <foreach collection="dto.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
+        <if test="dto.selectIds != null and dto.selectIds.size() > 0">
+            or api_scenario.id in
+            <foreach collection="dto.selectIds" item="selectId" separator="," open="(" close=")">
+                #{selectId}
+            </foreach>
+        </if>
+        order by api_scenario.pos asc
+    </select>
 </mapper>

@@ -12,6 +12,8 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.dto.ModuleSelectDTO;
+import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
@@ -362,7 +364,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = new ArrayList<>();
         BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
         baseCollectionAssociateRequest.setCollectionId("123");
-        baseCollectionAssociateRequest.setIds(List.of("fc_1"));
+        baseCollectionAssociateRequest.setModules(buildModulesAll());
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
         UserDTO userDTO = new UserDTO();
@@ -372,10 +374,41 @@ public class TestPlanCaseControllerTests extends BaseTest {
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
         testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, user);
 
+        baseCollectionAssociateRequest.setModules(buildModules());
+        testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, user);
+
         baseCollectionAssociateRequest.setCollectionId("wxxx1231_1");
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         collectionAssociates.put(AssociateCaseType.FUNCTIONAL, baseCollectionAssociateRequests);
         Assertions.assertThrows(Exception.class, () -> testPlanFunctionalCaseService.associateCollection("plan_1", collectionAssociates, user));
+    }
+
+    private TestPlanCollectionAssociateDTO buildModules() {
+        TestPlanCollectionAssociateDTO associateDTO = new TestPlanCollectionAssociateDTO();
+        associateDTO.setSelectAllModule(false);
+        associateDTO.setAssociateType(AssociateCaseType.FUNCTIONAL);
+        associateDTO.setProjectId("123");
+        associateDTO.setModuleMaps(buildModuleMap());
+        return associateDTO;
+    }
+
+    private List<Map<String, ModuleSelectDTO>> buildModuleMap() {
+        List<Map<String, ModuleSelectDTO>> moduleMaps = new ArrayList<>();
+        Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
+        ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
+        moduleSelectDTO.setSelectAll(false);
+        moduleSelectDTO.setSelectIds(List.of("fc_1"));
+        moduleMap.put("100001", moduleSelectDTO);
+        moduleMaps.add(moduleMap);
+        return moduleMaps;
+    }
+
+    private TestPlanCollectionAssociateDTO buildModulesAll() {
+        TestPlanCollectionAssociateDTO associateDTO = new TestPlanCollectionAssociateDTO();
+        associateDTO.setSelectAllModule(true);
+        associateDTO.setAssociateType(AssociateCaseType.FUNCTIONAL);
+        associateDTO.setProjectId("123");
+        return associateDTO;
     }
 
     @Test

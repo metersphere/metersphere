@@ -2,6 +2,7 @@ package io.metersphere.plan.controller;
 
 import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
+import io.metersphere.plan.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.TestPlanCollectionMinderEditDTO;
 import io.metersphere.plan.dto.TestPlanCollectionMinderTreeDTO;
@@ -23,6 +24,7 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,7 +45,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_test_plan_mind.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     void tesPagePlanReportSuccess() throws Exception {
 
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(PLAN_MIND+"gyq_plan_1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PLAN_MIND + "gyq_plan_1");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -131,10 +133,12 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollectionMinderEditDTO.setRetryTimes(5);
         testPlanCollectionMinderEditDTO.setRetryInterval(1000);
         testPlanCollectionMinderEditDTO.setStopOnFail(true);
-        List<TestPlanCollectionAssociateDTO>associateDTOS = new ArrayList<>();
+        List<TestPlanCollectionAssociateDTO> associateDTOS = new ArrayList<>();
         TestPlanCollectionAssociateDTO testPlanCollectionAssociateDTO = new TestPlanCollectionAssociateDTO();
         testPlanCollectionAssociateDTO.setAssociateType("API_CASE");
-        testPlanCollectionAssociateDTO.setIds(List.of("gyq_plan_api-case-associate-1"));
+        testPlanCollectionAssociateDTO.setSelectAllModule(true);
+        testPlanCollectionAssociateDTO.setProjectId("gyq_plan_project");
+        testPlanCollectionAssociateDTO.setModuleMaps(getModuleMaps());
         associateDTOS.add(testPlanCollectionAssociateDTO);
         testPlanCollectionMinderEditDTO.setAssociateDTOS(associateDTOS);
         deleteDTO = testPlanCollectionMinderEditDTO;
@@ -147,9 +151,9 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         List<TestPlanCollection> testPlanCollections1 = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         Assertions.assertEquals(4, testPlanCollections1.size());
         TestPlanCollection testPlanCollection = testPlanCollectionMapper.selectByPrimaryKey("gyq_wxxx_4");
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(testPlanCollection.getName(),"更新名称"));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(testPlanCollection.getName(), "更新名称"));
 
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(testPlanCollection.getEnvironmentId(),"NONE"));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(testPlanCollection.getEnvironmentId(), "NONE"));
         editList = new ArrayList<>();
         editList.addAll(parentList);
         testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
@@ -171,7 +175,9 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         associateDTOS = new ArrayList<>();
         testPlanCollectionAssociateDTO = new TestPlanCollectionAssociateDTO();
         testPlanCollectionAssociateDTO.setAssociateType("API_CASE");
-        testPlanCollectionAssociateDTO.setIds(List.of("gyq_plan_api-case-associate-1"));
+        testPlanCollectionAssociateDTO.setSelectAllModule(true);
+        testPlanCollectionAssociateDTO.setProjectId("gyq_plan_project");
+        testPlanCollectionAssociateDTO.setModuleMaps(getModuleMaps());
         associateDTOS.add(testPlanCollectionAssociateDTO);
         testPlanCollectionMinderEditDTO.setAssociateDTOS(associateDTOS);
         editList.add(testPlanCollectionMinderEditDTO);
@@ -185,7 +191,8 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         editList.add(deleteDTO);
         editList.add(deleteDTO);
         request.setEditList(editList);
-        this.requestPost(EDIT_MIND, request).andExpect(status().is5xxServerError());;
+        this.requestPost(EDIT_MIND, request).andExpect(status().is5xxServerError());
+        ;
         testPlanCollectionExample = new TestPlanCollectionExample();
         testPlanCollectionExample.createCriteria().andNameEqualTo("新建名称");
         testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
@@ -213,6 +220,15 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollectionExample.createCriteria().andNameEqualTo("新建名称");
         testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(testPlanCollections));
+    }
+
+    private List<Map<String, ModuleSelectDTO>> getModuleMaps() {
+        ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
+        moduleSelectDTO.setSelectAll(true);
+        moduleSelectDTO.setSelectIds(List.of("gyq_plan_api-case-associate-1"));
+        List<Map<String, ModuleSelectDTO>> moduleMaps = new ArrayList<>();
+        moduleMaps.add(Map.of("testmodule", moduleSelectDTO));
+        return moduleMaps;
     }
 
 

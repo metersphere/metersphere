@@ -903,4 +903,51 @@
         ORDER BY pos
     </select>
 
+    <select id="selectAllFunctionalCase" resultType="io.metersphere.functional.domain.FunctionalCase">
+        select
+        functional_case.id,
+        functional_case.create_user
+        from functional_case
+        where functional_case.deleted = false
+        and functional_case.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND functional_case.id not in (
+            select test_plan_functional_case.functional_case_id from test_plan_functional_case where test_plan_functional_case.test_plan_id = #{testPlanId}
+            )
+        </if>
+        order by functional_case.pos asc
+    </select>
+
+    <select id="selectCaseByModules" resultType="io.metersphere.functional.domain.FunctionalCase">
+        select
+        functional_case.id,
+        functional_case.create_user
+        from functional_case
+        where functional_case.deleted = false
+        and functional_case.project_id = #{projectId}
+        <if test="!isRepeat">
+            AND functional_case.id not in (
+            select test_plan_functional_case.functional_case_id from test_plan_functional_case where test_plan_functional_case.test_plan_id = #{testPlanId}
+            )
+        </if>
+        <if test="dto.moduleIds != null and dto.moduleIds.size() > 0">
+            and functional_case.module_id in
+            <foreach collection="dto.moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+        <if test="dto.excludeIds != null and dto.excludeIds.size() > 0">
+            AND functional_case.id not in
+            <foreach collection="dto.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
+        <if test="dto.selectIds != null and dto.selectIds.size() > 0">
+            or functional_case.id in
+            <foreach collection="dto.selectIds" item="selectId" separator="," open="(" close=")">
+                #{selectId}
+            </foreach>
+        </if>
+        order by functional_case.pos asc
+    </select>
 </mapper>

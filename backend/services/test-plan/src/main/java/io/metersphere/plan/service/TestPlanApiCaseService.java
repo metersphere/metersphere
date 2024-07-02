@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionModuleMapper;
+import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
@@ -33,6 +34,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -42,7 +44,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -70,8 +71,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
-    @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
@@ -112,12 +111,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private ApiReportMapper apiReportMapper;
     @Resource
-    private OperationLogService operationLogService;
-    @Resource
     private ExtApiDefinitionModuleMapper extApiDefinitionModuleMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     private static final String DEBUG_MODULE_COUNT_ALL = "all";
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
@@ -570,71 +569,71 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     public void associateCollection(String planId, Map<String, List<BaseCollectionAssociateRequest>> collectionAssociates, SessionUser user) {
         List<TestPlanApiCase> testPlanApiCaseList = new ArrayList<>();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
         //处理数据
-        handleApiData(collectionAssociates.get(AssociateCaseType.API), user, testPlanApiCaseList, testPlan);
-        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), user, testPlanApiCaseList, testPlan);
+        handleApiData(collectionAssociates.get(AssociateCaseType.API), user, testPlanApiCaseList, testPlan, isRepeat);
+        handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), user, testPlanApiCaseList, testPlan, isRepeat);
         if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
             testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
         }
     }
 
-    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan) {
+    private void handleApiCaseData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan, boolean isRepeat) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
-            List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
-            ApiTestCaseExample example = new ApiTestCaseExample();
-            example.createCriteria().andIdIn(ids);
-            List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
             apiCaseList.forEach(apiCase -> {
-                List<String> apiCaseIds = apiCase.getIds();
-                if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getId())).toList();
-                    Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
-                    buildTestPlanApiCase(testPlan, apiCaseIds, apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList);
+                super.checkCollection(testPlan.getId(), apiCase.getCollectionId(), CaseType.API_CASE.getKey());
+                boolean selectAllModule = apiCase.getModules().isSelectAllModule();
+                List<Map<String, ModuleSelectDTO>> moduleMaps = apiCase.getModules().getModuleMaps();
+
+                if (selectAllModule) {
+                    // 选择了全部模块
+                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
+                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+                } else {
+                    AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
+                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectCaseByModules(isRepeat, apiCase.getModules().getProjectId(), dto, testPlan.getId());
+                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 }
             });
         }
     }
 
-    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan) {
+
+    private void handleApiData(List<BaseCollectionAssociateRequest> apiCaseList, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList, TestPlan testPlan, boolean isRepeat) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
-            List<String> ids = apiCaseList.stream().flatMap(item -> item.getIds().stream()).toList();
-            boolean isRepeat = testPlanConfigService.isRepeatCase(testPlan.getId());
-            List<ApiTestCase> apiTestCaseList = extTestPlanApiCaseMapper.selectApiCaseByDefinitionIds(ids, isRepeat, testPlan.getId());
             apiCaseList.forEach(apiCase -> {
-                List<String> apiCaseIds = apiCase.getIds();
-                if (CollectionUtils.isNotEmpty(apiCaseIds) && CollectionUtils.isNotEmpty(apiTestCaseList)) {
-                    List<ApiTestCase> apiTestCases = apiTestCaseList.stream().filter(item -> apiCaseIds.contains(item.getApiDefinitionId())).toList();
-                    //生成map集合 key是apiDefinitionId value是apiTestCase
-                    Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
-                    // apiTestCases 生成map key是apiDefinitionId value是List<String> id
-                    Map<String, List<String>> apiTestCaseMapIds = apiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId, Collectors.mapping(ApiTestCase::getId, Collectors.toList())));
-                    Collections.reverse(apiCaseIds);
-                    apiCaseIds.forEach(apiCaseId -> {
-                        buildTestPlanApiCase(testPlan, apiTestCaseMapIds.get(apiCaseId), apiTestCaseMap, apiCase.getCollectionId(), user, testPlanApiCaseList);
-                    });
+                super.checkCollection(testPlan.getId(), apiCase.getCollectionId(), CaseType.API_CASE.getKey());
+                boolean selectAllModule = apiCase.getModules().isSelectAllModule();
+                List<Map<String, ModuleSelectDTO>> moduleMaps = apiCase.getModules().getModuleMaps();
+                if (selectAllModule) {
+                    // 选择了全部模块
+                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
+                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+                } else {
+                    AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
+                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectCaseByApiModules(isRepeat, apiCase.getModules().getProjectId(), dto, testPlan.getId());
+                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 }
             });
         }
     }
+
 
     /**
      * 构建测试计划接口用例对象
      *
+     * @param apiCase
+     * @param apiTestCaseList
      * @param testPlan
-     * @param apiTestCases
-     * @param collectionId
      * @param user
      * @param testPlanApiCaseList
      */
-    private void buildTestPlanApiCase(TestPlan testPlan, List<String> ids, Map<String, ApiTestCase> apiTestCases, String collectionId, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
-        super.checkCollection(testPlan.getId(), collectionId, CaseType.API_CASE.getKey());
-        AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
-        Collections.reverse(ids);
-        ids.forEach(id -> {
-            ApiTestCase apiTestCase = apiTestCases.get(id);
+    private void buildTestPlanApiCaseDTO(BaseCollectionAssociateRequest apiCase, List<ApiTestCase> apiTestCaseList, TestPlan testPlan, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(apiCase.getCollectionId()));
+        apiTestCaseList.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(IDGenerator.nextStr());
-            testPlanApiCase.setTestPlanCollectionId(collectionId);
+            testPlanApiCase.setTestPlanCollectionId(apiCase.getCollectionId());
             testPlanApiCase.setTestPlanId(testPlan.getId());
             testPlanApiCase.setApiCaseId(apiTestCase.getId());
             testPlanApiCase.setEnvironmentId(apiTestCase.getEnvironmentId());
