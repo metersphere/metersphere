@@ -203,7 +203,7 @@
       data = cloneDeep(fullJson);
       importJson.value = fullJson;
     }
-    emit('save', data, () => {
+    emit('save', data, (refresh = false) => {
       importJson.value.root.children = mapTree<MinderJsonNode>(
         importJson.value.root.children || [],
         (node, path, level) => ({
@@ -216,12 +216,14 @@
           },
         })
       );
-      // if (innerImportJson.value.treePath?.length > 1) {
-      //   switchNode(innerImportJson.value.root.data);
-      // } else {
-      //   innerImportJson.value = importJson.value;
-      //   window.minder.importJson(importJson.value);
-      // }
+      if (refresh) {
+        if (innerImportJson.value.treePath?.length > 1) {
+          switchNode(innerImportJson.value.root.data);
+        } else {
+          innerImportJson.value = importJson.value;
+          window.minder.importJson(importJson.value);
+        }
+      }
       minderStore.setMinderUnsaved(false);
       floatMenuVisible.value = false;
     });

@@ -835,7 +835,7 @@ if (!result){
       title: 'apiTestDebug.paramType',
       dataIndex: 'variableType',
       slotName: 'variableType',
-      typeOptions: extractTypeOptions.map((item) => {
+      options: extractTypeOptions.map((item) => {
         return {
           label: t(item.label),
           value: item.value,
@@ -847,7 +847,7 @@ if (!result){
       title: 'apiTestDebug.mode',
       dataIndex: 'extractType',
       slotName: 'extractType',
-      typeOptions: [
+      options: [
         {
           label: 'JSONPath',
           value: RequestExtractExpressionEnum.JSON_PATH,
@@ -867,7 +867,7 @@ if (!result){
       title: 'apiTestDebug.range',
       dataIndex: 'extractScope',
       slotName: 'extractScope',
-      typeOptions: [
+      options: [
         {
           label: 'Body',
           value: RequestExtractScope.BODY,

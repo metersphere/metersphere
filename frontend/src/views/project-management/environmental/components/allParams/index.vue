@@ -90,7 +90,7 @@
       showDrag: true,
       hasRequired: false,
       columnSelectorDisabled: true,
-      typeOptions: [
+      options: [
         {
           label: t('common.constant'),
           value: 'CONSTANT',

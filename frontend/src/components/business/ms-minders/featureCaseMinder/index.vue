@@ -828,7 +828,7 @@
    * @param fullJson 脑图导出的完整数据
    * @param callback 保存成功回调
    */
-  async function handleMinderSave(fullJson: MinderJson, callback: () => void) {
+  async function handleMinderSave(fullJson: MinderJson, callback: (refersh: boolean) => void) {
     try {
       loading.value = true;
       await saveCaseMinder(makeMinderParams(fullJson));
@@ -836,7 +836,7 @@
       Message.success(t('common.saveSuccess'));
       resetMinderParams();
       emit('save');
-      callback();
+      callback(true);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
