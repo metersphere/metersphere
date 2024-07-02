@@ -767,7 +767,7 @@
    */
   function makeMinderParams(fullJson: MinderJson): FeatureCaseMinderUpdateParams {
     filterTree(fullJson.root.children, (node, nodeIndex, parent) => {
-      if (node.data.isNew !== false || node.data.changed === true) {
+      if (node.data?.type !== 'tmp' && (node.data.isNew !== false || node.data.changed === true)) {
         if (node.data.resource?.includes(moduleTag)) {
           // 处理模块节点
           tempMinderParams.value.updateModuleList.push({

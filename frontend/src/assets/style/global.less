@@ -121,3 +121,36 @@ body {
     background-color: rgb(var(--danger-1));
   }
 }
+
+/* 参数输入框 popover */
+.ms-params-input-popover {
+  .arco-trigger-popup-wrapper {
+    .arco-popover-popup-content {
+      padding: 4px 8px;
+    }
+  }
+
+  max-width: 400px;
+}
+.ms-params-popover-title {
+  @apply font-medium;
+
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--color-text-1);
+}
+.ms-params-popover-subtitle {
+  margin-bottom: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-1);
+}
+.ms-params-popover-value {
+  min-width: 100px;
+  max-width: 280px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-1);
+}

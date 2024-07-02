@@ -28,10 +28,10 @@
             class="ms-params-input-popover"
           >
             <template #content>
-              <div class="param-popover-title">
+              <div class="ms-params-popover-title">
                 {{ t('apiTestDebug.expression') }}
               </div>
-              <div class="param-popover-value">
+              <div class="ms-params-popover-value">
                 {{ record.expression }}
               </div>
             </template>
@@ -135,10 +135,10 @@
             class="ms-params-input-popover"
           >
             <template #content>
-              <div class="param-popover-title">
+              <div class="ms-params-popover-title">
                 {{ t('apiTestDebug.expression') }}
               </div>
-              <div class="param-popover-value">
+              <div class="ms-params-popover-value">
                 {{ record.expression }}
               </div>
             </template>
@@ -282,10 +282,10 @@
             class="ms-params-input-popover"
           >
             <template #content>
-              <div class="param-popover-title">
+              <div class="ms-params-popover-title">
                 {{ t('apiTestDebug.expression') }}
               </div>
-              <div class="param-popover-value">
+              <div class="ms-params-popover-value">
                 {{ record.expression }}
               </div>
             </template>
@@ -700,14 +700,14 @@
    */
   function handleFastExtractionApply(
     config: RegexExtract | JSONPathExtract | XPathExtract,
-    matchResult: Record<string, any>
+    matchResult: string[] | string
   ) {
     condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e: Param) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,
           ...config,
-          expectedValue: matchResult.join(''),
+          expectedValue: Array.isArray(matchResult) ? JSON.stringify(matchResult) : matchResult,
         };
       }
       return e;
@@ -817,11 +817,6 @@
     }
   }
 
-  /**
-   * 删除列表项
-   */
-  function deleteListItem(id: string | number) {}
-
   function showFastExtraction(record: ExpressionConfig, type: ExpressionType) {
     if (props.disabled || !props.response) return;
     activeRecord.value = { ...record, extractType: type };
@@ -920,9 +915,5 @@
         };
       }
     }
-  };
-
-  const handleScriptChange = (data: ExecuteConditionProcessor) => {
-    condition.value.script = data;
   };
 </script>

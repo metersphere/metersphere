@@ -6,12 +6,14 @@
     <!-- 表只做自适应不做可拖拽列 -->
     <a-table
       v-bind="{ ...$attrs, ...scrollObj }"
+      v-model:selected-keys="originalSelectedKeys"
+      v-model:expanded-keys="expandedKeys"
       :row-class="getRowClass"
       :column-resizable="true"
       :span-method="spanMethod"
       :columns="currentColumns"
-      :expanded-keys="props.expandedKeys"
       :span-all="props.spanAll"
+      @select="originalRowSelectChange"
       @expand="(rowKey, record) => emit('expand', record)"
       @change="(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => handleDragChange(data, extra, currentData)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
@@ -227,7 +229,7 @@
       </template>
       <template #expand-icon="{ expanded, record }">
         <!-- @desc: 这里为了树级别展开折叠如果子级别children不存在不展示展开折叠，所以原本组件的隐藏掉，改成自定义便于控制展示隐藏 -->
-        <slot v-if="record.children && record.children.length" name="expand-icon" v-bind="{ expanded, record }">
+        <slot v-if="record.children" name="expand-icon" v-bind="{ expanded, record }">
           <div
             :class="`${
               expanded ? 'bg-[rgb(var(--primary-1))]' : 'bg-[var(--color-text-n8)]'
@@ -353,7 +355,6 @@
       rowspan?: number | undefined;
       colspan?: number | undefined;
     };
-    expandedKeys?: string[];
     rowClass?: string | any[] | Record<string, any> | ((record: TableData, rowIndex: number) => any);
     spanAll?: boolean;
     showSelectorAll?: boolean;
@@ -382,8 +383,12 @@
     (e: 'moduleChange'): void;
     (e: 'initEnd'): void;
     (e: 'reset'): void;
+    (e: 'select', rowKeys: (string | number)[], _rowKey: string | number, record: TableData): void;
   }>();
   const attrs = useAttrs();
+
+  const expandedKeys = defineModel<string[]>('expandedKeys', { default: [] });
+  const originalSelectedKeys = defineModel<(string | number)[]>('originalSelectedKeys', { default: [] });
 
   // 编辑按钮的Active状态
   const editActiveKey = ref<string>('');
@@ -521,6 +526,10 @@
   const rowSelectChange = (record: TableData) => {
     emit('rowSelectChange', record);
   };
+  // 表格原生行选择器change事件
+  function originalRowSelectChange(rowKeys: (string | number)[], _rowKey: string | number, record: TableData) {
+    emit('select', rowKeys, _rowKey, record);
+  }
 
   // 分页change事件
   const pageChange = (v: number) => {

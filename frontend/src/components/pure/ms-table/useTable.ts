@@ -57,7 +57,7 @@ export default function useTableProps<T>(
     columns: [] as MsTableColumn,
     rowKey: 'id', // 表格行的key
     /** 选择器相关 */
-    rowSelection: null, // 禁用表格默认的选择器
+    rowSelection: undefined, // 禁用表格默认的选择器
     selectable: false, // 是否显示选择器
     selectorType: 'checkbox', // 选择器类型
     selectedKeys: new Set<string>(), // 选中的key, 多选

@@ -126,7 +126,6 @@
 
   import useFullScreen, { UseFullScreen } from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
-  import { characterLimit } from '@/utils';
   import { getMaxZIndexLayer } from '@/utils/dom';
   // 懒加载描述组件
   const MsDescription = defineAsyncComponent(() => import('@/components/pure/ms-description/index.vue'));

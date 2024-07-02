@@ -86,7 +86,25 @@
     </div> -->
   </div>
   <div v-else class="h-[calc(100%-34px)]">
+    <div class="mb-[8px] flex items-center gap-[8px]">
+      <MsButton
+        type="text"
+        class="!mr-0"
+        :class="jsonType === 'Schema' ? 'font-medium !text-[rgb(var(--primary-5))]' : '!text-[var(--color-text-4)]'"
+        @click="jsonType = 'Schema'"
+        >Schema</MsButton
+      >
+      <a-divider :margin="0" direction="vertical"></a-divider>
+      <MsButton
+        type="text"
+        class="!mr-0"
+        :class="jsonType === 'Json' ? 'font-medium !text-[rgb(var(--primary-5))]' : '!text-[var(--color-text-4)]'"
+        @click="jsonType = 'Json'"
+        >Json</MsButton
+      >
+    </div>
     <MsCodeEditor
+      v-if="jsonType === 'Json'"
       v-model:model-value="currentBodyCode"
       :read-only="props.disabledExceptParam"
       theme="vs"
@@ -98,6 +116,7 @@
       is-adaptive
     >
     </MsCodeEditor>
+    <MsJsonSchema v-else />
   </div>
   <batchAddKeyVal
     v-if="showParamTable"
@@ -112,8 +131,10 @@
 <script setup lang="ts">
   import { TableColumnData } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
+  import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsAddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
@@ -284,6 +305,8 @@
       }
     },
   });
+
+  const jsonType = ref<'Schema' | 'Json'>('Schema');
   // 当前显示的代码
   const currentBodyCode = computed({
     get() {

@@ -1,10 +1,10 @@
 <template>
   <a-popover position="tl" :disabled="!modelValue || modelValue.trim() === ''" class="ms-params-input-popover">
     <template #content>
-      <div v-if="props.title" class="param-popover-title">
+      <div v-if="props.title" class="ms-params-popover-title">
         {{ props.title }}
       </div>
-      <div class="param-popover-value">
+      <div class="ms-params-popover-value">
         {{ modelValue }}
       </div>
     </template>
@@ -128,21 +128,5 @@
 
       border-color: transparent;
     }
-  }
-  .param-popover-title {
-    @apply font-medium;
-
-    margin-bottom: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    color: var(--color-text-1);
-  }
-  .param-popover-value {
-    min-width: 100px;
-    max-width: 280px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-1);
   }
 </style>

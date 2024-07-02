@@ -654,15 +654,6 @@
 </script>
 
 <style lang="less">
-  .ms-params-input-popover {
-    .arco-trigger-popup-wrapper {
-      .arco-popover-popup-content {
-        padding: 4px 8px;
-      }
-    }
-
-    max-width: 400px;
-  }
   .ms-params-input-setting-trigger {
     @apply bg-white;
     .ms-params-input-setting-trigger-content {
@@ -756,27 +747,5 @@
         padding: 2px 8px !important;
       }
     }
-  }
-  .ms-params-popover-title {
-    @apply font-medium;
-
-    margin-bottom: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    color: var(--color-text-1);
-  }
-  .ms-params-popover-subtitle {
-    margin-bottom: 2px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-1);
-  }
-  .ms-params-popover-value {
-    min-width: 100px;
-    max-width: 280px;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--color-text-1);
   }
 </style>
