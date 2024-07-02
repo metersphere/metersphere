@@ -22,10 +22,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class JsonSchemaItem {
     /**
-     * 示例值  类似于 hangman 或者 @string 如果是mock 也是用这个属性
-     */
-    private Object example;
-    /**
      * 参数ID
      */
     private String id;
@@ -33,6 +29,12 @@ public class JsonSchemaItem {
      * 参数名称
      */
     private String title;
+    /**
+     * 参数值
+     * 这里需要支持填写mock函数
+     * 类型为 String
+     */
+    private String value;
     /**
      * 参数类型
      * 取值范围，参考 {@link JsonSchemaItemType}
@@ -57,6 +59,7 @@ public class JsonSchemaItem {
     private Map<String, JsonSchemaItem> properties;
     /**
      * 附加属性
+     * 包含未在属性列表中定义的额外属性的选项
      * 当 type 为 object 时，使用该值
      */
     private JsonSchemaItem additionalProperties;
@@ -65,7 +68,11 @@ public class JsonSchemaItem {
      */
     private List<String> required;
     /**
-     * 正则表达式
+     * 默认值
+     */
+    private Object defaultValue;
+    /**
+     * 参数值需满足的正则表达式
      */
     private String pattern;
     /**
@@ -85,29 +92,17 @@ public class JsonSchemaItem {
      */
     private BigDecimal maximum;
     /**
-     * schema 一般是解析用的
-     */
-    private String schema;
-    /**
      * 一般是选择日期格式
      */
     private String format;
     /**
-     * 字符串的枚举
+     * 参数值的枚举
      */
-    private List<String> enumString;
+    private List<? extends Object> enumValues;
     /**
-     * 整数的枚举
+     * 是否启用
      */
-    private List<Number> enumInteger;
-    /**
-     * 数字的枚举
-     */
-    private List<BigDecimal> enumNumber;
-    /**
-     * 延伸 一般是用来存放一些自定义的属性
-     */
-    private Map<String, Object> extensions = null;
+    private Boolean enable = true;
 
     public JsonSchemaItem(String type) {
         this.type = type;

@@ -8,9 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 public class ImportParserFactory {
     public static ImportParser<?> getImportParser(String platform) {
         if (StringUtils.equals(ApiImportPlatform.Swagger3.name(), platform)) {
-            return new Swagger3Parser<>();
+            return new Swagger3Parser();
         } else if (StringUtils.equals(ApiImportPlatform.Postman.name(), platform)) {
-            return new PostmanParser<>();
+            return new PostmanParser();
         }
         return null;
     }

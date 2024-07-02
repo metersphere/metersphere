@@ -41,7 +41,7 @@ import java.io.InputStream;
 import java.util.*;
 
 
-public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImport> {
+public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport> {
 
     protected String projectId;
     private Components components;
@@ -184,7 +184,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             if (value != null && !StringUtils.equals(PropertyConstant.OBJECT, value.getType())) {
                 FormDataKV formDataKV = new FormDataKV();
                 formDataKV.setKey(key);
-                formDataKV.setValue(String.valueOf(value.getExample()));
+                formDataKV.setValue(String.valueOf(value.getDefaultValue()));
                 formDataKV.setRequired(CollectionUtils.isNotEmpty(required) && required.contains(key));
                 formDataKV.setDescription(value.getDescription());
                 formDataKV.setParamType(value.getType());
@@ -209,7 +209,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             if (value != null && !StringUtils.equals(PropertyConstant.OBJECT, value.getType())) {
                 FormDataKV formDataKV = new FormDataKV();
                 formDataKV.setKey(key);
-                formDataKV.setValue(String.valueOf(value.getExample()));
+                formDataKV.setValue(String.valueOf(value.getDefaultValue()));
                 formDataKV.setRequired(CollectionUtils.isNotEmpty(required) && required.contains(key));
                 formDataKV.setDescription(value.getDescription());
                 formDataKV.setParamType(value.getType());
@@ -675,7 +675,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         jsonSchemaString.setId(IDGenerator.nextStr());
         jsonSchemaString.setFormat(StringUtils.isNotBlank(stringSchema.getFormat()) ? stringSchema.getFormat() : StringUtils.EMPTY);
         jsonSchemaString.setDescription(getDefaultStringValue(stringSchema.getDescription()));
-        jsonSchemaString.setExample(stringSchema.getExample());
+        jsonSchemaString.setDefaultValue(stringSchema.getExample());
         if (stringSchema.getMaxLength() != null) {
             jsonSchemaString.setMaxLength(stringSchema.getMaxLength());
         }
@@ -683,9 +683,9 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
             jsonSchemaString.setMinLength(stringSchema.getMinLength());
         }
         jsonSchemaString.setPattern(stringSchema.getPattern());
-        jsonSchemaString.setEnumString(stringSchema.getEnum());
+        jsonSchemaString.setEnumValues(stringSchema.getEnum());
         if (stringSchema.getExample() == null && CollectionUtils.isNotEmpty(stringSchema.getEnum())) {
-            jsonSchemaString.setExample(stringSchema.getEnum().getFirst());
+            jsonSchemaString.setDefaultValue(stringSchema.getEnum().getFirst());
         }
         return jsonSchemaString;
     }
@@ -696,10 +696,10 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         jsonSchemaInteger.setId(IDGenerator.nextStr());
         jsonSchemaInteger.setFormat(StringUtils.isNotBlank(integerSchema.getFormat()) ? integerSchema.getFormat() : StringUtils.EMPTY);
         jsonSchemaInteger.setDescription(StringUtils.isNotBlank(integerSchema.getDescription()) ? integerSchema.getDescription() : StringUtils.EMPTY);
-        jsonSchemaInteger.setExample(integerSchema.getExample());
+        jsonSchemaInteger.setDefaultValue(integerSchema.getExample());
         jsonSchemaInteger.setMaximum(integerSchema.getMaximum());
         jsonSchemaInteger.setMinimum(integerSchema.getMinimum());
-        jsonSchemaInteger.setEnumInteger(integerSchema.getEnum());
+        jsonSchemaInteger.setEnumValues(integerSchema.getEnum());
         return jsonSchemaInteger;
     }
 
@@ -708,8 +708,8 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         jsonSchemaNumber.setType(PropertyConstant.NUMBER);
         jsonSchemaNumber.setId(IDGenerator.nextStr());
         jsonSchemaNumber.setDescription(StringUtils.isNotBlank(numberSchema.getDescription()) ? numberSchema.getDescription() : StringUtils.EMPTY);
-        jsonSchemaNumber.setExample(numberSchema.getExample());
-        jsonSchemaNumber.setEnumNumber(numberSchema.getEnum());
+        jsonSchemaNumber.setDefaultValue(numberSchema.getExample());
+        jsonSchemaNumber.setEnumValues(numberSchema.getEnum());
         return jsonSchemaNumber;
     }
 
@@ -718,7 +718,7 @@ public class Swagger3Parser<T> extends ApiImportAbstractParser<ApiDefinitionImpo
         jsonSchemaBoolean.setType(PropertyConstant.BOOLEAN);
         jsonSchemaBoolean.setId(IDGenerator.nextStr());
         jsonSchemaBoolean.setDescription(getDefaultStringValue(booleanSchema.getDescription()));
-        jsonSchemaBoolean.setExample(booleanSchema.getExample());
+        jsonSchemaBoolean.setDefaultValue(booleanSchema.getExample());
         return jsonSchemaBoolean;
     }
 

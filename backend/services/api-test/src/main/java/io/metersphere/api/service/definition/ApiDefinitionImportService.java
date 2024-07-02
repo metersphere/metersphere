@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
 import static io.metersphere.project.utils.NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
 
 @Service
-public class ApiDefinitionImportUtilService {
+public class ApiDefinitionImportService {
 
     private static final String UNPLANNED_API = "api_unplanned_request";
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
@@ -638,13 +638,13 @@ public class ApiDefinitionImportUtilService {
             }
 
             return switch (Body.BodyType.valueOf(dbBody.getBodyType())) {
-                case Body.BodyType.FORM_DATA ->
+                case FORM_DATA ->
                         !formBodyHaDifferent(dbBody.getFormDataBody(), importBody.getFormDataBody());
-                case Body.BodyType.WWW_FORM ->
+                case WWW_FORM ->
                         !wwwFormBodyHasDifferent(dbBody.getWwwFormBody(), importBody.getWwwFormBody());
-                case Body.BodyType.RAW -> rawBodyAreSame(dbBody.getRawBody(), importBody.getRawBody());
-                case Body.BodyType.JSON -> jsonBodyAreSame(dbBody.getJsonBody(), importBody.getJsonBody());
-                case Body.BodyType.XML -> xmlBodyAreSame(dbBody.getXmlBody(), importBody.getXmlBody());
+                case RAW -> rawBodyAreSame(dbBody.getRawBody(), importBody.getRawBody());
+                case JSON -> jsonBodyAreSame(dbBody.getJsonBody(), importBody.getJsonBody());
+                case XML -> xmlBodyAreSame(dbBody.getXmlBody(), importBody.getXmlBody());
                 default -> true;
             };
         }
