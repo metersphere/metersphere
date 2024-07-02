@@ -1,117 +1,149 @@
 <template>
-  <div class="px-[24px] py-[16px]">
-    <div class="mb-[16px] flex flex-wrap items-center justify-end">
+  <div class="h-full px-[24px] py-[16px]">
+    <div class="mb-[16px]">
       <MsAdvanceFilter
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
+        :count="props.modulesCount[props.activeFolder] || 0"
+        :name="moduleNamePath"
+        :not-show-input-search="showType !== 'list'"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
         @keyword-search="(val, filter) => searchCase(filter)"
         @adv-search="searchCase"
-        @refresh="searchCase"
+        @refresh="refresh"
       >
-        <!-- <template #right>
-          <div class="flex items-center">
-            <a-radio-group v-model:model-value="showType" type="button" class="case-show-type">
-              <a-radio value="list" class="show-type-icon p-[2px]">
-                <MsIcon type="icon-icon_view-list_outlined" />
-              </a-radio>
-              <a-radio value="mind" class="show-type-icon p-[2px]">
-                <MsIcon type="icon-icon_mindnote_outlined" />
-              </a-radio>
-            </a-radio-group>
+        <template v-if="showType !== 'list'" #nameRight>
+          <div v-if="reviewPassRule === 'MULTIPLE'" class="ml-[16px]">
+            <a-switch v-model:model-value="onlyMineStatus" size="small" class="mr-[4px]" type="line" />
+            {{ t('caseManagement.caseReview.myReviewStatus') }}
           </div>
-        </template> -->
+          <span class="ml-[16px] !text-[rgb(var(--warning-6))]">
+            {{ t('caseManagement.caseReview.cannotReviewTip') }}
+          </span>
+        </template>
+        <template #right>
+          <a-radio-group
+            v-model:model-value="showType"
+            type="button"
+            size="small"
+            class="list-show-type"
+            @change="handleShowTypeChange"
+          >
+            <a-radio value="list" class="show-type-icon !m-[2px]">
+              <MsIcon :size="14" type="icon-icon_view-list_outlined" />
+            </a-radio>
+            <a-radio value="minder" class="show-type-icon !m-[2px]">
+              <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
+            </a-radio>
+          </a-radio-group>
+        </template>
       </MsAdvanceFilter>
     </div>
-    <ms-base-table
-      v-bind="propsRes"
-      :action-config="batchActions"
-      no-disable
-      filter-icon-align-left
-      v-on="propsEvent"
-      @batch-action="handleTableBatch"
-    >
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
-        <a-tag :color="reviewResultMap[filterContent.value as ReviewResult].color" class="px-[4px]" size="small">
-          {{ t(reviewResultMap[filterContent.value as ReviewResult].label) }}
-        </a-tag>
-      </template>
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
-        <caseLevel :case-level="filterContent.text" />
-      </template>
-      <template #num="{ record }">
-        <a-tooltip :content="record.num">
-          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="review(record)">
-            <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
-          </a-button>
-        </a-tooltip>
-      </template>
-      <template #caseLevel="{ record }">
-        <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
-      </template>
-      <template #reviewNames="{ record }">
-        <MsTagGroup
-          v-if="record.showModuleTree"
-          :tag-list="record.reviewNames"
-          is-string-tag
-          :show-num="1"
-          theme="outline"
-          @click="record.showModuleTree = false"
-        />
-        <MsSelect
-          v-else
-          v-model:model-value="record.reviewers"
-          v-model:loading="dialogLoading"
-          :max-tag-count="1"
-          class="w-full"
-          :options="reviewersOptions"
-          :search-keys="['label']"
-          allow-search
-          :multiple="true"
-          :placeholder="t('project.messageManagement.receiverPlaceholder')"
-          @change="() => changeReviewer(record)"
-        >
-        </MsSelect>
-      </template>
-      <template #status="{ record }">
-        <div class="flex items-center gap-[4px]">
-          <MsIcon
-            :type="reviewResultMap[record.status as ReviewResult].icon"
-            :style="{
+    <!-- 表格 -->
+    <template v-if="showType === 'list'">
+      <ms-base-table
+        v-bind="propsRes"
+        :action-config="batchActions"
+        no-disable
+        filter-icon-align-left
+        v-on="propsEvent"
+        @batch-action="handleTableBatch"
+      >
+        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
+          <a-tag :color="reviewResultMap[filterContent.value as ReviewResult].color" class="px-[4px]" size="small">
+            {{ t(reviewResultMap[filterContent.value as ReviewResult].label) }}
+          </a-tag>
+        </template>
+        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+          <caseLevel :case-level="filterContent.text" />
+        </template>
+        <template #num="{ record }">
+          <a-tooltip :content="record.num">
+            <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="review(record)">
+              <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
+            </a-button>
+          </a-tooltip>
+        </template>
+        <template #caseLevel="{ record }">
+          <span class="text-[var(--color-text-2)]"> <caseLevel :case-level="record.caseLevel" /></span>
+        </template>
+        <template #reviewNames="{ record }">
+          <MsTagGroup
+            v-if="record.showModuleTree"
+            :tag-list="record.reviewNames"
+            is-string-tag
+            :show-num="1"
+            theme="outline"
+            @click="record.showModuleTree = false"
+          />
+          <MsSelect
+            v-else
+            v-model:model-value="record.reviewers"
+            v-model:loading="dialogLoading"
+            :max-tag-count="1"
+            class="w-full"
+            :options="reviewersOptions"
+            :search-keys="['label']"
+            allow-search
+            :multiple="true"
+            :placeholder="t('project.messageManagement.receiverPlaceholder')"
+            @change="() => changeReviewer(record)"
+          >
+          </MsSelect>
+        </template>
+        <template #status="{ record }">
+          <div class="flex items-center gap-[4px]">
+            <MsIcon
+              :type="reviewResultMap[record.status as ReviewResult].icon"
+              :style="{
               color: reviewResultMap[record.status as ReviewResult].color
             }"
-          />
-          {{ t(reviewResultMap[record.status as ReviewResult].label) }}
-        </div>
-      </template>
-      <template #action="{ record }">
-        <MsButton v-permission="['CASE_REVIEW:READ+REVIEW']" type="text" class="!mr-0" @click="review(record)">
-          {{ t('caseManagement.caseReview.review') }}
-        </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsPopconfirm
-          :title="t('caseManagement.caseReview.disassociateTip')"
-          :sub-title-tip="t('caseManagement.caseReview.disassociateTipContent')"
-          :ok-text="t('common.confirm')"
-          :loading="disassociateLoading"
-          type="error"
-          @confirm="(val, done) => handleDisassociateReviewCase(record, done)"
-        >
-          <MsButton v-permission="['CASE_REVIEW:READ+RELEVANCE']" type="text" class="!mr-0">
-            {{ t('caseManagement.caseReview.disassociate') }}
+            />
+            {{ t(reviewResultMap[record.status as ReviewResult].label) }}
+          </div>
+        </template>
+        <template #action="{ record }">
+          <MsButton v-permission="['CASE_REVIEW:READ+REVIEW']" type="text" class="!mr-0" @click="review(record)">
+            {{ t('caseManagement.caseReview.review') }}
           </MsButton>
-        </MsPopconfirm>
-      </template>
-      <template v-if="keyword.trim() === ''" #empty>
-        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
-          {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="emit('link')">
-            {{ t('caseManagement.featureCase.linkCase') }}
-          </MsButton>
-        </div>
-      </template>
-    </ms-base-table>
+          <a-divider direction="vertical" :margin="8"></a-divider>
+          <MsPopconfirm
+            :title="t('caseManagement.caseReview.disassociateTip')"
+            :sub-title-tip="t('caseManagement.caseReview.disassociateTipContent')"
+            :ok-text="t('common.confirm')"
+            :loading="disassociateLoading"
+            type="error"
+            @confirm="(val, done) => handleDisassociateReviewCase(record, done)"
+          >
+            <MsButton v-permission="['CASE_REVIEW:READ+RELEVANCE']" type="text" class="!mr-0">
+              {{ t('caseManagement.caseReview.disassociate') }}
+            </MsButton>
+          </MsPopconfirm>
+        </template>
+        <template v-if="keyword.trim() === ''" #empty>
+          <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+            {{ t('caseManagement.caseReview.tableNoData') }}
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="emit('link')">
+              {{ t('caseManagement.featureCase.linkCase') }}
+            </MsButton>
+          </div>
+        </template>
+      </ms-base-table>
+    </template>
+    <!-- 脑图 -->
+    <div v-else class="h-[calc(100%-48px)] border-t border-[var(--color-text-n8)]">
+      <MsCaseReviewMinder
+        ref="msCaseReviewMinderRef"
+        :module-id="props.activeFolder"
+        :view-flag="props.onlyMine"
+        :view-status-flag="onlyMineStatus"
+        :module-tree="props.moduleTree"
+        :modules-count="props.modulesCount"
+        :pass-rate="props.passRate"
+        :review-pass-rule="props.reviewPassRule"
+      />
+    </div>
     <a-modal
       v-model:visible="dialogVisible"
       class="p-[4px]"
@@ -277,6 +309,7 @@
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import MsCaseReviewMinder from '@/components/business/ms-minders/caseReviewMinder/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
   import {
@@ -296,6 +329,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { findNodeByKey } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
@@ -312,11 +346,13 @@
   });
 
   const props = defineProps<{
-    activeFolder: string | number;
+    activeFolder: string;
     onlyMine: boolean;
     reviewPassRule: ReviewPassRule; // 评审规则
     offspringIds: string[]; // 当前选中节点的所有子节点id
     moduleTree: ModuleTreeNode[];
+    modulesCount: Record<string, number>; // 模块数量
+    passRate: string;
   }>();
   const emit = defineEmits(['init', 'refresh', 'link']);
 
@@ -327,11 +363,20 @@
   const userStore = useUserStore();
   const { t } = useI18n();
   const { openModal } = useModal();
+
   const keyword = ref('');
-  // const showType = ref<'list' | 'mind'>('list');
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
   const tableParams = ref<Record<string, any>>({});
+  const onlyMineStatus = ref(false);
+  const showType = ref<'list' | 'minder'>('list');
+  const msCaseReviewMinderRef = ref<InstanceType<typeof MsCaseReviewMinder>>();
+
+  const moduleNamePath = computed(() => {
+    return props.activeFolder === 'all'
+      ? t('caseManagement.featureCase.allCase')
+      : findNodeByKey<Record<string, any>>(props.moduleTree, props.activeFolder, 'id')?.name;
+  });
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])
@@ -491,19 +536,40 @@
     searchCase();
   });
 
+  function refresh() {
+    if (showType.value === 'list') {
+      searchCase();
+    } else {
+      msCaseReviewMinderRef.value?.initNodeCases();
+      emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
+    }
+  }
+
   watch(
     () => props.onlyMine,
     () => {
-      searchCase();
+      refresh();
     }
   );
 
   watch(
     () => props.activeFolder,
     () => {
-      searchCase();
+      if (showType.value === 'list') {
+        searchCase();
+      }
     }
   );
+
+  function handleShowTypeChange(val: string | number | boolean) {
+    if (val === 'minder') {
+      keyword.value = '';
+      // 切换到脑图刷新模块统计
+      emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
+    } else {
+      searchCase();
+    }
+  }
 
   const batchParams = ref<BatchApiParams>({
     selectIds: [],
@@ -889,7 +955,7 @@
   });
 
   defineExpose({
-    searchCase,
+    refresh,
     resetSelector,
   });
   await getCaseLevelFields();
@@ -926,6 +992,12 @@
       .arco-input-suffix {
         @apply invisible;
       }
+    }
+  }
+  .list-show-type {
+    padding: 0;
+    :deep(.arco-radio-button-content) {
+      padding: 4px 6px;
     }
   }
 </style>

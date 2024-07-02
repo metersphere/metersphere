@@ -120,6 +120,8 @@
           :only-mine="onlyMine"
           :review-pass-rule="reviewDetail.reviewPassRule"
           :offspring-ids="offspringIds"
+          :modules-count="modulesCount"
+          :pass-rate="reviewDetail.status === 'PREPARED' ? '-' : `${reviewDetail.passRate}%`"
           :module-tree="moduleTree"
           @init="initModulesCount"
           @refresh="handleRefresh"
@@ -262,7 +264,7 @@
       Message.success(t('caseManagement.caseReview.associateSuccess'));
       await initDetail();
       folderTreeRef.value?.initModules();
-      caseTableRef.value?.searchCase();
+      caseTableRef.value?.refresh();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

@@ -134,35 +134,46 @@
           </MsButton>
         </a-tooltip>
         <template #content>
-          <a-doption v-if="props.canShowEnterNode" value="enterNode">
-            <div class="flex items-center">
-              <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
-              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div> -->
-            </div>
-          </a-doption>
-          <a-doption value="copy">
-            <div class="flex items-center">
-              <div>{{ t('minder.hotboxMenu.copy') }}</div>
-              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div> -->
-            </div>
-          </a-doption>
-          <a-doption value="cut">
-            <div class="flex items-center">
-              <div>{{ t('minder.hotboxMenu.cut') }}</div>
-              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div> -->
-            </div>
-          </a-doption>
-          <a-doption v-if="props.canShowPasteMenu && minderStore.clipboard.length > 0" value="paste">
-            <div class="flex items-center">
-              <div>{{ t('minder.hotboxMenu.paste') }}</div>
-              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + V)</div> -->
-            </div>
-          </a-doption>
-          <a-doption value="delete">
-            <div class="flex items-center">
-              <div>{{ t('minder.hotboxMenu.delete') }}</div>
-              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Backspace)</div> -->
-            </div>
+          <template v-if="props.canShowMoreMenuNodeOperation">
+            <a-doption v-if="props.canShowEnterNode" value="enterNode">
+              <div class="flex items-center">
+                <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
+                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div> -->
+              </div>
+            </a-doption>
+            <a-doption value="copy">
+              <div class="flex items-center">
+                <div>{{ t('minder.hotboxMenu.copy') }}</div>
+                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div> -->
+              </div>
+            </a-doption>
+            <a-doption value="cut">
+              <div class="flex items-center">
+                <div>{{ t('minder.hotboxMenu.cut') }}</div>
+                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div> -->
+              </div>
+            </a-doption>
+            <a-doption v-if="props.canShowPasteMenu && minderStore.clipboard.length > 0" value="paste">
+              <div class="flex items-center">
+                <div>{{ t('minder.hotboxMenu.paste') }}</div>
+                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + V)</div> -->
+              </div>
+            </a-doption>
+            <a-doption value="delete">
+              <div class="flex items-center">
+                <div>{{ t('minder.hotboxMenu.delete') }}</div>
+                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Backspace)</div> -->
+              </div>
+            </a-doption>
+          </template>
+          <a-doption
+            v-for="item in props.moreMenuOtherOperationList"
+            :key="item.value"
+            v-permission="item.permission || []"
+            :value="item.value"
+            @click="item.onClick()"
+          >
+            <div>{{ item.label }}</div>
           </a-doption>
         </template>
       </a-dropdown>

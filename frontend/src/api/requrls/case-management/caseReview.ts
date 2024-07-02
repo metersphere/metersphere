@@ -27,3 +27,4 @@ export const GetReviewDetailModuleTreeUrl = '/case/review/detail/tree'; // 评�
 export const GetCaseReviewHistoryListUrl = '/review/functional/case/get/list'; // 评审详情-获取用例评审历史
 export const SaveCaseReviewResultUrl = '/review/functional/case/save'; // 评审详情-提交评审
 export const getCaseReviewerListUrl = '/case/review/detail/reviewer/list'; // 评审详情-获取用例的评审人
+export const GetCaseReviewMinderUrl = '/functional/mind/case/review/list'; // 获取脑图数据

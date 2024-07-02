@@ -15,6 +15,7 @@
       </MsButton>
     </a-tooltip>
     <a-button
+      v-if="props.showSaveButton"
       type="outline"
       :disabled="props.disabled"
       class="px-[8px] py-[2px] text-[12px]"
@@ -38,6 +39,7 @@
   const props = defineProps<{
     iconButtons?: MinderIconButtonItem[];
     disabled?: boolean;
+    showSaveButton?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'click', eventTag: string): void;
