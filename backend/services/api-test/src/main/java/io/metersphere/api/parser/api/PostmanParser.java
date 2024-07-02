@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostmanParser<T> extends PostmanAbstractParserParser<ApiDefinitionImport> {
+public class PostmanParser extends PostmanAbstractParserParser<ApiDefinitionImport> {
 
     @Override
     public ApiDefinitionImport parse(InputStream source, ImportRequest request) throws JsonProcessingException {

@@ -11,7 +11,7 @@ import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.service.definition.ApiDefinitionImportUtilService;
+import io.metersphere.api.service.definition.ApiDefinitionImportService;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
@@ -60,7 +60,7 @@ public class ApiDefinitionController {
     @Resource
     private ApiFileResourceService apiFileResourceService;
     @Resource
-    private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
+    private ApiDefinitionImportService apiDefinitionImportService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-添加接口定义")
@@ -224,7 +224,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-导入接口定义")
     public void testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ImportRequest request) {
         request.setUserId(SessionUtils.getUserId());
-        apiDefinitionImportUtilService.apiTestImport(file, request, SessionUtils.getCurrentProjectId());
+        apiDefinitionImportService.apiTestImport(file, request, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/operation-history")
