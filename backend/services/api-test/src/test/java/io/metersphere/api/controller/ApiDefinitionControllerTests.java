@@ -1601,9 +1601,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         paramMap.clear();
-        inputStream = new FileInputStream(new File(
+        inputStream = new FileInputStream(
                 this.getClass().getClassLoader().getResource("file/openapi2.json")
-                        .getPath()));
+                        .getPath());
         file = new MockMultipartFile("file", "openapi2.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
         request.setCoverModule(false);
@@ -1612,9 +1612,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         this.requestMultipart(IMPORT, paramMap, status().is5xxServerError());
 
         paramMap.clear();
-        inputStream = new FileInputStream(new File(
+        inputStream = new FileInputStream(
                 this.getClass().getClassLoader().getResource("file/openapi3.json")
-                        .getPath()));
+                        .getPath());
         file = new MockMultipartFile("file", "openapi3.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
         request.setCoverModule(false);
@@ -1622,9 +1622,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         paramMap.clear();
-        inputStream = new FileInputStream(new File(
+        inputStream = new FileInputStream(
                 this.getClass().getClassLoader().getResource("file/openapi4.json")
-                        .getPath()));
+                        .getPath());
         file = new MockMultipartFile("file", "openapi4.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
         request.setCoverModule(false);
@@ -1644,9 +1644,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCoverModule(true);
         request.setCoverData(true);
         paramMap.clear();
-        inputStream = new FileInputStream(new File(
+        inputStream = new FileInputStream(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/postman.json"))
-                        .getPath()));
+                        .getPath());
         file = new MockMultipartFile("file", "postman.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(request));
@@ -1654,9 +1654,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         paramMap.clear();
         request.setCoverModule(true);
         request.setCoverData(true);
-        inputStream = new FileInputStream(new File(
+        inputStream = new FileInputStream(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/postman2.json"))
-                        .getPath()));
+                        .getPath());
         file = new MockMultipartFile("file", "postman2.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap.add("file", file);
         paramMap.add("request", JSON.toJSONString(request));
