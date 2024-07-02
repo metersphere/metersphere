@@ -35,7 +35,6 @@ import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -752,7 +751,7 @@ public class FunctionalCaseMinderService {
 
     private MindAdditionalNode buildNode(FunctionalCaseMinderEditRequest request, String userId, MindAdditionalNodeRequest mindAdditionalNodeRequest, MindAdditionalNodeMapper additionalNodeMapper) {
         MindAdditionalNode mindAdditionalNode = new MindAdditionalNode();
-        mindAdditionalNode.setId(IDGenerator.nextStr());
+        mindAdditionalNode.setId(mindAdditionalNodeRequest.getId());
         if (mindAdditionalNodeRequest.getName().length()>255) {
             mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0,249));
         }
@@ -930,7 +929,7 @@ public class FunctionalCaseMinderService {
     @NotNull
     private FunctionalCaseModule buildModule(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest) {
         FunctionalCaseModule functionalCaseModule = new FunctionalCaseModule();
-        functionalCaseModule.setId(IDGenerator.nextStr());
+        functionalCaseModule.setId(functionalCaseModuleEditRequest.getId());
         if (StringUtils.isBlank(functionalCaseModuleEditRequest.getName())) {
             throw new MSException(Translator.get("api_definition_module.name.not_blank"));
         }
@@ -1101,8 +1100,6 @@ public class FunctionalCaseMinderService {
     private FunctionalCase addCase(FunctionalCaseMinderEditRequest request, String userId, FunctionalCaseChangeRequest functionalCaseChangeRequest, FunctionalCaseMapper caseMapper, Map<String, String> sourceIdAndInsertModuleIdMap) {
         FunctionalCase functionalCase = new FunctionalCase();
         BeanUtils.copyBean(functionalCase, functionalCaseChangeRequest);
-        String caseId = IDGenerator.nextStr();
-        functionalCase.setId(caseId);
         if (StringUtils.isNotBlank(sourceIdAndInsertModuleIdMap.get(functionalCaseChangeRequest.getModuleId()))) {
             functionalCase.setModuleId(sourceIdAndInsertModuleIdMap.get(functionalCaseChangeRequest.getModuleId()));
         }
@@ -1117,7 +1114,7 @@ public class FunctionalCaseMinderService {
         functionalCase.setNum(functionalCaseService.getNextNum(request.getProjectId()));
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setPos(LIMIT_POS);
-        functionalCase.setRefId(caseId);
+        functionalCase.setRefId(functionalCaseChangeRequest.getId());
         functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
         functionalCase.setLatest(true);
         functionalCase.setCreateUser(userId);

@@ -675,18 +675,31 @@ export const getHashParameters = (): Record<string, string> => {
   return params;
 };
 
+let lastTimestamp = 0;
+let sequence = 0;
+
 /**
  * 生成 id 序列号
  * @returns
  */
 export const getGenerateId = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    // eslint-disable-next-line no-bitwise
-    const r = (Math.random() * 16) | 0;
-    // eslint-disable-next-line no-bitwise
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  let timestamp = new Date().getTime();
+  if (timestamp === lastTimestamp) {
+    sequence++;
+    if (sequence >= 100000) {
+      // 如果超过999，则重置为0，等待下一秒
+      sequence = 0;
+      while (timestamp <= lastTimestamp) {
+        timestamp = new Date().getTime();
+      }
+    }
+  } else {
+    sequence = 0;
+  }
+
+  lastTimestamp = timestamp;
+
+  return timestamp.toString() + sequence.toString().padStart(5, '0');
 };
 
 /**
