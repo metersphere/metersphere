@@ -24,6 +24,7 @@
             <ms-select-tree
               size="small"
               :data="moduleOptions"
+              :default-expand-all="true"
               :defaultKey="currentScenario.apiScenarioModuleId"
               @getValue="setModule"
               :obj="moduleObj"
@@ -1209,7 +1210,7 @@ export default {
       if (node.parent && node.parent.data && node.parent.data.id) {
         this.evaluationParent(node.parent, status);
       }
-       if (node.data.code === 'ERROR') {
+      if (node.data.code === 'ERROR') {
         return;
       }
       if (node.data.code === 'FAKE_ERROR') {
@@ -2409,7 +2410,7 @@ export default {
       let currentEnvironment = {};
       this.environments.forEach((environment) => {
         // 找到原始环境和数据源名称
-        if (environment.id === request.originalEnvironmentId !== envId) {
+        if ((environment.id === request.originalEnvironmentId) !== envId) {
           parseEnvironment(environment);
           if (environment.config && environment.config.databaseConfigs) {
             environment.config.databaseConfigs.forEach((item) => {

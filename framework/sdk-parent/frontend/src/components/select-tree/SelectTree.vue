@@ -1,39 +1,51 @@
 <template>
   <div v-loading="loading" ref="projectButton">
     <div class="mask" v-show="isShowSelect"></div>
-    <el-popover placement="bottom-start" :width="popoverWidth" trigger="manual" v-model="isShowSelect"
-                @hide="popoverHide" @show="show">
-      <el-input
-        size="mini"
-        prefix-icon="el-icon-search"
-        v-model="filterText">
-      </el-input>
-      <el-tree class="common-tree" :width="width" ref="tree" :data="treeData" :props="obj"
-               :show-checkbox="multiple"
-               :node-key="obj.id"
-               :check-strictly="checkStrictly"
-               :expand-on-click-node="multiple&&expandClickNode"
-               :check-on-click-node="checkClickNode"
-               :highlight-current="true"
-               @check="clickDeal"
-               :default-checked-keys="checkedId"
-               :filter-node-method="filterNode"
-               @node-click="nodeClick"/>
-      <el-select slot="reference" ref="select" :size="size"
-                 v-model="returnDataKeys"
-                 :multiple="multiple"
-                 :clearable="clearable"
-                 :collapse-tags="collapseTags"
-                 :disabled="disabled"
-                 @click.native="selectClick"
-                 @remove-tag="removeTag"
-                 @clear="clean"
-                 :placeholder="placeholder"
-                 class="ms-tree-select">
+    <el-popover
+      placement="bottom-start"
+      trigger="manual"
+      v-model="isShowSelect"
+      :style="{ minWidth: `${popoverWidth}px !important` }"
+      style="min-width: 200px !important; max-height: 400px; overflow: auto"
+      @hide="popoverHide"
+      @show="show">
+      <el-input size="mini" prefix-icon="el-icon-search" v-model="filterText"> </el-input>
+      <el-tree
+        class="common-tree"
+        :style="{ minWidth: `${popoverWidth}px !important` }"
+        :width="width"
+        ref="tree"
+        :data="treeData"
+        :props="obj"
+        :show-checkbox="multiple"
+        :node-key="obj.id"
+        :check-strictly="checkStrictly"
+        :expand-on-click-node="multiple && expandClickNode"
+        :check-on-click-node="checkClickNode"
+        :default-expand-all="defaultExpandAll"
+        :highlight-current="true"
+        @check="clickDeal"
+        :default-checked-keys="checkedId"
+        :filter-node-method="filterNode"
+        @node-click="nodeClick" />
+      <el-select
+        slot="reference"
+        ref="select"
+        :size="size"
+        v-model="returnDataKeys"
+        :multiple="multiple"
+        :clearable="clearable"
+        :collapse-tags="collapseTags"
+        :disabled="disabled"
+        @click.native="selectClick"
+        @remove-tag="removeTag"
+        @clear="clean"
+        :placeholder="placeholder"
+        class="ms-tree-select">
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
       </el-select>
       <el-row>
-        <el-button v-if="multiple" class="ok" @click="isShowSelect=false" size="mini" type="text">
+        <el-button v-if="multiple" class="ok" @click="isShowSelect = false" size="mini" type="text">
           {{ $t('commons.confirm') }}
         </el-button>
       </el-row>
@@ -42,7 +54,6 @@
 </template>
 
 <script>
-
 export default {
   name: 'SelectTree',
   props: {
@@ -51,22 +62,22 @@ export default {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     obj: {
       type: Object,
       required: false,
       default: () => {
         return {
-          id: 'id',// ID
-          label: 'name',// 显示名称
+          id: 'id', // ID
+          label: 'name', // 显示名称
           children: 'children', //子级字段名
-          path: 'path',//路径
-          content: 'content',//描述
-          pid: 'pid',//父id
-          disabled: this.isDisabled
-        }
-      }
+          path: 'path', //路径
+          content: 'content', //描述
+          pid: 'pid', //父id
+          disabled: this.isDisabled,
+        };
+      },
     },
     disabled: {
       type: Boolean,
@@ -77,91 +88,99 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     // 配置是否可清空选择
     clearable: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     // 配置多选时是否将选中值按文字的形式展示
     collapseTags: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     // 显示复选框情况下，是否严格遵循父子不互相关联
     checkStrictly: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
+    defaultExpandAll: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
+
     //多选是设置点击节点是否可以选中
     checkClickNode: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     //多选时：点击节点展开还是点三角标
     expandClickNode: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     // 默认选中的节点key
     defaultKey: {
       type: [Number, String, Array, Object],
       default() {
         return [];
-      }
+      },
     },
     size: {
       type: String,
       default() {
         return 'small';
-      }
+      },
     },
     width: {
       type: String,
       default() {
         return '100%';
-      }
+      },
     },
     height: {
       type: String,
       default() {
         return '300px';
-      }
+      },
     },
     placeholder: {
       type: String,
       default() {
         return this.$t('el.select.placeholder');
-      }
-    }
+      },
+    },
   },
   //上面是父组件可传入参数
   data() {
     return {
-      popoverWidth: "0px",//下拉框大小
+      popoverWidth: '200px', //下拉框大小
       isShowSelect: false, // 是否显示树状选择器
-      options: [],//select option选项
-      returnDatas: [],//返回给父组件数组对象
-      returnDataKeys: [],//返回父组件数组主键值
-      filterText: "",
+      options: [], //select option选项
+      returnDatas: [], //返回给父组件数组对象
+      returnDataKeys: [], //返回父组件数组主键值
+      filterText: '',
       loading: false,
       checkedId: [],
-      selectNodeIds: []
+      selectNodeIds: [],
     };
   },
   computed: {
-    treeData() { // 若非树状结构，则转化为树状结构数据
+    treeData() {
+      // 若非树状结构，则转化为树状结构数据
       return JSON.stringify(this.data).indexOf(this.obj.children) !== -1 ? this.data : this.switchTree();
     },
   },
@@ -171,54 +190,57 @@ export default {
   methods: {
     updated() {
       // 给多选树设置默认值
-      this.$refs.tree.setCheckedKeys(this.checkedId)
+      this.$refs.tree.setCheckedKeys(this.checkedId);
     },
     clickDeal(currentObj, treeStatus) {
       // 用于：父子节点严格互不关联时，父节点勾选变化时通知子节点同步变化，实现单向关联。
-      let selected = treeStatus.checkedKeys.indexOf(currentObj.id) // -1未选中
+      let selected = treeStatus.checkedKeys.indexOf(currentObj.id); // -1未选中
       // 选中
       if (selected !== -1) {
         // 子节点只要被选中父节点就被选中
         // this.selectedParent(currentObj)
         // 统一处理子节点为相同的勾选状态
-        this.uniteChildSame(currentObj, true)
+        this.uniteChildSame(currentObj, true);
       } else {
         // 未选中 处理子节点全部未选中
         if (currentObj.children && currentObj.children.length !== 0) {
-          this.uniteChildSame(currentObj, false)
+          this.uniteChildSame(currentObj, false);
         }
       }
-      this.nodeClick(currentObj, treeStatus)
+      this.nodeClick(currentObj, treeStatus);
     },
     // 统一处理子节点为相同的勾选状态
     uniteChildSame(treeList, isSelected) {
-      this.$refs.tree.setChecked(treeList.id, isSelected)
+      this.$refs.tree.setChecked(treeList.id, isSelected);
       if (treeList.children) {
         for (let i = 0; i < treeList.children.length; i++) {
-          this.uniteChildSame(treeList.children[i], isSelected)
+          this.uniteChildSame(treeList.children[i], isSelected);
         }
       }
     },
     // 统一处理父节点为选中
     selectedParent(currentObj) {
-      let currentNode = this.$refs.tree.getNode(currentObj)
+      let currentNode = this.$refs.tree.getNode(currentObj);
       if (currentNode.parent.key !== undefined) {
-        this.$refs.tree.setChecked(currentNode.parent, true)
-        this.selectedParent(currentNode.parent)
+        this.$refs.tree.setChecked(currentNode.parent, true);
+        this.selectedParent(currentNode.parent);
       }
     },
     outsideClick() {
       this.isShowSelect = false;
     },
     init() {
-      if (this.defaultKey != undefined && this.defaultKey.length > 0) {
+      if (this.defaultKey !== undefined && this.defaultKey.length > 0) {
         if (this.multiple) {
           // 多选
-          if (Object.prototype.toString.call(this.defaultKey).indexOf("Array") != -1) {
-            if (Object.prototype.toString.call(this.defaultKey[0]).indexOf("Object") != -1) {//对象
+          if (Object.prototype.toString.call(this.defaultKey).indexOf('Array') !== -1) {
+            if (Object.prototype.toString.call(this.defaultKey[0]).indexOf('Object') !== -1) {
+              //对象
               this.setDatas(this.defaultKey);
-            } else if (Object.prototype.toString.call(this.defaultKey[0]).indexOf("Number") != -1
-              || Object.prototype.toString.call(this.defaultKey[0]).indexOf("String") != -1) {
+            } else if (
+              Object.prototype.toString.call(this.defaultKey[0]).indexOf('Number') !== -1 ||
+              Object.prototype.toString.call(this.defaultKey[0]).indexOf('String') !== -1
+            ) {
               this.setKeys(this.defaultKey);
             } else {
               return;
@@ -226,12 +248,13 @@ export default {
           } else {
             return;
           }
-
         } else {
           // 单选
-          if (Object.prototype.toString.call(this.defaultKey).indexOf("Number") != -1
-            || Object.prototype.toString.call(this.defaultKey).indexOf("String") != -1
-            || Object.prototype.toString.call(this.defaultKey).indexOf("Object") != -1) {
+          if (
+            Object.prototype.toString.call(this.defaultKey).indexOf('Number') !== -1 ||
+            Object.prototype.toString.call(this.defaultKey).indexOf('String') !== -1 ||
+            Object.prototype.toString.call(this.defaultKey).indexOf('Object') !== -1
+          ) {
             this.setKey(this.defaultKey);
           } else {
             return;
@@ -244,28 +267,32 @@ export default {
     },
     //下拉框select点击[入口]
     selectClick() {
-      this.$emit("selectClick")
+      this.$emit('selectClick');
       if (this.disabled) {
         return;
       }
-      this.$nextTick(function () {//设置下拉框自适应宽度
+      this.$nextTick(function () {
+        //设置下拉框自适应宽度
         this.popoverWidth = this.$refs.select.$el.clientWidth - 26;
-      })
+      });
       //显示下拉框
-      return this.isShowSelect = !this.isShowSelect
+      return (this.isShowSelect = !this.isShowSelect);
     },
     //单选: 树点击方法
     nodeClick(data, node) {
-      if (!this.multiple) {//单选
+      if (!this.multiple) {
+        //单选
         this.isShowSelect = false;
         this.setKey(node.key);
-      } else {//多选
+      } else {
+        //多选
         let checkedKeys = this.$refs.tree.getCheckedKeys(); // 所有被选中的节点的 key 所组成的数组数据
         let t = [];
-        this.options = checkedKeys.map((item) => {//设置option选项
+        this.options = checkedKeys.map((item) => {
+          //设置option选项
           let node = this.$refs.tree.getNode(item); // 所有被选中的节点对应的node
           t.push(node.data);
-          return {label: node.label, value: node.key};
+          return { label: node.label, value: node.key };
         });
         this.returnDataKeys = this.options.map((item) => {
           return item.value;
@@ -289,7 +316,7 @@ export default {
     },
     //单选:清空选中
     clean() {
-      this.$refs.tree.setCurrentKey(null);//清除树选中key
+      this.$refs.tree.setCurrentKey(null); //清除树选中key
       this.returnDatas = null;
       this.returnDataKeys = '';
       this.selectNodeIds = [];
@@ -308,9 +335,9 @@ export default {
     //单选：设置、初始化对象
     setData(data) {
       this.options = [];
-      this.options.push({label: data[this.obj.label], value: data[this.obj.id]});
+      this.options.push({ label: data[this.obj.label], value: data[this.obj.id] });
       this.returnDatas = data;
-      this.returnDataKeys = data[this.obj.id]
+      this.returnDataKeys = data[this.obj.id];
       this.selectNodeIds = [];
       this.getChildNodeId(data, this.selectNodeIds);
     },
@@ -320,34 +347,36 @@ export default {
       this.returnDataKeys = thisKeys;
       let t = [];
       this.options = [];
-      thisKeys.map((item) => {//设置option选项
+      thisKeys.map((item) => {
+        //设置option选项
         let node = this.$refs.tree.getNode(item); // 所有被选中的节点对应的node
         if (node) {
           t.push(node.data);
-          this.options.push({label: node.label, value: node.key});
-          return {label: node.label, value: node.key};
+          this.options.push({ label: node.label, value: node.key });
+          return { label: node.label, value: node.key };
         }
       });
       this.returnDatas = t;
-      this.popoverHide()
+      this.popoverHide();
     },
     //多选:设置、初始化对象
     setDatas(data) {
       this.$refs.tree.setCheckedNodes(data);
       this.returnDatas = data;
       let t = [];
-      data.map((item) => {//设置option选项
+      data.map((item) => {
+        //设置option选项
         t.push(item[this.obj.id]);
       });
       this.returnDataKeys = t;
-      this.popoverHide()
+      this.popoverHide();
     },
     // 多选,删除任一select选项的回调
     removeTag(val) {
-      this.$refs.tree.setChecked(val, false);//设置为未选中
-      let node = this.$refs.tree.getNode(val);//获取节点
+      this.$refs.tree.setChecked(val, false); //设置为未选中
+      let node = this.$refs.tree.getNode(val); //获取节点
       if (!this.checkStrictly && node.childNodes.length > 0) {
-        this.treeToList(node).map(item => {
+        this.treeToList(node).map((item) => {
           if (item.childNodes.length <= 0) {
             this.$refs.tree.setChecked(item, false);
           }
@@ -355,21 +384,20 @@ export default {
       }
       this.nodeClick();
       this.popoverHide();
-
     },
-    show(){
-      document.addEventListener('click', this.hidePanel, false)
+    show() {
+      document.addEventListener('click', this.hidePanel, false);
     },
     //下拉框关闭执行
     popoverHide() {
       this.$emit('setSelectNodeIds', this.selectNodeIds);
       this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
-      document.removeEventListener('click', this.hidePanel, false)
+      document.removeEventListener('click', this.hidePanel, false);
     },
-    hidePanel (e) {
+    hidePanel(e) {
       if (!this.$refs.projectButton.contains(e.target)) {
-        this.isShowSelect = false
-        this.popoverHide()
+        this.isShowSelect = false;
+        this.popoverHide();
       }
     },
     // 多选，清空所有勾选
@@ -422,9 +450,9 @@ export default {
       return false;
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
+        this.loading = false;
       });
     },
   },
@@ -435,13 +463,14 @@ export default {
       // 隐藏select自带的下拉框
       this.$refs.select.blur();
     },
-    treeData: {//监听tree数据
+    treeData: {
+      //监听tree数据
       handler: function () {
         this.$nextTick(() => {
           this.init();
-        })
+        });
       },
-      deep: true
+      deep: true,
     },
     defaultKey: {
       handler: function () {
@@ -452,7 +481,7 @@ export default {
           }
         }
       },
-      deep: true
+      deep: true,
     },
     data: {
       handler: function () {
@@ -462,7 +491,7 @@ export default {
           }
         }
       },
-      deep: true
+      deep: true,
     },
     filterText(val) {
       this.$nextTick(() => {
@@ -474,10 +503,9 @@ export default {
         this.$refs.tree.filter(val);
       });
     },
-  }
+  },
 };
 </script>
-
 <style scoped>
 .mask {
   height: 100%;
@@ -499,16 +527,13 @@ export default {
   z-index: 111;
 }
 
-:deep(.el-tree-node__children ) {
+:deep(.el-tree-node__children) {
   overflow: inherit;
 }
-
 .ok {
   float: right;
 }
-
 .el-row {
   padding-top: 0px !important;
 }
-
 </style>
