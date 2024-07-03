@@ -8,22 +8,17 @@
       :extract-content-tab-list="extractContentTabList"
       :can-show-float-menu="canShowFloatMenu"
       :can-show-priority-menu="false"
-      :can-show-more-menu="showCaseMenu"
+      :can-show-more-menu="canShowFloatMenu"
+      :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
-      :more-menu-other-operation-list="moreMenuOtherOperationList"
+      :more-menu-other-operation-list="canShowEnterNode ? [] : moreMenuOtherOperationList"
       disabled
       single-tag
       @node-select="handleNodeSelect"
     >
       <template #extractMenu>
-        <!-- 进入当前节点 -->
-        <template v-if="canShowEnterNode">
-          <MsButton type="text" class="!text-[var(--color-text-1)]" @click="handleEnterNode">
-            {{ t('minder.hotboxMenu.enterNode') }}
-          </MsButton>
-        </template>
         <template v-if="showCaseMenu">
-          <!-- 评审 查看详情 更多 -->
+          <!-- 评审 查看详情 -->
           <a-tooltip :content="t('caseManagement.caseReview.review')">
             <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
               <MsIcon type="icon-icon_audit" class="text-[var(--color-text-4)]" />
@@ -46,6 +41,7 @@
           :loading="baseInfoLoading"
           :descriptions="descriptions"
           label-width="90px"
+          class="pl-[16px]"
         />
         <Attachment
           v-else-if="activeExtraKey === 'attachment'"
@@ -53,15 +49,20 @@
           not-show-add-button
           :active-case="activeCaseInfo"
         />
-        <div v-else>
-          <div v-if="props.reviewPassRule === 'MULTIPLE'" class="flex justify-between">
+        <div v-else class="pl-[16px]">
+          <div v-if="props.reviewPassRule === 'MULTIPLE'" class="mb-[8px] flex justify-between">
             <div class="text-[12px]">
               <span class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.progress') }}</span>
-              {{ props.passRate }}
+              {{ props.reviewProgress }}
             </div>
-            <!-- TODO 下拉 -->
+            <!-- TODO 总结果 hover展示单个 -->
+            <ReviewResult :status="activeCaseInfo.reviewStatus" />
           </div>
-          <ReviewCommentList :review-comment-list="reviewHistoryList" active-comment="reviewComment" />
+          <ReviewCommentList
+            :review-comment-list="reviewHistoryList"
+            active-comment="reviewComment"
+            not-show-review-name
+          />
         </div>
       </template>
     </MsMinderEditor>
@@ -80,6 +81,7 @@
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
+  import ReviewResult from '@/views/case-management/caseReview/components/reviewResult.vue';
 
   import { getCaseReviewHistoryList, getCaseReviewMinder } from '@/api/modules/case-management/caseReview';
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
@@ -99,7 +101,7 @@
     modulesCount: Record<string, number>; // 模块数量
     viewFlag: boolean; // 是否只看我的
     viewStatusFlag: boolean; // 我的评审结果
-    passRate: string;
+    reviewProgress: string;
     reviewPassRule: ReviewPassRule; // 评审规则
     moduleTree: ModuleTreeNode[];
   }>();
@@ -345,7 +347,7 @@
   async function initCaseDetail(data: MinderJsonNodeData) {
     try {
       baseInfoLoading.value = true;
-      const res = await getCaseDetail(data?.id || activeCaseInfo.value.id);
+      const res = await getCaseDetail(data?.caseId || activeCaseInfo.value.caseId);
       activeCaseInfo.value = res;
       // 基本信息
       descriptions.value = [
@@ -401,7 +403,7 @@
   const reviewHistoryList = ref<ReviewHistoryItem[]>([]);
   async function initReviewHistoryList(data: MinderJsonNodeData) {
     try {
-      const res = await getCaseReviewHistoryList(route.query.id as string, data?.id || activeCaseInfo.value.id);
+      const res = await getCaseReviewHistoryList(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
       reviewHistoryList.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -503,14 +505,6 @@
       removeFakeNode(node, 'fakeNode');
     }
     setPriorityView(true, 'P');
-  }
-
-  /**
-   * 进入当前节点
-   */
-  function handleEnterNode() {
-    const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-    minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [selectedNodes[0]]);
   }
 
   defineExpose({

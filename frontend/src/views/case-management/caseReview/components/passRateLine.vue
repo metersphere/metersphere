@@ -119,6 +119,10 @@
       ((props.reviewDetail.passCount + props.reviewDetail.unPassCount) / props.reviewDetail.caseCount) * 100;
     return `${Number.isNaN(result) ? 0 : result.toFixed(2)}%`;
   });
+
+  defineExpose({
+    progress,
+  });
 </script>
 
 <style lang="less" scoped>

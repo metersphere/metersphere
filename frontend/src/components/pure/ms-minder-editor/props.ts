@@ -155,7 +155,7 @@ export const floatMenuProps = {
     type: Boolean,
     default: true,
   },
-  // 是否显示更多菜单里的[进入、复制、粘贴、剪切、删除]操作
+  // 是否显示更多菜单里的[复制、粘贴、剪切、删除]操作
   canShowMoreMenuNodeOperation: {
     type: Boolean,
     default: true,

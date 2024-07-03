@@ -89,7 +89,12 @@
             </span>
           </div>
         </div>
-        <passRateLine :review-detail="reviewDetail" height="8px" radius="var(--border-radius-mini)" />
+        <passRateLine
+          ref="passRateLineRef"
+          :review-detail="reviewDetail"
+          height="8px"
+          radius="var(--border-radius-mini)"
+        />
       </div>
     </template>
     <!-- <div class="px-[24px]">
@@ -121,7 +126,7 @@
           :review-pass-rule="reviewDetail.reviewPassRule"
           :offspring-ids="offspringIds"
           :modules-count="modulesCount"
-          :pass-rate="reviewDetail.status === 'PREPARED' ? '-' : `${reviewDetail.passRate}%`"
+          :review-progress="reviewProgress"
           :module-tree="moduleTree"
           @init="initModulesCount"
           @refresh="handleRefresh"
@@ -191,6 +196,8 @@
     ...reviewDefaultDetail,
   });
   const reviewId = ref(route.query.id as string);
+  const passRateLineRef = ref<InstanceType<typeof passRateLine>>();
+  const reviewProgress = computed(() => passRateLineRef.value?.progress ?? '');
 
   async function initDetail() {
     try {

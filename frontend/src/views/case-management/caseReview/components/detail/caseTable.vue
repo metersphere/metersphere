@@ -140,7 +140,7 @@
         :view-status-flag="onlyMineStatus"
         :module-tree="props.moduleTree"
         :modules-count="props.modulesCount"
-        :pass-rate="props.passRate"
+        :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
       />
     </div>
@@ -352,7 +352,7 @@
     offspringIds: string[]; // 当前选中节点的所有子节点id
     moduleTree: ModuleTreeNode[];
     modulesCount: Record<string, number>; // 模块数量
-    passRate: string;
+    reviewProgress: string; // 评审进度
   }>();
   const emit = defineEmits(['init', 'refresh', 'link']);
 
