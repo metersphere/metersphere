@@ -840,7 +840,8 @@
         history.`status` as status,
         fc.module_id as moduleId,
         fc.name as name,
-        fcb.steps, fcb.expected_result, fcb.prerequisite, fcb.description
+        fc.project_id,  fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
+        fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
         case_review_functional_case crfc
         LEFT JOIN functional_case fc ON crfc.case_id = fc.id
@@ -868,7 +869,8 @@
         history.`status` as status,
         fc.module_id as moduleId,
         fc.name as name,
-        fcb.steps, fcb.expected_result, fcb.prerequisite, fcb.description
+        fc.project_id,  fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
+        fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
         test_plan_functional_case tpfc
         LEFT JOIN functional_case fc ON tpfc.functional_case_id = fc.id
