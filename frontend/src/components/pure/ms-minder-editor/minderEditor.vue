@@ -163,6 +163,10 @@
 
       width: 0;
       transition: all 300ms ease-in-out;
+      :deep(.ms-tab--button-item) {
+        flex: 1;
+        text-align: center;
+      }
       .ms-minder-editor-extra-content {
         @apply relative  flex-1 overflow-y-auto;
         .ms-scroll-bar();

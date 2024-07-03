@@ -37,7 +37,7 @@
               {{ t('common.fail') }}
             </div>
           </div>
-          <div class="markdown-body" v-html="item.contentText"></div>
+          <div class="markdown-body mt-[4px]" v-html="item.contentText"></div>
           <div class="mt-[8px] flex text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
             <div v-if="props.activeComment === 'reviewComment'">
@@ -47,7 +47,7 @@
                 </span>
 
                 <span
-                  v-else
+                  v-if="!item.deleted && !props.notShowReviewName"
                   class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
                   @click="review(item)"
                 >
@@ -94,6 +94,7 @@
   const props = defineProps<{
     reviewCommentList: any[];
     activeComment: string;
+    notShowReviewName?: boolean;
   }>();
 
   const router = useRouter();

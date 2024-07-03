@@ -134,13 +134,13 @@
           </MsButton>
         </a-tooltip>
         <template #content>
+          <a-doption v-if="props.canShowEnterNode" value="enterNode">
+            <div class="flex items-center">
+              <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
+              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div> -->
+            </div>
+          </a-doption>
           <template v-if="props.canShowMoreMenuNodeOperation">
-            <a-doption v-if="props.canShowEnterNode" value="enterNode">
-              <div class="flex items-center">
-                <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
-                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div> -->
-              </div>
-            </a-doption>
             <a-doption value="copy">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.copy') }}</div>
