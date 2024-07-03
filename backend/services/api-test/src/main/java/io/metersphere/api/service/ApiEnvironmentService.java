@@ -158,12 +158,9 @@ public class ApiEnvironmentService {
     }
 
     private boolean isBlankLine(JsonNode lastNode) {
-        boolean nameBlank = lastNode.get(NAME) == null ? true : StringUtils.isBlank(lastNode.get(NAME).asText());
-        boolean valueBlank = lastNode.get(VALUE) == null ? true : StringUtils.isBlank(lastNode.get(VALUE).asText());
-        if (nameBlank && valueBlank) {
-            return true;
-        }
-        return false;
+        boolean nameBlank = lastNode.get(NAME) == null || StringUtils.isBlank(lastNode.get(NAME).asText());
+        boolean valueBlank = lastNode.get(VALUE) == null || StringUtils.isBlank(lastNode.get(VALUE).asText());
+        return nameBlank && valueBlank;
     }
 
     private List<JsonNode> createArray(Map<String, String> varMap) {

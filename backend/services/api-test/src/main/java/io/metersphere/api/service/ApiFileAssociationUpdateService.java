@@ -11,6 +11,8 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2024-02-06  20:48
@@ -29,13 +31,17 @@ public class ApiFileAssociationUpdateService implements FileAssociationUpdateSer
         String sourceType = originFileAssociation.getSourceType();
         switch (sourceType) {
             case FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG ->
-                    CommonBeanFactory.getBean(ApiDebugService.class).handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
+                    Objects.requireNonNull(CommonBeanFactory.getBean(ApiDebugService.class))
+                            .handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             case FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION ->
-                    CommonBeanFactory.getBean(ApiDefinitionService.class).handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
+                    Objects.requireNonNull(CommonBeanFactory.getBean(ApiDefinitionService.class))
+                            .handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             case FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE ->
-                    CommonBeanFactory.getBean(ApiTestCaseService.class).handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
+                    Objects.requireNonNull(CommonBeanFactory.getBean(ApiTestCaseService.class))
+                            .handleFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             case FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO_STEP ->
-                    CommonBeanFactory.getBean(ApiScenarioService.class).handleStepFileAssociationUpgrade(originFileAssociation, newFileMetadata);
+                    Objects.requireNonNull(CommonBeanFactory.getBean(ApiScenarioService.class))
+                            .handleStepFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             default -> {
             }
         }
