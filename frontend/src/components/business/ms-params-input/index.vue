@@ -363,7 +363,11 @@
   });
 
   const disabledPopover = computed(() => {
-    return !innerValue.value || innerValue.value.trim() === '' || isFocusAutoComplete.value;
+    return (
+      !innerValue.value ||
+      (typeof innerValue.value === 'string' && innerValue.value.trim() === '') ||
+      isFocusAutoComplete.value
+    );
   });
 
   const paramSettingVisible = ref(false);

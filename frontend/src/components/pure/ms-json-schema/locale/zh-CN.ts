@@ -21,4 +21,5 @@ export default {
   'ms.json.schema.convertFailed': '数据转换失败，请重试',
   'ms.json.schema.minItems': '最小元素数量',
   'ms.json.schema.maxItems': '最大元素数量',
+  'ms.json.schema.illegalJsonConvertFailed': '转换失败，请检查输入的json 结构是否合法',
 };

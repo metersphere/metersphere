@@ -421,7 +421,7 @@
       <div>
         <div class="mb-[8px]">{{ t('ms.json.schema.preview') }}</div>
         <MsCodeEditor
-          v-model:model-value="activePreviewValue"
+          v-model:model-value="activePreviewJsonSchemaValue"
           theme="vs"
           height="500px"
           :show-full-screen="false"
@@ -447,9 +447,9 @@
       :show-full-screen="false"
     >
       <template #leftTitle>
-        <a-radio-group default-value="json" type="button" @change="batchAddValue = ''">
+        <a-radio-group v-model:model-value="batchAddType" type="button" @change="batchAddValue = ''">
           <a-radio value="json">Json</a-radio>
-          <a-radio value="jsonSchema">JsonSchema</a-radio>
+          <a-radio value="schema">JsonSchema</a-radio>
         </a-radio-group>
       </template>
       <template #rightTitle>
@@ -462,14 +462,23 @@
     </MsCodeEditor>
   </MsDrawer>
   <MsDrawer v-model:visible="previewDrawerVisible" :width="600" :title="t('common.preview')" :footer="false">
-    <MsCodeEditor
-      v-model:model-value="activePreviewValue"
-      theme="vs"
-      height="100%"
-      :language="LanguageEnum.JSON"
-      :show-full-screen="false"
-      read-only
-    />
+    <a-spin class="block" :loading="previewDrawerLoading">
+      <MsCodeEditor
+        v-model:model-value="activePreviewValue"
+        theme="vs"
+        height="100%"
+        :language="LanguageEnum.JSON"
+        :show-full-screen="false"
+        read-only
+      >
+        <template #leftTitle>
+          <a-radio-group v-model:model-value="previewShowType" type="button" @change="batchAddValue = ''">
+            <a-radio value="json">Json</a-radio>
+            <a-radio value="schema">JsonSchema</a-radio>
+          </a-radio-group>
+        </template>
+      </MsCodeEditor>
+    </a-spin>
   </MsDrawer>
 </template>
 
@@ -485,13 +494,14 @@
   import MsParamsInput from '@/components/business/ms-params-input/index.vue';
   import MsQuickInput from '@/components/business/ms-quick-input/index.vue';
 
+  import { convertJsonSchemaToJson } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import { getGenerateId, traverseTree } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { JsonSchemaTableItem } from './types';
-  import { convertToJsonSchema } from './utils';
+  import { JsonSchema, JsonSchemaTableItem } from './types';
+  import { parseJsonToJsonSchemaTableItem, tableItemToJsonSchema } from './utils';
 
   const { t } = useI18n();
 
@@ -828,38 +838,52 @@
 
   const batchAddDrawerVisible = ref(false);
   const batchAddValue = ref('');
+  const batchAddType = ref<'json' | 'schema'>('json');
 
   function batchAdd() {
     batchAddDrawerVisible.value = true;
   }
 
   function applyBatchAdd() {
+    if (batchAddType.value === 'json') {
+      const res = parseJsonToJsonSchemaTableItem(batchAddValue.value);
+      if (res.result.length > 0) {
+        data.value = res.result;
+        selectedKeys.value = res.ids;
+      }
+    }
     batchAddDrawerVisible.value = false;
   }
 
   const settingDrawerVisible = ref(false);
   const activeRecord = ref<any>({});
-  const activePreviewValue = ref('');
+  const previewShowType = ref<'json' | 'schema'>('json');
+  const activePreviewJsonValue = ref('');
+  const activePreviewJsonSchemaValue = ref('');
+  const activePreviewValue = computed(() => {
+    return previewShowType.value === 'json' ? activePreviewJsonValue.value : activePreviewJsonSchemaValue.value;
+  });
 
-  function openSetting(record: JsonSchemaTableItem) {
+  async function openSetting(record: JsonSchemaTableItem) {
     // 浅拷贝，以保留 parent 和 children 的引用
     activeRecord.value = {
       ...record,
     };
     try {
-      activePreviewValue.value = JSON.stringify(convertToJsonSchema(record, record.id === 'root'));
+      const schema = tableItemToJsonSchema(record, record.id === 'root');
+      activePreviewJsonSchemaValue.value = JSON.stringify(schema);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      activePreviewValue.value = t('ms.json.schema.convertFailed');
+      activePreviewJsonSchemaValue.value = t('ms.json.schema.convertFailed');
     } finally {
       settingDrawerVisible.value = true;
     }
   }
 
   function handleSettingFormChange() {
-    activePreviewValue.value = JSON.stringify(
-      convertToJsonSchema(activeRecord.value, activeRecord.value.id === 'root')
+    activePreviewJsonSchemaValue.value = JSON.stringify(
+      tableItemToJsonSchema(activeRecord.value, activeRecord.value.id === 'root')
     );
   }
 
@@ -901,9 +925,24 @@
   }
 
   const previewDrawerVisible = ref(false);
-  function previewSchema() {
+  const previewDrawerLoading = ref(false);
+
+  async function previewSchema() {
     previewDrawerVisible.value = true;
-    activePreviewValue.value = JSON.stringify(convertToJsonSchema(data.value[0]));
+    try {
+      previewDrawerLoading.value = true;
+      const schema = tableItemToJsonSchema(data.value[0]);
+      const res = await convertJsonSchemaToJson(schema as JsonSchema);
+      activePreviewJsonValue.value = JSON.stringify(res);
+      activePreviewJsonSchemaValue.value = JSON.stringify(schema);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      activePreviewJsonValue.value = t('ms.json.schema.convertFailed');
+      activePreviewJsonSchemaValue.value = t('ms.json.schema.convertFailed');
+    } finally {
+      previewDrawerLoading.value = false;
+    }
   }
 
   defineExpose({

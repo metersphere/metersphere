@@ -17,7 +17,7 @@ export interface JsonSchemaCommon {
 }
 // json-schema 表格组件的表格项
 export interface JsonSchemaTableItem extends JsonSchemaCommon {
-  required?: string[]; // 是否必填
+  required?: boolean; // 是否必填
   children?: JsonSchemaTableItem[];
   parent?: JsonSchemaTableItem; // 父级
   enumValues?: string; // 参数值的枚举

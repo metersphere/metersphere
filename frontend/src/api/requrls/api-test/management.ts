@@ -35,6 +35,7 @@ export const OperationHistoryUrl = '/api/definition/operation-history'; // 接�
 export const SaveOperationHistoryUrl = '/api/definition/operation-history/save'; // 接口定义-另存变更历史为指定版本
 export const RecoverOperationHistoryUrl = '/api/definition/operation-history/recover'; // 接口定义-变更历史恢复
 export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取接口引用关系
+export const ConvertJsonSchemaToJsonUrl = '/api/definition/preview'; // 将json-schema转换为 json 数据
 
 /**
  * Mock
