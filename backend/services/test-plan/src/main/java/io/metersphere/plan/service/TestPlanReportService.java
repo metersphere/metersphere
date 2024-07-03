@@ -479,11 +479,11 @@ public class TestPlanReportService {
 		if (planReport.getIntegrated()) {
 			// 计划组的(执行)结果状态: 子计划全部成功 ? 成功 : 失败
 			TestPlanReportExample reportExample = new TestPlanReportExample();
-			reportExample.createCriteria().andParentIdEqualTo(postParam.getReportId()).andIntegratedEqualTo(false).andResultStatusNotEqualTo(ReportStatus.SUCCESS.name());
-			planReport.setResultStatus(testPlanReportMapper.countByExample(reportExample) == 0 ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+			reportExample.createCriteria().andParentIdEqualTo(postParam.getReportId()).andIntegratedEqualTo(false).andResultStatusNotEqualTo(ResultStatus.SUCCESS.name());
+			planReport.setResultStatus(testPlanReportMapper.countByExample(reportExample) == 0 ? ResultStatus.SUCCESS.name() : ResultStatus.ERROR.name());
 		} else {
 			// 计划的(执行)结果状态: 通过率 >= 阈值 ? 成功 : 失败
-			planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ReportStatus.SUCCESS.name() : ReportStatus.ERROR.name());
+			planReport.setResultStatus(planReport.getPassRate() >= planReport.getPassThreshold() ? ResultStatus.SUCCESS.name() : ResultStatus.ERROR.name());
 		}
 
         testPlanReportMapper.updateByPrimaryKeySelective(planReport);
@@ -532,7 +532,7 @@ public class TestPlanReportService {
 			TestPlanReportExample reportExample = new TestPlanReportExample();
 			reportExample.createCriteria().andParentIdEqualTo(reportId).andIntegratedEqualTo(false);
 			List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(reportExample);
-			long planPassCount = testPlanReports.stream().filter(report -> StringUtils.equals(ExecStatus.SUCCESS.name(), report.getResultStatus())).count();
+			long planPassCount = testPlanReports.stream().filter(report -> StringUtils.equals(ResultStatus.SUCCESS.name(), report.getResultStatus())).count();
 			planReportDetail.setPassCountOfPlan((int) planPassCount);
 			planReportDetail.setFailCountOfPlan(planReportDetail.getPlanCount() - planReportDetail.getPassCountOfPlan());
 		}
@@ -929,11 +929,11 @@ public class TestPlanReportService {
     private CaseCount countMap(List<CaseStatusCountMap> resultMapList) {
         CaseCount caseCount = new CaseCount();
         Map<String, Long> resultMap = resultMapList.stream().collect(Collectors.toMap(CaseStatusCountMap::getStatus, CaseStatusCountMap::getCount));
-        caseCount.setSuccess(resultMap.getOrDefault(ExecStatus.SUCCESS.name(), 0L).intValue());
-        caseCount.setError(resultMap.getOrDefault(ExecStatus.ERROR.name(), 0L).intValue());
+        caseCount.setSuccess(resultMap.getOrDefault(ResultStatus.SUCCESS.name(), 0L).intValue());
+        caseCount.setError(resultMap.getOrDefault(ResultStatus.ERROR.name(), 0L).intValue());
         caseCount.setPending(resultMap.getOrDefault(ExecStatus.PENDING.name(), 0L).intValue() + resultMap.getOrDefault(ExecStatus.STOPPED.name(), 0L).intValue());
-        caseCount.setBlock(resultMap.getOrDefault(ExecStatus.BLOCKED.name(), 0L).intValue());
-        caseCount.setFakeError(resultMap.getOrDefault(ExecStatus.FAKE_ERROR.name(), 0L).intValue());
+        caseCount.setBlock(resultMap.getOrDefault(ResultStatus.BLOCKED.name(), 0L).intValue());
+        caseCount.setFakeError(resultMap.getOrDefault(ResultStatus.FAKE_ERROR.name(), 0L).intValue());
         return caseCount;
     }
 

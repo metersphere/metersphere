@@ -6,6 +6,7 @@ import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.Schedule;
@@ -126,10 +127,10 @@ public class TestPlanStatisticsService {
 				Map<String, Long> apiScenarioResultCountMap = CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
 						Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
 				// 用例数据汇总
-				statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.SUCCESS.name()));
-				statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.ERROR.name()));
-				statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.FAKE_ERROR.name()));
-				statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.BLOCKED.name()));
+				statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.SUCCESS.name()));
+				statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.ERROR.name()));
+				statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.FAKE_ERROR.name()));
+				statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.BLOCKED.name()));
 				statisticsResponse.setPendingCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
 				statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount() + statisticsResponse.getApiCaseCount() + statisticsResponse.getApiScenarioCount());
 				// 通过率 {通过用例数/总用例数} && 执行进度 {非未执行的用例数/总用例数}

@@ -28,8 +28,7 @@ public class DateUtils {
     }
 
     public static String getDateString(long timeStamp) throws Exception {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
-        return dateFormat.format(timeStamp);
+        return getDataStr(timeStamp);
     }
 
     public static String getTimeString(Date date) throws Exception {

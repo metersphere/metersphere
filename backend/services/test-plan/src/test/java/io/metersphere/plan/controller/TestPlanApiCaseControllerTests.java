@@ -31,7 +31,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -445,7 +445,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         apiReport.setEnvironmentId("test-env");
         apiReport.setRunMode("api-run-mode");
         apiReport.setTestPlanCaseId("test-plan-case-id");
-        apiReport.setStatus(ReportStatus.SUCCESS.name());
+        apiReport.setStatus(ResultStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
         apiReport.setIntegrated(true);
         reports.add(apiReport);

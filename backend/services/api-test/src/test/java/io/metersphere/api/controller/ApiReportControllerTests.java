@@ -100,9 +100,9 @@ public class ApiReportControllerTests extends BaseTest {
             apiReport.setEnvironmentId("api-environment-id" + i);
             apiReport.setRunMode("api-run-mode" + i);
             if (i % 50 == 0) {
-                apiReport.setStatus(ReportStatus.SUCCESS.name());
+                apiReport.setStatus(ResultStatus.SUCCESS.name());
             } else if (i % 39 == 0) {
-                apiReport.setStatus(ReportStatus.ERROR.name());
+                apiReport.setStatus(ResultStatus.ERROR.name());
                 apiReport.setIntegrated(true);
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
@@ -166,7 +166,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiScenarioDTO>) returnPager.getList()).size() <= request.getPageSize());
         //过滤
         request.setFilter(new HashMap<>() {{
-            put("status", List.of(ReportStatus.SUCCESS.name(), ReportStatus.ERROR.name()));
+            put("status", List.of(ResultStatus.SUCCESS.name(), ResultStatus.ERROR.name()));
         }});
         mvcResult = responsePost(PAGE, request);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
@@ -175,7 +175,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
         List<ApiReport> list = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiReport.class);
         list.forEach(apiReport -> {
-            Assertions.assertTrue(apiReport.getStatus().equals(ReportStatus.SUCCESS.name()) || apiReport.getStatus().equals(ReportStatus.ERROR.name()));
+            Assertions.assertTrue(apiReport.getStatus().equals(ResultStatus.SUCCESS.name()) || apiReport.getStatus().equals(ResultStatus.ERROR.name()));
         });
         request.setFilter(new HashMap<>() {{
             put("integrated", List.of("true"));
@@ -267,7 +267,7 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setPoolId(testResourcePools.getFirst().getId());
         apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
-        apiReport.setStatus(ReportStatus.SUCCESS.name());
+        apiReport.setStatus(ResultStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
         apiReport.setIntegrated(true);
         reports.add(apiReport);
@@ -334,7 +334,7 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setPoolId(testResourcePools.getFirst().getId());
         apiReport.setEnvironmentId(environments.getFirst().getId());
         apiReport.setRunMode("api-run-mode");
-        apiReport.setStatus(ReportStatus.SUCCESS.name());
+        apiReport.setStatus(ResultStatus.SUCCESS.name());
         apiReport.setTriggerMode("api-trigger-mode");
         apiReport.setIntegrated(true);
         reports.add(apiReport);

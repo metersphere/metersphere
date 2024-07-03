@@ -1,9 +1,9 @@
 package io.metersphere.sdk.constants;
 
 /**
- * 报告状态
+ * 结果状态
  */
-public enum ReportStatus {
+public enum ResultStatus {
     /**
      * 成功
      */
@@ -17,5 +17,9 @@ public enum ReportStatus {
     /**
      * 误报
      */
-    FAKE_ERROR
+    FAKE_ERROR,
+    /**
+     * 阻塞
+     */
+    BLOCKED,
 }

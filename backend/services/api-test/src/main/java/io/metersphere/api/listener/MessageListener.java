@@ -1,6 +1,5 @@
 package io.metersphere.api.listener;
 
-import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
@@ -162,6 +161,6 @@ public class MessageListener {
     }
 
     private boolean isStopOnFailure(ApiNoticeDTO dto) {
-        return BooleanUtils.isTrue(dto.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ReportStatus.ERROR.name());
+        return BooleanUtils.isTrue(dto.getRunModeConfig().getStopOnFailure()) && StringUtils.equals(dto.getReportStatus(), ResultStatus.ERROR.name());
     }
 }

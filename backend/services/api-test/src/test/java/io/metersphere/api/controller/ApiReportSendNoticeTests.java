@@ -7,7 +7,7 @@ import io.metersphere.api.service.ApiReportSendNoticeService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
-import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -93,11 +93,11 @@ public class ApiReportSendNoticeTests extends BaseTest {
             apiReport.setEnvironmentId("api-environment-id");
             apiReport.setRunMode("api-run-mode");
             if (i == 0) {
-                apiReport.setStatus(ReportStatus.SUCCESS.name());
+                apiReport.setStatus(ResultStatus.SUCCESS.name());
             } else if (i == 1) {
-                apiReport.setStatus(ReportStatus.ERROR.name());
+                apiReport.setStatus(ResultStatus.ERROR.name());
             } else {
-                apiReport.setStatus(ReportStatus.FAKE_ERROR.name());
+                apiReport.setStatus(ResultStatus.FAKE_ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
             reports.add(apiReport);
@@ -109,7 +109,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
         apiReportService.insertApiReport(reports, records);
         ApiNoticeDTO noticeDTO = new ApiNoticeDTO();
         noticeDTO.setReportId("send-api-case-report-id0");
-        noticeDTO.setReportStatus(ReportStatus.SUCCESS.name());
+        noticeDTO.setReportStatus(ResultStatus.SUCCESS.name());
         noticeDTO.setResourceId("send-api-case-id");
         noticeDTO.setResourceType("API_CASE");
         noticeDTO.setUserId("admin");
@@ -117,10 +117,10 @@ public class ApiReportSendNoticeTests extends BaseTest {
         noticeDTO.getRunModeConfig().setEnvironmentId("api-environment-id");
 
         apiReportSendNoticeService.sendNotice(noticeDTO);
-        noticeDTO.setReportStatus(ReportStatus.ERROR.name());
+        noticeDTO.setReportStatus(ResultStatus.ERROR.name());
         noticeDTO.setReportId("send-api-case-report-id1");
         apiReportSendNoticeService.sendNotice(noticeDTO);
-        noticeDTO.setReportStatus(ReportStatus.FAKE_ERROR.name());
+        noticeDTO.setReportStatus(ResultStatus.FAKE_ERROR.name());
         noticeDTO.setReportId("send-api-case-report-id2");
         apiReportSendNoticeService.sendNotice(noticeDTO);
 
@@ -161,11 +161,11 @@ public class ApiReportSendNoticeTests extends BaseTest {
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i == 0) {
-                scenarioReport.setStatus(ReportStatus.SUCCESS.name());
+                scenarioReport.setStatus(ResultStatus.SUCCESS.name());
             } else if (i == 1) {
-                scenarioReport.setStatus(ReportStatus.ERROR.name());
+                scenarioReport.setStatus(ResultStatus.ERROR.name());
             } else {
-                scenarioReport.setStatus(ReportStatus.FAKE_ERROR.name());
+                scenarioReport.setStatus(ResultStatus.FAKE_ERROR.name());
             }
             scenarioReport.setUpdateTime(System.currentTimeMillis());
             scenarioReport.setPoolId("api-pool-id" + i);
@@ -183,7 +183,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
 
         noticeDTO = new ApiNoticeDTO();
         noticeDTO.setReportId("send-scenario-report-id0");
-        noticeDTO.setReportStatus(ReportStatus.SUCCESS.name());
+        noticeDTO.setReportStatus(ResultStatus.SUCCESS.name());
         noticeDTO.setResourceId("send-api-case-id");
         noticeDTO.setResourceType("API_SCENARIO");
         noticeDTO.setUserId("admin");
@@ -191,10 +191,10 @@ public class ApiReportSendNoticeTests extends BaseTest {
         noticeDTO.getRunModeConfig().setEnvironmentId("api-environment-id");
 
         apiReportSendNoticeService.sendNotice(noticeDTO);
-        noticeDTO.setReportStatus(ReportStatus.ERROR.name());
+        noticeDTO.setReportStatus(ResultStatus.ERROR.name());
         noticeDTO.setReportId("send-scenario-report-id1");
         apiReportSendNoticeService.sendNotice(noticeDTO);
-        noticeDTO.setReportStatus(ReportStatus.FAKE_ERROR.name());
+        noticeDTO.setReportStatus(ResultStatus.FAKE_ERROR.name());
         noticeDTO.setReportId("send-scenario-report-id2");
         apiReportSendNoticeService.sendNotice(noticeDTO);
 

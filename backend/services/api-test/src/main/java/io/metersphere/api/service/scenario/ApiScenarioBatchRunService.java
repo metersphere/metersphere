@@ -383,7 +383,7 @@ public class ApiScenarioBatchRunService {
             // 计算各种通过率
             long total = apiScenarioReportService.getRequestTotal(report);
             report = apiBatchRunBaseService.computeRequestRate(report, total);
-            report.setStatus(ReportStatus.ERROR.name());
+            report.setStatus(ResultStatus.ERROR.name());
             report.setExecStatus(ExecStatus.COMPLETED.name());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         } catch (Exception e) {

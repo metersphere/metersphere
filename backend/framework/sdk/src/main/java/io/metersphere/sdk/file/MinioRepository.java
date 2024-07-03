@@ -49,7 +49,6 @@ public class MinioRepository implements FileRepository {
         try {
             Object serverUrl = minioConfig.get(ENDPOINT).toString();
             if (ObjectUtils.isNotEmpty(serverUrl)) {
-                LogUtils.info("开始初始化MinIO插件");
                 // 创建 MinioClient 客户端
                 client = MinioClient.builder()
                         .endpoint(minioConfig.get(ENDPOINT).toString())
@@ -59,7 +58,6 @@ public class MinioRepository implements FileRepository {
                 if (!exist) {
                     client.makeBucket(MakeBucketArgs.builder().bucket(BUCKET).build());
                 }
-                LogUtils.info("初始化MinIO成功");
             }
         } catch (Exception e) {
             LogUtils.error("MinIOClient初始化失败！", e);
