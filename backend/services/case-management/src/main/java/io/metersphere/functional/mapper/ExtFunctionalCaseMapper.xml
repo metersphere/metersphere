@@ -793,7 +793,7 @@
 
     <select id="getMinderCaseList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
-            fc.id, fc.name, fc.project_id, fc.module_id, fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
+            fc.id, fc.id as caseId, fc.name, fc.project_id, fc.module_id, fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
             fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
         functional_case fc
@@ -840,6 +840,7 @@
         history.`status` as status,
         fc.module_id as moduleId,
         fc.name as name,
+        fc.id as caseId,
         fc.project_id,  fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
         fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
@@ -869,6 +870,7 @@
         history.`status` as status,
         fc.module_id as moduleId,
         fc.name as name,
+        fc.id as caseId,
         fc.project_id,  fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
         fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM

@@ -18,6 +18,11 @@ public class FunctionalCaseMindDTO {
     @Size(min = 1, max = 50, message = "{functional_case.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "caseID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{functional_case.id.length_range}", groups = {Created.class, Updated.class})
+    private String caseId;
+
     @Schema(description = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.module_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case.module_id.length_range}", groups = {Created.class, Updated.class})
