@@ -6,6 +6,7 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,6 +100,8 @@ public class TestPlanReportService {
     private BaseUserMapper baseUserMapper;
     @Resource
     private TestPlanSendNoticeService testPlanSendNoticeService;
+    @Resource
+    private ExtTestPlanCaseExecuteHistoryMapper extTestPlanCaseExecuteHistoryMapper;
 
     /**
      * 分页查询报告列表
@@ -596,6 +600,22 @@ public class TestPlanReportService {
         Map<String, String> userMap = getUserMap(distinctUserIds);
         detailCases.forEach(detailCase -> detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser())));
         return detailCases;
+    }
+
+    /**
+     * 返回功能用例执行结果
+     * @param executeHisId 执行历史ID
+     * @return 执行结果
+     */
+    public TestPlanCaseExecHistoryResponse getFunctionalExecuteResult(String executeHisId) {
+        TestPlanCaseExecHistoryResponse singleExecHistory = extTestPlanCaseExecuteHistoryMapper.getSingleExecHistory(executeHisId);
+        if (singleExecHistory.getContent() != null) {
+            singleExecHistory.setContentText(new String(singleExecHistory.getContent(), StandardCharsets.UTF_8));
+        }
+        if (singleExecHistory.getSteps() != null) {
+            singleExecHistory.setStepsExecResult(new String(singleExecHistory.getSteps(), StandardCharsets.UTF_8));
+        }
+        return singleExecHistory;
     }
 
     /**

@@ -14,4 +14,6 @@ public interface ExtTestPlanCaseExecuteHistoryMapper {
     List<TestPlanCaseExecHistoryResponse> getCaseExecHistory(@Param("request") TestPlanCaseExecHistoryRequest request);
 
     List<TestPlanCaseExecuteHistory> selectSteps(@Param("testPlanCaseId") String testPlanCaseId, @Param("caseId") String caseId);
+
+    TestPlanCaseExecHistoryResponse getSingleExecHistory(@Param("id") String id);
 }

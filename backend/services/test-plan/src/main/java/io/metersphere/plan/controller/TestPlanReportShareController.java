@@ -14,6 +14,7 @@ import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.TestPlanReportShareRequest;
 import io.metersphere.plan.dto.request.TestPlanShareReportDetailRequest;
+import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanShareResponse;
 import io.metersphere.plan.service.TestPlanReportService;
@@ -162,5 +163,13 @@ public class TestPlanReportShareController {
         ShareInfo shareInfo = testPlanReportShareService.checkResource(shareId);
         testPlanReportShareService.validateExpired(shareInfo);
         return apiScenarioReportService.getDetail(reportId, stepId);
+    }
+
+    @GetMapping("/detail/functional/case/step/{shareId}/{reportId}")
+    @Operation(summary = "测试计划-报告-详情-功能用例-执行步骤结果")
+    public TestPlanCaseExecHistoryResponse getFunctionalExecuteResult(@PathVariable String shareId, @PathVariable String reportId) {
+        ShareInfo shareInfo = testPlanReportShareService.checkResource(shareId);
+        testPlanReportShareService.validateExpired(shareInfo);
+        return testPlanReportService.getFunctionalExecuteResult(reportId);
     }
 }

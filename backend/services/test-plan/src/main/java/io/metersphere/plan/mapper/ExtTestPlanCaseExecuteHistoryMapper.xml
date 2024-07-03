@@ -37,6 +37,27 @@
             tpceh.create_time DESC
     </select>
 
+    <select id="getSingleExecHistory" resultType="io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse">
+        SELECT
+            tpceh.id as id,
+            tpceh.case_id as caseId,
+            tpceh.status as status,
+            tpceh.content as content,
+            tpceh.steps as steps,
+            tpceh.create_user as createUser,
+            tpceh.create_time as createTime,
+            tpceh.notifier as notifier,
+            u.name AS userName,
+            ux.avatar AS userLogo,
+            u.email AS email
+        FROM
+            test_plan_case_execute_history tpceh
+                left JOIN user u ON tpceh.create_user = u.id
+                left JOIN user_extend ux ON tpceh.create_user = ux.id
+        WHERE
+            tpceh.id = #{id}
+    </select>
+
     <select id="selectSteps" resultType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
         SELECT
             test_plan_case_execute_history.id,

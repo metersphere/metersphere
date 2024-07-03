@@ -51,6 +51,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String EDIT_PLAN_REPORT = "/test-plan/report/detail/edit";
     private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
     private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE = "/test-plan/report/detail/functional/case/page";
+    private static final String GET_PLAN_REPORT_DETAIL_FUNCTIONAL_RESULT = "/test-plan/report/detail/functional/case/step";
     private static final String GET_PLAN_REPORT_DETAIL_API_PAGE = "/test-plan/report/detail/api/case/page";
     private static final String GET_PLAN_REPORT_DETAIL_SCENARIO_PAGE = "/test-plan/report/detail/scenario/case/page";
     private static final String GET_PLAN_REPORT_DETAIL_PLAN_PAGE = "/test-plan/report/detail/plan/report/page";
@@ -65,6 +66,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_SHARE_REPORT_PLAN_LIST = "/test-plan/report/share/detail/plan/report/page";
     private static final String GET_SHARE_REPORT_API_REPORT_LIST = "/test-plan/report/share/detail/api-report";
     private static final String GET_SHARE_REPORT_SCENARIO_REPORT_LIST = "/test-plan/report/share/detail/scenario-report";
+    private static final String GET_SHARE_REPORT_DETAIL_FUNCTIONAL_RESULT = "/test-plan/report/share/detail/functional/case/step";
 
     @Autowired
     private TestPlanReportMapper testPlanReportMapper;
@@ -213,6 +215,8 @@ public class TestPlanReportControllerTests extends BaseTest {
         mockMvc.perform(getRequestBuilder(GET_SHARE_REPORT_SCENARIO_REPORT_LIST + "/get/" + GEN_SHARE_ID + "/" + "test" + "/111"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        this.requestGetWithOk(GET_SHARE_REPORT_DETAIL_FUNCTIONAL_RESULT + "/" + GEN_SHARE_ID + "/execute-his-1");
     }
 
     @Test
@@ -342,6 +346,13 @@ public class TestPlanReportControllerTests extends BaseTest {
         testPlanReportService.summaryGroupReport("test-plan-report-id-5");
         testPlanReportService.summaryGroupReport("test-plan-report-id-7");
         testPlanReportService.summaryGroupReport("test-plan-report-id-9");
+    }
+
+    @Test
+    @Order(19)
+    void testGetReportFunctionalExecResult() throws Exception {
+        this.requestGet(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_RESULT + "/execute-his-1");
+        this.requestGet(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_RESULT + "/execute-his-2");
     }
 
     @Resource
