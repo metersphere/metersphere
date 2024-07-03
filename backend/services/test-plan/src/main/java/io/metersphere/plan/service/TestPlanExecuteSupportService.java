@@ -7,6 +7,7 @@ import io.metersphere.plan.mapper.TestPlanReportApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanReportMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -26,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanExecuteSupportService {
 
-    @Resource
-    private TestPlanService testPlanService;
     @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
@@ -83,7 +82,7 @@ public class TestPlanExecuteSupportService {
             LogUtils.error("测试计划报告汇总失败!reportId:" + reportId, e);
             TestPlanReport stopReport = testPlanReportService.selectById(reportId);
             stopReport.setId(reportId);
-            stopReport.setExecStatus(ExecStatus.ERROR.name());
+            stopReport.setExecStatus(ResultStatus.ERROR.name());
             stopReport.setEndTime(System.currentTimeMillis());
             testPlanReportMapper.updateByPrimaryKeySelective(stopReport);
         }

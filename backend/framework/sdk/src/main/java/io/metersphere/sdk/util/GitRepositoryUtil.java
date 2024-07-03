@@ -26,12 +26,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class GitRepositoryUtil {
-    private final String REF_SPACE = "+refs/heads/*:refs/heads/*";
-    private final String DEFAULT_GIT_USERNAME = "PRIVATE-TOKEN";
 
-    private String repositoryUrl;
-    private String userName;
-    private String token;
+    private final String repositoryUrl;
+    private final String userName;
+    private final String token;
 
     private Git git;
 
@@ -40,13 +38,10 @@ public class GitRepositoryUtil {
         if (StringUtils.isNotBlank(userName)) {
             this.userName = StringUtils.trim(userName);
         } else {
-            this.userName = this.DEFAULT_GIT_USERNAME;
+            this.userName = "PRIVATE-TOKEN";
         }
         this.token = StringUtils.trim(token);
-        LogUtils.info("初始化文件库完成. repositoryUrl：" + repositoryUrl + "; userName：" + userName + "; token：" + token);
     }
-
-    //以下方法先注释掉，用到了再打开
 
     public byte[] getFile(String filePath, String commitId) throws Exception {
         LogUtils.info("准备获取文件. repositoryUrl：" + repositoryUrl + "; filePath：" + filePath + "; commitId：" + commitId);
@@ -156,6 +151,7 @@ public class GitRepositoryUtil {
         InMemoryRepository repo = new InMemoryRepository(repoDesc);
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userName, token);
         git = new Git(repo);
+        String REF_SPACE = "+refs/heads/*:refs/heads/*";
         git.fetch().setRemote(repositoryUrl).setRefSpecs(new RefSpec(REF_SPACE)).setCredentialsProvider(credentialsProvider).call();
         repo.getObjectDatabase();
         return repo;

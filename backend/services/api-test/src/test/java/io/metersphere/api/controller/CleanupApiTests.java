@@ -12,7 +12,7 @@ import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
@@ -250,9 +250,9 @@ public class CleanupApiTests {
             apiReport.setEnvironmentId("api-environment-id" + i);
             apiReport.setRunMode("api-run-mode" + i);
             if (i % 50 == 0) {
-                apiReport.setStatus(ReportStatus.SUCCESS.name());
+                apiReport.setStatus(ResultStatus.SUCCESS.name());
             } else if (i % 39 == 0) {
-                apiReport.setStatus(ReportStatus.ERROR.name());
+                apiReport.setStatus(ResultStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
             reports.add(apiReport);
@@ -284,9 +284,9 @@ public class CleanupApiTests {
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 50 == 0) {
-                scenarioReport.setStatus(ReportStatus.SUCCESS.name());
+                scenarioReport.setStatus(ResultStatus.SUCCESS.name());
             } else if (i % 39 == 0) {
-                scenarioReport.setStatus(ReportStatus.ERROR.name());
+                scenarioReport.setStatus(ResultStatus.ERROR.name());
             }
             scenarioReport.setUpdateTime(System.currentTimeMillis());
             scenarioReport.setPoolId("api-pool-id" + i);

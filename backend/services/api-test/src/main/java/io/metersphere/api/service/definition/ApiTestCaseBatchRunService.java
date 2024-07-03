@@ -378,7 +378,7 @@ public class ApiTestCaseBatchRunService {
             BeanUtils.copyBean(apiScenarioReport, report);
             apiScenarioReport = apiBatchRunBaseService.computeRequestRate(apiScenarioReport, total);
             BeanUtils.copyBean(report, apiScenarioReport);
-            report.setStatus(ReportStatus.ERROR.name());
+            report.setStatus(ResultStatus.ERROR.name());
             report.setExecStatus(ExecStatus.COMPLETED.name());
             apiReportMapper.updateByPrimaryKeySelective(report);
         }

@@ -32,7 +32,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.JSON;
@@ -493,7 +493,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
             apiReportDetail.setStepId("plan-test-scenario-report-step-id" + i);
             apiReportDetail.setSort((long) i);
             if (i % 2 == 0) {
-                apiReportDetail.setStatus(ReportStatus.SUCCESS.name());
+                apiReportDetail.setStatus(ResultStatus.SUCCESS.name());
                 apiReportDetail.setResponseSize(1L);
                 apiReportDetail.setRequestTime(2L);
             } else if (i % 3 == 0) {
@@ -501,7 +501,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
                 apiReportDetail.setResponseSize(0L);
                 apiReportDetail.setRequestTime(2L);
             } else {
-                apiReportDetail.setStatus(ReportStatus.FAKE_ERROR.name());
+                apiReportDetail.setStatus(ResultStatus.FAKE_ERROR.name());
                 apiReportDetail.setResponseSize(1L);
                 apiReportDetail.setRequestTime(2L);
             }

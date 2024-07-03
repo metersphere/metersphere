@@ -10,7 +10,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.ReportStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
@@ -210,10 +210,10 @@ public class ApiScenarioReportService {
         scenarioReportDTO.setRequestTotal(getRequestTotal(scenarioReportDTO));
         scenarioReportDTO.setChildren(steps);
 
-        scenarioReportDTO.setStepErrorCount(steps.stream().filter(step -> StringUtils.equals(ReportStatus.ERROR.name(), step.getStatus())).count());
-        scenarioReportDTO.setStepSuccessCount(steps.stream().filter(step -> StringUtils.equals(ReportStatus.SUCCESS.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepErrorCount(steps.stream().filter(step -> StringUtils.equals(ResultStatus.ERROR.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepSuccessCount(steps.stream().filter(step -> StringUtils.equals(ResultStatus.SUCCESS.name(), step.getStatus())).count());
         scenarioReportDTO.setStepPendingCount(steps.stream().filter(step -> StringUtils.equals(ExecStatus.PENDING.name(), step.getStatus()) || StringUtils.isBlank(step.getStatus())).count());
-        scenarioReportDTO.setStepFakeErrorCount(steps.stream().filter(step -> StringUtils.equals(ReportStatus.FAKE_ERROR.name(), step.getStatus())).count());
+        scenarioReportDTO.setStepFakeErrorCount(steps.stream().filter(step -> StringUtils.equals(ResultStatus.FAKE_ERROR.name(), step.getStatus())).count());
         //控制台信息 console
         ApiScenarioReportLogExample example = new ApiScenarioReportLogExample();
         example.createCriteria().andReportIdEqualTo(id);
@@ -251,7 +251,7 @@ public class ApiScenarioReportService {
         scenarioReportSteps.parallelStream().forEach(step -> {
             if (StringUtils.equals(ApiScenarioStepType.CONSTANT_TIMER.name(), step.getStepType())) {
                 if (CollectionUtils.isNotEmpty(detailMap.get(step.getStepId()))) {
-                    step.setStatus(ReportStatus.SUCCESS.name());
+                    step.setStatus(ResultStatus.SUCCESS.name());
                 } else {
                     step.setStatus(ExecStatus.PENDING.name());
                 }
@@ -273,13 +273,13 @@ public class ApiScenarioReportService {
                         step.setRequestTime(details.stream().mapToLong(ApiScenarioReportStepDTO::getRequestTime).sum());
                         step.setResponseSize(details.stream().mapToLong(ApiScenarioReportStepDTO::getResponseSize).sum());
                         List<String> requestStatus = details.stream().map(ApiScenarioReportStepDTO::getStatus).toList();
-                        List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ReportStatus.SUCCESS.name(), status)).toList();
-                        if (requestStatus.contains(ReportStatus.ERROR.name())) {
-                            step.setStatus(ReportStatus.ERROR.name());
-                        } else if (requestStatus.contains(ReportStatus.FAKE_ERROR.name())) {
-                            step.setStatus(ReportStatus.FAKE_ERROR.name());
+                        List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ResultStatus.SUCCESS.name(), status)).toList();
+                        if (requestStatus.contains(ResultStatus.ERROR.name())) {
+                            step.setStatus(ResultStatus.ERROR.name());
+                        } else if (requestStatus.contains(ResultStatus.FAKE_ERROR.name())) {
+                            step.setStatus(ResultStatus.FAKE_ERROR.name());
                         } else if (successStatus.size() == details.size()) {
-                            step.setStatus(ReportStatus.SUCCESS.name());
+                            step.setStatus(ResultStatus.SUCCESS.name());
                         } else {
                             step.setStatus(ExecStatus.PENDING.name());
                         }
@@ -324,14 +324,14 @@ public class ApiScenarioReportService {
                     //获取为执行的状态
                     List<String> pendingStatus = requestStatus.stream().filter(status -> StringUtils.equals(ExecStatus.PENDING.name(), status) || StringUtils.isBlank(status)).toList();
                     //过滤出来SUCCESS的状态
-                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ReportStatus.SUCCESS.name(), status)).toList();
+                    List<String> successStatus = requestStatus.stream().filter(status -> StringUtils.equals(ResultStatus.SUCCESS.name(), status)).toList();
                     //只要包含ERROR 就是ERROR
-                    if (requestStatus.contains(ReportStatus.ERROR.name())) {
-                        step.setStatus(ReportStatus.ERROR.name());
-                    } else if (requestStatus.contains(ReportStatus.FAKE_ERROR.name())) {
-                        step.setStatus(ReportStatus.FAKE_ERROR.name());
+                    if (requestStatus.contains(ResultStatus.ERROR.name())) {
+                        step.setStatus(ResultStatus.ERROR.name());
+                    } else if (requestStatus.contains(ResultStatus.FAKE_ERROR.name())) {
+                        step.setStatus(ResultStatus.FAKE_ERROR.name());
                     } else if (successStatus.size() + pendingStatus.size() == children.size() && !successStatus.isEmpty()) {
-                        step.setStatus(ReportStatus.SUCCESS.name());
+                        step.setStatus(ResultStatus.SUCCESS.name());
                     }
                 } else if (stepTypes.contains(step.getStepType())) {
                     step.setStatus(ExecStatus.PENDING.name());

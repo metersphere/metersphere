@@ -788,7 +788,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         testPlanApiCase.setCreateTime(System.currentTimeMillis());
         testPlanApiCase.setLastExecTime(System.currentTimeMillis());
         testPlanApiCase.setLastExecReportId(IDGenerator.nextStr());
-        testPlanApiCase.setLastExecResult(ExecStatus.SUCCESS.name());
+        testPlanApiCase.setLastExecResult(ResultStatus.SUCCESS.name());
         testPlanApiCase.setPos(1024l);
         testPlanApiCase.setTestPlanCollectionId(planId);
         testPlanApiCaseMapper.insert(testPlanApiCase);
@@ -806,10 +806,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiReport.setEnvironmentId("api-environment-id" + i);
             apiReport.setRunMode("api-run-mode" + i);
             if (i % 2 == 0) {
-                apiReport.setStatus(ExecStatus.SUCCESS.name());
+                apiReport.setStatus(ResultStatus.SUCCESS.name());
             } else {
                 apiReport.setTestPlanCaseId(testPlanApiCase.getId());
-                apiReport.setStatus(ExecStatus.ERROR.name());
+                apiReport.setStatus(ResultStatus.ERROR.name());
             }
             apiReport.setTriggerMode("api-trigger-mode" + i);
             reports.add(apiReport);
@@ -828,7 +828,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //返回值不为空
         Assertions.assertNotNull(returnPager);
         request.setFilter(new HashMap<>() {{
-            put("status", List.of(ReportStatus.SUCCESS.name()));
+            put("status", List.of(ResultStatus.SUCCESS.name()));
         }});
         mvcResult = requestPostWithOkAndReturn(EXECUTE, request);
         returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
@@ -837,7 +837,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
         List<ExecuteReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ExecuteReportDTO.class);
         reportDTOS.forEach(apiReport -> {
-            Assertions.assertEquals(apiReport.getStatus(), ReportStatus.SUCCESS.name());
+            Assertions.assertEquals(apiReport.getStatus(), ResultStatus.SUCCESS.name());
         });
     }
 
