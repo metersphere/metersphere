@@ -628,7 +628,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param user
      * @param testPlanApiCaseList
      */
-    private void buildTestPlanApiCaseDTO(BaseCollectionAssociateRequest apiCase, List<ApiTestCase> apiTestCaseList, TestPlan testPlan, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
+    public void buildTestPlanApiCaseDTO(BaseCollectionAssociateRequest apiCase, List<ApiTestCase> apiTestCaseList, TestPlan testPlan, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
         AtomicLong nextOrder = new AtomicLong(getNextOrder(apiCase.getCollectionId()));
         apiTestCaseList.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();

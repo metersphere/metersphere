@@ -23,6 +23,7 @@ import io.metersphere.request.*;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -134,7 +135,7 @@ public class FunctionalTestCaseService {
             functionalCaseTest.setSourceId(apiScenario.getId());
             functionalCaseTest.setVersionId(apiScenario.getVersionId());
             functionalCaseTest.setSourceType(request.getSourceType());
-            functionalCaseTest.setId(IdGenerator.random().generateId());
+            functionalCaseTest.setId(IDGenerator.nextStr());
             functionalCaseTest.setCreateUser(userId);
             functionalCaseTest.setCreateTime(System.currentTimeMillis());
             functionalCaseTest.setUpdateUser(userId);
@@ -160,7 +161,7 @@ public class FunctionalTestCaseService {
             functionalCaseTest.setSourceId(apiTestCase.getId());
             functionalCaseTest.setVersionId(apiTestCase.getVersionId());
             functionalCaseTest.setSourceType(request.getSourceType());
-            functionalCaseTest.setId(IdGenerator.random().generateId());
+            functionalCaseTest.setId(IDGenerator.nextStr());
             functionalCaseTest.setCreateUser(userId);
             functionalCaseTest.setCreateTime(System.currentTimeMillis());
             functionalCaseTest.setUpdateUser(userId);
