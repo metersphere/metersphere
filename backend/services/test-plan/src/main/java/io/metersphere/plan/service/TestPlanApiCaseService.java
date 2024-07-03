@@ -118,6 +118,10 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
+        return extTestPlanApiCaseMapper.selectDistinctExecResult(projectId);
+    }
+
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();

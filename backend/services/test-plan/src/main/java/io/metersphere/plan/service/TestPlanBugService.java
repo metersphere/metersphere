@@ -5,6 +5,7 @@ import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.plan.dto.TestPlanBugCaseDTO;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.TestPlanBugPageRequest;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
@@ -60,6 +61,11 @@ public class TestPlanBugService extends TestPlanResourceService {
     @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
         return 0;
+    }
+
+    @Override
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
+        return List.of();
     }
 
 

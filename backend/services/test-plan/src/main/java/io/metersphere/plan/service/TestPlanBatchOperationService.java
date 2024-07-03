@@ -196,7 +196,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         testPlan.setPos(testPlanGroupService.getNextOrder(targetId));
         testPlan.setActualEndTime(null);
         testPlan.setActualStartTime(null);
-        testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
         testPlanMapper.insert(testPlan);
 
         //测试配置信息
@@ -286,7 +286,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         testPlanGroup.setPos(testPlanGroupService.getNextOrder(originalGroup.getGroupId()));
         testPlanGroup.setActualEndTime(null);
         testPlanGroup.setActualStartTime(null);
-        testPlanGroup.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        testPlanGroup.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
         testPlanMapper.insert(testPlanGroup);
 
         //测试配置信息

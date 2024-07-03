@@ -47,5 +47,10 @@ CALL UpdatePosForNoneGroup();
 DROP PROCEDURE IF EXISTS UpdatePosForNoneGroup;
 -- 清洗测试计划表的pos数据结束
 
+-- 修改未归档测试计划的存储状态
+UPDATE test_plan
+SET status = 'NOT_ARCHIVED'
+WHERE status != 'ARCHIVED';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

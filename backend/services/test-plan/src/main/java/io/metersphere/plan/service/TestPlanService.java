@@ -6,6 +6,7 @@ import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
+import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.enums.ExecuteMethod;
 import io.metersphere.plan.job.TestPlanScheduleJob;
 import io.metersphere.plan.mapper.*;
@@ -102,7 +103,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     private static final int MAX_TAG_SIZE = 10;
 
-    @Autowired
+    @Resource
     private TestPlanReportService testPlanReportService;
 
     /**
@@ -151,7 +152,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         createTestPlan.setUpdateUser(operator);
         createTestPlan.setCreateTime(operateTime);
         createTestPlan.setUpdateTime(operateTime);
-        createTestPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        createTestPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
 
         TestPlanConfig testPlanConfig = new TestPlanConfig();
         testPlanConfig.setTestPlanId(createTestPlan.getId());
@@ -395,18 +396,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
     /**
      * 测试计划归档
-     *
-     * @param id
-     * @param userId
      */
     public void archived(String id, String userId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+
         if (StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //判断当前计划组下是否都已完成 (由于算法原因，只需要校验当前测试计划组即可）
+            if (!this.isTestPlanCompleted(id)) {
+                throw new MSException(Translator.get("test_plan.group.not_plan"));
+            }
             //测试计划组归档
-            updateGroupStatus(testPlan.getId(), userId);
+            updateCompletedGroupStatus(testPlan.getId(), userId);
             //关闭定时任务
             this.deleteScheduleConfig(testPlan.getId());
-        } else if (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+        } else if (this.isTestPlanCompleted(id) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             //测试计划
             testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
             testPlan.setUpdateUser(userId);
@@ -417,7 +420,37 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         } else {
             throw new MSException(Translator.get("test_plan.cannot.archived"));
         }
+    }
 
+    /**
+     * 测试计划归档
+     */
+    public boolean archived(TestPlan testPlan, String userId) {
+        if (!this.isTestPlanCompleted(testPlan.getId())) {
+            return false;
+        }
+        if (StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //测试计划组归档
+            updateCompletedGroupStatus(testPlan.getId(), userId);
+            //关闭定时任务
+            this.deleteScheduleConfig(testPlan.getId());
+            return true;
+        } else if (StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+            //测试计划
+            testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            testPlan.setUpdateUser(userId);
+            testPlan.setUpdateTime(System.currentTimeMillis());
+            testPlanMapper.updateByPrimaryKeySelective(testPlan);
+            //关闭定时任务
+            this.deleteScheduleConfig(testPlan.getId());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTestPlanCompleted(String testPlanId) {
+        TestPlanStatisticsResponse statisticsResponse = testPlanStatisticsService.calculateRate(Collections.singletonList(testPlanId)).getFirst();
+        return StringUtils.equalsIgnoreCase(statisticsResponse.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
     }
 
     /**
@@ -430,14 +463,20 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         List<String> batchArchivedIds = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(batchArchivedIds)) {
             TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andIdIn(batchArchivedIds);
-            List<TestPlan> archivedPlanList = testPlanMapper.selectByExample(example).stream().filter(
+            example.createCriteria().andIdIn(batchArchivedIds).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            List<TestPlan> testPlanList = testPlanMapper.selectByExample(example).stream().filter(
                     testPlan -> StringUtils.equalsAnyIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
-                            || (StringUtils.equals(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED) && StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
-            ).collect(Collectors.toList());
-            archivedPlanList.forEach(item -> this.archived(item.getId(), currentUser));
+                            || (StringUtils.equalsIgnoreCase(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
+            ).toList();
+            List<TestPlan> archivedPlanGroupList = new ArrayList<>();
+            testPlanList.forEach(item -> {
+                boolean result = this.archived(item, currentUser);
+                if (result) {
+                    archivedPlanGroupList.add(item);
+                }
+            });
             //日志
-            testPlanLogService.saveBatchLog(archivedPlanList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.ARCHIVED.name(), "archive");
+            testPlanLogService.saveBatchLog(archivedPlanGroupList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.ARCHIVED.name(), "archive");
         }
     }
 
@@ -447,17 +486,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
      * @param id
      * @param userId
      */
-    private void updateGroupStatus(String id, String userId) {
+    private void updateCompletedGroupStatus(String id, String userId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andGroupIdEqualTo(id);
         List<TestPlan> testPlanList = testPlanMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(testPlanList)) {
             throw new MSException(Translator.get("test_plan.group.not_plan"));
         }
-        List<String> ids = testPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_COMPLETED)).map(TestPlan::getId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(ids)) {
-            throw new MSException(Translator.get("test_plan.group.not_plan"));
-        }
+        List<String> ids = testPlanList.stream().map(TestPlan::getId).collect(Collectors.toList());
         ids.add(id);
         extTestPlanMapper.batchUpdateStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED, userId, System.currentTimeMillis(), ids);
     }
@@ -771,37 +807,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             }
         }
     }
-
-
-    //    private void updateTestPlanStatus(String testPlanId) {
-    //        Map<String, Long> caseExecResultCount = new HashMap<>();
-    //        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
-    //        beansOfType.forEach((k, v) -> {
-    //            Map<String, Long> map = v.caseExecResultCount(testPlanId);
-    //            map.forEach((key, value) -> {
-    //                if (value != 0) {
-    //                    caseExecResultCount.merge(key, value, Long::sum);
-    //                }
-    //            });
-    //        });
-    //
-    //        String testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY;
-    //        if (MapUtils.isEmpty(caseExecResultCount)) {
-    //            // 没有任何执行结果： 状态是未开始
-    //            testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
-    //            extTestPlanMapper.clearActualEndTime(testPlanId);
-    //        } else if (caseExecResultCount.size() == 1 && caseExecResultCount.containsKey(ExecStatus.PENDING.name()) && caseExecResultCount.get(ExecStatus.PENDING.name()) > 0) {
-    //            // 执行结果只有未开始： 状态是未开始
-    //            testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_PREPARED;
-    //            extTestPlanMapper.clearActualEndTime(testPlanId);
-    //        } else if (!caseExecResultCount.containsKey(ExecStatus.PENDING.name())) {
-    //            // 执行结果没有未开始： 已完成
-    //            testPlanFinalStatus = TestPlanConstants.TEST_PLAN_STATUS_COMPLETED;
-    //            extTestPlanMapper.setActualEndTime(testPlanId, System.currentTimeMillis());
-    //        }
-    //
-    //        this.updateTestPlanStatusAndGroupStatus(testPlanId, testPlanFinalStatus);
-    //    }
 
     public TestPlanOperationResponse sort(PosRequest request, LogInsertModule logInsertModule) {
         testPlanGroupService.sort(request);

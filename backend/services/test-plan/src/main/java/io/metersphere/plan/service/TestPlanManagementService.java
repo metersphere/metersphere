@@ -5,6 +5,8 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.dto.TestPlanGroupCountDTO;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
@@ -23,6 +25,8 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,8 @@ public class TestPlanManagementService {
     private TestPlanModuleService testPlanModuleService;
     @Resource
     private TestPlanStatisticsService testPlanStatisticsService;
+    @Resource
+    private TestPlanBaseUtilsService testPlanBaseUtilsService;
     @Resource
     private TestPlanMapper testPlanMapper;
 
@@ -69,18 +75,89 @@ public class TestPlanManagementService {
         return PageUtils.setPageInfo(page, this.list(request));
     }
 
+    @Autowired
+    private ApplicationContext applicationContext;
     private void initDefaultFilter(TestPlanTableRequest request) {
+
+        List<String> defaultStatusList = new ArrayList<>();
+        defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
         if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
-            List<String> defaultStatusList = new ArrayList<>();
-            defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
-            defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
-            defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
             if (request.getFilter() == null) {
                 request.setFilter(new HashMap<>() {{
                     this.put("status", defaultStatusList);
                 }});
             } else {
                 request.getFilter().put("status", defaultStatusList);
+            }
+        } else if (!request.getFilter().get("status").contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+            List<String> statusList = request.getFilter().get("status");
+            request.getFilter().put("status", defaultStatusList);
+            if (statusList.size() < 3) {
+                List<String> innerIdList = new ArrayList<>();
+                // 条件过滤
+                Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+                // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
+                List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
+                beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctExecResult(request.getProjectId())));
+                Map<String, Map<String, List<String>>> testPlanExecMap = testPlanBaseUtilsService.parseExecResult(execResults);
+                Map<String, Long> groupCountMap = extTestPlanMapper.countByGroupPlan(request.getProjectId())
+                        .stream().collect(Collectors.toMap(TestPlanGroupCountDTO::getGroupId, TestPlanGroupCountDTO::getCount));
+
+                List<String> completedTestPlanIds = new ArrayList<>();
+                List<String> preparedTestPlanIds = new ArrayList<>();
+                List<String> underwayTestPlanIds = new ArrayList<>();
+                testPlanExecMap.forEach((groupId, planMap) -> {
+                    if (StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                        planMap.forEach((planId, resultList) -> {
+                            String result = testPlanBaseUtilsService.calculateTestPlanStatus(resultList);
+                            if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                                completedTestPlanIds.add(planId);
+                            } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                                underwayTestPlanIds.add(planId);
+                            } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                                preparedTestPlanIds.add(planId);
+                            }
+                        });
+                    } else {
+                        long itemPlanCount = groupCountMap.getOrDefault(groupId, 0L);
+                        List<String> itemStatusList = new ArrayList<>();
+                        if (itemPlanCount > planMap.size()) {
+                            // 存在未执行或者没有用例的测试计划。 此时这种测试计划的状态为未开始
+                            itemStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                        }
+                        planMap.forEach((planId, resultList) -> {
+                            itemStatusList.add(testPlanBaseUtilsService.calculateTestPlanStatus(resultList));
+                        });
+                        String groupStatus = testPlanBaseUtilsService.calculateStatusByChildren(itemStatusList);
+                        if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                            completedTestPlanIds.add(groupId);
+                        } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                            underwayTestPlanIds.add(groupId);
+                        } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                            preparedTestPlanIds.add(groupId);
+                        }
+                    }
+                });
+
+                testPlanExecMap = null;
+                if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                    // 已完成
+                    innerIdList.addAll(completedTestPlanIds);
+                }
+
+                if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                    // 进行中
+                    innerIdList.addAll(underwayTestPlanIds);
+                }
+                if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                    // 未开始   有一些测试计划/计划组没有用例 / 测试计划， 在上面的计算中无法过滤。所以用排除法机型处理
+                    List<String> withoutList = new ArrayList<>();
+                    withoutList.addAll(completedTestPlanIds);
+                    withoutList.addAll(underwayTestPlanIds);
+                    innerIdList.addAll(extTestPlanMapper.selectIdByProjectIdAndWithoutList(request.getProjectId(), withoutList));
+                    withoutList = null;
+                }
+                request.setInnerIds(innerIdList);
             }
         }
 

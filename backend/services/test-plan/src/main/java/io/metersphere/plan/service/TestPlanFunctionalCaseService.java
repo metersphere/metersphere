@@ -138,6 +138,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     @Override
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
+        return extTestPlanFunctionalCaseMapper.selectDistinctExecResult(projectId);
+    }
+    @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
         List<TestPlanFunctionalCase> copyList = new ArrayList<>();
         String defaultCollectionId = extTestPlanCollectionMapper.selectDefaultCollectionId(newTestPlanId, CaseType.SCENARIO_CASE.getKey());

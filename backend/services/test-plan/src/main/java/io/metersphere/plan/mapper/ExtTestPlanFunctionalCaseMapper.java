@@ -6,6 +6,7 @@ import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
@@ -67,4 +68,5 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<TestPlanFunctionalCase> getPlanCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
 
+    List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
 }

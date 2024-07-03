@@ -1,6 +1,5 @@
 package io.metersphere.plan.mapper;
 
-import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
@@ -8,6 +7,7 @@ import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.dto.ApiCaseModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
@@ -75,4 +75,5 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanApiCase> getPlanApiCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
 
+    List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
 }

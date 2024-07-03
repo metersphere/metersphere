@@ -5,6 +5,7 @@ import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -65,6 +66,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     public abstract long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime);
 
+    public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
     /**
      * 关联用例
      *
@@ -124,6 +126,4 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
         AssociateCaseDTO associateCaseDTO = new AssociateCaseDTO(excludeIds, selectIds, moduleIds);
         return associateCaseDTO;
     }
-
-
 }
