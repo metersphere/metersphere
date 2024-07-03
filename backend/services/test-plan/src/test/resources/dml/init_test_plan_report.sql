@@ -42,3 +42,8 @@ INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES
     ('100001100001', 'TEST_PLAN_SHARE_REPORT', '1D');
 INSERT INTO `share_info`(`id`, `create_time`, `create_user`, `update_time`, `share_type`, `custom_data`, `lang`, `project_id`) VALUES
     ('share-1', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, 'TEST_PLAN_SHARE_REPORT', 0x31303531363635363936353436383137, 'zh_CN', '100001100001');
+
+-- 功能用例执行信息
+INSERT INTO test_plan_case_execute_history (`id`, `test_plan_case_id`, `test_plan_id`, `case_id`, `status`, `content`, `steps`, `deleted`, `notifier`, `create_user`, `create_time`) VALUES
+    ('execute-his-1', 'test-plan-case-id-for-oasis', 'test-plan-id-for-oasis', 'case-id-for-oasis', 'PENDING', null, null, 0, null, 'admin', UNIX_TIMESTAMP()),
+    ('execute-his-2', 'test-plan-case-id-for-oasis', 'test-plan-id-for-oasis', 'case-id-for-oasis', 'PENDING', '1', '1', 0, null, 'admin', UNIX_TIMESTAMP());

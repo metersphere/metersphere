@@ -8,6 +8,7 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.service.*;
@@ -139,6 +140,14 @@ public class TestPlanReportController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
+    }
+
+    @GetMapping("/detail/functional/case/step/{reportId}")
+    @Operation(summary = "测试计划-报告-详情-功能用例-执行步骤结果")
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_case_execute_history")
+    public TestPlanCaseExecHistoryResponse getFunctionalExecuteResult(@PathVariable String reportId) {
+        return testPlanReportService.getFunctionalExecuteResult(reportId);
     }
 
     @PostMapping("/detail/api/case/page")
