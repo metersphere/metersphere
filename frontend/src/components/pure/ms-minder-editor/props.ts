@@ -66,11 +66,6 @@ export const headerProps = {
   iconButtons: {
     type: [] as PropType<MinderIconButtonItem[]>,
   },
-  // 是否显示保存按钮
-  showSaveButton: {
-    type: Boolean,
-    default: true,
-  },
 };
 
 export const priorityProps = {

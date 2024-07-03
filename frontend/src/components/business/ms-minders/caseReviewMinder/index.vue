@@ -5,16 +5,13 @@
       v-model:extra-visible="extraVisible"
       v-model:loading="loading"
       v-model:import-json="importJson"
-      :show-save-button="false"
       :extract-content-tab-list="extractContentTabList"
-      :priority-tooltip="t('caseManagement.caseReview.caseLevel')"
-      :priority-disable-check="priorityDisableCheck"
-      :can-show-float-menu="canShowFloatMenu()"
-      :can-show-priority-menu="canShowPriorityMenu()"
+      :can-show-float-menu="canShowFloatMenu"
+      :can-show-priority-menu="false"
       :can-show-more-menu="showCaseMenu"
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="moreMenuOtherOperationList"
-      :disabled="!hasEditPermission"
+      disabled
       single-tag
       @node-select="handleNodeSelect"
     >
@@ -79,9 +76,9 @@
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
+  import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
-  import useMinderBaseApi from '@/components/business/ms-minders/featureCaseMinder/useMinderBaseApi';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
 
   import { getCaseReviewHistoryList, getCaseReviewMinder } from '@/api/modules/case-management/caseReview';
@@ -90,7 +87,6 @@
   import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewHistoryItem, ReviewPassRule } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
@@ -113,10 +109,8 @@
   const { t } = useI18n();
   const minderStore = useMinderStore();
 
-  const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+MINDER']);
-  const { caseTag, moduleTag, canShowPriorityMenu, priorityDisableCheck } = useMinderBaseApi({
-    hasEditPermission,
-  });
+  const caseTag = t('common.case');
+  const moduleTag = t('common.module');
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
     template: 'default',
@@ -137,8 +131,6 @@
         resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
         expandState: e.level === 0 ? 'expand' : 'collapse',
         count: props.modulesCount[e.id],
-        isNew: false,
-        changed: false,
       },
       children:
         props.modulesCount[e.id] > 0 && !e.children?.length
@@ -148,8 +140,6 @@
                   id: 'fakeNode',
                   text: 'fakeNode',
                   resource: ['fakeNode'],
-                  isNew: false,
-                  changed: false,
                 },
               },
             ]
@@ -218,6 +208,37 @@
   }
 
   /**
+   * 创建节点
+   * @param data 节点数据
+   * @param parentNode 父节点
+   */
+  function createNode(data?: MinderJsonNodeData, parentNode?: MinderJsonNode) {
+    return window.minder.createNode(
+      {
+        ...data,
+        expandState: 'collapse',
+      },
+      parentNode
+    );
+  }
+
+  /**
+   * 递归渲染子节点及其子节点
+   * @param parentNode - 父节点
+   * @param children - 子节点数组
+   */
+  function renderSubNodes(parentNode: MinderJsonNode, children?: MinderJsonNode[]) {
+    return (
+      children?.map((item: MinderJsonNode) => {
+        const grandChild = createNode(item.data, parentNode);
+        const greatGrandChildren = renderSubNodes(grandChild, item.children);
+        window.minder.renderNodeBatch(greatGrandChildren);
+        return grandChild;
+      }) || []
+    );
+  }
+
+  /**
    * 加载模块节点下的用例节点
    * @param selectedNode 选中节点
    * @param loadMoreCurrent 加载模块下更多用例时的当前页码
@@ -245,53 +266,23 @@
         return;
       }
 
+      // 渲染节点
       let waitingRenderNodes: MinderJsonNode[] = [];
       list.forEach((e) => {
         // 用例节点
-        const child = window.minder.createNode(
-          {
-            ...e.data,
-            expandState: 'collapse',
-            isNew: false,
-          },
-          node
-        );
+        const child = createNode(e.data, node);
         waitingRenderNodes.push(child);
-        const grandChildren: MinderJsonNode[] = [];
-        e.children?.forEach((item) => {
-          // 前置/步骤/备注节点
-          const grandChild = window.minder.createNode(
-            {
-              ...item.data,
-              expandState: 'collapse',
-              isNew: false,
-            },
-            child
-          );
-          grandChildren.push(grandChild);
-          const greatGrandChildren: MinderJsonNode[] = [];
-          item.children?.forEach((subItem) => {
-            // 预期结果节点
-            const greatGrandChild = window.minder.createNode(
-              {
-                ...subItem.data,
-                expandState: 'collapse',
-                isNew: false,
-              },
-              grandChild
-            );
-            greatGrandChildren.push(greatGrandChild);
-          });
-          window.minder.renderNodeBatch(greatGrandChildren);
-        });
+        // 前置/步骤/备注/预期结果节点
+        const grandChildren = renderSubNodes(child, e.children);
         window.minder.renderNodeBatch(grandChildren);
       });
+
       node.expand();
       if (node.children && node.children.length > 0) {
         waitingRenderNodes = waitingRenderNodes.concat(node.children);
       }
+      // 更多用例节点
       if (total > list.length * (loadMoreCurrent || 1)) {
-        // 有更多用例
         const moreNode = window.minder.createNode(
           {
             id: `tmp-${data.id}`,
@@ -346,38 +337,6 @@
     activeCaseInfo.value = {};
     fileList.value = [];
   }
-
-  const canShowEnterNode = ref(false);
-  const showCaseMenu = ref(false);
-  const moreMenuOtherOperationList = [
-    {
-      value: 'changeReviewer',
-      label: t('caseManagement.caseReview.changeReviewer'),
-      permission: ['CASE_REVIEW:READ+UPDATE'],
-      onClick: () => {
-        // TODO 操作
-        console.log('🤔️ =>', t('caseManagement.caseReview.changeReviewer'));
-      },
-    },
-    {
-      value: 'reReview',
-      label: t('caseManagement.caseReview.reReview'),
-      permission: ['CASE_REVIEW:READ+UPDATE'],
-      onClick: () => {
-        // TODO 操作
-        console.log('🤔️ =>', t('caseManagement.caseReview.reReview'));
-      },
-    },
-    {
-      value: 'disassociate',
-      label: t('caseManagement.caseReview.disassociate'),
-      permission: ['CASE_REVIEW:READ+RELEVANCE'],
-      onClick: () => {
-        // TODO 操作
-        console.log('🤔️ =>', t('caseManagement.caseReview.disassociate'));
-      },
-    },
-  ];
 
   /**
    * 初始化用例详情
@@ -464,26 +423,38 @@
     }
   }
 
-  /**
-   * 是否可展示浮动菜单
-   */
-  function canShowFloatMenu() {
-    if (window.minder) {
-      const node: MinderJsonNode = window.minder.getSelectedNode();
-      // TODO 当前根节点不展示浮动菜单
-      if (node?.data?.type === 'tmp') {
-        return false;
-      }
-      if (!hasEditPermission) {
-        if (node?.data?.resource?.includes(caseTag)) {
-          // 没有编辑权限情况下，用例节点可展示浮动菜单（需要展示详情按钮）
-          return true;
-        }
-        return false;
-      }
-    }
-    return true;
-  }
+  const canShowFloatMenu = ref(false); // 是否展示浮动菜单
+  const canShowEnterNode = ref(false);
+  const showCaseMenu = ref(false);
+  const moreMenuOtherOperationList = [
+    {
+      value: 'changeReviewer',
+      label: t('caseManagement.caseReview.changeReviewer'),
+      permission: ['CASE_REVIEW:READ+UPDATE'],
+      onClick: () => {
+        // TODO 操作
+        console.log('🤔️ =>', t('caseManagement.caseReview.changeReviewer'));
+      },
+    },
+    {
+      value: 'reReview',
+      label: t('caseManagement.caseReview.reReview'),
+      permission: ['CASE_REVIEW:READ+UPDATE'],
+      onClick: () => {
+        // TODO 操作
+        console.log('🤔️ =>', t('caseManagement.caseReview.reReview'));
+      },
+    },
+    {
+      value: 'disassociate',
+      label: t('caseManagement.caseReview.disassociate'),
+      permission: ['CASE_REVIEW:READ+RELEVANCE'],
+      onClick: () => {
+        // TODO 操作
+        console.log('🤔️ =>', t('caseManagement.caseReview.disassociate'));
+      },
+    },
+  ];
 
   /**
    * 处理节点选中
@@ -493,11 +464,23 @@
     const { data } = node;
     // 点击更多节点，加载更多用例
     if (data?.type === 'tmp' && node.parent?.data?.resource?.includes(moduleTag)) {
+      canShowFloatMenu.value = false;
       await initNodeCases(node.parent, data.current);
+      setPriorityView(true, 'P');
       return;
     }
-    // 模块节点且有子节点且非根节点，可展示进入节点菜单
-    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0 && node.type !== 'root') {
+    // 展示浮动菜单: 模块节点且非根节点、用例节点
+    if (
+      node?.data?.resource?.includes(caseTag) ||
+      (node?.data?.resource?.includes(moduleTag) && node.type !== 'root')
+    ) {
+      canShowFloatMenu.value = true;
+    } else {
+      canShowFloatMenu.value = false;
+    }
+
+    // 展示进入节点菜单: 模块节点且有子节点且非根节点
+    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0) {
       canShowEnterNode.value = true;
     } else {
       canShowEnterNode.value = false;
@@ -519,6 +502,7 @@
       resetExtractInfo();
       removeFakeNode(node, 'fakeNode');
     }
+    setPriorityView(true, 'P');
   }
 
   /**

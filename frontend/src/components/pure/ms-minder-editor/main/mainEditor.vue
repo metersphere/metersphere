@@ -1,11 +1,6 @@
 <template>
   <div ref="mec" class="ms-minder-container">
-    <minderHeader
-      :icon-buttons="props.iconButtons"
-      :disabled="props.disabled"
-      :show-save-button="props.showSaveButton"
-      @save="save"
-    />
+    <minderHeader :icon-buttons="props.iconButtons" :disabled="props.disabled" @save="save" />
     <Navigator />
     <div
       v-if="currentTreePath?.length > 0"
