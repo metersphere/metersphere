@@ -230,7 +230,7 @@ public class ApiExecuteService {
 
         } catch (HttpServerErrorException e) {
             LogUtils.error(e);
-            int errorCode = e.getResponseBodyAs(ResultHolder.class).getCode();
+            int errorCode = Objects.requireNonNull(e.getResponseBodyAs(ResultHolder.class)).getCode();
             for (TaskRunnerResultCode taskRunnerResultCode : TaskRunnerResultCode.values()) {
                 // 匹配资源池的错误代码，抛出相应异常
                 if (taskRunnerResultCode.getCode() == errorCode) {
@@ -433,7 +433,7 @@ public class ApiExecuteService {
         if (CollectionUtils.isEmpty(taskInfo.getProjectResource().getFuncJars())) {
             ApiExecuteFileInfo tempFileInfo = new ApiExecuteFileInfo();
             tempFileInfo.setProjectId(taskInfo.getProjectId());
-            CopyOnWriteArrayList copyOnWriteArrayList = new CopyOnWriteArrayList();
+            CopyOnWriteArrayList<ApiExecuteFileInfo> copyOnWriteArrayList = new CopyOnWriteArrayList<>();
             copyOnWriteArrayList.add(tempFileInfo);
             taskInfo.getProjectResource().setFuncJars(copyOnWriteArrayList);
         }
@@ -492,7 +492,7 @@ public class ApiExecuteService {
         // 查询包括资源所需的文件
         Set<String> resourceIdsSet = runRequest.getFileResourceIds();
         resourceIdsSet.add(resourceId);
-        List<String> resourceIds = resourceIdsSet.stream().collect(Collectors.toList());
+        List<String> resourceIds = new ArrayList<>(resourceIdsSet);
         SubListUtils.dealForSubList(resourceIds, 50, subResourceIds -> {
             // 查询通过本地上传的文件
             List<ApiExecuteFileInfo> localFiles = apiFileResourceService.getByResourceIds(subResourceIds).

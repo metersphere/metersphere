@@ -133,7 +133,7 @@ public class ApiCommonService {
                 linkFile.setDelete(true);
                 List<FileAssociation> fileAssociations = fileAssociationService.getByFileIdAndSourceId(resourceId, linkFile.getFileId());
                 if (CollectionUtils.isNotEmpty(fileAssociations)) {
-                    linkFile.setFileAlias(fileAssociations.get(0).getDeletedFileName());
+                    linkFile.setFileAlias(fileAssociations.getFirst().getDeletedFileName());
                 }
             } else {
                 String fileName = fileMetadata.getName();
@@ -221,7 +221,7 @@ public class ApiCommonService {
      */
     public void setScriptElementEnableCommonScriptInfo(List<MsScriptElement> msScriptElements) {
         List<CommonScriptInfo> commonScriptInfos = msScriptElements.stream()
-                .filter(msScriptElement -> BooleanUtils.isTrue(msScriptElement.getEnableCommonScript()) && msScriptElement.getEnableCommonScript() != null)
+                .filter(msScriptElement -> BooleanUtils.isTrue(msScriptElement.getEnableCommonScript()))
                 .map(MsScriptElement::getCommonScriptInfo)
                 .toList();
 
@@ -277,12 +277,9 @@ public class ApiCommonService {
                 List<KeyValueParam> commonParams = JSON.parseArray(new String(paramsBlob), KeyValueParam.class);
                 // 替换用户输入值
                 commonParams.forEach(commonParam ->
-                        Optional.ofNullable(commonScriptInfo.getParams()).ifPresent(params ->
-                                params.stream()
-                                        .filter(param -> StringUtils.equals(commonParam.getKey(), param.getKey()))
-                                        .findFirst()
-                                        .ifPresent(param -> commonParam.setValue(param.getValue()))
-                        )
+                        Optional.ofNullable(commonScriptInfo.getParams()).flatMap(params -> params.stream()
+                                .filter(param -> StringUtils.equals(commonParam.getKey(), param.getKey()))
+                                .findFirst()).ifPresent(param -> commonParam.setValue(param.getValue()))
                 );
                 commonScriptInfo.setParams(commonParams);
             });
@@ -311,13 +308,12 @@ public class ApiCommonService {
         }
 
         // 获取使用公共脚本的前后置
-        List<ScriptProcessor> scriptsProcessors = processors.stream()
+        return processors.stream()
                 .filter(processor -> processor instanceof ScriptProcessor)
                 .map(processor -> (ScriptProcessor) processor)
                 .filter(ScriptProcessor::isEnableCommonScript)
                 .filter(ScriptProcessor::isValid)
                 .collect(Collectors.toList());
-        return scriptsProcessors;
     }
 
     /**
@@ -364,10 +360,9 @@ public class ApiCommonService {
      * @return
      */
     public Map<String, ApiDefinitionExecuteInfo> getApiDefinitionExecuteInfoMap(Function<List<String>, List<ApiDefinitionExecuteInfo>> getDefinitionInfoFunc, List<String> resourceIds) {
-        Map<String, ApiDefinitionExecuteInfo> resourceModuleMap = getDefinitionInfoFunc.apply(resourceIds)
+        return getDefinitionInfoFunc.apply(resourceIds)
                 .stream()
                 .collect(Collectors.toMap(ApiDefinitionExecuteInfo::getResourceId, Function.identity()));
-        return resourceModuleMap;
     }
 
     /**
