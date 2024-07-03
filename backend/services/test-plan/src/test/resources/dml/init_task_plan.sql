@@ -9,6 +9,8 @@ VALUES
 ('test-plan-report-id-3', 'test_plan_id_1', '测试一下计划报告3', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001',1, 0, null, '测试一下计划'),
 ('test-plan-report-id-4', 'test_plan_id_1', '测试一下计划报告4', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001', 1, 0, null, '测试一下计划'),
 ('test-plan-report-id-1-1', 'test_plan_id_1', '测试一下计划报告1-1', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001', 1, 0, 'test-plan-report-id-1', '测试一下计划'),
-('test-plan-report-id-1-2', 'test_plan_id_1', '测试一下计划报告1-2', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001', 1, 0, 'test-plan-report-id-1', '测试一下计划');
+('test-plan-report-id-1-2', 'test_plan_id_1', '测试一下计划报告1-2', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001', 1, 0, 'test-plan-report-id-1-2', '测试一下计划'),
+('test-plan-report-id-1-3', 'test_plan_id_1', '测试一下计划报告1-3', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001', 0, 0, 'test-plan-report-id-1-2', '测试一下计划'),
+('test-plan-report-id-1-4', 'test_plan_id_1', '测试一下计划报告1-4', 'admin', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 'MANUAL', 'RUNNING', '-', '99.99', 100.00, '100001100001', 1, 0, 'test-plan-report-id-1-4', '测试一下计划');
 
 

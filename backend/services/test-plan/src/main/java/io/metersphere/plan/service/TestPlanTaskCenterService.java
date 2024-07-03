@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
-import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
@@ -78,8 +77,6 @@ public class TestPlanTaskCenterService {
     @Resource
     OperationLogService operationLogService;
     @Resource
-    ExtApiReportMapper extApiReportMapper;
-    @Resource
     ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
     TestPlanExecuteService testPlanExecuteService;
@@ -132,21 +129,26 @@ public class TestPlanTaskCenterService {
         if (CollectionUtils.isNotEmpty(projectIds)) {
             Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
             list = extTestPlanReportMapper.taskCenterlist(request, isSystem ? new ArrayList<>() : projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
-            //执行历史列表
+            // 查询计划组的任务的子计划任务
+            List<String> groupReportIds = list.stream().filter(TaskCenterDTO::isIntegrated).map(TaskCenterDTO::getId).toList();
+            if (CollectionUtils.isNotEmpty(groupReportIds)) {
+                List<TaskCenterDTO> childTaskCenterList = extTestPlanReportMapper.getChildTaskCenter(groupReportIds);
+                Map<String, List<TaskCenterDTO>> childTaskMap = childTaskCenterList.stream().collect(Collectors.groupingBy(TaskCenterDTO::getParentId));
+                list.forEach(item -> {
+                    if (CollectionUtils.isNotEmpty(childTaskMap.get(item.getId()))) {
+                        item.setChildren(childTaskMap.get(item.getId()));
+                    }
+                });
+            }
+
+            // 执行历史列表
             List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
             if (CollectionUtils.isNotEmpty(reportIds)) {
                 List<ExecuteReportDTO> historyDeletedList = extTestPlanReportMapper.getHistoryDeleted(reportIds);
                 historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
             }
-            processTaskCenter(list, projectList, projectIds, historyDeletedMap);
-        }
 
-        return list;
-    }
-
-    private void processTaskCenter(List<TaskCenterDTO> list, List<OptionDTO> projectList, List<String> projectIds, Map<String, ExecuteReportDTO> historyDeletedMap) {
-        if (!list.isEmpty()) {
-            // 取所有的userid
+            // 准备参数
             Set<String> userSet = list.stream()
                     .flatMap(item -> Stream.of(item.getOperationName()))
                     .collect(Collectors.toSet());
@@ -156,12 +158,22 @@ public class TestPlanTaskCenterService {
             // 组织
             List<OptionDTO> orgListByProjectList = getOrgListByProjectIds(projectIds);
             Map<String, String> orgMap = orgListByProjectList.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+            processTaskCenter(list, userMap, projectMap, orgMap, historyDeletedMap);
+        }
 
+        return list;
+    }
+
+    private void processTaskCenter(List<TaskCenterDTO> list, Map<String, String> userMap, Map<String, String> projectMap, Map<String, String> orgMap, Map<String, ExecuteReportDTO> historyDeletedMap) {
+        if (!list.isEmpty()) {
             list.forEach(item -> {
                 item.setOperationName(userMap.getOrDefault(item.getOperationName(), StringUtils.EMPTY));
                 item.setProjectName(projectMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setOrganizationName(orgMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
                 item.setHistoryDeleted(MapUtils.isNotEmpty(historyDeletedMap) && !historyDeletedMap.containsKey(item.getId()));
+                if (CollectionUtils.isNotEmpty(item.getChildren())) {
+                    processTaskCenter(item.getChildren(), userMap, projectMap, orgMap, historyDeletedMap);
+                }
             });
         }
     }
