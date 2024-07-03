@@ -41,7 +41,7 @@ const TestPlan: AppRouteRecordRaw = {
     {
       path: 'testPlanReportDetail',
       name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
-      component: () => import('@/views/test-plan/report/detail/index.vue'),
+      component: () => import('@/views/test-plan/report/detail/detail.vue'),
       meta: {
         locale: 'menu.apiTest.reportDetail',
         roles: ['PROJECT_TEST_PLAN_REPORT:READ'],
@@ -75,6 +75,17 @@ const TestPlan: AppRouteRecordRaw = {
             locale: 'menu.testPlan.testPlanDetail',
           },
         ],
+      },
+    },
+    // 自定义配置报告
+    {
+      path: 'testPlanIndexConfig',
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX_CONFIG,
+      component: () => import('@/views/test-plan/report/detail/configReport.vue'),
+      meta: {
+        locale: 'testPlan.planConfigReport',
+        roles: ['PROJECT_TEST_PLAN_REPORT:READ'],
+        isTopMenu: false,
       },
     },
     // 测试计划-测试计划详情-功能用例详情

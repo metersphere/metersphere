@@ -97,29 +97,12 @@
     </template> -->
     <template #num="{ record }">
       <div class="flex items-center">
-        <div
-          v-if="record.type === testPlanTypeEnum.GROUP"
-          class="mr-2 flex items-center"
-          @click="expandHandler(record)"
-        >
-          <MsIcon
-            type="icon-icon_split_turn-down_arrow"
-            class="arrowIcon mr-1 cursor-pointer text-[16px]"
-            :class="getIconClass(record)"
-          />
-          <span :class="getIconClass(record)">{{ record.childrenCount || 0 }}</span>
-        </div>
-
-        <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" :class="`one-line-text ${hasIndent(record)}`">
-          <MsButton type="text" @click="openDetail(record.id)"
-            ><a-tooltip :content="record.num.toString()"
-              ><span>{{ record.num }}</span></a-tooltip
-            ></MsButton
-          >
-        </div>
-        <a-tooltip v-else :content="record.num.toString()">
-          <div :class="`one-line-text ${hasIndent(record)}`">{{ record.num }}</div>
-        </a-tooltip>
+        <PlanExpandRow
+          v-model:expanded-keys="expandedKeys"
+          :record="record"
+          @action="openDetail(record.id)"
+          @expand="expandHandler(record)"
+        />
         <a-tooltip position="right" :disabled="!getSchedule(record.id)" :mouse-enter-delay="300">
           <MsTag
             v-if="getSchedule(record.id)"
@@ -186,13 +169,12 @@
     </template>
 
     <template #passRate="{ record }">
-      <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" class="mr-[8px] w-[100px]">
+      <div class="mr-[8px] w-[100px]">
         <StatusProgress :status-detail="defaultCountDetailMap[record.id]" height="5px" />
       </div>
-      <div v-if="record.type === testPlanTypeEnum.TEST_PLAN" class="text-[var(--color-text-1)]">
+      <div class="text-[var(--color-text-1)]">
         {{ `${defaultCountDetailMap[record.id]?.passRate ? defaultCountDetailMap[record.id].passRate : '-'}%` }}
       </div>
-      <span v-else> - </span>
     </template>
     <template #passRateTitleSlot="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
@@ -206,13 +188,8 @@
       </div>
     </template>
     <template #functionalCaseCount="{ record }">
-      <a-popover
-        v-if="record.type === testPlanTypeEnum.TEST_PLAN"
-        position="bottom"
-        content-class="p-[16px]"
-        :disabled="getFunctionalCount(record.id) < 1"
-      >
-        <div v-if="record.type === testPlanTypeEnum.TEST_PLAN">{{ getFunctionalCount(record.id) }}</div>
+      <a-popover position="bottom" content-class="p-[16px]" :disabled="getFunctionalCount(record.id) < 1">
+        <div>{{ getFunctionalCount(record.id) }}</div>
         <template #content>
           <table class="min-w-[140px] max-w-[176px]">
             <tr>
@@ -250,7 +227,6 @@
           </table>
         </template>
       </a-popover>
-      <span v-else>-</span>
     </template>
 
     <template #operation="{ record }">
@@ -403,6 +379,7 @@
   import BatchMoveOrCopy from './batchMoveOrCopy.vue';
   import ScheduledModal from './scheduledModal.vue';
   import StatusProgress from './statusProgress.vue';
+  import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
 
   import {
     addTestPlan,
@@ -628,16 +605,6 @@
     }
   }
 
-  // 设置对齐缩进
-  function hasIndent(record: TestPlanItem) {
-    return (showType.value === 'ALL' || showType.value === 'GROUP') &&
-      record.type === testPlanTypeEnum.TEST_PLAN &&
-      record.groupId &&
-      record.groupId !== 'NONE'
-      ? 'pl-[36px]'
-      : '';
-  }
-
   const batchCopyActions = [
     {
       label: 'common.copy',
@@ -742,6 +709,14 @@
     },
   ];
 
+  const configReportActions: ActionsItem[] = [
+    {
+      label: 'testPlan.planConfigReport',
+      eventTag: 'configReport',
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+    },
+  ];
+
   const defaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
   function getFunctionalCount(id: string) {
     return defaultCountDetailMap.value[id]?.caseTotal ?? 0;
@@ -779,11 +754,15 @@
         ? []
         : archiveActions;
 
+    const reportAction =
+      planStatus !== 'ARCHIVED' && record.type === testPlanTypeEnum.GROUP ? [...configReportActions] : [];
+
     // 已归档和已完成不展示归档
     if (planStatus === 'ARCHIVED' || planStatus === 'PREPARED' || planStatus === 'UNDERWAY') {
       return [
         ...copyAction,
         ...scheduledTaskAction,
+        ...reportAction,
         {
           label: 'common.delete',
           danger: true,
@@ -796,6 +775,7 @@
       ...copyAction,
       ...archiveAction,
       ...scheduledTaskAction,
+      ...reportAction,
       {
         isDivider: true,
       },
@@ -1316,6 +1296,26 @@
     activeRecord.value = cloneDeep(record);
     showStatusDeleteModal.value = true;
   }
+  // 计划组配置报告 TODO 后台需要加接口
+  async function configReportHandler(record: TestPlanItem) {
+    try {
+      // await generateReport({
+      //   projectId: appStore.currentProjectId,
+      //   testPlanId: record.id,
+      //   triggerMode: 'MANUAL',
+      // });
+      router.push({
+        name: TestPlanRouteEnum.TEST_PLAN_INDEX_CONFIG,
+        query: {
+          id: record.id,
+          type: record.type === testPlanTypeEnum.GROUP ? 'GROUP' : 'TEST_PLAN',
+        },
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
@@ -1401,6 +1401,9 @@
       case 'delete':
         deleteStatusHandler(record);
         break;
+      case 'configReport':
+        configReportHandler(record);
+        break;
       case 'archive':
         archiveHandle(record);
         break;
@@ -1421,9 +1424,6 @@
         getStatistics(testPlanId);
       }
     }
-  }
-  function getIconClass(record: TestPlanItem) {
-    return expandedKeys.value.includes(record.id) ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]';
   }
 
   /** *

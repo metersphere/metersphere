@@ -1,45 +1,41 @@
 <template>
-  <MsCard class="mb-[16px]" simple auto-height auto-width>
-    <div class="font-medium">{{ t('report.detail.reportSummary') }}</div>
-    <div
-      :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`"
-    >
-      <MsRichText
-        v-model:raw="innerSummary.summary"
-        v-model:filedIds="innerSummary.richTextTmpFileIds"
-        :upload-image="handleUploadImage"
-        :preview-url="ReportPlanPreviewImageUrl"
-        class="mt-[8px] w-full"
-        :editable="!!shareId"
-      />
-      <MsFormItemSub
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && props.showButton"
-        :text="t('report.detail.oneClickSummary')"
-        :show-fill-icon="true"
-        @fill="handleSummary"
-      />
-    </div>
+  <div :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`">
+    <MsRichText
+      v-model:raw="innerSummary.summary"
+      v-model:filedIds="innerSummary.richTextTmpFileIds"
+      :upload-image="handleUploadImage"
+      :preview-url="ReportPlanPreviewImageUrl"
+      class="mt-[8px] w-full"
+      :editable="props.canEdit"
+      @click="handleClick"
+    />
+    <MsFormItemSub
+      v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && props.showButton && props.canEdit"
+      :text="t('report.detail.oneClickSummary')"
+      :show-fill-icon="true"
+      @fill="handleSummary"
+    />
+  </div>
 
-    <div
-      v-show="props.showButton && hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId"
-      class="mt-[16px] flex items-center gap-[12px]"
-    >
-      <a-button type="primary" @click="handleUpdateReportDetail">{{ t('common.save') }}</a-button>
-      <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-    </div>
-  </MsCard>
+  <div
+    v-show="props.showButton && hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && props.canEdit"
+    class="mt-[16px] flex items-center gap-[12px]"
+  >
+    <a-button type="primary" @click="handleUpdateReportDetail">{{ t('common.save') }}</a-button>
+    <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+  </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
 
-  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
   import { editorUploadFile } from '@/api/modules/test-plan/report';
   import { ReportPlanPreviewImageUrl } from '@/api/requrls/test-plan/report';
+  import useDoubleClick from '@/hooks/useDoubleClick';
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -54,11 +50,13 @@
     showButton: boolean;
     isPlanGroup: boolean;
     detail: PlanReportDetail;
+    canEdit: boolean;
   }>();
 
   const emit = defineEmits<{
     (e: 'updateSummary'): void;
     (e: 'cancel'): void;
+    (e: 'dblclick'): void;
     (e: 'handleSummary', content: string): void;
   }>();
 
@@ -128,6 +126,11 @@
   function handleSummary() {
     emit('handleSummary', summaryContent.value);
   }
+
+  function emitDoubleClick() {
+    emit('dblclick');
+  }
+  const { handleClick } = useDoubleClick(emitDoubleClick);
 </script>
 
 <style scoped></style>

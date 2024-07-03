@@ -19,17 +19,21 @@
       ref="tableRef"
       :action-config="tableBatchActions"
       :selectable="hasOperationPermission"
+      :expanded-keys="expandedKeys"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
+      <!-- TOTO 等待联调 后台接口需要调整 -->
       <template #resourceNum="{ record }">
-        <div
-          v-if="!record.integrated"
-          type="text"
-          class="one-line-text w-full"
-          :class="[hasJumpPermission ? 'text-[rgb(var(--primary-5))]' : '']"
-          @click="showDetail(record)"
-          >{{ record.resourceNum }}
+        <div class="flex items-center">
+          <PlanExpandRow
+            v-model:expanded-keys="expandedKeys"
+            num-key="resourceNum"
+            :record="record"
+            :permission="permissionsMap[props.group].jump"
+            @action="showDetail(record)"
+            @expand="expandHandler(record)"
+          />
         </div>
       </template>
       <template #resourceName="{ record }">
@@ -114,6 +118,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
+  import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
 
   import {
     batchStopRealOrgPlan,
@@ -134,6 +139,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import type { TestPlanTaskCenterItem } from '@/models/projectManagement/taskCenter';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { PlanReportStatus } from '@/enums/reportEnum';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -464,12 +470,22 @@
     });
   }
 
+  const expandedKeys = ref<string[]>([]);
+
+  function expandHandler(record: TestPlanTaskCenterItem) {
+    if (expandedKeys.value.includes(record.id)) {
+      expandedKeys.value = expandedKeys.value.filter((key) => key !== record.id);
+    } else {
+      expandedKeys.value = [...expandedKeys.value, record.id];
+    }
+  }
+
   function searchList() {
     resetSelector();
     initData();
   }
 
-  onBeforeMount(async () => {
+  onBeforeMount(() => {
     initData();
   });
 
@@ -487,4 +503,11 @@
   await tableStore.initColumn(tableKeysMap[props.group], groupColumnsMap[props.group], 'drawer', true);
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.arco-table-cell-expand-icon .arco-table-cell-inline-icon) {
+    display: none;
+  }
+  :deep(.arco-table-cell-align-left) > span:first-child {
+    padding-left: 0 !important;
+  }
+</style>

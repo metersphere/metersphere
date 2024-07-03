@@ -135,4 +135,6 @@ export default {
   'testPlan.plan': '测试规划',
   'testPlan.planTip': '1.创建测试点进行业务分类测试；2.选择测试点关联用例',
   'testPlan.planStartToEndTimeTip': '测试计划已超时',
+  'testPlan.planConfigReport': '自定义报告',
+  'testPlan.planAutomaticGeneration': '自动生成',
 };

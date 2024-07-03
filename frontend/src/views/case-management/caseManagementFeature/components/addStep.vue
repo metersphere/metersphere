@@ -33,7 +33,9 @@
       v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && !props.isDisabledTestPlan"
       #actualResult="{ record }"
     >
+      <div v-if="props.isPreview">{{ record.actualResult }}</div>
       <a-textarea
+        v-else
         v-model="record.actualResult"
         :max-length="1000"
         size="mini"
@@ -44,7 +46,7 @@
     </template>
     <template #lastExecResult="{ record }">
       <a-select
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && !props.isDisabledTestPlan"
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && !props.isDisabledTestPlan && !props.isPreview"
         v-model:model-value="record.executeResult"
         :placeholder="t('common.pleaseSelect')"
         class="param-input w-full"
@@ -105,6 +107,7 @@
       isScrollY?: boolean;
       isTestPlan?: boolean;
       isDisabledTestPlan?: boolean;
+      isPreview?: boolean; // 仅预览不展示状态可操作下拉和文本框
     }>(),
     {
       isDisabled: false,

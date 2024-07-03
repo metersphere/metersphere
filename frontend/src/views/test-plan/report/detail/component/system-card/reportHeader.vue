@@ -17,7 +17,7 @@
   import { ref } from 'vue';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import PlanDetailHeaderRight from '@/views/test-plan/report/detail/component/planDetailHeaderRight.vue';
+  import PlanDetailHeaderRight from '@/views/test-plan/report/detail/component/system-card/planDetailHeaderRight.vue';
 
   import type { PlanReportDetail } from '@/models/testPlan/testPlanReport';
 

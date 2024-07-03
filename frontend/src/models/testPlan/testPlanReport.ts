@@ -1,3 +1,5 @@
+import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
+
 export interface countDetail {
   success: number;
   error: number;
@@ -28,7 +30,10 @@ export interface PlanReportDetail {
   apiBugCount: number; // 接口用例明细bug总数
   scenarioBugCount: number; // 场景用例明细bug总数
   testPlanName: string;
+  resultStatus?: string; // 报告结果
 }
+
+export type detailCountKey = 'functionalCount' | 'apiCaseCount' | 'apiScenarioCount';
 
 export type AnalysisType = 'FUNCTIONAL' | 'API' | 'SCENARIO';
 
@@ -48,4 +53,19 @@ export interface StatusListType {
   class: string;
   rateKey: string;
   key: string;
+}
+
+export interface configItem {
+  id: string;
+  value: ReportCardTypeEnum;
+  label: string;
+  content?: string;
+  system: boolean;
+  enableEdit: boolean;
+}
+
+export interface customValueForm {
+  content?: string;
+  label: string;
+  richTextTmpFileIds?: string[];
 }

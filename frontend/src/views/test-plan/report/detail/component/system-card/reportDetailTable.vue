@@ -23,7 +23,7 @@
       <ExecutionStatus :status="filterContent.value" />
     </template>
     <template #operation="{ record }">
-      <MsButton class="!mx-0" :disabled="record.deleted" @click="openReport(record)">{{
+      <MsButton class="!mx-0" :disabled="record.deleted || !props.isPreview" @click="openReport(record)">{{
         t('report.detail.testPlanGroup.viewReport')
       }}</MsButton>
     </template>
@@ -49,6 +49,9 @@
   import { PlanReportStatus } from '@/enums/reportEnum';
   import { RouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
+
+  import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const { openNewPage } = useOpenNewPage();
 
@@ -57,8 +60,12 @@
   const props = defineProps<{
     reportId: string;
     shareId?: string;
-    currentMode: string;
+    isPreview?: boolean;
   }>();
+
+  const innerCurrentMode = defineModel<string>('currentMode', {
+    default: 'drawer',
+  });
 
   const statusResultOptions = computed(() => {
     return Object.keys(PlanReportStatus).map((key) => {
@@ -132,8 +139,10 @@
   }
 
   watchEffect(() => {
-    if (props.reportId) {
+    if (props.reportId && props.isPreview) {
       loadReportDetailList();
+    } else {
+      propsRes.value.data = detailTableExample[ReportCardTypeEnum.SUB_PLAN_DETAIL];
     }
   });
 
@@ -143,7 +152,7 @@
 
   function openReport(record: PlanReportDetail) {
     independentReportId.value = record.id;
-    if (props.currentMode === 'drawer') {
+    if (innerCurrentMode.value === 'drawer') {
       reportVisible.value = true;
     } else {
       openNewPage(RouteEnum.TEST_PLAN_REPORT_DETAIL, {
