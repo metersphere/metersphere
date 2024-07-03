@@ -3,11 +3,9 @@ package io.metersphere.plan.controller;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanConfig;
-import io.metersphere.plan.domain.TestPlanExample;
-import io.metersphere.plan.domain.TestPlanReport;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
@@ -21,10 +19,7 @@ import io.metersphere.plan.utils.TestPlanTestUtils;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
@@ -43,6 +38,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.CheckLogModel;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -138,9 +134,13 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_TEST_PLAN_BATCH_ARCHIVED = "/test-plan/batch-archived";
     private static final String URL_TEST_PLAN_BATCH_EDIT = "/test-plan/batch-edit";
 
+    private static String testPlanId6 = null;
+    private static String testPlanId16 = null;
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
     private static String groupTestPlanId35 = null;
+    private static String groupTestPlanId45 = null;
+    private static String groupTestPlanId46 = null;
 
     private static List<String> rootPlanIds = new ArrayList<>();
 
@@ -154,6 +154,10 @@ public class TestPlanTests extends BaseTest {
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+
+    private static List<String> functionalCaseId = new ArrayList<>();
 
     @BeforeEach
     public void initTestData() {
@@ -542,7 +546,7 @@ public class TestPlanTests extends BaseTest {
             String moduleId;
             if (i < 50) {
                 moduleId = a1Node.getId();
-                if (i == 7 || i == 15 || i == 35) {
+                if (i == 7 || i == 15 || i == 35 || i == 45 || i == 46) {
                     request.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
                 }
                 a1NodeCount++;
@@ -574,13 +578,20 @@ public class TestPlanTests extends BaseTest {
             ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
             String returnId = JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId();
             Assertions.assertNotNull(returnId);
-
-            if (i == 7) {
+            if (i == 6) {
+                testPlanId6 = returnId;
+            } else if (i == 7) {
                 groupTestPlanId7 = returnId;
             } else if (i == 15) {
                 groupTestPlanId15 = returnId;
+            } else if (i == 16) {
+                testPlanId16 = returnId;
             } else if (i == 35) {
                 groupTestPlanId35 = returnId;
+            } else if (i == 45) {
+                groupTestPlanId45 = returnId;
+            } else if (i == 46) {
+                groupTestPlanId46 = returnId;
             } else if (i > 700 && i < 725) {
                 // 701-749 要创建测试计划报告   每个测试计划创建250个报告
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -676,6 +687,32 @@ public class TestPlanTests extends BaseTest {
             }
         }
 
+        //        testPlanId6关联两条已完成用例
+        this.associationFuncCase(testPlanId6, true);
+        //        testPlanId16 关联未开始用例
+        this.associationFuncCase(testPlanId16, false);
+        //在groupTestPlanId35 和 groupTestPlanId46下面各创建2条测试计划并关联已完成用例
+        for (int i = 0; i < 4; i++) {
+            TestPlanCreateRequest itemRequest = new TestPlanCreateRequest();
+            itemRequest.setProjectId(project.getId());
+            itemRequest.setModuleId(a1Node.getId());
+            if (i > 2) {
+                itemRequest.setGroupId(groupTestPlanId46);
+                itemRequest.setName("testPlan_group46_" + i);
+            } else {
+                itemRequest.setGroupId(groupTestPlanId35);
+                itemRequest.setName("testPlan_group35_" + i);
+            }
+            itemRequest.setBaseAssociateCaseRequest(associateCaseRequest);
+            MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, itemRequest);
+            String returnStr = mvcResult.getResponse().getContentAsString();
+            ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+            Assertions.assertNotNull(JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId());
+            String returnId = JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId();
+            this.associationFuncCase(returnId, true);
+        }
+
+
         //校验Group数量
         List<TestPlan> groupList = JSON.parseArray(
                 JSON.toJSONString(
@@ -683,7 +720,7 @@ public class TestPlanTests extends BaseTest {
                                 this.requestGetWithOkAndReturn(String.format(URL_POST_TEST_PLAN_GROUP_LIST, project.getId()))
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlan.class);
-        Assertions.assertEquals(groupList.size(), 3);
+        Assertions.assertEquals(groupList.size(), 5);
 
         /*
         反例
@@ -717,7 +754,49 @@ public class TestPlanTests extends BaseTest {
         this.checkTestPlanSortWithOutGroup();
         this.checkTestPlanSortInGroup(groupTestPlanId7);
         this.checkTestPlanMoveToGroup();
-        this.checkTestPlanGroupArchived(groupTestPlanId7);
+        this.checkTestPlanGroupArchived(groupTestPlanId35);
+    }
+
+    private void associationFuncCase(String testPlanId, boolean isFinish) {
+        FunctionalCase functionalCase = new FunctionalCase();
+        functionalCase.setProjectId(project.getId());
+        functionalCase.setName(String.valueOf(System.currentTimeMillis()));
+        functionalCase.setId(IDGenerator.nextStr());
+        functionalCase.setModuleId("root");
+        functionalCase.setTemplateId("root");
+        functionalCase.setReviewStatus("PREPARED");
+        functionalCase.setCaseEditType("STEP");
+        functionalCase.setPos(4096L);
+        functionalCase.setVersionId("root");
+        functionalCase.setRefId(functionalCase.getId());
+        functionalCase.setLastExecuteResult("PREPARED");
+        functionalCase.setDeleted(false);
+        functionalCase.setPublicCase(false);
+        functionalCase.setLatest(true);
+        functionalCase.setCreateUser("admin");
+        functionalCase.setCreateTime(System.currentTimeMillis());
+        functionalCase.setUpdateTime(System.currentTimeMillis());
+        functionalCase.setNum(NumGenerator.nextNum(project.getId(), ApplicationNumScope.CASE_MANAGEMENT));
+        functionalCaseMapper.insert(functionalCase);
+        functionalCaseId.add(functionalCase.getId());
+
+        TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
+        testPlanFunctionalCase.setId(IDGenerator.nextStr());
+        testPlanFunctionalCase.setTestPlanId(testPlanId);
+        testPlanFunctionalCase.setFunctionalCaseId(functionalCase.getId());
+        testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
+        testPlanFunctionalCase.setCreateUser("admin");
+        testPlanFunctionalCase.setPos(4096L);
+        testPlanFunctionalCase.setLastExecResult("SUCCESS");
+        testPlanFunctionalCase.setTestPlanCollectionId("root");
+        testPlanFunctionalCaseMapper.insert(testPlanFunctionalCase);
+
+        if (!isFinish) {
+            testPlanFunctionalCase.setId(IDGenerator.nextStr());
+            testPlanFunctionalCase.setPos(8192L);
+            testPlanFunctionalCase.setLastExecResult("PENDING");
+            testPlanFunctionalCaseMapper.insert(testPlanFunctionalCase);
+        }
     }
 
     private List<TestPlanResponse> selectByGroupId(String groupId) throws Exception {
@@ -912,16 +991,16 @@ public class TestPlanTests extends BaseTest {
 
         //判断组归档
         TestPlan updatePlan = new TestPlan();
-        updatePlan.setId(groupTestPlanId35);
+        updatePlan.setId(groupTestPlanId45);
         updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
         testPlanMapper.updateByPrimaryKeySelective(updatePlan);
         this.requestPost(URL_TEST_PLAN_BATCH_MOVE, request).andExpect(status().is5xxServerError());
         //改回来
-        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
         testPlanMapper.updateByPrimaryKeySelective(updatePlan);
 
         //正式测试
-        groupId = groupTestPlanId35;
+        groupId = groupTestPlanId45;
         request.setTargetId(groupId);
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_MOVE, request);
         List<TestPlanResponse> groups = this.selectByGroupId(groupId);
@@ -950,20 +1029,21 @@ public class TestPlanTests extends BaseTest {
         // 测试计划组内的测试计划不能归档
         List<TestPlanResponse> testPlanResponseList = this.selectByGroupId(groupId);
         TestPlanResponse cannotArchivedPlan = testPlanResponseList.getFirst();
-        testPlanMapper.updateByPrimaryKeySelective(new TestPlan() {{
-            this.setId(cannotArchivedPlan.getId());
-            this.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-        }});
         this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, cannotArchivedPlan.getId())).andExpect(status().is5xxServerError());
 
         //归档测试组内的测试计划
-        for (TestPlanResponse testPlanResponse : testPlanResponseList) {
-            testPlanMapper.updateByPrimaryKeySelective(new TestPlan() {{
-                this.setId(testPlanResponse.getId());
-                this.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-            }});
-        }
         this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, groupId));
+
+        //归档不能归档的测试计划
+        this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, rootPlanIds.getFirst())).andExpect(status().is5xxServerError());
+
+        //归档普通测试计划
+        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, testPlanId6));
+        // testPlan6更改回去
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId(testPlanId6);
+        testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
 
@@ -1003,10 +1083,103 @@ public class TestPlanTests extends BaseTest {
             TestPlanTableRequest groupRequest = new TestPlanTableRequest();
             //查询游离态测试计划
             TestPlanTableRequest onlyPlanRequest = new TestPlanTableRequest();
+            // 状态过滤的测试计划
+            TestPlanTableRequest statusRequest = new TestPlanTableRequest();
             BeanUtils.copyBean(groupRequest, dataRequest);
             BeanUtils.copyBean(onlyPlanRequest, dataRequest);
+            BeanUtils.copyBean(statusRequest, dataRequest);
             groupRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
             onlyPlanRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+
+
+            //进行状态筛选 -- 空状态
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    999 - 1);
+            /*
+                现有数据状态：
+                已完成的   6  47（组）
+                进行中的  16
+                已归档的 35（组）
+             */
+            //进行状态筛选 -- 未开始
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED));
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    999 - 1 - 1 - 2);
+            //进行状态筛选 -- 已完成
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    2);
+            //进行状态筛选 -- 进行中
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    1);
+            //进行状态筛选 -- 已完成和未开始
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", new ArrayList<String>() {{
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                }});
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    999 - 1 - 1);
+            //进行状态筛选 -- 已完成和进行中
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", new ArrayList<String>() {{
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                }});
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    3);
+            //进行状态筛选 -- 进行中和未开始
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", new ArrayList<String>() {{
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                }});
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    999 - 1 - 2);
+            //进行状态筛选 -- 已完成、未开始、进行中
+            statusRequest.setFilter(new HashMap<>() {{
+                this.put("status", new ArrayList<String>() {{
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                }});
+            }});
+            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    dataRequest.getCurrent(),
+                    dataRequest.getPageSize(),
+                    999 - 1);
 
             BaseTreeNode a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1");
             BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
@@ -1024,6 +1197,7 @@ public class TestPlanTests extends BaseTest {
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
                     999 - 1);
+
             //查询归档的
             dataRequest.setFilter(new HashMap<>() {{
                 this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED));
@@ -1038,13 +1212,13 @@ public class TestPlanTests extends BaseTest {
                             URL_POST_TEST_PLAN_PAGE, groupRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    3 - 1);
+                    5 - 1);
             //只查询计划
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, onlyPlanRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    996);
+                    999 - 5);
 
             //按照名称倒叙
             dataRequest.setSort(new HashMap<>() {{
@@ -1243,17 +1417,17 @@ public class TestPlanTests extends BaseTest {
 
         //修改a2节点下的数据（91,92）的所属测试计划组
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_91").getId());
-        updateRequest.setGroupId(groupTestPlanId35);
+        updateRequest.setGroupId(groupTestPlanId45);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_92").getId());
-        updateRequest.setGroupId(groupTestPlanId35);
+        updateRequest.setGroupId(groupTestPlanId45);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         a2NodeCount--;
 
         TestPlan updatePlan = new TestPlan();
         updatePlan.setId(groupTestPlanId7);
-        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_UNDERWAY);
+        updatePlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
         testPlanMapper.updateByPrimaryKeySelective(updatePlan);
         //修改测试计划组信息
         updateRequest = testPlanTestService.generateUpdateRequest(groupTestPlanId7);
@@ -2113,25 +2287,15 @@ public class TestPlanTests extends BaseTest {
     public void testArchived() throws Exception {
         //计划 -- 首先状态不是已完成
         this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1")).andExpect(status().is5xxServerError());
-        //更改状态再归档
-        TestPlan testPlan = new TestPlan();
-        testPlan.setId("wx_test_plan_id_1");
-        testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_COMPLETED);
-        testPlanMapper.updateByPrimaryKeySelective(testPlan);
-        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_1"));
-
         //计划组没有可归档的测试计划：
         this.requestGet(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_2")).andExpect(status().is5xxServerError());
-        this.requestGetWithOk(String.format(URL_TEST_PLAN_ARCHIVED, "wx_test_plan_id_5"));
-
     }
 
     @Test
     @Order(303)
     public void testCopy() throws Exception {
         // 1. 已归档的不能再归档计划  无用例
-        requestGet(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_1")).andExpect(status().is5xxServerError());
-
+        requestGet(String.format(URL_TEST_PLAN_COPY, groupTestPlanId35)).andExpect(status().is5xxServerError());
 
         // 2.计划 有用例
         MvcResult mvcResult1 = this.requestGetWithOkAndReturn(String.format(URL_TEST_PLAN_COPY, "wx_test_plan_id_4"));

@@ -26,6 +26,9 @@ public class TestPlanTableRequest extends BasePageRequest {
     @Schema(description = "通过Keyword过滤出的测试子计划的测试计划组id")
     private List<String> keywordFilterIds;
 
+    @Schema(description = "通过其他条件查询出来的，必须要包含的测试计划ID")
+    private List<String> innerIds;
+
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {
             return "t.update_time desc";

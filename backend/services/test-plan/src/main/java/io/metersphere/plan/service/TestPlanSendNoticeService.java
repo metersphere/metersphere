@@ -134,7 +134,7 @@ public class TestPlanSendNoticeService {
     public TestPlanDTO sendAddNotice(TestPlanCreateRequest request) {
         TestPlanDTO dto = new TestPlanDTO();
         BeanUtils.copyBean(dto, request);
-        dto.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        dto.setStatus(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
         return dto;
     }
 

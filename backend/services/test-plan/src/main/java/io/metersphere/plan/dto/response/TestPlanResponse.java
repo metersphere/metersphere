@@ -16,8 +16,6 @@ public class TestPlanResponse extends TestPlanStatisticsResponse {
     private long num;
     @Schema(description = "名称")
     private String name;
-    @Schema(description = "状态")
-    private String status;
     @Schema(description = "测试计划类型 测试计划/测试计划组")
     private String type;
     @Schema(description = "标签")

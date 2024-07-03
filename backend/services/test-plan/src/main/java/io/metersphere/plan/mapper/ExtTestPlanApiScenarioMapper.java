@@ -6,6 +6,7 @@ import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.dto.ApiScenarioModuleDTO;
 import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
@@ -69,4 +70,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
 
     List<TestPlanApiScenario> getPlanScenarioCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
+
+    List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
 }

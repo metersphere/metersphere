@@ -4,7 +4,6 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.*;
-import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.constants.ScheduleResourceType;
@@ -16,6 +15,7 @@ import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.utils.ScheduleUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -41,6 +41,8 @@ public class TestPlanStatisticsService {
 	private ExtTestPlanBugMapper extTestPlanBugMapper;
 	@Resource
 	private ScheduleMapper scheduleMapper;
+	@Resource
+	private TestPlanBaseUtilsService testPlanBaseUtilsService;
 
 	/**
 	 * 计划/计划组的用例统计数据
@@ -71,92 +73,160 @@ public class TestPlanStatisticsService {
 		});
 	}
 
-	/**
-	 * 计划/计划组的{通过率, 执行进度}统计数据
-	 *
-	 * @param planIds 计划ID集合
-	 */
-	public List<TestPlanStatisticsResponse> calculateRate(List<String> planIds) {
-		//		查出子计划
-		TestPlanExample testPlanExample = new TestPlanExample();
-		testPlanExample.createCriteria().andGroupIdIn(planIds);
-		List<TestPlan> childrenPlan = testPlanMapper.selectByExample(testPlanExample);
-		childrenPlan.forEach(item -> planIds.add(item.getId()));
-
-		List<TestPlanStatisticsResponse> planStatisticsResponses = new ArrayList<>();
-		/*
-		 * 1. 查询计划下的用例数据集合
-		 * 2. 根据执行结果统计(结果小数保留两位)
-		 */
-		// 计划的更多配置
+	private Map<String, TestPlanConfig> selectConfig(List<String> testPlanIds) {
 		TestPlanConfigExample example = new TestPlanConfigExample();
-		example.createCriteria().andTestPlanIdIn(planIds);
+		example.createCriteria().andTestPlanIdIn(testPlanIds);
 		List<TestPlanConfig> testPlanConfigList = testPlanConfigMapper.selectByExample(example);
-		Map<String, TestPlanConfig> planConfigMap = testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, p -> p));
-		// 关联的用例数据
-		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = getFunctionalCaseMapByPlanIds(planIds);
-		Map<String, List<TestPlanApiCase>> planApiCaseMap = getApiCaseMapByPlanIds(planIds);
-		Map<String, List<TestPlanApiScenario>> planApiScenarioMap = getApiScenarioByPlanIds(planIds);
+		return testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, p -> p));
+	}
 
-		//查询定时任务
+	private Map<String, Schedule> selectSchedule(List<String> testPlanIds) {
 		ScheduleExample scheduleExample = new ScheduleExample();
-		scheduleExample.createCriteria().andResourceIdIn(planIds).andResourceTypeEqualTo(ScheduleResourceType.TEST_PLAN.name());
+		scheduleExample.createCriteria().andResourceIdIn(testPlanIds).andResourceTypeEqualTo(ScheduleResourceType.TEST_PLAN.name());
 		List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
-		Map<String, Schedule> scheduleMap = schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
+		return schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
+	}
 
-		planIds.forEach(planId -> {
-			TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
-			statisticsResponse.setId(planId);
+	/**
+	 * 计划/计划组的{通过率, 执行进度, 状态}统计数据
+	 *
+	 */
+	public List<TestPlanStatisticsResponse> calculateRate(List<String> paramIds) {
+		//		查出所有计划
+		TestPlanExample testPlanExample = new TestPlanExample();
+		testPlanExample.createCriteria().andIdIn(paramIds);
+		List<TestPlan> paramTestPlanList = testPlanMapper.selectByExample(testPlanExample);
+		testPlanExample.clear();
+		testPlanExample.createCriteria().andGroupIdIn(paramIds);
+		List<TestPlan> childrenTestPlan = testPlanMapper.selectByExample(testPlanExample);
+		paramTestPlanList.removeAll(childrenTestPlan);
+		List<String> allTestPlanIdList = new ArrayList<>();
+		allTestPlanIdList.addAll(paramTestPlanList.stream().map(TestPlan::getId).toList());
+		allTestPlanIdList.addAll(childrenTestPlan.stream().map(TestPlan::getId).toList());
 
-			// 测试计划组没有测试计划配置。同理，也不用参与用例等数据的计算
-			if (planConfigMap.containsKey(planId)) {
-				statisticsResponse.setPassThreshold(planConfigMap.get(planId).getPassThreshold());
-				// 功能用例分组统计开始 (为空时, 默认为未执行)
-				List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);
-				statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
-				Map<String, Long> functionalCaseResultCountMap = CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
-						Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
-				// 接口用例分组统计开始 (为空时, 默认为未执行)
-				List<TestPlanApiCase> apiCases = planApiCaseMap.get(planId);
-				statisticsResponse.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
-				Map<String, Long> apiCaseResultCountMap = CollectionUtils.isEmpty(apiCases) ? new HashMap<>(16) : apiCases.stream().collect(
-						Collectors.groupingBy(apiCase -> Optional.ofNullable(apiCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
-				// 接口场景用例分组统计开始 (为空时, 默认为未执行)
-				List<TestPlanApiScenario> apiScenarios = planApiScenarioMap.get(planId);
-				statisticsResponse.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
-				Map<String, Long> apiScenarioResultCountMap = CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
-						Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
-				// 用例数据汇总
-				statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.SUCCESS.name()));
-				statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.ERROR.name()));
-				statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.FAKE_ERROR.name()));
-				statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.BLOCKED.name()));
-				statisticsResponse.setPendingCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
-				statisticsResponse.setCaseTotal(statisticsResponse.getFunctionalCaseCount() + statisticsResponse.getApiCaseCount() + statisticsResponse.getApiScenarioCount());
-				// 通过率 {通过用例数/总用例数} && 执行进度 {非未执行的用例数/总用例数}
-				statisticsResponse.setPassRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getSuccessCount(), statisticsResponse.getCaseTotal(), 2));
-				statisticsResponse.setExecuteRate(RateCalculateUtils.divWithPrecision(statisticsResponse.getCaseTotal() - statisticsResponse.getPendingCount(), statisticsResponse.getCaseTotal(), 2));
-			}
-			planStatisticsResponses.add(statisticsResponse);
-
-			//定时任务
-			if (scheduleMap.containsKey(planId)) {
-				Schedule schedule = scheduleMap.get(planId);
-				BaseScheduleConfigRequest request = new BaseScheduleConfigRequest();
-				request.setEnable(schedule.getEnable());
-				request.setCron(schedule.getValue());
-				request.setResourceId(planId);
-				if (schedule.getConfig() != null) {
-					request.setRunConfig(JSON.parseObject(schedule.getConfig(), Map.class));
-				}
-				statisticsResponse.setScheduleConfig(request);
-				if (schedule.getEnable()) {
-					statisticsResponse.setNextTriggerTime(ScheduleUtils.getNextTriggerTime(schedule.getValue()));
+		Map<TestPlan, List<TestPlan>> groupTestPlanMap = new HashMap<>();
+		for (TestPlan testPlan : paramTestPlanList) {
+			List<TestPlan> children = new ArrayList<>();
+			for (TestPlan child : childrenTestPlan) {
+				if (StringUtils.equalsIgnoreCase(child.getGroupId(), testPlan.getId())) {
+					children.add(child);
 				}
 			}
+			groupTestPlanMap.put(testPlan, children);
+			childrenTestPlan.removeAll(children);
+		}
+		childrenTestPlan = null;
+		paramTestPlanList = null;
 
+		List<TestPlanStatisticsResponse> returnResponse = new ArrayList<>();
+
+		// 计划的更多配置
+		Map<String, TestPlanConfig> planConfigMap = this.selectConfig(allTestPlanIdList);
+		// 关联的用例数据
+		Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap = getFunctionalCaseMapByPlanIds(allTestPlanIdList);
+		Map<String, List<TestPlanApiCase>> planApiCaseMap = getApiCaseMapByPlanIds(allTestPlanIdList);
+		Map<String, List<TestPlanApiScenario>> planApiScenarioMap = getApiScenarioByPlanIds(allTestPlanIdList);
+		//查询定时任务
+		Map<String, Schedule> scheduleMap = this.selectSchedule(allTestPlanIdList);
+
+		groupTestPlanMap.forEach((rootPlan, children) -> {
+			TestPlanStatisticsResponse rootResponse = this.genTestPlanStatisticsResponse(rootPlan, planConfigMap, planFunctionalCaseMap, planApiCaseMap, planApiScenarioMap, scheduleMap);
+			List<TestPlanStatisticsResponse> childrenResponse = new ArrayList<>();
+			if (!CollectionUtils.isEmpty(children)) {
+				List<String> childStatus = new ArrayList<>();
+				children.forEach(child -> {
+					TestPlanStatisticsResponse childResponse = this.genTestPlanStatisticsResponse(child, planConfigMap, planFunctionalCaseMap, planApiCaseMap, planApiScenarioMap, scheduleMap);
+					childResponse.calculateStatus();
+					childStatus.add(childResponse.getStatus());
+					//添加到rootResponse中
+					rootResponse.calculateAllNumber(childResponse);
+					childrenResponse.add(childResponse);
+				});
+				rootResponse.calculateCaseTotal();
+				rootResponse.calculatePassRate();
+				rootResponse.calculateExecuteRate();
+				rootResponse.setStatus(testPlanBaseUtilsService.calculateStatusByChildren(childStatus));
+			} else {
+				rootResponse.calculateCaseTotal();
+				rootResponse.calculatePassRate();
+				rootResponse.calculateExecuteRate();
+				rootResponse.calculateStatus();
+			}
+			returnResponse.add(rootResponse);
+			returnResponse.addAll(childrenResponse);
 		});
-		return planStatisticsResponses;
+		return returnResponse;
+	}
+
+	private Map<String, Long> countApiScenarioExecResultMap(List<TestPlanApiScenario> apiScenarios) {
+		return CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
+				Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+	}
+
+	private Map<String, Long> countApiTestCaseExecResultMap(List<TestPlanApiCase> apiCases) {
+		return CollectionUtils.isEmpty(apiCases) ? new HashMap<>(16) : apiCases.stream().collect(
+				Collectors.groupingBy(apiCase -> Optional.ofNullable(apiCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+	}
+
+	private Map<String, Long> countFunctionalCaseExecResultMap(List<TestPlanFunctionalCase> functionalCases) {
+		return CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
+				Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+	}
+
+	private TestPlanStatisticsResponse genTestPlanStatisticsResponse(TestPlan child,
+																	 Map<String, TestPlanConfig> planConfigMap,
+																	 Map<String, List<TestPlanFunctionalCase>> planFunctionalCaseMap,
+																	 Map<String, List<TestPlanApiCase>> planApiCaseMap,
+																	 Map<String, List<TestPlanApiScenario>> planApiScenarioMap,
+																	 Map<String, Schedule> scheduleMap) {
+		String planId = child.getId();
+		TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
+		statisticsResponse.setId(planId);
+		// 测试计划组没有测试计划配置。同理，也不用参与用例等数据的计算
+		if (planConfigMap.containsKey(planId)) {
+			statisticsResponse.setPassThreshold(planConfigMap.get(planId).getPassThreshold());
+
+			List<TestPlanFunctionalCase> functionalCases = planFunctionalCaseMap.get(planId);
+			List<TestPlanApiCase> apiCases = planApiCaseMap.get(planId);
+			List<TestPlanApiScenario> apiScenarios = planApiScenarioMap.get(planId);
+
+
+			// 功能用例分组统计开始 (为空时, 默认为未执行)
+			Map<String, Long> functionalCaseResultCountMap = this.countFunctionalCaseExecResultMap(functionalCases);
+			// 接口用例分组统计开始 (为空时, 默认为未执行)
+			Map<String, Long> apiCaseResultCountMap = this.countApiTestCaseExecResultMap(apiCases);
+			// 接口场景用例分组统计开始 (为空时, 默认为未执行)
+			Map<String, Long> apiScenarioResultCountMap = this.countApiScenarioExecResultMap(apiScenarios);
+
+			// 用例数据汇总
+			statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
+			statisticsResponse.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
+			statisticsResponse.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
+			statisticsResponse.setSuccessCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.SUCCESS.name()));
+			statisticsResponse.setErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.ERROR.name()));
+			statisticsResponse.setFakeErrorCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.FAKE_ERROR.name()));
+			statisticsResponse.setBlockCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.BLOCKED.name()));
+			statisticsResponse.setPendingCount(countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
+			statisticsResponse.calculateCaseTotal();
+			statisticsResponse.calculatePassRate();
+			statisticsResponse.calculateExecuteRate();
+		}
+		//定时任务
+		if (scheduleMap.containsKey(planId)) {
+			Schedule schedule = scheduleMap.get(planId);
+			BaseScheduleConfigRequest request = new BaseScheduleConfigRequest();
+			request.setEnable(schedule.getEnable());
+			request.setCron(schedule.getValue());
+			request.setResourceId(planId);
+			if (schedule.getConfig() != null) {
+				request.setRunConfig(JSON.parseObject(schedule.getConfig(), Map.class));
+			}
+			statisticsResponse.setScheduleConfig(request);
+			if (schedule.getEnable()) {
+				statisticsResponse.setNextTriggerTime(ScheduleUtils.getNextTriggerTime(schedule.getValue()));
+			}
+		}
+		return statisticsResponse;
 	}
 
 

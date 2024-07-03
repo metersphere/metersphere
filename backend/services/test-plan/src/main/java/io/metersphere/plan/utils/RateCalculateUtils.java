@@ -20,7 +20,7 @@ public class RateCalculateUtils {
 	 * @param precision 精度
 	 * @return rate
 	 */
-	public static Double divWithPrecision(Integer molecular, Integer denominator, Integer precision) {
+	public static Double divWithPrecision(Long molecular, Long denominator, Integer precision) {
 		DecimalFormat rateFormat = new DecimalFormat("#.##");
 		rateFormat.setMinimumFractionDigits(precision);
 		rateFormat.setMaximumFractionDigits(precision);
@@ -37,5 +37,9 @@ public class RateCalculateUtils {
 			return 0.01;
 		}
 		return rate;
+	}
+
+	public static Double divWithPrecision(Integer molecular, Integer denominator, Integer precision) {
+		return divWithPrecision((long) molecular, (long) denominator, precision);
 	}
 }
