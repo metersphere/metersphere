@@ -34,4 +34,5 @@ export interface ApiOrScenarioCaseItem {
   executeUser: string;
   bugCount: number;
   reportId: string;
+  projectId: string;
 }

@@ -56,7 +56,7 @@
   import ReportDetailHeader from './reportDetailHeader.vue';
   import reportInfoHeader from './step/reportInfoHeaders.vue';
   import TiledList from './tiledList.vue';
-  import ReportMetricsItem from '@/views/test-plan/report/detail/component/ReportMetricsItem.vue';
+  import ReportMetricsItem from '@/views/test-plan/report/detail/component/system-card/ReportMetricsItem.vue';
 
   import { toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';

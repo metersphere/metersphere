@@ -3,17 +3,23 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeMount } from 'vue';
-
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
+
+  import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
+
+  const { t } = useI18n();
 
   const props = defineProps<{
     reportId: string;
     shareId?: string;
+    isPreview?: boolean;
   }>();
 
   const columns: MsTableColumn = [
@@ -73,8 +79,10 @@
   }
 
   watchEffect(() => {
-    if (props.reportId) {
+    if (props.reportId && props.isPreview) {
       loadCaseList();
+    } else {
+      propsRes.value.data = detailTableExample[ReportCardTypeEnum.BUG_DETAIL];
     }
   });
 </script>

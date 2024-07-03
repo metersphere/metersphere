@@ -1,4 +1,7 @@
 // 实时
+
+import { testPlanTypeEnum } from '@/enums/testPlanEnum';
+
 export interface RealTaskCenterApiCaseItem {
   organizationName: string; // 所属组织
   projectName: string;
@@ -13,6 +16,13 @@ export interface RealTaskCenterApiCaseItem {
   operationName: string; // 操作人
   operationTime: string;
   integrated: boolean; // 是否为集合报告
+}
+
+export interface TestPlanTaskCenterItem extends RealTaskCenterApiCaseItem {
+  children: TestPlanTaskCenterItem[];
+  childrenCount: number;
+  groupId: string;
+  type: keyof typeof testPlanTypeEnum;
 }
 // 定时任务
 export interface TimingTaskCenterApiCaseItem {

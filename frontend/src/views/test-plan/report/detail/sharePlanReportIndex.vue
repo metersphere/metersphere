@@ -1,21 +1,22 @@
 <template>
-  <PlanGroupDetail v-if="isGroup" :detail-info="detail" />
-  <PlanDetail v-else :detail-info="detail" />
+  <ViewReport v-model:card-list="cardItemList" :detail-info="detail" :is-group="isGroup" is-preview />
 </template>
 
 <script setup lang="ts">
+  // TODO 待联调 分享页面也要调整
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
-  import PlanDetail from '@/views/test-plan/report/detail/component/planDetail.vue';
-  import PlanGroupDetail from '@/views/test-plan/report/detail/component/planGroupDetail.vue';
+  import ViewReport from '@/views/test-plan/report/detail/component/viewReport.vue';
 
   import { getReportDetail, planGetShareHref } from '@/api/modules/test-plan/report';
   import { defaultReportDetail } from '@/config/testPlan';
   import { NOT_FOUND_RESOURCE } from '@/router/constants';
 
-  import type { PlanReportDetail } from '@/models/testPlan/testPlanReport';
+  import type { configItem, PlanReportDetail } from '@/models/testPlan/testPlanReport';
+
+  import { defaultGroupConfig, defaultSingleConfig } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const route = useRoute();
   const router = useRouter();
@@ -23,7 +24,9 @@
   const isGroup = computed(() => route.query.type === 'GROUP');
   const detail = ref<PlanReportDetail>(cloneDeep(defaultReportDetail));
 
+  const cardItemList = ref<configItem[]>([]);
   async function getShareDetail() {
+    cardItemList.value = isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
     try {
       const hrefShareDetail = await planGetShareHref(route.query.shareId as string);
       reportId.value = hrefShareDetail.reportId;

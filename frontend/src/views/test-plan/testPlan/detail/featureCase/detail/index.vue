@@ -193,8 +193,12 @@
           />
           <ExecutionHistory
             v-if="activeTab === 'executionHistory'"
-            :case-id="activeCaseId"
-            :test-plan-case-id="activeId"
+            :extra-params="{
+              caseId:activeCaseId,
+              id: activeId,
+              testPlanId: route.query.id as string,
+            }"
+            :load-list-fun="executeHistory"
           />
         </div>
       </a-spin>
@@ -245,6 +249,7 @@
   import { getBugList } from '@/api/modules/bug-management';
   import {
     associateBugToPlan,
+    executeHistory,
     getCaseDetail,
     getPlanDetailFeatureCaseList,
     getTestPlanDetail,

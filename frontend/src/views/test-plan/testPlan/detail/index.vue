@@ -33,15 +33,17 @@
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
-      <MsButton
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && detail.status !== 'ARCHIVED'"
-        type="button"
-        status="default"
-        @click="handleGenerateReport"
-      >
-        <MsIcon type="icon-icon_generate_report" class="mr-[8px]" />
-        {{ t('testPlan.testPlanDetail.generateReport') }}
-      </MsButton>
+      <!-- TODO 等待联调 接口需要调整和增加 -->
+      <MsTableMoreAction :list="reportMoreAction" @select="handleMoreReportSelect">
+        <MsButton
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && detail.status !== 'ARCHIVED'"
+          type="button"
+          status="default"
+        >
+          <MsIcon type="icon-icon_generate_report" class="mr-[8px]" />
+          {{ t('testPlan.testPlanDetail.generateReport') }}
+        </MsButton>
+      </MsTableMoreAction>
       <MsButton
         v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && detail.status !== 'ARCHIVED'"
         type="button"
@@ -185,6 +187,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import type { PassRateCountDetail, TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   const userStore = useUserStore();
   const appStore = useAppStore();
@@ -380,7 +383,7 @@
 
   const showPlanDrawer = ref(false);
 
-  // 生成报告
+  // 生成报告  TODO 等待联调 后台要改接口
   async function handleGenerateReport() {
     try {
       loading.value = true;
@@ -395,6 +398,52 @@
       console.log(error);
     } finally {
       loading.value = false;
+    }
+  }
+  // 自定义报告  TODO 等待联调 后台缺接口
+  function configReportHandler() {
+    try {
+      // await generateReport({
+      //   projectId: appStore.currentProjectId,
+      //   testPlanId: record.id,
+      //   triggerMode: 'MANUAL',
+      // });
+      router.push({
+        name: TestPlanRouteEnum.TEST_PLAN_INDEX_CONFIG,
+        query: {
+          id: detail.value.id,
+          type: detail.value.type === testPlanTypeEnum.GROUP ? 'GROUP' : 'TEST_PLAN',
+        },
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const reportMoreAction: ActionsItem[] = [
+    {
+      label: t('testPlan.planAutomaticGeneration'),
+      eventTag: 'autoGeneration',
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+    },
+    {
+      label: t('testPlan.planConfigReport'),
+      eventTag: 'configReport',
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+    },
+  ];
+
+  function handleMoreReportSelect(item: ActionsItem) {
+    switch (item.eventTag) {
+      case 'autoGeneration':
+        handleGenerateReport();
+        break;
+      case 'configReport':
+        configReportHandler();
+        break;
+      default:
+        break;
     }
   }
 

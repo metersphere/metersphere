@@ -100,6 +100,7 @@
       placeholder: 'editor.placeholder',
       draggable: false,
       autoHeight: true,
+      editable: true,
     }
   );
 
@@ -137,6 +138,14 @@
       if (props.raw !== editor.value?.getHTML()) {
         editor.value?.commands.setContent(props.raw);
       }
+    }
+  );
+
+  watch(
+    () => props.editable,
+    (val) => {
+      // 更新富文本的可编辑配置
+      editor.value?.setOptions({ editable: val });
     },
     {
       immediate: true,
@@ -347,7 +356,7 @@
         }),
       ],
       autofocus: false,
-      editable: !props.editable,
+      editable: props.editable,
       onUpdate: () => {
         debounceOnUpdate();
       },

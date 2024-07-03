@@ -26,9 +26,13 @@
     v-model:visible="reportVisible"
     :report-id="apiReportId"
     do-not-show-share
-    :is-scenario="props.activeTab === 'scenarioCase'"
-    :report-detail="props.activeTab === 'scenarioCase' ? reportScenarioDetail : reportCaseDetail"
-    :get-report-step-detail="props.activeTab === 'scenarioCase' ? reportStepDetail : reportCaseStepDetail"
+    :is-scenario="props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL"
+    :report-detail="
+      props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL ? reportScenarioDetail : reportCaseDetail
+    "
+    :get-report-step-detail="
+      props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL ? reportStepDetail : reportCaseStepDetail
+    "
   />
 </template>
 
@@ -56,15 +60,18 @@
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
+  import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     reportId: string;
     shareId?: string;
-    activeTab: string;
+    activeType: ReportCardTypeEnum;
+    isPreview?: boolean;
   }>();
 
   const columns: MsTableColumn = [
@@ -128,13 +135,6 @@
     },
   ];
 
-  const getReportApiList = () => {
-    if (props.activeTab === 'apiCase') {
-      return getApiPage;
-    }
-    return getScenarioPage;
-  };
-
   const useApiTable = useTable(getApiPage, {
     scroll: { x: '100%' },
     columns,
@@ -149,7 +149,7 @@
   });
 
   const currentCaseTable = computed(() => {
-    return props.activeTab === 'apiCase' ? useApiTable : useScenarioTable;
+    return props.activeType === ReportCardTypeEnum.API_CASE_DETAIL ? useApiTable : useScenarioTable;
   });
 
   async function loadCaseList() {
@@ -170,7 +170,7 @@
 
   // 去接口用例详情页面
   function toDetail(record: PlanDetailApiCaseItem) {
-    if (props.activeTab === 'scenarioCase') {
+    if (props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL) {
       openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
         id: record.id,
         pId: record.projectId,
@@ -183,16 +183,13 @@
     }
   }
 
-  watch(
-    () => props.activeTab,
-    () => {
+  watchEffect(() => {
+    if (props.reportId && props.activeType && props.isPreview) {
       currentCaseTable.value.resetFilterParams();
       currentCaseTable.value.resetPagination();
       loadCaseList();
+    } else {
+      currentCaseTable.value.propsRes.value.data = detailTableExample[props.activeType];
     }
-  );
-
-  onMounted(() => {
-    loadCaseList();
   });
 </script>
