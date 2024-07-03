@@ -10,8 +10,6 @@ import io.metersphere.plan.domain.TestPlanReportApiCase;
 import io.metersphere.plan.domain.TestPlanReportApiScenario;
 import io.metersphere.plan.mapper.TestPlanReportApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanReportApiScenarioMapper;
-import io.metersphere.project.mapper.ProjectApplicationMapper;
-import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
@@ -23,8 +21,6 @@ import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
-import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
-import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -67,14 +63,6 @@ public class TestPlanTaskCenterControllerTests extends BaseTest {
     private ApiReportService apiReportService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
-    @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
-    @Resource
-    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
-    @Resource
-    private ProjectApplicationMapper projectApplicationMapper;
     @Resource
     private TestPlanReportApiCaseMapper testPlanReportApiCaseMapper;
     @Resource

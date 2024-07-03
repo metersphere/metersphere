@@ -827,9 +827,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         List<String> userIds = hisList.stream().map(TestPlanExecuteHisDTO::getOperationUser).distinct().toList();
         List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
         Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
-        hisList.forEach(his -> {
-            his.setOperationUser(userMap.getOrDefault(his.getOperationUser(), his.getOperationUser()));
-        });
+        hisList.forEach(his -> his.setOperationUser(userMap.getOrDefault(his.getOperationUser(), his.getOperationUser())));
         return hisList;
     }
 

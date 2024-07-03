@@ -47,6 +47,8 @@ public interface ExtTestPlanReportMapper {
     List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request, @Param("projectIds") List<String> projectIds,
                                        @Param("startTime") long startTime, @Param("endTime") long endTime);
 
+    List<TaskCenterDTO> getChildTaskCenter(@Param("ids") List<String> groupReportIds);
+
     List<TestPlanReportDetailResponse> getPlanReportListById(@Param("request") TestPlanReportDetailPageRequest request);
 
     List<ReportDTO> getReports(@Param("request") TaskCenterBatchRequest request, @Param("projectIds") List<String> projectIds,

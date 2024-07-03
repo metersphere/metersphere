@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author: LAN
@@ -66,5 +68,9 @@ public class TaskCenterDTO implements Serializable {
     @Schema(description = "执行历史是否被清理")
     private boolean historyDeleted = false;
 
+    @Schema(description = "计划组ID")
+    private String parentId;
 
+    @Schema(description = "计划组子任务")
+    private List<TaskCenterDTO> children = new ArrayList<>();
 }
