@@ -389,6 +389,9 @@ public class TestPlanCaseControllerTests extends BaseTest {
         associateDTO.setAssociateType(AssociateCaseType.FUNCTIONAL);
         associateDTO.setProjectId("123");
         associateDTO.setModuleMaps(buildModuleMap());
+        associateDTO.setSyncCase(true);
+        associateDTO.setApiCaseCollectionId("223");
+        associateDTO.setApiScenarioCollectionId("323");
         return associateDTO;
     }
 

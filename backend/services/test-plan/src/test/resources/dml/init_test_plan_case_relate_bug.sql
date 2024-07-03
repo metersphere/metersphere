@@ -59,7 +59,9 @@ INSERT INTO template (id,name,remark,internal,update_time,create_time,create_use
 
 INSERT INTO `test_plan_collection`(`id`, `test_plan_id`, `name`, `type`, `environment_id`, `test_resource_pool_id`, `pos`, `create_user`, `create_time`, `parent_id`)
 VALUES
-    ('123', 'plan_1', 'coll_1', 'FUNCTIONAL', 'NONE', 'NONE', 1, 'admin', 1716370415311, '123456');
+    ('123', 'plan_1', 'coll_1', 'FUNCTIONAL', 'NONE', 'NONE', 1, 'admin', 1716370415311, '123456'),
+    ('223', 'plan_1', 'api_coll_1', 'API', 'NONE', 'NONE', 2, 'admin', 1716370415311, '123456'),
+    ('323', 'plan_1', 'scenario_coll_1', 'SCENARIO', 'NONE', 'NONE', 3, 'admin', 1716370415311, '123456');
 
 INSERT INTO `test_plan_case_execute_history`(`id`, `test_plan_case_id`, `test_plan_id`, `case_id`, `status`, `content`, `steps`, `deleted`, `notifier`, `create_user`, `create_time`)
 VALUES

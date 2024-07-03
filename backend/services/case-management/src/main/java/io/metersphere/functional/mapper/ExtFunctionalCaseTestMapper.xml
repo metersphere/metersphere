@@ -205,4 +205,43 @@
             </foreach>
         </if>
     </sql>
+
+
+    <select id="selectApiCaseByCaseIds" resultType="io.metersphere.api.domain.ApiTestCase">
+        SELECT
+            api_test_case.id,
+            api_test_case.create_user,
+            api_test_case.environment_id
+        FROM
+            api_test_case
+                INNER JOIN functional_case_test ON api_test_case.id = functional_case_test.source_id
+        WHERE
+            api_test_case.deleted = FALSE
+        <if test="caseIds != null and caseIds.size() > 0">
+            AND functional_case_test.case_id in
+            <foreach collection="caseIds" item="caseId" open="(" close=")" separator=",">
+            #{caseId}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="selectApiScenarioByCaseIds" resultType="io.metersphere.api.domain.ApiScenario">
+        SELECT
+        api_scenario.id,
+        api_scenario.create_user,
+        api_scenario.environment_id,
+        api_scenario.grouped
+        FROM
+        api_scenario
+        INNER JOIN functional_case_test ON api_scenario.id = functional_case_test.source_id
+        WHERE
+        api_scenario.deleted = FALSE
+        <if test="caseIds != null and caseIds.size() > 0">
+            AND functional_case_test.case_id in
+            <foreach collection="caseIds" item="caseId" open="(" close=")" separator=",">
+                #{caseId}
+            </foreach>
+        </if>
+    </select>
 </mapper>

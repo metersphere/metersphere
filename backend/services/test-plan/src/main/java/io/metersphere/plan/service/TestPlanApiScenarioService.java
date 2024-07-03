@@ -217,7 +217,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @param user
      * @param testPlanApiScenarioList
      */
-    private void buildTestPlanApiScenarioDTO(BaseCollectionAssociateRequest apiScenario, List<ApiScenario> scenarioList, TestPlan testPlan, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
+    public void buildTestPlanApiScenarioDTO(BaseCollectionAssociateRequest apiScenario, List<ApiScenario> scenarioList, TestPlan testPlan, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
         AtomicLong nextOrder = new AtomicLong(getNextOrder(apiScenario.getCollectionId()));
         scenarioList.forEach(scenario -> {
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();

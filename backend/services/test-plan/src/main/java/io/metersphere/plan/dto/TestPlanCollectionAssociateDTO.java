@@ -31,5 +31,14 @@ public class TestPlanCollectionAssociateDTO implements Serializable {
     @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
+    @Schema(description = "是否同步添加功能用例的关联用例")
+    private boolean syncCase = false;
+
+    @Schema(description = "接口计划集id")
+    private String apiCaseCollectionId;
+
+    @Schema(description = "场景计划集id")
+    private String apiScenarioCollectionId;
+
 
 }
