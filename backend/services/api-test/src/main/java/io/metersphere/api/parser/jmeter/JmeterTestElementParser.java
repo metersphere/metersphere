@@ -6,6 +6,7 @@ import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.utils.JmeterElementConverterRegister;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
@@ -67,8 +68,11 @@ public class JmeterTestElementParser implements TestElementParser {
             Optional.ofNullable(userParameters).ifPresent(groupTree::add);
         }
 
+        // 拦截器拦截
+        HashTree wrapperTree = AbstractJmeterElementConverter.intercept(config, msTestElement, groupTree);
+
         // 解析 msTestElement
-        JmeterElementConverterRegister.getConverter(msTestElement.getClass()).toHashTree(groupTree, msTestElement, config);
+        JmeterElementConverterRegister.getConverter(msTestElement.getClass()).toHashTree(wrapperTree, msTestElement, config);
 
         // 添加 debugSampler，放最后才能采集到变量信息
         groupTree.add(getDebugSampler());

@@ -1,4 +1,4 @@
-package io.metersphere.plan.enums;
+package io.metersphere.sdk.constants;
 
 public enum RetryType {
 

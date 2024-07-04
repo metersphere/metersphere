@@ -283,6 +283,12 @@ public class ApiScenarioReportService {
                         } else {
                             step.setStatus(ExecStatus.PENDING.name());
                         }
+
+                        // 重试的话，取最后一次的状态
+                        ApiScenarioReportStepDTO lastDetail = details.getLast();
+                        if (lastDetail.getName().contains("MsRetry_")) {
+                            step.setStatus(lastDetail.getStatus());
+                        }
                     }
                     step.setChildren(details);
                 } else if (CollectionUtils.isNotEmpty(details)) {

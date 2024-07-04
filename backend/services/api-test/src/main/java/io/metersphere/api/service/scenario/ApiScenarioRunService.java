@@ -310,6 +310,8 @@ public class ApiScenarioRunService {
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(apiScenarioDetail.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setReportId(reportId);
+        parseConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
+        parseConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
 
         String script = apiExecuteService.parseExecuteScript(runRequest.getTestElement(), parseConfig);
 

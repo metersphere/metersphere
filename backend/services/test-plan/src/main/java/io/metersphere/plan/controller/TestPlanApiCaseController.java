@@ -45,10 +45,6 @@ public class TestPlanApiCaseController {
     @Resource
     private TestPlanApiCaseBatchRunService testPlanApiCaseBatchRunService;
     @Resource
-    private TestPlanManagementService testPlanManagementService;
-    @Resource
-    private TestPlanService testPlanService;
-    @Resource
     private ApiReportService apiReportService;
 
     @PostMapping(value = "/sort")
