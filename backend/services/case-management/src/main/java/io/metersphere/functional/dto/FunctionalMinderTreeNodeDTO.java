@@ -13,6 +13,9 @@ public class FunctionalMinderTreeNodeDTO {
     @Schema(description = "节点ID")
     private String id;
 
+    @Schema(description = "用例ID")
+    private String caseId;
+
     @Schema(description = "节点顺序")
     private Long pos;
 
