@@ -61,7 +61,7 @@
     </select>
     <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
         select
-        distinct tpr.id,
+        tpr.id,
         tpr.project_id,
         tpr.integrated,
         tpr.result_status as status,
@@ -70,7 +70,7 @@
         tpr.create_user AS operationName,
         tpr.trigger_mode,
         tpr.start_time,
-        '' as parentId,
+        '' as parent,
         project.organization_id,
         tp.num AS resourceNum,
         tp.name AS resourceName,
@@ -101,7 +101,7 @@
 
     <select id="getChildTaskCenter" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
         select
-        distinct tpr.id,
+        tpr.id,
         tpr.project_id,
         tpr.integrated,
         tpr.result_status as status,
@@ -110,7 +110,7 @@
         tpr.create_user as operationName,
         tpr.trigger_mode,
         tpr.start_time,
-        tpr.parent_id as parentId,
+        tpr.parent_id as parent,
         project.organization_id,
         tp.num as resourceNum,
         tp.name as resourceName,
