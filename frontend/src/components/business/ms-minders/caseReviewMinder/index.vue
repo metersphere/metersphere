@@ -50,13 +50,32 @@
           :active-case="activeCaseInfo"
         />
         <div v-else class="pl-[16px]">
-          <div v-if="props.reviewPassRule === 'MULTIPLE'" class="mb-[8px] flex justify-between">
+          <div v-if="props.reviewPassRule === 'MULTIPLE'" class="mb-[8px] flex items-center justify-between">
             <div class="text-[12px]">
               <span class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.progress') }}</span>
               {{ props.reviewProgress }}
             </div>
-            <!-- TODO 总结果 hover展示单个 -->
-            <ReviewResult :status="activeCaseInfo.reviewStatus" />
+            <a-trigger v-model:popup-visible="statusVisible" trigger="click" position="br" :popup-translate="[0, 4]">
+              <div
+                :class="`flex cursor-pointer items-center rounded p-[4px] hover:bg-[var(--color-text-n9)] 
+                ${statusVisible ? 'bg-[var(--color-text-n9)]' : ''} `"
+              >
+                <ReviewResult :status="activeCaseInfo.reviewStatus" class="text-[12px]" :icon-size="12" />
+                <MsIcon type="icon-icon_expand-down_filled" size="12" class="ml-[4px] text-[var(--color-text-4)]" />
+              </div>
+              <template #content>
+                <div
+                  class="trigger-content rounded-[var(--border-radius-medium)] bg-white p-[6px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+                >
+                  <div v-for="item in reviewUserStatusList" :key="item.id" class="my-[4px] flex justify-between">
+                    <div class="one-line-text max-w-[80px]">
+                      {{ item.userName }}
+                    </div>
+                    <ReviewResult :status="item.status" class="text-[12px]" :icon-size="12" />
+                  </div>
+                </div>
+              </template>
+            </a-trigger>
           </div>
           <ReviewCommentList
             :review-comment-list="reviewHistoryList"
@@ -414,10 +433,20 @@
 
   // 加载评审历史列表
   const reviewHistoryList = ref<ReviewHistoryItem[]>([]);
+  const reviewUserStatusList = ref<ReviewHistoryItem[]>([]); // 每个评审人最后一次评审结果
+  const statusVisible = ref(false);
   async function initReviewHistoryList(data: MinderJsonNodeData) {
     try {
       const res = await getCaseReviewHistoryList(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
       reviewHistoryList.value = res;
+      reviewUserStatusList.value = [];
+      const userNamesSet = new Set();
+      reviewHistoryList.value.forEach((reviewItem) => {
+        if (!userNamesSet.has(reviewItem.userName)) {
+          reviewUserStatusList.value.push(reviewItem);
+          userNamesSet.add(reviewItem.userName);
+        }
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -538,5 +567,10 @@
 <style lang="less" scoped>
   :deep(.comment-list-item-name) {
     max-width: 200px;
+  }
+  .trigger-content {
+    max-height: 192px;
+    @apply overflow-y-auto overflow-x-hidden;
+    .ms-scroll-bar();
   }
 </style>

@@ -3,7 +3,7 @@
     <MsIcon
       :type="resultMap[props.status]?.icon || ''"
       class="mr-[4px]"
-      :size="16"
+      :size="props.iconSize"
       :style="{ color: resultMap[props.status]?.color }"
     ></MsIcon>
     {{ t(resultMap[props.status]?.label) }}
@@ -20,10 +20,16 @@
 
   const { t } = useI18n();
 
-  const props = defineProps<{
-    status?: ReviewResult;
-    isPart?: boolean; // 为true时，'UNDER_REVIEWED'字段对应的是'建议'
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      status?: ReviewResult;
+      isPart?: boolean; // 为true时，'UNDER_REVIEWED'字段对应的是'建议'
+      iconSize?: number;
+    }>(),
+    {
+      iconSize: 16,
+    }
+  );
 
   const resultMap = computed(() =>
     props.isPart
