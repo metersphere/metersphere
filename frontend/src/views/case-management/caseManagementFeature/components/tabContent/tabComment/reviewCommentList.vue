@@ -6,7 +6,9 @@
         <div class="flex-1">
           <div class="flex items-center gap-[8px]">
             <a-tooltip :content="item.userName" :mouse-enter-delay="300">
-              <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
+              <div class="comment-list-item-name one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">
+                {{ item.userName }}
+              </div>
             </a-tooltip>
             <div v-if="item.status === 'PASS'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
@@ -17,7 +19,7 @@
               {{ t('caseManagement.caseReview.fail') }}
             </div>
             <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
-              <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--link-6))]" />
+              <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
               {{ t('caseManagement.caseReview.suggestion') }}
             </div>
             <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
