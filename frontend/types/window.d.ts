@@ -9,6 +9,14 @@ interface IDTLoginFrameParams {
   height?: number; // 选传，二维码iframe元素高度，最小280，默认300
 }
 
+interface qrLogin {
+  id: string;
+  goto: string;
+  width: string;
+  height: string;
+  style: string; // 可选的，二维码html标签的style属性
+}
+
 // ********************************************************************************
 // 统一登录参数
 // ********************************************************************************
@@ -59,4 +67,5 @@ declare interface Window {
     successCbk: (result: IDTLoginSuccess) => void, // 登录成功后的回调函数
     errorCbk?: (errorMsg: string) => void // 登录失败后的回调函数
   ) => void;
+  QRLogin: (QRLogin: qrLogin) => Record<any, any>;
 }

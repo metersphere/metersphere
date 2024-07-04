@@ -6,6 +6,7 @@ import appRoutes from './routes';
 import {
   INDEX_ROUTE,
   INVITE_ROUTE,
+  LOGIN_REDIRECT,
   NO_PROJECT,
   NO_RESOURCE,
   NOT_FOUND_RESOURCE,
@@ -39,6 +40,7 @@ const router = createRouter({
     NO_PROJECT,
     NO_RESOURCE,
     INDEX_ROUTE,
+    LOGIN_REDIRECT,
   ],
   scrollBehavior() {
     return { top: 0 };

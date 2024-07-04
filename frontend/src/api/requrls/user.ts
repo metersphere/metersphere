@@ -31,3 +31,7 @@ export const GetWeComCallbackUrl = '/sso/callback/we_com'; // 获取企业微信
 export const GetPlatformParamUrl = '/setting/get/platform/param';
 export const GeDingInfoUrl = '/ding_talk/info'; // 获取企业微信登陆的配置信息
 export const GetDingCallbackUrl = '/sso/callback/ding_talk'; // 获取企业微信登陆的回调信息
+export const GeLarkInfoUrl = '/lark/info'; // 获取飞书登陆的配置信息
+export const GetLarkCallbackUrl = '/sso/callback/lark'; // 获取飞书登陆的回调信息
+export const GeLarkSuiteInfoUrl = '/lark_suite/info'; // 获取国际飞书登陆的配置信息
+export const GetLarkSuiteCallbackUrl = '/sso/callback/lark_suite'; // 获取国际飞书登陆的回调信息
