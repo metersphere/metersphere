@@ -133,12 +133,8 @@ public class TestPlanTaskCenterService {
             List<String> groupReportIds = list.stream().filter(TaskCenterDTO::isIntegrated).map(TaskCenterDTO::getId).toList();
             if (CollectionUtils.isNotEmpty(groupReportIds)) {
                 List<TaskCenterDTO> childTaskCenterList = extTestPlanReportMapper.getChildTaskCenter(groupReportIds);
-                Map<String, List<TaskCenterDTO>> childTaskMap = childTaskCenterList.stream().collect(Collectors.groupingBy(TaskCenterDTO::getParentId));
-                list.forEach(item -> {
-                    if (CollectionUtils.isNotEmpty(childTaskMap.get(item.getId()))) {
-                        item.setChildren(childTaskMap.get(item.getId()));
-                    }
-                });
+                Map<String, List<TaskCenterDTO>> childTaskMap = childTaskCenterList.stream().collect(Collectors.groupingBy(TaskCenterDTO::getParent));
+                list.forEach(item -> item.setChildren(childTaskMap.get(item.getId())));
             }
 
             // 执行历史列表
