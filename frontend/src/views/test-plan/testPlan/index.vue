@@ -117,7 +117,6 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
-  import { useRouter } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -139,8 +138,6 @@
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import Message from '@arco-design/web-vue/es/message';
-
-  const router = useRouter();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -218,6 +215,7 @@
     try {
       modulesCount.value = await getPlanModulesCount(params);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }

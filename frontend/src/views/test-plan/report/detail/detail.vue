@@ -27,7 +27,7 @@
   const cardItemList = ref<configItem[]>([]);
 
   async function getDetail() {
-    cardItemList.value = isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
+    cardItemList.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
     try {
       detail.value = await getReportDetail(reportId.value);
     } catch (error) {

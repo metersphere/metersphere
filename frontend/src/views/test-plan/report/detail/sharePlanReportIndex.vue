@@ -26,7 +26,7 @@
 
   const cardItemList = ref<configItem[]>([]);
   async function getShareDetail() {
-    cardItemList.value = isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
+    cardItemList.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
     try {
       const hrefShareDetail = await planGetShareHref(route.query.shareId as string);
       reportId.value = hrefShareDetail.reportId;

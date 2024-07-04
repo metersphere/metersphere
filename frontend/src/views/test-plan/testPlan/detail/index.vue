@@ -548,6 +548,7 @@
       initDetail();
       initPlanTree();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       copyLoading.value = false;

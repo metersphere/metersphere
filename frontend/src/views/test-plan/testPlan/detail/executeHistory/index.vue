@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import dayjs from 'dayjs';
 
@@ -53,11 +52,14 @@
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
 
+  const props = defineProps<{
+    isGroup?: boolean;
+    planId?: string;
+  }>();
+
   const { t } = useI18n();
   const route = useRoute();
   const { openNewPage } = useOpenNewPage();
-
-  const planId = ref(route.query.id as string);
 
   const statusResultOptions = computed(() => {
     return Object.keys(PlanReportStatus).map((key) => {
@@ -133,7 +135,7 @@
 
   function loadExecuteList() {
     setLoadListParams({
-      testPlanId: planId.value,
+      testPlanId: props.planId || route.query.id,
     });
     loadList();
   }
@@ -142,6 +144,7 @@
   function toReport(record: PlanDetailExecuteHistoryItem) {
     openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL, {
       id: record.id,
+      type: props.isGroup ? 'GROUP' : undefined,
     });
   }
 
