@@ -12,7 +12,6 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioBatchRunService;
 import io.metersphere.plan.service.TestPlanApiScenarioLogService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
-import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -45,8 +44,6 @@ public class TestPlanApiScenarioController {
     private TestPlanApiScenarioService testPlanApiScenarioService;
     @Resource
     private TestPlanApiScenarioBatchRunService testPlanApiScenarioBatchRunService;
-    @Resource
-    private TestPlanService testPlanService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
 

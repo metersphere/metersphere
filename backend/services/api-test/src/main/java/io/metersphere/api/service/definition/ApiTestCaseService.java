@@ -780,6 +780,8 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
         ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskItem.getReportId(), apiTestCase.getProjectId());
+        apiParamConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
+        apiParamConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
 
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
         // 设置 method 等信息

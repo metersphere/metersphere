@@ -5,6 +5,7 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.GlobalParams;
+import io.metersphere.sdk.dto.api.task.ApiRunRetryConfig;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -32,6 +33,14 @@ public class ApiParamConfig extends ParameterConfig {
      * 全局参数
      */
     private GlobalParams globalParams;
+    /**
+     * 是否失败重试
+     */
+    private Boolean retryOnFail = false;
+    /**
+     * 失败重试配置
+     */
+    private ApiRunRetryConfig retryConfig;
     /**
      * AbstractMsTestElement 实现类与插件 ID 的映射
      * key 为 AbstractMsTestElement 实现类对象

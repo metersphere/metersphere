@@ -35,6 +35,10 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
      * 解析子步骤前的前置处理函数
      */
     private static List<AbstractJmeterElementConverter> childPostConverters = new ArrayList<>();
+    /**
+     * 解析子步骤前的前置处理函数
+     */
+    private static List<JmeterElementConvertInterceptor> convertInterceptors = new ArrayList<>();
 
     public static void registerChildPreConverters(AbstractJmeterElementConverter converter) {
         childPreConverters.add(converter);
@@ -42,6 +46,10 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
 
     public static void registerChildPostConverters(AbstractJmeterElementConverter converter) {
         childPostConverters.add(converter);
+    }
+
+    public static void registerConvertInterceptor(JmeterElementConvertInterceptor interceptor) {
+        convertInterceptors.add(interceptor);
     }
 
     public AbstractJmeterElementConverter() {
@@ -64,13 +72,22 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
         if (element != null && element.getChildren() != null) {
             // 解析子步骤前的前置处理函数
             childPreConverters.forEach(processor -> processor.toHashTree(tree, element, config));
-            element.getChildren().forEach(child -> {
-                    child.setParent(element);
-                    getConverterFunc.apply(child.getClass()).toHashTree(tree, child, config);
-            });
+            for (AbstractMsTestElement child : element.getChildren()) {
+                child.setParent(element);
+                // 拦截器拦截
+                HashTree wrapperTree = intercept(config, child, tree);
+                getConverterFunc.apply(child.getClass()).toHashTree(wrapperTree, child, config);
+            }
             // 解析子步骤后的后置处理函数
             childPostConverters.forEach(processor -> processor.toHashTree(tree, element, config));
         }
+    }
+
+    public static HashTree intercept(ParameterConfig config, AbstractMsTestElement testElement, HashTree hashTree) {
+        for (JmeterElementConvertInterceptor convertInterceptor : convertInterceptors) {
+            return convertInterceptor.intercept(hashTree, testElement, config);
+        }
+        return hashTree;
     }
 
     /**

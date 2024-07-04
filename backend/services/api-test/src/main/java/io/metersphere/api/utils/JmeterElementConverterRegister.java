@@ -6,6 +6,7 @@ import io.metersphere.api.parser.jmeter.controller.MsConstantTimerControllerConv
 import io.metersphere.api.parser.jmeter.controller.MsIfControllerConverter;
 import io.metersphere.api.parser.jmeter.controller.MsLoopControllerConverter;
 import io.metersphere.api.parser.jmeter.controller.MsOnceOnlyControllerConverter;
+import io.metersphere.api.parser.jmeter.interceptor.RetryInterceptor;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
@@ -42,6 +43,9 @@ public class JmeterElementConverterRegister {
         register(MsLoopControllerConverter.class);
         register(MsOnceOnlyControllerConverter.class);
         register(MsConstantTimerControllerConverter.class);
+
+        // 注册转换器拦截器
+        AbstractJmeterElementConverter.registerConvertInterceptor(new RetryInterceptor());
     }
 
     /**
