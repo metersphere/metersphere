@@ -1,4 +1,4 @@
-FROM registry.fit2cloud.com/metersphere/alpine-openjdk21-jre
+FROM registry.fit2cloud.com/metersphere/openjdk21-jre-jammy
 
 LABEL maintainer="FIT2CLOUD <support@fit2cloud.com>"
 
