@@ -89,8 +89,9 @@ export const defaultResponseItem: ResponseDefinition = {
     bodyType: ResponseBodyFormat.JSON,
     jsonBody: {
       jsonValue: '',
-      enableJsonSchema: false,
+      enableJsonSchema: true,
       enableTransition: false,
+      jsonSchemaTableData: [],
     },
     xmlBody: {
       value: '',
@@ -117,6 +118,8 @@ export const defaultBodyParams: ExecuteBody = {
   },
   jsonBody: {
     jsonValue: '',
+    enableJsonSchema: true,
+    jsonSchemaTableData: [],
   },
   xmlBody: { value: '' },
   rawBody: { value: '' },
@@ -312,6 +315,8 @@ export const mockDefaultParams: MockParams = {
       },
       jsonBody: {
         jsonValue: '',
+        enableJsonSchema: true,
+        jsonSchemaTableData: [],
       },
       xmlBody: { value: '' },
       rawBody: { value: '' },
@@ -331,8 +336,9 @@ export const mockDefaultParams: MockParams = {
       bodyType: ResponseBodyFormat.JSON,
       jsonBody: {
         jsonValue: '',
-        enableJsonSchema: false,
+        enableJsonSchema: true,
         enableTransition: false,
+        jsonSchemaTableData: [],
       },
       xmlBody: {
         value: '',

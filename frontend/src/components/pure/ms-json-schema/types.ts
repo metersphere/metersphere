@@ -2,7 +2,7 @@ export interface JsonSchemaCommon {
   id: string;
   title: string; // 参数名称
   type: string; // 参数类型
-  description: string; // 参数描述
+  description?: string; // 参数描述
   enable: boolean; // 是否启用
   example: string; // 参数值
   defaultValue: string | number | boolean; // 默认值
@@ -35,4 +35,5 @@ export interface JsonSchema {
   properties?: Record<string, JsonSchemaItem>;
   items?: JsonSchemaItem[];
   required?: string[];
+  description?: string;
 }

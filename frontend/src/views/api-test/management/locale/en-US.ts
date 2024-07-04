@@ -166,6 +166,8 @@ export default {
   'apiTestManagement.regex': 'Regular Expression',
   'apiTestManagement.caseTotal': 'Case total',
   'apiTestManagement.requestTypeTip': 'Note: Batch request type changes apply only to HTTP requests.',
+  'apiTestManagement.autoMake': 'Auto Generate',
+  'apiTestManagement.pleaseInputJsonSchema': 'Please enter Schema first before automatically generating it.',
   'case.execute.selectEnv': 'Select Environment',
   'case.execute.defaultEnv': 'Default Environment',
   'case.execute.newEnv': 'New Environment',

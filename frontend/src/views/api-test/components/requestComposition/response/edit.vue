@@ -96,20 +96,48 @@
             {{ ResponseBodyFormat[item].toLowerCase() }}
           </a-radio>
         </a-radio-group>
-        <!-- <div v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON" class="ml-auto flex items-center">
-          <a-radio-group
-            v-model:model-value="activeResponse.body.jsonBody.enableJsonSchema"
-            size="mini"
-            @change="emit('change')"
+        <div
+          v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON"
+          class="ml-auto flex items-center gap-[8px]"
+        >
+          <MsButton
+            type="text"
+            class="!mr-0"
+            :class="
+              activeResponse.body.jsonBody.enableJsonSchema
+                ? 'font-medium !text-[rgb(var(--primary-5))]'
+                : '!text-[var(--color-text-4)]'
+            "
+            @click="activeResponse.body.jsonBody.enableJsonSchema = true"
           >
-            <a-radio :value="false">Json</a-radio>
-            <a-radio class="mr-0" :value="true"> Json Schema </a-radio>
-          </a-radio-group>
-          <div class="flex items-center gap-[8px]">
-            <a-switch v-model:model-value="activeResponse.body.jsonBody.enableTransition" size="small" type="line" />
-            {{ t('apiTestManagement.dynamicConversion') }}
-          </div>
-        </div> -->
+            Schema
+          </MsButton>
+          <a-divider :margin="0" direction="vertical"></a-divider>
+          <MsButton
+            type="text"
+            class="!mr-0"
+            :class="
+              !activeResponse.body.jsonBody.enableJsonSchema
+                ? 'font-medium !text-[rgb(var(--primary-5))]'
+                : '!text-[var(--color-text-4)]'
+            "
+            @click="activeResponse.body.jsonBody.enableJsonSchema = false"
+          >
+            Json
+          </MsButton>
+          <a-button
+            v-show="activeResponse.body.jsonBody.enableJsonSchema"
+            type="outline"
+            class="arco-btn-outline--secondary ml-[16px] px-[8px]"
+            size="small"
+            @click="previewJsonSchema"
+          >
+            <div class="flex items-center gap-[8px]">
+              <icon-eye />
+              {{ t('common.preview') }}
+            </div>
+          </a-button>
+        </div>
       </div>
       <div
         v-if="
@@ -118,12 +146,14 @@
           )
         "
       >
-        <!-- <MsJsonSchema
+        <MsJsonSchema
           v-if="activeResponse.body.jsonBody.enableJsonSchema"
-          :data="activeResponse.body.jsonBody.jsonSchema"
-          :columns="jsonSchemaColumns"
-        /> -->
+          ref="jsonSchemaRef"
+          v-model:data="activeResponse.body.jsonBody.jsonSchemaTableData"
+          v-model:selectedKeys="selectedKeys"
+        />
         <MsCodeEditor
+          v-else
           ref="responseEditorRef"
           v-model:model-value="currentBodyCode"
           :language="currentCodeLanguage"
@@ -134,6 +164,11 @@
           :show-charset-change="false"
           show-code-format
         >
+          <template #rightTitle>
+            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="autoMakeJson">
+              <div class="text-[var(--color-text-1)]">{{ t('apiTestManagement.autoMake') }}</div>
+            </a-button>
+          </template>
         </MsCodeEditor>
       </div>
       <div v-else>
@@ -194,14 +229,16 @@
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
-  // import { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
-  // import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
+  import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
+  import { parseSchemaToJsonSchemaTableData, parseTableDataToJsonSchema } from '@/components/pure/ms-json-schema/utils';
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -209,6 +246,7 @@
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
+  import { convertJsonSchemaToJson } from '@/api/modules/api-test/management';
   import { responseHeaderOption } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -350,20 +388,54 @@
     emit('change');
   }
 
-  // const jsonSchemaColumns: FormTableColumn[] = [
-  //   {
-  //     title: 'apiTestManagement.paramName',
-  //     dataIndex: 'key',
-  //     slotName: 'key',
-  //     inputType: 'input',
-  //   },
-  //   {
-  //     title: 'apiTestManagement.paramVal',
-  //     dataIndex: 'value',
-  //     slotName: 'value',
-  //     inputType: 'input',
-  //   },
-  // ];
+  const jsonSchemaRef = ref<InstanceType<typeof MsJsonSchema>>();
+  const bodyLoading = ref(false);
+  const selectedKeys = ref<string[]>([]);
+
+  watchEffect(() => {
+    if (activeResponse.value.body.jsonBody.jsonSchema) {
+      const { result, ids } = parseSchemaToJsonSchemaTableData(activeResponse.value.body.jsonBody.jsonSchema);
+      activeResponse.value.body.jsonBody.jsonSchemaTableData = result;
+      selectedKeys.value = ids;
+    } else {
+      activeResponse.value.body.jsonBody.jsonSchemaTableData = [];
+      selectedKeys.value = [];
+    }
+  });
+
+  function previewJsonSchema() {
+    if (activeResponse.value.body.jsonBody.enableJsonSchema) {
+      jsonSchemaRef.value?.previewSchema();
+    }
+  }
+
+  /**
+   * 自动转换json schema为json
+   */
+  async function autoMakeJson() {
+    if (!activeResponse.value.body.jsonBody.enableJsonSchema) {
+      try {
+        bodyLoading.value = true;
+        let schema = activeResponse.value.body.jsonBody.jsonSchema;
+        if (!schema && activeResponse.value.body.jsonBody.jsonSchemaTableData) {
+          // 若jsonSchema不存在，先将表格数据转换为 json schema格式
+          schema = parseTableDataToJsonSchema(activeResponse.value.body.jsonBody.jsonSchemaTableData[0]);
+        }
+        if (schema) {
+          // 再将 json schema 转换为 json 格式
+          const res = await convertJsonSchemaToJson(schema);
+          activeResponse.value.body.jsonBody.jsonValue = JSON.stringify(res);
+        } else {
+          Message.warning(t('apiTestManagement.pleaseInputJsonSchema'));
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        bodyLoading.value = false;
+      }
+    }
+  }
 
   // 当前显示的代码
   const currentBodyCode = computed({

@@ -1,5 +1,5 @@
 import { Language } from '@/components/pure/ms-code-editor/types';
-import type { JsonSchemaItem } from '@/components/pure/ms-json-schema/types';
+import type { JsonSchema, JsonSchemaTableItem } from '@/components/pure/ms-json-schema/types';
 
 import {
   type FullResponseAssertionType,
@@ -124,8 +124,10 @@ export interface ExecuteBinaryBody {
 export interface ExecuteJsonBody {
   enableJsonSchema?: boolean;
   enableTransition?: boolean;
-  jsonSchema?: JsonSchemaItem[];
+  jsonSchema?: JsonSchema;
   jsonValue: string;
+  // 前端渲染字段
+  jsonSchemaTableData?: JsonSchemaTableItem[];
 }
 // 执行请求配置
 export interface ExecuteOtherConfig {

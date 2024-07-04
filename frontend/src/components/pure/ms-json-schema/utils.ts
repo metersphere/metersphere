@@ -10,61 +10,70 @@ import type { JsonSchema, JsonSchemaItem, JsonSchemaTableItem } from './types';
  * @param schemaItem 表格组件项
  * @param isRoot 是否为根节点
  */
-export function tableItemToJsonSchema(
+export function parseTableDataToJsonSchema(
   schemaItem: JsonSchemaTableItem,
   isRoot: boolean = true
-): JsonSchema | JsonSchemaItem {
-  let schema: JsonSchema | JsonSchemaItem = { type: schemaItem.type };
+): JsonSchema | JsonSchemaItem | undefined {
+  try {
+    let schema: JsonSchema | JsonSchemaItem = { type: schemaItem.type };
 
-  // 对于 null 类型，只设置 type 和 enable 属性
-  if (schemaItem.type === 'null') {
-    return {
-      type: 'null',
-      enable: schemaItem.enable,
-    };
-  }
-
-  if (!isRoot) {
-    // 使用解构赋值和剩余参数来拷贝对象，同时排除 children、required、parent、id、title 属性
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { children, required, parent, id, title, ...copiedObject } = schemaItem;
-    // 使用\n分割enumValues字符串，得到枚举值数组
-    const enumArray = (copiedObject.enumValues?.split('\n') || []).filter((value) => value.trim() !== '');
-    schema = {
-      ...schema,
-      ...copiedObject,
-      enumValues: enumArray.length > 0 ? enumArray : undefined,
-    };
-  }
-
-  if (schemaItem.children && schemaItem.children.length > 0) {
-    if (schemaItem.type === 'object') {
-      schema = {
-        type: 'object',
+    // 对于 null 类型，只设置 type 和 enable 属性
+    if (schemaItem.type === 'null') {
+      return {
+        type: 'null',
         enable: schemaItem.enable,
-        properties: {},
-        required: [],
-      };
-      schemaItem.children.forEach((child) => {
-        const childSchema = tableItemToJsonSchema(child, false);
-        schema.properties![child.title] = childSchema as JsonSchemaItem;
-        if (child.required) {
-          schema.required!.push(child.title);
-        }
-      });
-      if (schema.required!.length === 0) {
-        delete schema.required;
-      }
-    } else if (schemaItem.type === 'array') {
-      schema = {
-        type: 'array',
-        enable: schemaItem.enable,
-        items: schemaItem.children.map((child) => tableItemToJsonSchema(child, false) as JsonSchemaItem),
       };
     }
-  }
 
-  return schema;
+    if (!isRoot) {
+      // 非根节点，组装普通节点信息
+      // 使用解构赋值和剩余参数来拷贝对象，同时排除 children、required、parent、id、title 属性
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { children, required, parent, id, title, ...copiedObject } = schemaItem;
+      // 使用\n分割enumValues字符串，得到枚举值数组
+      const enumArray = (copiedObject.enumValues?.split('\n') || []).filter((value) => value.trim() !== '');
+      schema = {
+        ...schema,
+        ...copiedObject,
+        enumValues: enumArray.length > 0 ? enumArray : undefined,
+      };
+    }
+
+    if (schemaItem.children && schemaItem.children.length > 0) {
+      if (schemaItem.type === 'object') {
+        // 对象类型
+        schema = {
+          type: 'object',
+          enable: schemaItem.enable,
+          properties: {},
+          required: [],
+        };
+        schemaItem.children.forEach((child) => {
+          const childSchema = parseTableDataToJsonSchema(child, false);
+          schema.properties![child.title] = childSchema as JsonSchemaItem;
+          if (child.required) {
+            schema.required!.push(child.title);
+          }
+        });
+        if (schema.required!.length === 0) {
+          delete schema.required;
+        }
+      } else if (schemaItem.type === 'array') {
+        // 数组类型
+        schema = {
+          type: 'array',
+          enable: schemaItem.enable,
+          items: schemaItem.children.map((child) => parseTableDataToJsonSchema(child, false) as JsonSchemaItem),
+        };
+      }
+    }
+
+    return schema;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+    return undefined;
+  }
 }
 
 /**
@@ -94,12 +103,13 @@ function createItem(key: string, value: any, parent?: JsonSchemaTableItem): Json
     parent,
   };
 }
+
 /**
- * 将 json 转换为 json-schema 表格组件的表格项
+ * 将 json 转换为 json-schema 表格组件的数据结构
  * @param json json 字符串或对象或数组
  * @param parent 父级
  */
-export function parseJsonToJsonSchemaTableItem(
+export function parseJsonToJsonSchemaTableData(
   json: string | object | Array<any>,
   parent?: JsonSchemaTableItem
 ): { result: JsonSchemaTableItem[]; ids: Array<string> } {
@@ -125,7 +135,7 @@ export function parseJsonToJsonSchemaTableItem(
       example: '',
       defaultValue: '',
     };
-    const children = parseJsonToJsonSchemaTableItem(json, rootItem);
+    const children = parseJsonToJsonSchemaTableData(json, rootItem);
     rootItem.children = children.result;
     children.ids.push(rootItem.id);
     return { result: [rootItem], ids: children.ids };
@@ -140,7 +150,7 @@ export function parseJsonToJsonSchemaTableItem(
     Object.entries(json).forEach(([key, value]) => {
       const item: JsonSchemaTableItem = createItem(key, value, parent);
       if (typeof value === 'object' || Array.isArray(value)) {
-        const children = parseJsonToJsonSchemaTableItem(value, item);
+        const children = parseJsonToJsonSchemaTableData(value, item);
         item.children = children.result;
         ids.push(...children.ids);
       } else {
@@ -152,4 +162,77 @@ export function parseJsonToJsonSchemaTableItem(
   }
 
   return { result: items, ids };
+}
+
+/**
+ * 将 json-schema 规范的结构转换为 json-schema 表格组件的数据结构
+ * @param schema json-schema 规范的结构/字符串
+ */
+export function parseSchemaToJsonSchemaTableData(schema: string | JsonSchema): {
+  result: JsonSchemaTableItem[];
+  ids: Array<string>;
+} {
+  const ids: Array<string> = ['root'];
+  if (typeof schema === 'string') {
+    // 尝试将 json 字符串转换为对象
+    try {
+      schema = JSON.parse(schema);
+    } catch (error) {
+      const { t } = useI18n();
+      Message.warning(t('ms.json.schema.illegalJsonConvertFailed'));
+      return { result: [], ids: [] };
+    }
+  }
+  const parseNode = (
+    node: JsonSchema | JsonSchemaItem,
+    parent?: JsonSchemaTableItem,
+    requiredFields?: string[]
+  ): JsonSchemaTableItem => {
+    let item: JsonSchemaTableItem;
+
+    if (!parent) {
+      // 根节点
+      item = {
+        id: 'root',
+        title: 'root',
+        type: node.type,
+        description: node.description,
+        enable: true,
+        required: true,
+        example: '',
+        defaultValue: '',
+      };
+    } else {
+      // 子孙节点
+      // 剔除不需要的属性 properties、items
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { properties, items, ...copiedObj } = node;
+      const itemId = getGenerateId();
+      item = {
+        ...(copiedObj as JsonSchemaItem),
+        id: itemId,
+        required: requiredFields?.includes((node as JsonSchemaItem).title),
+        enumValues: (node as JsonSchemaItem).enumValues?.join('\n'),
+        parent,
+      };
+      if ((node as JsonSchemaItem).enable === true || (node as JsonSchemaItem).enable === undefined) {
+        // 如果enable为true或者undefined，则设置为选中
+        ids.push(itemId);
+      }
+    }
+
+    // 检查当前节点的required属性是否存在且为数组类型，然后传递当前节点的required属性给子节点判断是否必填
+    const newRequiredFields = Array.isArray(node.required) ? node.required : undefined;
+
+    if ((node.type === 'object' && node.properties) || (node.type === 'array' && node.items)) {
+      const children = node.type === 'object' ? node.properties : node.items;
+      item.children = Object.entries(children || []).map(([key, childNode]) =>
+        parseNode({ ...childNode, title: key }, item, newRequiredFields)
+      );
+    }
+    return item;
+  };
+
+  const result = [parseNode(schema as JsonSchema)];
+  return { result, ids };
 }

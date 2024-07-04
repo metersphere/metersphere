@@ -183,8 +183,9 @@
         if (!item.body.jsonBody) {
           item.body.jsonBody = {
             jsonValue: '',
-            enableJsonSchema: false,
+            enableJsonSchema: true,
             enableTransition: false,
+            jsonSchemaTableData: [],
           };
           if (!item.body.xmlBody) {
             item.body.xmlBody = {

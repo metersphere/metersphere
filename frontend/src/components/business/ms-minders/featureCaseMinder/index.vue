@@ -527,7 +527,7 @@
       if (node.children && node.children.length > 0) {
         waitingRenderNodes = waitingRenderNodes.concat(node.children);
       }
-      if (total > list.length * current) {
+      if (total > 100 * (current + 1)) {
         // 有更多用例
         const moreNode = window.minder.createNode(
           {

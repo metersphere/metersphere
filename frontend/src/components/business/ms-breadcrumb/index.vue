@@ -72,7 +72,7 @@
 <style lang="less">
   /** 面包屑 **/
   .arco-breadcrumb-item {
-    @apply cursor-pointer;
+    @apply cursor-pointer break-keep;
 
     color: var(--color-text-4);
     &:hover {
