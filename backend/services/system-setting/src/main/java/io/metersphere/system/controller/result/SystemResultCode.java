@@ -9,6 +9,7 @@ public enum SystemResultCode implements IResultCode {
 
     USER_TOO_MANY(101511, "User too many"),
     DEPT_USER_TOO_MANY(101512, "Department user too many"),
+    INVITE_EMAIL_EXIST(101513, "user_email_already_exists"),
 
     /**
      * 调用获取全局用户组接口，如果操作的是非全局的用户组，会返回该响应码
