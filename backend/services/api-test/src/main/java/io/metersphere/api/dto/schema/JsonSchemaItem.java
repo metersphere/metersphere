@@ -51,7 +51,7 @@ public class JsonSchemaItem {
      * 当 type 为array 时，使用该值
      */
     @Valid
-    private JsonSchemaItem items;
+    private List<JsonSchemaItem> items;
     /**
      * 参数属性
      * 当 type 为 object 时，使用该值
@@ -126,7 +126,7 @@ public class JsonSchemaItem {
         if (type.equals(PropertyConstant.OBJECT)) {
             this.properties = new LinkedHashMap<>();
         } else if (type.equals(PropertyConstant.ARRAY)) {
-            this.items = new JsonSchemaItem();
+            this.items = List.of();
         }
     }
 

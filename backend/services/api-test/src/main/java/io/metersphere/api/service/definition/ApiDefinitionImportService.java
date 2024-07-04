@@ -772,11 +772,16 @@ public class ApiDefinitionImportService {
             }
         }
         if (jsonSchema != null && StringUtils.equals(jsonSchema.getType(), PropertyConstant.ARRAY)) {
-            JsonSchemaItem items = jsonSchema.getItems();
-            JsonSchemaItem importItems = importJsonSchema.getItems();
-            if (items != null && importItems != null) {
-                if (!jsonSchemaIsSame(items, importItems)) {
+            List<JsonSchemaItem> jsonSchemaItems = jsonSchema.getItems();
+            List<JsonSchemaItem> importJsonSchemaItems = importJsonSchema.getItems();
+            if (jsonSchemaItems != null && importJsonSchemaItems != null) {
+                if (jsonSchemaItems.size() != importJsonSchemaItems.size()) {
                     return false;
+                }
+                for (int i = 0; i < jsonSchemaItems.size(); i++) {
+                    if (!jsonSchemaIsSame(jsonSchemaItems.get(i), importJsonSchemaItems.get(i))) {
+                        return false;
+                    }
                 }
             }
         }
