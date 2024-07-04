@@ -8,7 +8,7 @@
     </template>
     <template #lastExecResult="{ record }">
       <ExecuteResult :execute-result="record.executeResult" />
-      <MsButton class="ml-[8px]" :disabled="!props.isPreview" @click="openExecuteHistory(record)">{{
+      <MsButton class="ml-[8px]" :disabled="!props.isPreview || !record.reportId" @click="openExecuteHistory(record)">{{
         t('common.detail')
       }}</MsButton>
     </template>
@@ -21,15 +21,9 @@
     no-content-padding
     unmount-on-close
   >
-    <!-- TODO 等待联调 后台没出接口 -->
-    <ExecutionHistory
-      :extra-params="{
-        caseId: '',
-        id: '',
-        testPlanId: '',
-      }"
-      :load-list-fun="executeHistory"
-    />
+    <div class="p-[16px]">
+      <ExecutionHistory show-step-result :loading="executeLoading" :execute-list="executeList" />
+    </div>
   </MsDrawer>
 </template>
 
@@ -45,11 +39,15 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
-  import { getReportFeatureCaseList, getReportShareFeatureCaseList } from '@/api/modules/test-plan/report';
-  import { executeHistory } from '@/api/modules/test-plan/testPlan';
+  import {
+    getFunctionalExecuteStep,
+    getReportFeatureCaseList,
+    getReportShareFeatureCaseList,
+  } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
 
   import { FeatureCaseItem } from '@/models/testPlan/report';
+  import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
@@ -150,10 +148,28 @@
 
   const showDetailVisible = ref<boolean>(false);
 
-  const detailRecord = ref();
+  const executeReportId = ref<string>('');
+  const executeList = ref<ExecuteHistoryItem[]>([]);
+  const executeLoading = ref<boolean>(false);
+  // 执行历史步骤
+  async function getExecuteStep() {
+    executeLoading.value = true;
+    try {
+      const res = await getFunctionalExecuteStep({
+        reportId: executeReportId.value,
+        shareId: props.shareId,
+      });
+      executeList.value = [res];
+    } catch (error) {
+      console.log(error);
+    } finally {
+      executeLoading.value = false;
+    }
+  }
 
   function openExecuteHistory(record: FeatureCaseItem) {
-    detailRecord.value = record;
+    executeReportId.value = record.reportId;
     showDetailVisible.value = true;
+    getExecuteStep();
   }
 </script>

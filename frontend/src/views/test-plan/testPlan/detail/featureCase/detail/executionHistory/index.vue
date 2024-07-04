@@ -1,7 +1,7 @@
 <template>
   <a-spin :loading="loading" class="w-full">
     <div class="execute-history-list">
-      <div v-for="item of executeHistoryList" :key="item.status" class="execute-history-list-item">
+      <div v-for="item of props.executeList" :key="item.status" class="execute-history-list-item">
         <div class="flex items-center">
           <MsAvatar :avatar="item.userLogo" />
           <div class="ml-[8px] flex items-center">
@@ -44,7 +44,7 @@
           </div>
         </div>
       </div>
-      <MsEmpty v-if="executeHistoryList.length === 0" />
+      <MsEmpty v-if="props.executeList.length === 0" />
     </div>
   </a-spin>
 </template>
@@ -60,34 +60,15 @@
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
 
-  import type { ExecuteHistoryItem, ExecuteHistoryType } from '@/models/testPlan/testPlan';
+  import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
 
   const { t } = useI18n();
 
   const props = defineProps<{
-    loadListFun: (params: ExecuteHistoryType) => Promise<ExecuteHistoryItem[]>;
-    extraParams: ExecuteHistoryType;
+    executeList: ExecuteHistoryItem[];
+    loading: boolean;
     showStepResult?: boolean; // 是否展示执行步骤
   }>();
-
-  const executeHistoryList = ref<ExecuteHistoryItem[]>([]);
-
-  const loading = ref<boolean>(false);
-
-  async function initList() {
-    loading.value = true;
-    try {
-      if (props.loadListFun) {
-        executeHistoryList.value = await props.loadListFun({
-          ...props.extraParams,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
-  }
 
   function getStepData(steps: string) {
     if (steps) {
@@ -103,18 +84,6 @@
     }
     return [];
   }
-
-  watch(
-    () => props.extraParams.caseId,
-    (val) => {
-      if (val) {
-        initList();
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 </script>
 
 <style scoped lang="less">
