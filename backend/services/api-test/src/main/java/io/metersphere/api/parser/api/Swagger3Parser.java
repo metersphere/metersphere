@@ -577,7 +577,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                     JsonSchemaItem arrayItem = new JsonSchemaItem();
                     arrayItem.setId(IDGenerator.nextStr());
                     arrayItem.setType(PropertyConstant.ARRAY);
-                    arrayItem.setItems(new JsonSchemaItem());
+                    arrayItem.setItems(List.of());
                     yield arrayItem;
                 }
                 yield isRef(arraySchema.getItems(), 0) ? parseArraySchema(arraySchema, true) :
@@ -712,7 +712,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
         }
 
         JsonSchemaItem itemsJsonSchema = parseProperty(itemsSchema, onlyOnce);
-        jsonSchemaArray.setItems(itemsJsonSchema);
+        jsonSchemaArray.setItems(List.of(itemsJsonSchema));
         jsonSchemaArray.setMaxItems(arraySchema.getMaxItems());
         jsonSchemaArray.setMinItems(arraySchema.getMinItems());
         return jsonSchemaArray;
