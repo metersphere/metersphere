@@ -193,12 +193,8 @@
           />
           <ExecutionHistory
             v-if="activeTab === 'executionHistory'"
-            :extra-params="{
-              caseId:activeCaseId,
-              id: activeId,
-              testPlanId: route.query.id as string,
-            }"
-            :load-list-fun="executeHistory"
+            :execute-list="executeHistoryList"
+            :loading="executeLoading"
           />
         </div>
       </a-spin>
@@ -261,7 +257,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
-  import type { PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
+  import type { ExecuteHistoryItem, PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -577,11 +573,37 @@
     initBugList();
     await loadCase();
   });
+
+  const executeLoading = ref<boolean>(false);
+  const executeHistoryList = ref<ExecuteHistoryItem[]>([]);
+  async function initExecuteHistory() {
+    executeLoading.value = true;
+    try {
+      executeHistoryList.value = await executeHistory({
+        caseId: activeCaseId.value,
+        id: activeId.value,
+        testPlanId: route.query.id as string,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      executeLoading.value = false;
+    }
+  }
   watch(
     () => activeId.value,
     () => {
       loadCaseDetail();
       initBugList();
+    }
+  );
+
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val === 'executionHistory') {
+        initExecuteHistory();
+      }
     }
   );
 </script>
