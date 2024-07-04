@@ -432,6 +432,7 @@
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { parseTableDataToJsonSchema } from '@/components/pure/ms-json-schema/utils';
   import MsTab from '@/components/pure/ms-tab/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import assertion from '@/components/business/ms-assertion/index.vue';
@@ -990,7 +991,7 @@
    */
   function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
     const isExecute = executeType === 'localExec' || executeType === 'serverExec';
-    const { formDataBody, wwwFormBody } = requestVModel.value.body;
+    const { formDataBody, wwwFormBody, jsonBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
       (e) => e.value === requestVModel.value.protocol
     )?.polymorphicName; // 协议多态名称
@@ -1022,6 +1023,13 @@
           },
           wwwFormBody: {
             formValues: realWwwFormBodyValues,
+          },
+          jsonBody: {
+            jsonValue: jsonBody.jsonValue,
+            enableJsonSchema: jsonBody.enableJsonSchema,
+            jsonSchema: jsonBody.jsonSchemaTableData
+              ? parseTableDataToJsonSchema(jsonBody.jsonSchemaTableData[0])
+              : undefined,
           },
         },
         headers: filterKeyValParams(requestVModel.value.headers, defaultHeaderParamsItem, isExecute).validParams,
@@ -1058,6 +1066,16 @@
         response: requestVModel.value.responseDefinition?.map((e) => ({
           ...e,
           headers: filterKeyValParams(e.headers, defaultKeyValueParamItem, isExecute).validParams,
+          body: {
+            ...e.body,
+            jsonBody: {
+              jsonValue: e.body.jsonBody.jsonValue,
+              enableJsonSchema: jsonBody.enableJsonSchema,
+              jsonSchema: e.body.jsonBody.jsonSchemaTableData
+                ? parseTableDataToJsonSchema(e.body.jsonBody.jsonSchemaTableData[0])
+                : undefined,
+            },
+          },
         })),
       };
     } else {
@@ -1172,9 +1190,6 @@
     () => requestVModel.value.id,
     async () => {
       isSwitchingContent.value = true; // 正在切换内容
-      nextTick(() => {
-        isSwitchingContent.value = false; // 切换内容结束
-      });
       if (requestVModel.value.protocol !== 'HTTP') {
         requestVModel.value.activeTab = RequestComposition.PLUGIN;
         if (protocolOptions.value.length === 0) {
@@ -1206,6 +1221,9 @@
         requestVModel.value.executeLoading = false;
         delete temporaryResponseMap[props.request.reportId];
       }
+      nextTick(() => {
+        isSwitchingContent.value = false; // 切换内容结束
+      });
     },
     {
       immediate: true,

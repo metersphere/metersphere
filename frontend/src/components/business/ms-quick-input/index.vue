@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex w-full">
     <a-popover position="tl" :disabled="!modelValue || modelValue.trim() === ''" class="ms-params-input-popover">
       <template #content>
         <div v-if="props.title" class="ms-params-popover-title">
@@ -38,26 +38,26 @@
         @change="(val) => emit('change', val)"
       />
     </a-popover>
-    <a-modal
-      v-model:visible="showQuickInput"
-      :title="props.title"
-      :ok-text="t('common.save')"
-      :ok-button-props="{ disabled: !quickInputValue || quickInputValue.trim() === '' }"
-      class="ms-modal-form"
-      body-class="!p-0"
-      :width="480"
-      title-align="start"
-      @ok="applyQuickInputDesc"
-      @close="clearQuickInputDesc"
-    >
-      <a-textarea
-        v-model:model-value="quickInputValue"
-        :placeholder="props.placeholder"
-        :auto-size="{ minRows: 2 }"
-        :max-length="1000"
-      />
-    </a-modal>
   </div>
+  <a-modal
+    v-model:visible="showQuickInput"
+    :title="props.title"
+    :ok-text="t('common.save')"
+    :ok-button-props="{ disabled: !quickInputValue || quickInputValue.trim() === '' }"
+    class="ms-modal-form"
+    body-class="!p-0"
+    :width="480"
+    title-align="start"
+    @ok="applyQuickInputDesc"
+    @close="clearQuickInputDesc"
+  >
+    <a-textarea
+      v-model:model-value="quickInputValue"
+      :placeholder="props.placeholder"
+      :auto-size="{ minRows: 2 }"
+      :max-length="1000"
+    />
+  </a-modal>
 </template>
 
 <script setup lang="ts">

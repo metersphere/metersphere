@@ -461,8 +461,14 @@
       </template>
     </MsCodeEditor>
   </MsDrawer>
-  <MsDrawer v-model:visible="previewDrawerVisible" :width="600" :title="t('common.preview')" :footer="false">
-    <a-spin class="block" :loading="previewDrawerLoading">
+  <MsDrawer
+    v-model:visible="previewDrawerVisible"
+    :width="600"
+    :title="t('common.preview')"
+    :footer="false"
+    @close="previewShowType = 'json'"
+  >
+    <a-spin class="block h-full w-full" :loading="previewDrawerLoading">
       <MsCodeEditor
         v-model:model-value="activePreviewValue"
         theme="vs"
@@ -500,8 +506,12 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { JsonSchema, JsonSchemaTableItem } from './types';
-  import { parseJsonToJsonSchemaTableItem, tableItemToJsonSchema } from './utils';
+  import { JsonSchema, JsonSchemaItem, JsonSchemaTableItem } from './types';
+  import {
+    parseJsonToJsonSchemaTableData,
+    parseSchemaToJsonSchemaTableData,
+    parseTableDataToJsonSchema,
+  } from './utils';
 
   const { t } = useI18n();
 
@@ -523,29 +533,43 @@
     children: undefined,
   };
   const data = defineModel<JsonSchemaTableItem[]>('data', {
-    default: () => [
-      {
-        id: 'root',
-        title: 'root',
-        type: 'object',
-        example: '',
-        description: '',
-        enable: true,
-        defaultValue: '',
-        maximum: undefined,
-        minimum: undefined,
-        maxLength: undefined,
-        minLength: undefined,
-        enumValues: '',
-        pattern: undefined,
-        format: undefined,
-        required: false,
-        children: [],
-      },
-    ],
+    default: () => [],
   });
-  const expandKeys = ref<string[]>(['root']);
-  const selectedKeys = ref<string[]>(['root']);
+  const expandKeys = defineModel<string[]>('expandKeys', {
+    default: () => ['root'],
+  });
+  const selectedKeys = defineModel<string[]>('selectedKeys', {
+    default: () => ['root'],
+  });
+
+  // 初始化根节点
+  watchEffect(() => {
+    if (data.value.length === 0) {
+      data.value = [
+        {
+          id: 'root',
+          title: 'root',
+          type: 'object',
+          example: '',
+          description: '',
+          enable: true,
+          defaultValue: '',
+          maximum: undefined,
+          minimum: undefined,
+          maxLength: undefined,
+          minLength: undefined,
+          enumValues: '',
+          pattern: undefined,
+          format: undefined,
+          required: false,
+          children: [],
+        },
+      ];
+      if (selectedKeys.value.length === 0) {
+        selectedKeys.value = ['root'];
+      }
+    }
+  });
 
   const typeOptions: SelectOptionData[] = [
     {
@@ -845,14 +869,22 @@
   }
 
   function applyBatchAdd() {
-    if (batchAddType.value === 'json') {
-      const res = parseJsonToJsonSchemaTableItem(batchAddValue.value);
+    try {
+      let res: { result: JsonSchemaTableItem[]; ids: Array<string> } = { result: [], ids: [] };
+      if (batchAddType.value === 'json') {
+        res = parseJsonToJsonSchemaTableData(batchAddValue.value);
+      } else {
+        res = parseSchemaToJsonSchemaTableData(batchAddValue.value);
+      }
       if (res.result.length > 0) {
         data.value = res.result;
         selectedKeys.value = res.ids;
       }
+      batchAddDrawerVisible.value = false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
-    batchAddDrawerVisible.value = false;
   }
 
   const settingDrawerVisible = ref(false);
@@ -870,7 +902,7 @@
       ...record,
     };
     try {
-      const schema = tableItemToJsonSchema(record, record.id === 'root');
+      const schema = parseTableDataToJsonSchema(record, record.id === 'root');
       activePreviewJsonSchemaValue.value = JSON.stringify(schema);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -883,7 +915,7 @@
 
   function handleSettingFormChange() {
     activePreviewJsonSchemaValue.value = JSON.stringify(
-      tableItemToJsonSchema(activeRecord.value, activeRecord.value.id === 'root')
+      parseTableDataToJsonSchema(activeRecord.value, activeRecord.value.id === 'root')
     );
   }
 
@@ -927,19 +959,32 @@
   const previewDrawerVisible = ref(false);
   const previewDrawerLoading = ref(false);
 
+  /**
+   * 预览 schema
+   */
   async function previewSchema() {
     previewDrawerVisible.value = true;
+    previewDrawerLoading.value = true;
+    let schema: JsonSchema | JsonSchemaItem | undefined;
     try {
-      previewDrawerLoading.value = true;
-      const schema = tableItemToJsonSchema(data.value[0]);
-      const res = await convertJsonSchemaToJson(schema as JsonSchema);
-      activePreviewJsonValue.value = JSON.stringify(res);
+      // 先将表格数据转换为 json schema格式
+      schema = parseTableDataToJsonSchema(data.value[0] as JsonSchemaTableItem);
       activePreviewJsonSchemaValue.value = JSON.stringify(schema);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-      activePreviewJsonValue.value = t('ms.json.schema.convertFailed');
       activePreviewJsonSchemaValue.value = t('ms.json.schema.convertFailed');
+      previewDrawerLoading.value = false;
+      return;
+    }
+    try {
+      // 再将 json schema 转换为 json 格式
+      const res = await convertJsonSchemaToJson(schema as JsonSchema);
+      activePreviewJsonValue.value = JSON.stringify(res);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      activePreviewJsonValue.value = t('ms.json.schema.convertFailed');
     } finally {
       previewDrawerLoading.value = false;
     }
