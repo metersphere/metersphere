@@ -540,7 +540,7 @@
     if (showType.value === 'list') {
       searchCase();
     } else {
-      msCaseReviewMinderRef.value?.initNodeCases();
+      msCaseReviewMinderRef.value?.initCaseTree();
       emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
     }
   }

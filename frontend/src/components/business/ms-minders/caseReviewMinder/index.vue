@@ -13,8 +13,8 @@
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowEnterNode ? [] : moreMenuOtherOperationList"
       disabled
-      single-tag
       @node-select="handleNodeSelect"
+      @before-exec-command="handleBeforeExecCommand"
     >
       <template #extractMenu>
         <template v-if="showCaseMenu">
@@ -77,6 +77,7 @@
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
+  import { MinderEvent } from '@/components/pure/ms-minder-editor/props';
   import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
@@ -111,6 +112,12 @@
   const { t } = useI18n();
   const minderStore = useMinderStore();
 
+  const statusTagMap: Record<string, string> = {
+    PASS: t('common.pass'),
+    UN_PASS: t('common.unPass'),
+    UNDER_REVIEWED: t('caseManagement.caseReview.reviewing'),
+    RE_REVIEWED: t('caseManagement.caseReview.reReview'),
+  };
   const caseTag = t('common.case');
   const moduleTag = t('common.module');
   const importJson = ref<MinderJson>({
@@ -133,6 +140,7 @@
         resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
         expandState: e.level === 0 ? 'expand' : 'collapse',
         count: props.modulesCount[e.id],
+        disabled: true,
       },
       children:
         props.modulesCount[e.id] > 0 && !e.children?.length
@@ -175,14 +183,18 @@
 
   onMounted(() => {
     initCaseTree();
+    // 固定标签颜色
+    window.minder._resourceColorMapping = {
+      [statusTagMap.UNDER_REVIEWED]: 8,
+      [statusTagMap.PASS]: 4,
+      [statusTagMap.UN_PASS]: 5,
+      [statusTagMap.RE_REVIEWED]: 6,
+    };
   });
 
-  watch(
-    () => props.moduleId,
-    () => {
-      initCaseTree();
-    }
-  );
+  watch([() => props.moduleId, () => props.viewStatusFlag], () => {
+    initCaseTree();
+  });
 
   /**
    * 移除占位的虚拟节点
@@ -202,11 +214,10 @@
    * @param renderNode 需要渲染的子节点
    */
   function handleRenderNode(node: MinderJsonNode, renderNode: MinderJsonNode) {
-    const { data } = node;
-    if (!data) return;
+    if (!node.data) return;
     window.minder.renderNodeBatch(renderNode);
     node.layout();
-    data.isLoaded = true;
+    node.data.isLoaded = true;
   }
 
   /**
@@ -219,6 +230,7 @@
       {
         ...data,
         expandState: 'collapse',
+        disabled: true,
       },
       parentNode
     );
@@ -242,25 +254,23 @@
 
   /**
    * 加载模块节点下的用例节点
-   * @param selectedNode 选中节点
+   * @param node 选中节点
    * @param loadMoreCurrent 加载模块下更多用例时的当前页码
    */
-  async function initNodeCases(selectedNode?: MinderJsonNode, loadMoreCurrent?: number) {
+  async function initNodeCases(node: MinderJsonNode, loadMoreCurrent?: number) {
     try {
       loading.value = true;
-      const node = selectedNode || window.minder.getSelectedNode();
-      const { data } = node;
-      if (!data) return;
+      if (!node?.data) return;
       const { list, total } = await getCaseReviewMinder({
-        current: loadMoreCurrent ? loadMoreCurrent + 1 : 1,
+        current: (loadMoreCurrent ?? 0) + 1,
         projectId: appStore.currentProjectId,
-        moduleId: data.id,
+        moduleId: node.data?.id,
         reviewId: route.query.id as string,
         viewFlag: props.viewFlag,
         viewStatusFlag: props.viewStatusFlag,
       });
       // 移除占位的虚拟节点
-      removeFakeNode(node, loadMoreCurrent ? `tmp-${data.id}` : 'fakeNode');
+      removeFakeNode(node, loadMoreCurrent ? `tmp-${node.data?.id}` : 'fakeNode');
       // 如果模块下没有用例且有别的模块节点，正常展开
       if ((!list || list.length === 0) && node.children?.length && !loadMoreCurrent) {
         node.expand();
@@ -270,9 +280,18 @@
 
       // 渲染节点
       let waitingRenderNodes: MinderJsonNode[] = [];
-      list.forEach((e) => {
+      list.forEach((e: MinderJsonNode) => {
         // 用例节点
-        const child = createNode(e.data, node);
+        const child = createNode(
+          {
+            ...(e.data as MinderJsonNodeData),
+            resource: [
+              ...(statusTagMap[e.data?.status] ? [statusTagMap[e.data?.status]] : []),
+              ...(e.data?.resource ?? []),
+            ],
+          },
+          node
+        );
         waitingRenderNodes.push(child);
         // 前置/步骤/备注/预期结果节点
         const grandChildren = renderSubNodes(child, e.children);
@@ -284,14 +303,15 @@
         waitingRenderNodes = waitingRenderNodes.concat(node.children);
       }
       // 更多用例节点
-      if (total > list.length * (loadMoreCurrent || 1)) {
+      if (total > 100 * ((loadMoreCurrent ?? 0) + 1)) {
         const moreNode = window.minder.createNode(
           {
-            id: `tmp-${data.id}`,
+            id: `tmp-${node.data?.id}`,
             text: '...',
             type: 'tmp',
             expandState: 'collapse',
-            current: loadMoreCurrent ? loadMoreCurrent + 1 : 1,
+            current: (loadMoreCurrent ?? 0) + 1,
+            disabled: true,
           },
           node
         );
@@ -307,13 +327,6 @@
       loading.value = false;
     }
   }
-
-  watch(
-    () => props.viewStatusFlag,
-    () => {
-      initNodeCases();
-    }
-  );
 
   const extraVisible = ref<boolean>(false);
   const activeExtraKey = ref<'baseInfo' | 'attachment' | 'history'>('baseInfo');
@@ -471,18 +484,18 @@
       setPriorityView(true, 'P');
       return;
     }
-    // 展示浮动菜单: 模块节点且非根节点、用例节点
+    // 展示浮动菜单: 模块节点有子节点且非根节点、用例节点
     if (
       node?.data?.resource?.includes(caseTag) ||
-      (node?.data?.resource?.includes(moduleTag) && node.type !== 'root')
+      (node?.data?.resource?.includes(moduleTag) && node.type !== 'root' && (node.children || []).length > 0)
     ) {
       canShowFloatMenu.value = true;
     } else {
       canShowFloatMenu.value = false;
     }
 
-    // 展示进入节点菜单: 模块节点且有子节点且非根节点
-    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0) {
+    // 展示进入节点菜单: 模块节点
+    if (data?.resource?.includes(moduleTag)) {
       canShowEnterNode.value = true;
     } else {
       canShowEnterNode.value = false;
@@ -507,7 +520,23 @@
     setPriorityView(true, 'P');
   }
 
+  /**
+   * 脑图命令执行前拦截
+   * @param event 命令执行事件
+   */
+  function handleBeforeExecCommand(event: MinderEvent) {
+    if (['movetoparent', 'arrange'].includes(event.commandName)) {
+      event.stopPropagation();
+    }
+  }
+
   defineExpose({
-    initNodeCases,
+    initCaseTree,
   });
 </script>
+
+<style lang="less" scoped>
+  :deep(.comment-list-item-name) {
+    max-width: 200px;
+  }
+</style>
