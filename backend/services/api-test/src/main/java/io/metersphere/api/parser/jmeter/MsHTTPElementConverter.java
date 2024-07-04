@@ -23,13 +23,11 @@ import io.metersphere.project.dto.environment.host.Host;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigPathMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
-import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.protocol.http.control.Authorization;
 import org.apache.jmeter.protocol.http.control.DNSCacheManager;
@@ -90,10 +88,6 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         handleBody(sampler, msHTTPElement, config);
 
         HashTree httpTree = tree.add(sampler);
-
-        // 处理环境变量
-        UserParameters userParameters = getEnvUserParameters(msHTTPElement, envConfig);
-        Optional.ofNullable(userParameters).ifPresent(httpTree::add);
 
         // 处理请求头
         HeaderManager httpHeader = getHttpHeader(msHTTPElement, apiParamConfig, httpConfig);
@@ -186,25 +180,6 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(AUTH_PANEL));
         authManager.addAuth(auth);
         return authManager;
-    }
-
-    /**
-     * 添加场景和环境变量
-     *
-     * @param msHTTPElement
-     * @param envInfo
-     */
-    private UserParameters getEnvUserParameters(MsHTTPElement msHTTPElement, EnvironmentInfoDTO envInfo) {
-        if (envInfo == null) {
-            return null;
-        }
-
-        List<CommonVariables> envVariables = envInfo.getConfig().getCommonVariables();
-        if (CollectionUtils.isEmpty(envVariables)) {
-            return null;
-        }
-
-        return JmeterTestElementParserHelper.getUserParameters(msHTTPElement.getName(), envVariables);
     }
 
     private String getPath(MsHTTPElement msHTTPElement, HttpConfig httpConfig) {
