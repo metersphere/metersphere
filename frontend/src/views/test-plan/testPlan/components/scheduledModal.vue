@@ -15,22 +15,7 @@
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item :label="t('testPlan.testPlanIndex.triggerTime')" asterisk-position="end">
-        <a-select v-model:model-value="form.cron" :placeholder="t('common.pleaseSelect')">
-          <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value">
-            <span class="text-[var(--color-text-2)]"> {{ item.value }}</span
-            ><span class="ml-1 text-[var(--color-text-n4)] hover:text-[rgb(var(--primary-5))]">
-              {{ item.label }}
-            </span>
-          </a-option>
-          <!-- TODO :暂时不做 -->
-          <!-- <template #footer>
-            <div class="mb-[6px] mt-[4px] p-[3px_8px]">
-              <MsButton type="text" class="text-[rgb(var(--primary-5))]" @click="createCustomFrequency">
-                {{ t('testPlan.testPlanIndex.customFrequency') }}
-              </MsButton>
-            </div>
-          </template> -->
-        </a-select>
+        <MsCronSelect v-model:model-value="form.cron" />
       </a-form-item>
       <!-- TOTO 环境暂时不上 -->
       <!-- <a-radio-group v-model="form.env" class="mb-4">
@@ -86,17 +71,19 @@
               <div>{{ t('testPlan.testPlanIndex.timingStateClose') }}</div>
             </template>
             <div class="mx-1 flex items-center">
-              <span class="mt-[2px]"
-                ><IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
-              /></span>
+              <span class="mt-[2px]">
+                <IconQuestionCircle
+                  class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+                />
+              </span>
             </div>
           </a-tooltip>
         </div>
         <div>
           <a-button type="secondary" class="mr-3" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-          <a-button type="primary" :loading="confirmLoading" @click="handleCreate">{{
-            props.taskConfig ? t('common.update') : t('common.create')
-          }}</a-button>
+          <a-button type="primary" :loading="confirmLoading" @click="handleCreate">
+            {{ props.taskConfig ? t('common.update') : t('common.create') }}
+          </a-button>
         </div>
       </div>
     </template>
@@ -108,6 +95,8 @@
   import { useVModel } from '@vueuse/core';
   import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
+
+  import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
 
   import { configSchedule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -173,13 +162,6 @@
       }
     });
   }
-
-  const syncFrequencyOptions = [
-    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
-    { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
-    { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
-    { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
-  ];
 
   watch(
     () => props.taskConfig,

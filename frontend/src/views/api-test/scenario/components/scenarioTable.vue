@@ -212,20 +212,7 @@
     <a-form ref="scheduleConfigRef" class="rounded-[4px]" :model="scheduleConfig" layout="vertical">
       <!--      触发时间-->
       <a-form-item :label="t('apiScenario.schedule.task.schedule')">
-        <a-select v-model:model-value="scheduleConfig.cron">
-          <template #label="{ data }">
-            <div class="flex items-center">
-              {{ data.value }}
-              <div class="ml-[4px] text-[var(--color-text-4)]">{{ data.label.split('?')[1] }}</div>
-            </div>
-          </template>
-          <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value" class="block">
-            <div class="flex w-full items-center justify-between">
-              {{ item.value }}
-              <div class="ml-[4px] text-[var(--color-text-4)]">{{ item.label }}</div>
-            </div>
-          </a-option>
-        </a-select>
+        <MsCronSelect v-model:model-value="scheduleConfig.cron" />
       </a-form-item>
       <!--      环境选择-->
       <a-form-item :label="t('case.execute.selectEnv')">
@@ -500,6 +487,7 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -1033,12 +1021,6 @@
   }
 
   const showScheduleModal = ref(false);
-  const syncFrequencyOptions = [
-    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
-    { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
-    { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
-    { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
-  ];
 
   async function resetScheduleConfig(record: ApiScenarioTableItem) {
     // 初始化资源池
