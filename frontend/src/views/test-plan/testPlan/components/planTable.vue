@@ -13,15 +13,15 @@
       <div class="flex w-full items-center justify-between">
         <div>
           <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
-            <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">{{
-              t('testPlan.testPlanIndex.all')
-            }}</a-radio>
-            <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">{{
-              t('testPlan.testPlanIndex.plan')
-            }}</a-radio>
-            <a-radio :value="testPlanTypeEnum.GROUP" class="show-type-icon p-[2px]">{{
-              t('testPlan.testPlanIndex.testPlanGroup')
-            }}</a-radio>
+            <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">
+              {{ t('testPlan.testPlanIndex.all') }}
+            </a-radio>
+            <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">
+              {{ t('testPlan.testPlanIndex.plan') }}
+            </a-radio>
+            <a-radio :value="testPlanTypeEnum.GROUP" class="show-type-icon p-[2px]">
+              {{ t('testPlan.testPlanIndex.testPlanGroup') }}
+            </a-radio>
           </a-radio-group>
         </div>
         <div class="mr-[24px]">
@@ -350,6 +350,15 @@
     :show-type="showType"
     @success="successHandler"
   />
+  <MsDrawer v-model:visible="executionHistoryDrawerVisible" :width="800" :footer="false">
+    <template #title>
+      <div class="flex items-center">
+        <div>{{ t('testPlan.featureCase.executionHistory') }}</div>
+        <div class="text-[var(--color-text-4)]"> （{{ activeRecord?.name }}） </div>
+      </div>
+    </template>
+    <executeHistoryTable v-if="executionHistoryDrawerVisible" :plan-id="activeRecord?.id" is-group />
+  </MsDrawer>
 </template>
 
 <script setup lang="ts">
@@ -362,6 +371,7 @@
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type {
     BatchActionParams,
@@ -374,6 +384,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
+  import executeHistoryTable from '../detail/executeHistory/index.vue';
   import ActionModal from './actionModal.vue';
   import BatchEditModal from './batchEditModal.vue';
   import BatchMoveOrCopy from './batchMoveOrCopy.vue';
@@ -757,12 +768,24 @@
     const reportAction =
       planStatus !== 'ARCHIVED' && record.type === testPlanTypeEnum.GROUP ? [...configReportActions] : [];
 
+    const executeHistoryAction =
+      record.type === testPlanTypeEnum.GROUP
+        ? [
+            {
+              label: 'testPlan.featureCase.executionHistory',
+              eventTag: 'executionHistory',
+              permission: ['PROJECT_TEST_PLAN:READ'],
+            },
+          ]
+        : [];
+
     // 已归档和已完成不展示归档
     if (planStatus === 'ARCHIVED' || planStatus === 'PREPARED' || planStatus === 'UNDERWAY') {
       return [
         ...copyAction,
         ...scheduledTaskAction,
         ...reportAction,
+        ...executeHistoryAction,
         {
           label: 'common.delete',
           danger: true,
@@ -776,6 +799,7 @@
       ...archiveAction,
       ...scheduledTaskAction,
       ...reportAction,
+      ...executeHistoryAction,
       {
         isDivider: true,
       },
@@ -985,6 +1009,7 @@
       fetchData();
       cancelHandler();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       executeId.value = '';
@@ -1115,6 +1140,7 @@
       );
       fetchData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -1158,6 +1184,7 @@
           Message.success(t('common.batchArchiveSuccess'));
           fetchData();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -1203,6 +1230,7 @@
           Message.success(t('common.deleteSuccess'));
           fetchData();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -1284,6 +1312,7 @@
       fetchData();
       Message.success(t('common.deleteSuccess'));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -1357,6 +1386,7 @@
           Message.success(t('common.batchArchiveSuccess'));
           fetchData();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -1370,6 +1400,7 @@
       Message.success(t('common.copySuccess'));
       fetchData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -1380,8 +1411,15 @@
       Message.success(t('testPlan.testPlanGroup.deleteScheduleTaskSuccess'));
       fetchData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  const executionHistoryDrawerVisible = ref(false);
+  function openExecutionHistory(record: TestPlanItem) {
+    activeRecord.value = record;
+    executionHistoryDrawerVisible.value = true;
   }
 
   function handleMoreActionSelect(item: ActionsItem, record: TestPlanItem) {
@@ -1406,6 +1444,9 @@
         break;
       case 'archive':
         archiveHandle(record);
+        break;
+      case 'executionHistory':
+        openExecutionHistory(record);
         break;
       default:
         break;
