@@ -3,6 +3,7 @@ export const WHITE_LIST = [
   { name: 'notFound', path: '/notFound', children: [] },
   { name: 'invite', path: '/invite', children: [] },
   { name: 'index', path: '/index', children: [] },
+  { name: 'loginRedirect', path: '/qrcode/transition', children: [] },
   {
     name: 'share',
     path: '/share',

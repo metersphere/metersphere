@@ -26,17 +26,16 @@
       <ding-talk-qr v-if="activeName === 'DING_TALK'" />
     </div>
   </div>
-  <!--
-  <div class="login-qrcode" v-if="activeName === 'lark'">
+  <div v-if="activeName === 'LARK'" class="login-qrcode">
     <div class="qrcode">
-      <lark-qr v-if="activeName === 'lark'"/>
+      <lark-qr-code v-if="activeName === 'LARK'" />
     </div>
   </div>
-  <div class="login-qrcode" v-if="activeName === 'larksuite'">
+  <div v-if="activeName === 'LARK_SUITE'" class="login-qrcode">
     <div class="qrcode">
-      <larksuite-qr v-if="activeName === 'larksuite'"/>
+      <lark-suite-qr-code v-if="activeName === 'LARK_SUITE'" />
     </div>
-  </div>-->
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -46,6 +45,8 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import dingTalkQr from './dingTalkQrCode.vue';
   import WecomQr from './weComQrCode.vue';
+  import LarkQrCode from '@/views/login/components/larkQrCode.vue';
+  import LarkSuiteQrCode from '@/views/login/components/larkSuiteQrCode.vue';
 
   import { getPlatformParamUrl } from '@/api/modules/user';
 

@@ -8,10 +8,14 @@ import {
   EnableAPIKEYUrl,
   EnableLocalConfigUrl,
   GeDingInfoUrl,
+  GeLarkInfoUrl,
+  GeLarkSuiteInfoUrl,
   GetAPIKEYListUrl,
   getAuthenticationUrl,
   GetDingCallbackUrl,
   GetInfoUrl,
+  GetLarkCallbackUrl,
+  GetLarkSuiteCallbackUrl,
   GetLocalConfigUrl,
   GetMenuListUrl,
   GetPlatformAccountUrl,
@@ -48,7 +52,7 @@ import type {
   UpdateLocalConfigParams,
   UpdatePswParams,
 } from '@/models/user';
-import { DingInfo, WecomInfo } from '@/models/user';
+import { DingInfo, LarkInfo, WecomInfo } from '@/models/user';
 
 import type { RouteRecordNormalized } from 'vue-router';
 
@@ -89,6 +93,23 @@ export function getDingInfo() {
 export function getDingCallback(code: string) {
   return MSR.get<LoginRes>({ url: GetDingCallbackUrl, params: { code } });
 }
+
+export function getLarkInfo() {
+  return MSR.get<LarkInfo>({ url: GeLarkInfoUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+
+export function getLarkCallback(code: string) {
+  return MSR.get<LoginRes>({ url: GetLarkCallbackUrl, params: { code } });
+}
+
+export function getLarkSuiteInfo() {
+  return MSR.get<LarkInfo>({ url: GeLarkSuiteInfoUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+
+export function getLarkSuiteCallback(code: string) {
+  return MSR.get<LoginRes>({ url: GetLarkSuiteCallbackUrl, params: { code } });
+}
+
 export function logout() {
   return MSR.get<LoginRes>({ url: LogoutUrl });
 }

@@ -13,8 +13,12 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/authentication/get-list", "anon");
         filterChainDefinitionMap.put("/we_com/info", "anon");
         filterChainDefinitionMap.put("/ding_talk/info", "anon");
+        filterChainDefinitionMap.put("/lark/info", "anon");
+        filterChainDefinitionMap.put("/lark_suite/info", "anon");
         filterChainDefinitionMap.put("/sso/callback/we_com", "anon");
         filterChainDefinitionMap.put("/sso/callback/ding_talk", "anon");
+        filterChainDefinitionMap.put("/sso/callback/lark", "anon");
+        filterChainDefinitionMap.put("/sso/callback/lark_suite", "anon");
         filterChainDefinitionMap.put("/setting/get/platform/param", "anon");
         filterChainDefinitionMap.put("/signout", "anon");
         filterChainDefinitionMap.put("/is-login", "anon");
