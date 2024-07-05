@@ -254,7 +254,7 @@ public class TestPlanReportService {
         TestPlanReport record = new TestPlanReport();
         record.setId(genReportId);
         record.setDefaultLayout(false);
-        testPlanReportMapper.updateByPrimaryKey(record);
+        testPlanReportMapper.updateByPrimaryKeySelective(record);
         // 处理富文本文件
         transferRichTextTmpFile(genReportId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
     }
