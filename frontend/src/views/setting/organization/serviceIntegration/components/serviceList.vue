@@ -131,7 +131,6 @@
 
 <script setup lang="ts">
   import { onBeforeMount, ref } from 'vue';
-  import { useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import ConfigModal from './configModal.vue';
@@ -149,7 +148,6 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
-  const router = useRouter();
 
   const appStore = useAppStore();
   const lastOrganizationId = appStore.currentOrgId;
