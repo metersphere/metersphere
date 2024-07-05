@@ -65,7 +65,7 @@
               </div>
               <template #content>
                 <div
-                  class="trigger-content rounded-[var(--border-radius-medium)] bg-white p-[6px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+                  class="trigger-content w-[150px] rounded-[var(--border-radius-medium)] bg-white p-[6px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
                 >
                   <div v-for="item in reviewUserStatusList" :key="item.id" class="my-[4px] flex justify-between">
                     <div class="one-line-text max-w-[80px]">
@@ -73,6 +73,7 @@
                     </div>
                     <ReviewResult :status="item.status" class="text-[12px]" :icon-size="12" />
                   </div>
+                  <MsEmpty v-if="!reviewUserStatusList.length" />
                 </div>
               </template>
             </a-trigger>
@@ -94,6 +95,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import { MinderEvent } from '@/components/pure/ms-minder-editor/props';
@@ -124,6 +126,10 @@
     reviewProgress: string;
     reviewPassRule: ReviewPassRule; // 评审规则
     moduleTree: ModuleTreeNode[];
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'operation', type: string, data: MinderJsonNodeData): void;
   }>();
 
   const route = useRoute();
@@ -348,7 +354,7 @@
   }
 
   const extraVisible = ref<boolean>(false);
-  const activeExtraKey = ref<'baseInfo' | 'attachment' | 'history'>('baseInfo');
+  const activeExtraKey = ref<'baseInfo' | 'attachment' | 'history'>('history');
   const baseInfoLoading = ref(false);
   const activeCaseInfo = ref<Record<string, any>>({});
   const descriptions = ref<Description[]>([]);
@@ -461,7 +467,7 @@
     const node: MinderJsonNode = window.minder.getSelectedNode();
     const { data } = node;
     if (extraVisible.value && data?.resource?.includes(caseTag)) {
-      activeExtraKey.value = 'baseInfo';
+      activeExtraKey.value = 'history';
       initCaseDetail(data);
       initReviewHistoryList(data);
     }
@@ -470,35 +476,35 @@
   const canShowFloatMenu = ref(false); // 是否展示浮动菜单
   const canShowEnterNode = ref(false);
   const showCaseMenu = ref(false);
-  const moreMenuOtherOperationList = [
-    {
-      value: 'changeReviewer',
-      label: t('caseManagement.caseReview.changeReviewer'),
-      permission: ['CASE_REVIEW:READ+UPDATE'],
-      onClick: () => {
-        // TODO 操作
-        console.log('🤔️ =>', t('caseManagement.caseReview.changeReviewer'));
+  const moreMenuOtherOperationList = ref();
+  function setMoreMenuOtherOperationList(data: MinderJsonNodeData) {
+    moreMenuOtherOperationList.value = [
+      {
+        value: 'changeReviewer',
+        label: t('caseManagement.caseReview.changeReviewer'),
+        permission: ['CASE_REVIEW:READ+UPDATE'],
+        onClick: () => {
+          emit('operation', 'changeReviewer', data);
+        },
       },
-    },
-    {
-      value: 'reReview',
-      label: t('caseManagement.caseReview.reReview'),
-      permission: ['CASE_REVIEW:READ+UPDATE'],
-      onClick: () => {
-        // TODO 操作
-        console.log('🤔️ =>', t('caseManagement.caseReview.reReview'));
+      {
+        value: 'reReview',
+        label: t('caseManagement.caseReview.reReview'),
+        permission: ['CASE_REVIEW:READ+UPDATE'],
+        onClick: () => {
+          emit('operation', 'reReview', data);
+        },
       },
-    },
-    {
-      value: 'disassociate',
-      label: t('caseManagement.caseReview.disassociate'),
-      permission: ['CASE_REVIEW:READ+RELEVANCE'],
-      onClick: () => {
-        // TODO 操作
-        console.log('🤔️ =>', t('caseManagement.caseReview.disassociate'));
+      {
+        value: 'disassociate',
+        label: t('caseManagement.caseReview.disassociate'),
+        permission: ['CASE_REVIEW:READ+RELEVANCE'],
+        onClick: () => {
+          emit('operation', 'disassociate', data);
+        },
       },
-    },
-  ];
+    ];
+  }
 
   /**
    * 处理节点选中
@@ -515,8 +521,8 @@
     }
     // 展示浮动菜单: 模块节点有子节点且非根节点、用例节点
     if (
-      node?.data?.resource?.includes(caseTag) ||
-      (node?.data?.resource?.includes(moduleTag) && node.type !== 'root' && (node.children || []).length > 0)
+      node.data?.resource?.includes(caseTag) ||
+      (node.data?.resource?.includes(moduleTag) && node.type !== 'root' && (node.children || []).length > 0)
     ) {
       canShowFloatMenu.value = true;
     } else {
@@ -532,6 +538,7 @@
 
     if (data?.resource?.includes(caseTag)) {
       showCaseMenu.value = true;
+      setMoreMenuOtherOperationList(node.data as MinderJsonNodeData);
       if (extraVisible.value) {
         toggleDetail(true);
       }

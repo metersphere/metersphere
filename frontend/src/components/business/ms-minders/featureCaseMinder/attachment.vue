@@ -87,6 +87,7 @@
         </div>
       </template>
     </MsFileList>
+    <MsEmpty v-if="!fileList.length" />
   </a-spin>
   <LinkFileDrawer
     v-model:visible="showLinkFileDrawer"
@@ -103,6 +104,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsAddAttachment from '@/components/business/ms-add-attachment/index.vue';
