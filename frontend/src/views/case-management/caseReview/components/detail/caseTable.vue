@@ -11,7 +11,7 @@
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
         @keyword-search="(val, filter) => searchCase(filter)"
         @adv-search="searchCase"
-        @refresh="refresh"
+        @refresh="refresh()"
       >
         <template v-if="showType !== 'list'" #nameRight>
           <div v-if="reviewPassRule === 'MULTIPLE'" class="ml-[16px]">
@@ -142,6 +142,7 @@
         :modules-count="props.modulesCount"
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
+        @operation="handleMinderOperation"
       />
     </div>
     <a-modal
@@ -168,7 +169,7 @@
               size="16"
             />
           </a-tooltip>
-          <div class="ml-[8px] font-normal text-[var(--color-text-4)]">
+          <div v-show="showType === 'list'" class="ml-[8px] font-normal text-[var(--color-text-4)]">
             ({{ t('caseManagement.caseReview.selectedCase', { count: batchParams.currentSelectCount }) }})
           </div>
         </div>
@@ -301,6 +302,7 @@
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import type { MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -329,7 +331,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { findNodeByKey } from '@/utils';
+  import { characterLimit, findNodeByKey } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
@@ -364,6 +366,7 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
+  const minderSelectData = ref(); // 当前脑图选中的数据
   const keyword = ref('');
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
@@ -522,6 +525,7 @@
         : {},
     };
     setLoadListParams(tableParams.value);
+    resetSelector();
     loadList();
     emit('init', {
       ...tableParams.value,
@@ -536,12 +540,28 @@
     searchCase();
   });
 
-  function refresh() {
+  /**
+   * 更新数据
+   * @param getCount 获取模块树数量
+   */
+  function refresh(getCount = true) {
     if (showType.value === 'list') {
-      searchCase();
+      if (getCount) {
+        searchCase();
+      } else {
+        resetSelector();
+        loadList();
+      }
     } else {
       msCaseReviewMinderRef.value?.initCaseTree();
-      emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
+      if (getCount) {
+        emit('init', {
+          moduleIds: [props.activeFolder],
+          projectId: appStore.currentProjectId,
+          pageSize: 10,
+          current: 1,
+        });
+      }
     }
   }
 
@@ -669,9 +689,13 @@
 
   // 批量解除关联用例拦截
   function batchDisassociate() {
+    const batchDisassociateTitle =
+      showType.value === 'list'
+        ? t('caseManagement.caseReview.disassociateConfirmTitle', { count: batchParams.value.currentSelectCount })
+        : t('testPlan.featureCase.disassociateTip', { name: characterLimit(minderSelectData.value?.text) });
     openModal({
       type: 'warning',
-      title: t('caseManagement.caseReview.disassociateConfirmTitle', { count: batchParams.value.currentSelectCount }),
+      title: batchDisassociateTitle,
       content: t('caseManagement.caseReview.disassociateTipContent'),
       okText: t('caseManagement.caseReview.disassociate'),
       cancelText: t('common.cancel'),
@@ -681,14 +705,21 @@
           await batchDisassociateReviewCase({
             reviewId: route.query.id as string,
             userId: props.onlyMine ? userStore.id || '' : '',
-            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-            ...batchParams.value,
-            ...tableParams.value,
+            ...(showType.value === 'list'
+              ? {
+                  moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+                  ...batchParams.value,
+                  ...tableParams.value,
+                }
+              : {
+                  selectIds: [minderSelectData.value.id],
+                  selectAll: false,
+                  condition: {},
+                }),
           });
           Message.success(t('common.updateSuccess'));
           dialogLoading.value = false;
-          resetSelector();
-          loadList();
+          refresh();
           emit('refresh', {
             ...tableParams.value,
             current: propsRes.value.msPagination?.current,
@@ -741,13 +772,21 @@
         status: 'RE_REVIEWED',
         content: dialogForm.value.reason,
         notifier: dialogForm.value.commentIds.join(';'),
-        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-        ...batchParams.value,
-        ...tableParams.value,
+        ...(showType.value === 'list'
+          ? {
+              moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+              ...batchParams.value,
+              ...tableParams.value,
+            }
+          : {
+              selectIds: [minderSelectData.value.id],
+              selectAll: false,
+              condition: {},
+            }),
       });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
-      resetSelector();
+      refresh(false);
       emit('refresh', {
         ...tableParams.value,
         current: propsRes.value.msPagination?.current,
@@ -755,7 +794,6 @@
         total: propsRes.value.msPagination?.total,
         moduleIds: [],
       });
-      loadList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -775,15 +813,22 @@
             userId: props.onlyMine ? userStore.id || '' : '',
             reviewerId: dialogForm.value.reviewer.length > 0 ? dialogForm.value.reviewer : record.reviewers,
             append: dialogForm.value.isAppend, // 是否追加
-            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-            ...batchParams.value,
-            ...tableParams.value,
-            selectIds: batchParams.value.selectIds.length > 0 ? batchParams.value.selectIds : [record.id],
+            ...(showType.value === 'list'
+              ? {
+                  moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+                  ...batchParams.value,
+                  ...tableParams.value,
+                  selectIds: batchParams.value.selectIds.length > 0 ? batchParams.value.selectIds : [record.id],
+                }
+              : {
+                  selectIds: [minderSelectData.value.id],
+                  selectAll: false,
+                  condition: {},
+                }),
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
-          resetSelector();
-          loadList();
+          refresh();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -862,13 +907,8 @@
     }
   }
 
-  /**
-   * 处理表格选中后批量操作
-   * @param event 批量操作事件对象
-   */
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
-    switch (event.eventTag) {
+  function handleOperation(type?: string) {
+    switch (type) {
       case 'review':
         dialogVisible.value = true;
         dialogShowType.value = 'review';
@@ -888,6 +928,21 @@
       default:
         break;
     }
+  }
+
+  // 脑图操作
+  function handleMinderOperation(type: string, data: MinderJsonNodeData) {
+    minderSelectData.value = data;
+    handleOperation(type);
+  }
+
+  /**
+   * 处理表格选中后批量操作
+   * @param event 批量操作事件对象
+   */
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
+    handleOperation(event.eventTag);
   }
 
   // 去用例评审页面
