@@ -35,7 +35,6 @@
     "skipLibCheck": true, // 跳过node依赖包语法检查
     "types": [
       "node",
-      // "vitest/globals",
       // "vite-plugin-svg-icons/client"
     ], // 手动导入TS类型声明文件
     "baseUrl": ".",

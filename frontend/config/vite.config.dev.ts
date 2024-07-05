@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import baseConfig from './vite.config.base';
 import dotenv from 'dotenv';
 import { mergeConfig } from 'vite';
