@@ -11,12 +11,15 @@ import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.MoveNodeSortDTO;
@@ -51,6 +54,7 @@ import io.metersphere.system.utils.CustomFieldUtils;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1183,5 +1187,58 @@ public class ApiDefinitionService extends MoveNodeService {
 
     public List<ReferenceDTO> getReference(ReferenceRequest request) {
         return extApiDefinitionMapper.getReference(request);
+    }
+
+    public String preview(JsonSchemaItem jsonSchemaItem) {
+        if (BooleanUtils.isFalse(jsonSchemaItem.getEnable())) {
+            return "{}";
+        }
+        filterDisableItem(jsonSchemaItem);
+        return JsonSchemaBuilder.preview(JSON.toJSONString(jsonSchemaItem));
+    }
+
+    private void filterDisableItem(JsonSchemaItem jsonSchemaItem) {
+        if (isObjectItem(jsonSchemaItem)) {
+            Map<String, JsonSchemaItem> properties = jsonSchemaItem.getProperties();
+            if (properties != null) {
+                Iterator<String> iterator = properties.keySet().iterator();
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    JsonSchemaItem item = properties.get(key);
+                    if (item == null) {
+                        continue;
+                    }
+                    if (BooleanUtils.isFalse(item.getEnable())) {
+                        iterator.remove();
+                    } else if (isObjectItem(jsonSchemaItem) || isArrayItem(jsonSchemaItem)) {
+                        filterDisableItem(item);
+                    }
+                }
+            }
+        } else if (isArrayItem(jsonSchemaItem)) {
+            List<JsonSchemaItem> items = jsonSchemaItem.getItems();
+            if (items != null) {
+                Iterator<JsonSchemaItem> iterator = items.iterator();
+                while (iterator.hasNext()) {
+                    JsonSchemaItem item = iterator.next();
+                    if (item == null) {
+                        continue;
+                    }
+                    if (BooleanUtils.isFalse(item.getEnable())) {
+                        iterator.remove();
+                    } else if (isObjectItem(jsonSchemaItem) || isArrayItem(jsonSchemaItem)){
+                        filterDisableItem(item);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isArrayItem(JsonSchemaItem jsonSchemaItem) {
+        return StringUtils.equals(jsonSchemaItem.getType(), PropertyConstant.ARRAY);
+    }
+
+    private boolean isObjectItem(JsonSchemaItem jsonSchemaItem) {
+        return StringUtils.equals(jsonSchemaItem.getType(), PropertyConstant.OBJECT);
     }
 }

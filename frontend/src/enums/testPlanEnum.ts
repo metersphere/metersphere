@@ -9,11 +9,6 @@ export enum RunMode {
   PARALLEL = 'PARALLEL', // 并行
 }
 
-export enum FailRetry {
-  STEP = 'STEP',
-  SCENARIO = 'SCENARIO',
-}
-
 // 功能：FUNCTIONAL_CASE/接口定义：API/接口用例：API_CASE/场景：SCENARIO_CASE
 export enum PlanMinderAssociateType {
   FUNCTIONAL_CASE = 'FUNCTIONAL',

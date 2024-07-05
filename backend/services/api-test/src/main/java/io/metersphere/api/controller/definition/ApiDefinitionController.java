@@ -15,12 +15,10 @@ import io.metersphere.api.service.definition.ApiDefinitionImportService;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
-import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
@@ -284,7 +282,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-接口-json-schema-预览")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public String preview(@RequestBody JsonSchemaItem jsonSchemaItem) {
-        return JsonSchemaBuilder.preview(JSON.toJSONString(jsonSchemaItem));
+        return apiDefinitionService.preview(jsonSchemaItem);
     }
 
     @PostMapping("/debug")

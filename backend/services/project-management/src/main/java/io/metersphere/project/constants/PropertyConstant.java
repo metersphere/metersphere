@@ -18,5 +18,6 @@ public class PropertyConstant {
     public final static String TYPE = "type";
     public final static String ITEMS = "items";
     public final static String PROPERTIES = "properties";
+    public final static String ENABLE = "enable";
 
 }

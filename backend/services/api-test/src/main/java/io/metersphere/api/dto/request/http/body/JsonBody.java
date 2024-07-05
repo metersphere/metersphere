@@ -12,6 +12,11 @@ import lombok.Data;
 @Data
 public class JsonBody {
     /**
+     * 是否 json-schema
+     * 默认false
+     */
+    private Boolean enableJsonSchema = false;
+    /**
      * json 参数值
      */
     private String jsonValue;
