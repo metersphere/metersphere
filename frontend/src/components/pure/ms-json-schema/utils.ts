@@ -39,7 +39,7 @@ export function parseTableDataToJsonSchema(
       };
     }
 
-    if (schemaItem.children && schemaItem.children.length > 0) {
+    if (schemaItem.children) {
       if (schemaItem.type === 'object') {
         // 对象类型
         schema = {
