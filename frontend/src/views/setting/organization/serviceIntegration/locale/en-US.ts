@@ -53,4 +53,5 @@ export default {
   'organization.service.configSuccess': 'Configuration successfully',
   'organization.service.updateSuccess': 'Update successfully',
   'organization.service.noPermissionsTip': 'You do not have operation permission, please contact the administrator',
+  'organization.service.applyTapdAccount': 'Apply to open a TAPD API account',
 };

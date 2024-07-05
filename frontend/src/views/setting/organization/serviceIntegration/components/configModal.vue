@@ -7,7 +7,18 @@
     :cancel-text="t('organization.member.Cancel')"
     unmount-on-close
   >
-    <template #title> {{ title }} </template>
+    <template #title>
+      <div class="relative flex w-full items-center justify-between">
+        {{ title }}
+        <div
+          v-if="pluginId.toLowerCase().includes('tapd')"
+          class="absolute bottom-[-40px] right-0 z-10 cursor-pointer text-[#0D68FF] underline"
+          @click="openTapd"
+        >
+          {{ t('organization.service.applyTapdAccount') }}
+        </div>
+      </div>
+    </template>
     <div class="wrapper">
       <MsFormCreate v-model:api="fApi" v-model:form-item="formItemList" :form-rule="formRules" :option="options">
       </MsFormCreate>
@@ -18,28 +29,32 @@
           <a-switch v-model="isEnable" :disabled="isDisabled" size="small" type="line" />
           <a-tooltip>
             <template #content>
-              <div class="text-sm">{{
-                pluginId === 'jira'
-                  ? t('organization.service.statusJiraEnableTip')
-                  : t('organization.service.statusEnableTip')
-              }}</div>
-              <div class="text-sm">{{
-                pluginId === 'jira'
-                  ? t('organization.service.statusJiraDisableTip')
-                  : t('organization.service.statusDisableTip')
-              }}</div>
+              <div class="text-sm">
+                {{
+                  pluginId === 'jira'
+                    ? t('organization.service.statusJiraEnableTip')
+                    : t('organization.service.statusEnableTip')
+                }}
+              </div>
+              <div class="text-sm">
+                {{
+                  pluginId === 'jira'
+                    ? t('organization.service.statusJiraDisableTip')
+                    : t('organization.service.statusDisableTip')
+                }}
+              </div>
             </template>
             <icon-question-circle class="ml-2 text-[--color-text-4]" />
           </a-tooltip>
         </div>
         <div>
           <a-button type="secondary" @click="handleCancel">{{ t('organization.service.Cancel') }}</a-button>
-          <a-button class="ml-[12px]" type="outline" :loading="testLoading" @click="testLink">{{
-            t('organization.service.testLink')
-          }}</a-button>
-          <a-button class="ml-[12px]" type="primary" :loading="loading" @click="saveHandler">{{
-            t('organization.service.Confirm')
-          }}</a-button>
+          <a-button class="ml-[12px]" type="outline" :loading="testLoading" @click="testLink">
+            {{ t('organization.service.testLink') }}
+          </a-button>
+          <a-button class="ml-[12px]" type="primary" :loading="loading" @click="saveHandler">
+            {{ t('organization.service.Confirm') }}
+          </a-button>
         </div>
       </div>
     </template>
@@ -174,7 +189,7 @@
   // 测试连接是否通过
   const testLink = async () => {
     testLoading.value = true;
-    fApi.value?.validate(async (valid: any, fail: any) => {
+    fApi.value?.validate(async (valid: any) => {
       if (valid === true) {
         try {
           const formValue = {
@@ -189,7 +204,6 @@
           testLoading.value = false;
         }
       } else {
-        console.log(fail);
         testLoading.value = false;
       }
     });
@@ -205,6 +219,11 @@
     formItem.value = { ...serviceItem };
     getPluginScript(pluginId.value);
   };
+
+  function openTapd() {
+    window.open('https://jsj.top/f/Lpk1sh');
+  }
+
   defineExpose({
     addOrEdit,
     title,

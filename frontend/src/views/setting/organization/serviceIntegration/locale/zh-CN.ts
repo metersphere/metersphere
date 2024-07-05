@@ -48,4 +48,5 @@ export default {
   'organization.service.configSuccess': '配置成功',
   'organization.service.updateSuccess': '更新成功',
   'organization.service.noPermissionsTip': '您没有操作权限，请联系管理员',
+  'organization.service.applyTapdAccount': '申请开通 TAPD 的 API 账号',
 };
