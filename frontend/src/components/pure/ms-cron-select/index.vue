@@ -1,5 +1,11 @@
 <template>
-  <a-select v-model:model-value="cron" allow-create>
+  <a-select
+    v-model:model-value="cron"
+    :disabled="props.disabled"
+    :class="props.class"
+    allow-create
+    @change="emit('change', $event)"
+  >
     <template #label="{ data }">
       <div class="flex items-center">
         {{ data.value }}
@@ -17,6 +23,17 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
+
+  const props = defineProps<{
+    class?: string;
+    disabled?: boolean;
+  }>();
+  const emit = defineEmits<{
+    (
+      e: 'change',
+      value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+    ): void;
+  }>();
 
   const { t } = useI18n();
 

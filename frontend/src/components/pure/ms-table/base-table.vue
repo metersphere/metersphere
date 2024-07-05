@@ -14,6 +14,7 @@
       :columns="currentColumns"
       :span-all="props.spanAll"
       @select="originalRowSelectChange"
+      @select-all="originalSelectAll"
       @expand="(rowKey, record) => emit('expand', record)"
       @change="(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => handleDragChange(data, extra, currentData)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
@@ -384,6 +385,7 @@
     (e: 'initEnd'): void;
     (e: 'reset'): void;
     (e: 'select', rowKeys: (string | number)[], _rowKey: string | number, record: TableData): void;
+    (e: 'selectAll', checked: boolean): void;
   }>();
   const attrs = useAttrs();
 
@@ -529,6 +531,11 @@
   // 表格原生行选择器change事件
   function originalRowSelectChange(rowKeys: (string | number)[], _rowKey: string | number, record: TableData) {
     emit('select', rowKeys, _rowKey, record);
+  }
+
+  // 表格原生选择全部事件
+  function originalSelectAll(checked: boolean) {
+    emit('selectAll', checked);
   }
 
   // 分页change事件

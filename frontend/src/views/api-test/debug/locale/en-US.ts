@@ -209,4 +209,8 @@ export default {
   'apiTestDebug.actualValue': 'Actual value',
   'apiTestDebug.condition': 'condition',
   'apiTestDebug.expectedValue': 'Expected value',
+  'apiTestDebug.standardAdditions': 'Standard',
+  'apiTestDebug.standardAdditionsTip':
+    'Writing format: parameter name, type, required, parameter value; multiple records separated by newlines',
+  'apiTestDebug.quickAdditions': 'Quick',
 };

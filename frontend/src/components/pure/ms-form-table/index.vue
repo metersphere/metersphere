@@ -13,6 +13,7 @@
       @drag-change="tableChange"
       @init-end="validateAndUpdateErrorMessageList"
       @select="handleSelect"
+      @select-all="handleSelectAll"
     >
       <!-- 展开行-->
       <template #expand-icon="{ expanded, record }">
@@ -297,7 +298,8 @@
       columnConfig: FormTableColumn,
       rowIndex: number
     ): void;
-    (e: 'select', rowKeys: (string | number)[], _rowKey: string | number, record: TableData): void;
+    (e: 'rowSelect', rowKeys: (string | number)[], _rowKey: string | number, record: TableData): void;
+    (e: 'selectAll', checked: boolean): void;
   }>();
 
   const { t } = useI18n();
@@ -489,7 +491,11 @@
   }
 
   function handleSelect(rowKeys: (string | number)[], rowKey: string | number, record: TableData) {
-    emit('select', rowKeys, rowKey, record);
+    emit('rowSelect', rowKeys, rowKey, record);
+  }
+
+  function handleSelectAll(checked: boolean) {
+    emit('selectAll', checked);
   }
 
   await initColumns();

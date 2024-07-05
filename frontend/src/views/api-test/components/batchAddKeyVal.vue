@@ -31,9 +31,19 @@
         :show-full-screen="false"
         :show-theme-change="false"
       >
+        <template v-if="props.hasStandard" #leftTitle>
+          <a-radio-group v-model:model-value="addType" type="button" @change="() => parseParams()">
+            <a-radio value="standard">{{ t('apiTestDebug.standardAdditions') }}</a-radio>
+            <a-radio value="quick">{{ t('apiTestDebug.quickAdditions') }}</a-radio>
+          </a-radio-group>
+        </template>
         <template v-if="!props?.addTypeText" #rightTitle>
           <div class="text-[12px] text-[var(--color-text-4)]">
-            {{ t('apiTestDebug.batchAddParamsTip1') }}
+            {{
+              props.hasStandard && addType === 'standard'
+                ? t('apiTestDebug.standardAdditionsTip')
+                : t('apiTestDebug.batchAddParamsTip1')
+            }}
           </div>
         </template>
       </MsCodeEditor>
@@ -48,6 +58,9 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { getGenerateId } from '@/utils';
+
+  import { RequestParamsType } from '@/enums/apiEnum';
 
   const props = withDefaults(
     defineProps<{
@@ -57,6 +70,7 @@
       addTypeText?: string; // 添加类型文案
       disabled?: boolean;
       typeTitle?: string;
+      hasStandard?: boolean; // 是否有标准模式
     }>(),
     {
       noParamType: false,
@@ -72,15 +86,27 @@
     required: true,
   });
   const batchParamsCode = ref('');
+  const addType = ref<'standard' | 'quick'>('standard');
+
+  function parseParams() {
+    if (props.hasStandard && addType.value === 'standard') {
+      batchParamsCode.value = props.params
+        .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)))
+        .map((item) => `${item.key},${item.paramType},${item.required},${item.value}`)
+        .join('\n');
+    } else {
+      batchParamsCode.value = props.params
+        .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)))
+        .map((item) => `${item.key}:${item.value}`)
+        .join('\n');
+    }
+  }
 
   watch(
     () => visible.value,
     (val) => {
       if (val) {
-        batchParamsCode.value = props.params
-          .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)))
-          .map((item) => `${item.key}:${item.value}`)
-          .join('\n');
+        parseParams();
       }
     },
     {
@@ -89,9 +115,9 @@
   );
 
   /**
-   * 批量参数代码转换为参数表格数据
+   * 批量参数代码转换为参数表格数据-快捷模式-参数名：参数值
    */
-  function applyBatchParams() {
+  function quickApply() {
     const arr = batchParamsCode.value.replaceAll('\r', '\n').split('\n'); // 先将回车符替换成换行符，避免粘贴的代码是以回车符分割的，然后以换行符分割
     const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
     for (let i = 0; i < arr.length; i++) {
@@ -100,7 +126,7 @@
         const index = arr[i].indexOf(':');
         if (index === -1) {
           tempObj[arr[i].trim()] = {
-            id: new Date().getTime() + i,
+            id: getGenerateId(),
             ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
             key: arr[i].trim(),
             value: '',
@@ -109,7 +135,7 @@
           const [key, value] = [arr[i].substring(0, index).trim(), arr[i].substring(index + 1).trim()];
           if (key || value) {
             tempObj[key.trim()] = {
-              id: new Date().getTime() + i,
+              id: getGenerateId(),
               ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
               key: key.trim(),
               value: value?.trim(),
@@ -121,6 +147,53 @@
     visible.value = false;
     batchParamsCode.value = '';
     emit('apply', Object.values(tempObj));
+  }
+
+  function stringToBoolean(str?: string) {
+    if (str === 'true') {
+      return true;
+    }
+    if (str === 'false') {
+      return false;
+    }
+    return false;
+  }
+
+  /**
+   * 批量参数代码转换为参数表格数据-标准模式-参数名,参数类型,必填,参数值
+   */
+  function standardApply() {
+    const arr = batchParamsCode.value.replaceAll('\r', '\n').split('\n'); // 先将回车符替换成换行符，避免粘贴的代码是以回车符分割的，然后以换行符分割
+    const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] !== '') {
+        const [key, type, required, value] = arr[i].split(',');
+        if (key) {
+          tempObj[key.trim()] = {
+            id: getGenerateId(),
+            ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
+            key: key.trim(),
+            paramType: Object.values(RequestParamsType).includes(type?.trim() as unknown as RequestParamsType)
+              ? type?.trim()
+              : RequestParamsType.STRING,
+            required: stringToBoolean(required),
+            value: value?.trim(),
+          };
+        }
+      }
+    }
+    visible.value = false;
+    batchParamsCode.value = '';
+    addType.value = 'standard';
+    emit('apply', Object.values(tempObj));
+  }
+
+  function applyBatchParams() {
+    if (props.hasStandard && addType.value === 'standard') {
+      standardApply();
+    } else {
+      quickApply();
+    }
   }
 </script>
 
