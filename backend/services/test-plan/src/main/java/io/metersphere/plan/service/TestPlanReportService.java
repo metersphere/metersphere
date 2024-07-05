@@ -102,6 +102,8 @@ public class TestPlanReportService {
     private TestPlanSendNoticeService testPlanSendNoticeService;
     @Resource
     private ExtTestPlanCaseExecuteHistoryMapper extTestPlanCaseExecuteHistoryMapper;
+    @Resource
+    private TestPlanReportComponentMapper componentMapper;
 
     /**
      * 分页查询报告列表
@@ -226,7 +228,7 @@ public class TestPlanReportService {
      * @param request     请求参数
      * @param currentUser 当前用户
      */
-    public void genReportByManual(TestPlanReportManualRequest request, String currentUser) {
+    public String genReportByManual(TestPlanReportManualRequest request, String currentUser) {
         /*
          * 1. 生成报告 (全量生成; 暂不根据布局来选择生成报告预览数据, 因为影响分析汇总)
          * 2. 保存报告布局组件 (只对当前生成的计划/组有效, 不会对下面的子计划报告生效)
@@ -257,6 +259,7 @@ public class TestPlanReportService {
         testPlanReportMapper.updateByPrimaryKeySelective(record);
         // 处理富文本文件
         transferRichTextTmpFile(genReportId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
+        return reportMap.get(request.getTestPlanId());
     }
 
     /**
@@ -264,8 +267,9 @@ public class TestPlanReportService {
      * @param request 请求参数
      * @param currentUser 当前用户
      */
-    public void genReportByAuto(TestPlanReportGenRequest request, String currentUser) {
-        genReport(IDGenerator.nextStr(), request, true, currentUser, "/test-plan/report/gen");
+    public String genReportByAuto(TestPlanReportGenRequest request, String currentUser) {
+        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser, "/test-plan/report/gen");
+        return reportMap.get(request.getTestPlanId());
     }
 
     /**
@@ -595,6 +599,12 @@ public class TestPlanReportService {
         return planReportDetail;
     }
 
+    public List<TestPlanReportComponent> getLayout(String reportId) {
+        TestPlanReportComponentExample example = new TestPlanReportComponentExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(reportId);
+        return componentMapper.selectByExample(example);
+    }
+
     /**
      * 更新报告详情
      *
@@ -603,11 +613,21 @@ public class TestPlanReportService {
      */
     public TestPlanReportDetailResponse edit(TestPlanReportDetailEditRequest request, String currentUser) {
         TestPlanReport planReport = checkReport(request.getId());
-        TestPlanReportSummary reportSummary = new TestPlanReportSummary();
-        reportSummary.setSummary(StringUtils.isBlank(request.getSummary()) ? StringUtils.EMPTY : request.getSummary());
-        TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
-        example.createCriteria().andTestPlanReportIdEqualTo(planReport.getId());
-        testPlanReportSummaryMapper.updateByExampleSelective(reportSummary, example);
+        if (planReport.getDefaultLayout()) {
+            // 默认布局只存在报告总结
+            TestPlanReportSummary reportSummary = new TestPlanReportSummary();
+            reportSummary.setSummary(StringUtils.isBlank(request.getComponentValue()) ? StringUtils.EMPTY : request.getComponentValue());
+            TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
+            example.createCriteria().andTestPlanReportIdEqualTo(planReport.getId());
+            testPlanReportSummaryMapper.updateByExampleSelective(reportSummary, example);
+        } else {
+            // 手动生成的布局, 只更新富文本组件的内容
+            TestPlanReportComponentExample componentExample = new TestPlanReportComponentExample();
+            componentExample.createCriteria().andIdEqualTo(request.getComponentId());
+            TestPlanReportComponent record = new TestPlanReportComponent();
+            record.setValue(request.getComponentValue());
+            componentMapper.updateByExample(record, componentExample);
+        }
         // 处理富文本文件
         transferRichTextTmpFile(request.getId(), planReport.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
         return getReport(planReport.getId());

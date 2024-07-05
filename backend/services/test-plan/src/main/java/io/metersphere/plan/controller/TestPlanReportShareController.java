@@ -10,6 +10,7 @@ import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.domain.TestPlanReportComponent;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.TestPlanReportShareRequest;
@@ -70,6 +71,14 @@ public class TestPlanReportShareController {
     }
 
     // 分享报告详情开始
+
+    @GetMapping("/get-layout/{shareId}/{reportId}")
+    @Operation(summary = "测试计划-报告-组件布局")
+    public List<TestPlanReportComponent> getLayout(@PathVariable String shareId, @PathVariable String reportId) {
+        ShareInfo shareInfo = testPlanReportShareService.checkResource(shareId);
+        testPlanReportShareService.validateExpired(shareInfo);
+        return testPlanReportService.getLayout(reportId);
+    }
 
     @GetMapping("/get/detail/{shareId}/{reportId}")
     @Operation(summary = "测试计划-报告分享-详情查看")

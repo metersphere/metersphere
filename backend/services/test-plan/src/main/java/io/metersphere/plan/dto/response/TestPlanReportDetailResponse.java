@@ -79,4 +79,10 @@ public class TestPlanReportDetailResponse {
     private boolean deleted;
     @Schema(description = "报告状态")
     private String resultStatus;
+
+    /**
+     * 报告布局
+     */
+    @Schema(description = "报告是否默认布局")
+    private Boolean defaultLayout;
 }
