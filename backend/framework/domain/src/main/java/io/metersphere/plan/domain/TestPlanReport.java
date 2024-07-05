@@ -87,6 +87,10 @@ public class TestPlanReport implements Serializable {
     @Size(min = 1, max = 255, message = "{test_plan_report.test_plan_name.length_range}", groups = {Created.class, Updated.class})
     private String testPlanName;
 
+    @Schema(description = "是否默认布局", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report.default_layout.not_blank}", groups = {Created.class})
+    private Boolean defaultLayout;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -107,7 +111,8 @@ public class TestPlanReport implements Serializable {
         deleted("deleted", "deleted", "BIT", false),
         executeRate("execute_rate", "executeRate", "DECIMAL", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
-        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false);
+        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false),
+        defaultLayout("default_layout", "defaultLayout", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

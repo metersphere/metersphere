@@ -87,13 +87,22 @@ public class TestPlanReportController {
         testPlanReportService.batchSetReportDelete(request, SessionUtils.getUserId());
     }
 
-    @PostMapping("/gen")
-    @Operation(summary = "测试计划-详情-生成报告")
+    @PostMapping("/manual-gen")
+    @Operation(summary = "测试计划-详情-手动生成报告")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public void genReportByManual(@Validated @RequestBody TestPlanReportGenRequest request) {
+    public void genReportByManual(@Validated @RequestBody TestPlanReportManualRequest request) {
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
         testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/auto-gen")
+    @Operation(summary = "测试计划-详情-自动生成报告")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
+    public void genReportByAuto(@Validated @RequestBody TestPlanReportGenRequest request) {
+        testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
+        testPlanReportService.genReportByAuto(request, SessionUtils.getUserId());
     }
 
     // 报告详情开始

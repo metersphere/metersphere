@@ -1284,6 +1284,66 @@ public class TestPlanReportExample {
             addCriterion("test_plan_name not between", value1, value2, "testPlanName");
             return (Criteria) this;
         }
+
+        public Criteria andDefaultLayoutIsNull() {
+            addCriterion("default_layout is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutIsNotNull() {
+            addCriterion("default_layout is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutEqualTo(Boolean value) {
+            addCriterion("default_layout =", value, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutNotEqualTo(Boolean value) {
+            addCriterion("default_layout <>", value, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutGreaterThan(Boolean value) {
+            addCriterion("default_layout >", value, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("default_layout >=", value, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutLessThan(Boolean value) {
+            addCriterion("default_layout <", value, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutLessThanOrEqualTo(Boolean value) {
+            addCriterion("default_layout <=", value, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutIn(List<Boolean> values) {
+            addCriterion("default_layout in", values, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutNotIn(List<Boolean> values) {
+            addCriterion("default_layout not in", values, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutBetween(Boolean value1, Boolean value2) {
+            addCriterion("default_layout between", value1, value2, "defaultLayout");
+            return (Criteria) this;
+        }
+
+        public Criteria andDefaultLayoutNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("default_layout not between", value1, value2, "defaultLayout");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
