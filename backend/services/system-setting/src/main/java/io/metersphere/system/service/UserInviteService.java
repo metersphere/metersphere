@@ -1,11 +1,11 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserInvite;
 import io.metersphere.system.domain.UserInviteExample;
 import io.metersphere.system.mapper.UserInviteMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class UserInviteService {
         userInviteMapper.deleteByExample(example);
     }
 
-    public List<UserInvite> batchInsert(List<String> inviteEmails, String inviteUser, List<String> userRoleIds) {
+    public List<UserInvite> batchInsert(List<String> inviteEmails, String inviteUser, List<String> userRoleIds, String orgId, String projectId) {
         long inviteTime = System.currentTimeMillis();
         List<UserInvite> inviteList = new ArrayList<>();
         for (String email : inviteEmails) {
@@ -38,6 +38,8 @@ public class UserInviteService {
             userInvite.setInviteUser(inviteUser);
             userInvite.setInviteTime(inviteTime);
             userInvite.setId(IDGenerator.nextStr());
+            userInvite.setOrganizationId(orgId);
+            userInvite.setProjectId(projectId);
             inviteList.add(userInvite);
         }
         userInviteMapper.batchInsert(inviteList);

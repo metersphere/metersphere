@@ -7,6 +7,7 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.utils.Pager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -20,6 +21,8 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,6 +37,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     public static final String GET_MEMBER = "/project/member/get-member/option";
     public static final String GET_ROLE = "/project/member/get-role/option";
     public static final String ADD_MEMBER = "/project/member/add";
+    public static final String INVITE = "/project/member/invite";
     public static final String UPDATE_MEMBER = "/project/member/update";
     public static final String REMOVE_MEMBER = "/project/member/remove";
     public static final String ADD_ROLE = "/project/member/add-role";
@@ -132,6 +136,18 @@ public class ProjectMemberControllerTests extends BaseTest {
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_USER_ADD, ADD_MEMBER, request);
+
+        //顺便测试邀请
+        UserInviteRequest userInviteRequest = new UserInviteRequest();
+        userInviteRequest.setInviteEmails(new ArrayList<>(Collections.singletonList("abcde12345@qq.com")));
+        userInviteRequest.setUserRoleIds(request.getRoleIds());
+        userInviteRequest.setProjectId("default-project-member-test");
+        this.requestPost(INVITE, userInviteRequest);
+        userInviteRequest.setProjectId("NOT_EXIST_PROJECT_ID_BY_SOMEBODY_J");
+        this.requestPost(INVITE, userInviteRequest);
+        // 权限校验
+        userInviteRequest.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_INVITE, INVITE, userInviteRequest);
     }
 
     @Test

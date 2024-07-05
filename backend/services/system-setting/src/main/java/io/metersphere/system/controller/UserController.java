@@ -4,6 +4,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
+import io.metersphere.sdk.constants.EmailInviteSource;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.system.domain.Organization;
@@ -186,7 +187,7 @@ public class UserController {
     @Operation(summary = "系统设置-系统-用户-邀请用户注册")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_INVITE)
     public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
-        return simpleUserService.saveInviteRecord(request, SessionUtils.getUser());
+        return simpleUserService.saveInviteRecord(request, EmailInviteSource.SYSTEM.name(), SessionUtils.getUser());
     }
 
     @GetMapping("/check-invite/{inviteId}")

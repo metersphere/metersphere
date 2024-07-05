@@ -32,6 +32,7 @@ public class PermissionConstants {
     /*------ start: ORGANIZATION_MEMBER ------*/
     public static final String ORGANIZATION_MEMBER_READ = "ORGANIZATION_MEMBER:READ";
     public static final String ORGANIZATION_MEMBER_ADD = "ORGANIZATION_MEMBER:READ+ADD";
+    public static final String ORGANIZATION_MEMBER_INVITE = "ORGANIZATION_MEMBER:READ+INVITE";
     public static final String ORGANIZATION_MEMBER_UPDATE = "ORGANIZATION_MEMBER:READ+UPDATE";
     public static final String ORGANIZATION_MEMBER_DELETE = "ORGANIZATION_MEMBER:READ+DELETE";
     /*------ end: ORGANIZATION_MEMBER ------*/
@@ -106,6 +107,7 @@ public class PermissionConstants {
     /*------ start: PROJECT_USER ------*/
     public static final String PROJECT_USER_READ = "PROJECT_USER:READ";
     public static final String PROJECT_USER_ADD = "PROJECT_USER:READ+ADD";
+    public static final String PROJECT_USER_INVITE = "PROJECT_USER:READ+INVITE";
     public static final String PROJECT_USER_UPDATE = "PROJECT_USER:READ+UPDATE";
     public static final String PROJECT_USER_DELETE = "PROJECT_USER:READ+DELETE";
     /*------ end: PROJECT_MEMBER ------*/

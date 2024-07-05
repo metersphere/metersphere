@@ -1,16 +1,12 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class UserInvite implements Serializable {
@@ -33,6 +29,12 @@ public class UserInvite implements Serializable {
     @NotNull(message = "{user_invite.invite_time.not_blank}", groups = {Created.class})
     private Long inviteTime;
 
+    @Schema(description = "组织ID")
+    private String organizationId;
+
+    @Schema(description = "项目ID")
+    private String projectId;
+
     @Schema(description = "所属权限")
     private String roles;
 
@@ -43,6 +45,8 @@ public class UserInvite implements Serializable {
         email("email", "email", "VARCHAR", false),
         inviteUser("invite_user", "inviteUser", "VARCHAR", false),
         inviteTime("invite_time", "inviteTime", "BIGINT", false),
+        organizationId("organization_id", "organizationId", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
         roles("roles", "roles", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

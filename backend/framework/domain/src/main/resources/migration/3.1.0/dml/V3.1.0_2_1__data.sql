@@ -52,5 +52,9 @@ UPDATE test_plan
 SET status = 'NOT_ARCHIVED'
 WHERE status != 'ARCHIVED';
 
+-- 组织管理员、项目管理员增加权限
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_MEMBER:READ+INVITE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_USER:READ+INVITE');
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

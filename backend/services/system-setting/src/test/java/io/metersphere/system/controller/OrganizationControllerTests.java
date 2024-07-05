@@ -1,15 +1,13 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.OrgUserExtend;
-import io.metersphere.system.dto.request.OrgMemberExtendProjectRequest;
-import io.metersphere.system.dto.request.OrganizationMemberExtendRequest;
-import io.metersphere.system.dto.request.OrganizationMemberUpdateRequest;
-import io.metersphere.system.dto.request.OrganizationRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -27,6 +25,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +43,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     public static final String ORGANIZATION_LIST_ADD_MEMBER = "/organization/add-member";
+    public static final String ORGANIZATION_USER_INVITE = "/organization/user/invite";
     public static final String ORGANIZATION_UPDATE_MEMBER_TO_ROLE = "/organization/role/update-member";
     public static final String ORGANIZATION_UPDATE_MEMBER = "/organization/update-member";
     public static final String ORGANIZATION_REMOVE_MEMBER = "/organization/remove-member";
@@ -62,6 +62,21 @@ public class OrganizationControllerTests extends BaseTest {
         // 批量添加成员成功后, 验证是否添加成功
         listByKeyWord("testUserOne", "sys_default_organization_3", true, "sys_default_org_role_id_3", null, false, null, null);
 
+        //测试邮箱邀请
+        UserInviteRequest userInviteRequest = new UserInviteRequest();
+        userInviteRequest.setInviteEmails(new ArrayList<>(Collections.singletonList("abcde12345@qq.com")));
+        userInviteRequest.setUserRoleIds(organizationMemberRequest.getUserRoleIds());
+        userInviteRequest.setOrganizationId(organizationMemberRequest.getOrganizationId());
+        this.requestPost(ORGANIZATION_USER_INVITE, userInviteRequest);
+        //输入错误的组织ID
+        userInviteRequest.setOrganizationId(null);
+        this.requestPost(ORGANIZATION_USER_INVITE, userInviteRequest).andExpect(status().is5xxServerError());
+        userInviteRequest.setOrganizationId("not_exist_organization_id_by_somebody_J");
+        this.requestPost(ORGANIZATION_USER_INVITE, userInviteRequest).andExpect(status().is5xxServerError());
+
+        // 权限校验
+        userInviteRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_MEMBER_INVITE, ORGANIZATION_USER_INVITE, userInviteRequest);
     }
 
     @Test
