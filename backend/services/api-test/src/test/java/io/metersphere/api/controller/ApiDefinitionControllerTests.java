@@ -13,6 +13,7 @@ import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.model.CheckLogModel;
 import io.metersphere.api.service.ApiCommonService;
@@ -1712,541 +1713,69 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(103)
     public void testPreview() throws Exception {
         String jsonString = """
-                {
-                          "example":  null,
-                          "id":  null,
-                          "title":  null,
-                          "type":  "object",
-                          "description":  null,
-                          "items":  null,
-                          "properties":  {
-                                    "id":  {
-                                              "example":  10,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "integer",
-                                              "description":  "",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "int64",
-                                              "enumString":  null,
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "name":  {
-                                              "example":  "@string",
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "string",
-                                              "description":  "",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumString":  null,
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "category":  {
-                                              "example":  null,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "object",
-                                              "description":  null,
-                                              "items":  null,
-                                              "properties":  {
-                                                        "id":  {
-                                                                  "example":  "@integer",
-                                                                  "id":  null,
-                                                                  "title":  null,
-                                                                  "type":  "integer",
-                                                                  "description":  "",
-                                                                  "items":  null,
-                                                                  "properties":  null,
-                                                                  "additionalProperties":  null,
-                                                                  "required":  null,
-                                                                  "pattern":  null,
-                                                                  "maxLength":  null,
-                                                                  "minLength":  null,
-                                                                  "minimum":  null,
-                                                                  "maximum":  null,
-                                                                  "schema":  null,
-                                                                  "format":  "int64",
-                                                                  "enumString":  null,
-                                                                  "enumInteger":  null,
-                                                                  "enumNumber":  null,
-                                                                  "extensions":  null
-                                                        },
-                                                        "name":  {
-                                                                  "example":  "Dogs",
-                                                                  "id":  null,
-                                                                  "title":  null,
-                                                                  "type":  "string",
-                                                                  "description":  "",
-                                                                  "items":  null,
-                                                                  "properties":  null,
-                                                                  "additionalProperties":  null,
-                                                                  "required":  null,
-                                                                  "pattern":  null,
-                                                                  "maxLength":  null,
-                                                                  "minLength":  null,
-                                                                  "minimum":  null,
-                                                                  "maximum":  null,
-                                                                  "schema":  null,
-                                                                  "format":  "",
-                                                                  "enumString":  null,
-                                                                  "enumInteger":  null,
-                                                                  "enumNumber":  null,
-                                                                  "extensions":  null
-                                                        }
-                                              },
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  null,
-                                              "enumString":  null,
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "photoUrls":  {
-                                              "example":  null,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "array",
-                                              "description":  null,
-                                              "items":  {
-                                                        "example":  null,
-                                                        "id":  null,
-                                                        "title":  null,
-                                                        "type":  "string",
-                                                        "description":  "",
-                                                        "items":  null,
-                                                        "properties":  null,
-                                                        "additionalProperties":  null,
-                                                        "required":  null,
-                                                        "pattern":  null,
-                                                        "maxLength":  null,
-                                                        "minLength":  null,
-                                                        "minimum":  null,
-                                                        "maximum":  null,
-                                                        "schema":  null,
-                                                        "format":  "",
-                                                        "enumString":  null,
-                                                        "enumInteger":  null,
-                                                        "enumNumber":  null,
-                                                        "extensions":  null
-                                              },
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  null,
-                                              "enumString":  null,
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "tags":  {
-                                              "example":  null,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "array",
-                                              "description":  null,
-                                              "items":  {
-                                                        "example":  null,
-                                                        "id":  null,
-                                                        "title":  null,
-                                                        "type":  "object",
-                                                        "description":  null,
-                                                        "items":  null,
-                                                        "properties":  {
-                                                                  "id":  {
-                                                                            "example":  null,
-                                                                            "id":  null,
-                                                                            "title":  null,
-                                                                            "type":  "integer",
-                                                                            "description":  "",
-                                                                            "items":  null,
-                                                                            "properties":  null,
-                                                                            "additionalProperties":  null,
-                                                                            "required":  null,
-                                                                            "pattern":  null,
-                                                                            "maxLength":  null,
-                                                                            "minLength":  null,
-                                                                            "minimum":  null,
-                                                                            "maximum":  null,
-                                                                            "schema":  null,
-                                                                            "format":  "int64",
-                                                                            "enumString":  null,
-                                                                            "enumInteger":  null,
-                                                                            "enumNumber":  null,
-                                                                            "extensions":  null
-                                                                  },
-                                                                  "name":  {
-                                                                            "example":  null,
-                                                                            "id":  null,
-                                                                            "title":  null,
-                                                                            "type":  "string",
-                                                                            "description":  "",
-                                                                            "items":  null,
-                                                                            "properties":  null,
-                                                                            "additionalProperties":  null,
-                                                                            "required":  null,
-                                                                            "pattern":  null,
-                                                                            "maxLength":  null,
-                                                                            "minLength":  null,
-                                                                            "mainimum":  null,
-                                                                            "maximum":  null,
-                                                                            "schema":  null,
-                                                                            "format":  "",
-                                                                            "enumString":  null,
-                                                                            "enumInteger":  null,
-                                                                            "enumNumber":  null,
-                                                                            "extensions":  null
-                                                                  }
-                                                        },
-                                                        "additionalProperties":  null,
-                                                        "required":  null,
-                                                        "pattern":  null,
-                                                        "maxLength":  null,
-                                                        "minLength":  null,
-                                                        "minimum":  null,
-                                                        "maximum":  null,
-                                                        "schema":  null,
-                                                        "format":  null,
-                                                        "enumString":  null,
-                                                        "enumInteger":  null,
-                                                        "enumNumber":  null,
-                                                        "extensions":  null
-                                              },
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  null,
-                                              "enumString":  null,
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "status":  {
-                                              "example":  "available",
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "string",
-                                              "description":  "pet status in the store",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumString":  [
-                                                        "available",
-                                                        "pending",
-                                                        "sold"
-                                              ],
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "testnumber":  {
-                                              "example":  1.23139183198000000283719387,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "number",
-                                              "description":  "pet status in the store",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumString":  [
-                                                        "available",
-                                                        "pending",
-                                                        "sold"
-                                              ],
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "testnumber11":  {
-                                              "example":  "@number",
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "number",
-                                              "description":  "pet status in the store",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumString":  [
-                                                        "available",
-                                                        "pending",
-                                                        "sold"
-                                              ],
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "testfalse":  {
-                                              "example":  "@boolean",
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "boolean",
-                                              "description":  "pet status in the store",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumString":  [
-                                                        "available",
-                                                        "pending",
-                                                        "sold"
-                                              ],
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "testfalse":  {
-                                              "example":  false,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  "boolean",
-                                              "description":  "pet status in the store",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumString":  [
-                                                        "available",
-                                                        "pending",
-                                                        "sold"
-                                              ],
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "testnull":  {
-                                              "example":  null,
-                                              "id":  null,
-                                              "title":  null,
-                                              "type":  null,
-                                              "description":  "pet status in the store",
-                                              "items":  null,
-                                              "properties":  null,
-                                              "additionalProperties":  null,
-                                              "required":  null,
-                                              "pattern":  null,
-                                              "maxLength":  null,
-                                              "minLength":  null,
-                                              "minimum":  null,
-                                              "maximum":  null,
-                                              "schema":  null,
-                                              "format":  "",
-                                              "enumInteger":  null,
-                                              "enumNumber":  null,
-                                              "extensions":  null
-                                    },
-                                    "testass": null
-                          },
-                          "additionalProperties":  null,
-                          "required":  [
-                                    "name",
-                                    "photoUrls"
-                          ],
-                          "pattern":  null,
-                          "maxLength":  null,
-                          "minLength":  null,
-                          "minimum":  null,
-                          "maximum":  null,
-                          "schema":  null,
-                          "format":  null,
-                          "enumString":  null,
-                          "enumInteger":  null,
-                          "enumNumber":  null,
-                          "extensions":  null
-                }
-                """;
+                {"example":null,"id":null,"title":null,"type":"object","description":null,"items":null,"properties":{"id":{"example":10,"id":null,"title":null,"type":"integer","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"int64","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"name":{"example":"@string","id":null,"title":null,"type":"string","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"category":{"example":null,"id":null,"title":null,"type":"object","description":null,"items":null,"properties":{"id":{"example":"@integer","id":null,"title":null,"type":"integer","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"int64","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"name":{"example":"Dogs","id":null,"title":null,"type":"string","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}},"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"photoUrls":{"example":null,"id":null,"title":null,"type":"array","description":null,"items":[{"example":null,"id":null,"title":null,"type":"string","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}],"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"tags":{"example":null,"id":null,"title":null,"type":"array","description":null,"items":[{"example":null,"id":null,"title":null,"type":"object","description":null,"items":null,"properties":{"id":{"example":null,"id":null,"title":null,"type":"integer","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"int64","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"name":{"example":null,"id":null,"title":null,"type":"string","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"mainimum":null,"maximum":null,"schema":null,"format":"","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}},"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}],"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"status":{"example":"available","id":null,"title":null,"type":"string","description":"pet status in the store","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":["available","pending","sold"],"enumInteger":null,"enumNumber":null,"extensions":null},"testnumber":{"example":1.23139183198000000283719387,"id":null,"title":null,"type":"number","description":"pet status in the store","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":["available","pending","sold"],"enumInteger":null,"enumNumber":null,"extensions":null},"testnumber11":{"example":"@number","id":null,"title":null,"type":"number","description":"pet status in the store","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":["available","pending","sold"],"enumInteger":null,"enumNumber":null,"extensions":null},"testfalse":{"example":"@boolean","id":null,"title":null,"type":"boolean","description":"pet status in the store","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":["available","pending","sold"],"enumInteger":null,"enumNumber":null,"extensions":null},"testfalse":{"example":false,"id":null,"title":null,"type":"boolean","description":"pet status in the store","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumString":["available","pending","sold"],"enumInteger":null,"enumNumber":null,"extensions":null},"testnull":{"example":null,"id":null,"title":null,"type":"null","description":"pet status in the store","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"","enumInteger":null,"enumNumber":null,"extensions":null},"testass": null},"additionalProperties":null,"required":["name","photoUrls"],"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}
+               """;
         //正常数据;
-        requestPost("preview", jsonString).andExpect(status().isOk());
-        //非正常json数据    会走try catch
-        String abnormalString = """
-                    {
-                      "id" : 10,
-                      "name" : @string,
-                      "category" : {
-                        "id" : "@integer",
-                        "name" : "Dogs"
-                      },
-                      "photoUrls" : [ "string" ],
-                      "tags" : [ {
-                        "id" : 0,
-                        "name" : "string"
-                      } ],
-                      "status" : "available",
-                      "testnumber" : 1.23139183198000000283719387,
-                      "testfalse" : false
-                    }            
-                """;
-        requestPost("preview", abnormalString).andExpect(status().isOk());
+        requestPost("preview", JSON.parseObject(jsonString, JsonSchemaItem.class)).andExpect(status().isOk());
         //正常array数据
         String jsonArray = """
-                    {
-                                                  "example":  null,
-                                                  "id":  null,
-                                                  "title":  null,
-                                                  "type":  "array",
-                                                  "description":  null,
-                                                  "items":  {
-                                                            "example":  null,
-                                                            "id":  null,
-                                                            "title":  null,
-                                                            "type":  "object",
-                                                            "description":  null,
-                                                            "items":  null,
-                                                            "properties":  {
-                                                                      "id":  {
-                                                                                "example":  "@integer",
-                                                                                "id":  null,
-                                                                                "title":  null,
-                                                                                "type":  "integer",
-                                                                                "description":  "",
-                                                                                "items":  null,
-                                                                                "properties":  null,
-                                                                                "additionalProperties":  null,
-                                                                                "required":  null,
-                                                                                "pattern":  null,
-                                                                                "maxLength":  null,
-                                                                                "minLength":  null,
-                                                                                "minimum":  null,
-                                                                                "maximum":  null,
-                                                                                "schema":  null,
-                                                                                "format":  "int64",
-                                                                                "enumString":  null,
-                                                                                "enumInteger":  null,
-                                                                                "enumNumber":  null,
-                                                                                "extensions":  null
-                                                                      },
-                                                                      "name":  {
-                                                                                "example":  null,
-                                                                                "id":  null,
-                                                                                "title":  null,
-                                                                                "type":  "string",
-                                                                                "description":  "",
-                                                                                "items":  null,
-                                                                                "properties":  null,
-                                                                                "additionalProperties":  null,
-                                                                                "required":  null,
-                                                                                "pattern":  null,
-                                                                                "maxLength":  null,
-                                                                                "minLength":  null,
-                                                                                "mainimum":  null,
-                                                                                "maximum":  null,
-                                                                                "schema":  null,
-                                                                                "format":  "",
-                                                                                "enumString":  null,
-                                                                                "enumInteger":  null,
-                                                                                "enumNumber":  null,
-                                                                                "extensions":  null
-                                                                      }
-                                                            },
-                                                            "additionalProperties":  null,
-                                                            "required":  null,
-                                                            "pattern":  null,
-                                                            "maxLength":  null,
-                                                            "minLength":  null,
-                                                            "minimum":  null,
-                                                            "maximum":  null,
-                                                            "schema":  null,
-                                                            "format":  null,
-                                                            "enumString":  null,
-                                                            "enumInteger":  null,
-                                                            "enumNumber":  null,
-                                                            "extensions":  null
-                                                  },
-                                                  "properties":  null,
-                                                  "additionalProperties":  null,
-                                                  "required":  null,
-                                                  "pattern":  null,
-                                                  "maxLength":  null,
-                                                  "minLength":  null,
-                                                  "minimum":  null,
-                                                  "maximum":  null,
-                                                  "schema":  null,
-                                                  "format":  null,
-                                                  "enumString":  null,
-                                                  "enumInteger":  null,
-                                                  "enumNumber":  null,
-                                                  "extensions":  null
-                                        }            
+                {"example":null,"id":null,"title":null,"type":"array","description":null,"items":{"example":null,"id":null,"title":null,"type":"object","description":null,"items":null,"properties":{"id":{"example":"@integer","id":null,"title":null,"type":"integer","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":"int64","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"name":{"example":null,"id":null,"title":null,"type":"string","description":"","items":null,"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"mainimum":null,"maximum":null,"schema":null,"format":"","enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}},"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null},"properties":null,"additionalProperties":null,"required":null,"pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"schema":null,"format":null,"enumString":null,"enumInteger":null,"enumNumber":null,"extensions":null}
                 """;
-        requestPost("preview", jsonArray).andExpect(status().isOk());
+        requestPost("preview", JSON.parseObject(jsonArray, JsonSchemaItem.class)).andExpect(status().isOk());
+
+        // 校验转换是否正确
+        String schema = """
+                {"type":"object","enable":true,"properties":{"array":{"type":"array","enable":true,"items":[{"type":"string","example":"1","enable":true},{"type":"number","example":"2","enable":true}]},"string":{"type":"string","example":"stringValue","enable":true},"int":{"type":"integer","example":"1","enable":true},"num":{"type":"number","example":"1.00","enable":true},"boolean":{"type":"boolean","example":"booleanValue","enable":true},"null":{"type":"null","enable":true}}}
+                """;
+        String jsonResult = """
+                {
+                  "array" : [ "1", 2 ],
+                  "string" : "stringValue",
+                  "int" : 1,
+                  "num" : 1.00,
+                  "boolean" : false,
+                  "null" : null
+                }
+                """;
+        MvcResult mvcResult = requestPostWithOkAndReturn("preview", JSON.parseObject(schema, JsonSchemaItem.class));
+        String resultData = getResultData(mvcResult, String.class);
+        Assertions.assertEquals(JSON.parseObject(jsonResult), JSON.parseObject(resultData));
+
+        // 校验根节点数组是否正确
+        schema = """
+                {"type":"array","enable":true,"items":[{"type":"array","enable":true,"items":[{"type":"string","example":"1","description":"","additionalProperties":null,"defaultValue":"","pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"maxItems":null,"minItems":null,"format":null,"enable":true},{"type":"number","example":"2","description":"","additionalProperties":null,"defaultValue":"","pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"maxItems":null,"minItems":null,"format":null,"enable":true}]},{"type":"string","example":"stringValue","description":"","additionalProperties":null,"defaultValue":"","pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"maxItems":null,"minItems":null,"format":null,"enable":true},{"type":"integer","example":"intValue","description":"","additionalProperties":null,"defaultValue":"","pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"maxItems":null,"minItems":null,"format":null,"enable":true},{"type":"number","example":"1.00","description":"","additionalProperties":null,"defaultValue":"","pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"maxItems":null,"minItems":null,"format":null,"enable":true},{"type":"boolean","example":"booleanValue","description":"","additionalProperties":null,"defaultValue":"","pattern":null,"maxLength":null,"minLength":null,"minimum":null,"maximum":null,"maxItems":null,"minItems":null,"format":null,"enable":true},{"type":"null","enable":true}]}
+                """;
+        jsonResult = """
+                [
+                   [
+                     "1",
+                     2
+                   ],
+                   "stringValue",
+                   0,
+                   1.00,
+                   false,
+                   null
+                ]
+                """;
+        mvcResult = requestPostWithOkAndReturn("preview", JSON.parseObject(schema, JsonSchemaItem.class));
+        resultData = getResultData(mvcResult, String.class);
+        Assertions.assertEquals(JSON.parseObject(jsonResult), JSON.parseObject(resultData));
+
+        // 校验禁用
+        schema = """
+                {"type":"object","enable":false}
+                """;
+        mvcResult = requestPostWithOkAndReturn("preview", JSON.parseObject(schema, JsonSchemaItem.class));
+        Assertions.assertEquals(getResultData(mvcResult, String.class), "{}");
+
+        // 校验禁用
+        schema = """
+                {"type":"object","enable":true,"properties":{"array":{"type":"array","enable":false,"items":[{"type":"string","example":"1","enable":false},{"type":"number","example":"2","enable":false}]},"string":{"type":"string","example":"stringValue","enable":false},"int":{"type":"integer","example":"1","enable":false},"num":{"type":"number","example":"1.00","enable":false},"boolean":{"type":"boolean","example":"booleanValue","enable":false},"null":{"type":"null","enable":false}}}
+                """;
+        mvcResult = requestPostWithOkAndReturn("preview", JSON.parseObject(schema, JsonSchemaItem.class));
+        resultData = getResultData(mvcResult, String.class);
+        Assertions.assertEquals(JSON.parseObject("{}"), JSON.parseObject(resultData));
     }
 
     @Test

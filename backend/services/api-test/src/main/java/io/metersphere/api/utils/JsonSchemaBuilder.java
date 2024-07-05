@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.project.constants.PropertyConstant;
-import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -17,23 +17,18 @@ import java.util.regex.Pattern;
 public class JsonSchemaBuilder {
 
     public static String jsonSchemaToJson(String jsonSchemaString) {
-        try {
-            // 解析 JSON Schema 字符串为 JsonNode
-            JsonNode jsonSchemaNode = ApiDataUtils.readTree(jsonSchemaString);
-            Map<String, String> processMap = new HashMap<>();
-            // 生成符合 JSON Schema 的 JSON
-            JsonNode jsonNode = generateJson(jsonSchemaNode, processMap);
-            String jsonString = ApiDataUtils.writerWithDefaultPrettyPrinter(jsonNode);
-            if (MapUtils.isNotEmpty(processMap)) {
-                for (String str : processMap.keySet()) {
-                    jsonString = jsonString.replace(str, processMap.get(str));
-                }
+        // 解析 JSON Schema 字符串为 JsonNode
+        JsonNode jsonSchemaNode = ApiDataUtils.readTree(jsonSchemaString);
+        Map<String, String> processMap = new HashMap<>();
+        // 生成符合 JSON Schema 的 JSON
+        JsonNode jsonNode = generateJson(jsonSchemaNode, processMap);
+        String jsonString = ApiDataUtils.writerWithDefaultPrettyPrinter(jsonNode);
+        if (MapUtils.isNotEmpty(processMap)) {
+            for (String str : processMap.keySet()) {
+                jsonString = jsonString.replace(str, processMap.get(str));
             }
-            return jsonString;
-        } catch (Exception exception) {
-            LogUtils.error("jsonSchemaToJson error", exception);
-            return jsonSchemaString;
         }
+        return jsonString;
     }
 
     private static JsonNode generateJson(JsonNode jsonSchemaNode, Map<String, String> processMap) {
@@ -42,7 +37,7 @@ public class JsonSchemaBuilder {
         if (jsonSchemaNode instanceof NullNode) {
             return NullNode.getInstance();
         }
-        String type = jsonSchemaNode.get(PropertyConstant.TYPE).asText();
+        String type = jsonSchemaNode.get(PropertyConstant.TYPE) == null ? StringUtils.EMPTY : jsonSchemaNode.get(PropertyConstant.TYPE).asText();
         if (StringUtils.equals(type, PropertyConstant.OBJECT)) {
             JsonNode propertiesNode = jsonSchemaNode.get(PropertyConstant.PROPERTIES);
             // 遍历 properties
@@ -57,10 +52,10 @@ public class JsonSchemaBuilder {
                 });
             }
         } else if (StringUtils.equals(type, PropertyConstant.ARRAY)) {
-            JsonNode itemsNode = jsonSchemaNode.get(PropertyConstant.ITEMS);
-            if (itemsNode != null) {
+            JsonNode items = jsonSchemaNode.get(PropertyConstant.ITEMS);
+            if (items != null) {
                 ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-                arrayNode.add(generateValue(null, itemsNode, processMap));
+                items.forEach(item -> arrayNode.add(generateValue(null, item, processMap)));
                 return arrayNode;
             }
         }
@@ -72,8 +67,8 @@ public class JsonSchemaBuilder {
         if (propertyNode instanceof NullNode) {
             return NullNode.getInstance();
         }
-        String type = propertyNode.get(PropertyConstant.TYPE).asText();
-        String value = propertyNode.get(PropertyConstant.EXAMPLE).asText();
+        String type = propertyNode.get(PropertyConstant.TYPE) == null ? StringUtils.EMPTY : propertyNode.get(PropertyConstant.TYPE).asText();
+        String value = propertyNode.get(PropertyConstant.EXAMPLE) == null ? StringUtils.EMPTY : propertyNode.get(PropertyConstant.EXAMPLE).asText();
         return switch (type) {
             case PropertyConstant.STRING ->
                     new TextNode(!StringUtils.equals(value, PropertyConstant.NULL) ? value : "string");
@@ -88,7 +83,11 @@ public class JsonSchemaBuilder {
                 if (isVariable(value)) {
                     yield getJsonNodes(propertyName, processMap, value);
                 } else {
-                    yield new DecimalNode(propertyNode.get(PropertyConstant.EXAMPLE).decimalValue());
+                    try {
+                        yield new DecimalNode(new BigDecimal(propertyNode.get(PropertyConstant.EXAMPLE).asText()));
+                    } catch (Exception e) {
+                        yield new DecimalNode(propertyNode.get(PropertyConstant.EXAMPLE).decimalValue());
+                    }
                 }
             }
             case PropertyConstant.BOOLEAN -> {
@@ -102,9 +101,9 @@ public class JsonSchemaBuilder {
             case PropertyConstant.OBJECT -> generateJson(propertyNode, processMap);
             case PropertyConstant.ARRAY -> {
                 ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-                JsonNode itemsNode = propertyNode.get(PropertyConstant.ITEMS);
-                if (itemsNode != null) {
-                    arrayNode.add(generateValue(null, itemsNode, processMap));
+                JsonNode items = propertyNode.get(PropertyConstant.ITEMS);
+                if (items != null) {
+                    items.forEach(item -> arrayNode.add(generateValue(null, item, processMap)));
                 }
                 yield arrayNode;
             }

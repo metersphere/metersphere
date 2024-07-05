@@ -181,20 +181,13 @@
                 <div>{{ t('ms.minders.failStop') }}</div>
               </div>
             </a-form-item>
-            <!-- 暂时不上 -->
-            <!-- <a-form-item class="hidden-item">
+            <a-form-item class="hidden-item">
               <div class="flex items-center gap-[8px]">
                 <a-switch v-model:model-value="configForm.retryOnFail" size="small"></a-switch>
                 <div>{{ t('ms.minders.failRetry') }}</div>
               </div>
             </a-form-item>
             <template v-if="configForm.retryOnFail">
-              <a-form-item v-if="configForm.type === PlanMinderCollectionType.SCENARIO" class="hidden-item">
-                <a-radio-group v-model:model-value="configForm.retryType">
-                  <a-radio :value="FailRetry.STEP">{{ t('ms.minders.stepRetry') }}</a-radio>
-                  <a-radio :value="FailRetry.SCENARIO">{{ t('ms.minders.scenarioRetry') }}</a-radio>
-                </a-radio-group>
-              </a-form-item>
               <a-form-item>
                 <template #label>
                   <div class="flex items-center">
@@ -229,7 +222,7 @@
                   class="w-[120px]"
                 ></a-input-number>
               </a-form-item>
-            </template> -->
+            </template>
           </template>
         </a-form>
         <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white pb-[16px]">

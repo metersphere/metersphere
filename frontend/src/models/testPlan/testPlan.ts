@@ -6,7 +6,6 @@ import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
 import { LastExecuteResults } from '@/enums/caseEnum';
 import {
-  type FailRetry,
   type PlanMinderAssociateType,
   type PlanMinderCollectionType,
   type RunMode,
@@ -397,7 +396,6 @@ export interface PlanMinderNodeData extends MinderJsonNodeData {
   environmentId: string;
   testResourcePoolId: string;
   retryOnFail: boolean;
-  retryType: FailRetry; // 失败重试类型(步骤/场景)
   retryTimes: number;
   retryInterval: number;
   stopOnFail: boolean;
