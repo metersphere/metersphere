@@ -59,7 +59,7 @@ public class SystemParameterService {
                 List<SystemParameter> baseUrlParameterList = systemParameterMapper.selectByExample(example);
                 String oldBaseUrl = null;
                 if (CollectionUtils.isNotEmpty(baseUrlParameterList)) {
-                    SystemParameter parameter = baseUrlParameterList.get(0);
+                    SystemParameter parameter = baseUrlParameterList.getFirst();
                     if (!StringUtils.equals(parameter.getParamValue(), param.getParamValue())) {
                         oldBaseUrl = parameter.getParamValue();
                         systemParameterMapper.updateByPrimaryKey(param);
@@ -329,7 +329,7 @@ public class SystemParameterService {
     public String getApiConcurrentConfig() {
         List<SystemParameter> paramList = this.getParamList(ParamConstants.ApiConcurrentConfig.API_CONCURRENT_CONFIG.getValue());
         if (CollectionUtils.isNotEmpty(paramList)) {
-            return paramList.get(0).getParamValue();
+            return paramList.getFirst().getParamValue();
         }
         return DEFAULT_API_CONCURRENT_CONFIG;
     }

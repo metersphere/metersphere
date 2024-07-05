@@ -348,7 +348,7 @@ public abstract class BaseTest {
                         if (CollectionUtils.isEmpty(listObject)) {
                             continue;
                         }
-                        if (listObject.get(0) instanceof File || listObject.get(0) instanceof MockMultipartFile) {
+                        if (listObject.getFirst() instanceof File || listObject.getFirst() instanceof MockMultipartFile) {
                             // 参数是多个文件时,设置多个文件
                             for (Object subObject : ((List) o)) {
                                 multipartFile = getMockMultipartFile(key, subObject);
@@ -594,7 +594,7 @@ public abstract class BaseTest {
      */
     private void requestPermissionsTest(List<String> permissionIds, String url, Supplier<MockHttpServletRequestBuilder> requestBuilderGetFunc) throws Exception {
         // 相同的用户组
-        String roleId = permissionIds.get(0).split("_")[0];
+        String roleId = permissionIds.getFirst().split("_")[0];
         for (String permissionId : permissionIds) {
             // 多个权限插入同一个用户组
             initUserRolePermission(roleId, permissionId);
@@ -669,15 +669,15 @@ public abstract class BaseTest {
     }
 
     protected void requestPostPermissionsTest(List<String> permissionIds, String url, Object param, Object... uriVariables) throws Exception {
-        requestPermissionsTest(permissionIds, url, () -> getPermissionPostRequestBuilder(permissionIds.get(0).split("_")[0], url, param, uriVariables));
+        requestPermissionsTest(permissionIds, url, () -> getPermissionPostRequestBuilder(permissionIds.getFirst().split("_")[0], url, param, uriVariables));
     }
 
     protected void requestGetPermissionsTest(List<String> permissionIds, String url, Object... uriVariables) throws Exception {
-        requestPermissionsTest(permissionIds, url, () -> getPermissionRequestBuilder(permissionIds.get(0).split("_")[0], url, uriVariables));
+        requestPermissionsTest(permissionIds, url, () -> getPermissionRequestBuilder(permissionIds.getFirst().split("_")[0], url, uriVariables));
     }
 
     protected void requestMultipartPermissionsTest(List<String> permissionIds, String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
-        requestPermissionsTest(permissionIds, url, () -> getPermissionMultipartRequestBuilder(permissionIds.get(0).split("_")[0], url, paramMap, uriVariables));
+        requestPermissionsTest(permissionIds, url, () -> getPermissionMultipartRequestBuilder(permissionIds.getFirst().split("_")[0], url, paramMap, uriVariables));
     }
 
     protected ResultActions requestGetWithNoAdmin(String url, String userRoleType, Object... uriVariables) throws Exception {

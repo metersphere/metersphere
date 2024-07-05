@@ -93,7 +93,7 @@ public class BugAttachmentControllerTests extends BaseTest {
         BugUploadFileRequest request = new BugUploadFileRequest();
         request.setBugId("default-attachment-bug-id");
         request.setProjectId("default-project-for-attachment");
-        request.setSelectIds(List.of(unRelatedFiles.get(0).getId()));
+        request.setSelectIds(List.of(unRelatedFiles.getFirst().getId()));
         MultiValueMap<String, Object> paramMap1 = getDefaultMultiPartParam(request, null);
         this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap1);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
@@ -105,7 +105,7 @@ public class BugAttachmentControllerTests extends BaseTest {
         request.setSelectIds(List.of("not-exist-file-id"));
         MultiValueMap<String, Object> paramMap4 = getDefaultMultiPartParam(request, null);
         this.requestMultipart(BUG_ATTACHMENT_UPLOAD, paramMap4);
-        request.setSelectIds(List.of(unRelatedFiles.get(0).getId()));
+        request.setSelectIds(List.of(unRelatedFiles.getFirst().getId()));
         MultiValueMap<String, Object> paramMap5 = getDefaultMultiPartParam(request, null);
         this.requestMultipart(BUG_ATTACHMENT_UPLOAD, paramMap5);
         MultiValueMap<String, Object> paramMap6 = getDefaultMultiPartParam(request, file);

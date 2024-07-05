@@ -287,7 +287,7 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
                 .andInternalEqualTo(true).andNameEqualTo(DefaultBugStatusItemName.REJECTED)
                 .andScopeIdEqualTo(DEFAULT_ORGANIZATION_ID);
         List<StatusItem> statusItems = statusItemMapper.selectByExample(example);
-        return statusItems.size() == 0 ? null : statusItems.get(0);
+        return statusItems.size() == 0 ? null : statusItems.getFirst();
     }
 
     @Test
@@ -353,7 +353,7 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
                 .andNameEqualTo(DefaultBugStatusItemName.NEW)
                 .andScopeIdEqualTo(scopeId);
         StatusItemMapper statusItemMapper = CommonBeanFactory.getBean(StatusItemMapper.class);
-        return statusItemMapper.selectByExample(example).get(0);
+        return statusItemMapper.selectByExample(example).getFirst();
     }
 
     public static void assertUpdateStatusDefinition(StatusDefinitionUpdateRequest request) {

@@ -1599,7 +1599,7 @@ public class FileManagementControllerTests extends BaseTest {
     }
 
     private void fileAssociationControllerUpgrade() throws Exception {
-        String associationId = sourceAssociationFileMap.get("sty-file-association-bug-id-2").get(0);
+        String associationId = sourceAssociationFileMap.get("sty-file-association-bug-id-2").getFirst();
         MvcResult mvcResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE_ASSOCIATION_UPGRADE, project.getId(), associationId));
         String fileId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
         FileMetadataExample example = new FileMetadataExample();
@@ -1703,7 +1703,7 @@ public class FileManagementControllerTests extends BaseTest {
 
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andFileIdEqualTo(fileAssociationOldFileId).andSourceIdEqualTo("sty-file-association-bug-id-4");
-        FileAssociation upgradeFileAssociation = fileAssociationMapper.selectByExample(example).get(0);
+        FileAssociation upgradeFileAssociation = fileAssociationMapper.selectByExample(example).getFirst();
         Assertions.assertTrue(sourceAssociationFileMap.get("sty-file-association-bug-id-4").contains(upgradeFileAssociation.getId()));
         //当前文件不是最新的
         fileAssociationService.upgrade(upgradeFileAssociation.getId(), fileLogRecord);
@@ -1728,7 +1728,7 @@ public class FileManagementControllerTests extends BaseTest {
         //使用bug-id-2测试： 1.关联表中的文件ID不存在
         example.clear();
         example.createCriteria().andFileIdEqualTo(fileAssociationOldFileId).andSourceIdEqualTo("sty-file-association-bug-id-2");
-        FileAssociation upgrade2 = fileAssociationMapper.selectByExample(example).get(0);
+        FileAssociation upgrade2 = fileAssociationMapper.selectByExample(example).getFirst();
         //先把文件id改成别的，测试完成改回来
         String originalFileId = upgrade2.getFileId();
         String originalRefId = upgrade2.getFileRefId();
@@ -1851,7 +1851,7 @@ public class FileManagementControllerTests extends BaseTest {
         //3.里面包含一条已经文件已经删除了的ID 资源为bug-2
         example.clear();
         example.createCriteria().andSourceIdEqualTo("sty-file-association-bug-id-2").andFileIdEqualTo(fileAssociationNewFilesThree);
-        FileAssociation association = fileAssociationMapper.selectByExample(example).get(0);
+        FileAssociation association = fileAssociationMapper.selectByExample(example).getFirst();
         //先把文件id改成别的，测试完成改回来
         association.setFileId(IDGenerator.nextStr());
         association.setFileRefId(association.getFileId());

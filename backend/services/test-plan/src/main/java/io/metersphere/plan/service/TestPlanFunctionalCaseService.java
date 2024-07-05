@@ -259,7 +259,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         Map<String, List<FunctionalCaseCustomFieldDTO>> collect = functionalCaseService.getCaseCustomFiledMap(ids, projectId);
         Set<String> userIds = extractUserIds(functionalCaseLists);
         List<String> relateIds = functionalCaseLists.stream().map(TestPlanCasePageResponse::getId).collect(Collectors.toList());
-        Map<String, List<CaseRelateBugDTO>> bugListMap = getBugData(relateIds, functionalCaseLists.get(0).getTestPlanId());
+        Map<String, List<CaseRelateBugDTO>> bugListMap = getBugData(relateIds, functionalCaseLists.getFirst().getTestPlanId());
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
         Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
@@ -708,7 +708,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<TestPlanCaseExecuteHistory> testPlanCaseExecuteHistories = extTestPlanCaseExecuteHistoryMapper.selectSteps(id, caseId);
         List<FunctionalCaseStepDTO> functionalCaseStepDTOS = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(testPlanCaseExecuteHistories)) {
-            TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = testPlanCaseExecuteHistories.get(0);
+            TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = testPlanCaseExecuteHistories.getFirst();
             if (StringUtils.isNotBlank(caseDetailSteps)) {
                 List<FunctionalCaseStepDTO> newCaseSteps = JSON.parseArray(caseDetailSteps, FunctionalCaseStepDTO.class);
                 compareStep(testPlanCaseExecuteHistory, newCaseSteps);
@@ -900,7 +900,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     @Override
     public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections) {
         TestPlanCollectionDTO defaultCollection = defaultCollections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.FUNCTIONAL_CASE.getKey())
-                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().get(0);
+                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().getFirst();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanFunctionalCaseMapper functionalBatchMapper = sqlSession.getMapper(TestPlanFunctionalCaseMapper.class);
         TestPlanFunctionalCase record = new TestPlanFunctionalCase();

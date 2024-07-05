@@ -89,9 +89,6 @@ public class ApiTaskCenterService {
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
     private static final String DEFAULT_SORT = "start_time desc";
-    private final static String PROJECT_STOP = "/task/center/api/project/stop";
-    private final static String ORG_STOP = "/task/center/api/org/stop";
-    private final static String SYSTEM_STOP = "/task/center/api/system/stop";
 
     /**
      * 任务中心实时任务列表-项目级

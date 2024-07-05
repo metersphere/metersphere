@@ -163,7 +163,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         TestPlanOperationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
         Assertions.assertEquals(response.getOperationCount(), 1);
         apiList = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
-        Assertions.assertEquals(apiList.get(0).getId(), request.getMoveId());
+        Assertions.assertEquals(apiList.getFirst().getId(), request.getMoveId());
         Assertions.assertEquals(apiList.get(1).getId(), request.getTargetId());
 
         //将这时的第30个放到第一位之后
@@ -175,7 +175,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
         Assertions.assertEquals(response.getOperationCount(), 1);
         apiList = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
-        Assertions.assertEquals(apiList.get(0).getId(), request.getTargetId());
+        Assertions.assertEquals(apiList.getFirst().getId(), request.getTargetId());
         Assertions.assertEquals(apiList.get(1).getId(), request.getMoveId());
 
     }

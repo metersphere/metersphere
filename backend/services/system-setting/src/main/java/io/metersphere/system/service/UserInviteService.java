@@ -50,7 +50,7 @@ public class UserInviteService {
         example.createCriteria().andIdEqualTo(id).andInviteTimeGreaterThanOrEqualTo(time);
         List<UserInvite> userInvites = userInviteMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(userInvites)) {
-            return userInvites.get(0);
+            return userInvites.getFirst();
         } else {
             return null;
         }

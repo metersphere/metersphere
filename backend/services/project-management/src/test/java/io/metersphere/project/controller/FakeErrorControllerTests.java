@@ -111,7 +111,7 @@ public class FakeErrorControllerTests extends BaseTest {
         List<FakeError> fakeErrors = fakeErrorMapper.selectByExample(new FakeErrorExample());
         List<FakeErrorDTO> dtoList = new ArrayList<>();
         FakeErrorDTO dto = new FakeErrorDTO();
-        dto.setId(fakeErrors.get(0).getId());
+        dto.setId(fakeErrors.getFirst().getId());
         dto.setName("测试新增误报规则更新");
         dto.setExpression("ok");
         dto.setProjectId(DEFAULT_PROJECT_ID);
@@ -125,7 +125,7 @@ public class FakeErrorControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
         fakeErrors = fakeErrorMapper.selectByExample(new FakeErrorExample());
-        Assertions.assertTrue(fakeErrors.get(0).getEnable());
+        Assertions.assertTrue(fakeErrors.getFirst().getEnable());
 
         mvcResult = this.requestPostWithOkAndReturn(ADD, dtoList);
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -168,7 +168,7 @@ public class FakeErrorControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         //名字重复不更新
         fakeErrors = fakeErrorMapper.selectByExample(new FakeErrorExample());
-        Assertions.assertFalse(StringUtils.equalsIgnoreCase(fakeErrors.get(0).getName(),fakeErrors.get(1).getName()));
+        Assertions.assertFalse(StringUtils.equalsIgnoreCase(fakeErrors.getFirst().getName(),fakeErrors.get(1).getName()));
     }
 
     @Test
@@ -201,7 +201,7 @@ public class FakeErrorControllerTests extends BaseTest {
         fakeErrors = fakeErrorMapper.selectByExample(new FakeErrorExample());
         list = fakeErrors.stream().filter(FakeError::getEnable).toList();
         Assertions.assertEquals(0,list.size());
-        String oneId = ids.get(0);
+        String oneId = ids.getFirst();
         fakeErrorStatusRequest = new FakeErrorStatusRequest();
         fakeErrorStatusRequest.setProjectId(DEFAULT_PROJECT_ID);
         fakeErrorStatusRequest.setEnable(true);
@@ -237,7 +237,7 @@ public class FakeErrorControllerTests extends BaseTest {
         FakeErrorExample fakeErrorExample = new FakeErrorExample();
         fakeErrorExample.createCriteria().andNameLike("用来删除");
         List<FakeError> fakeErrors = fakeErrorMapper.selectByExample(fakeErrorExample);
-        String deleteId = fakeErrors.get(0).getId();
+        String deleteId = fakeErrors.getFirst().getId();
         Assertions.assertEquals(1,fakeErrors.size());
         FakeErrorDelRequest request = new FakeErrorDelRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);

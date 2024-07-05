@@ -77,10 +77,10 @@ public class UserApiKeysControllerTests extends BaseTest {
         UserKeyExample userKeyExample = new UserKeyExample();
         userKeyExample.createCriteria().andCreateUserEqualTo("admin");
         List<UserKey> userKeys = userKeyMapper.selectByExample(userKeyExample);
-        userKeyId = userKeys.get(0).getId();
+        userKeyId = userKeys.getFirst().getId();
         Assertions.assertEquals(1, userKeys.size());
         //校验日志
-        checkLog(userKeys.get(0).getId(), OperationLogType.ADD);
+        checkLog(userKeys.getFirst().getId(), OperationLogType.ADD);
         //校验只能加五条的限制
         requestGet(ADD);
         requestGet(ADD);
@@ -111,10 +111,10 @@ public class UserApiKeysControllerTests extends BaseTest {
         //选一个id不等于userKeyId的  只要id
         //取所有的id
         List<String> list = userKeys.stream().map(UserKey::getId).filter(id -> !id.equals(userKeyId)).toList();
-        requestGet(String.format(DELETE, list.get(0)));
+        requestGet(String.format(DELETE, list.getFirst()));
         Assertions.assertEquals(4, userKeyMapper.countByExample(userKeyExample));
         //校验日志
-        checkLog(list.get(0), OperationLogType.DELETE);
+        checkLog(list.getFirst(), OperationLogType.DELETE);
         //处理不存在的
         requestGet(String.format(DELETE, UUID.randomUUID().toString()), status().is5xxServerError());
         //校验权限
@@ -220,7 +220,7 @@ public class UserApiKeysControllerTests extends BaseTest {
     public void testValidate() throws Exception {
         List<UserKey> userKeys = userKeyMapper.selectByExample(new UserKeyExample());
         List<String> list = userKeys.stream().map(UserKey::getId).filter(id -> !id.equals(userKeyId)).toList();
-        UserKey userKey1 = userKeyMapper.selectByPrimaryKey(list.get(0));
+        UserKey userKey1 = userKeyMapper.selectByPrimaryKey(list.getFirst());
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(VALIDATE);
         String signature = CodingUtils.aesEncrypt(userKey1.getAccessKey() + "|" + UUID.randomUUID().toString() + "|" + System.currentTimeMillis(), userKey1.getSecretKey(), userKey1.getAccessKey());
         requestBuilder

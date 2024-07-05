@@ -87,7 +87,7 @@ public class MessageDetailService {
         messageTaskGroup.forEach((messageTaskId, messageTaskList) -> {
             //获取同一任务所有的接收人
             MessageDetail messageDetail = new MessageDetail();
-            MessageTask messageTask = messageTaskList.get(0);
+            MessageTask messageTask = messageTaskList.getFirst();
             messageDetail.setReceiverIds(messageTask.getReceivers());
             messageDetail.setTaskType(messageTask.getTaskType());
             messageDetail.setEvent(messageTask.getEvent());

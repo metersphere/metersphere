@@ -45,10 +45,10 @@ public class BugCommentControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
         List<BugCommentDTO> comments = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BugCommentDTO.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(comments));
-        Assertions.assertTrue(StringUtils.equals("default-bug-comment-id-3", comments.get(0).getId()));
+        Assertions.assertTrue(StringUtils.equals("default-bug-comment-id-3", comments.getFirst().getId()));
         // 第二条评论的子评论不为空且ID为default-bug-comment-id-2
         Assertions.assertTrue(CollectionUtils.isNotEmpty(comments.get(1).getChildComments()) &&
-                StringUtils.equals("default-bug-comment-id-2", comments.get(1).getChildComments().get(0).getId()));
+                StringUtils.equals("default-bug-comment-id-2", comments.get(1).getChildComments().getFirst().getId()));
     }
 
     @Test

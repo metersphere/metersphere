@@ -60,7 +60,7 @@ public class FunctionalCaseCustomFieldService {
         example.createCriteria().andCaseIdEqualTo(caseId).andFieldIdEqualTo(fieldId);
         List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(functionalCaseCustomFields)) {
-            return functionalCaseCustomFields.get(0);
+            return functionalCaseCustomFields.getFirst();
         }
         return null;
     }

@@ -29,8 +29,8 @@ public class BugScheduleServiceImpl implements BaseBugScheduleService {
 		List<ProjectApplication> syncCron = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.CRON_EXPRESSION.name())).toList();
 		List<ProjectApplication> syncEnable = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name())).toList();
 		if (CollectionUtils.isNotEmpty(syncCron)) {
-			Boolean enable = Boolean.valueOf(syncEnable.get(0).getTypeValue());
-			String typeValue = syncCron.get(0).getTypeValue();
+			Boolean enable = Boolean.valueOf(syncEnable.getFirst().getTypeValue());
+			String typeValue = syncCron.getFirst().getTypeValue();
 			Schedule schedule = scheduleService.getScheduleByResource(projectId, BugSyncJob.class.getName());
 			Optional<Schedule> optional = Optional.ofNullable(schedule);
 			optional.ifPresentOrElse(s -> {

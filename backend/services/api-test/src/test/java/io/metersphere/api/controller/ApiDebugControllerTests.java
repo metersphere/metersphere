@@ -381,7 +381,7 @@ public class ApiDebugControllerTests extends BaseTest {
         // 校验数据是否正确
         List<ApiDebugSimpleDTO> apiDebugList = getResultDataArray(mvcResult, ApiDebugSimpleDTO.class);
         Assertions.assertEquals(apiDebugList.size(), 2);
-        Assertions.assertEquals(apiDebugList.get(0), BeanUtils.copyBean(new ApiDebugSimpleDTO(),
+        Assertions.assertEquals(apiDebugList.getFirst(), BeanUtils.copyBean(new ApiDebugSimpleDTO(),
                 apiDebugMapper.selectByPrimaryKey(addApiDebug.getId())));
         Assertions.assertEquals(apiDebugList.get(1),
                 BeanUtils.copyBean(new ApiDebugSimpleDTO(), apiDebugMapper.selectByPrimaryKey(anotherAddApiDebug.getId())));
@@ -468,7 +468,7 @@ public class ApiDebugControllerTests extends BaseTest {
         Assertions.assertFalse(testResourcePools.isEmpty());
         ProjectTestResourcePool projectTestResourcePool = new ProjectTestResourcePool();
         projectTestResourcePool.setProjectId(DEFAULT_PROJECT_ID);
-        projectTestResourcePool.setTestResourcePoolId(testResourcePools.get(0).getId());
+        projectTestResourcePool.setTestResourcePoolId(testResourcePools.getFirst().getId());
         projectTestResourcePoolMapper.insert(projectTestResourcePool);
         this.requestPost(DEBUG, request);
         projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
@@ -753,7 +753,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setModuleId("root");
         request.setFileName("test-debug-file1");
         request.setOriginalName("test-debug-file1.txt");
-        request.setFileId(apiFileResources.get(0).getFileId());
+        request.setFileId(apiFileResources.getFirst().getFileId());
         this.requestPost(TRANSFER, request).andExpect(status().isOk());
     }
 

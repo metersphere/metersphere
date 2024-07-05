@@ -29,12 +29,12 @@ public class TestResourcePoolServiceTest extends BaseTest {
 
     @Test
     public void getTestResourceDTO() {
-        testResourcePoolService.getTestResourceDTO(testResourcePoolMapper.selectByExample(new TestResourcePoolExample()).get(0).getId());
+        testResourcePoolService.getTestResourceDTO(testResourcePoolMapper.selectByExample(new TestResourcePoolExample()).getFirst().getId());
     }
 
     @Test
     public void validateOrgResourcePool() {
-        TestResourcePool resourcePool = testResourcePoolMapper.selectByExample(new TestResourcePoolExample()).get(0);
+        TestResourcePool resourcePool = testResourcePoolMapper.selectByExample(new TestResourcePoolExample()).getFirst();
         testResourcePoolService.getTestResourcePool(resourcePool.getId());
         commonProjectService.validateProjectResourcePool(resourcePool, DEFAULT_PROJECT_ID);
         testResourcePoolService.validateOrgResourcePool(resourcePool, DEFAULT_ORGANIZATION_ID);

@@ -198,7 +198,7 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         testPlanCollections = testPlanCollectionMapper.selectByExample(testPlanCollectionExample);
         Assertions.assertFalse(CollectionUtils.isEmpty(testPlanCollections));
         testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
-        testPlanCollectionMinderEditDTO.setId(testPlanCollections.get(0).getId());
+        testPlanCollectionMinderEditDTO.setId(testPlanCollections.getFirst().getId());
         testPlanCollectionMinderEditDTO.setText("hahaha");
         testPlanCollectionMinderEditDTO.setNum(500L);
         testPlanCollectionMinderEditDTO.setExecuteMethod("PARALLEL");

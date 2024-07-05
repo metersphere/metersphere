@@ -52,7 +52,7 @@ public class ApiPluginService {
                 protocolDTO.setProtocol(protocolPlugin.getProtocol());
                 protocolDTO.setPluginId(pluginWrapper.getPluginId());
                 if (CollectionUtils.isNotEmpty(extensionClasses)) {
-                    protocolDTO.setPolymorphicName(extensionClasses.get(0).getSimpleName());
+                    protocolDTO.setPolymorphicName(extensionClasses.getFirst().getSimpleName());
                 }
                 if (StringUtils.isNoneBlank(protocolDTO.getProtocol(), protocolDTO.getPolymorphicName())) {
                     protocols.add(protocolDTO);

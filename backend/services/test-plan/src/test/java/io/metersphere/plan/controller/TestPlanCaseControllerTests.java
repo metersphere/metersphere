@@ -214,7 +214,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
         bugRelationCaseExample.createCriteria().andTestPlanCaseIdEqualTo("relate_case_1").andTestPlanIdEqualTo("plan_1");
         List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
-        this.requestGetWithOk("/test-plan/functional/case/disassociate/bug/" + bugRelationCases.get(0).getId());
+        this.requestGetWithOk("/test-plan/functional/case/disassociate/bug/" + bugRelationCases.getFirst().getId());
     }
 
 

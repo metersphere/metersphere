@@ -272,7 +272,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 返回值中取出第一条数据, 并判断是否包含关键字
         List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
         if(CollectionUtils.isNotEmpty(userList)) {
-            User user = userList.get(0);
+            User user = userList.getFirst();
             Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
                     || StringUtils.contains(user.getId(), request.getKeyword()));
         }

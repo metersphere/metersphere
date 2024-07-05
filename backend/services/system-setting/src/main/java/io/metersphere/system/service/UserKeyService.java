@@ -107,7 +107,7 @@ public class UserKeyService {
         userKeyExample.createCriteria().andAccessKeyEqualTo(accessKey).andEnableEqualTo(true);
         List<UserKey> userKeysList = userKeyMapper.selectByExample(userKeyExample);
         if (!CollectionUtils.isEmpty(userKeysList)) {
-            return userKeysList.get(0);
+            return userKeysList.getFirst();
         }
         return null;
     }

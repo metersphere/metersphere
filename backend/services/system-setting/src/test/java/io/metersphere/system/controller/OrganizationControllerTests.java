@@ -500,7 +500,7 @@ public class OrganizationControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        OrgUserExtend orgUserExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrgUserExtend.class).get(0);
+        OrgUserExtend orgUserExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrgUserExtend.class).getFirst();
         if (StringUtils.isNotBlank(keyWord)) {
             Assertions.assertTrue(StringUtils.contains(orgUserExtend.getName(), organizationRequest.getKeyword())
                     || StringUtils.contains(orgUserExtend.getEmail(), organizationRequest.getKeyword())

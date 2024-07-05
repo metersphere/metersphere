@@ -55,7 +55,7 @@ public class CreateEnvironmentTests extends BaseTest {
         environmentExample.createCriteria().andProjectIdEqualTo(initProject.getId()).andNameEqualTo("Mock环境");
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         assert environments.size() == 1;
-        EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environments.get(0).getId());
+        EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environments.getFirst().getId());
         assert environmentBlob != null;
     }
 

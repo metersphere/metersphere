@@ -60,7 +60,7 @@ public class MessageTaskLogService {
         dto.setPath("/notice/message/task/save");
         dto.setMethod(HttpMethodConstants.POST.name());
         if (CollectionUtils.isNotEmpty(messageTasks)) {
-            dto.setOriginalValue(JSON.toJSONBytes(messageTasks.get(0)));
+            dto.setOriginalValue(JSON.toJSONBytes(messageTasks.getFirst()));
         }
         return dto;
     }
@@ -136,7 +136,7 @@ public class MessageTaskLogService {
             ProjectRobotExample projectRobotExample = new ProjectRobotExample();
             projectRobotExample.createCriteria().andProjectIdEqualTo(projectId).andPlatformEqualTo(NoticeConstants.Type.IN_SITE);
             List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
-            robotId = projectRobots.get(0).getId();
+            robotId = projectRobots.getFirst().getId();
         }
         return robotId;
     }

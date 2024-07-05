@@ -128,11 +128,11 @@ public class ProjectRobotService {
         List<ProjectRobot> newProjectRobots = new ArrayList<>(list.stream().sorted(Comparator.comparing(ProjectRobot::getCreateTime).reversed()).toList());
         List<ProjectRobot> mailRobot = collect.get(NoticeConstants.Type.MAIL);
         if (CollectionUtils.isNotEmpty(mailRobot)) {
-            newProjectRobots.add(0, mailRobot.get(0));
+            newProjectRobots.add(0, mailRobot.getFirst());
         }
         List<ProjectRobot> inSiteRobot = collect.get(NoticeConstants.Type.IN_SITE);
         if (CollectionUtils.isNotEmpty(inSiteRobot)) {
-            newProjectRobots.add(0, inSiteRobot.get(0));
+            newProjectRobots.add(0, inSiteRobot.getFirst());
         }
         return newProjectRobots;
     }

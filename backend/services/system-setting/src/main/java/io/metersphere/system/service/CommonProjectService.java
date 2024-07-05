@@ -88,10 +88,10 @@ public class CommonProjectService {
         List<Project> project = projectMapper.selectByExample(example);
         ProjectDTO projectDTO = new ProjectDTO();
         if (CollectionUtils.isNotEmpty(project)) {
-            BeanUtils.copyBean(projectDTO, project.get(0));
+            BeanUtils.copyBean(projectDTO, project.getFirst());
             projectDTO.setOrganizationName(organizationMapper.selectByPrimaryKey(projectDTO.getOrganizationId()).getName());
             List<ProjectDTO> projectDTOS = buildUserInfo(List.of(projectDTO));
-            projectDTO = projectDTOS.get(0);
+            projectDTO = projectDTOS.getFirst();
         } else {
             return null;
         }

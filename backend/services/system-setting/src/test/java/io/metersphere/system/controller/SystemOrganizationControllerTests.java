@@ -76,7 +76,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字default
-        OrganizationDTO organizationDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrganizationDTO.class).get(0);
+        OrganizationDTO organizationDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrganizationDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(organizationDTO.getName(), organizationRequest.getKeyword())
                 || StringUtils.contains(organizationDTO.getId(), organizationRequest.getKeyword()));
 
@@ -89,7 +89,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-organization-6
-        OrganizationDTO organizationDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), OrganizationDTO.class).get(0);
+        OrganizationDTO organizationDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), OrganizationDTO.class).getFirst();
         Assertions.assertTrue(organizationDTO1.getId().contains("default"));
         // 权限校验
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, ORGANIZATION_LIST, organizationRequest);
@@ -241,7 +241,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).get(0);
+        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(userExtendDTO.getName(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtendDTO.getEmail(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtendDTO.getPhone(), organizationRequest.getKeyword()));
@@ -255,7 +255,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是admin
-        UserExtendDTO userExtendDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtendDTO.class).get(0);
+        UserExtendDTO userExtendDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtendDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(userExtendDTO1.getId(), "admin"));
         // 权限校验
         requestPostPermissionsTest(List.of(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ),
@@ -311,7 +311,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).get(0);
+        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(userExtendDTO.getName(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtendDTO.getEmail(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtendDTO.getPhone(), organizationRequest.getKeyword()));
@@ -347,7 +347,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字admin
-        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).get(0);
+        UserExtendDTO userExtendDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtendDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(userExtendDTO.getName(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtendDTO.getEmail(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtendDTO.getPhone(), organizationRequest.getKeyword()));
@@ -427,7 +427,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-project
-        ProjectDTO projectDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), ProjectDTO.class).get(0);
+        ProjectDTO projectDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), ProjectDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.equals(projectDTO.getId(), "default-project"));
 
         // 权限校验

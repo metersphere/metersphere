@@ -57,7 +57,7 @@ public class BaseFileManagementTestService {
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andFileIdEqualTo(originFileId)
                         .andSourceIdEqualTo(resourceId);
-        FileAssociation fileAssociation = fileAssociationMapper.selectByExample(example).get(0);
+        FileAssociation fileAssociation = fileAssociationMapper.selectByExample(example).getFirst();
         return fileAssociationService.upgrade(fileAssociation.getId(), fileLogRecord);
     }
 

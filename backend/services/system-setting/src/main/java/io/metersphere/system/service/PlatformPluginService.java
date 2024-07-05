@@ -54,7 +54,7 @@ public class PlatformPluginService {
         ServiceIntegrationExample example = new ServiceIntegrationExample();
         example.createCriteria().andPluginIdEqualTo(pluginId).andOrganizationIdEqualTo(orgId);
         List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExampleWithBLOBs(example);
-        return CollectionUtils.isEmpty(serviceIntegrations) ? null :  serviceIntegrations.get(0);
+        return CollectionUtils.isEmpty(serviceIntegrations) ? null :  serviceIntegrations.getFirst();
     }
 
     public List<Plugin> getOrgEnabledPlatformPlugins(String orgId) {

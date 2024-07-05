@@ -79,7 +79,7 @@ public class ApiShareControllerTests extends BaseTest {
         List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.SINGLE.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
         Assertions.assertNotNull(shareInfos);
         Assertions.assertEquals(1, shareInfos.size());
-        Assertions.assertEquals(shareInfoDTO.getId(), shareInfos.get(0).getId());
+        Assertions.assertEquals(shareInfoDTO.getId(), shareInfos.getFirst().getId());
         Assertions.assertTrue(shareInfoDTO.getShareUrl().contains("?shareId="));
 
         request.setApiId("111");
@@ -96,7 +96,7 @@ public class ApiShareControllerTests extends BaseTest {
         List<ShareInfo> shareInfosModule = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.BATCH.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
         Assertions.assertNotNull(shareInfosModule);
         Assertions.assertEquals(1, shareInfosModule.size());
-        Assertions.assertEquals(shareInfoDTOModule.getId(), shareInfosModule.get(0).getId());
+        Assertions.assertEquals(shareInfoDTOModule.getId(), shareInfosModule.getFirst().getId());
         Assertions.assertTrue(shareInfoDTOModule.getShareUrl().contains("?shareId="));
 
         // @@分享全部文档
@@ -111,7 +111,7 @@ public class ApiShareControllerTests extends BaseTest {
         List<ShareInfo> allShareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.BATCH.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
         Assertions.assertNotNull(allShareInfos);
         Assertions.assertEquals(1, allShareInfos.size());
-        Assertions.assertEquals(allShareInfoDTO.getId(), allShareInfos.get(0).getId());
+        Assertions.assertEquals(allShareInfoDTO.getId(), allShareInfos.getFirst().getId());
         Assertions.assertTrue(allShareInfoDTO.getShareUrl().contains("?shareId="));
         assertTestShareView(allShareInfoDTO.getId());
 

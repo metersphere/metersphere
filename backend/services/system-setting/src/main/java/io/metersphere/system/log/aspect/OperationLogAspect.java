@@ -183,7 +183,7 @@ public class OperationLogAspect {
                 mergeLists(beforeValues.get(), (List<LogDTO>) obj);
             } else if (obj instanceof LogDTO log) {
                 if (CollectionUtils.isNotEmpty(beforeValues.get())) {
-                    beforeValues.get().get(0).setModifiedValue(log.getOriginalValue());
+                    beforeValues.get().getFirst().setModifiedValue(log.getOriginalValue());
                 } else {
                     beforeValues.set(new ArrayList<>() {{
                         this.add(log);
@@ -231,7 +231,7 @@ public class OperationLogAspect {
 
         // 单条存储
         if (logDTOList.size() == 1) {
-            operationLogService.add(logDTOList.get(0));
+            operationLogService.add(logDTOList.getFirst());
         } else {
             operationLogService.batchAdd(logDTOList);
         }

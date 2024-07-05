@@ -402,7 +402,7 @@ public class ApiScenarioModuleControllerTests extends BaseTest {
         List<ApiScenarioModule> apiDebugModules = apiScenarioModuleMapper.selectByExample(example);
         assert CollectionUtils.isNotEmpty(apiDebugModules);
         updateRequest = new ModuleUpdateRequest();
-        updateRequest.setId(apiDebugModules.get(0).getId());
+        updateRequest.setId(apiDebugModules.getFirst().getId());
         updateRequest.setName("default-update-Project");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, URL_MODULE_UPDATE, updateRequest);
     }

@@ -91,7 +91,7 @@ public class NotificationControllerTests extends BaseTest {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andStatusEqualTo(NotificationConstants.Status.UNREAD.name());
         List<Notification> notifications = notificationMapper.selectByExample(notificationExample);
-        this.requestGetWithOkAndReturn(NOTIFICATION_READ + notifications.get(0).getId());
+        this.requestGetWithOkAndReturn(NOTIFICATION_READ + notifications.getFirst().getId());
         notificationExample = new NotificationExample();
         notificationExample.createCriteria().andStatusEqualTo(NotificationConstants.Status.READ.name());
         List<Notification> readNotifications = notificationMapper.selectByExample(notificationExample);

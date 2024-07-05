@@ -288,7 +288,7 @@ public class PluginLoadService {
      */
     public <T> Class<? extends T> getExtensionsClass(Class<T> clazz, String pluginId) {
         List<Class<? extends T>> classes = msPluginManager.getExtensionClasses(clazz, pluginId);
-        return CollectionUtils.isEmpty(classes) ? null : classes.get(0);
+        return CollectionUtils.isEmpty(classes) ? null : classes.getFirst();
     }
 
     public MsPluginManager getMsPluginManager() {

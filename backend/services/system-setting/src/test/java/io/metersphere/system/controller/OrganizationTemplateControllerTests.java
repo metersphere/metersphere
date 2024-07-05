@@ -86,7 +86,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // @@校验没有数据的情况
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
         List<Template> templates = getResultDataArray(mvcResult, Template.class);
-        this.defaultTemplate = templates.get(0);
+        this.defaultTemplate = templates.getFirst();
     }
 
     @Test
@@ -264,7 +264,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setEnableThirdPart(true);
         request.setCustomFields(new ArrayList<>(0));
         request.setSystemFields(getTemplateSystemCustomFieldRequests());
-        request.getSystemFields().get(0).setDefaultValue("update");
+        request.getSystemFields().getFirst().setDefaultValue("update");
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         Template template = templateMapper.selectByPrimaryKey(request.getId());
         // 校验请求成功数据
@@ -428,7 +428,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         example.createCriteria()
                 .andScopeTypeEqualTo(TemplateScopeType.ORGANIZATION.name())
                 .andInternalEqualTo(true);
-        Template internalTemplate = templateMapper.selectByExample(example).get(0);
+        Template internalTemplate = templateMapper.selectByExample(example).getFirst();
         assertErrorCode(this.requestGet(DEFAULT_DELETE, internalTemplate.getId()), INTERNAL_TEMPLATE_PERMISSION);
 
         // @@校验 NOT_FOUND 异常

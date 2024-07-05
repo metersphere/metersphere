@@ -252,7 +252,7 @@ public class FunctionalCaseService {
     private static void copyFile(FunctionalCaseAddRequest request, String caseId, String saveAttachmentFileId, Map<String, List<FunctionalCaseAttachment>> oldFileMap, FunctionalCaseAttachmentDTO functionalCaseAttachmentDTO, FileRepository defaultRepository) {
         List<FunctionalCaseAttachment> oldFunctionalCaseAttachments = oldFileMap.get(saveAttachmentFileId);
         if (CollectionUtils.isNotEmpty(oldFunctionalCaseAttachments)) {
-            FunctionalCaseAttachment functionalCaseAttachment = oldFunctionalCaseAttachments.get(0);
+            FunctionalCaseAttachment functionalCaseAttachment = oldFunctionalCaseAttachments.getFirst();
             // 复制文件
             FileCopyRequest fileCopyRequest = new FileCopyRequest();
             fileCopyRequest.setCopyFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), functionalCaseAttachment.getCaseId()) + "/" + saveAttachmentFileId);
@@ -362,7 +362,7 @@ public class FunctionalCaseService {
 
         List<ProjectVersion> versions = extBaseProjectVersionMapper.getVersionByIds(List.of(functionalCaseDetailDTO.getVersionId()));
         if (CollectionUtils.isNotEmpty(versions)) {
-            functionalCaseDetailDTO.setVersionName(versions.get(0).getName());
+            functionalCaseDetailDTO.setVersionName(versions.getFirst().getName());
         }
 
 
@@ -483,7 +483,7 @@ public class FunctionalCaseService {
         if (CollectionUtils.isEmpty(functionalCases)) {
             throw new MSException(CaseManagementResultCode.FUNCTIONAL_CASE_NOT_FOUND);
         }
-        return functionalCases.get(0);
+        return functionalCases.getFirst();
     }
 
 
@@ -1061,7 +1061,7 @@ public class FunctionalCaseService {
         example.createCriteria().andNumEqualTo(Long.valueOf(num)).andProjectIdEqualTo(projectId).andDeletedEqualTo(false);
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(functionalCases)) {
-            return functionalCases.get(0).getId();
+            return functionalCases.getFirst().getId();
         }
         return null;
     }
@@ -1343,8 +1343,8 @@ public class FunctionalCaseService {
     }
 
     private void batchHandImportUpdateLog(FunctionalCaseHistoryLogDTO newData, Map<String, List<FunctionalCase>> collect, Map<String, List<FunctionalCaseBlob>> blobsCollect, Map<String, List<FunctionalCaseCustomField>> customFieldMap, List<LogDTO> logDTOS, SessionUser user) {
-        FunctionalCase oldCase = collect.get(newData.getFunctionalCase().getId()).get(0);
-        FunctionalCaseBlob oldBlod = blobsCollect.get(newData.getFunctionalCase().getId()).get(0);
+        FunctionalCase oldCase = collect.get(newData.getFunctionalCase().getId()).getFirst();
+        FunctionalCaseBlob oldBlod = blobsCollect.get(newData.getFunctionalCase().getId()).getFirst();
         List<FunctionalCaseCustomField> oldCustomFields = customFieldMap.get(newData.getFunctionalCase().getId());
         batchSaveImportData(newData, new FunctionalCaseHistoryLogDTO(oldCase, oldBlod, oldCustomFields, new ArrayList<>(), new ArrayList<>()), user, OperationLogType.IMPORT.name(), OperationLogModule.FUNCTIONAL_CASE, logDTOS);
     }
@@ -1377,7 +1377,7 @@ public class FunctionalCaseService {
     private void parseUpdateDataToModule(FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, String> caseModulePathMap, TemplateDTO defaultTemplateDTO, FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper,
                                          FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, List<FunctionalCase>> collect, List<FunctionalCaseHistoryLogDTO> historyLogDTOS) {
         //用例表
-        FunctionalCase functionalCase = collect.get(functionalCaseExcelData.getNum()).get(0);
+        FunctionalCase functionalCase = collect.get(functionalCaseExcelData.getNum()).getFirst();
 
         functionalCase.setName(functionalCaseExcelData.getName());
         functionalCase.setModuleId(caseModulePathMap.get(functionalCaseExcelData.getModule()));
@@ -1409,9 +1409,9 @@ public class FunctionalCaseService {
     }
 
     private void addStatusIds(List<ProjectApplication> projectApplications, List<String> caseIds, Map<String, List<FunctionalCase>> collect, Map<String, List<FunctionalCaseBlob>> blobsCollect, FunctionalCaseExcelData functionalCaseExcelData) {
-        FunctionalCase functionalCase = collect.get(functionalCaseExcelData.getNum()).get(0);
-        if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.get(0).getTypeValue())) {
-            FunctionalCaseBlob blob = blobsCollect.get(functionalCaseExcelData.getNum()).get(0);
+        FunctionalCase functionalCase = collect.get(functionalCaseExcelData.getNum()).getFirst();
+        if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.getFirst().getTypeValue())) {
+            FunctionalCaseBlob blob = blobsCollect.get(functionalCaseExcelData.getNum()).getFirst();
             if (!StringUtils.equals(functionalCase.getName(), functionalCaseExcelData.getName())
                     || !StringUtils.equals(new String(blob.getSteps(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getSteps(), StringUtils.EMPTY))
                     || !StringUtils.equals(new String(blob.getTextDescription(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getTextDescription(), StringUtils.EMPTY))

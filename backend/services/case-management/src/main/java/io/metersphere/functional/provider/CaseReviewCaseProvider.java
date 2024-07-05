@@ -140,7 +140,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             collect.forEach((caseId, caseList) -> {
                 FunctionalCase functionalCase = new FunctionalCase();
                 functionalCase.setId(caseId);
-                functionalCase.setReviewStatus(caseList.get(0).getStatus());
+                functionalCase.setReviewStatus(caseList.getFirst().getStatus());
                 mapper.updateByPrimaryKeySelective(functionalCase);
             });
         }

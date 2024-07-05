@@ -19,10 +19,10 @@ public class KeyStoreConfig {
         if (CollectionUtils.isNotEmpty(entry)) {
             List<KeyStoreEntry> entryList = this.entry.stream().filter(KeyStoreEntry::isDefault).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(entryList)) {
-                if (StringUtils.isNotEmpty(entryList.get(0).getNewAsName())) {
-                    return entryList.get(0).getNewAsName();
+                if (StringUtils.isNotEmpty(entryList.getFirst().getNewAsName())) {
+                    return entryList.getFirst().getNewAsName();
                 } else {
-                    return entryList.get(0).getOriginalAsName();
+                    return entryList.getFirst().getOriginalAsName();
                 }
             }
         }
@@ -33,7 +33,7 @@ public class KeyStoreConfig {
         if (CollectionUtils.isNotEmpty(entry)) {
             List<KeyStoreEntry> entryList = this.entry.stream().filter(ks -> StringUtils.equals(asName, ks.getNewAsName())).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(entryList) && CollectionUtils.isNotEmpty(files) && files.size() == 1) {
-                return entryList.get(0).getOriginalAsName();
+                return entryList.getFirst().getOriginalAsName();
             }
         }
         return asName;

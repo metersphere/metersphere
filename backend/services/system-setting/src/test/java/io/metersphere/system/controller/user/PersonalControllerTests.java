@@ -87,7 +87,7 @@ public class PersonalControllerTests extends BaseTest {
         example.createCriteria().andIdEqualTo(loginUser);
         List<UserExtend> userExtends = userExtendMapper.selectByExample(example);
         if (!userExtends.isEmpty()) {
-            Assertions.assertNull(userExtends.get(0).getAvatar());
+            Assertions.assertNull(userExtends.getFirst().getAvatar());
         }
 
         request = new PersonalUpdateRequest();

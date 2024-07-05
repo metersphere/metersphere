@@ -99,7 +99,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         // @@校验没有数据的情况
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
         List<Template> templates = getResultDataArray(mvcResult, Template.class);
-        this.defaultTemplate = templates.get(0);
+        this.defaultTemplate = templates.getFirst();
         this.requestGetWithOkAndReturn(LIST, DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
     }
 
@@ -194,7 +194,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         request.setEnableThirdPart(true);
         request.setCustomFields(new ArrayList<>(0));
         request.setSystemFields(OrganizationTemplateControllerTests.getTemplateSystemCustomFieldRequests());
-        request.getSystemFields().get(0).setDefaultValue("update");
+        request.getSystemFields().getFirst().setDefaultValue("update");
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         Template template = templateMapper.selectByPrimaryKey(request.getId());
         // 校验请求成功数据
@@ -216,12 +216,12 @@ public class ProjectTemplateControllerTests extends BaseTest {
 
         TemplateExample example = new TemplateExample();
         example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("functional_default");
-        TemplateUpdateRequest internalRequest = BeanUtils.copyBean(new TemplateUpdateRequest(), templateMapper.selectByExample(example).get(0));
+        TemplateUpdateRequest internalRequest = BeanUtils.copyBean(new TemplateUpdateRequest(), templateMapper.selectByExample(example).getFirst());
         internalRequest.setName("aaaa");
         this.requestPostWithOk(DEFAULT_UPDATE, internalRequest);
-        Assertions.assertEquals(templateMapper.selectByExample(example).get(0).getInternal(), true);
+        Assertions.assertEquals(templateMapper.selectByExample(example).getFirst().getInternal(), true);
         // 内置字段名称不能修改
-        Assertions.assertEquals(templateMapper.selectByExample(example).get(0).getName(), "functional_default");
+        Assertions.assertEquals(templateMapper.selectByExample(example).getFirst().getName(), "functional_default");
 
         // 不更新字段
         request.setCustomFields(null);
@@ -355,7 +355,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
 
         TemplateExample example = new TemplateExample();
         example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("functional_default");
-        mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, templateMapper.selectByExample(example).get(0).getId());
+        mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, templateMapper.selectByExample(example).getFirst().getId());
         templateDTO = getResultData(mvcResult, TemplateDTO.class);
         Assertions.assertEquals(templateDTO.getName(), Translator.get("template.default"));
 

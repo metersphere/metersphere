@@ -124,7 +124,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     }
 
     public void removeMember(ProjectUserRoleMemberEditRequest request) {
-        String removeUserId = request.getUserIds().get(0);
+        String removeUserId = request.getUserIds().getFirst();
         checkMemberParam(removeUserId, request.getUserRoleId());
         //检查移除的是不是管理员
         if (StringUtils.equals(request.getUserRoleId(),InternalUserRole.PROJECT_ADMIN.getValue())) {

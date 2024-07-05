@@ -63,7 +63,7 @@ public class ProjectMemberControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         // 返回值中取出第一条数据, 并判断name, email, phone是否包含关键字default
-        ProjectUserDTO projectUserDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserDTO.class).get(0);
+        ProjectUserDTO projectUserDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(projectUserDTO.getName(), request.getKeyword())
                 || StringUtils.contains(projectUserDTO.getEmail(), request.getKeyword())
                 || StringUtils.contains(projectUserDTO.getPhone(), request.getKeyword()));

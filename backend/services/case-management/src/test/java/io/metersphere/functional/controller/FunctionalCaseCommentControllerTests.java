@@ -435,7 +435,7 @@ public class FunctionalCaseCommentControllerTests {
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdEqualTo("xiaomeinvGTest").andNotifierEqualTo("default-project-member-user-guo;default-project-member-user-guo;default-project-member-user-guo-4;");
         List<FunctionalCaseComment> functionalCaseComments = functionalCaseCommentMapper.selectByExample(functionalCaseCommentExample);
-        String id = functionalCaseComments.get(0).getId();
+        String id = functionalCaseComments.getFirst().getId();
         Assertions.assertFalse(functionalCaseComments.isEmpty());
         delFunctionalCaseComment(id);
         functionalCaseCommentExample = new FunctionalCaseCommentExample();
@@ -517,7 +517,7 @@ public class FunctionalCaseCommentControllerTests {
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdEqualTo("xiaomeinvGTest");
         List<FunctionalCaseComment> functionalCaseComments = functionalCaseCommentMapper.selectByExample(functionalCaseCommentExample);
-        return functionalCaseComments.get(0);
+        return functionalCaseComments.getFirst();
     }
 
 }

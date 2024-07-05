@@ -510,7 +510,7 @@ public class BugAttachmentService {
         FileAssociation association = fileAssociationMapper.selectByPrimaryKey(refId);
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdEqualTo(association.getFileId());
-        FileMetadata fileMetadata = fileMetadataMapper.selectByExample(example).get(0);
+        FileMetadata fileMetadata = fileMetadataMapper.selectByExample(example).getFirst();
         // 取消关联的附件同步至平台
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
             File deleteTmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getBugTmpDir() + File.separator + fileMetadata.getName() + "." + fileMetadata.getType()));
@@ -628,7 +628,7 @@ public class BugAttachmentService {
         if (CollectionUtils.isEmpty(bugLocalAttachments)) {
             return null;
         }
-        return bugLocalAttachments.get(0);
+        return bugLocalAttachments.getFirst();
     }
 
     /**
@@ -700,7 +700,7 @@ public class BugAttachmentService {
             if (CollectionUtils.isEmpty(folderFileNames)) {
                 return null;
             }
-            String[] pathSplit = folderFileNames.get(0).split("/");
+            String[] pathSplit = folderFileNames.getFirst().split("/");
             return pathSplit[pathSplit.length - 1];
 
         } catch (Exception e) {
@@ -769,7 +769,7 @@ public class BugAttachmentService {
             bytes = getPreviewImg(fileName, fileId, compressed);
         } else {
             //在正式目录获取
-            BugLocalAttachment attachment = bugAttachments.get(0);
+            BugLocalAttachment attachment = bugAttachments.getFirst();
             fileName = attachment.getFileName();
             FileRequest fileRequest = buildBugFileRequest(projectId, attachment.getBugId(), attachment.getFileId(), attachment.getFileName(), compressed);
             try {

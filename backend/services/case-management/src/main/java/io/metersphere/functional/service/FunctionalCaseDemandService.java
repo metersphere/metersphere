@@ -82,7 +82,7 @@ public class FunctionalCaseDemandService {
                 if (functionalCaseDemandMap.containsKey(demand.getParent())) {
                     FunctionalDemandDTO functionalDemandDTO = new FunctionalDemandDTO();
                     BeanUtils.copyBean(functionalDemandDTO, demand);
-                    functionalCaseDemandMap.get(demand.getParent()).stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandPlatform(), demand.getDemandPlatform())).toList().get(0).addChild(functionalDemandDTO);
+                    functionalCaseDemandMap.get(demand.getParent()).stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandPlatform(), demand.getDemandPlatform())).toList().getFirst().addChild(functionalDemandDTO);
                     resetMap(demand, functionalCaseDemandMap, functionalDemandDTO);
                 } else {
                     notMatchedList.add(demand);
@@ -196,7 +196,7 @@ public class FunctionalCaseDemandService {
         if (functionalCaseDemand == null) {
             throw new MSException(Translator.get("case.demand.not.exist"));
         }
-        dealWithDemand(request.getDemandList().get(0), functionalCaseDemand);
+        dealWithDemand(request.getDemandList().getFirst(), functionalCaseDemand);
         functionalCaseDemand.setCreateTime(null);
         functionalCaseDemand.setCreateUser(null);
         functionalCaseDemand.setUpdateUser(userId);

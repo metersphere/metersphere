@@ -59,10 +59,10 @@ public class BugAttachmentLogService {
 		BugFileDTO deleteFile;
 		if (request.getAssociated()) {
 			// 关联
-			deleteFile = allBugFiles.stream().filter(file -> !file.getLocal() && StringUtils.equals(request.getRefId(), file.getRefId())).toList().get(0);
+			deleteFile = allBugFiles.stream().filter(file -> !file.getLocal() && StringUtils.equals(request.getRefId(), file.getRefId())).toList().getFirst();
 		} else {
 			// 本地
-			deleteFile = allBugFiles.stream().filter(file -> file.getLocal() && StringUtils.equals(request.getRefId(), file.getRefId())).toList().get(0);
+			deleteFile = allBugFiles.stream().filter(file -> file.getLocal() && StringUtils.equals(request.getRefId(), file.getRefId())).toList().getFirst();
 		}
 		LogDTO dto = buildUpdateLog(bug);
 		dto.setModifiedValue(JSON.toJSONBytes(originalFileNames));

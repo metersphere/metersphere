@@ -121,7 +121,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         this.requestPostWithOk(DEFAULT_ADD, request);
         List<UserRoleRelation> userRoleRelations = getUserRoleRelationByRoleIdAndUserId(request.getRoleId(), ADMIN.getValue());
         Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleRelations));
-        addUserRoleRelation = userRoleRelations.get(0);
+        addUserRoleRelation = userRoleRelations.getFirst();
         Assertions.assertEquals(addUserRoleRelation.getOrganizationId(), UserRoleScope.SYSTEM);
 
         // @@校验日志
@@ -218,7 +218,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
 
         // @@删除admin系统管理员用户组异常
         List<UserRoleRelation> userRoleRelations = getUserRoleRelationByRoleIdAndUserId(ADMIN.getValue(), ADMIN.getValue());
-        assertErrorCode(this.requestGet(DEFAULT_DELETE, userRoleRelations.get(0).getId()),
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, userRoleRelations.getFirst().getId()),
                 USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION);
 
         // @@校验 NOT_FOUND 异常

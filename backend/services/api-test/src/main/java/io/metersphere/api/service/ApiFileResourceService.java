@@ -99,7 +99,7 @@ public class ApiFileResourceService {
             if (CollectionUtils.isEmpty(folderFileNames)) {
                 return null;
             }
-            String[] pathSplit = folderFileNames.get(0).split("/");
+            String[] pathSplit = folderFileNames.getFirst().split("/");
             return pathSplit[pathSplit.length - 1];
 
         } catch (Exception e) {
@@ -407,7 +407,7 @@ public class ApiFileResourceService {
                 throw new MSException("file not found!");
             }
         } else {
-            fileName = apiFileResources.get(0).getFileName();
+            fileName = apiFileResources.getFirst().getFileName();
         }
 
         folder += "/" + request.getFileId();

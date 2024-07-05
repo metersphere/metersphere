@@ -155,7 +155,7 @@ public class BugControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= bugRequest.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字default
-        BugDTO bugDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), BugDTO.class).get(0);
+        BugDTO bugDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), BugDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(bugDTO.getTitle(), bugRequest.getKeyword())
                 || StringUtils.contains(bugDTO.getId(), bugRequest.getKeyword()));
 
@@ -168,7 +168,7 @@ public class BugControllerTests extends BaseTest {
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-bug
-        BugDTO maxBugDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), BugDTO.class).get(0);
+        BugDTO maxBugDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), BugDTO.class).getFirst();
         Assertions.assertTrue(maxBugDTO.getId().contains("default"));
 
         // 拖拽
@@ -884,7 +884,7 @@ public class BugControllerTests extends BaseTest {
     private Bug getAddJiraBug() {
         BugExample example = new BugExample();
         example.createCriteria().andTitleEqualTo("这是一个系统Jira模板创建的缺陷");
-        return bugMapper.selectByExample(example).get(0);
+        return bugMapper.selectByExample(example).getFirst();
     }
 
     /**
@@ -895,7 +895,7 @@ public class BugControllerTests extends BaseTest {
     private BugLocalAttachment getAddJiraLocalFile() {
         BugLocalAttachmentExample example = new BugLocalAttachmentExample();
         example.createCriteria().andBugIdEqualTo(getAddJiraBug().getId());
-        return bugLocalAttachmentMapper.selectByExample(example).get(0);
+        return bugLocalAttachmentMapper.selectByExample(example).getFirst();
     }
 
     /**
@@ -906,7 +906,7 @@ public class BugControllerTests extends BaseTest {
     private FileAssociation getAddJiraAssociateFile() {
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andSourceIdEqualTo(getAddJiraBug().getId()).andSourceTypeEqualTo(FileAssociationSourceUtil.SOURCE_TYPE_BUG);
-        return fileAssociationMapper.selectByExample(example).get(0);
+        return fileAssociationMapper.selectByExample(example).getFirst();
     }
 
     /**
