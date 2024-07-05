@@ -73,10 +73,11 @@ Closes #123
 │   │   ├── modules						// 各业务模块的请求方法
 │   │   ├── requrls						// 按业务模块划分的接口地址
 │   ├── assets								// 全局静态资源
+│   │   ├── font
+│   │   ├── icon-font
 │   │   ├── images
-				- svg
-│   │   ├── logo.svg
 │   │   ├── style
+│   │		├── svg
 │   ├── components						// 组件
 │   ├── config								// 全局配置，常量类、JSON
 │   ├── directive							// 自定义指令集
@@ -85,7 +86,6 @@ Closes #123
 │   ├── layout								// 应用布局组件
 │   ├── locale								// 国际化配置
 │   ├── main.ts								// 项目主入口
-│   ├── mock									// mock数据配置
 │   ├── models								// 全局数据模型定义
 │   ├── router								// 路由
 │   ├── store									// pinia状态库
@@ -580,7 +580,6 @@ module.exports = {
     "lib": ["esnext", "dom"],
     "skipLibCheck": true, // 跳过node依赖包语法检查
     "types": [
-      // "vitest/globals",
       // "vite-plugin-svg-icons/client"
     ], // 手动导入TS类型声明文件
     "baseUrl": ".",
@@ -703,39 +702,6 @@ export default mergeConfig(
     },
   },
   baseConfig
-);
-```
-
-## 单元测试
-
-测试框架：vitest
-
-单元测试实用工具库： @vue/test-utils
-
-测试环境: js-dom
-
-报告: @vitest/coverage-c8
-
-```bash
-pnpm add -D vitest @vue/test-utils js-dom @vitest/coverage-c8
-```
-
-配置
-
-根目录新建 vitest.config.ts
-
-```typescript
-import { mergeConfig } from 'vite';
-import { defineConfig } from 'vitest/config';
-import viteConfig from './config/vite.config.dev';
-
-export default mergeConfig(
-  viteConfig,
-  defineConfig({
-    test: {
-      environment: 'jsdom',
-    },
-  })
 );
 ```
 
