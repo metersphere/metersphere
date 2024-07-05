@@ -984,8 +984,7 @@
   const showDrawer = ref(false);
   const drawerLoading = ref(false);
   const authFormRef = ref<FormInstance>();
-  // const authTypeList = ['CAS', 'OIDC', 'OAuth2', 'LDAP'];
-  const authTypeList = ['LDAP'];
+  const authTypeList = ['CAS', 'OIDC', 'OAUTH2', 'LDAP'];
   const defaultAuth = {
     id: '',
     enable: true,
