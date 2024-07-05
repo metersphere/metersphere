@@ -156,6 +156,7 @@
     :disabled="props.disabledExceptParam"
     :params="currentTableParams"
     :default-param-item="defaultBodyParamsItem"
+    has-standard
     @apply="handleBatchParamApply"
   />
 </template>

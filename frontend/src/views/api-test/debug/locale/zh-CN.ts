@@ -196,4 +196,7 @@ export default {
   'apiTestDebug.condition': '匹配条件',
   'apiTestDebug.expectedValue': '匹配值',
   'apiTestDebug.extractValue': '提取值',
+  'apiTestDebug.standardAdditions': '标准添加',
+  'apiTestDebug.standardAdditionsTip': '书写格式：参数名，类型，必填，参数值；多条记录换行分隔',
+  'apiTestDebug.quickAdditions': '快捷添加',
 };

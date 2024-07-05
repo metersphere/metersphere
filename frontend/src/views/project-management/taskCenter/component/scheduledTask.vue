@@ -82,20 +82,12 @@
         </a-tooltip>
       </template>
       <template #value="{ record }">
-        <a-select
+        <MsCronSelect
           v-model:model-value="record.value"
-          :placeholder="t('common.pleaseSelect')"
           class="param-input w-full min-w-[250px]"
           :disabled="!record.enable || !hasAnyPermission(permissionsMap[props.group][props.moduleType]?.edit)"
           @change="() => changeRunRules(record)"
-        >
-          <a-option v-for="item of syncFrequencyOptions" :key="item.value" :value="item.value">
-            <span class="text-[var(--color-text-2)]"> {{ item.value }}</span
-            ><span class="ml-1 text-[var(--color-text-n4)] hover:text-[rgb(var(--primary-5))]">
-              {{ item.label }}
-            </span>
-          </a-option>
-        </a-select>
+        />
       </template>
       <template #operation="{ record }">
         <a-switch
@@ -128,10 +120,10 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import {
     batchDisableScheduleOrgTask,
@@ -184,12 +176,6 @@
   const keyword = ref<string>('');
   type ReportShowType = 'All' | 'TEST_PLAN' | 'GROUP';
   const showType = ref<ReportShowType>('All');
-  const syncFrequencyOptions = [
-    { label: t('apiTestManagement.timeTaskHour'), value: '0 0 0/1 * * ?' },
-    { label: t('apiTestManagement.timeTaskSixHour'), value: '0 0 0/6 * * ?' },
-    { label: t('apiTestManagement.timeTaskTwelveHour'), value: '0 0 0/12 * * ?' },
-    { label: t('apiTestManagement.timeTaskDay'), value: '0 0 0 * * ?' },
-  ];
 
   const loadRealMap = ref({
     system: {
@@ -492,8 +478,6 @@
     ],
   };
 
-  function edit(record: any) {}
-
   function delSchedule(record: any) {
     openModal({
       type: 'error',
@@ -568,14 +552,6 @@
       });
     }
   }
-
-  const moreActions: ActionsItem[] = [
-    {
-      label: 'common.delete',
-      danger: true,
-      eventTag: 'delete',
-    },
-  ];
 
   const batchParams = ref<BatchApiParams>({
     selectIds: [],

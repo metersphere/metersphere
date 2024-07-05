@@ -696,13 +696,13 @@
   .ms-params-input:not(.arco-input-focus) {
     @apply bg-transparent;
 
-    border-color: transparent;
+    border-color: transparent !important;
     &:not(:hover) {
       .arco-input::placeholder {
         @apply invisible;
       }
 
-      border-color: transparent;
+      border-color: transparent !important;
     }
   }
   .ms-params-input,

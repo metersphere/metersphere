@@ -16,10 +16,8 @@
     :scroll="{ x: 'max-content' }"
     show-setting
     class="ms-json-schema"
-    @select="
-      (rowKeys: (string | number)[], rowKey: string | number, record: Record<string, any>) =>
-        handleSelect(rowKeys, rowKey, record as JsonSchemaTableItem)
-    "
+    @row-select="handleSelect"
+    @select-all="handleSelectAll"
   >
     <template #batchAddTitle>
       <MsButton type="text" size="mini" class="!mr-0" @click="batchAdd">
@@ -59,14 +57,17 @@
       >
         <MsButton
           type="icon"
-          :class="[
-            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-            '!mr-[4px] !p-[4px]',
-          ]"
+          class="!mr-[4px] !p-[4px]"
           size="mini"
           @click="() => (record.required = !record.required)"
         >
-          <div>*</div>
+          <div
+            :style="{
+              color: record.required ? 'rgb(var(--danger-5)) !important' : 'var(--color-text-brand) !important',
+            }"
+          >
+            *
+          </div>
         </MsButton>
       </a-tooltip>
       <a-select
@@ -489,7 +490,7 @@
 </template>
 
 <script setup lang="ts">
-  import { SelectOptionData } from '@arco-design/web-vue';
+  import { SelectOptionData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -846,8 +847,9 @@
   /**
    * 行选择处理
    */
-  function handleSelect(rowKeys: (string | number)[], rowKey: string | number, record: JsonSchemaTableItem) {
+  function handleSelect(rowKeys: (string | number)[], rowKey: string | number, record: TableData) {
     nextTick(() => {
+      record.enable = !selectedKeys.value.includes(record.id);
       if (record.enable && record.children && record.children.length > 0) {
         // 选中父节点时，选中子孙节点
         traverseTree<JsonSchemaTableItem>(record.children, (item) => {
@@ -857,6 +859,12 @@
           }
         });
       }
+    });
+  }
+
+  function handleSelectAll(checked: boolean) {
+    traverseTree<JsonSchemaTableItem>(data.value, (item) => {
+      item.enable = checked;
     });
   }
 

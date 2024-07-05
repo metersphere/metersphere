@@ -28,6 +28,7 @@
     :params="innerParams"
     :disabled="props.disabledExceptParam"
     :default-param-item="defaultRequestParamsItem"
+    has-standard
     @apply="handleBatchParamApply"
   />
 </template>
