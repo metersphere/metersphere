@@ -78,6 +78,6 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
     private Integer level;
 
     @Schema(description = "关联关系的数据")
-    private List<TestPlanCollectionAssociateDTO>associateDTOS;
+    private List<TestPlanCollectionAssociateDTO> associateDTOS;
 
 }

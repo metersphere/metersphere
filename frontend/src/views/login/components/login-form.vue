@@ -77,7 +77,7 @@
         <tab-qr-code :tab-name="activeName === 'WE_COM' ? 'WE_COM' : orgOptions[0].value"></tab-qr-code>
       </div>
       <a-divider
-        v-if="isShowLDAP || isShowOIDC || isShowOAUTH || (isShowQRCode && orgOptions.length > 0)"
+        v-if="isShowLDAP || isShowOIDC || isShowOAUTH || isShowCAS || (isShowQRCode && orgOptions.length > 0)"
         orientation="center"
         type="dashed"
         class="m-0 mb-2"
@@ -98,14 +98,16 @@
         <div v-if="userInfo.authenticate !== 'LOCAL'" class="loginType" @click="switchLoginType('LOCAL')">
           <svg-icon width="18px" height="18px" name="userLogin"></svg-icon
         ></div>
-        <div v-if="isShowOIDC && userInfo.authenticate !== 'OIDC'" class="loginType">
+        <div v-if="isShowOIDC && userInfo.authenticate !== 'OIDC'" class="loginType" @click="redirectAuth('OIDC')">
           <span class="type-text text-[10px]">OIDC</span>
         </div>
-        <div v-if="isShowOAUTH && userInfo.authenticate !== 'OAuth2'" class="loginType">
+        <div v-if="isShowOAUTH && userInfo.authenticate !== 'OAUTH2'" class="loginType" @click="redirectAuth('OAUTH2')">
           <span class="type-text text-[7px]">OAUTH</span>
         </div>
+        <div v-if="isShowCAS && userInfo.authenticate !== 'CAS'" class="loginType" @click="redirectAuth('CAS')">
+          <span class="type-text text-[7px]">CAS</span>
+        </div>
       </div>
-
       <div v-if="props.isPreview" class="mask"></div>
     </div>
   </div>
@@ -120,10 +122,12 @@
   import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
+  import { getAuthDetail } from '@/api/modules/setting/config';
   import { getPlatformParamUrl } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
+  import useModal from '@/hooks/useModal';
   import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
@@ -141,6 +145,8 @@
   const userStore = useUserStore();
   const appStore = useAppStore();
   const licenseStore = useLicenseStore();
+
+  const { openModal } = useModal();
 
   const orgOptions = ref<SelectOptionData[]>([]);
 
@@ -270,7 +276,10 @@
     return userStore.loginType.includes('OIDC');
   });
   const isShowOAUTH = computed(() => {
-    return userStore.loginType.includes('OAuth2');
+    return userStore.loginType.includes('OAUTH2');
+  });
+  const isShowCAS = computed(() => {
+    return userStore.loginType.includes('CAS');
   });
 
   const isShowQRCode = ref(true);
@@ -292,6 +301,66 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function redirectAuth(authId: string) {
+    if (authId === 'LDAP' || authId === 'LOCAL') {
+      return;
+    }
+    getAuthDetail(authId).then((res) => {
+      if (!res) {
+        return;
+      }
+      if (!res.enable) {
+        Message.error(t('login.auth_not_enable'));
+        return;
+      }
+      // 以前的cas登录
+      if (userInfo.value.authenticate === 'CAS') {
+        const config = JSON.parse(res.configuration);
+        if (config.casServerUrl && !config.loginUrl) {
+          return;
+        }
+      }
+      openModal({
+        type: 'warning',
+        title: t('commons.auth_redirect_tip'),
+        content: t('ms.minders.leaveUnsavedTip'),
+        okText: t('common.confirm'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'normal',
+        },
+        onBeforeOk: async () => {
+          const config = JSON.parse(res.configuration);
+          // eslint-disable-next-line no-eval
+          const redirectUrl = eval(`\`${config.redirectUrl}\``);
+          let url;
+          if (userInfo.value.authenticate === 'CAS') {
+            url = `${config.loginUrl}?service=${encodeURIComponent(redirectUrl)}`;
+          }
+          if (userInfo.value.authenticate === 'OIDC') {
+            url = `${config.authUrl}?client_id=${config.clientId}&redirect_uri=${redirectUrl}&response_type=code&scope=openid+profile+email&state=${authId}`;
+            // 保存一个登录地址，禁用本地登录
+            if (config.loginUrl) {
+              localStorage.setItem('oidcLoginUrl', config.loginUrl);
+            }
+          }
+          if (userInfo.value.authenticate === 'OAUTH2') {
+            url =
+              `${config.authUrl}?client_id=${config.clientId}&response_type=code` +
+              `&redirect_uri=${redirectUrl}&state=${authId}`;
+            if (config.scope) {
+              url += `&scope=${config.scope}`;
+            }
+          }
+          if (url) {
+            window.location.href = url;
+          }
+        },
+        hideCancel: false,
+      });
+    });
   }
 
   onMounted(() => {
