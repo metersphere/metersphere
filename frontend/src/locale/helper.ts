@@ -2,13 +2,7 @@ import type { LocaleType } from '#/global';
 
 export function setHtmlPageLang(locale: LocaleType) {
   document.querySelector('html')?.setAttribute('lang', locale);
-  let fontFamily = '';
-  if (locale === 'en-US') {
-    fontFamily = 'Helvetica Neue, Arial';
-  } else {
-    fontFamily = 'PingFang SC, Microsoft YaHei';
-  }
-  document.body.style.fontFamily = fontFamily;
+  document.body.style.fontFamily = 'PingFang SC, AlibabaPuHuiTi';
 }
 
 export const loadLocalePool: LocaleType[] = [];
