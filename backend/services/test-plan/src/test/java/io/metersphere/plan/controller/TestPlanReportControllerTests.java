@@ -45,7 +45,8 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String RENAME_PLAN_REPORT = "/test-plan/report/rename";
     private static final String DELETE_PLAN_REPORT = "/test-plan/report/delete";
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
-    private static final String GEN_PLAN_REPORT = "/test-plan/report/gen";
+    private static final String MANUAL_GEN_PLAN_REPORT = "/test-plan/report/manual-gen";
+    private static final String AUTO_GEN_PLAN_REPORT = "/test-plan/report/auto-gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
     private static final String EDIT_PLAN_REPORT_AND_UPLOAD_PIC = "/test-plan/report/upload/md/file";
     private static final String EDIT_PLAN_REPORT = "/test-plan/report/detail/edit";
@@ -269,7 +270,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         TestPlanReportGenRequest genRequest = new TestPlanReportGenRequest();
         genRequest.setProjectId("100001100001");
         genRequest.setTestPlanId("plan_id_for_gen_report-x");
-        this.requestPost(GEN_PLAN_REPORT, genRequest, status().is5xxServerError());
+        this.requestPost(AUTO_GEN_PLAN_REPORT, genRequest, status().is5xxServerError());
     }
 
     @Test
@@ -279,9 +280,9 @@ public class TestPlanReportControllerTests extends BaseTest {
         genRequest.setProjectId("100001100001");
         genRequest.setTestPlanId("plan_id_for_gen_report_1");
         genRequest.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        this.requestPost(GEN_PLAN_REPORT, genRequest);
+        this.requestPost(AUTO_GEN_PLAN_REPORT, genRequest);
         genRequest.setTestPlanId("plan_id_for_gen_report");
-        this.requestPost(GEN_PLAN_REPORT, genRequest);
+        this.requestPost(AUTO_GEN_PLAN_REPORT, genRequest);
         GEN_REPORT_ID = getGenReportId();
     }
 
@@ -353,6 +354,26 @@ public class TestPlanReportControllerTests extends BaseTest {
     void testGetReportFunctionalExecResult() throws Exception {
         this.requestGet(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_RESULT + "/execute-his-1");
         this.requestGet(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_RESULT + "/execute-his-2");
+    }
+
+    @Test
+    @Order(20)
+    void testGenReportByManual() throws Exception {
+        TestPlanReportComponentSaveRequest component = new TestPlanReportComponentSaveRequest();
+        component.setName("component-for-test");
+        component.setType("RICH_TEXT");
+        component.setLabel("component-for-test");
+        component.setValue("Val for test!");
+        component.setPos(1L);
+        TestPlanReportManualRequest genRequest = new TestPlanReportManualRequest();
+        genRequest.setProjectId("100001100001");
+        genRequest.setTestPlanId("plan_id_for_gen_report");
+        genRequest.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        genRequest.setReportName("oasis");
+        genRequest.setComponents(List.of(component));
+        this.requestPost(MANUAL_GEN_PLAN_REPORT, genRequest);
+        genRequest.setComponents(null);
+        this.requestPost(MANUAL_GEN_PLAN_REPORT, genRequest);
     }
 
     @Resource

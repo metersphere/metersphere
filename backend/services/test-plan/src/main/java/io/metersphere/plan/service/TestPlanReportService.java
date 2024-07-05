@@ -226,7 +226,45 @@ public class TestPlanReportService {
      * @param request     请求参数
      * @param currentUser 当前用户
      */
-    public void genReportByManual(TestPlanReportGenRequest request, String currentUser) {
+    public void genReportByManual(TestPlanReportManualRequest request, String currentUser) {
+        /*
+         * 1. 生成报告 (全量生成; 暂不根据布局来选择生成报告预览数据, 因为影响分析汇总)
+         * 2. 保存报告布局组件 (只对当前生成的计划/组有效, 不会对下面的子计划报告生效)
+         * 3. 处理富文本图片
+         */
+        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser, "/test-plan/report/gen");
+        String genReportId = reportMap.get(request.getTestPlanId());
+        List<TestPlanReportComponentSaveRequest> components = request.getComponents();
+        if (CollectionUtils.isNotEmpty(components)) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            TestPlanReportComponentMapper batchMapper = sqlSession.getMapper(TestPlanReportComponentMapper.class);
+            List<TestPlanReportComponent> reportComponents = new ArrayList<>();
+            components.forEach(component -> {
+                TestPlanReportComponent reportComponent = new TestPlanReportComponent();
+                BeanUtils.copyBean(reportComponent, component);
+                reportComponent.setId(IDGenerator.nextStr());
+                reportComponent.setTestPlanReportId(genReportId);
+                reportComponents.add(reportComponent);
+            });
+            batchMapper.batchInsert(reportComponents);
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+		}
+        // 更新报告默认布局字段
+        TestPlanReport record = new TestPlanReport();
+        record.setId(genReportId);
+        record.setDefaultLayout(false);
+        testPlanReportMapper.updateByPrimaryKey(record);
+        // 处理富文本文件
+        transferRichTextTmpFile(genReportId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
+    }
+
+    /**
+     * 自动生成报告 (计划 或者 组)
+     * @param request 请求参数
+     * @param currentUser 当前用户
+     */
+    public void genReportByAuto(TestPlanReportGenRequest request, String currentUser) {
         genReport(IDGenerator.nextStr(), request, true, currentUser, "/test-plan/report/gen");
     }
 
@@ -291,6 +329,9 @@ public class TestPlanReportService {
         } catch (Exception e) {
             LogUtils.error("生成报告异常: " + e.getMessage());
         }
+
+        // 生成报告组件记录
+
         return preReportMap;
     }
 
@@ -325,7 +366,7 @@ public class TestPlanReportService {
             // 生成独立报告的关联数据
             reportCaseDetail = genReportDetail(genParam, moduleParam, report);
         } else {
-            // 计划组报告暂不统计各用例类型, 汇总时再入库
+            // TODO: 计划组报告暂不统计各用例类型, 汇总时再入库
             reportCaseDetail = TestPlanReportDetailCaseDTO.builder().build();
         }
         // 报告统计内容

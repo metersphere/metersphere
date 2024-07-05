@@ -614,6 +614,7 @@ public class TestPlanTests extends BaseTest {
                     testPlanReport.setIntegrated(false);
                     testPlanReport.setDeleted(false);
                     testPlanReport.setTestPlanName("test");
+                    testPlanReport.setDefaultLayout(true);
                     batchInsert.insert(testPlanReport);
                 }
                 sqlSession.flushStatements();
