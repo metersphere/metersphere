@@ -41,7 +41,7 @@ function exportSVG(minder: any) {
   $svg[index].setAttribute('height', height + padding * 2 || 0);
   $svg[index].setAttribute(
     'style',
-    `font-family: Arial, "Microsoft Yahei",  "Heiti SC"; background: ${minder.getStyle('background')}`
+    `font-family: 'PingFang SC',AlibabaPuHuiTi; background: ${minder.getStyle('background')}`
   );
 
   $svg[index].setAttribute(

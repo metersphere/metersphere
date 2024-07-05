@@ -76,7 +76,7 @@
         .menu-item {
           height: 38px;
           line-height: 38px;
-          font-family: 'PingFang SC';
+          font-family: 'PingFang SC', AlibabaPuHuiTi;
         }
       }
     }

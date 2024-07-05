@@ -7,6 +7,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: AlibabaPuHuiTi;
+  src: url('../font/AlibabaPuHuiTi-3-55-Regular.woff') format('woff'),
+    url('../font/AlibabaPuHuiTi-3-55-Regular.ttf') format('truetype'),
+    url('../font/AlibabaPuHuiTi-3-55-Regular.eot') format('eot'),
+    url('../font/AlibabaPuHuiTi-3-55-Regular.otf') format('opentype'),
+    url('../font/AlibabaPuHuiTi-3-55-Regular.woff2') format('woff2');
+}
 * {
   @apply box-border;
 }
@@ -15,6 +24,7 @@ body {
   @apply m-0 h-full w-full p-0;
 
   font-size: 14px;
+  font-family: 'PingFang SC', AlibabaPuHuiTi !important;
   color: var(--color-text-1);
   background-color: var(--color-bg-1);
   line-height: 22px;
