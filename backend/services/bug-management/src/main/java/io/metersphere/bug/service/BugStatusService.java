@@ -113,7 +113,7 @@ public class BugStatusService {
        example.setOrderByClause("create_time desc");
        List<Bug> bugs = bugMapper.selectByExample(example);
        if (CollectionUtils.isNotEmpty(bugs)) {
-           return bugs.get(0).getPlatformBugId();
+           return bugs.getFirst().getPlatformBugId();
        } else {
            return StringUtils.EMPTY;
        }

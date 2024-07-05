@@ -252,11 +252,11 @@ public class BaseUserRoleService {
         List<UserRoleRelation> addRelations = new ArrayList<>();
         userRoleRelationMap.forEach((groupId, relations) -> {
             // 如果当前用户组只有一个用户，并且就是要删除的用户组，则添加组织成员等默认用户组
-            if (relations.size() == 1 && StringUtils.equals(relations.get(0).getRoleId(), roleId)) {
+            if (relations.size() == 1 && StringUtils.equals(relations.getFirst().getRoleId(), roleId)) {
                 UserRoleRelation relation = new UserRoleRelation();
                 relation.setId(IDGenerator.nextStr());
-                relation.setUserId(relations.get(0).getUserId());
-                relation.setSourceId(relations.get(0).getSourceId());
+                relation.setUserId(relations.getFirst().getUserId());
+                relation.setSourceId(relations.getFirst().getSourceId());
                 relation.setRoleId(defaultRoleId);
                 relation.setCreateTime(System.currentTimeMillis());
                 relation.setCreateUser(currentUserId);

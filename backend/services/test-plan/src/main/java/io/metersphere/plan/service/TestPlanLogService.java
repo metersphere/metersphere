@@ -188,7 +188,7 @@ public class TestPlanLogService {
         if (CollectionUtils.isEmpty(plans)) {
             return;
         }
-        Project project = projectMapper.selectByPrimaryKey(plans.get(0).getProjectId());
+        Project project = projectMapper.selectByPrimaryKey(plans.getFirst().getProjectId());
         List<LogDTO> list = new ArrayList<>();
         for (TestPlan plan : plans) {
             LogDTO dto = LogDTOBuilder.builder()

@@ -89,7 +89,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字default
-        ProjectUserRoleDTO projectUserRoleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).get(0);
+        ProjectUserRoleDTO projectUserRoleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(projectUserRoleDTO.getName(), request.getKeyword())
                 || StringUtils.contains(projectUserRoleDTO.getId(), request.getKeyword()));
         // 权限校验
@@ -130,7 +130,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         // 返回值不为空, 取第一条是否包含关键字
         Assertions.assertNotNull(pageData);
-        ProjectUserRoleDTO roleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).get(0);
+        ProjectUserRoleDTO roleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(roleDTO.getName(), roleRequest.getKeyword())
                 || StringUtils.contains(roleDTO.getId(), roleRequest.getKeyword()));
         // 权限校验
@@ -199,7 +199,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         // 返回值不为空
         Assertions.assertNotNull(pageData);
-        ProjectUserRoleDTO roleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).get(0);
+        ProjectUserRoleDTO roleDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), ProjectUserRoleDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(roleDTO.getName(), roleRequest.getKeyword())
                 || StringUtils.contains(roleDTO.getId(), roleRequest.getKeyword()));
         // 权限校验
@@ -310,7 +310,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         // 返回值中取出第一条数据, 并判断是否包含关键字
         List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
         if (CollectionUtils.isNotEmpty(userList)) {
-            User user = userList.get(0);
+            User user = userList.getFirst();
             Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
                     || StringUtils.contains(user.getId(), request.getKeyword()));
         }

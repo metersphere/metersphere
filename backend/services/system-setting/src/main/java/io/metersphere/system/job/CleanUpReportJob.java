@@ -57,7 +57,7 @@ public class CleanUpReportJob {
                 List<ProjectApplication> testPlan = projectApplicationMapper.selectByExample(applicationExample);
                 Map<String, String> map = new HashMap<>();
                 if (CollectionUtils.isNotEmpty(testPlan)) {
-                    map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), testPlan.get(0).getTypeValue());
+                    map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), testPlan.getFirst().getTypeValue());
                 } else {
                     map.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), "3M");
                 }
@@ -67,7 +67,7 @@ public class CleanUpReportJob {
                 applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.API.API_CLEAN_REPORT.name());
                 List<ProjectApplication> api = projectApplicationMapper.selectByExample(applicationExample);
                 if (CollectionUtils.isNotEmpty(api)) {
-                    map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), api.get(0).getTypeValue());
+                    map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), api.getFirst().getTypeValue());
                 } else {
                     map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), "3M");
                 }

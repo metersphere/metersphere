@@ -352,7 +352,7 @@ public class OrganizationService {
         OrganizationExample example = new OrganizationExample();
         example.createCriteria().andNumEqualTo(100001L);
         List<Organization> organizations = organizationMapper.selectByExample(example);
-        Organization organization = organizations.get(0);
+        Organization organization = organizations.getFirst();
         BeanUtils.copyBean(organizationDTO, organization);
         return organizationDTO;
     }

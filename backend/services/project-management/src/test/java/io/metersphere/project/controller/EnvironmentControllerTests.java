@@ -1142,8 +1142,8 @@ public class EnvironmentControllerTests extends BaseTest {
         MvcResult mvcResult = requestGetWithOkAndReturn(SCRIPTS, DEFAULT_PROJECT_ID);
         List<EnvironmentPluginScriptDTO> envScripts = getResultDataArray(mvcResult, EnvironmentPluginScriptDTO.class);
         Assertions.assertEquals(envScripts.size(), 1);
-        Assertions.assertEquals(envScripts.get(0).getPluginId(), "tcp-sampler");
-        Assertions.assertEquals(((Map) envScripts.get(0).getScript()).get("id"), "environment");
+        Assertions.assertEquals(envScripts.getFirst().getPluginId(), "tcp-sampler");
+        Assertions.assertEquals(((Map) envScripts.getFirst().getScript()).get("id"), "environment");
 
         // 删除环境脚本，测试是否正常执行
         pluginScriptMapper.deleteByPrimaryKey(plugin.getId(), "environment");

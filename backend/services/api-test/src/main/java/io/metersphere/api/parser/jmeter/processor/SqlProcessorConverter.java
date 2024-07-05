@@ -120,7 +120,7 @@ public abstract class SqlProcessorConverter extends MsProcessorConverter<SQLProc
                     .toList();
         }
 
-        return CollectionUtils.isEmpty(dataSourceResults) ? null : dataSourceResults.get(0);
+        return CollectionUtils.isEmpty(dataSourceResults) ? null : dataSourceResults.getFirst();
     }
 
     protected TestElement getJdbcProcessor(SQLProcessor sqlProcessor, TestElement jdbcProcessor, DataSource dataSource) {

@@ -364,7 +364,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         TestPlanOperationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
         Assertions.assertEquals(response.getOperationCount(), 1);
         scenarioList = testPlanApiScenarioMapper.selectByExample(testPlanApiScenarioExample);
-        Assertions.assertEquals(scenarioList.get(0).getId(), request.getMoveId());
+        Assertions.assertEquals(scenarioList.getFirst().getId(), request.getMoveId());
         Assertions.assertEquals(scenarioList.get(1).getId(), request.getTargetId());
 
         //将这时的第30个放到第一位之后
@@ -376,7 +376,7 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanOperationResponse.class);
         Assertions.assertEquals(response.getOperationCount(), 1);
         scenarioList = testPlanApiScenarioMapper.selectByExample(testPlanApiScenarioExample);
-        Assertions.assertEquals(scenarioList.get(0).getId(), request.getTargetId());
+        Assertions.assertEquals(scenarioList.getFirst().getId(), request.getTargetId());
         Assertions.assertEquals(scenarioList.get(1).getId(), request.getMoveId());
 
     }

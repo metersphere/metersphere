@@ -290,7 +290,7 @@ public class FunctionalCaseAttachmentService {
         example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
-            FunctionalCaseAttachment attachment = caseAttachments.get(0);
+            FunctionalCaseAttachment attachment = caseAttachments.getFirst();
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());
             fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
@@ -315,7 +315,7 @@ public class FunctionalCaseAttachmentService {
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         byte[] bytes = null;
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
-            FunctionalCaseAttachment attachment = caseAttachments.get(0);
+            FunctionalCaseAttachment attachment = caseAttachments.getFirst();
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());
             fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
@@ -334,7 +334,7 @@ public class FunctionalCaseAttachmentService {
         example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
-            return caseAttachments.get(0);
+            return caseAttachments.getFirst();
         }
         return new FunctionalCaseAttachment();
     }
@@ -460,7 +460,7 @@ public class FunctionalCaseAttachmentService {
             if (CollectionUtils.isEmpty(folderFileNames)) {
                 return null;
             }
-            String[] pathSplit = folderFileNames.get(0).split("/");
+            String[] pathSplit = folderFileNames.getFirst().split("/");
             return pathSplit[pathSplit.length - 1];
 
         } catch (Exception e) {
@@ -533,7 +533,7 @@ public class FunctionalCaseAttachmentService {
             bytes = getPreviewImg(fileName, fileId, compressed);
         } else {
             //在正式目录获取
-            FunctionalCaseAttachment attachment = caseAttachments.get(0);
+            FunctionalCaseAttachment attachment = caseAttachments.getFirst();
             fileName = attachment.getFileName();
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());

@@ -281,7 +281,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
-        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);
+        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).getFirst();
         Assertions.assertNull(testResourcePoolDTO.getInUsed());
     }
 
@@ -557,7 +557,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
-        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);
+        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).getFirst();
         Assertions.assertTrue(StringUtils.equals(testResourcePoolDTO.getName(), keyWord));
         return testResourcePoolDTO;
     }

@@ -727,7 +727,7 @@ public class BugService {
             // 平台默认模板
             Template pluginDefaultTemplate = projectTemplateService.getPluginBugTemplate(project.getId());
             List<ProjectTemplateOptionDTO> templateOption = projectTemplateService.getOption(project.getId(), TemplateScene.BUG.name());
-            ProjectTemplateOptionDTO defaultProjectTemplate = templateOption.stream().filter(ProjectTemplateOptionDTO::getEnableDefault).toList().get(0);
+            ProjectTemplateOptionDTO defaultProjectTemplate = templateOption.stream().filter(ProjectTemplateOptionDTO::getEnableDefault).toList().getFirst();
             if (isPluginDefaultTemplate(defaultProjectTemplate.getId(), pluginDefaultTemplate)) {
                 BeanUtils.copyBean(msDefaultTemplate, pluginDefaultTemplate);
             } else {
@@ -945,7 +945,7 @@ public class BugService {
             if (StringUtils.isBlank(statusField.get().getValue()) && StringUtils.equalsIgnoreCase(BugPlatform.LOCAL.getName(), platformName)) {
                 // Local平台设置状态默认值为状态流-开始状态
                 List<SelectOption> localStartStatusItem = bugStatusService.getToStatusItemOptionOnLocal(request.getProjectId(), StringUtils.EMPTY);
-                bug.setStatus(localStartStatusItem.get(0).getValue());
+                bug.setStatus(localStartStatusItem.getFirst().getValue());
             } else {
                 bug.setStatus(statusField.get().getValue());
             }
@@ -1036,7 +1036,7 @@ public class BugService {
         if (CollectionUtils.isEmpty(bugs)) {
             throw new MSException(BUG_NOT_EXIST);
         }
-        return bugs.get(0);
+        return bugs.getFirst();
     }
 
     /**
@@ -1491,13 +1491,13 @@ public class BugService {
                             .replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
                     if (updateBug.getPlatformDefaultTemplate()) {
                         // 来自富文本自定义字段
-                        PlatformCustomFieldItemDTO descriptionField = updateBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().get(0);
+                        PlatformCustomFieldItemDTO descriptionField = updateBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().getFirst();
                         descriptionField.setValue(updateBug.getDescription());
                     }
                 } else {
                     // 来自富文本自定义字段
                     PlatformCustomFieldItemDTO richTextField = updateBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getType(), PlatformCustomFieldType.RICH_TEXT.name())
-                            && field.getValue() != null && StringUtils.contains(field.getValue().toString(), "alt=\"" + key + "\"")).toList().get(0);
+                            && field.getValue() != null && StringUtils.contains(field.getValue().toString(), "alt=\"" + key + "\"")).toList().getFirst();
                     richTextField.setValue(richTextField.getValue().toString().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + updateBug.getProjectId() + "/" + fileId + "/false\""));
                 }
             }));
@@ -2002,13 +2002,13 @@ public class BugService {
                                     .replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + platformBug.getProjectId() + "/" + fileId + "/false\""));
                             if (platformBug.getPlatformDefaultTemplate()) {
                                 // 来自富文本自定义字段
-                                PlatformCustomFieldItemDTO descriptionField = platformBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().get(0);
+                                PlatformCustomFieldItemDTO descriptionField = platformBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().getFirst();
                                 descriptionField.setValue(platformBug.getDescription());
                             }
                         } else {
                             // 来自富文本自定义字段
                             PlatformCustomFieldItemDTO richTextField = platformBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getType(), PlatformCustomFieldType.RICH_TEXT.name())
-                                    && field.getValue() != null && StringUtils.contains(field.getValue().toString(), "alt=\"" + key + "\"")).toList().get(0);
+                                    && field.getValue() != null && StringUtils.contains(field.getValue().toString(), "alt=\"" + key + "\"")).toList().getFirst();
                             richTextField.setValue(richTextField.getValue().toString().replace("alt=\"" + key + "\"", "src=\"/bug/attachment/preview/md/" + platformBug.getProjectId() + "/" + fileId + "/false\""));
                         }
                     }));

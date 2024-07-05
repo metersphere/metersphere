@@ -99,7 +99,7 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     }
 
     public void removeMember(OrganizationUserRoleMemberEditRequest request) {
-        String removeUserId = request.getUserIds().get(0);
+        String removeUserId = request.getUserIds().getFirst();
         checkMemberParam(removeUserId, request.getUserRoleId());
         //检查移除的是不是管理员
         if (StringUtils.equals(request.getUserRoleId(),InternalUserRole.ORG_ADMIN.getValue())) {

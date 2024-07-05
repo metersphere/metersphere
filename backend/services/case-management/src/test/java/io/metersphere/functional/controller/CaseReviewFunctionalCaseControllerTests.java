@@ -238,7 +238,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Order(7)
     public void testPos() throws Exception {
         List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
-        CaseReviewFunctionalCase caseReviews = caseReviewList.get(0);
+        CaseReviewFunctionalCase caseReviews = caseReviewList.getFirst();
         CaseReviewFunctionalCase caseReviews2 = caseReviewList.get(1);
         Long pos = caseReviews.getPos();
         Long pos2 = caseReviews2.getPos();
@@ -251,7 +251,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_POS, posRequest);
         caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
         caseReviews = caseReviewList.get(1);
-        caseReviews2 = caseReviewList.get(0);
+        caseReviews2 = caseReviewList.getFirst();
         Long pos3 = caseReviews.getPos();
         Long pos4 = caseReviews2.getPos();
         Assertions.assertTrue(Objects.equals(pos, pos3));
@@ -259,7 +259,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         posRequest.setMoveMode("BEFORE");
         this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_POS, posRequest);
         caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
-        caseReviews = caseReviewList.get(0);
+        caseReviews = caseReviewList.getFirst();
         caseReviews2 = caseReviewList.get(1);
         Long pos5 = caseReviews.getPos();
         Long pos6 = caseReviews2.getPos();

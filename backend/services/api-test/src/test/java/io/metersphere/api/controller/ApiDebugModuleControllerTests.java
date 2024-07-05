@@ -409,7 +409,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         List<ApiDebugModule> apiDebugModules = apiDebugModuleMapper.selectByExample(example);
         assert CollectionUtils.isNotEmpty(apiDebugModules);
         updateRequest = new ModuleUpdateRequest();
-        updateRequest.setId(apiDebugModules.get(0).getId());
+        updateRequest.setId(apiDebugModules.getFirst().getId());
         updateRequest.setName("default-update-Project");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, URL_MODULE_UPDATE, updateRequest);
     }

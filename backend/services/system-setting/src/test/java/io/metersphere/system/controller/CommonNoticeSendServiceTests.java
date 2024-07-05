@@ -78,13 +78,13 @@ public class CommonNoticeSendServiceTests extends BaseTest {
         FunctionalCaseCustomFieldExample functionalCaseCustomFieldExample = new FunctionalCaseCustomFieldExample();
         functionalCaseCustomFieldExample.createCriteria().andCaseIdEqualTo("aspect_gyq_one");
         List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(functionalCaseCustomFieldExample);
-        String fieldId = functionalCaseCustomFields.get(0).getFieldId();
+        String fieldId = functionalCaseCustomFields.getFirst().getFieldId();
         CustomField customFields = customFieldMapper.selectByPrimaryKey(fieldId);
 
         List<OptionDTO>optionDTOList = new ArrayList<>();
         OptionDTO optionDTO = new OptionDTO();
         optionDTO.setId(customFields.getName());
-        optionDTO.setName(functionalCaseCustomFields.get(0).getValue());
+        optionDTO.setName(functionalCaseCustomFields.getFirst().getValue());
         optionDTOList.add(optionDTO);
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         BeanUtils.copyBean(functionalCaseDTO,functionalCase);

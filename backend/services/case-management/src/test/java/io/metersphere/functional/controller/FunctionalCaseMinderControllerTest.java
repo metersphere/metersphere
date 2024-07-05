@@ -291,7 +291,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         FunctionalCaseCustomFieldExample customFieldExample = new FunctionalCaseCustomFieldExample();
         customFieldExample.createCriteria().andCaseIdEqualTo("TEST_FUNCTIONAL_MINDER_CASE_ID_1").andFieldIdEqualTo("custom_field_minder_gyq_id_3");
         List<FunctionalCaseCustomField> functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.get(0).getValue(),"P0"));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.getFirst().getValue(),"P0"));
 
         FunctionalCaseModule functionalCaseModule = functionalCaseModuleMapper.selectByPrimaryKey("TEST_MINDER_MODULE_ID_GYQ7");
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseModule.getName(),"移动7"));
@@ -313,18 +313,18 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseExample.createCriteria().andNameEqualTo("新增用例");
         functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
-        Assertions.assertTrue(functionalCases.get(0).getPos() > 0L);
+        Assertions.assertTrue(functionalCases.getFirst().getPos() > 0L);
 
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
         customFieldExample = new FunctionalCaseCustomFieldExample();
-        customFieldExample.createCriteria().andCaseIdEqualTo(functionalCases.get(0).getId()).andFieldIdEqualTo("custom_field_minder_gyq_id_3");
+        customFieldExample.createCriteria().andCaseIdEqualTo(functionalCases.getFirst().getId()).andFieldIdEqualTo("custom_field_minder_gyq_id_3");
         functionalCaseCustomFields = functionalCaseCustomFieldMapper.selectByExample(customFieldExample);
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.get(0).getValue(),"P2"));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(functionalCaseCustomFields.getFirst().getValue(),"P2"));
         FunctionalCaseModuleExample functionalCaseModuleExample = new FunctionalCaseModuleExample();
         functionalCaseModuleExample.createCriteria().andNameEqualTo("新增9");
         List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCaseModules));
-        Assertions.assertTrue(functionalCaseModules.get(0).getPos() > 0L);
+        Assertions.assertTrue(functionalCaseModules.getFirst().getPos() > 0L);
         request = new FunctionalCaseMinderEditRequest();
         request.setProjectId("project-case-minder-test");
         request.setVersionId("ffff");

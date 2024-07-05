@@ -581,7 +581,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         testPlanCaseExecuteHistory.setCreateTime(System.currentTimeMillis());
         testPlanCaseExecuteHistoryMapper.insertSelective(testPlanCaseExecuteHistory);
         List<TestPlanCaseExecuteHistoryDTO> gyqReviewCaseTest = getPlanExecuteHistoryList("gyq_associate_function_case");
-        Assertions.assertTrue(StringUtils.isNotBlank(gyqReviewCaseTest.get(0).getContentText()));
+        Assertions.assertTrue(StringUtils.isNotBlank(gyqReviewCaseTest.getFirst().getContentText()));
         testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
         testPlanCaseExecuteHistory.setTestPlanCaseId("test_plan_associate_case_gyq_two");
         testPlanCaseExecuteHistory.setTestPlanId("associate_case_plan_gyq_two");

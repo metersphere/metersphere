@@ -346,7 +346,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setPriority("P0");
         request.setStatus(ApiDefinitionStatus.PROCESSING.name());
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
-        request.setEnvironmentId(environments.get(0).getId());
+        request.setEnvironmentId(environments.getFirst().getId());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         msHttpElement.setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
         request.setRequest(getMsElementParam(msHttpElement));
@@ -750,7 +750,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiFileResourceExample.createCriteria().andResourceIdEqualTo(apiTestCase.getId());
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
         Assertions.assertFalse(apiFileResources.isEmpty());
-        apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
+        apiTransferRequest.setFileId(apiFileResources.getFirst().getFileId());
         apiTransferRequest.setFileName("test-api-test-case-1");
         apiTransferRequest.setOriginalName("test-api-test-case-1.txt");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
@@ -1018,11 +1018,11 @@ public class ApiTestCaseControllerTests extends BaseTest {
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-        request.setEnvironmentId(environments.get(0).getId());
+        request.setEnvironmentId(environments.getFirst().getId());
         requestPostWithOkAndReturn(BATCH_EDIT, request);
-        //判断数据的环境是不是environments.get(0).getId()
+        //判断数据的环境是不是environments.getFirst().getId()
         caseList = apiTestCaseMapper.selectByExample(example);
-        caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentId(), environments.get(0).getId()));
+        caseList.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentId(), environments.getFirst().getId()));
         //环境数据为空
         request.setEnvironmentId(null);
         this.requestPost(BATCH_EDIT, request, ERROR_REQUEST_MATCHER);

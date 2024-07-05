@@ -222,7 +222,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         msHttpElement.setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
         request.setRequest(getMsElementParam(msHttpElement));
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
-        msHttpResponse.get(0).setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpResponse.get(0).getBody(), fileMetadataId));
+        msHttpResponse.getFirst().setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpResponse.getFirst().getBody(), fileMetadataId));
         request.setResponse(msHttpResponse);
 
         uploadFileId = doUploadTempFile(getMockMultipartFile("api-add-file_upload.JPG"));
@@ -256,7 +256,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiFileResourceExample.createCriteria().andResourceIdEqualTo(apiDefinition.getId());
         List<ApiFileResource> apiFileResources = apiFileResourceMapper.selectByExample(apiFileResourceExample);
         Assertions.assertFalse(apiFileResources.isEmpty());
-        apiTransferRequest.setFileId(apiFileResources.get(0).getFileId());
+        apiTransferRequest.setFileId(apiFileResources.getFirst().getFileId());
         apiTransferRequest.setFileName("test-file_upload");
         apiTransferRequest.setOriginalName("test-file_upload.JPG");
         this.requestPost("transfer", apiTransferRequest).andExpect(status().isOk());
@@ -899,7 +899,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private void assertPateDate(Pager pageData) {
         List<ApiDefinitionDTO> apiDefinitions = ApiDataUtils.parseArray(JSON.toJSONString(pageData.getList()), ApiDefinitionDTO.class);
         if (CollectionUtils.isNotEmpty(apiDefinitions)) {
-            ApiDefinitionDTO apiDefinitionDTO = apiDefinitions.get(0);
+            ApiDefinitionDTO apiDefinitionDTO = apiDefinitions.getFirst();
             // 判断用例数是否正确
             ApiTestCaseExample example = new ApiTestCaseExample();
             example.createCriteria()

@@ -187,7 +187,7 @@ public class ServiceIntegrationControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, defaultOrg.getId());
         // 校验请求成功数据
         List<ServiceIntegrationDTO> serviceIntegrationList = getResultDataArray(mvcResult, ServiceIntegrationDTO.class);
-        ServiceIntegrationDTO serviceIntegrationDTO = serviceIntegrationList.get(0);
+        ServiceIntegrationDTO serviceIntegrationDTO = serviceIntegrationList.getFirst();
         ServiceIntegration serviceIntegration = serviceIntegrationMapper.selectByPrimaryKey(serviceIntegrationDTO.getId());
         Assertions.assertEquals(JSON.parseMap(new String(serviceIntegration.getConfiguration())),
                 serviceIntegrationDTO.getConfiguration());

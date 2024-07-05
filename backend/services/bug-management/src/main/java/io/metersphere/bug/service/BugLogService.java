@@ -121,6 +121,6 @@ public class BugLogService {
             originalBug.setDescription(bugContent.getDescription());
         }
         // 缺陷自定义字段
-        return bugService.handleCustomField(List.of(originalBug), originalBug.getProjectId()).get(0);
+        return bugService.handleCustomField(List.of(originalBug), originalBug.getProjectId()).getFirst();
     }
 }

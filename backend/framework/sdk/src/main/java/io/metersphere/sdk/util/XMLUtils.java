@@ -131,7 +131,7 @@ public class XMLUtils {
                 list.add(jsonObject);
             }
             if (list.size() == 1) {
-                result.put(node.getName(), list.get(0));
+                result.put(node.getName(), list.getFirst());
             } else {
                 result.put(node.getName(), list);
             }

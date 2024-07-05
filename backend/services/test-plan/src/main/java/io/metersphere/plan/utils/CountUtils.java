@@ -24,7 +24,7 @@ public class CountUtils {
 			return new CaseCount();
 		}
 
-		Class<CaseCount> clazz = (Class<CaseCount>) list.get(0).getClass();
+		Class<CaseCount> clazz = (Class<CaseCount>) list.getFirst().getClass();
 		CaseCount summary;
 		try {
 			summary = clazz.newInstance();

@@ -320,7 +320,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
         example.createCriteria().andUserIdEqualTo(userRoleRelation.getUserId());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
         Assertions.assertTrue(userRoleRelations.size() == 1);
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(userRoleRelations.get(0).getRoleId(), MEMBER.getValue()));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(userRoleRelations.getFirst().getRoleId(), MEMBER.getValue()));
         clearOneLimitTest(userRoleRelation.getUserId());
 
         // 删除没有关联用户的用户组

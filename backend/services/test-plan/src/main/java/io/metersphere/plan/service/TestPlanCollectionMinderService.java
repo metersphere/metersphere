@@ -351,7 +351,7 @@ public class TestPlanCollectionMinderService {
     @NotNull
     private static TestPlanCollection updateCollection(TestPlanCollectionMinderEditRequest request, String userId, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
         TestPlanCollection testPlanCollection = new TestPlanCollection();
-        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).get(0);
+        TestPlanCollection parent = parentMap.get(testPlanCollectionMinderEditDTO.getType()).getFirst();
         if (testPlanCollectionMinderEditDTO.getExtended()) {
             BeanUtils.copyBean(testPlanCollection, parent);
         } else {
@@ -379,7 +379,7 @@ public class TestPlanCollectionMinderService {
     @NotNull
     private static TestPlanCollection addCollection(TestPlanCollectionMinderEditRequest request, String userId, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
         List<TestPlanCollection> testPlanCollections = parentMap.get(testPlanCollectionMinderEditDTO.getType());
-        TestPlanCollection parent = testPlanCollections.get(0);
+        TestPlanCollection parent = testPlanCollections.getFirst();
         TestPlanCollection testPlanCollection = new TestPlanCollection();
         if (testPlanCollectionMinderEditDTO.getExtended()) {
             BeanUtils.copyBean(testPlanCollection, parent);

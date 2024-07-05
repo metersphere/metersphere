@@ -243,7 +243,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Override
     public void initResourceDefaultCollection(String planId, List<TestPlanCollectionDTO> defaultCollections) {
         TestPlanCollectionDTO defaultCollection = defaultCollections.stream().filter(collection -> StringUtils.equals(collection.getType(), CaseType.SCENARIO_CASE.getKey())
-                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().get(0);
+                && !StringUtils.equals(collection.getParentId(), "NONE")).toList().getFirst();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioMapper scenarioBatchMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
         TestPlanApiScenario record = new TestPlanApiScenario();

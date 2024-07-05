@@ -135,7 +135,7 @@ public class ReviewFunctionalCaseService {
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(request.getCaseId());
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        String status = caseReviewFunctionalCases.get(0).getStatus();
+        String status = caseReviewFunctionalCases.getFirst().getStatus();
         if (StringUtils.equals(request.getReviewPassRule(), CaseReviewPassRule.SINGLE.toString())) {
             if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()) || isAdmin) {
                 functionalCaseStatus = status;
@@ -151,10 +151,10 @@ public class ReviewFunctionalCaseService {
             AtomicInteger unPassCount = new AtomicInteger();
             hasReviewedUserMap.forEach((k, v) -> {
                 List<CaseReviewHistory> list = v.stream().sorted(Comparator.comparing(CaseReviewHistory::getCreateTime).reversed()).toList();
-                if (StringUtils.equalsIgnoreCase(list.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                if (StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
                     passCount.set(passCount.get() + 1);
                 }
-                if (StringUtils.equalsIgnoreCase(list.get(0).getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                if (StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });

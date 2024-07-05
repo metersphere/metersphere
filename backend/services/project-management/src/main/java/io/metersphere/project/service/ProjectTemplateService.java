@@ -212,7 +212,7 @@ public class ProjectTemplateService extends BaseTemplateService {
                 .andScopeIdEqualTo(projectId)
                 .andSceneEqualTo(scene)
                 .andInternalEqualTo(true);
-        return templateMapper.selectByExample(example).get(0);
+        return templateMapper.selectByExample(example).getFirst();
     }
 
     /**

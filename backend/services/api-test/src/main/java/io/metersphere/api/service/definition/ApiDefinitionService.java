@@ -947,7 +947,7 @@ public class ApiDefinitionService extends MoveNodeService {
         if (ApiDefinitionDocType.ALL.name().equals(request.getType()) || ApiDefinitionDocType.MODULE.name().equals(request.getType())) {
             List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
             if (!list.isEmpty()) {
-                ApiDefinitionDTO first = list.get(0);
+                ApiDefinitionDTO first = list.getFirst();
                 handleBlob(first.getId(), first);
                 String docTitle;
                 if (ApiDefinitionDocType.ALL.name().equals(request.getType())) {

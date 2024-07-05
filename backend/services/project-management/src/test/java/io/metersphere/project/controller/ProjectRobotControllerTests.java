@@ -394,7 +394,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         for (MessageTaskDTO messageTaskDTO : messageTaskDetailDTOList) {
             for (MessageTaskTypeDTO messageTaskTypeDTO : messageTaskDTO.getMessageTaskTypeDTOList()) {
                 if (StringUtils.equalsIgnoreCase(messageTaskTypeDTO.getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK)) {
-                    Boolean testRobotMessageRobot1 = messageTaskTypeDTO.getMessageTaskDetailDTOList().get(0).getProjectRobotConfigMap().get(projectRobotId).getEnable();
+                    Boolean testRobotMessageRobot1 = messageTaskTypeDTO.getMessageTaskDetailDTOList().getFirst().getProjectRobotConfigMap().get(projectRobotId).getEnable();
                     Assertions.assertTrue(testRobotMessageRobot1);
                 }
             }
@@ -513,7 +513,7 @@ public class ProjectRobotControllerTests extends BaseTest {
         ProjectRobotExample projectRobotExample = new ProjectRobotExample();
         projectRobotExample.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(keyWord);
         List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
-        return projectRobots.get(0);
+        return projectRobots.getFirst();
     }
 
     public void setMessageTask(String projectId, String defaultRobotId) throws Exception {

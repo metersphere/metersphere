@@ -76,7 +76,7 @@ public class FunctionalCaseReviewControllerTests extends BaseTest {
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         caseReviewHistoryMapper.insertSelective(caseReviewHistory);
         List<CaseReviewHistoryDTO> gyqReviewCaseTest = getCaseReviewHistoryList("gyqReviewCaseTest");
-        Assertions.assertTrue(StringUtils.isNotBlank(gyqReviewCaseTest.get(0).getContentText()));
+        Assertions.assertTrue(StringUtils.isNotBlank(gyqReviewCaseTest.getFirst().getContentText()));
         caseReviewHistory = new CaseReviewHistory();
         caseReviewHistory.setReviewId("用例关系名称2");
         caseReviewHistory.setCaseId("gyqReviewCaseTest");

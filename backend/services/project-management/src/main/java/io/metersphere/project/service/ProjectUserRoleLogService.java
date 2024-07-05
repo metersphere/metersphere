@@ -68,7 +68,7 @@ public class ProjectUserRoleLogService {
 
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andIdEqualTo(request.getId());
-        UserRole userRole = userRoleMapper.selectByExample(example).get(0);
+        UserRole userRole = userRoleMapper.selectByExample(example).getFirst();
         dto.setOriginalValue(JSON.toJSONBytes(userRole.getName()));
         dto.setModifiedValue(JSON.toJSONBytes(request.getName()));
         return dto;

@@ -96,7 +96,7 @@ public class BaseStatusItemService {
         if (CollectionUtils.isEmpty(statusItems)) {
             return List.of();
         }
-        int pos = getByScopeIdAndScene(statusItems.get(0).getScopeId(), statusItems.get(0).getScene()).size();
+        int pos = getByScopeIdAndScene(statusItems.getFirst().getScopeId(), statusItems.getFirst().getScene()).size();
         for (StatusItem statusItem : statusItems) {
             statusItem.setId(IDGenerator.nextStr());
             // 设置排序

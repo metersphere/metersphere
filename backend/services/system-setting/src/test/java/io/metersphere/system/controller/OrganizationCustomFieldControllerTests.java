@@ -199,12 +199,12 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
 
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria().andScopeIdEqualTo(DEFAULT_ORGANIZATION_ID).andNameEqualTo("functional_priority");
-        CustomFieldUpdateRequest internalRequest = BeanUtils.copyBean(new CustomFieldUpdateRequest(), customFieldMapper.selectByExample(example).get(0));
+        CustomFieldUpdateRequest internalRequest = BeanUtils.copyBean(new CustomFieldUpdateRequest(), customFieldMapper.selectByExample(example).getFirst());
         internalRequest.setName("aaaa");
         this.requestPostWithOk(DEFAULT_UPDATE, internalRequest);
-        Assertions.assertEquals(customFieldMapper.selectByExample(example).get(0).getInternal(), true);
+        Assertions.assertEquals(customFieldMapper.selectByExample(example).getFirst().getInternal(), true);
         // 内置字段名称不能修改
-        Assertions.assertEquals(customFieldMapper.selectByExample(example).get(0).getName(), "functional_priority");
+        Assertions.assertEquals(customFieldMapper.selectByExample(example).getFirst().getName(), "functional_priority");
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
@@ -261,8 +261,8 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
             if (StringUtils.equalsAny(resultItem.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                 List<CustomFieldOption> options = customFieldDTO.getOptions();
                 Assertions.assertEquals(options.size(), 1);
-                Assertions.assertEquals(options.get(0).getValue(), "CREATE_USER");
-                Assertions.assertEquals(options.get(0).getText(), "创建人");
+                Assertions.assertEquals(options.getFirst().getValue(), "CREATE_USER");
+                Assertions.assertEquals(options.getFirst().getText(), "创建人");
             } else if (CustomFieldType.getHasOptionValueSet().contains(resultItem.getType())) {
                 // 有下拉框选项的校验选项
                 Assertions.assertEquals(resultList.get(i).getOptions().stream().sorted(Comparator.comparing(CustomFieldOption::getValue)).toList(),
@@ -321,7 +321,7 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria()
                 .andInternalEqualTo(true);
-        CustomField internalCustomField = customFieldMapper.selectByExample(example).get(0);
+        CustomField internalCustomField = customFieldMapper.selectByExample(example).getFirst();
         assertErrorCode(this.requestGet(DEFAULT_DELETE, internalCustomField.getId()), INTERNAL_CUSTOM_FIELD_PERMISSION);
 
         // @@校验 NOT_FOUND 异常

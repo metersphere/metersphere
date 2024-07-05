@@ -84,7 +84,7 @@ public class UserLocalConfigControllerTests extends BaseTest {
     public void testUpdate() throws Exception {
         UserLocalConfigExample userLocalConfigExample = new UserLocalConfigExample();
         userLocalConfigExample.createCriteria().andCreateUserEqualTo("admin").andTypeEqualTo("API");
-        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).get(0);
+        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).getFirst();
         UserLocalConfigUpdateRequest request = new UserLocalConfigUpdateRequest();
         request.setId(userLocalConfig.getId());
         request.setUserUrl("https://www.zhihu.com");
@@ -107,7 +107,7 @@ public class UserLocalConfigControllerTests extends BaseTest {
     public void testEnable() throws Exception {
         UserLocalConfigExample userLocalConfigExample = new UserLocalConfigExample();
         userLocalConfigExample.createCriteria().andCreateUserEqualTo("admin").andTypeEqualTo("API");
-        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).get(0);
+        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).getFirst();
         requestGet(String.format(ENABLE, userLocalConfig.getId()));
         userLocalConfig = userLocalConfigMapper.selectByPrimaryKey(userLocalConfig.getId());
         Assertions.assertEquals(true, userLocalConfig.getEnable());
@@ -122,7 +122,7 @@ public class UserLocalConfigControllerTests extends BaseTest {
     public void testDisable() throws Exception {
         UserLocalConfigExample userLocalConfigExample = new UserLocalConfigExample();
         userLocalConfigExample.createCriteria().andCreateUserEqualTo("admin").andTypeEqualTo("API");
-        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).get(0);
+        UserLocalConfig userLocalConfig = userLocalConfigMapper.selectByExample(userLocalConfigExample).getFirst();
         requestGet(String.format(DISABLE, userLocalConfig.getId()));
         userLocalConfig = userLocalConfigMapper.selectByPrimaryKey(userLocalConfig.getId());
         Assertions.assertEquals(false, userLocalConfig.getEnable());

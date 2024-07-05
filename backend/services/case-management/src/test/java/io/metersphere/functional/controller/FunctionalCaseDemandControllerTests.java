@@ -273,7 +273,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        Assertions.assertTrue(StringUtils.equals(functionalCaseDemands.get(0).getDemandName(), "手动加入2"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseDemands.getFirst().getDemandName(), "手动加入2"));
     }
 
     @Test
@@ -292,7 +292,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        Assertions.assertTrue(StringUtils.equals(functionalCaseDemands.get(0).getDemandName(), "手动加入2"));
+        Assertions.assertTrue(StringUtils.equals(functionalCaseDemands.getFirst().getDemandName(), "手动加入2"));
     }
 
     @Test
@@ -314,7 +314,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        Assertions.assertNotNull(functionalCaseDemands.get(0).getDemandId());
+        Assertions.assertNotNull(functionalCaseDemands.getFirst().getDemandId());
 
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setId("hehe");
@@ -344,7 +344,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(caseId);
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        return functionalCaseDemands.get(0).getId();
+        return functionalCaseDemands.getFirst().getId();
     }
 
     @Test

@@ -214,7 +214,7 @@ public class CaseReviewFunctionalCaseService {
     private String getMyStatus(List<CaseReviewHistory> histories, String viewStatusUserId) {
         List<CaseReviewHistory> list = histories.stream().filter(history -> StringUtils.equalsIgnoreCase(history.getCreateUser(), viewStatusUserId)).toList();
         if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0).getStatus();
+            return list.getFirst().getStatus();
         }
 
         //重新提审记录
@@ -328,7 +328,7 @@ public class CaseReviewFunctionalCaseService {
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeEqualTo(ProjectApplicationType.CASE.CASE_RE_REVIEW.name());
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.get(0).getTypeValue())) {
+        if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.getFirst().getTypeValue())) {
             if (!StringUtils.equals(name, request.getName())
                     || !StringUtils.equals(new String(blob.getSteps() == null ? new byte[0] : blob.getSteps(), StandardCharsets.UTF_8), request.getSteps())
                     || !StringUtils.equals(new String(blob.getTextDescription() == null ? new byte[0] : blob.getTextDescription(), StandardCharsets.UTF_8), request.getTextDescription())
@@ -526,10 +526,10 @@ public class CaseReviewFunctionalCaseService {
             AtomicInteger passCount = new AtomicInteger();
             AtomicInteger unPassCount = new AtomicInteger();
             hasReviewedUserMap.forEach((k, v) -> {
-                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                if (StringUtils.equalsIgnoreCase(v.getFirst().getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
                     passCount.set(passCount.get() + 1);
                 }
-                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                if (StringUtils.equalsIgnoreCase(v.getFirst().getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });
@@ -646,7 +646,7 @@ public class CaseReviewFunctionalCaseService {
     }
 
     private String newReviewStatus(List<String> historyUsers, List<String> newUsers, List<CaseReviewHistory> reviewHistories, List<CaseReviewFunctionalCaseUser> newReviewers) {
-        CaseReviewHistory caseReviewHistory = reviewHistories.get(0);
+        CaseReviewHistory caseReviewHistory = reviewHistories.getFirst();
         if (newUsers.contains(caseReviewHistory.getCreateUser()) && FunctionalCaseReviewStatus.RE_REVIEWED.name().equals(caseReviewHistory.getStatus())) {
             return FunctionalCaseReviewStatus.RE_REVIEWED.name();
         }
@@ -731,7 +731,7 @@ public class CaseReviewFunctionalCaseService {
         Map<String, List<FunctionalCaseModuleDTO>> projectModuleMap = functionalModuleIds.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getProjectId));
         if (MapUtils.isEmpty(projectModuleMap)) {
             projectRootMap.forEach((projectId, projectOptionDTOList) -> {
-                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
+                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.getFirst().getProjectName(), Project.class.getName());
                 returnList.add(projectNode);
                 BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
                 projectNode.addChild(defaultNode);
@@ -739,7 +739,7 @@ public class CaseReviewFunctionalCaseService {
             return returnList;
         }
         projectModuleMap.forEach((projectId, moduleList) -> {
-            BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
+            BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.getFirst().getProjectName(), Project.class.getName());
             returnList.add(projectNode);
             List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
             List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
@@ -804,8 +804,8 @@ public class CaseReviewFunctionalCaseService {
         List<OptionDTO> optionDTOS = new ArrayList<>();
         collect.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
-            optionDTO.setId(v.get(0).getUserName());
-            optionDTO.setName(v.get(0).getStatus());
+            optionDTO.setId(v.getFirst().getUserName());
+            optionDTO.setName(v.getFirst().getStatus());
             optionDTOS.add(optionDTO);
         });
         return optionDTOS;

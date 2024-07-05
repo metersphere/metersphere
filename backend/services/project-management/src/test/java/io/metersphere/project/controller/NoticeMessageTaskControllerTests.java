@@ -141,8 +141,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskExample.createCriteria()
                 .andProjectIdEqualTo("project-message-test").andProjectRobotIdEqualTo("test_message_robot2").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
         List<MessageTask> messageTasks1 = messageTaskMapper.selectByExample(messageTaskExample);
-        Assertions.assertTrue(messageTasks1.get(0).getEnable());
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(messageTasks1.get(0).getSubject(), "看看改不改"));
+        Assertions.assertTrue(messageTasks1.getFirst().getEnable());
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(messageTasks1.getFirst().getSubject(), "看看改不改"));
 
         messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
@@ -267,8 +267,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
             }
         }
 
-        Assertions.assertEquals("test_message_robot2", messageTasks.get(0).getProjectRobotId());
-        Assertions.assertEquals(false, messageTasks.get(0).getEnable());
+        Assertions.assertEquals("test_message_robot2", messageTasks.getFirst().getProjectRobotId());
+        Assertions.assertEquals(false, messageTasks.getFirst().getEnable());
     }
 
     @Test
@@ -364,7 +364,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<MessageTaskDTO> messageTaskDetailDTOList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), MessageTaskDTO.class);
-        MessageTaskDetailDTO messageTaskDetailDTO = messageTaskDetailDTOList.get(0).getMessageTaskTypeDTOList().get(0).getMessageTaskDetailDTOList().get(0);
+        MessageTaskDetailDTO messageTaskDetailDTO = messageTaskDetailDTOList.getFirst().getMessageTaskTypeDTOList().getFirst().getMessageTaskDetailDTOList().getFirst();
         Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = messageTaskDetailDTO.getProjectRobotConfigMap();
         System.out.println(projectRobotConfigMap);
         // Assertions.assertTrue(StringUtils.isBlank(robotId));
@@ -498,11 +498,11 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isNotEmpty(messageTaskDetailDTOList));
         System.out.println(messageTaskDetailDTOList);
         List<MessageTaskDTO> collect = messageTaskDetailDTOList.stream().filter(t -> t.type.equals(NoticeConstants.Module.API_TEST_MANAGEMENT)).toList();
-        List<MessageTaskTypeDTO> messageTaskTypeDTOList = collect.get(0).getMessageTaskTypeDTOList();
+        List<MessageTaskTypeDTO> messageTaskTypeDTOList = collect.getFirst().getMessageTaskTypeDTOList();
         List<MessageTaskTypeDTO> collect1 = messageTaskTypeDTOList.stream().filter(t -> t.getTaskType().equals(NoticeConstants.TaskType.API_DEFINITION_TASK)).toList();
-        List<MessageTaskDetailDTO> messageTaskDetailDTOList1 = collect1.get(0).getMessageTaskDetailDTOList();
+        List<MessageTaskDetailDTO> messageTaskDetailDTOList1 = collect1.getFirst().getMessageTaskDetailDTOList();
         List<MessageTaskDetailDTO> collect2 = messageTaskDetailDTOList1.stream().filter(t -> t.event.equals(NoticeConstants.Event.CREATE)).toList();
-        Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = collect2.get(0).getProjectRobotConfigMap();
+        Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = collect2.getFirst().getProjectRobotConfigMap();
         ProjectRobotConfigDTO projectRobotConfigDTO = projectRobotConfigMap.get("test_message_robot2");
         Assertions.assertTrue(StringUtils.equals(projectRobotConfigDTO.getTemplate(),"发送消息测试"));
     }

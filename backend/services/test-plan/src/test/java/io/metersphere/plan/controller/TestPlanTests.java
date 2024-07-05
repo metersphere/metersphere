@@ -819,7 +819,7 @@ public class TestPlanTests extends BaseTest {
         //提前校验
         List<TestPlanResponse> tableList = testPlanTestService.getTestPlanResponse(this.requestPostWithOkAndReturn(
                 URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8));
-        Assertions.assertTrue(tableList.get(0).getId().equals(rootPlanIds.getLast()));
+        Assertions.assertTrue(tableList.getFirst().getId().equals(rootPlanIds.getLast()));
 
         /*
          排序校验用例设计：
@@ -835,20 +835,20 @@ public class TestPlanTests extends BaseTest {
         this.requestPostWithOk(URL_POST_TEST_PLAN_SORT, posRequest);
         tableList = testPlanTestService.getTestPlanResponse(this.requestPostWithOkAndReturn(
                 URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8));
-        Assertions.assertTrue(tableList.get(0).getId().equals(rootPlanIds.get(rootPlanIds.size() - 2)));
+        Assertions.assertTrue(tableList.getFirst().getId().equals(rootPlanIds.get(rootPlanIds.size() - 2)));
         //        2.最后一个移动到第一个（还原为原来的顺序）
         posRequest.setTargetId(tableList.getFirst().getId());
         posRequest.setMoveMode(MoveTypeEnum.BEFORE.name());
         this.requestPostWithOk(URL_POST_TEST_PLAN_SORT, posRequest);
         tableList = testPlanTestService.getTestPlanResponse(this.requestPostWithOkAndReturn(
                 URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8));
-        Assertions.assertTrue(tableList.get(0).getId().equals(rootPlanIds.getLast()));
+        Assertions.assertTrue(tableList.getFirst().getId().equals(rootPlanIds.getLast()));
         //        3.第三个移动到第二个
         posRequest = new PosRequest(project.getId(), rootPlanIds.get(rootPlanIds.size() - 3), rootPlanIds.get(rootPlanIds.size() - 2), MoveTypeEnum.BEFORE.name());
         this.requestPostWithOk(URL_POST_TEST_PLAN_SORT, posRequest);
         tableList = testPlanTestService.getTestPlanResponse(this.requestPostWithOkAndReturn(
                 URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8));
-        Assertions.assertTrue(tableList.get(0).getId().equals(rootPlanIds.getLast()));
+        Assertions.assertTrue(tableList.getFirst().getId().equals(rootPlanIds.getLast()));
         Assertions.assertTrue(tableList.get(1).getId().equals(posRequest.getMoveId()));
         Assertions.assertTrue(tableList.get(2).getId().equals(posRequest.getTargetId()));
 
@@ -864,7 +864,7 @@ public class TestPlanTests extends BaseTest {
         this.requestPostWithOk(URL_POST_TEST_PLAN_SORT, posRequest);
         tableList = testPlanTestService.getTestPlanResponse(this.requestPostWithOkAndReturn(
                 URL_POST_TEST_PLAN_PAGE, dataRequest).getResponse().getContentAsString(StandardCharsets.UTF_8));
-        Assertions.assertTrue(tableList.get(0).getId().equals(rootPlanIds.getLast()));
+        Assertions.assertTrue(tableList.getFirst().getId().equals(rootPlanIds.getLast()));
         Assertions.assertTrue(tableList.get(1).getId().equals(posRequest.getMoveId()));
         Assertions.assertTrue(tableList.get(2).getId().equals(posRequest.getTargetId()));
     }
@@ -951,7 +951,7 @@ public class TestPlanTests extends BaseTest {
         targetPlan = lastTestPlanInGroup.get(1);
         TestPlan updatePlan = new TestPlan();
         updatePlan.setId(targetPlan.getId());
-        updatePlan.setPos(lastTestPlanInGroup.get(0).getPos() - 2);
+        updatePlan.setPos(lastTestPlanInGroup.getFirst().getPos() - 2);
         testPlanMapper.updateByPrimaryKeySelective(updatePlan);
 
         posRequest = new PosRequest(project.getId(), movePlan.getId(), targetPlan.getId(), MoveTypeEnum.BEFORE.name());
@@ -1933,7 +1933,7 @@ public class TestPlanTests extends BaseTest {
         List<TestPlan> testPlanList = testPlanTestService.selectByProjectIdAndNames(project.getId(),
                 new String[]{"testPlan_61"});
 
-        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, testPlanList.get(0).getId())).andExpect(status().isOk());
+        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, testPlanList.getFirst().getId())).andExpect(status().isOk());
         allDataInDB--;
         testPlanTestService.checkDataCount(project.getId(), allDataInDB);
 
@@ -1959,7 +1959,7 @@ public class TestPlanTests extends BaseTest {
 
         //测试项目没有开启测试计划模块时能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
-        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, testPlanList.get(0).getId())).andExpect(status().is5xxServerError());
+        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, testPlanList.getFirst().getId())).andExpect(status().is5xxServerError());
         this.requestPost(URL_POST_TEST_PLAN_BATCH_DELETE, request).andExpect(status().is5xxServerError());
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);

@@ -104,7 +104,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字default
-        TestPlanReportPageResponse report = JSON.parseArray(JSON.toJSONString(pageData.getList()), TestPlanReportPageResponse.class).get(0);
+        TestPlanReportPageResponse report = JSON.parseArray(JSON.toJSONString(pageData.getList()), TestPlanReportPageResponse.class).getFirst();
         Assertions.assertTrue(StringUtils.contains(report.getName(), request.getKeyword()));
         // 覆盖排序, 及数据为空
         request.setSort(Map.of("tpr.create_time", "asc"));
@@ -437,6 +437,6 @@ public class TestPlanReportControllerTests extends BaseTest {
     private String getGenReportId() {
         TestPlanReportExample example = new TestPlanReportExample();
         example.createCriteria().andTestPlanIdEqualTo("plan_id_for_gen_report");
-        return testPlanReportMapper.selectByExample(example).get(0).getId();
+        return testPlanReportMapper.selectByExample(example).getFirst().getId();
     }
 }

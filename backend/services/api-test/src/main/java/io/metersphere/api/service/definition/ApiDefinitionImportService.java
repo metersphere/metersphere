@@ -182,7 +182,7 @@ public class ApiDefinitionImportService {
         applicationExample.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeEqualTo("API_URL_REPEATABLE");
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(applicationExample);
         if (CollectionUtils.isNotEmpty(projectApplications)) {
-            String typeValue = projectApplications.get(0).getTypeValue();
+            String typeValue = projectApplications.getFirst().getTypeValue();
         }*/
         //过滤(一次只导入一个协议)
         List<ApiDefinitionImportDetail> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());

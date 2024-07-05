@@ -59,7 +59,7 @@ public class TestPlanBugControllerTests extends BaseTest {
 		// 返回的数据量不超过规定要返回的数据量相同
 		Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
 		// 返回值中取出第一条数据, 并判断是否包含关键字default
-		TestPlanBugPageResponse bug = JSON.parseArray(JSON.toJSONString(pageData.getList()), TestPlanBugPageResponse.class).get(0);
+		TestPlanBugPageResponse bug = JSON.parseArray(JSON.toJSONString(pageData.getList()), TestPlanBugPageResponse.class).getFirst();
 		Assertions.assertTrue(StringUtils.contains(bug.getTitle(), request.getKeyword())
 				|| StringUtils.contains(bug.getNum(), request.getKeyword()));
 		// 数据为空

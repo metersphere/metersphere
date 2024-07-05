@@ -422,7 +422,7 @@ public class ProjectApplicationService {
                 example.createCriteria().andTypeEqualTo(String.valueOf(module)).andProjectIdEqualTo(projectId);
                 List<ProjectApplication> applications = projectApplicationMapper.selectByExample(example);
                 if (CollectionUtils.isNotEmpty(applications)) {
-                    moduleMap.put(String.valueOf(module), Boolean.valueOf(applications.get(0).getTypeValue()));
+                    moduleMap.put(String.valueOf(module), Boolean.valueOf(applications.getFirst().getTypeValue()));
                 } else {
                     moduleMap.put(String.valueOf(module), Boolean.TRUE);
                 }
@@ -542,7 +542,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.PLATFORM_BUG_CONFIG.BUG_PLATFORM_CONFIG.name());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0).getTypeValue().replaceAll("\\\\", "");
+            return list.getFirst().getTypeValue().replaceAll("\\\\", "");
         }
         return null;
     }
@@ -559,7 +559,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.PLATFORM_DEMAND_CONFIG.DEMAND_PLATFORM_CONFIG.name());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0).getTypeValue().replaceAll("\\\\", "");
+            return list.getFirst().getTypeValue().replaceAll("\\\\", "");
         }
         return null;
     }
@@ -568,7 +568,7 @@ public class ProjectApplicationService {
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
-        return CollectionUtils.isEmpty(projectApplications) ? null : projectApplications.get(0);
+        return CollectionUtils.isEmpty(projectApplications) ? null : projectApplications.getFirst();
     }
 
     /**
@@ -604,7 +604,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ProjectApplicationType.BUG.BUG_SYNC.name() + "_MECHANISM");
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            return StringUtils.equals(list.get(0).getTypeValue(), "increment");
+            return StringUtils.equals(list.getFirst().getTypeValue(), "increment");
         } else {
             return false;
         }
