@@ -97,6 +97,7 @@ public class FilterChainUtils {
         // 测试计划报告分享接口
         filterChainDefinitionMap.put("/test-plan/report/share/detail/**", "anon");
         filterChainDefinitionMap.put("/test-plan/report/share/get/**", "anon");
+        filterChainDefinitionMap.put("/test-plan/report/share/get-layout/**", "anon");
 
         return filterChainDefinitionMap;
     }

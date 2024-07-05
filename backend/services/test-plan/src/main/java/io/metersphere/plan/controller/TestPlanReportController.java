@@ -6,6 +6,7 @@ import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugAttachmentService;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
+import io.metersphere.plan.domain.TestPlanReportComponent;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
@@ -91,18 +92,18 @@ public class TestPlanReportController {
     @Operation(summary = "测试计划-详情-手动生成报告")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public void genReportByManual(@Validated @RequestBody TestPlanReportManualRequest request) {
+    public String genReportByManual(@Validated @RequestBody TestPlanReportManualRequest request) {
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
-        testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
+        return testPlanReportService.genReportByManual(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/auto-gen")
     @Operation(summary = "测试计划-详情-自动生成报告")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    public void genReportByAuto(@Validated @RequestBody TestPlanReportGenRequest request) {
+    public String genReportByAuto(@Validated @RequestBody TestPlanReportGenRequest request) {
         testPlanService.checkTestPlanNotArchived(request.getTestPlanId());
-        testPlanReportService.genReportByAuto(request, SessionUtils.getUserId());
+        return testPlanReportService.genReportByAuto(request, SessionUtils.getUserId());
     }
 
     // 报告详情开始
@@ -115,6 +116,14 @@ public class TestPlanReportController {
         return testPlanReportService.getReport(reportId);
     }
 
+    @GetMapping("/get-layout/{reportId}")
+    @Operation(summary = "测试计划-报告-组件布局")
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public List<TestPlanReportComponent> getLayout(@PathVariable String reportId) {
+        return testPlanReportService.getLayout(reportId);
+    }
+
     @PostMapping("/upload/md/file")
     @Operation(summary = "测试计划-报告-详情-上传富文本(图片)")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
@@ -123,7 +132,7 @@ public class TestPlanReportController {
     }
 
     @PostMapping("/detail/edit")
-    @Operation(summary = "测试计划-报告-详情-报告内容更新")
+    @Operation(summary = "测试计划-报告-详情-富文本组件内容更新")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan_report")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateDetailLog(#request)", msClass = TestPlanReportLogService.class)

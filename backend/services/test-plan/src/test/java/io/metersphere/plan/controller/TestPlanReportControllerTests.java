@@ -46,6 +46,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String DELETE_PLAN_REPORT = "/test-plan/report/delete";
     private static final String BATCH_DELETE_PLAN_REPORT = "/test-plan/report/batch-delete";
     private static final String MANUAL_GEN_PLAN_REPORT = "/test-plan/report/manual-gen";
+    private static final String GET_MANUAL_PLAN_REPORT_LAYOUT = "/test-plan/report/get-layout";
     private static final String AUTO_GEN_PLAN_REPORT = "/test-plan/report/auto-gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
     private static final String EDIT_PLAN_REPORT_AND_UPLOAD_PIC = "/test-plan/report/upload/md/file";
@@ -58,6 +59,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_PLAN_REPORT_DETAIL_PLAN_PAGE = "/test-plan/report/detail/plan/report/page";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
+    private static final String GET_SHARE_REPORT_LAYOUT = "/test-plan/report/share/get-layout";
     private static final String GET_SHARE_TIME = "/test-plan/report/share/get-share-time";
     private static final String GET_SHARE_REPORT = "/test-plan/report/share/get/detail";
     private static final String GET_SHARE_REPORT_BUG_LIST = "/test-plan/report/share/detail/bug/page";
@@ -326,7 +328,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     void testEditReportDetail() throws Exception {
         TestPlanReportDetailEditRequest request = new TestPlanReportDetailEditRequest();
         request.setId(GEN_REPORT_ID);
-        request.setSummary("This is a summary for report detail");
+        request.setComponentValue("This is a summary for report detail");
         this.requestPostWithOk(EDIT_PLAN_REPORT, request);
         request.setRichTextTmpFileIds(List.of("rich-text-file-id-for-report"));
         this.requestPost(EDIT_PLAN_REPORT, request, status().is5xxServerError());
@@ -374,6 +376,31 @@ public class TestPlanReportControllerTests extends BaseTest {
         this.requestPost(MANUAL_GEN_PLAN_REPORT, genRequest);
         genRequest.setComponents(null);
         this.requestPost(MANUAL_GEN_PLAN_REPORT, genRequest);
+    }
+
+    @Test
+    @Order(21)
+    void testShareOrEditReportByManual() throws Exception {
+        TestPlanReportShareRequest shareRequest = new TestPlanReportShareRequest();
+        shareRequest.setReportId(getManualGenPlanReportId());
+        shareRequest.setProjectId("100001100001");
+        shareRequest.setShareType(ShareInfoType.TEST_PLAN_SHARE_REPORT.name());
+        shareRequest.setLang(Locale.SIMPLIFIED_CHINESE.getLanguage());
+        MvcResult mvcResult = this.requestPost(GEN_AND_SHARE, shareRequest).andReturn();
+        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
+        TestPlanShareInfo shareInfo = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), TestPlanShareInfo.class);
+        Assertions.assertNotNull(shareInfo);
+        this.requestGet(GET_SHARE_INFO + "/" + shareInfo.getId());
+        this.requestGet(GET_SHARE_REPORT_LAYOUT + "/" + shareInfo.getId() + "/" + getManualGenPlanReportId());
+
+        this.requestGet(GET_MANUAL_PLAN_REPORT_LAYOUT + "/" + getManualGenPlanReportId());
+        // 编辑手动生成的报告
+        TestPlanReportDetailEditRequest request = new TestPlanReportDetailEditRequest();
+        request.setId(getManualGenPlanReportId());
+        request.setComponentId("component-for-test");
+        request.setComponentValue("This is a summary for report detail");
+        this.requestPostWithOk(EDIT_PLAN_REPORT, request);
     }
 
     @Resource
@@ -438,5 +465,11 @@ public class TestPlanReportControllerTests extends BaseTest {
         TestPlanReportExample example = new TestPlanReportExample();
         example.createCriteria().andTestPlanIdEqualTo("plan_id_for_gen_report");
         return testPlanReportMapper.selectByExample(example).getFirst().getId();
+    }
+
+    private String getManualGenPlanReportId() {
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo("plan_id_for_gen_report").andDefaultLayoutEqualTo(false);
+        return testPlanReportMapper.selectByExample(example).get(0).getId();
     }
 }
