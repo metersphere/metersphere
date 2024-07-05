@@ -85,12 +85,12 @@ MeterSphere v3.x 的版本发布计划：
 
 ## 插件
 
-- [TAPD](https://www.tapd.cn/) 需求和缺陷同步插件，将 MeterSphere 的测试用例和 TAPD 需求项进行关联，以及将 MeterSphere 和 TAPD 两个应用的缺陷进行双向同步。
-- 禅道需求和缺陷同步插件，将 MeterSphere 的测试用例和禅道需求项进行关联，以及将 MeterSphere 和禅道两个应用的缺陷进行双向同步。
-- JIRA 需求和缺陷同步插件，将 MeterSphere 的测试用例和 JIRA 需求项进行关联，以及将 MeterSphere 和 JIRA 两个应用的缺陷进行双向同步。
-- [Jenkins](https://www.jenkins.io/) 持续集成插件，实现在 Jenkins 流水线中触发并自动执行 MeteSphere 测试计划。
-- 达梦数据库驱动插件，实现对达梦数据库的连接和数据访问。
-- TCP 接口协议插件，实现接口测试中对 TCP 协议的支持。
+- [TAPD](https://www.tapd.cn/) 需求和缺陷同步插件: 将 MeterSphere 的测试用例和 TAPD 需求项进行关联，以及将 MeterSphere 和 TAPD 两个应用的缺陷进行双向同步。
+- 禅道需求和缺陷同步插件: 将 MeterSphere 的测试用例和禅道需求项进行关联，以及将 MeterSphere 和禅道两个应用的缺陷进行双向同步。
+- JIRA 需求和缺陷同步插件: 将 MeterSphere 的测试用例和 JIRA 需求项进行关联，以及将 MeterSphere 和 JIRA 两个应用的缺陷进行双向同步。
+- [Jenkins](https://www.jenkins.io/) 持续集成插件: 实现在 Jenkins 流水线中触发并自动执行 MeteSphere 测试计划。
+- 达梦数据库驱动插件: 实现对达梦数据库的连接和数据访问。
+- TCP 接口协议插件: 实现接口测试中对 TCP 协议的支持。
 
 ## 飞致云的其他明星项目
 
