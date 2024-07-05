@@ -837,11 +837,11 @@
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
         crfc.id as id,
-        history.`status` as status,
+        history.`status` as reviewStatus,
         fc.module_id as moduleId,
         fc.name as name,
         fc.id as caseId,
-        fc.project_id,  fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
+        fc.project_id,  fc.template_id, fc.pos, fc.case_edit_type,
         fcb.steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
         case_review_functional_case crfc
