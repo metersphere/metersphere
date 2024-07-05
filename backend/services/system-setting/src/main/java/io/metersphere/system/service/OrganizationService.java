@@ -877,7 +877,7 @@ public class OrganizationService {
      *
      * @param organizationId 组织ID
      */
-    private void checkOrgExistById(String organizationId) {
+    public void checkOrgExistById(String organizationId) {
         Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
         if (organization == null) {
             throw new MSException(Translator.get("organization_not_exist"));
@@ -891,7 +891,7 @@ public class OrganizationService {
      * @param organizationId 组织ID
      * @return 用户组集合
      */
-    private Map<String, UserRole> checkUseRoleExist(List<String> userRoleIds, String organizationId) {
+    public Map<String, UserRole> checkUseRoleExist(List<String> userRoleIds, String organizationId) {
         UserRoleExample userRoleExample = new UserRoleExample();
         List<String> scopeIds = Arrays.asList(UserRoleEnum.GLOBAL.toString(), organizationId);
         userRoleExample.createCriteria().andIdIn(userRoleIds).andTypeEqualTo(UserRoleType.ORGANIZATION.toString()).andScopeIdIn(scopeIds);

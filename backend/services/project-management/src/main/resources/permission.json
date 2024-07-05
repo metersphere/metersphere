@@ -27,6 +27,9 @@
             "id": "PROJECT_USER:READ+ADD"
           },
           {
+            "id": "PROJECT_USER:READ+INVITE"
+          },
+          {
             "id": "PROJECT_USER:READ+UPDATE"
           },
           {

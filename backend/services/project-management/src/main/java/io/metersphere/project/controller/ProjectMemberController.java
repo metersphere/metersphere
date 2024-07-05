@@ -5,11 +5,15 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.project.dto.ProjectUserDTO;
 import io.metersphere.project.request.*;
 import io.metersphere.project.service.ProjectMemberService;
+import io.metersphere.sdk.constants.EmailInviteSource;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.CommentUserInfo;
+import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.dto.user.response.UserInviteResponse;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.service.SimpleUserService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -35,6 +39,8 @@ public class ProjectMemberController {
 
     @Resource
     private ProjectMemberService projectMemberService;
+    @Resource
+    private SimpleUserService simpleUserService;
 
     @PostMapping("/list")
     @Operation(summary = "项目管理-成员-列表查询")
@@ -69,6 +75,13 @@ public class ProjectMemberController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void addMember(@RequestBody ProjectMemberAddRequest request) {
         projectMemberService.addMember(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/invite")
+    @Operation(summary = "系统设置-组织-成员-邀请用户注册")
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_INVITE)
+    public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
+        return simpleUserService.saveInviteRecord(request, EmailInviteSource.PROJECT.name(), SessionUtils.getUser());
     }
 
     @PostMapping("/update")

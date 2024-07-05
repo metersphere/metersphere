@@ -2,17 +2,17 @@ package io.metersphere.system.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.sdk.constants.EmailInviteSource;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OptionDisabledDTO;
 import io.metersphere.system.dto.OrgUserExtend;
-import io.metersphere.system.dto.request.OrgMemberExtendProjectRequest;
-import io.metersphere.system.dto.request.OrganizationMemberExtendRequest;
-import io.metersphere.system.dto.request.OrganizationMemberUpdateRequest;
-import io.metersphere.system.dto.request.OrganizationRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.response.UserInviteResponse;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.service.SimpleUserService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -39,6 +39,8 @@ public class OrganizationController {
 
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    private SimpleUserService simpleUserService;
 
     @PostMapping("/member/list")
     @Operation(summary = "系统设置-组织-成员-获取组织成员列表")
@@ -53,6 +55,13 @@ public class OrganizationController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_ADD)
     public void addMemberByList(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
         organizationService.addMemberByOrg(organizationMemberExtendRequest, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/user/invite")
+    @Operation(summary = "系统设置-组织-成员-邀请用户注册")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_INVITE)
+    public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
+        return simpleUserService.saveInviteRecord(request, EmailInviteSource.ORGANIZATION.name(), SessionUtils.getUser());
     }
 
     @PostMapping("/role/update-member")

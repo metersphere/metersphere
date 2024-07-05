@@ -5,6 +5,10 @@ DROP TABLE IF EXISTS functional_mind_insert_relation;
 
 -- 报告添加默认布局字段
 ALTER TABLE test_plan_report ADD `default_layout` BIT NOT NULL  DEFAULT 1 COMMENT '是否默认布局';
+-- 邮箱邀请表增加字段
+ALTER TABLE user_invite
+    ADD COLUMN organization_id VARCHAR(50) COMMENT '组织ID',
+    ADD COLUMN project_id      VARCHAR(50) COMMENT '项目ID';
 
 CREATE TABLE IF NOT EXISTS test_plan_report_component(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,

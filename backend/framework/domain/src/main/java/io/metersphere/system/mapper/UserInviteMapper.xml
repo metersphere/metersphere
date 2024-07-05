@@ -6,6 +6,8 @@
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="invite_user" jdbcType="VARCHAR" property="inviteUser" />
     <result column="invite_time" jdbcType="BIGINT" property="inviteTime" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.UserInvite">
     <result column="roles" jdbcType="LONGVARCHAR" property="roles" />
@@ -69,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, email, invite_user, invite_time
+    id, email, invite_user, invite_time, organization_id, project_id
   </sql>
   <sql id="Blob_Column_List">
     roles
@@ -124,9 +126,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserInvite">
     insert into user_invite (id, email, invite_user, 
-      invite_time, roles)
+      invite_time, organization_id, project_id, 
+      roles)
     values (#{id,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{inviteUser,jdbcType=VARCHAR}, 
-      #{inviteTime,jdbcType=BIGINT}, #{roles,jdbcType=LONGVARCHAR})
+      #{inviteTime,jdbcType=BIGINT}, #{organizationId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{roles,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserInvite">
     insert into user_invite
@@ -142,6 +146,12 @@
       </if>
       <if test="inviteTime != null">
         invite_time,
+      </if>
+      <if test="organizationId != null">
+        organization_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="roles != null">
         roles,
@@ -159,6 +169,12 @@
       </if>
       <if test="inviteTime != null">
         #{inviteTime,jdbcType=BIGINT},
+      </if>
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="roles != null">
         #{roles,jdbcType=LONGVARCHAR},
@@ -186,6 +202,12 @@
       <if test="record.inviteTime != null">
         invite_time = #{record.inviteTime,jdbcType=BIGINT},
       </if>
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
       <if test="record.roles != null">
         roles = #{record.roles,jdbcType=LONGVARCHAR},
       </if>
@@ -200,6 +222,8 @@
       email = #{record.email,jdbcType=VARCHAR},
       invite_user = #{record.inviteUser,jdbcType=VARCHAR},
       invite_time = #{record.inviteTime,jdbcType=BIGINT},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       roles = #{record.roles,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -210,7 +234,9 @@
     set id = #{record.id,jdbcType=VARCHAR},
       email = #{record.email,jdbcType=VARCHAR},
       invite_user = #{record.inviteUser,jdbcType=VARCHAR},
-      invite_time = #{record.inviteTime,jdbcType=BIGINT}
+      invite_time = #{record.inviteTime,jdbcType=BIGINT},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +253,12 @@
       <if test="inviteTime != null">
         invite_time = #{inviteTime,jdbcType=BIGINT},
       </if>
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
       <if test="roles != null">
         roles = #{roles,jdbcType=LONGVARCHAR},
       </if>
@@ -238,6 +270,8 @@
     set email = #{email,jdbcType=VARCHAR},
       invite_user = #{inviteUser,jdbcType=VARCHAR},
       invite_time = #{inviteTime,jdbcType=BIGINT},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       roles = #{roles,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -245,16 +279,19 @@
     update user_invite
     set email = #{email,jdbcType=VARCHAR},
       invite_user = #{inviteUser,jdbcType=VARCHAR},
-      invite_time = #{inviteTime,jdbcType=BIGINT}
+      invite_time = #{inviteTime,jdbcType=BIGINT},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into user_invite
-    (id, email, invite_user, invite_time, roles)
+    (id, email, invite_user, invite_time, organization_id, project_id, roles)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.email,jdbcType=VARCHAR}, #{item.inviteUser,jdbcType=VARCHAR}, 
-        #{item.inviteTime,jdbcType=BIGINT}, #{item.roles,jdbcType=LONGVARCHAR})
+        #{item.inviteTime,jdbcType=BIGINT}, #{item.organizationId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.roles,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -278,6 +315,12 @@
         </if>
         <if test="'invite_time'.toString() == column.value">
           #{item.inviteTime,jdbcType=BIGINT}
+        </if>
+        <if test="'organization_id'.toString() == column.value">
+          #{item.organizationId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'roles'.toString() == column.value">
           #{item.roles,jdbcType=LONGVARCHAR}
