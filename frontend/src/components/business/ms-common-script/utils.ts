@@ -3,7 +3,6 @@ import { Language, LanguageEnum } from '@/components/pure/ms-code-editor/types';
 import { useI18n } from '@/hooks/useI18n';
 import { hasAnyPermission } from '@/utils/permission';
 
-import type { CommonScriptMenu } from '@/models/projectManagement/commonScript';
 import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
 const { t } = useI18n();
@@ -233,7 +232,7 @@ function getHeaders(requestHeaders: Record<string, any>) {
 }
 // 获取pythonCode 模板
 function _pythonCodeTemplate(obj: Record<string, any>) {
-  const { requestBody, requestBodyKvs, bodyType, requestPath, requestMethod, connType, domain, port } = obj;
+  const { requestBodyKvs, requestPath, requestMethod, connType, domain, port } = obj;
   let { headers } = obj;
   let reqBody = obj.requestBody;
   if (requestMethod.toLowerCase() === 'post' && obj.bodyType === 'kvs' && obj.requestBodyKvs) {

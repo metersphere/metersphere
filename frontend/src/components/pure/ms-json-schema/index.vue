@@ -980,7 +980,7 @@
     try {
       // 再将 json schema 转换为 json 格式
       const res = await convertJsonSchemaToJson(schema as JsonSchema);
-      activePreviewJsonValue.value = JSON.stringify(res);
+      activePreviewJsonValue.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

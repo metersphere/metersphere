@@ -72,7 +72,7 @@ export default defineConfig({
         replacement: '@halo-dev/richtext-editor',
       },
     ],
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js', '.jsx', '.tsx', '.json', '.vue'],
   },
   define: {
     'process.env': {},
