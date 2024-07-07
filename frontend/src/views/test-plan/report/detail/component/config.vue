@@ -343,7 +343,6 @@
         richFileIds.concat(item.richTextTmpFileIds);
       }
       return {
-        // id: item.id,
         name: item.value,
         label: t(item.label),
         type: item.type,
