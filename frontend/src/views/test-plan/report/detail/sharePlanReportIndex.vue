@@ -3,7 +3,6 @@
 </template>
 
 <script setup lang="ts">
-  // TODO 待联调 分享页面也要调整
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
@@ -16,8 +15,6 @@
 
   import type { configItem, PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
-  import { defaultGroupConfig, defaultSingleConfig } from '@/views/test-plan/report/detail/component/reportConfig';
-
   const route = useRoute();
   const router = useRouter();
   const reportId = ref<string>(route.query.id as string);
@@ -26,7 +23,6 @@
 
   const cardItemList = ref<configItem[]>([]);
   async function getShareDetail() {
-    cardItemList.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
     try {
       const hrefShareDetail = await planGetShareHref(route.query.shareId as string);
       reportId.value = hrefShareDetail.reportId;
@@ -51,6 +47,7 @@
       }
       detail.value = await getReportDetail(reportId.value, route.query.shareId as string);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }

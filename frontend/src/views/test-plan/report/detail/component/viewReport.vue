@@ -157,7 +157,7 @@
             </a-tooltip>
             <a-divider v-if="allowEdit(item.value)" direction="vertical" class="!m-0 !mx-2" />
             <a-tooltip :content="t('common.delete')">
-              <MsIcon type="icon-icon_delete-trash_outlined" size="16" @click="deleteCard(item)" />
+              <MsIcon type="icon-icon_delete-trash_filled" size="16" @click="deleteCard(item)" />
             </a-tooltip>
           </div>
         </div>
@@ -174,15 +174,19 @@
           />
           <Summary
             v-else-if="item.value === ReportCardTypeEnum.SUMMARY"
-            v-model:richText="richText"
+            :rich-text="{
+              content: item.content || '',
+              label: t(item.label),
+              richTextTmpFileIds: [],
+            }"
             :share-id="shareId"
             :can-edit="item.enableEdit"
             :show-button="showButton"
             :is-plan-group="props.isGroup"
             :detail="detail"
-            @update-summary="handleUpdateReportDetail"
-            @cancel="() => handleCancel(item)"
-            @handle-summary="handleSummary"
+            @update-summary="handleUpdateReportDetail(item)"
+            @cancel="() => handleCancelCustom(item)"
+            @handle-summary="(value:string) => handleSummary(value,item)"
             @dblclick="handleDoubleClick(item)"
           />
           <BugTable
@@ -197,6 +201,7 @@
             :report-id="detail.id"
             :share-id="shareId"
             :is-preview="props.isPreview"
+            :is-group="props.isGroup"
           />
           <ApiAndScenarioTable
             v-else-if="
@@ -220,6 +225,7 @@
             }"
             @update-custom="(formValue:customValueForm)=>updateCustom(formValue,item)"
             @dblclick="handleDoubleClick(item)"
+            @cancel="() => handleCancelCustom(item)"
           />
         </MsCard>
       </div>
@@ -249,11 +255,12 @@
   import Summary from '@/views/test-plan/report/detail/component/system-card/summary.vue';
   import SystemTrigger from '@/views/test-plan/report/detail/component/system-card/systemTrigger.vue';
 
-  import { updateReportDetail } from '@/api/modules/test-plan/report';
+  import { getReportLayout, updateReportDetail } from '@/api/modules/test-plan/report';
   import { commonConfig, defaultCount, defaultReportDetail, seriesConfig, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
 
+  import { UpdateReportDetailParams } from '@/models/testPlan/report';
   import type {
     configItem,
     countDetail,
@@ -264,6 +271,7 @@
   import { customValueForm } from '@/models/testPlan/testPlanReport';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
+  import { defaultGroupConfig, defaultSingleConfig } from './reportConfig';
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
 
   const { t } = useI18n();
@@ -277,7 +285,6 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'updateSuccess'): void;
     (e: 'updateSuccess'): void;
     (e: 'updateCustom', item: configItem): void;
   }>();
@@ -293,17 +300,9 @@
     summary: '',
   });
 
-  const isError = ref(false);
   const reportForm = ref({
     reportName: '',
   });
-
-  function inputHandler(value: string) {
-    if (value.trim().length === 0) {
-      isError.value = true;
-    }
-    isError.value = false;
-  }
 
   const getAnalysisHover = computed(() => (props.isPreview ? '' : 'hover-analysis cursor-not-allowed'));
 
@@ -388,22 +387,6 @@
     scenarioCaseOptions.value.series.data = getPassRateData(apiScenarioCount);
   }
 
-  async function handleUpdateReportDetail() {
-    try {
-      await updateReportDetail({
-        id: detail.value.id,
-        summary: richText.value.summary,
-        richTextTmpFileIds: richText.value.richTextTmpFileIds ?? [],
-      });
-      Message.success(t('common.updateSuccess'));
-      showButton.value = false;
-      emit('updateSuccess');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
     {
       name: t('report.detail.threshold'),
@@ -473,12 +456,42 @@
     return count;
   });
 
+  const originLayoutInfo = ref([]);
+
+  async function getDefaultLayout() {
+    try {
+      const res = await getReportLayout(detail.value.id, shareId.value);
+      const result = res.map((item: any) => {
+        return {
+          id: item.id,
+          value: item.name,
+          label: item.label,
+          content: item.value || '',
+          type: item.type,
+          enableEdit: false,
+          richTextTmpFileIds: item.richTextTmpFileIds,
+        };
+      });
+      innerCardList.value = result;
+      originLayoutInfo.value = cloneDeep(result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   watchEffect(() => {
     if (props.detailInfo) {
       detail.value = cloneDeep(props.detailInfo);
       richText.value.summary = detail.value.summary;
       reportForm.value.reportName = detail.value.name;
       initOptionsData();
+      if (props.isPreview) {
+        if (!detail.value.defaultLayout && detail.value.id) {
+          getDefaultLayout();
+        } else {
+          innerCardList.value = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
+        }
+      }
     }
   });
 
@@ -491,14 +504,18 @@
     });
   });
 
-  function handleCancel(cardItem: configItem) {
-    richText.value = { summary: detail.value.summary };
+  function handleCancelCustom(cardItem: configItem) {
+    const originItem = originLayoutInfo.value.find((item: configItem) => item.id === cardItem.id);
+    const index = originLayoutInfo.value.findIndex((e: configItem) => e.id === cardItem.id);
+    if (originItem && index !== -1) {
+      innerCardList.value.splice(index, 1, originItem);
+    }
     showButton.value = false;
     cardItem.enableEdit = false;
   }
 
-  function handleSummary(content: string) {
-    richText.value.summary = content;
+  function handleSummary(content: string, cardItem: configItem) {
+    cardItem.content = content;
   }
 
   const currentMode = ref<string>('drawer');
@@ -512,7 +529,7 @@
     }
   }
 
-  const allowEditType = [ReportCardTypeEnum.SUMMARY, ReportCardTypeEnum.CUSTOM_CARD];
+  const allowEditType = [ReportCardTypeEnum.CUSTOM_CARD];
   function allowEdit(value: ReportCardTypeEnum) {
     return allowEditType.includes(value);
   }
@@ -537,26 +554,51 @@
   const deleteCard = (cardItem: configItem) => {
     innerCardList.value = innerCardList.value.filter((item) => item.id !== cardItem.id);
   };
+
   // 编辑模式和预览模式切换
   function editField(cardItem: configItem) {
     if (allowEditType.includes(cardItem.value)) {
       cardItem.enableEdit = !cardItem.enableEdit;
     }
-    if (cardItem.value === ReportCardTypeEnum.SUMMARY) {
-      showButton.value = true;
-    }
   }
 
   function handleDoubleClick(cardItem: configItem) {
-    editField(cardItem);
+    if (props.isPreview) {
+      if (cardItem.value === ReportCardTypeEnum.SUMMARY) {
+        showButton.value = true;
+      }
+      cardItem.enableEdit = !cardItem.enableEdit;
+    }
+  }
+
+  async function handleUpdateReportDetail(currentItem: configItem) {
+    try {
+      const params: UpdateReportDetailParams = {
+        id: detail.value.id,
+        componentId: currentItem.type,
+        componentValue: currentItem.content,
+        richTextTmpFileIds: currentItem.richTextTmpFileIds,
+      };
+      await updateReportDetail(params);
+      Message.success(t('common.updateSuccess'));
+      if (currentItem.value === ReportCardTypeEnum.SUMMARY) {
+        showButton.value = false;
+      } else {
+        currentItem.enableEdit = !currentItem.enableEdit;
+      }
+      // TODO 此处的更新后后台数据未更新需要验证接口
+      emit('updateSuccess');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function updateCustom(formValue: customValueForm, currentItem: configItem) {
-    const newCurrentItem = {
+    const newCurrentItem: configItem = {
       ...currentItem,
       ...formValue,
     };
-    innerCardList.value = innerCardList.value.map((item) => {
+    innerCardList.value = innerCardList.value.map((item: configItem) => {
       if (item.id === currentItem.id) {
         return {
           ...item,
@@ -566,7 +608,11 @@
       }
       return item;
     });
-    emit('updateCustom', newCurrentItem);
+    if (!props.isPreview) {
+      emit('updateCustom', newCurrentItem);
+    } else {
+      handleUpdateReportDetail(newCurrentItem);
+    }
   }
 </script>
 

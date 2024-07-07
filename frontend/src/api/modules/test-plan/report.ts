@@ -11,7 +11,7 @@ import {
   UpdateReportDetailParams,
 } from '@/models/testPlan/report';
 import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
-import { PlanReportDetail } from '@/models/testPlan/testPlanReport';
+import { manualReportGenParams, PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
 // 报告列表
 export function reportList(data: TableQueryParams) {
@@ -159,6 +159,18 @@ export function getFunctionalExecuteStep(data: { reportId: string; shareId?: str
     });
   }
   return MSR.get<ExecuteHistoryItem>({ url: `${reportUrl.ReportFunctionalStepUrl}/${data.reportId}` });
+}
+// 手动生成报告
+export function manualReportGen(data: manualReportGenParams) {
+  return MSR.post({ url: reportUrl.ManualReportGenUrl, data });
+}
+
+// 获取报告布局
+export function getReportLayout(reportId: string, shareId?: string) {
+  if (shareId) {
+    return MSR.get({ url: `${reportUrl.getReportShareLayoutUrl}/${shareId}/${reportId}` });
+  }
+  return MSR.get({ url: `${reportUrl.getReportLayoutUrl}/${reportId}` });
 }
 
 export default {};

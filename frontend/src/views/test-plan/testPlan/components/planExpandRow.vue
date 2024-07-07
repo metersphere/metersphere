@@ -11,7 +11,7 @@
     />
     <span :class="getIconClass">{{ record.childrenCount || (record.children || []).length || 0 }}</span>
   </div>
-  <div v-if="record.type === testPlanTypeEnum.TEST_PLAN || !record.integrated" :class="`one-line-text ${hasIndent}`">
+  <div v-if="showButton" :class="`one-line-text ${hasIndent}`">
     <MsButton type="text" @click="handleAction">
       <a-tooltip :content="content">
         <span>{{ record[props.numKey || 'num'] }}</span>
@@ -62,7 +62,7 @@
 
   const hasIndent = computed(() =>
     (props.record.type === testPlanTypeEnum.TEST_PLAN && props.record.groupId && props.record.groupId !== 'NONE') ||
-    (!props.record.integrated && props.record.parentId)
+    (!props.record.integrated && props.record.parent)
       ? 'pl-[36px]'
       : ''
   );
@@ -76,6 +76,13 @@
       emit('action');
     }
   }
+
+  const showButton = computed(() => {
+    if (props.record.type) {
+      return props.record.type === testPlanTypeEnum.TEST_PLAN;
+    }
+    return !props.record.integrated;
+  });
 </script>
 
 <style scoped lang="less"></style>

@@ -26,6 +26,13 @@
       @click="handleClick"
     />
   </div>
+  <div
+    v-show="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && props.canEdit"
+    class="mt-[16px] flex items-center gap-[12px]"
+  >
+    <a-button type="primary" @click="handleUpdateReportDetail">{{ t('common.save') }}</a-button>
+    <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -52,6 +59,7 @@
   const emit = defineEmits<{
     (e: 'updateCustom', formValue: customValueForm): void;
     (e: 'dblclick'): void;
+    (e: 'cancel'): void;
   }>();
 
   const innerTextForm = ref<customValueForm>({
@@ -78,10 +86,23 @@
     });
   }
   function emitDoubleClick() {
-    emit('dblclick');
+    if (!props.shareId) {
+      emit('dblclick');
+    }
+  }
+
+  function handleUpdateReportDetail() {
+    emit('updateCustom', {
+      ...innerTextForm.value,
+      label: innerTextForm.value.label || t('report.detail.customDefaultCardName'),
+    });
   }
 
   const { handleClick } = useDoubleClick(emitDoubleClick);
+
+  function handleCancel() {
+    emit('cancel');
+  }
 </script>
 
 <style scoped></style>

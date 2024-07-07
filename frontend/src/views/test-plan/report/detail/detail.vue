@@ -1,9 +1,14 @@
 <template>
-  <ViewReport v-model:card-list="cardItemList" :detail-info="detail" :is-group="isGroup" is-preview />
+  <ViewReport
+    v-model:card-list="cardItemList"
+    :detail-info="detail"
+    :is-group="isGroup"
+    is-preview
+    @update-success="getDetail()"
+  />
 </template>
 
 <script setup lang="ts">
-  // TODO 待联调 需要接口更新后联调下
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
@@ -15,8 +20,6 @@
 
   import type { configItem, PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
-  import { defaultGroupConfig, defaultSingleConfig } from '@/views/test-plan/report/detail/component/reportConfig';
-
   const route = useRoute();
   const reportId = ref<string>(route.query.id as string);
 
@@ -27,7 +30,6 @@
   const cardItemList = ref<configItem[]>([]);
 
   async function getDetail() {
-    cardItemList.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
     try {
       detail.value = await getReportDetail(reportId.value);
     } catch (error) {

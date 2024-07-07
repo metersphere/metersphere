@@ -55,4 +55,6 @@ export default {
   'report.detail.customMaxNumber': '最多可添加10个',
   'report.detail.enterReportNamePlaceHolder': '请输入报告名称',
   'report.detail.systemInternalTooltip': '系统内置，不可编辑',
+  'report.detail.reportNameNotEmpty': '报告名称不能为空',
+  'report.detail.manualGenReportSuccess': '自定义生成报告成功',
 };

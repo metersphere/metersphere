@@ -62,3 +62,9 @@ export const ReportPlanPreviewImageUrl = '/test-plan/report/preview/md';
 export const ReportFunctionalStepUrl = '/test-plan/report/detail/functional/case/step';
 // 测试计划-报告-详情-功能用例明细-执行历史步骤-分享
 export const ReportShareFunctionalStepUrl = '/test-plan/report/share/detail/functional/case/step';
+// 测试计划-报告-详情-手动生成报告
+export const ManualReportGenUrl = '/test-plan/report/manual-gen';
+// 测试计划-报告-详情-获取报告布局
+export const getReportLayoutUrl = '/test-plan/report/get-layout';
+// 测试计划-报告-详情-获取报告布局-分享
+export const getReportShareLayoutUrl = '/test-plan/report/share/get-layout';

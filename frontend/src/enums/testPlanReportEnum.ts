@@ -7,5 +7,9 @@ export enum ReportCardTypeEnum {
   SUB_PLAN_DETAIL = 'SUB_PLAN_DETAIL', // 计划组子计划详情
   CUSTOM_CARD = 'CUSTOM_CARD', // 自定义卡片
 }
+export enum FieldTypeEnum {
+  SYSTEM = 'SYSTEM',
+  RICH_TEXT = 'RICH_TEXT',
+}
 
 export default {};

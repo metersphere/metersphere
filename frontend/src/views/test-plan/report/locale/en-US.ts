@@ -55,4 +55,6 @@ export default {
   'report.detail.customMaxNumber': 'A maximum of 10 can be added',
   'report.detail.enterReportNamePlaceHolder': 'Please enter a report name',
   'report.detail.systemInternalTooltip': 'System built-in, not editable',
+  'report.detail.reportNameNotEmpty': 'The report name cannot be empty',
+  'report.detail.manualGenReportSuccess': 'The custom generated report was successful',
 };
