@@ -129,7 +129,8 @@
       <MsStatusTag :status="filterContent.value" />
     </template>
     <template #status="{ record }">
-      <MsStatusTag :status="record.status" />
+      <MsStatusTag v-if="getStatus(record.id)" :status="getStatus(record.id)" />
+      <span v-else>-</span>
     </template>
     <template #createUser="{ record }">
       <a-tooltip :content="`${record.createUserName}`" position="tl">
@@ -244,13 +245,13 @@
         ></a-divider>
 
         <MsButton
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && getStatus(record.id) !== 'ARCHIVED'"
           class="!mx-0"
           @click="emit('edit', record)"
           >{{ t('common.edit') }}</MsButton
         >
         <a-divider
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && record.status !== 'ARCHIVED'"
+          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && getStatus(record.id) !== 'ARCHIVED'"
           direction="vertical"
           :margin="8"
         ></a-divider>
@@ -259,7 +260,7 @@
           v-if="
             !isShowExecuteButton(record) &&
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
-            record.status !== 'ARCHIVED'
+            getStatus(record.id) !== 'ARCHIVED'
           "
           class="!mx-0"
           @click="copyTestPlanOrGroup(record.id)"
@@ -269,7 +270,7 @@
           v-if="
             !isShowExecuteButton(record) &&
             hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) &&
-            record.status !== 'ARCHIVED'
+            getStatus(record.id) !== 'ARCHIVED'
           "
           direction="vertical"
           :margin="8"
@@ -738,17 +739,20 @@
   function getScheduleEnable(id: string) {
     return defaultCountDetailMap.value[id].scheduleConfig.enable;
   }
+  function getStatus(id: string) {
+    return defaultCountDetailMap.value[id]?.status;
+  }
 
   function isShowExecuteButton(record: TestPlanItem) {
     return (
       ((record.type === testPlanTypeEnum.TEST_PLAN && getFunctionalCount(record.id) > 0) ||
         (record.type === testPlanTypeEnum.GROUP && record.childrenCount)) &&
-      record.status !== 'ARCHIVED'
+      getStatus(record.id) !== 'ARCHIVED'
     );
   }
 
   function getMoreActions(record: TestPlanItem) {
-    const { status: planStatus } = record;
+    const planStatus = getStatus(record.id);
 
     // 有用例数量才可以执行 否则不展示执行
     const copyAction =

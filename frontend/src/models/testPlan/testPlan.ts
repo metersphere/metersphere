@@ -238,6 +238,7 @@ export interface PassRateCountDetail {
     };
   };
   nextTriggerTime: number;
+  status: planStatusType;
 }
 
 // 执行历史

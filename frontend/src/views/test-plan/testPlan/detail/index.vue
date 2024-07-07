@@ -10,7 +10,7 @@
     hide-back
   >
     <template #headerLeft>
-      <MsStatusTag :status="detail.status || 'PREPARED'" />
+      <MsStatusTag :status="countDetail.status" />
       <a-tooltip :content="`[${detail.num}]${detail.name}`">
         <div class="one-line-text ml-[8px] max-w-[360px] gap-[4px] font-medium text-[var(--color-text-1)]">
           <span>[{{ detail.num }}]</span>
@@ -33,7 +33,6 @@
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
-      <!-- TODO 等待联调 接口需要调整和增加 -->
       <MsTableMoreAction :list="reportMoreAction" @select="handleMoreReportSelect">
         <MsButton
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && detail.status !== 'ARCHIVED'"

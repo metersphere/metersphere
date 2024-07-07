@@ -1,7 +1,7 @@
 <template>
   <div :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`">
     <MsRichText
-      v-model:raw="innerSummary.summary"
+      v-model:raw="innerSummary.content"
       v-model:filedIds="innerSummary.richTextTmpFileIds"
       :upload-image="handleUploadImage"
       :preview-url="ReportPlanPreviewImageUrl"
@@ -45,7 +45,7 @@
 
   const { t } = useI18n();
   const props = defineProps<{
-    richText: { summary: string; richTextTmpFileIds?: string[] };
+    richText: { content: string; label: string; richTextTmpFileIds?: string[] };
     shareId?: string;
     showButton: boolean;
     isPlanGroup: boolean;
@@ -128,7 +128,9 @@
   }
 
   function emitDoubleClick() {
-    emit('dblclick');
+    if (!props.shareId) {
+      emit('dblclick');
+    }
   }
   const { handleClick } = useDoubleClick(emitDoubleClick);
 </script>

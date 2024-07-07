@@ -21,8 +21,9 @@ export interface FeatureCaseItem {
 
 export interface UpdateReportDetailParams {
   id: string;
-  summary: string;
-  richTextTmpFileIds: string[];
+  componentId: string;
+  componentValue?: string;
+  richTextTmpFileIds?: string[];
 }
 
 export interface ApiOrScenarioCaseItem {

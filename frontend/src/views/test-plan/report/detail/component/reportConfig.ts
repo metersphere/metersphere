@@ -3,42 +3,55 @@ import { defaultCount } from '@/config/testPlan';
 import { ApiOrScenarioCaseItem, FeatureCaseItem, ReportBugItem } from '@/models/testPlan/report';
 import type { configItem } from '@/models/testPlan/testPlanReport';
 import { PlanReportDetail } from '@/models/testPlan/testPlanReport';
-import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
+import { FieldTypeEnum, ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
-export const commonDefaultConfig: configItem[] = [
+const summaryConfig: configItem[] = [
   {
     id: ReportCardTypeEnum.SUMMARY,
     value: ReportCardTypeEnum.SUMMARY,
     label: 'report.detail.reportSummary',
-    system: true,
+    type: FieldTypeEnum.SYSTEM,
     enableEdit: false,
   },
+];
+const subPlanConfig: configItem[] = [
+  {
+    id: ReportCardTypeEnum.SUB_PLAN_DETAIL,
+    value: ReportCardTypeEnum.SUB_PLAN_DETAIL,
+    label: 'report.detail.subPlanDetails',
+    type: FieldTypeEnum.SYSTEM,
+    enableEdit: false,
+  },
+];
+
+export const commonDefaultConfig: configItem[] = [
+  ...summaryConfig,
   {
     id: ReportCardTypeEnum.BUG_DETAIL,
     value: ReportCardTypeEnum.BUG_DETAIL,
     label: 'report.detail.bugDetails',
-    system: true,
+    type: FieldTypeEnum.SYSTEM,
     enableEdit: false,
   },
   {
     id: ReportCardTypeEnum.FUNCTIONAL_DETAIL,
     value: ReportCardTypeEnum.FUNCTIONAL_DETAIL,
     label: 'report.detail.featureCaseDetails',
-    system: true,
+    type: FieldTypeEnum.SYSTEM,
     enableEdit: false,
   },
   {
     id: ReportCardTypeEnum.API_CASE_DETAIL,
     value: ReportCardTypeEnum.API_CASE_DETAIL,
     label: 'report.detail.apiCaseDetails',
-    system: true,
+    type: FieldTypeEnum.SYSTEM,
     enableEdit: false,
   },
   {
     id: ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
     value: ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
     label: 'report.detail.scenarioCaseDetails',
-    system: true,
+    type: FieldTypeEnum.SYSTEM,
     enableEdit: false,
   },
 ];
@@ -47,24 +60,17 @@ export const defaultCustomConfig: configItem = {
   id: '',
   value: ReportCardTypeEnum.CUSTOM_CARD,
   label: 'report.detail.customDefaultCardName',
-  system: false,
+  type: FieldTypeEnum.RICH_TEXT,
   enableEdit: false,
   content: '',
 };
 
-// 独立报告默认配置
+// 独立报告默认选择列表配置
 export const defaultSingleConfig: configItem[] = [...commonDefaultConfig];
-// 集合报告默认配置
-export const defaultGroupConfig: configItem[] = [
-  {
-    id: ReportCardTypeEnum.SUB_PLAN_DETAIL,
-    value: ReportCardTypeEnum.SUB_PLAN_DETAIL,
-    label: 'report.detail.subPlanDetails',
-    system: true,
-    enableEdit: false,
-  },
-  ...commonDefaultConfig,
-];
+// 集合报告默认选择列表配置
+export const defaultGroupConfig: configItem[] = [...subPlanConfig, ...commonDefaultConfig];
+// 集合报告默认展示卡片列表配置
+export const defaultGroupCardConfig: configItem[] = [...subPlanConfig, ...summaryConfig];
 
 interface NamedItem {
   name?: string;
@@ -115,6 +121,7 @@ const subPlanList: PlanReportDetail = {
   apiBugCount: 0,
   scenarioBugCount: 0,
   resultStatus: 'SUCCESS',
+  defaultLayout: true,
 };
 
 // 功能用例明细

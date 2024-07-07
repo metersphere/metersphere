@@ -58,9 +58,11 @@
     reportId: string;
     shareId?: string;
     isPreview?: boolean;
+    isGroup?: boolean;
   }>();
   const { t } = useI18n();
-  const columns: MsTableColumn = [
+
+  const staticColumns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -97,6 +99,8 @@
       },
       width: 150,
     },
+  ];
+  const lastStaticColumns: MsTableColumn = [
     {
       title: 'common.belongModule',
       dataIndex: 'moduleName',
@@ -123,12 +127,29 @@
       width: 100,
     },
   ];
+  // TODO 计划组用例明细字段接口目前还没有
+  const testPlanNameColumns: MsTableColumn = [
+    {
+      title: 'report.plan.name',
+      dataIndex: 'name',
+      showTooltip: true,
+      width: 200,
+    },
+  ];
+
+  const columns = computed(() => {
+    if (props.isGroup) {
+      return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
+    }
+    return [...staticColumns, ...lastStaticColumns];
+  });
+
   const reportFeatureCaseList = () => {
     return !props.shareId ? getReportFeatureCaseList : getReportShareFeatureCaseList;
   };
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
     scroll: { x: '100%' },
-    columns,
+    columns: columns.value,
     heightUsed: 20,
     showSelectorAll: false,
   });

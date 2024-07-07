@@ -41,7 +41,7 @@ export const planDetailBugPageUrl = '/test-plan/bug/page';
 // 关注测试计划
 export const followPlanUrl = '/test-plan/edit/follower';
 // 生成报告
-export const GenerateReportUrl = '/test-plan/report/gen';
+export const GenerateReportUrl = '/test-plan/report/auto-gen';
 // 复制测试计划
 export const copyTestPlanUrl = '/test-plan/copy';
 // 测试计划通过率执行进度

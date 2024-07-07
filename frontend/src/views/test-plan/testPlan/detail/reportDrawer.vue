@@ -30,8 +30,6 @@
 
   import type { configItem, PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
-  import { defaultSingleConfig } from '@/views/test-plan/report/detail/component/reportConfig';
-
   const props = defineProps<{
     reportId: string;
   }>();
@@ -42,7 +40,7 @@
 
   const route = useRoute();
 
-  const cardItemList = ref<configItem[]>(cloneDeep(defaultSingleConfig));
+  const cardItemList = ref<configItem[]>([]);
 
   const shareId = ref<string>(route.query.shareId as string);
 

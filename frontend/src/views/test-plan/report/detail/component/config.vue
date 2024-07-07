@@ -26,7 +26,9 @@
       </a-form>
       <div class="ml-[12px]">
         <a-button type="secondary" @click="cancelHandler">{{ t('common.cancel') }}</a-button>
-        <a-button class="ml-[12px]" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
+        <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">{{
+          t('common.save')
+        }}</a-button>
       </div>
     </div>
   </div>
@@ -70,7 +72,7 @@
                   t(item.label)
                 }}</div>
                 <icon-close
-                  v-if="!item.system"
+                  v-if="item.type !== FieldTypeEnum.SYSTEM"
                   :style="{ 'font-size': '14px' }"
                   class="cursor-pointer text-[var(--color-text-3)]"
                   @click.stop="removeField(item)"
@@ -107,7 +109,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep, isEqual } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
@@ -115,20 +117,30 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import ViewReport from '@/views/test-plan/report/detail/component/viewReport.vue';
 
-  import { updateReportDetail } from '@/api/modules/test-plan/report';
+  import { manualReportGen } from '@/api/modules/test-plan/report';
   import { defaultReportDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import { getGenerateId } from '@/utils';
 
-  import type { configItem, PlanReportDetail } from '@/models/testPlan/testPlanReport';
-  import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
+  import type {
+    configItem,
+    manualReportGenParams,
+    PlanReportDetail,
+    SelectedReportCardTypes,
+  } from '@/models/testPlan/testPlanReport';
+  import { TriggerModeLabelEnum } from '@/enums/reportEnum';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { FieldTypeEnum, ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
-  import { defaultCustomConfig, defaultGroupConfig, defaultSingleConfig } from './reportConfig';
+  import { defaultCustomConfig, defaultGroupCardConfig, defaultGroupConfig, defaultSingleConfig } from './reportConfig';
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
 
   const { t } = useI18n();
 
   const router = useRouter();
+  const route = useRoute();
+  const appStore = useAppStore();
   const props = defineProps<{
     detailInfo: PlanReportDetail;
     isDrawer?: boolean;
@@ -140,11 +152,6 @@
   }>();
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
-  const showButton = ref<boolean>(false);
-
-  const richText = ref<{ summary: string; richTextTmpFileIds?: string[] }>({
-    summary: '',
-  });
 
   const isError = ref(false);
   const hasChange = ref(false);
@@ -159,22 +166,6 @@
     isError.value = false;
   }
 
-  async function handleUpdateReportDetail() {
-    try {
-      await updateReportDetail({
-        id: detail.value.id,
-        summary: richText.value.summary,
-        richTextTmpFileIds: richText.value.richTextTmpFileIds ?? [],
-      });
-      Message.success(t('common.updateSuccess'));
-      showButton.value = false;
-      emit('updateSuccess');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   watchEffect(() => {
     if (props.detailInfo) {
       detail.value = cloneDeep(props.detailInfo);
@@ -182,14 +173,47 @@
     }
   });
 
+  const functionalCaseTotal = computed(() => getSummaryDetail(detail.value.functionalCount).caseTotal);
+  const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
+  const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
+
   const configList = ref<configItem[]>([]);
   const cardItemList = ref<configItem[]>([]);
+
+  const detailType = [
+    ReportCardTypeEnum.FUNCTIONAL_DETAIL,
+    ReportCardTypeEnum.API_CASE_DETAIL,
+    ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
+  ];
+
+  const hasCaseList = computed<Record<SelectedReportCardTypes, number>>(() => {
+    return {
+      [ReportCardTypeEnum.SCENARIO_CASE_DETAIL]: scenarioCaseTotal.value,
+      [ReportCardTypeEnum.FUNCTIONAL_DETAIL]: functionalCaseTotal.value,
+      [ReportCardTypeEnum.API_CASE_DETAIL]: apiCaseTotal.value,
+    };
+  });
+
+  function filterNotHasCase(list: configItem[]) {
+    return list.filter((item: any) => {
+      if (detailType.includes(item.value)) {
+        return hasCaseList.value[item.value as SelectedReportCardTypes] > 0;
+      }
+      return true;
+    });
+  }
+
+  function initDefaultConfig() {
+    const tempDefaultGroupConfig = filterNotHasCase(defaultGroupConfig);
+    const tempSingleGroupConfig = filterNotHasCase(defaultSingleConfig);
+    configList.value = props.isGroup ? cloneDeep(tempDefaultGroupConfig) : cloneDeep(tempSingleGroupConfig);
+    cardItemList.value = props.isGroup ? cloneDeep(defaultGroupCardConfig) : cloneDeep(configList.value);
+  }
 
   watch(
     () => props.isGroup,
     () => {
-      configList.value = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
-      cardItemList.value = cloneDeep(configList.value);
+      initDefaultConfig();
     },
     {
       immediate: true,
@@ -201,17 +225,17 @@
   }
 
   function getHoverClass(cardItem: configItem) {
-    if (getExist(cardItem) && !cardItem.system) {
+    if (getExist(cardItem) && cardItem.type !== FieldTypeEnum.SYSTEM) {
       return 'hover-selected-item-class';
     }
-    if (!getExist(cardItem) && cardItem.system) {
+    if (!getExist(cardItem) && cardItem.type === FieldTypeEnum.SYSTEM) {
       return 'hover-item-class';
     }
     return '';
   }
 
   function getLabelClass(cardItem: configItem) {
-    const isSystemColor = cardItem.system ? 'cursor-not-allowed' : '';
+    const isSystemColor = cardItem.type === FieldTypeEnum.SYSTEM ? 'cursor-not-allowed' : '';
     return getExist(cardItem)
       ? `text-[var(--color-text-4)] ${isSystemColor}`
       : `text-[var(--color-text-1)] cursor-pointer hover:text-[rgb(var(--primary-4))]`;
@@ -238,8 +262,7 @@
 
   // 恢复默认
   function handleReset() {
-    configList.value = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
-    cardItemList.value = cloneDeep(configList.value);
+    initDefaultConfig();
     nextTick(() => {
       hasChange.value = false;
     });
@@ -300,10 +323,6 @@
     configList.value.splice(currentIndex, 1, currentItem);
   }
 
-  const functionalCaseTotal = computed(() => getSummaryDetail(detail.value.functionalCount).caseTotal);
-  const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
-  const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
-
   function showItem(item: configItem) {
     switch (item.value) {
       case ReportCardTypeEnum.FUNCTIONAL_DETAIL:
@@ -316,8 +335,61 @@
         return true;
     }
   }
+
+  function makeParams() {
+    const richFileIds: string[] = [];
+    const addComponentList = cardItemList.value.map((item, index) => {
+      if (item.richTextTmpFileIds) {
+        richFileIds.concat(item.richTextTmpFileIds);
+      }
+      return {
+        // id: item.id,
+        name: item.value,
+        label: t(item.label),
+        type: item.type,
+        value: item.content || '',
+        pos: index + 1,
+      };
+    });
+    return {
+      projectId: appStore.currentProjectId,
+      testPlanId: route.query.id as string,
+      triggerMode: TriggerModeLabelEnum.MANUAL,
+      reportName: reportForm.value.reportName,
+      components: addComponentList,
+      richTextTmpFileIds: richFileIds,
+    };
+  }
+
+  const confirmLoading = ref<boolean>(false);
   // 保存配置
-  function handleSave() {}
+  async function handleSave() {
+    if (!reportForm.value.reportName) {
+      isError.value = true;
+      Message.error(t('report.detail.reportNameNotEmpty'));
+      return;
+    }
+    confirmLoading.value = true;
+    try {
+      const params: manualReportGenParams = makeParams();
+      const reportId = await manualReportGen(params);
+      Message.success(t('report.detail.manualGenReportSuccess'));
+      if (reportId) {
+        router.push({
+          name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
+          query: {
+            id: reportId,
+            type: props.isGroup ? 'GROUP' : 'TEST_PLAN',
+          },
+        });
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  }
 </script>
 
 <style scoped lang="less">
