@@ -112,7 +112,7 @@ export function getSystemProjects() {
 
 // 邀请用户
 export function inviteUser(data: InviteUserParams) {
-  return MSR.post({ url: InviteUserUrl, data });
+  return MSR.post({ url: InviteUserUrl, data }, { isReturnNativeResponse: true });
 }
 
 // 用户注册

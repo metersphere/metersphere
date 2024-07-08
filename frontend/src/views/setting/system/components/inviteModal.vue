@@ -8,6 +8,7 @@
   >
     <a-form ref="inviteFormRef" class="overflow-hidden rounded-[4px]" :model="emailForm" layout="vertical">
       <a-form-item
+        id="emailInviteInput"
         field="emails"
         :label="t('system.user.inviteEmail')"
         :rules="[{ required: true, message: t('system.user.createUserEmailNotNull') }]"
@@ -54,17 +55,28 @@
 
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
+  import { inviteMember } from '@/api/modules/project-management/projectMember';
+  import { inviteOrgMember } from '@/api/modules/setting/member';
   import { inviteUser } from '@/api/modules/setting/user';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
+  import { ProjectUserOption } from '@/models/projectManagement/projectAndPermission';
   import type { SystemRole } from '@/models/setting/user';
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
-  const props = defineProps<{
-    visible: boolean;
-    userGroupOptions: SystemRole[];
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      visible: boolean;
+      userGroupOptions: (SystemRole | ProjectUserOption)[];
+      range?: 'system' | 'organization' | 'project';
+    }>(),
+    {
+      range: 'system',
+    }
+  );
 
   const emit = defineEmits(['update:visible']);
 
@@ -95,7 +107,13 @@
     () => props.userGroupOptions,
     (arr) => {
       if (arr.length) {
-        emailForm.value.userGroup = arr.filter((e: SystemRole) => e.selected === true).map((e: SystemRole) => e.id);
+        if (props.range === 'system') {
+          emailForm.value.userGroup = (arr as SystemRole[]).filter((e) => e.selected === true).map((e) => e.id);
+        } else if (props.range === 'project') {
+          emailForm.value.userGroup = ['project_member'];
+        } else if (props.range === 'organization') {
+          emailForm.value.userGroup = ['org_member'];
+        }
       }
     }
   );
@@ -104,9 +122,34 @@
     inviteVisible.value = false;
     inviteFormRef.value?.resetFields();
     emailForm.value.emails = [];
-    emailForm.value.userGroup = props.userGroupOptions
-      .filter((e: SystemRole) => e.selected === true)
-      .map((e: SystemRole) => e.id);
+    if (props.range === 'system') {
+      emailForm.value.userGroup = (props.userGroupOptions as SystemRole[])
+        .filter((e) => e.selected === true)
+        .map((e) => e.id);
+    } else if (props.range === 'project') {
+      emailForm.value.userGroup = ['project_member'];
+    } else if (props.range === 'organization') {
+      emailForm.value.userGroup = ['org_member'];
+    }
+  }
+
+  function handleInviteError(error: any) {
+    if (error?.messageDetail) {
+      try {
+        const errEmails = JSON.parse(error.messageDetail);
+        if (Array.isArray(errEmails)) {
+          const inputEmails = document.getElementById('emailInviteInput')?.querySelectorAll('.arco-input-tag-tag');
+          inputEmails?.forEach((input) => {
+            if (errEmails.includes(input.textContent)) {
+              input.setAttribute('style', 'border-color: rgb(var(--danger-6))');
+            }
+          });
+        }
+      } catch (_error) {
+        // eslint-disable-next-line no-console
+        console.log(_error);
+      }
+    }
   }
 
   function emailInvite() {
@@ -114,14 +157,30 @@
       if (!errors) {
         try {
           inviteLoading.value = true;
-          await inviteUser({
-            inviteEmails: emailForm.value.emails,
-            userRoleIds: emailForm.value.userGroup,
-          });
+          if (props.range === 'project') {
+            await inviteMember({
+              inviteEmails: emailForm.value.emails,
+              userRoleIds: emailForm.value.userGroup,
+              projectId: appStore.currentProjectId,
+              organizationId: appStore.currentOrgId,
+            });
+          } else if (props.range === 'organization') {
+            await inviteOrgMember({
+              inviteEmails: emailForm.value.emails,
+              userRoleIds: emailForm.value.userGroup,
+              organizationId: appStore.currentOrgId,
+            });
+          } else {
+            await inviteUser({
+              inviteEmails: emailForm.value.emails,
+              userRoleIds: emailForm.value.userGroup,
+            });
+          }
           Message.success(t('system.user.inviteSuccess'));
           inviteVisible.value = false;
         } catch (error) {
-          console.log(error);
+          // eslint-disable-next-line no-console
+          handleInviteError(error);
         } finally {
           inviteLoading.value = false;
         }

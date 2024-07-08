@@ -8,3 +8,5 @@ export const ProjectUserGroupUrl = '/project/member/get-role/option';
 export const ProjectMemberOptions = '/project/member/get-member/option';
 export const ProjectMemberList = '/project/get-member/option';
 export const ProjectMemberCommentOptions = '/project/member/comment/user-option'; // 项目成员-@成员下拉列表
+// 项目成员-邀请成员
+export const ProjectMemberInviteUrl = '/project/member/invite';

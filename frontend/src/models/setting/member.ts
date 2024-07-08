@@ -58,3 +58,9 @@ export interface LinkItem {
   disabled?: boolean;
 }
 export type LinkList = LinkItem[];
+
+export interface InviteOrgMemberParams {
+  inviteEmails: string[];
+  userRoleIds: string[];
+  organizationId: string;
+}

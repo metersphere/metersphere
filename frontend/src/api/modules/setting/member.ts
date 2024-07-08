@@ -8,11 +8,18 @@ import {
   getProjectListUrl,
   getUserGroupList,
   getUserList,
+  inviteOrgMemberUrl,
   UpdateMemberUrl,
 } from '@/api/requrls/setting/member';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
-import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkItem, MemberItem } from '@/models/setting/member';
+import type {
+  AddOrUpdateMemberModel,
+  BatchAddProjectModel,
+  InviteOrgMemberParams,
+  LinkItem,
+  MemberItem,
+} from '@/models/setting/member';
 // 获取成员列表
 export function getMemberList(data: TableQueryParams) {
   return MSR.post<CommonList<MemberItem>>({ url: GetMemberListUrl, data });
@@ -47,4 +54,8 @@ export function getUser(organizationId: string, keyword: string) {
 // 获取组织下边的项目
 export function getProjectList(organizationId: string, keyword?: string) {
   return MSR.get<LinkItem[]>({ url: `${getProjectListUrl}/${organizationId}`, params: { keyword } });
+}
+// 添加到用户组
+export function inviteOrgMember(data: InviteOrgMemberParams) {
+  return MSR.post({ url: inviteOrgMemberUrl, data }, { isReturnNativeResponse: true });
 }
