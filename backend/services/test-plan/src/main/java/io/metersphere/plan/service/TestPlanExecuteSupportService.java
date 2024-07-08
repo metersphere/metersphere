@@ -35,6 +35,8 @@ public class TestPlanExecuteSupportService {
     private TestPlanReportApiCaseMapper testPlanReportApiCaseMapper;
     @Resource
     private TestPlanReportApiScenarioMapper testPlanReportApiScenarioMapper;
+    @Resource
+    private TestPlanService testPlanService;
 
     public static final String QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE = "test-plan-batch-execute:";
     public static final String QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE = "test-plan-group-execute:";
@@ -69,6 +71,9 @@ public class TestPlanExecuteSupportService {
             if (isGroupReport) {
                 testPlanReportService.summaryGroupReport(reportId);
             } else {
+                //汇总之前，根据测试计划设置，检查是否要同步修改功能用例的状态
+                testPlanService.autoUpdateFunctionalCase(reportId);
+                //进行统计汇总
                 testPlanReportService.summaryPlanReport(reportId);
             }
 

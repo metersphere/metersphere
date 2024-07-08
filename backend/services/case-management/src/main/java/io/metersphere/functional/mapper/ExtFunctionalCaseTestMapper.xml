@@ -244,4 +244,12 @@
             </foreach>
         </if>
     </select>
+    <select id="selectApiAndScenarioIdsFromCaseIds"
+            resultType="io.metersphere.functional.domain.FunctionalCaseTest">
+        select case_id, source_id from functional_case_test where case_id in
+        <foreach collection="caseIds" item="caseId" open="(" close=")" separator=",">
+            #{caseId}
+        </foreach>
+        AND source_type in ('API','SCENARIO');
+    </select>
 </mapper>

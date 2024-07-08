@@ -431,14 +431,13 @@ public class SimpleUserService {
     private ProjectMapper projectMapper;
 
     public UserInviteResponse saveInviteRecord(UserInviteRequest request, String inviteSource, SessionUser inviteUser) {
+        Map<String, String> errorMap = this.validateUserInfo(request.getInviteEmails());
+        if (MapUtils.isNotEmpty(errorMap)) {
+            throw new MSException(SystemResultCode.INVITE_EMAIL_EXIST, JSON.toJSONString(errorMap.keySet()));
+        }
         if (StringUtils.equals(inviteSource, EmailInviteSource.SYSTEM.name())) {
+            //校验角色的合法性
             globalUserRoleService.checkRoleIsGlobalAndHaveMember(request.getUserRoleIds(), true);
-            //校验邮箱和角色的合法性
-            Map<String, String> errorMap = this.validateUserInfo(request.getInviteEmails());
-            if (MapUtils.isNotEmpty(errorMap)) {
-                throw new MSException(SystemResultCode.INVITE_EMAIL_EXIST, JSON.toJSONString(errorMap.keySet()));
-            }
-            
             request.setOrganizationId(EmailInviteSource.SYSTEM.name());
             request.setProjectId(EmailInviteSource.SYSTEM.name());
         } else if (StringUtils.equals(inviteSource, EmailInviteSource.ORGANIZATION.name())) {
