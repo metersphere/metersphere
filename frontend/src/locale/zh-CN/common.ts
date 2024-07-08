@@ -195,4 +195,5 @@ export default {
   'common.collapseAllSubModule': '收起全部子模块',
   'common.selectedCount': '(已选 {count} 项数据)',
   'common.advancedSettings': '高级设置',
+  'common.auth_redirect_tip': '即将跳转至认证源页面进行认证',
 };

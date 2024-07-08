@@ -24,6 +24,8 @@ export const GetAuthListUrl = '/system/authsource/list';
 export const AddAuthUrl = '/system/authsource/add';
 // 获取认证源详情
 export const GetAuthDetailUrl = '/system/authsource/get';
+// 根据类型获取认证源详情
+export const GetAuthDetailByTypeUrl = '/authentication/get/by/type';
 // 删除认证源
 export const DeleteAuthUrl = '/system/authsource/delete';
 // 测试ldap连接

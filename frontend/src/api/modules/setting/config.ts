@@ -2,6 +2,7 @@ import MSR from '@/api/http/index';
 import {
   AddAuthUrl,
   DeleteAuthUrl,
+  GetAuthDetailByTypeUrl,
   GetAuthDetailUrl,
   GetAuthListUrl,
   GetBaseInfoUrl,
@@ -84,6 +85,11 @@ export function getAuthList(data: TableQueryParams) {
 // 获取认证源详情
 export function getAuthDetail(id: string) {
   return MSR.get<AuthItem>({ url: GetAuthDetailUrl, params: id });
+}
+
+// 获取认证源详情
+export function getAuthDetailByType(type: string) {
+  return MSR.get<AuthItem>({ url: GetAuthDetailByTypeUrl, params: type });
 }
 
 // 添加认证源

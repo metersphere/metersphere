@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <a-spin class="w-full" />
 </template>
 
 <script lang="ts" setup>

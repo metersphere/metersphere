@@ -11,6 +11,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/ldap/login", "anon");
         filterChainDefinitionMap.put("/authentication/get-list", "anon");
+        filterChainDefinitionMap.put("/authentication//get/by/type/**", "anon");
         filterChainDefinitionMap.put("/we_com/info", "anon");
         filterChainDefinitionMap.put("/ding_talk/info", "anon");
         filterChainDefinitionMap.put("/lark/info", "anon");

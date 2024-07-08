@@ -105,7 +105,7 @@
           <span class="type-text text-[7px]">OAUTH</span>
         </div>
         <div v-if="isShowCAS && userInfo.authenticate !== 'CAS'" class="loginType" @click="redirectAuth('CAS')">
-          <span class="type-text text-[7px]">CAS</span>
+          <span class="type-text text-[10px]">CAS</span>
         </div>
       </div>
       <div v-if="props.isPreview" class="mask"></div>
@@ -122,7 +122,7 @@
   import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
-  import { getAuthDetail } from '@/api/modules/setting/config';
+  import { getAuthDetail, getAuthDetailByType } from '@/api/modules/setting/config';
   import { getPlatformParamUrl } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
@@ -132,11 +132,11 @@
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { encrypted } from '@/utils';
-  import { setLoginExpires } from '@/utils/auth';
+  import { setLoginExpires, setToken } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
-  import { SettingRouteEnum } from '@/enums/routeEnum';
+  import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
 
@@ -303,11 +303,11 @@
     }
   }
 
-  function redirectAuth(authId: string) {
-    if (authId === 'LDAP' || authId === 'LOCAL') {
+  function redirectAuth(authType: string) {
+    if (authType === 'LDAP' || authType === 'LOCAL') {
       return;
     }
-    getAuthDetail(authId).then((res) => {
+    getAuthDetailByType(authType).then((res) => {
       if (!res) {
         return;
       }
@@ -315,38 +315,32 @@
         Message.error(t('login.auth_not_enable'));
         return;
       }
-      // 以前的cas登录
-      if (userInfo.value.authenticate === 'CAS') {
-        const config = JSON.parse(res.configuration);
-        if (config.casServerUrl && !config.loginUrl) {
-          return;
-        }
-      }
+      const authId = res.id;
       openModal({
-        type: 'warning',
-        title: t('commons.auth_redirect_tip'),
-        content: t('ms.minders.leaveUnsavedTip'),
+        type: 'info',
+        content: t('common.auth_redirect_tip'),
         okText: t('common.confirm'),
         cancelText: t('common.cancel'),
         okButtonProps: {
           status: 'normal',
         },
+        closable: false,
         onBeforeOk: async () => {
           const config = JSON.parse(res.configuration);
           // eslint-disable-next-line no-eval
           const redirectUrl = eval(`\`${config.redirectUrl}\``);
           let url;
-          if (userInfo.value.authenticate === 'CAS') {
+          if (authType === 'CAS') {
             url = `${config.loginUrl}?service=${encodeURIComponent(redirectUrl)}`;
           }
-          if (userInfo.value.authenticate === 'OIDC') {
+          if (authType === 'OIDC') {
             url = `${config.authUrl}?client_id=${config.clientId}&redirect_uri=${redirectUrl}&response_type=code&scope=openid+profile+email&state=${authId}`;
             // 保存一个登录地址，禁用本地登录
             if (config.loginUrl) {
               localStorage.setItem('oidcLoginUrl', config.loginUrl);
             }
           }
-          if (userInfo.value.authenticate === 'OAUTH2') {
+          if (authType === 'OAUTH2') {
             url =
               `${config.authUrl}?client_id=${config.clientId}&response_type=code` +
               `&redirect_uri=${redirectUrl}&state=${authId}`;
@@ -363,9 +357,47 @@
     });
   }
 
+  function getQueryVariable(variable: string) {
+    const urlString = window.location.href;
+
+    const queryIndex = urlString.indexOf('?');
+    if (queryIndex !== -1) {
+      const query = urlString.substring(queryIndex + 1);
+
+      // 分割查询参数
+      const params = query.split('&');
+
+      // 遍历参数，找到 _token 参数的值
+      let variableValue;
+      params.forEach((param) => {
+        const pair = param.split('=');
+        if (pair[0] === variable) {
+          console.log(pair[1]);
+          // eslint-disable-next-line prefer-destructuring
+          variableValue = pair[1];
+        }
+      });
+      return variableValue;
+    }
+  }
+
+  async function checkAuthUrlParam() {
+    const TOKEN = getQueryVariable('_token');
+    const CSRF = getQueryVariable('_csrf');
+    const pId = getQueryVariable('_pId');
+    const orgId = getQueryVariable('orgId');
+    if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
+      setToken(TOKEN, CSRF);
+      appStore.setCurrentOrgId(pId || '');
+      appStore.setCurrentProjectId(orgId || '');
+      await userStore.checkIsLogin(true);
+    }
+  }
+
   onMounted(() => {
     userStore.getAuthentication();
     initPlatformInfo();
+    checkAuthUrlParam();
   });
 </script>
 
