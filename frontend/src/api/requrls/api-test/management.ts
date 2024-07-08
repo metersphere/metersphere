@@ -18,6 +18,7 @@ export const TransferFileModuleOptionUrl = '/api/definition/transfer/options'; /
 export const UploadTempFileUrl = '/api/definition/upload/temp/file'; // 临时文件上传
 export const DeleteDefinitionUrl = '/api/definition/delete-to-gc'; // 删除接口定义
 export const ImportDefinitionUrl = '/api/definition/import'; // 导入接口定义
+export const ExportDefinitionUrl = '/api/definition/export'; // 导入接口定义
 export const SortDefinitionUrl = '/api/definition/edit/pos'; // 接口定义拖拽
 export const CopyDefinitionUrl = '/api/definition/copy'; // 复制接口定义
 export const BatchUpdateDefinitionUrl = '/api/definition/batch-update'; // 批量更新接口定义

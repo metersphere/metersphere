@@ -75,6 +75,7 @@ export default {
   'apiTestManagement.moreSetting': '更多设置',
   'apiTestManagement.importType': '导入方式',
   'apiTestManagement.urlImport': 'URL 导入',
+  'apiTestManagement.swagger.export': '导出 Swagger3.0 格式',
   'apiTestManagement.syncImportCase': '同步导入接口用例',
   'apiTestManagement.syncUpdateDirectory': '同步更新接口所在目录',
   'apiTestManagement.importSwaggerFileTip1': '支持 Swagger 3.0 版本的 json 文件，',

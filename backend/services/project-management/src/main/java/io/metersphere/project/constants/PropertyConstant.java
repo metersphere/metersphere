@@ -19,5 +19,8 @@ public class PropertyConstant {
     public final static String ITEMS = "items";
     public final static String PROPERTIES = "properties";
     public final static String ENABLE = "enable";
+    public final static String MOCK = "mock";
+    public final static String BODYTYPE = "bodyType";
+    public final static String PARAMTYPE = "paramtype";
 
 }

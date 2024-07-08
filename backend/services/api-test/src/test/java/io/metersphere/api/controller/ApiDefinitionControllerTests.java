@@ -117,6 +117,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     private static final String ALL_API = "api_definition_module.api.all";
     private static final String UNPLANNED_API = "api_unplanned_request";
+
+    private static final String EXPORT = "/export/";
     private static ApiDefinition apiDefinition;
 
     @Resource
@@ -1846,6 +1848,23 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn("/get-reference", request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        Assertions.assertNotNull(pageData);
+    }
+
+    @Test
+    @Order(104)
+    public void testExport() throws Exception {
+        ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setProtocols(List.of("HTTP"));
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1001"));
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(EXPORT + "swagger", request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常

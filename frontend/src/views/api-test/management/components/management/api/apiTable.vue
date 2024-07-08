@@ -276,6 +276,7 @@
     batchMoveDefinition,
     batchUpdateDefinition,
     deleteDefinition,
+    exportApiDefinition,
     getDefinitionPage,
     sortDefinition,
     updateDefinition,
@@ -284,7 +285,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit, operationWidth } from '@/utils';
+  import { characterLimit, downloadByteFile, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -555,10 +556,16 @@
   );
   const batchActions = {
     baseAction: [
-      // {
-      //   label: 'common.export',
-      //   eventTag: 'export',
-      // },
+      {
+        label: 'common.export',
+        eventTag: 'export',
+        children: [
+          {
+            label: 'apiTestManagement.swagger.export',
+            eventTag: 'exportSwagger',
+          },
+        ],
+      },
       {
         label: 'common.edit',
         eventTag: 'edit',
@@ -907,6 +914,28 @@
   }
 
   /**
+   * 导出接口
+   */
+  async function exportApi(type: string, record?: ApiDefinitionDetail, params?: BatchActionQueryParams) {
+    const result = await exportApiDefinition(
+      {
+        selectIds: tableSelected.value as string[],
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        condition: {
+          keyword: keyword.value,
+          filter: propsRes.value.filter,
+        },
+        projectId: appStore.currentProjectId,
+        moduleIds: await getModuleIds(),
+        protocols: props.selectedProtocols,
+      },
+      type
+    );
+    downloadByteFile(new Blob([JSON.stringify(result)]), 'Swagger_Api_Case.json');
+  }
+
+  /**
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
    */
@@ -914,6 +943,9 @@
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = params;
     switch (event.eventTag) {
+      case 'exportSwagger':
+        exportApi('swagger', undefined, params);
+        break;
       case 'delete':
         deleteApi(undefined, true, params);
         break;

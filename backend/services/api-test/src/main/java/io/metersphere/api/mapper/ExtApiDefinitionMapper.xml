@@ -9,6 +9,13 @@
     <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinition">
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
+
+    <resultMap id="ApiResultMap" type="io.metersphere.api.dto.definition.ApiDefinitionWithBlob">
+        <result column="request" jdbcType="LONGVARBINARY" property="request" />
+        <result column="response" jdbcType="LONGVARBINARY" property="response" />
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
     <update id="deleteApiToGc">
         update api_definition
         set delete_user = #{userId},delete_time = #{time}, deleted = 1 , module_id = 'root'
@@ -630,5 +637,22 @@
             </if>
         </where>
         group by a.id, ass.ref_type
+    </select>
+
+
+    <select id="selectApiDefinitionWithBlob" resultMap="ApiResultMap">
+        SELECT
+        api_definition.*,
+	    api_definition_blob.request,
+	    api_definition_blob.response,
+        api_definition_module.name as moduleName
+        FROM
+	    api_definition
+	    INNER JOIN api_definition_blob ON api_definition.id = api_definition_blob.id
+        inner join api_definition_module on api_definition.module_id = api_definition_module.id
+        where api_definition.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>
