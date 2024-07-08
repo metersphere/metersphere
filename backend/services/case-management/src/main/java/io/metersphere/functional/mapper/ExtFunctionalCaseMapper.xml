@@ -837,7 +837,7 @@
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
         crfc.id as id,
-        history.`status` as reviewStatus,
+        IFNULL(history.`status`, fc.review_status) as reviewStatus,
         fc.module_id as moduleId,
         fc.name as name,
         fc.id as caseId,

@@ -305,7 +305,7 @@
             <MsFormItemSub :text="t('system.config.auth.loginUrlTip')" :show-fill-icon="false" />
           </a-form-item>
         </template>
-        <template v-else-if="activeAuthForm.type === 'OAuth2'">
+        <template v-else-if="activeAuthForm.type === 'OAUTH2'">
           <a-form-item
             :label="t('system.config.auth.authUrl')"
             field="configuration.authUrl"
@@ -899,7 +899,7 @@
             },
           ]);
           break;
-        case 'OAuth2':
+        case 'OAUTH2':
           description = description.concat([
             {
               label: t('system.config.auth.authUrl'),
@@ -1150,7 +1150,7 @@
             loginUrl: configuration.loginUrl,
           };
           break;
-        case 'OAuth2':
+        case 'OAUTH2':
           _configuration = {
             authUrl: configuration.authUrl,
             tokenUrl: configuration.tokenUrl,
