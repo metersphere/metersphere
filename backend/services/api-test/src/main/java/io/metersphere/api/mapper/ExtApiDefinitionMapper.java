@@ -83,4 +83,6 @@ public interface ExtApiDefinitionMapper {
     List<ReferenceDTO> getReference(@Param("request") ReferenceRequest request);
 
     List<ApiDefinition> selectByProjectNum(String projectNum);
+
+    List<ApiDefinitionWithBlob> selectApiDefinitionWithBlob(@Param("ids") List<String> ids);
 }

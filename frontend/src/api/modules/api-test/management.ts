@@ -36,6 +36,7 @@ import {
   DeleteRecycleApiUrl,
   DeleteRecycleCaseUrl,
   ExecuteCaseUrl,
+  ExportDefinitionUrl,
   GetCaseDetailUrl,
   GetCaseReportByIdUrl,
   GetCaseReportDetailUrl,
@@ -101,6 +102,7 @@ import {
   ApiCasePageParams,
   ApiDefinitionBatchDeleteParams,
   ApiDefinitionBatchMoveParams,
+  ApiDefinitionBatchParams,
   ApiDefinitionBatchUpdateParams,
   ApiDefinitionCreateParams,
   ApiDefinitionDeleteParams,
@@ -555,4 +557,9 @@ export function getReportById(id: string) {
 
 export function getCaseReportDetail(reportId: string, stepId: string) {
   return MSR.get<ApiCaseReportDetail[]>({ url: `${GetCaseReportDetailUrl + reportId}/${stepId}` });
+}
+
+// 导出定义
+export function exportApiDefinition(data: ApiDefinitionBatchParams, type: string) {
+  return MSR.post({ url: `${ExportDefinitionUrl}/${type}`, data });
 }

@@ -6,15 +6,13 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.export.ApiExportResponse;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.service.definition.ApiDefinitionImportService;
-import io.metersphere.api.service.definition.ApiDefinitionLogService;
-import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
-import io.metersphere.api.service.definition.ApiDefinitionService;
+import io.metersphere.api.service.definition.*;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -60,6 +58,8 @@ public class ApiDefinitionController {
     private ApiFileResourceService apiFileResourceService;
     @Resource
     private ApiDefinitionImportService apiDefinitionImportService;
+    @Resource
+    private ApiDefinitionExportService apiDefinitionExportService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-添加接口定义")
@@ -300,5 +300,11 @@ public class ApiDefinitionController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
         return PageUtils.setPageInfo(page, apiDefinitionService.getReference(request));
+    }
+
+    @PostMapping(value = "/export/{type}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXPORT)
+    public ApiExportResponse export(@RequestBody ApiDefinitionBatchRequest request, @PathVariable String type) {
+        return apiDefinitionExportService.export(request, type, SessionUtils.getUserId());
     }
 }
