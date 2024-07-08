@@ -85,7 +85,7 @@ MeterSphere v3.x 的版本发布计划：
 
 ## 插件
 
-- [TAPD](https://www.tapd.cn/) 需求和缺陷同步插件：将 MeterSphere 的测试用例和 TAPD 需求项进行关联，以及将 MeterSphere 和 TAPD 两个应用的缺陷进行双向同步。
+- [TAPD](https://www.tapd.cn/) 需求和缺陷同步插件：通过调用 TAPD 企业版本提供的 API 接口（[TAPD 企业版（API）申请](https://jsj.top/f/Lpk1sh)），将 MeterSphere 的测试用例和 TAPD 需求项进行关联，以及将 MeterSphere 和 TAPD 两个应用的缺陷进行双向同步。
 - 禅道需求和缺陷同步插件：将 MeterSphere 的测试用例和禅道需求项进行关联，以及将 MeterSphere 和禅道两个应用的缺陷进行双向同步。
 - JIRA 需求和缺陷同步插件：将 MeterSphere 的测试用例和 JIRA 需求项进行关联，以及将 MeterSphere 和 JIRA 两个应用的缺陷进行双向同步。
 - [Jenkins](https://www.jenkins.io/) 持续集成插件：实现在 Jenkins 流水线中触发并自动执行 MeteSphere 测试计划。
