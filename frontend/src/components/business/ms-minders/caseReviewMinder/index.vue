@@ -19,18 +19,46 @@
       <template #extractMenu>
         <template v-if="showCaseMenu">
           <!-- 评审 查看详情 -->
-          <a-tooltip :content="t('caseManagement.caseReview.review')">
-            <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
-              <MsIcon type="icon-icon_audit" class="text-[var(--color-text-4)]" />
-            </MsButton>
-          </a-tooltip>
+          <a-trigger
+            v-if="hasAnyPermission(['CASE_REVIEW:READ+REVIEW']) && isReviewer"
+            v-model:popup-visible="reviewVisible"
+            trigger="click"
+            position="bl"
+            :click-outside-to-close="false"
+            popup-container=".ms-minder-container"
+          >
+            <a-tooltip :content="t('caseManagement.caseReview.review')">
+              <MsButton
+                type="icon"
+                :class="[
+                  'ms-minder-node-float-menu-icon-button',
+                  `${reviewVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+                ]"
+              >
+                <MsIcon type="icon-icon_audit" class="text-[var(--color-text-4)]" />
+              </MsButton>
+            </a-tooltip>
+            <template #content>
+              <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
+                <ReviewSubmit
+                  :review-pass-rule="reviewPassRule"
+                  :case-id="selectCaseId"
+                  :review-id="route.query.id as string"
+                  @done="handleReviewDone"
+                />
+              </div>
+            </template>
+          </a-trigger>
           <a-tooltip :content="t('common.detail')">
-            <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="toggleDetail">
-              <MsIcon
-                type="icon-icon_describe_outlined"
-                class="text-[var(--color-text-4)]"
-                :class="[extraVisible ? 'ms-minder-node-float-menu-icon-button--focus' : '']"
-              />
+            <MsButton
+              type="icon"
+              :class="[
+                'ms-minder-node-float-menu-icon-button',
+                `${extraVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+              ]"
+              @click="toggleDetail"
+            >
+              <MsIcon type="icon-icon_describe_outlined" class="text-[var(--color-text-4)]" />
             </MsButton>
           </a-tooltip>
         </template>
@@ -104,15 +132,27 @@
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
   import ReviewResult from '@/views/case-management/caseReview/components/reviewResult.vue';
+  import ReviewSubmit from '@/views/case-management/caseReview/components/reviewSubmit.vue';
 
-  import { getCaseReviewHistoryList, getCaseReviewMinder } from '@/api/modules/case-management/caseReview';
+  import {
+    getCaseReviewerList,
+    getCaseReviewHistoryList,
+    getCaseReviewMinder,
+  } from '@/api/modules/case-management/caseReview';
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
-  import { ReviewHistoryItem, ReviewPassRule } from '@/models/caseManagement/caseReview';
+  import {
+    CaseReviewFunctionalCaseUserItem,
+    ReviewHistoryItem,
+    ReviewPassRule,
+    ReviewResult as ReviewResultStatus,
+  } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
   import { MinderEventName } from '@/enums/minderEnum';
 
@@ -130,12 +170,14 @@
 
   const emit = defineEmits<{
     (e: 'operation', type: string, data: MinderJsonNodeData): void;
+    (e: 'handleReviewDone'): void;
   }>();
 
   const route = useRoute();
   const appStore = useAppStore();
   const { t } = useI18n();
   const minderStore = useMinderStore();
+  const userStore = useUserStore();
 
   const statusTagMap: Record<string, string> = {
     PASS: t('common.pass'),
@@ -474,6 +516,8 @@
   }
 
   const canShowFloatMenu = ref(false); // 是否展示浮动菜单
+  const isReviewer = ref(false); // 是否是此用例的评审人
+  const caseReviewerList = ref<CaseReviewFunctionalCaseUserItem[]>([]);
   const canShowEnterNode = ref(false);
   const showCaseMenu = ref(false);
   const moreMenuOtherOperationList = ref();
@@ -504,6 +548,37 @@
         },
       },
     ];
+  }
+
+  const selectCaseId = ref('');
+  const reviewVisible = ref(false);
+  function handleReviewDone(status: ReviewResultStatus) {
+    reviewVisible.value = false;
+    let origin = window.minder.queryCommandValue('resource');
+    if (origin[0] !== caseTag) {
+      origin[0] = statusTagMap[status];
+    } else {
+      origin = [statusTagMap[status], ...origin];
+    }
+    window.minder.execCommand('resource', origin);
+    minderStore.dispatchEvent(
+      MinderEventName.SET_TAG,
+      undefined,
+      undefined,
+      undefined,
+      window.minder.getSelectedNodes()
+    );
+    setPriorityView(true, 'P');
+    emit('handleReviewDone');
+  }
+
+  /**
+   * 是否是当前用例的评审人
+   * @param data 节点信息
+   */
+  async function setIsReviewer(data?: MinderJsonNodeData) {
+    caseReviewerList.value = await getCaseReviewerList(route.query.id as string, data?.caseId);
+    isReviewer.value = caseReviewerList.value.some((child) => child.userId === userStore.id);
   }
 
   /**
@@ -538,7 +613,9 @@
 
     if (data?.resource?.includes(caseTag)) {
       showCaseMenu.value = true;
+      selectCaseId.value = node.data?.caseId ?? '';
       setMoreMenuOtherOperationList(node.data as MinderJsonNodeData);
+      setIsReviewer(node.data);
       if (extraVisible.value) {
         toggleDetail(true);
       }
