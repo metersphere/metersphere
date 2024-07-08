@@ -43,4 +43,7 @@
             test_plan_report report on plan.id = report.test_plan_id
                        where report.id =#{id}
     </select>
+    <select id="getProjectIdByPlanId" resultType="java.lang.String">
+        SELECT project_id from test_plan where id =#{id}
+    </select>
 </mapper>
