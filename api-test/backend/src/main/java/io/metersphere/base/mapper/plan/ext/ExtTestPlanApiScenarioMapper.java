@@ -13,4 +13,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanApiScenario> selectByScenarioIds(@Param("ids") List<String> ids);
 
     String selectPlanIdByTestPlanId(@Param("id") String id);
+
+    String getProjectIdByPlanId(@Param("id") String id);
 }

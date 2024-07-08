@@ -644,13 +644,15 @@ public class ShareInfoService extends BaseShareInfoService {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
         if (ObjectUtils.isNotEmpty(shareInfo)) {
             String projectId = extTestPlanApiScenarioMapper.selectPlanIdByTestPlanId(shareInfo.getCustomData());
+            if (StringUtils.isBlank(projectId)) {
+                projectId = extTestPlanApiScenarioMapper.getProjectIdByPlanId(shareInfo.getCustomData());
+            }
             validateExpiredTestPlan(shareInfo, projectId);
         }
         if (shareInfo == null) {
             MSException.throwException("ShareInfo not exist!");
         }
     }
-
 
     public void render(Pager<List<ApiDocumentInfoDTO>> listPager, HttpServletResponse response) throws
             UnsupportedEncodingException {
