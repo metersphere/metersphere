@@ -15,6 +15,7 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseModule;
+import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
@@ -937,5 +938,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public Map<String, List<String>> getFuncCaseAssociationCaseMap(List<String> functionalCaseIds) {
+        if (CollectionUtils.isEmpty(functionalCaseIds)) {
+            return new HashMap<>();
+        }
+        List<FunctionalCaseTest> functionalCaseTestList = extFunctionalCaseTestMapper.selectApiAndScenarioIdsFromCaseIds(functionalCaseIds);
+        return functionalCaseTestList.stream().collect(Collectors.groupingBy(FunctionalCaseTest::getCaseId, Collectors.mapping(FunctionalCaseTest::getSourceId, Collectors.toList())));
     }
 }

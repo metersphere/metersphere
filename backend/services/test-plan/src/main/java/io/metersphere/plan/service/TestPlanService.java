@@ -39,6 +39,7 @@ import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -100,11 +101,56 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private TestPlanReportCaseService testPlanReportCaseService;
 
     private static final int MAX_TAG_SIZE = 10;
 
     @Resource
     private TestPlanReportService testPlanReportService;
+    @Resource
+    private TestPlanReportMapper testPlanReportMapper;
+
+    public void autoUpdateFunctionalCase(String testPlanReportId) {
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportId);
+        if (testPlanReport == null) {
+            return;
+        }
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
+        if (testPlanConfig != null && BooleanUtils.isTrue(testPlanConfig.getAutomaticStatusUpdate())) {
+            TestPlanFunctionalCaseService testPlanFunctionalCaseService = CommonBeanFactory.getBean(TestPlanFunctionalCaseService.class);
+            Map<String, List<String>> execResultFuncCaseMap = new HashMap<>();
+            List<String> functionalCaseIds = testPlanReportCaseService.selectFunctionalCaseIdsByTestPlanId(testPlanReport.getTestPlanId());
+            Map<String, List<String>> funcCaseAssociationCaseMap = testPlanFunctionalCaseService.getFuncCaseAssociationCaseMap(functionalCaseIds);
+            Map<String, String> caseExecResult = testPlanReportCaseService.selectCaseExecResultByReportId(testPlanReportId);
+            funcCaseAssociationCaseMap.forEach((funcCaseId, apiIdList) -> {
+                List<String> execResultList = new ArrayList<>();
+                apiIdList.forEach(apiId -> {
+                    String result = caseExecResult.get(apiId);
+                    if (StringUtils.isNotBlank(result)) {
+                        execResultList.add(result);
+                    }
+                });
+                String lastResult = testPlanReportCaseService.calculateFuncCaseExecResult(execResultList);
+                if (StringUtils.isNotBlank(lastResult)) {
+                    if (execResultFuncCaseMap.containsKey(lastResult)) {
+                        execResultFuncCaseMap.get(lastResult).add(funcCaseId);
+                    } else {
+                        execResultFuncCaseMap.put(lastResult, new ArrayList<>() {{
+                            this.add(funcCaseId);
+                        }});
+                    }
+                }
+            });
+            execResultFuncCaseMap.forEach((result, funcCaseIds) -> {
+                TestPlanFunctionalCaseExample updateExample = new TestPlanFunctionalCaseExample();
+                updateExample.createCriteria().andTestPlanIdEqualTo(testPlanReport.getTestPlanId()).andFunctionalCaseIdIn(funcCaseIds);
+                TestPlanFunctionalCase updateRecord = new TestPlanFunctionalCase();
+                updateRecord.setLastExecResult(result);
+                testPlanFunctionalCaseMapper.updateByExampleSelective(updateRecord, updateExample);
+            });
+        }
+    }
 
     /**
      * 创建测试计划

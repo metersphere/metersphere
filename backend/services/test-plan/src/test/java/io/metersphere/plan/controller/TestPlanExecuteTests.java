@@ -1,30 +1,34 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseTest;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
-import io.metersphere.plan.mapper.TestPlanCollectionMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanReportMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.service.TestPlanExecuteService;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestService;
 import io.metersphere.project.domain.Project;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.CommonProjectService;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
+import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -63,8 +67,14 @@ public class TestPlanExecuteTests extends BaseTest {
             "test-plan-batch-execute:", "test-plan-group-execute:", "test-plan-case-type-execute:", "test-plan-collection-execute:"
     };
     public static final String QUEUE_PREFIX_TEST_PLAN_COLLECTION = "test-plan-collection-execute:";
-    @Autowired
+    @Resource
     private TestPlanReportMapper testPlanReportMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private TestPlanReportApiScenarioMapper testPlanReportApiScenarioMapper;
+    @Resource
+    private TestPlanService testPlanService;
 
     @Test
     @Order(1)
@@ -317,4 +327,211 @@ public class TestPlanExecuteTests extends BaseTest {
 
         Assertions.assertTrue(allQueueIds.isEmpty());
     }
+
+    @Test
+    @Order(3)
+    public void autoFunctionCase() throws Exception {
+        if (project == null) {
+            this.initData();
+        }
+        //测试计划关联功能用例 -- 附带把功能用例对应的接口用例关联过来并执行
+        //创建测试计划
+        TestPlanCreateRequest request = new TestPlanCreateRequest();
+        request.setProjectId(project.getId());
+        request.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        request.setName("testPlanForAutoFunction");
+        request.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn("/test-plan/add", request);
+        String returnStr = mvcResult.getResponse().getContentAsString();
+        ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
+        String testPlanID = JSON.parseObject(JSON.toJSONString(holder.getData()), TestPlan.class).getId();
+
+        TestPlanResourceIds testPlanResourceIds = this.insertFunctionalCase(testPlanID);
+        testPlanResourceIds.getReportApiScenarios().forEach(item -> {
+            item.setApiScenarioExecuteResult(ResultStatus.SUCCESS.name());
+            testPlanReportApiScenarioMapper.updateByPrimaryKeySelective(item);
+        });
+        testPlanService.autoUpdateFunctionalCase(testPlanResourceIds.getTestPlanReportId());
+        TestPlanFunctionalCase testPlanFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(testPlanResourceIds.getTestPlanFunctionalCaseId());
+        Assertions.assertEquals(testPlanFunctionalCase.getLastExecResult(), ResultStatus.SUCCESS.name());
+        for (int i = 0; i < testPlanResourceIds.getReportApiScenarios().size(); i++) {
+            TestPlanReportApiScenario reportApiScenario = testPlanResourceIds.getReportApiScenarios().get(i);
+            if (i == 0) {
+                reportApiScenario.setApiScenarioExecuteResult(ResultStatus.ERROR.name());
+                testPlanReportApiScenarioMapper.updateByPrimaryKeySelective(reportApiScenario);
+            } else if (i == 1) {
+                reportApiScenario.setApiScenarioExecuteResult(ResultStatus.FAKE_ERROR.name());
+                testPlanReportApiScenarioMapper.updateByPrimaryKeySelective(reportApiScenario);
+            }
+        }
+        testPlanService.autoUpdateFunctionalCase(testPlanResourceIds.getTestPlanReportId());
+        testPlanFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(testPlanResourceIds.getTestPlanFunctionalCaseId());
+        Assertions.assertEquals(testPlanFunctionalCase.getLastExecResult(), ResultStatus.ERROR.name());
+
+        String lastExecResult = testPlanFunctionalCase.getLastExecResult();
+        for (int i = 0; i < testPlanResourceIds.getReportApiScenarios().size(); i++) {
+            if (i == 0) {
+                TestPlanReportApiScenario reportApiScenario = testPlanResourceIds.getReportApiScenarios().get(i);
+                reportApiScenario.setApiScenarioExecuteResult(ResultStatus.BLOCKED.name());
+                testPlanReportApiScenarioMapper.updateByPrimaryKeySelective(reportApiScenario);
+            }
+        }
+        testPlanService.autoUpdateFunctionalCase(testPlanResourceIds.getTestPlanReportId());
+        testPlanFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(testPlanResourceIds.getTestPlanFunctionalCaseId());
+        Assertions.assertEquals(testPlanFunctionalCase.getLastExecResult(), lastExecResult);
+
+        for (int i = 0; i < testPlanResourceIds.getReportApiScenarios().size(); i++) {
+            TestPlanReportApiScenario reportApiScenario = testPlanResourceIds.getReportApiScenarios().get(i);
+            reportApiScenario.setApiScenarioExecuteResult(ResultStatus.FAKE_ERROR.name());
+            testPlanReportApiScenarioMapper.updateByPrimaryKeySelective(reportApiScenario);
+        }
+        testPlanService.autoUpdateFunctionalCase(testPlanResourceIds.getTestPlanReportId());
+        testPlanFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(testPlanResourceIds.getTestPlanFunctionalCaseId());
+        Assertions.assertEquals(testPlanFunctionalCase.getLastExecResult(), ResultStatus.SUCCESS.name());
+    }
+
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private FunctionalCaseTestMapper functionalCaseTestMapper;
+    @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+
+    private TestPlanResourceIds insertFunctionalCase(String testPlanId) {
+        TestPlanResourceIds returnResourceIds = new TestPlanResourceIds();
+        returnResourceIds.setTestPlanId(testPlanId);
+
+        TestPlanConfig testPlanConfig = new TestPlanConfig();
+        testPlanConfig.setTestPlanId(testPlanId);
+        testPlanConfig.setAutomaticStatusUpdate(true);
+        testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
+
+        TestPlanReport testPlanReport = new TestPlanReport();
+        testPlanReport.setId(IDGenerator.nextStr());
+        testPlanReport.setTestPlanId(testPlanId);
+        testPlanReport.setName(testPlanId);
+        testPlanReport.setCreateTime(System.currentTimeMillis());
+        testPlanReport.setCreateUser("admin");
+        testPlanReport.setStartTime(System.currentTimeMillis());
+        testPlanReport.setEndTime(System.currentTimeMillis());
+        testPlanReport.setExecStatus("COMPLETED");
+        testPlanReport.setResultStatus("PREPARED");
+        testPlanReport.setPassRate(100.00);
+        testPlanReport.setTriggerMode("API");
+        testPlanReport.setPassThreshold(100.00);
+        testPlanReport.setProjectId(project.getId());
+        testPlanReport.setDeleted(false);
+        testPlanReport.setIntegrated(false);
+        testPlanReport.setTestPlanName(testPlanId);
+        testPlanReport.setDefaultLayout(true);
+        testPlanReportMapper.insert(testPlanReport);
+
+        FunctionalCase functionalCase = new FunctionalCase();
+        functionalCase.setProjectId(project.getId());
+        functionalCase.setName(String.valueOf(System.currentTimeMillis()));
+        functionalCase.setId(IDGenerator.nextStr());
+        functionalCase.setModuleId("root");
+        functionalCase.setTemplateId("root");
+        functionalCase.setReviewStatus("PREPARED");
+        functionalCase.setCaseEditType("STEP");
+        functionalCase.setPos(4096L);
+        functionalCase.setVersionId("root");
+        functionalCase.setRefId(functionalCase.getId());
+        functionalCase.setLastExecuteResult("PREPARED");
+        functionalCase.setDeleted(false);
+        functionalCase.setPublicCase(false);
+        functionalCase.setLatest(true);
+        functionalCase.setCreateUser("admin");
+        functionalCase.setCreateTime(System.currentTimeMillis());
+        functionalCase.setUpdateTime(System.currentTimeMillis());
+        functionalCase.setNum(NumGenerator.nextNum(project.getId(), ApplicationNumScope.CASE_MANAGEMENT));
+        functionalCaseMapper.insert(functionalCase);
+
+        TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
+        testPlanFunctionalCase.setId(IDGenerator.nextStr());
+        testPlanFunctionalCase.setTestPlanId(testPlanId);
+        testPlanFunctionalCase.setFunctionalCaseId(functionalCase.getId());
+        testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
+        testPlanFunctionalCase.setCreateUser("admin");
+        testPlanFunctionalCase.setPos(4096L);
+        testPlanFunctionalCase.setLastExecResult("SUCCESS");
+        testPlanFunctionalCase.setTestPlanCollectionId("root");
+        testPlanFunctionalCaseMapper.insert(testPlanFunctionalCase);
+
+        for (int i = 0; i < 4; i++) {
+            ApiScenario apiScenario = new ApiScenario();
+            apiScenario.setId(IDGenerator.nextStr());
+            apiScenario.setName(apiScenario.getId());
+            apiScenario.setPriority("P1");
+            apiScenario.setStatus("PREPARED");
+            apiScenario.setStepTotal(1);
+            apiScenario.setRequestPassRate("100");
+            apiScenario.setNum(100000L);
+            apiScenario.setDeleted(false);
+            apiScenario.setPos(4096L * (i + 1));
+            apiScenario.setVersionId("root");
+            apiScenario.setRefId(apiScenario.getId());
+            apiScenario.setLatest(true);
+            apiScenario.setProjectId(project.getId());
+            apiScenario.setModuleId("root");
+            apiScenario.setGrouped(false);
+            apiScenario.setCreateTime(System.currentTimeMillis());
+            apiScenario.setUpdateTime(System.currentTimeMillis());
+            apiScenario.setCreateUser("admin");
+            apiScenario.setUpdateUser("admin");
+            apiScenarioMapper.insertSelective(apiScenario);
+
+            TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+            testPlanApiScenario.setId(IDGenerator.nextStr());
+            testPlanApiScenario.setTestPlanId(testPlanId);
+            testPlanApiScenario.setApiScenarioId(apiScenario.getId());
+            testPlanApiScenario.setPos(4096L * (i + 1));
+            testPlanApiScenario.setTestPlanCollectionId("root");
+            testPlanApiScenario.setCreateTime(System.currentTimeMillis());
+            testPlanApiScenario.setCreateUser("admin");
+            testPlanApiScenarioMapper.insertSelective(testPlanApiScenario);
+
+            FunctionalCaseTest functionalCaseTest = new FunctionalCaseTest();
+            functionalCaseTest.setId(IDGenerator.nextStr());
+            functionalCaseTest.setCaseId(functionalCase.getId());
+            functionalCaseTest.setSourceId(apiScenario.getId());
+            functionalCaseTest.setSourceType("SCENARIO");
+            functionalCaseTest.setProjectId(project.getId());
+            functionalCaseTest.setVersionId(functionalCase.getVersionId());
+            functionalCaseTest.setCreateTime(System.currentTimeMillis());
+            functionalCaseTest.setUpdateTime(System.currentTimeMillis());
+            functionalCaseTest.setCreateUser("admin");
+            functionalCaseTest.setUpdateUser("admin");
+            functionalCaseTestMapper.insertSelective(functionalCaseTest);
+
+            TestPlanReportApiScenario testPlanReportApiScenario = new TestPlanReportApiScenario();
+            testPlanReportApiScenario.setId(IDGenerator.nextStr());
+            testPlanReportApiScenario.setTestPlanReportId(testPlanReport.getId());
+            testPlanReportApiScenario.setTestPlanCollectionId("root");
+            testPlanReportApiScenario.setGrouped(false);
+            testPlanReportApiScenario.setTestPlanApiScenarioId(testPlanApiScenario.getId());
+            testPlanReportApiScenario.setApiScenarioId(testPlanApiScenario.getApiScenarioId());
+            testPlanReportApiScenario.setApiScenarioName(apiScenario.getName());
+            testPlanReportApiScenario.setPos(testPlanApiScenario.getPos());
+            testPlanReportApiScenario.setApiScenarioNum(apiScenario.getNum());
+            testPlanReportApiScenarioMapper.insertSelective(testPlanReportApiScenario);
+
+            returnResourceIds.getReportApiScenarios().add(testPlanReportApiScenario);
+        }
+
+
+        returnResourceIds.setTestPlanFunctionalCaseId(testPlanFunctionalCase.getId());
+        returnResourceIds.setTestPlanReportId(testPlanReport.getId());
+        return returnResourceIds;
+    }
+}
+
+@Data
+class TestPlanResourceIds {
+    private String testPlanId;
+    private String testPlanReportId;
+    private String testPlanFunctionalCaseId;
+    private List<TestPlanReportApiScenario> reportApiScenarios = new ArrayList<>();
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportCaseMapper">
+
+    <select id="selectFunctionalCaseIdsByTestPlanId" resultType="java.lang.String">
+        SELECT distinct functional_case_id
+        FROM test_plan_functional_case
+        WHERE test_plan_id = #{0}
+    </select>
+    <select id="selectApiCaseIdAndResultByReportId"
+            resultType="io.metersphere.plan.domain.TestPlanReportApiCase">
+        SELECT distinct api_case_id, api_case_execute_result
+        FROM test_plan_report_api_case
+        WHERE test_plan_report_id = #{0}
+    </select>
+    <select id="selectApiScenarioIdAndResultByReportId"
+            resultType="io.metersphere.plan.domain.TestPlanReportApiScenario">
+        SELECT distinct api_scenario_id, api_scenario_execute_result
+        FROM test_plan_report_api_scenario
+        WHERE test_plan_report_id = #{0}
+    </select>
+</mapper>
