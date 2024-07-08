@@ -44,7 +44,7 @@ public interface ExtUserMapper {
      * 获取用户的安装时间，兼容历史用户使用问题
      * @return 安装时间
      */
-    long gaInstalledTime();
+    Long gaInstalledTime();
 
     void updateInstalled();
 }
