@@ -8,5 +8,7 @@ public class TaskRequestDTO {
     private String reportId;
     private String projectId;
     private String userId;
+    private String triggerMode;
+    private String executionStatus;
 
 }

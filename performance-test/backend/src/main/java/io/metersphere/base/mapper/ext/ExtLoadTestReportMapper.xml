@@ -227,9 +227,17 @@
                  left join `user` t1 ON t.user_id = t1.id
                  left join test_resource_pool t2 on t.test_resource_pool_id = t2.id
         where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
-          and t.project_id = #{projectId}
-          and t.status = 'running'
-
+          and t.project_id = #{request.projectId}
+          and t.status in ("Running","Starting","Pending")
+        <if test="request.userId != null and request.userId != ''">
+            and t.user_id = #{request.userId}
+        </if>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            and t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            and t.status = #{request.executionStatus}
+        </if>
     </select>
 
     <update id="updateJmxContentIfAbsent">
