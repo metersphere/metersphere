@@ -143,6 +143,7 @@
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
         @operation="handleMinderOperation"
+        @handle-review-done="emitRefresh"
       />
     </div>
     <a-modal
@@ -565,6 +566,25 @@
     }
   }
 
+  function emitRefresh() {
+    if (showType.value === 'list') {
+      emit('refresh', {
+        ...tableParams.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        total: propsRes.value.msPagination?.total,
+        moduleIds: [],
+      });
+    } else {
+      emit('refresh', {
+        moduleIds: [props.activeFolder],
+        projectId: appStore.currentProjectId,
+        pageSize: 10,
+        current: 1,
+      });
+    }
+  }
+
   watch(
     () => props.onlyMine,
     () => {
@@ -641,13 +661,7 @@
     try {
       disassociateLoading.value = true;
       await disassociateReviewCase(route.query.id as string, record.caseId);
-      emit('refresh', {
-        ...tableParams.value,
-        current: propsRes.value.msPagination?.current,
-        pageSize: propsRes.value.msPagination?.pageSize,
-        total: propsRes.value.msPagination?.total,
-        moduleIds: [],
-      });
+      emitRefresh();
       if (done) {
         done();
       }
@@ -719,14 +733,8 @@
           });
           Message.success(t('common.updateSuccess'));
           dialogLoading.value = false;
-          refresh();
-          emit('refresh', {
-            ...tableParams.value,
-            current: propsRes.value.msPagination?.current,
-            pageSize: propsRes.value.msPagination?.pageSize,
-            total: propsRes.value.msPagination?.total,
-            moduleIds: [],
-          });
+          refresh(false);
+          emitRefresh();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -787,13 +795,7 @@
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
       refresh(false);
-      emit('refresh', {
-        ...tableParams.value,
-        current: propsRes.value.msPagination?.current,
-        pageSize: propsRes.value.msPagination?.pageSize,
-        total: propsRes.value.msPagination?.total,
-        moduleIds: [],
-      });
+      emitRefresh();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -860,13 +862,7 @@
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
           resetSelector();
-          emit('refresh', {
-            ...tableParams.value,
-            current: propsRes.value.msPagination?.current,
-            pageSize: propsRes.value.msPagination?.pageSize,
-            total: propsRes.value.msPagination?.total,
-            moduleIds: [],
-          });
+          emitRefresh();
           loadList();
         } catch (error) {
           // eslint-disable-next-line no-console

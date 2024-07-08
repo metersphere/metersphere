@@ -218,15 +218,18 @@ export interface ReviewCaseItem {
   moduleName: string;
 }
 // 评审详情-提交评审入参
-export interface CommitReviewResultParams {
+export interface ReviewFormParams {
+  status: ReviewResult;
+  content: string;
+  notifiers?: string[];
+  reviewCommentFileIds?: string[];
+}
+export interface CommitReviewResultParams extends ReviewFormParams {
   projectId: string;
   reviewId: string;
   caseId: string;
   reviewPassRule: ReviewPassRule;
-  status: ReviewResult;
-  content: string;
   notifier: string;
-  reviewCommentFileIds?: string[];
 }
 // 评审详情-获取用例评审历史
 export interface ReviewHistoryItem {

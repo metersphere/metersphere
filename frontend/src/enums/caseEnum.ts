@@ -12,6 +12,13 @@ export enum StatusType {
   PENDING = 'icon-icon_block_filled', // 未执行
 }
 
+// 评审，UNDER_REVIEWED：建议，PASS：通过，UN_PASS：未通过
+export enum StartReviewStatus {
+  PASS = 'PASS',
+  UN_PASS = 'UN_PASS',
+  UNDER_REVIEWED = 'UNDER_REVIEWED',
+}
+
 export enum LastExecuteResults {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
