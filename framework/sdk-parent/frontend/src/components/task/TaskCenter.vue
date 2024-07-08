@@ -341,22 +341,26 @@ export default {
         array.push({
           type: "API",
           projectId: getCurrentProjectID(),
-          userId: getCurrentUser().id,
+          userId: this.condition.executor,
         });
         array.push({
           type: "SCENARIO",
           projectId: getCurrentProjectID(),
-          userId: getCurrentUser().id,
+          userId: this.condition.executor,
         });
         array.push({
           type: "PERFORMANCE",
           projectId: getCurrentProjectID(),
-          userId: getCurrentUser().id,
+          userId: this.condition.executor,
         });
         array.push({
           type: "UI_SCENARIO",
           projectId: getCurrentProjectID(),
-          userId: getCurrentUser().id,
+          userId: this.condition.executor,
+        });
+        array.forEach(item => {
+          item.triggerMode = this.condition.triggerMode;
+          item.executionStatus = this.condition.executionStatus;
         });
         stopBatchTask(array).then((response) => {
           this.$success(this.$t("report.test_stop_success"));
@@ -365,9 +369,12 @@ export default {
       }
     },
     getMaintainerOptions() {
-      getProjectUsers().then((response) => {
-        this.maintainerOptions = response.data;
-        this.condition.executor = getCurrentUser().id;
+      return new Promise(resolve => {
+        getProjectUsers().then((response) => {
+          this.maintainerOptions = response.data;
+          this.condition.executor = getCurrentUser().id;
+          resolve();
+        });
       });
     },
     initWebSocket() {
@@ -398,7 +405,6 @@ export default {
     },
     showTaskCenter() {
       this.getTaskRunning();
-      this.getMaintainerOptions();
       window.addEventListener("resize", this.listenScreenChange, false);
       this.taskVisible = true;
     },
@@ -411,10 +417,11 @@ export default {
         this.websocket.close();
       }
     },
-    open(activeName) {
+    async open(activeName) {
       if (activeName) {
         this.activeName = activeName;
       }
+      await this.getMaintainerOptions();
       this.init(true);
       this.taskVisible = true;
       setTimeout(this.showTaskCenter, 2000);
@@ -529,7 +536,9 @@ export default {
       return mode;
     },
     getTaskRunning() {
-      this.initWebSocket();
+      if (this.condition.executor) {
+        this.initWebSocket();
+      }
     },
     nextPage(currentPage, pageSize) {
       this.currentPage = currentPage;

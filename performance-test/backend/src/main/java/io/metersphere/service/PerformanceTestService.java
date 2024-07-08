@@ -973,7 +973,7 @@ public class PerformanceTestService {
         if (StringUtils.isNotEmpty(taskRequestDTO.getReportId())) {
             this.stopTest(taskRequestDTO.getReportId(), false);
         } else {
-            List<LoadTestReport> loadTestReports = extLoadTestReportMapper.selectReportByProjectId(taskRequestDTO.getProjectId());
+            List<LoadTestReport> loadTestReports = extLoadTestReportMapper.selectReportByProjectId(taskRequestDTO);
             loadTestReports.forEach(loadTestReport -> {
                 this.stopTest(loadTestReport.getId(), false);
             });

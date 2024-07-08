@@ -281,6 +281,15 @@
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        <if test="request.userId != null and request.userId != ''">
+            and user_id = #{request.userId}
+        </if>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            and trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            and status = #{request.executionStatus}
+        </if>
     </select>
     <select id="selectResourceId" resultType="java.lang.String">
         SELECT resource_id

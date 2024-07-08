@@ -139,8 +139,12 @@ public class ExtApiTaskService extends TaskService {
         Map<String, TaskRequestDTO> taskRequestMap = taskRequests.stream().collect(Collectors.toMap(TaskRequestDTO::getType, taskRequest -> taskRequest));
         // 获取工作空间项目
         LoggerUtil.info("获取工作空间对应的项目");
+        TaskRequestDTO taskRequest = taskRequestMap.get(ElementConstants.SCENARIO_UPPER);
         TaskCenterRequest taskCenterRequest = new TaskCenterRequest();
-        taskCenterRequest.setProjects(this.getOwnerProjectIds(taskRequestMap.get(ElementConstants.SCENARIO_UPPER).getUserId()));
+        taskCenterRequest.setProjects(this.getOwnerProjectIds(taskRequest.getUserId()));
+        taskCenterRequest.setUserId(taskRequest.getUserId());
+        taskCenterRequest.setTriggerMode(taskRequest.getTriggerMode());
+        taskCenterRequest.setExecutionStatus(taskRequest.getExecutionStatus());
 
         // 结束掉未分发完成的任务
         LoggerUtil.info("结束正在进行中的计划任务队列");
