@@ -320,9 +320,8 @@
     border: 1px dashed rgba(var(--primary-5));
     background-color: rgba(var(--primary-1));
   }
-
   :deep(.arco-checkbox-group .arco-checkbox) {
-    margin-right: 20px;
     margin-top: 10px;
+    margin-right: 20px;
   }
 </style>

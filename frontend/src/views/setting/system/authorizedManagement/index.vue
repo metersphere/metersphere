@@ -17,50 +17,52 @@
             </li>
             <li>
               <span>{{ t('system.authorized.authorizationTime') }}</span>
-              <div
-                ><span>{{ licenseInfo?.license?.expired }}</span></div
-              >
+              <div>
+                <span>{{ licenseInfo?.license?.expired }}</span>
+              </div>
             </li>
             <li>
               <span>{{ t('system.authorized.productName') }}</span>
-              <div
-                ><span>{{ licenseInfo?.license?.product }}</span></div
-              >
+              <div>
+                <span>{{ licenseInfo?.license?.product }}</span>
+              </div>
             </li>
             <li>
               <span>{{ t('system.authorized.productionVersion') }}</span>
-              <div
-                ><span>{{ licenseInfo?.license?.edition }}</span></div
-              >
+              <div>
+                <span>{{ licenseInfo?.license?.edition }}</span>
+              </div>
             </li>
             <li>
               <span>{{ t('system.authorized.authorizedVersion') }}</span>
               <div>
-                <span>{{ licenseInfo?.license?.licenseVersion }}</span></div
-              >
+                <span>{{ licenseInfo?.license?.licenseVersion }}</span>
+              </div>
             </li>
             <li>
               <span>{{ t('system.authorized.authorizationsCount') }}</span>
-              <div
-                ><span>{{ addCommasToNumber(licenseInfo?.license?.count || 0) }}</span></div
-              >
+              <div>
+                <span>{{ addCommasToNumber(licenseInfo?.license?.count || 0) }}</span>
+              </div>
             </li>
             <li>
               <span>{{ t('system.authorized.authorizationStatus') }}</span>
-              <div
-                ><span>{{
-                  licenseInfo?.status === 'valid'
-                    ? t('system.authorized.valid')
-                    : licenseInfo?.status === 'expired'
-                    ? t('system.authorized.invalid')
-                    : t('system.authorized.failure')
-                }}</span></div
-              >
+              <div>
+                <span
+                  >{{
+                    licenseInfo?.status === 'valid'
+                      ? t('system.authorized.valid')
+                      : licenseInfo?.status === 'expired'
+                      ? t('system.authorized.invalid')
+                      : t('system.authorized.failure')
+                  }}
+                </span>
+              </div>
             </li>
             <li>
-              <MsButton v-permission="['SYSTEM_AUTH:READ+UPDATE']" class="font-medium" @click="authChecking">{{
-                t('system.authorized.authorityChecking')
-              }}</MsButton>
+              <MsButton v-permission="['SYSTEM_AUTH:READ+UPDATE']" class="font-medium" @click="authChecking">
+                {{ t('system.authorized.authorityChecking') }}
+              </MsButton>
             </li>
           </ul>
         </div>
