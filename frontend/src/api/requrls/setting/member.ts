@@ -12,4 +12,7 @@ export const getUserGroupList = '/organization/user/role/list';
 export const getUserList = '/organization/not-exist/user/list';
 // 获取弹窗里边的穿梭项目列表
 export const getProjectListUrl = '/organization/project/list';
-export const getSystemProjectListUrl = '/system/project/list'; // 获取系统项目列表
+// 获取系统项目列表
+export const getSystemProjectListUrl = '/system/project/list';
+// 邀请组织成员
+export const inviteOrgMemberUrl = '/organization/user/invite';

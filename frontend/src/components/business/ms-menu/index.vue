@@ -180,7 +180,7 @@
           label: t('personal.switchOrg'),
           icon: () => (
             <MsIcon
-              type="icon-icon_switch_outlined1"
+              type="icon-icon_switch_outlined"
               class={isActiveSwitchOrg.value ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}
             />
           ),
@@ -434,7 +434,7 @@
                         clearTimeout(mouseEnterTimer);
                       }}
                     >
-                      <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
+                      <MsIcon type="icon-icon_switch_outlined" class="text-[var(--color-text-4)]" />
                     </div>
                   ))
                 : ''}

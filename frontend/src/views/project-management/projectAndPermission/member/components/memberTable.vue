@@ -5,6 +5,9 @@
         <a-button v-permission="['PROJECT_USER:READ+ADD']" class="mr-3" type="primary" @click="addMember">
           {{ t('project.member.addMember') }}
         </a-button>
+        <a-button v-permission="['PROJECT_USER:READ+INVITE']" type="outline" class="mr-3" @click="inviteVisible = true">
+          {{ t('system.user.emailInvite') }}
+        </a-button>
       </div>
       <div>
         <a-select v-model="roleIds" @change="changeSelect">
@@ -90,6 +93,7 @@
     :current-select-count="batchParams.currentSelectCount"
     @add-user-group="addUserGroup"
   />
+  <inviteModal v-model:visible="inviteVisible" :user-group-options="userGroupOptions" range="project"></inviteModal>
 </template>
 
 <script setup lang="ts">
@@ -103,6 +107,7 @@
   import MsBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import AddMemberModal from './addMemberModal.vue';
+  import inviteModal from '@/views/setting/system/components/inviteModal.vue';
 
   import {
     addOrUpdateProjectMember,
@@ -306,6 +311,7 @@
           loadList();
           resetSelector();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -432,6 +438,8 @@
     }
     editProjectMember(record);
   };
+
+  const inviteVisible = ref(false);
 
   onBeforeMount(async () => {
     await initOptions();

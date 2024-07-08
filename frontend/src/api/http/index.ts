@@ -171,7 +171,9 @@ const transform: AxiosTransform = {
       throw new Error(e as unknown as string);
     }
     checkStatus(response?.status, msg, response?.data?.code, errorMessageMode);
-    return Promise.reject(response?.data?.message || error);
+    return Promise.reject(
+      response?.config?.requestOptions?.isReturnNativeResponse ? response?.data : response?.data?.message || error
+    );
   },
 };
 

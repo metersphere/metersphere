@@ -16,9 +16,10 @@
       <template #second>
         <div class="p-[16px]">
           <div class="flex flex-row items-center justify-between">
-            <a-tooltip :content="currentUserGroupItem.name">
-              <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
-            </a-tooltip>
+            <a-radio-group v-if="couldShowUser && couldShowAuth" v-model="currentTable" class="ml-[14px]" type="button">
+              <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
+              <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
+            </a-radio-group>
             <div class="flex items-center">
               <a-input-search
                 v-if="currentTable === 'user'"
@@ -29,15 +30,6 @@
                 @search="handleSearch"
                 @clear="() => handleSearch('')"
               ></a-input-search>
-              <a-radio-group
-                v-if="couldShowUser && couldShowAuth"
-                v-model="currentTable"
-                class="ml-[14px]"
-                type="button"
-              >
-                <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
-                <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
-              </a-radio-group>
             </div>
           </div>
           <div class="mt-[16px]">

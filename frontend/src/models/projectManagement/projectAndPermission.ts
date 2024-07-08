@@ -61,3 +61,10 @@ export interface AddProjectMember {
   userIds: string[] | string;
   roleIds: string[] | string;
 }
+
+export interface InviteMemberParams {
+  inviteEmails: string[];
+  userRoleIds: string[];
+  organizationId: string;
+  projectId: string;
+}

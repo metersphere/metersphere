@@ -7,8 +7,17 @@
           class="mr-3"
           type="primary"
           @click="addOrEditMember('add')"
-          >{{ t('organization.member.addMember') }}</a-button
         >
+          {{ t('organization.member.addMember') }}
+        </a-button>
+        <a-button
+          v-permission="['ORGANIZATION_MEMBER:READ+INVITE']"
+          type="outline"
+          class="mr-3"
+          @click="inviteVisible = true"
+        >
+          {{ t('system.user.emailInvite') }}
+        </a-button>
       </div>
       <a-input-search
         v-model="keyword"
@@ -114,6 +123,11 @@
     @add-project="addProjectOrAddUserGroup"
     @add-user-group="addProjectOrAddUserGroup"
   />
+  <inviteModal
+    v-model:visible="inviteVisible"
+    :user-group-options="userGroupOptions"
+    range="organization"
+  ></inviteModal>
 </template>
 
 <script setup lang="ts">
@@ -133,6 +147,7 @@
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import AddMemberModal from './components/addMemberModal.vue';
+  import inviteModal from '@/views/setting/system/components/inviteModal.vue';
 
   import {
     addOrUpdate,
@@ -149,7 +164,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
-  import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
+  import type { AddOrUpdateMemberModel, LinkList, MemberItem } from '@/models/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();
@@ -293,6 +308,7 @@
       initData();
       resetSelector();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       deleteLoading.value = false;
@@ -380,6 +396,7 @@
       initData();
       resetSelector();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       record.showUserSelect = false;
@@ -447,6 +464,8 @@
       }
     }
   };
+
+  const inviteVisible = ref(false);
 
   onBeforeMount(() => {
     initData();
