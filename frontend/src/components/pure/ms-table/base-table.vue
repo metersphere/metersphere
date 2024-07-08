@@ -3,7 +3,6 @@
     <div v-if="$slots.quickCreate" class="ms-base-table-quickCreate">
       <slot name="quickCreate"></slot>
     </div>
-    <!-- 表只做自适应不做可拖拽列 -->
     <a-table
       v-bind="{ ...$attrs, ...scrollObj }"
       v-model:selected-keys="originalSelectedKeys"
@@ -240,11 +239,6 @@
             <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
           </div>
         </slot>
-      </template>
-
-      <!-- 控制拖拽类 -->
-      <template #tr="{ record }">
-        <tr :class="!record.parent ? 'parent-tr' : 'children-tr'" />
       </template>
     </a-table>
     <div
@@ -637,12 +631,12 @@
       return;
     }
 
-    if (extra && extra.dragTarget?.id) {
+    if (extra && extra.dragTarget?.[rowKey || 'id']) {
       let newDragData: TableData[] = data;
-      let oldDragData: TableData[] = currentData;
+      let oldDragData: TableData[] = attrs.data as TableData[]; // attrs.data 在这仍保留了原本数据顺序
 
-      const newDragItem = getCurrentList(data, 'id', extra.dragTarget.id);
-      const oldDragItem = getCurrentList(currentData, 'key', extra.dragTarget.id);
+      const newDragItem = getCurrentList(data, rowKey || 'id', extra.dragTarget[rowKey || 'id']);
+      const oldDragItem = getCurrentList(oldDragData, rowKey || 'id', extra.dragTarget[rowKey || 'id']);
 
       if (newDragItem && newDragItem.children && oldDragItem && oldDragItem.children) {
         newDragData = newDragItem.children;
@@ -652,8 +646,8 @@
       let oldIndex = 0;
       let newIndex = 0;
 
-      newIndex = newDragData.findIndex((item: any) => item.id === extra.dragTarget?.id);
-      oldIndex = oldDragData.findIndex((item: any) => item.key === extra.dragTarget?.id);
+      newIndex = newDragData.findIndex((item: any) => item[rowKey || 'id'] === extra.dragTarget?.[rowKey || 'id']);
+      oldIndex = oldDragData.findIndex((item: any) => item[rowKey || 'id'] === extra.dragTarget?.[rowKey || 'id']);
       let position: 'AFTER' | 'BEFORE' = 'BEFORE';
 
       position = newIndex > oldIndex ? 'AFTER' : 'BEFORE';
@@ -661,7 +655,7 @@
         projectId: appStore.currentProjectId,
         targetId: '', // 放置目标id
         moveMode: position,
-        moveId: extra.dragTarget.id as string, // 拖拽id
+        moveId: extra.dragTarget[rowKey || 'id'] as string, // 拖拽id
       };
 
       let targetIndex;
@@ -676,9 +670,10 @@
         params.moveMode = 'AFTER';
         targetIndex = newIndex - 1;
       }
-      params.targetId = newDragData[targetIndex]?.id ?? newDragData[newIndex]?.id;
+      params.targetId = newDragData[targetIndex]?.[rowKey || 'id'] ?? newDragData[newIndex]?.[rowKey || 'id'];
 
-      if (params.targetId !== params.moveId) {
+      if (oldIndex !== newIndex) {
+        // 原地移动不触发
         emit('dragChange', params);
       }
     }

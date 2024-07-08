@@ -314,10 +314,6 @@
   const protocolOptions = ref(['HTTP']);
   const modulesCount = ref<Record<string, any>>({});
   const isExpandAll = ref(false);
-  // 全部展开或折叠
-  const expandHandler = () => {
-    isExpandAll.value = !isExpandAll.value;
-  };
 
   // 选中用例类型
   const caseType = computed({

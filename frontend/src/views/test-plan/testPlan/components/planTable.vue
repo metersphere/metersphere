@@ -43,11 +43,11 @@
       disabledChildren: true,
       parentKey: 'parent',
     }"
+    :first-column-width="32"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
     @filter-change="filterChange"
     @drag-change="handleDragChange"
-    @sorter-change="saveSort"
   >
     <!-- TODO: 快捷创建暂时不上 -->
     <!-- <template v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD'])" #quickCreate>
@@ -907,11 +907,6 @@
     setLoadListParams(await initTableParams());
     loadList();
   }
-  // 排序
-  const sort = ref<{ [key: string]: string }>({});
-  function saveSort(sortObj: { [key: string]: string }) {
-    sort.value = sortObj;
-  }
 
   // 获取父组件模块数量
   async function emitTableParams(isInit = false) {
@@ -1482,8 +1477,7 @@
     () => showType.value,
     (val) => {
       if (val) {
-        tableProps.value.draggableCondition =
-          hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && val !== 'TEST_PLAN' && !Object.keys(sort.value).length;
+        tableProps.value.draggableCondition = hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']);
         setPagination({
           current: 1,
         });
@@ -1491,21 +1485,6 @@
         resetFilterParams();
         fetchData();
       }
-    }
-  );
-
-  watch(
-    () => sort.value,
-    (val) => {
-      if (val) {
-        tableProps.value.draggableCondition =
-          hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) &&
-          showType.value !== 'GROUP' &&
-          !Object.keys(sort.value).length;
-      }
-    },
-    {
-      deep: true,
     }
   );
 
@@ -1645,15 +1624,5 @@
 
     padding-top: 8px;
     color: var(--color-text-1);
-  }
-  :deep(.parent-tr) {
-    .arco-table-drag-handle {
-      pointer-events: none;
-      .arco-table-cell {
-        svg {
-          color: transparent;
-        }
-      }
-    }
   }
 </style>
