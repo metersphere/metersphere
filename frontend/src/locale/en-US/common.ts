@@ -197,4 +197,5 @@ export default {
   'common.selectedCount': '{count} data selected',
   'common.advancedSettings': 'Advanced settings',
   'common.auth_redirect_tip': 'You will be redirected to the certification source page for certification',
+  'common.default': 'Default',
 };

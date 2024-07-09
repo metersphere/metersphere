@@ -238,6 +238,7 @@
         });
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -294,6 +295,7 @@
         await closeValidateLarkSuite();
       }
 
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loadList();
@@ -321,6 +323,7 @@
       Message.success(t(message));
       loadList();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -340,14 +343,12 @@
     min-height: 300px;
     border-radius: var(--border-radius-small);
     background: var(--color-text-n9);
-
     .list {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
       align-content: flex-start;
       width: 100%;
-
       .item {
         margin: 8px;
         padding: 24px;
@@ -355,7 +356,6 @@
         border-radius: 4px;
         background: white;
         @apply flex flex-col justify-between;
-
         .ms-enable {
           font-size: 12px;
           border-radius: var(--border-radius-small);

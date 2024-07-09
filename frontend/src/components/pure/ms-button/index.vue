@@ -88,10 +88,12 @@
     }
   }
   .ms-button--danger {
-    color: rgb(var(--danger-6));
+    color: rgb(var(--danger-6)) !important;
     &:not(.ms-button-text, .ms-button--disabled):hover {
-      color: rgb(var(--danger-6));
       background-color: rgb(var(--danger-1));
+    }
+    &:hover {
+      color: rgb(var(--danger-6));
     }
   }
   .ms-button--disabled {

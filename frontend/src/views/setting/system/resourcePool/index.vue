@@ -17,13 +17,41 @@
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #name="{ record }">
-        <a-button type="text" class="px-0" @click="showPoolDetail(record.id)">{{ record.name }}</a-button>
+        <div class="flex w-full items-center justify-start gap-[8px]">
+          <a-button
+            type="text"
+            class="px-0"
+            :class="record.id === '100001100001' ? '' : 'w-full justify-start'"
+            @click="showPoolDetail(record.id)"
+          >
+            <div class="one-line-text">
+              {{ record.name }}
+            </div>
+          </a-button>
+          <MsTag v-if="record.id === '100001100001'" size="small" tooltip-disabled>{{ t('common.default') }}</MsTag>
+        </div>
+      </template>
+      <template #enable="{ record }">
+        <div class="flex items-center gap-[8px]">
+          <a-switch
+            v-model:model-value="record.enable"
+            v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
+            v-xpack
+            size="small"
+            :before-change="(val) => handleToggle(val, record)"
+          >
+          </a-switch>
+          {{ record.enable ? t('system.resourcePool.tableEnabled') : t('system.resourcePool.tableDisabled') }}
+        </div>
       </template>
       <template #action="{ record }">
         <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" @click="editPool(record)">
           {{ t('system.resourcePool.editPool') }}
         </MsButton>
-        <MsButton
+        <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+DELETE']" status="danger" @click="deletePool(record)">
+          {{ t('common.delete') }}
+        </MsButton>
+        <!-- <MsButton
           v-if="record.enable"
           v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
           v-xpack
@@ -33,12 +61,7 @@
         </MsButton>
         <MsButton v-else v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" v-xpack @click="enablePool(record)">
           {{ t('system.resourcePool.tableEnable') }}
-        </MsButton>
-        <MsTableMoreAction
-          v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+DELETE']"
-          :list="tableActions"
-          @select="handleSelect($event, record)"
-        ></MsTableMoreAction>
+        </MsButton> -->
       </template>
     </ms-base-table>
   </MsCard>
@@ -87,9 +110,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTag, { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTrialAlert from '@/components/business/ms-trial-alert/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
@@ -100,7 +121,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { ResourcePoolDetail } from '@/models/setting/resourcePool';
+  import type { ResourcePoolDetail, ResourcePoolItem } from '@/models/setting/resourcePool';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -116,6 +137,7 @@
       slotName: 'name',
       dataIndex: 'name',
       showTooltip: true,
+      width: 200,
     },
     {
       title: 'system.resourcePool.tableColumnStatus',
@@ -127,10 +149,10 @@
       dataIndex: 'description',
       showTooltip: true,
     },
-    {
-      title: 'system.resourcePool.tableColumnType',
-      dataIndex: 'type',
-    },
+    // {
+    //   title: 'system.resourcePool.tableColumnType',
+    //   dataIndex: 'type',
+    // },
     {
       title: 'system.resourcePool.tableColumnCreateTime',
       dataIndex: 'createTime',
@@ -142,14 +164,17 @@
       width: 180,
     },
     {
-      title: hasOperationPoolPermission.value ? 'system.resourcePool.tableColumnActions' : '',
+      title: 'system.resourcePool.tableColumnActions',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPoolPermission.value ? 140 : 50,
+      width: 120,
     },
   ];
   const tableStore = useTableStore();
+  if (!hasOperationPoolPermission.value) {
+    columns.pop();
+  }
   await tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCEPOOL, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(getPoolList, {
     tableKey: TableKeyEnum.SYSTEM_RESOURCEPOOL,
@@ -172,21 +197,12 @@
   }
 
   const { openModal } = useModal();
-
-  const tableActions: ActionsItem[] = [
-    {
-      label: 'system.resourcePool.delete',
-      eventTag: 'delete',
-      danger: true,
-    },
-  ];
-
   const loading = ref(false);
 
   /**
    * 启用资源池
    */
-  async function enablePool(record: any) {
+  async function enablePool(record: ResourcePoolItem) {
     try {
       loading.value = true;
       await togglePoolStatus(record.id);
@@ -203,7 +219,7 @@
   /**
    * 禁用资源池
    */
-  function disabledPool(record: any) {
+  function disabledPool(record: ResourcePoolItem) {
     openModal({
       type: 'warning',
       title: t('system.resourcePool.disablePoolTip', { name: characterLimit(record.name) }),
@@ -225,10 +241,19 @@
     });
   }
 
+  function handleToggle(newValue: string | number | boolean, record: ResourcePoolItem) {
+    if (newValue) {
+      enablePool(record);
+    } else {
+      disabledPool(record);
+    }
+    return false;
+  }
+
   /**
    * 删除资源池
    */
-  function deletePool(record: any) {
+  function deletePool(record: ResourcePoolItem) {
     if (propsRes.value.data.length === 1) {
       Message.warning(t('system.resourcePool.atLeastOnePool'));
       return;
@@ -257,20 +282,6 @@
     });
   }
 
-  /**
-   * 处理表格更多按钮事件
-   * @param item
-   */
-  function handleSelect(item: ActionsItem, record: any) {
-    switch (item.eventTag) {
-      case 'delete':
-        deletePool(record);
-        break;
-      default:
-        break;
-    }
-  }
-
   const showDetailDrawer = ref(false);
   const activePoolDesc = ref<Description[]>([]);
   const activePool = ref<ResourcePoolDetail | null>(null);
@@ -296,10 +307,10 @@
           return;
         }
         activePool.value = res;
-        const poolUses = [
-          activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
-          activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
-        ];
+        // const poolUses = [
+        //   activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
+        //   activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
+        // ];
         const { type, testResourceReturnDTO, apiTest, uiTest } = activePool.value;
         const {
           ip,
@@ -444,11 +455,11 @@
    * 编辑资源池
    * @param record
    */
-  function editPool(record: any) {
+  function editPool(record: ResourcePoolDetail | null) {
     router.push({
       name: 'settingSystemResourcePoolDetail',
       query: {
-        id: record.id,
+        id: record?.id,
       },
     });
   }
