@@ -21,6 +21,7 @@ import { removeRouteListener } from '@/utils/route-listener';
 
 import type { LoginData } from '@/models/user';
 import { LoginRes } from '@/models/user';
+import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
 import useAppStore from '../app';
 import { UserState } from './types';
@@ -240,7 +241,9 @@ const useUserStore = defineStore('user', {
       const { isLoginPage } = useUser();
       if (isLoginPage()) {
         // 当前页面为登录页面，且已经登录，跳转到首页
-        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+        const currentRouteName = router.getRoutes()
+          ? getFirstRouteNameByPermission(router.getRoutes())
+          : ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO;
         router.push({ name: currentRouteName });
       }
     },
@@ -305,7 +308,9 @@ const useUserStore = defineStore('user', {
       }
       if (isLoginPage() && isLogin) {
         // 当前页面为登录页面，且已经登录，跳转到首页
-        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+        const currentRouteName = router.getRoutes()
+          ? getFirstRouteNameByPermission(router.getRoutes())
+          : ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO;
         router.push({ name: currentRouteName });
       }
     },

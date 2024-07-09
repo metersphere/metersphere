@@ -118,13 +118,12 @@
   import { useRouter } from 'vue-router';
   import { useStorage } from '@vueuse/core';
   import { Message, SelectOptionData } from '@arco-design/web-vue';
-  import { partial } from 'lodash-es';
 
   import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
-  import { getAuthDetail, getAuthDetailByType } from '@/api/modules/setting/config';
-  import { getPlatformParamUrl, isLogin as userIsLogin } from '@/api/modules/user';
+  import { getAuthDetailByType } from '@/api/modules/setting/config';
+  import { getPlatformParamUrl } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
@@ -132,13 +131,12 @@
   import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { UserState } from '@/store/modules/user/types';
   import { encrypted } from '@/utils';
   import { setLoginExpires, setToken } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
-  import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
+  import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
 
@@ -320,13 +318,15 @@
       const authId = res.id;
       openModal({
         type: 'info',
-        content: t('common.auth_redirect_tip'),
-        okText: t('common.confirm'),
+        title: t('common.auth_redirect_tip'),
+        content: '',
+        okText: t('common.jump'),
         cancelText: t('common.cancel'),
         okButtonProps: {
           status: 'normal',
         },
-        closable: false,
+        mask: true,
+        maskStyle: { color: '#323233' },
         onBeforeOk: async () => {
           const config = JSON.parse(res.configuration);
           // eslint-disable-next-line no-eval
