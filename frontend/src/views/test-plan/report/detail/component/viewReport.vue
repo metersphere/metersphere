@@ -180,11 +180,12 @@
               richTextTmpFileIds: [],
             }"
             :share-id="shareId"
+            :is-preview="props.isPreview"
             :can-edit="item.enableEdit"
             :show-button="showButton"
             :is-plan-group="props.isGroup"
             :detail="detail"
-            @update-summary="handleUpdateReportDetail(item)"
+            @update-summary="(formValue:customValueForm) => updateCustom(formValue, item)"
             @cancel="() => handleCancelCustom(item)"
             @handle-summary="(value:string) => handleSummary(value,item)"
             @dblclick="handleDoubleClick(item)"
@@ -529,7 +530,7 @@
     }
   }
 
-  const allowEditType = [ReportCardTypeEnum.CUSTOM_CARD];
+  const allowEditType = [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY];
   function allowEdit(value: ReportCardTypeEnum) {
     return allowEditType.includes(value);
   }
@@ -563,12 +564,10 @@
   }
 
   function handleDoubleClick(cardItem: configItem) {
-    if (props.isPreview) {
-      if (cardItem.value === ReportCardTypeEnum.SUMMARY) {
-        showButton.value = true;
-      }
-      cardItem.enableEdit = !cardItem.enableEdit;
+    if (cardItem.value === ReportCardTypeEnum.SUMMARY) {
+      showButton.value = true;
     }
+    cardItem.enableEdit = !cardItem.enableEdit;
   }
 
   async function handleUpdateReportDetail(currentItem: configItem) {
@@ -586,7 +585,6 @@
       } else {
         currentItem.enableEdit = !currentItem.enableEdit;
       }
-      // TODO 此处的更新后后台数据未更新需要验证接口
       emit('updateSuccess');
     } catch (error) {
       console.log(error);
@@ -598,6 +596,7 @@
       ...currentItem,
       ...formValue,
     };
+
     innerCardList.value = innerCardList.value.map((item: configItem) => {
       if (item.id === currentItem.id) {
         return {

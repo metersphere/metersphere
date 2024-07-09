@@ -211,12 +211,9 @@
   }
 
   watch(
-    () => props.isGroup,
+    () => hasCaseList.value,
     () => {
       initDefaultConfig();
-    },
-    {
-      immediate: true,
     }
   );
 
@@ -389,6 +386,10 @@
       confirmLoading.value = false;
     }
   }
+
+  onBeforeMount(() => {
+    initDefaultConfig();
+  });
 </script>
 
 <style scoped lang="less">
