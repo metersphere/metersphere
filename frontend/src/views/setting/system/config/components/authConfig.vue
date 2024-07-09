@@ -270,12 +270,12 @@
             :rules="[{ required: true, message: t('system.config.auth.clientSecretRequired') }]"
             required
           >
-            <a-input
+            <a-input-password
               v-model:model-value="activeAuthForm.configuration.secret"
               :max-length="255"
               :placeholder="t('system.config.auth.clientSecretPlaceholder')"
               allow-clear
-            ></a-input>
+            ></a-input-password>
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.logoutSessionUrl')"
@@ -399,12 +399,12 @@
             :rules="[{ required: true, message: t('system.config.auth.clientSecretRequired') }]"
             required
           >
-            <a-input
+            <a-input-password
               v-model:model-value="activeAuthForm.configuration.secret"
               :max-length="255"
               :placeholder="t('system.config.auth.clientSecretPlaceholder')"
               allow-clear
-            ></a-input>
+            ></a-input-password>
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.propertyMap')"

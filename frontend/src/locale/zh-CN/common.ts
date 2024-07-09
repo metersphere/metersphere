@@ -197,4 +197,5 @@ export default {
   'common.advancedSettings': '高级设置',
   'common.auth_redirect_tip': '即将跳转至认证源页面进行认证',
   'common.default': '默认',
+  'common.jump': '跳转',
 };
