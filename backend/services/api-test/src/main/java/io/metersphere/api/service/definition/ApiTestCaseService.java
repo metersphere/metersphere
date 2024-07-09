@@ -179,8 +179,7 @@ public class ApiTestCaseService extends MoveNodeService {
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            checkTagLength(request.getTags());
-            testCase.setTags(request.getTags());
+            testCase.setTags(this.parseTags(request.getTags()));
         }
         apiTestCaseMapper.insertSelective(testCase);
 
@@ -286,8 +285,7 @@ public class ApiTestCaseService extends MoveNodeService {
         testCase.setUpdateUser(userId);
         testCase.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            checkTagLength(request.getTags());
-            testCase.setTags(request.getTags());
+            testCase.setTags(this.parseTags(request.getTags()));
         } else {
             testCase.setTags(null);
         }
@@ -506,7 +504,6 @@ public class ApiTestCaseService extends MoveNodeService {
         if (CollectionUtils.isEmpty(request.getTags())) {
             throw new MSException(Translator.get("tags_is_null"));
         }
-        checkTagLength(request.getTags());
         if (request.isAppend()) {
             Map<String, ApiTestCase> caseMap = extApiTestCaseMapper.getTagsByIds(ids, false)
                     .stream()
@@ -516,8 +513,7 @@ public class ApiTestCaseService extends MoveNodeService {
                     if (CollectionUtils.isNotEmpty(v.getTags())) {
                         List<String> orgTags = v.getTags();
                         orgTags.addAll(request.getTags());
-                        checkTagLength(orgTags.stream().distinct().toList());
-                        v.setTags(orgTags.stream().distinct().toList());
+                        v.setTags(this.parseTags(orgTags.stream().distinct().toList()));
                     } else {
                         v.setTags(request.getTags());
                     }
@@ -527,7 +523,7 @@ public class ApiTestCaseService extends MoveNodeService {
                 });
             }
         } else {
-            updateCase.setTags(request.getTags());
+            updateCase.setTags(this.parseTags(request.getTags()));
             mapper.updateByExampleSelective(updateCase, example);
         }
     }
@@ -930,13 +926,16 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     /**
-     * 校验TAG长度
+     * 解析Tag，只保留默认长度
      *
      * @param tags 标签集合
      */
-    public void checkTagLength(List<String> tags) {
+    public List<String> parseTags(List<String> tags) {
         if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
-            throw new MSException(Translator.getWithArgs("tags_size_large_than", String.valueOf(MAX_TAG_SIZE)));
+            List<String> returnTags = new ArrayList<>(tags);
+            return returnTags.subList(0, MAX_TAG_SIZE);
+        } else {
+            return tags;
         }
     }
 }

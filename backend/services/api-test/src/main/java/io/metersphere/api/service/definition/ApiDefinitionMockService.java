@@ -192,8 +192,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMock.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMock.setCreateUser(userId);
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiTestCaseService.checkTagLength(request.getTags());
-            apiDefinitionMock.setTags(request.getTags());
+            apiDefinitionMock.setTags(apiTestCaseService.parseTags(request.getTags()));
         }
         apiDefinitionMock.setEnable(true);
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
@@ -430,7 +429,6 @@ public class ApiDefinitionMockService {
         if (CollectionUtils.isEmpty(request.getTags())) {
             throw new MSException(Translator.get("tags_is_null"));
         }
-        apiTestCaseService.checkTagLength(request.getTags());
         if (request.isAppend()) {
             List<ApiDefinitionMock> tagsByIds = extApiDefinitionMockMapper.getTagsByIds(ids);
             Map<String, ApiDefinitionMock> mockMap = extApiDefinitionMockMapper.getTagsByIds(ids)
@@ -441,8 +439,7 @@ public class ApiDefinitionMockService {
                     if (CollectionUtils.isNotEmpty(v.getTags())) {
                         List<String> orgTags = v.getTags();
                         orgTags.addAll(request.getTags());
-                        apiTestCaseService.checkTagLength(orgTags.stream().distinct().toList());
-                        v.setTags(orgTags.stream().distinct().toList());
+                        v.setTags(apiTestCaseService.parseTags(orgTags.stream().distinct().toList()));
                     } else {
                         v.setTags(request.getTags());
                     }
@@ -452,7 +449,7 @@ public class ApiDefinitionMockService {
                 });
             }
         } else {
-            updateMock.setTags(request.getTags());
+            updateMock.setTags(apiTestCaseService.parseTags(request.getTags()));
             mapper.updateByExampleSelective(updateMock, example);
         }
     }
