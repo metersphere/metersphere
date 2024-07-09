@@ -1196,6 +1196,11 @@ public class TestPlanService {
         targetPlan.setCreator(SessionUtils.getUserId());
         targetPlan.setCreateTime(System.currentTimeMillis());
         targetPlan.setUpdateTime(System.currentTimeMillis());
+        if (StringUtils.isNotBlank(targetPlan.getRunModeConfig())) {
+            Map runModeConfig = JSON.parseMap(targetPlan.getRunModeConfig());
+            runModeConfig.put("testPlanId", targetPlanId);
+            targetPlan.setRunModeConfig(JSON.toJSONString(runModeConfig));
+        }
         testPlanMapper.insert(targetPlan);
 
         copyPlanPrincipal(targetPlanId, planId);
@@ -2109,7 +2114,7 @@ public class TestPlanService {
         //测试计划的定时任务修改会修改任务的配置信息，并不只是单纯的修改定时任务时间。需要重新配置这个定时任务
         JobKey jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
         TriggerKey triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
-        Class clazz = TestPlanTestJob.class;
+        Class<TestPlanTestJob> clazz = TestPlanTestJob.class;
         request.setJob(clazz.getName());
         baseScheduleService.editSchedule(request);
         baseScheduleService.resetJob(request, jobKey, triggerKey, clazz);
@@ -2243,6 +2248,7 @@ public class TestPlanService {
                 for (TestPlanExecutionQueue planExecutionQueue : planExecutionQueues) {
                     TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
                     Map jsonObject = JSON.parseMap(testPlan.getRunModeConfig());
+                    jsonObject.put("testPlanId", testPlan.getId());
                     TestPlanRequestUtil.changeStringToBoolean(jsonObject);
                     TestPlanRunRequest runRequest = JSON.parseObject(JSON.toJSONString(jsonObject), TestPlanRunRequest.class);
                     runRequest.setReportId(planExecutionQueue.getReportId());
@@ -2288,7 +2294,7 @@ public class TestPlanService {
         schedule.setConfig(request.getConfig());
         JobKey jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
         TriggerKey triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
-        Class clazz = TestPlanTestJob.class;
+        Class<TestPlanTestJob> clazz = TestPlanTestJob.class;
         schedule.setJob(TestPlanTestJob.class.getName());
 
         baseScheduleService.addSchedule(schedule);
