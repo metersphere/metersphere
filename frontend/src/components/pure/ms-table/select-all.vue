@@ -34,7 +34,7 @@
 
   import { SelectAllEnum } from '@/enums/tableEnum';
 
-  import { MsTableDataItem } from './type';
+  import { MsTableDataItem, MsTableRowSelectionDisabledConfig } from './type';
 
   const { t } = useI18n();
 
@@ -51,6 +51,7 @@
       disabled: boolean;
       excludeKeys: string[];
       rowKey?: string;
+      rowSelectionDisabledConfig?: MsTableRowSelectionDisabledConfig;
     }>(),
     {
       current: 0,
@@ -137,7 +138,7 @@
     rowKey: string
   ): boolean {
     return data.some((item: any) => {
-      if (item.children && item.children.length > 0) {
+      if (item.children && item.children.length > 0 && !props.rowSelectionDisabledConfig?.disabledChildren) {
         return hasUnselectedChildren(item.children, selectedKeys, rowKey);
       }
       return !selectedKeys.has(item[rowKey]);

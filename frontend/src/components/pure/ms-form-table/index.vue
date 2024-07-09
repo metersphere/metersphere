@@ -141,7 +141,7 @@
               class="ms-form-table-input"
               :auto-size="{ minRows: 1, maxRows: 1 }"
               :size="item.size || 'medium'"
-              @change="() => handleFormChange(record, rowIndex, item)"
+              @input="() => handleFormChange(record, rowIndex, item)"
             ></a-textarea>
             <MsQuickInput
               v-else-if="item.inputType === 'quickInput'"
@@ -149,7 +149,7 @@
               :title="item.title as string || ''"
               class="ms-form-table-input"
               type="textarea"
-              @change="() => handleFormChange(record, rowIndex, item)"
+              @input="() => handleFormChange(record, rowIndex, item)"
             >
             </MsQuickInput>
             <template v-else-if="item.inputType === 'text'">

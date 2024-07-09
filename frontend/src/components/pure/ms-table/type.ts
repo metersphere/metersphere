@@ -34,6 +34,11 @@ export interface MsTableColumnFilterConfig {
   secondLabelKey?: string;
 }
 
+export interface MsTableRowSelectionDisabledConfig {
+  disabledChildren?: boolean;
+  parentKey?: string;
+}
+
 export interface MsTableColumnData extends TableColumnData {
   // 是否可排序
   showDrag?: boolean;
@@ -122,6 +127,8 @@ export interface MsTableProps<T> {
   onlyPageSize?: boolean; // 简单设置气泡下，是否只展示页码调整
   filterIconAlignLeft?: boolean; // 筛选图标是否靠左
   paginationSize?: 'small' | 'mini' | 'medium' | 'large';
+  // 行选择器禁用配置
+  rowSelectionDisabledConfig?: MsTableRowSelectionDisabledConfig;
   [key: string]: any;
 }
 

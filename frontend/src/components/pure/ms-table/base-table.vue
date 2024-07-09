@@ -40,24 +40,26 @@
               :show-select-all="!!attrs.showPagination && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
               :row-key="rowKey"
+              :row-selection-disabled-config="attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig"
               @change="handleSelectAllChange"
             />
           </template>
           <template #cell="{ record }">
-            <MsCheckbox
-              v-if="attrs.selectorType === 'checkbox'"
-              :value="getChecked(record)"
-              :indeterminate="getIndeterminate(record)"
-              :disabled="isDisabledChildren(record)"
-              @click.stop
-              @change="rowSelectChange(record)"
-            />
-            <a-radio
-              v-else-if="attrs.selectorType === 'radio'"
-              v-model:model-value="record.tableChecked"
-              @click.stop
-              @change="(val) => handleRadioChange(val as boolean, record)"
-            />
+            <template v-if="!isDisabledChildren(record)">
+              <MsCheckbox
+                v-if="attrs.selectorType === 'checkbox'"
+                :value="getChecked(record)"
+                :indeterminate="getIndeterminate(record)"
+                @click.stop
+                @change="rowSelectChange(record)"
+              />
+              <a-radio
+                v-else-if="attrs.selectorType === 'radio'"
+                v-model:model-value="record.tableChecked"
+                @click.stop
+                @change="(val) => handleRadioChange(val as boolean, record)"
+              />
+            </template>
             <div v-if="attrs.showPagination && props.showSelectorAll" class="w-[16px]"></div>
           </template>
         </a-table-column>
@@ -317,6 +319,7 @@
     MsTableColumnData,
     MsTableDataItem,
     MsTableProps,
+    MsTableRowSelectionDisabledConfig,
   } from './type';
   import { getCurrentRecordChildrenIds } from './utils';
   import type { TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
@@ -334,10 +337,6 @@
     excludeKeys: Set<string>;
     selectorStatus: SelectAllEnum;
     actionConfig?: BatchActionConfig;
-    disabledConfig?: {
-      disabledChildren?: boolean;
-      parentKey?: string;
-    };
     noDisable?: boolean;
     showSetting?: boolean;
     columns: MsTableColumn;
@@ -737,8 +736,16 @@
     emit('filterChange', dataIndex, value, isCustomParam);
   };
 
+  function isDisabledChildren(record: TableData) {
+    if (!(attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledChildren) {
+      return false;
+    }
+    // 子级禁用
+    return !!record[(attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig).parentKey || 'parent'];
+  }
+
   function getChecked(record: TableData) {
-    if (!record.children) {
+    if (!record.children || (attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledChildren) {
       return props.selectedKeys.has(record[rowKey || 'id']);
     }
 
@@ -747,7 +754,7 @@
   }
 
   function getIndeterminate(record: TableData) {
-    if (!record.children) {
+    if (!record.children || (attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledChildren) {
       return false;
     }
     const childKeyIds = getCurrentRecordChildrenIds(record.children, rowKey || 'id');
@@ -760,14 +767,6 @@
       return true;
     }
     return false;
-  }
-
-  function isDisabledChildren(record: TableData) {
-    if (!props.disabledConfig?.disabledChildren) {
-      return false;
-    }
-    // 子级禁用
-    return !!record[props.disabledConfig.parentKey || 'parent'];
   }
 
   onMounted(async () => {
