@@ -130,7 +130,7 @@ export default {
           em: DEFAULT_XSS_ATTR,
           blockquote: DEFAULT_XSS_ATTR,
         },
-        stripIgnoreTagBody: true
+        stripIgnoreTagBody: false
       },
       defaultOpenValue: 'preview'
     }
