@@ -33,7 +33,7 @@ public class AppStartListener implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         LogUtils.info("================= 应用启动 =================");
-        defaultUidGenerator.afterPropertiesSet();
+        defaultUidGenerator.init();
         // 初始化MinIO配置
         ((MinioRepository) FileCenter.getRepository(StorageType.MINIO)).init(minioClient);
 
