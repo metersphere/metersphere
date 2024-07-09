@@ -142,6 +142,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
+  import useCaseReviewStore from '@/store/modules/case/caseReview';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -150,7 +151,6 @@
     CaseReviewFunctionalCaseUserItem,
     ReviewHistoryItem,
     ReviewPassRule,
-    ReviewResult as ReviewResultStatus,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
   import { MinderEventName } from '@/enums/minderEnum';
@@ -159,7 +159,6 @@
 
   const props = defineProps<{
     moduleId: string;
-    modulesCount: Record<string, number>; // 模块数量
     viewFlag: boolean; // 是否只看我的
     viewStatusFlag: boolean; // 我的评审结果
     reviewProgress: string;
@@ -177,6 +176,7 @@
   const { t } = useI18n();
   const minderStore = useMinderStore();
   const userStore = useUserStore();
+  const caseReviewStore = useCaseReviewStore();
 
   const statusTagMap: Record<string, string> = {
     PASS: t('common.pass'),
@@ -193,6 +193,8 @@
   });
   const loading = ref(false);
 
+  const modulesCount = computed(() => caseReviewStore.modulesCount);
+
   /**
    * 初始化用例模块树
    */
@@ -203,13 +205,13 @@
         ...e.data,
         id: e.id || e.data?.id || '',
         text: e.name || e.data?.text || '',
-        resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
+        resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
         expandState: e.level === 0 ? 'expand' : 'collapse',
-        count: props.modulesCount[e.id],
+        count: modulesCount.value[e.id],
         disabled: true,
       },
       children:
-        props.modulesCount[e.id] > 0 && !e.children?.length
+        modulesCount.value[e.id] > 0 && !e.children?.length
           ? [
               {
                 data: {
