@@ -149,21 +149,30 @@
         </a-form-item>
       </template> -->
 
-      <a-form-item v-if="isShowTypeItem" :label="t('system.resourcePool.type')" field="type" class="form-item">
+      <!-- <a-form-item v-if="isShowTypeItem" :label="t('system.resourcePool.type')" field="type" class="form-item">
         <a-radio-group v-model:model-value="form.type" type="button" @change="changeResourceType">
           <a-radio value="Node">Node</a-radio>
-          <!-- TODO:第一版不上 -->
-          <!-- <a-radio v-xpack value="Kubernetes">Kubernetes</a-radio> -->
+          <a-radio v-xpack value="Kubernetes">Kubernetes</a-radio>
         </a-radio-group>
-      </a-form-item>
+      </a-form-item> -->
       <template v-if="isShowNodeResources">
-        <a-form-item field="addType" :class="`${licenseStore.hasLicense() ? '' : 'has-license-class'} form-item`">
-          <template #label>
-            <div class="flex items-center">
-              {{ t('system.resourcePool.addResource') }}
-            </div>
-          </template>
-          <a-popconfirm
+        <div
+          class="mb-[8px] flex w-full items-center justify-between"
+          :class="`${licenseStore.hasLicense() ? '' : 'has-license-class'} form-item !w-full`"
+        >
+          {{ t('system.resourcePool.addResource') }}
+          <MsButton
+            type="text"
+            @click="
+              () => {
+                form.addType = form.addType === 'single' ? 'multiple' : 'single';
+                handleTypeChange(form.addType);
+              }
+            "
+          >
+            {{ form.addType === 'single' ? t('system.resourcePool.batchAdd') : t('system.resourcePool.singleAdd') }}
+          </MsButton>
+          <!-- <a-popconfirm
             v-if="!getIsVisited()"
             v-xpack
             class="ms-pop-confirm--hidden-cancel"
@@ -197,14 +206,14 @@
           <a-radio-group v-else v-model:model-value="form.addType" v-xpack type="button" @change="handleTypeChange">
             <a-radio value="single">{{ t('system.resourcePool.singleAdd') }}</a-radio>
             <a-radio v-xpack value="multiple">
-              <a-tooltip :content="t('system.resourcePool.changeAddTypeTip')" position="tl" mini
-                ><span>
+              <a-tooltip :content="t('system.resourcePool.changeAddTypeTip')" position="tl" mini>
+                <span>
                   {{ t('system.resourcePool.batchAdd') }}
-                </span></a-tooltip
-              ></a-radio
-            >
-          </a-radio-group>
-        </a-form-item>
+                </span>
+              </a-tooltip>
+            </a-radio>
+          </a-radio-group> -->
+        </div>
         <MsBatchForm
           v-show="form.addType === 'single'"
           ref="batchFormRef"
@@ -225,19 +234,11 @@
             height="400px"
             theme="MS-text"
             :show-theme-change="false"
+            :show-full-screen="false"
             @change="() => setIsSave(false)"
           >
-            <template #leftTitle>
-              <a-form-item
-                :label="t('system.resourcePool.batchAddResource')"
-                asterisk-position="end"
-                class="hide-wrapper mb-0 w-auto"
-                required
-              >
-              </a-form-item>
-            </template>
           </MsCodeEditor>
-          <div class="mb-[24px] mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
+          <div class="mb-[24px] mt-[4px] text-[12px] leading-[16px] text-[rgb(var(--warning-6))]">
             {{ t('system.resourcePool.nodeConfigEditorTip') }}
           </div>
         </div>
@@ -397,7 +398,6 @@
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
-  import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
   import { downloadStringFile, sleep } from '@/utils';
@@ -526,18 +526,18 @@
   //   form.value.testResourceDTO.loadTestHeap = defaultHeap;
   // }
 
-  const visitedKey = 'changeAddResourceType';
-  const { addVisited, getIsVisited } = useVisit(visitedKey);
+  // const visitedKey = 'changeAddResourceType';
+  // const { addVisited, getIsVisited } = useVisit(visitedKey);
 
-  /**
-   * 切换类型提示确认框隐藏时，设置已访问标志
-   * @param visible 显示/隐藏
-   */
-  function handlePopChange(visible: boolean) {
-    if (!visible) {
-      addVisited();
-    }
-  }
+  // /**
+  //  * 切换类型提示确认框隐藏时，设置已访问标志
+  //  * @param visible 显示/隐藏
+  //  */
+  // function handlePopChange(visible: boolean) {
+  //   if (!visible) {
+  //     addVisited();
+  //   }
+  // }
 
   /**
    * 控制表单项显示隐藏逻辑计算器
@@ -685,12 +685,12 @@
     setIsSave(false);
   }
 
-  function changeResourceType(val: string | number | boolean) {
-    if (val === 'Kubernetes') {
-      setBatchFormRes();
-    }
-    setIsSave(false);
-  }
+  // function changeResourceType(val: string | number | boolean) {
+  //   if (val === 'Kubernetes') {
+  //     setBatchFormRes();
+  //   }
+  //   setIsSave(false);
+  // }
 
   /**
    * 下载 yaml 文件

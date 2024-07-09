@@ -1,7 +1,7 @@
 <template>
   <a-form ref="formRef" :model="form" layout="vertical">
     <div
-      class="mb-[16px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]"
+      class="mb-[16px] overflow-y-auto rounded-[4px] border border-[var(--color-text-n8)] p-[12px]"
       :style="{ width: props.formWidth || '100%' }"
     >
       <a-scrollbar class="overflow-y-auto" :style="{ 'max-height': props.maxHeight }">

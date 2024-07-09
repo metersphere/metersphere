@@ -133,6 +133,7 @@
       showBatchModal.value = false;
       target.value = [];
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       batchLoading.value = false;
@@ -156,6 +157,7 @@
           break;
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
@@ -166,6 +168,7 @@
       treeList.value = await callBack(orgId);
       loading.value = false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };

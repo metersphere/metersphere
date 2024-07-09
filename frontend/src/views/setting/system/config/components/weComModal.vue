@@ -117,6 +117,7 @@
     try {
       weComForm.value = await getWeComInfo();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -149,6 +150,7 @@
           Message.success(t('organization.service.testLinkStatusTip'));
         } catch (error) {
           weComForm.value.valid = false;
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           loading.value = false;
@@ -166,6 +168,7 @@
           Message.success(t('common.saveSuccess'));
           emits('success');
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           loading.value = false;
@@ -179,11 +182,10 @@
 <style scoped lang="less">
   .footer-button {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     flex-direction: row;
-    justify-content: space-between;
   }
-
   .ms-switch {
     display: flex;
     align-items: center;

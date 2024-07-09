@@ -7,7 +7,7 @@
           v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
           type="outline"
           size="mini"
-          @click="baseInfoDrawerVisible = true"
+          @click="baseInfoModalVisible = true"
         >
           {{ t('system.config.update') }}
         </a-button>
@@ -66,13 +66,14 @@
         {{ t('system.config.email.test') }}
       </a-button>
     </MsCard>
-    <MsDrawer
-      v-model:visible="baseInfoDrawerVisible"
+    <a-modal
+      v-model:visible="baseInfoModalVisible"
       :title="t('system.config.baseInfo.updateTitle')"
       :ok-text="t('system.config.baseInfo.update')"
-      :ok-loading="baseDrawerLoading"
-      :width="680"
-      @confirm="updateBaseInfo"
+      :ok-loading="baseModalLoading"
+      title-align="start"
+      class="ms-modal-form"
+      :on-before-ok="updateBaseInfo"
       @cancel="baseInfoCancel"
     >
       <a-form ref="baseFormRef" :model="baseInfoForm" layout="vertical">
@@ -82,6 +83,7 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('system.config.baseInfo.pageUrlRequired') }]"
           required
+          class="mb-0"
         >
           <a-input
             v-model:model-value="baseInfoForm.url"
@@ -92,7 +94,7 @@
           <MsFormItemSub :text="t('system.config.baseInfo.pageUrlSub', { url: defaultUrl })" @fill="fillDefaultUrl" />
         </a-form-item>
       </a-form>
-    </MsDrawer>
+    </a-modal>
     <MsDrawer
       v-model:visible="emailConfigDrawerVisible"
       :title="t('system.config.email.updateTitle')"
@@ -132,6 +134,14 @@
             class="w-[240px]"
             allow-clear
           ></a-input>
+        </a-form-item>
+        <a-form-item :label="t('system.config.email.ssl')" field="ssl" asterisk-position="end">
+          <a-switch v-model:model-value="emailConfigForm.ssl" type="line" />
+          <MsFormItemSub :text="t('system.config.email.sslTip')" :show-fill-icon="false" />
+        </a-form-item>
+        <a-form-item :label="t('system.config.email.tsl')" field="tsl" asterisk-position="end">
+          <a-switch v-model:model-value="emailConfigForm.tsl" type="line" />
+          <MsFormItemSub :text="t('system.config.email.tslTip')" :show-fill-icon="false" />
         </a-form-item>
         <a-form-item
           :label="t('system.config.email.account')"
@@ -183,14 +193,6 @@
             allow-clear
           ></a-input>
         </a-form-item>
-        <a-form-item :label="t('system.config.email.ssl')" field="ssl" asterisk-position="end">
-          <a-switch v-model:model-value="emailConfigForm.ssl" type="line" />
-          <MsFormItemSub :text="t('system.config.email.sslTip')" :show-fill-icon="false" />
-        </a-form-item>
-        <a-form-item :label="t('system.config.email.tsl')" field="tsl" asterisk-position="end">
-          <a-switch v-model:model-value="emailConfigForm.tsl" type="line" />
-          <MsFormItemSub :text="t('system.config.email.tslTip')" :show-fill-icon="false" />
-        </a-form-item>
       </a-form>
       <a-button type="outline" class="flex-1" :loading="drawerTestLoading" @click="testLink('drawer')">
         {{ t('system.config.email.test') }}
@@ -222,8 +224,8 @@
   const { t } = useI18n();
 
   const baseLoading = ref(false);
-  const baseDrawerLoading = ref(false);
-  const baseInfoDrawerVisible = ref(false);
+  const baseModalLoading = ref(false);
+  const baseInfoModalVisible = ref(false);
   const baseFormRef = ref<FormInstance>();
   const baseInfo = ref({
     url: 'http://127.0.0.1:8081',
@@ -282,20 +284,21 @@
   /**
    * 保存基础信息
    */
-  function updateBaseInfo() {
+  function updateBaseInfo(done: (closed: boolean) => void) {
     baseFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
         try {
-          baseDrawerLoading.value = true;
+          baseModalLoading.value = true;
           await saveBaseInfo(makeBaseInfoParams());
           Message.success(t('system.config.baseInfo.updateSuccess'));
-          baseInfoDrawerVisible.value = false;
+          done(true);
           initBaseInfo();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+          done(false);
         } finally {
-          baseDrawerLoading.value = false;
+          baseModalLoading.value = false;
         }
       }
     });

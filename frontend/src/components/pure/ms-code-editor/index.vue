@@ -3,7 +3,7 @@
     ref="fullRef"
     :class="`${
       !isAdaptive ? 'h-full' : ''
-    } flex flex-col rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]`"
+    } flex flex-col rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] p-[12px]`"
   >
     <div v-if="showTitleLine" class="mb-[8px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">

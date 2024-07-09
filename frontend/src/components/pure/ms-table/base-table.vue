@@ -181,7 +181,7 @@
                   :content="String(record[item.dataIndex as string])"
                   :disabled="record[item.dataIndex as string] === '' || record[item.dataIndex as string] === undefined || record[item.dataIndex as string] === null"
                 >
-                  <div class="one-line-text">
+                  <div class="one-line-text w-full">
                     <slot :name="item.slotName" v-bind="{ record, rowIndex, column, columnConfig: item }">
                       {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                     </slot>
