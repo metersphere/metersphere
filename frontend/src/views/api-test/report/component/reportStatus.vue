@@ -5,6 +5,7 @@
     <a-tooltip v-if="props.scriptIdentifier" :content="getMsg()">
       <MsTag
         class="ml-2"
+        :tooltip-disabled="true"
         :self-style="{
           border: `1px solid ${methodColor}`,
           color: methodColor,
