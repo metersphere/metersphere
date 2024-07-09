@@ -9,14 +9,13 @@ import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class DefaultUidGenerator implements DisposableBean, InitializingBean {
+public class DefaultUidGenerator implements DisposableBean {
     /**
      * Bits allocate
      */
@@ -48,7 +47,7 @@ public class DefaultUidGenerator implements DisposableBean, InitializingBean {
     @Resource
     protected WorkerIdAssigner workerIdAssigner;
 
-    public void afterPropertiesSet() {
+    public void init() {
         // init bitsAllocator
         this.setTimeBits(29);
         this.setWorkerBits(21);
