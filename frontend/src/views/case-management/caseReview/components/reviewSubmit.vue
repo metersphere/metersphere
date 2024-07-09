@@ -34,23 +34,31 @@
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
+  import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import ReviewForm from './reviewFormRichText.vue';
 
-  import { saveCaseReviewResult } from '@/api/modules/case-management/caseReview';
+  import { batchReview } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ReviewFormParams, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
+  import {
+    BatchReviewCaseParams,
+    ReviewFormParams,
+    ReviewPassRule,
+    ReviewResult,
+  } from '@/models/caseManagement/caseReview';
   import { StartReviewStatus } from '@/enums/caseEnum';
 
   const props = defineProps<{
-    caseId: string;
+    selectNode: MinderJsonNode;
     reviewPassRule: ReviewPassRule;
     reviewId: string;
+    userId: string;
   }>();
 
   const emit = defineEmits<{
-    (e: 'done', status: ReviewResult): void;
+    (e: 'done'): void;
   }>();
 
   const { t } = useI18n();
@@ -84,7 +92,7 @@
   });
 
   watch(
-    () => props.caseId,
+    () => props.selectNode.data?.caseId,
     () => {
       form.value = { ...defaultForm };
     }
@@ -94,18 +102,19 @@
   async function submit() {
     try {
       submitLoading.value = true;
-      const params = {
+      const params: BatchReviewCaseParams = {
         projectId: appStore.currentProjectId,
-        caseId: props.caseId,
+        userId: props.userId,
         reviewId: props.reviewId,
         reviewPassRule: props.reviewPassRule,
         ...form.value,
         notifier: form.value.notifiers?.join(';') ?? '',
+        ...getMinderOperationParams(props.selectNode),
       };
-      await saveCaseReviewResult(params);
+      await batchReview(params);
       modalVisible.value = false;
       Message.success(t('caseManagement.caseReview.reviewSuccess'));
-      emit('done', form.value.status);
+      emit('done');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

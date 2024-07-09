@@ -11,57 +11,56 @@
       :can-show-more-menu="canShowFloatMenu"
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
-      :more-menu-other-operation-list="canShowEnterNode ? [] : moreMenuOtherOperationList"
+      :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
       disabled
       @node-select="handleNodeSelect"
       @before-exec-command="handleBeforeExecCommand"
     >
       <template #extractMenu>
-        <template v-if="showCaseMenu">
-          <!-- 评审 查看详情 -->
-          <a-trigger
-            v-if="hasAnyPermission(['CASE_REVIEW:READ+REVIEW']) && isReviewer"
-            v-model:popup-visible="reviewVisible"
-            trigger="click"
-            position="bl"
-            :click-outside-to-close="false"
-            popup-container=".ms-minder-container"
-          >
-            <a-tooltip :content="t('caseManagement.caseReview.review')">
-              <MsButton
-                type="icon"
-                :class="[
-                  'ms-minder-node-float-menu-icon-button',
-                  `${reviewVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
-                ]"
-              >
-                <MsIcon type="icon-icon_audit" class="text-[var(--color-text-4)]" />
-              </MsButton>
-            </a-tooltip>
-            <template #content>
-              <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
-                <ReviewSubmit
-                  :review-pass-rule="reviewPassRule"
-                  :case-id="selectCaseId"
-                  :review-id="route.query.id as string"
-                  @done="handleReviewDone"
-                />
-              </div>
-            </template>
-          </a-trigger>
-          <a-tooltip :content="t('common.detail')">
+        <!-- 评审 查看详情 -->
+        <a-trigger
+          v-if="hasAnyPermission(['CASE_REVIEW:READ+REVIEW']) && isReviewer"
+          v-model:popup-visible="reviewVisible"
+          trigger="click"
+          position="bl"
+          :click-outside-to-close="false"
+          popup-container=".ms-minder-container"
+        >
+          <a-tooltip :content="t('caseManagement.caseReview.review')">
             <MsButton
               type="icon"
               :class="[
                 'ms-minder-node-float-menu-icon-button',
-                `${extraVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+                `${reviewVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
               ]"
-              @click="toggleDetail"
             >
-              <MsIcon type="icon-icon_describe_outlined" class="text-[var(--color-text-4)]" />
+              <MsIcon type="icon-icon_audit" class="text-[var(--color-text-4)]" />
             </MsButton>
           </a-tooltip>
-        </template>
+          <template #content>
+            <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
+              <ReviewSubmit
+                :review-pass-rule="reviewPassRule"
+                :select-node="selectNode"
+                :user-id="props.viewFlag ? userStore.id || '' : ''"
+                :review-id="route.query.id as string"
+                @done="handleReviewDone"
+              />
+            </div>
+          </template>
+        </a-trigger>
+        <a-tooltip v-if="canShowDetail" :content="t('common.detail')">
+          <MsButton
+            type="icon"
+            :class="[
+              'ms-minder-node-float-menu-icon-button',
+              `${extraVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+            ]"
+            @click="toggleDetail"
+          >
+            <MsIcon type="icon-icon_describe_outlined" class="text-[var(--color-text-4)]" />
+          </MsButton>
+        </a-tooltip>
       </template>
       <template #extractTabContent>
         <MsDescription
@@ -169,7 +168,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'operation', type: string, data: MinderJsonNodeData): void;
+    (e: 'operation', type: string, node: MinderJsonNode): void;
     (e: 'handleReviewDone'): void;
   }>();
 
@@ -519,16 +518,16 @@
   const isReviewer = ref(false); // 是否是此用例的评审人
   const caseReviewerList = ref<CaseReviewFunctionalCaseUserItem[]>([]);
   const canShowEnterNode = ref(false);
-  const showCaseMenu = ref(false);
+  const canShowDetail = ref(false);
   const moreMenuOtherOperationList = ref();
-  function setMoreMenuOtherOperationList(data: MinderJsonNodeData) {
+  function setMoreMenuOtherOperationList(node: MinderJsonNode) {
     moreMenuOtherOperationList.value = [
       {
         value: 'changeReviewer',
         label: t('caseManagement.caseReview.changeReviewer'),
         permission: ['CASE_REVIEW:READ+UPDATE'],
         onClick: () => {
-          emit('operation', 'changeReviewer', data);
+          emit('operation', 'changeReviewer', node);
         },
       },
       {
@@ -536,7 +535,7 @@
         label: t('caseManagement.caseReview.reReview'),
         permission: ['CASE_REVIEW:READ+UPDATE'],
         onClick: () => {
-          emit('operation', 'reReview', data);
+          emit('operation', 'reReview', node);
         },
       },
       {
@@ -544,31 +543,16 @@
         label: t('caseManagement.caseReview.disassociate'),
         permission: ['CASE_REVIEW:READ+RELEVANCE'],
         onClick: () => {
-          emit('operation', 'disassociate', data);
+          emit('operation', 'disassociate', node);
         },
       },
     ];
   }
 
-  const selectCaseId = ref('');
+  const selectNode = ref();
   const reviewVisible = ref(false);
-  function handleReviewDone(status: ReviewResultStatus) {
+  function handleReviewDone() {
     reviewVisible.value = false;
-    let origin = window.minder.queryCommandValue('resource');
-    if (origin[0] !== caseTag) {
-      origin[0] = statusTagMap[status];
-    } else {
-      origin = [statusTagMap[status], ...origin];
-    }
-    window.minder.execCommand('resource', origin);
-    minderStore.dispatchEvent(
-      MinderEventName.SET_TAG,
-      undefined,
-      undefined,
-      undefined,
-      window.minder.getSelectedNodes()
-    );
-    setPriorityView(true, 'P');
     emit('handleReviewDone');
   }
 
@@ -594,27 +578,34 @@
       setPriorityView(true, 'P');
       return;
     }
-    // 展示浮动菜单: 模块节点有子节点且非根节点、用例节点
+    selectNode.value = node;
+
+    // 展示浮动菜单: 模块节点有子节点、用例节点
     if (
       node.data?.resource?.includes(caseTag) ||
-      (node.data?.resource?.includes(moduleTag) && node.type !== 'root' && (node.children || []).length > 0)
+      (node.data?.resource?.includes(moduleTag) && (node.children || []).length > 0)
     ) {
       canShowFloatMenu.value = true;
+      setMoreMenuOtherOperationList(node);
     } else {
       canShowFloatMenu.value = false;
     }
 
     // 展示进入节点菜单: 模块节点
-    if (data?.resource?.includes(moduleTag)) {
+    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0 && node.type !== 'root') {
       canShowEnterNode.value = true;
     } else {
       canShowEnterNode.value = false;
     }
 
+    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0) {
+      isReviewer.value = true;
+    } else {
+      isReviewer.value = false;
+    }
+
     if (data?.resource?.includes(caseTag)) {
-      showCaseMenu.value = true;
-      selectCaseId.value = node.data?.caseId ?? '';
-      setMoreMenuOtherOperationList(node.data as MinderJsonNodeData);
+      canShowDetail.value = true;
       setIsReviewer(node.data);
       if (extraVisible.value) {
         toggleDetail(true);
@@ -622,11 +613,11 @@
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       await initNodeCases(node);
-      showCaseMenu.value = false;
       extraVisible.value = false;
+      canShowDetail.value = false;
     } else {
-      showCaseMenu.value = false;
       extraVisible.value = false;
+      canShowDetail.value = false;
       resetExtractInfo();
       removeFakeNode(node, 'fakeNode');
     }
