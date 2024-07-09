@@ -62,7 +62,12 @@ const useMinderStore = defineStore('minder', {
       this.mold = val;
     },
     setClipboard(nodes?: MinderJsonNode[]) {
-      this.clipboard = mapTree(nodes || [], (node) => ({ ...node, id: getGenerateId(), type: 'ADD' }));
+      this.clipboard = mapTree(nodes || [], (node) => {
+        if (node.id !== 'fakeNode' && node.type !== 'tmp') {
+          return { ...node, id: getGenerateId(), type: 'ADD' };
+        }
+        return null;
+      });
     },
     setMinderUnsaved(val: boolean) {
       this.minderUnsaved = val;

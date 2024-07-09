@@ -388,14 +388,23 @@
           window.minder.execCommand('Paste');
           let pastedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
           if (pastedNodes.length > 0) {
-            pastedNodes = pastedNodes.map((e) => {
-              e.data = {
-                ...(e.data as MinderJsonNodeData),
-                isNew: true,
-                id: getGenerateId(),
-              };
-              return e;
-            });
+            pastedNodes = pastedNodes
+              .filter((e) => {
+                if (e.data?.id !== 'fakeNode' && e.data?.type !== 'tmp') {
+                  return true;
+                }
+                window.minder.removeNode(e);
+                return false;
+              })
+              .map((e) => {
+                e.data = {
+                  ...(e.data as MinderJsonNodeData),
+                  isNew: true,
+                  id: getGenerateId(),
+                  count: e.children?.length || 0,
+                };
+                return e;
+              });
           }
           break;
         case 'delete':

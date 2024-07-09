@@ -268,7 +268,7 @@ export function mapTree<T>(
         }
         return newNode;
       })
-      .filter(Boolean);
+      .filter((node: TreeNode<T> | null) => node !== null);
   }
   return mapFunc(cloneTree, parentPath, level, parent);
 }
