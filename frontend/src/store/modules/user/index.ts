@@ -205,6 +205,46 @@ const useUserStore = defineStore('user', {
         return false;
       }
     },
+
+    async setUserInfoByAuth(pId: string, orgId: string) {
+      const appStore = useAppStore();
+      const router = useRouter();
+      const res = await userIsLogin();
+      this.setInfo(res);
+      appStore.setCurrentOrgId(orgId);
+      appStore.setCurrentProjectId(pId);
+      try {
+        const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);
+        if (!HasProjectPermission) {
+          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+          return;
+        }
+        const resp = await getProjectInfo(appStore.currentProjectId);
+        if (!resp) {
+          // 如果项目被删除或者被禁用，跳转到无项目页面
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+        }
+        if (resp) {
+          appStore.setCurrentMenuConfig(resp?.moduleIds || []);
+        }
+      } catch (err) {
+        appStore.setCurrentMenuConfig([]);
+        // eslint-disable-next-line no-console
+        console.log(err);
+      }
+      const { isLoginPage } = useUser();
+      if (isLoginPage()) {
+        // 当前页面为登录页面，且已经登录，跳转到首页
+        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+        router.push({ name: currentRouteName });
+      }
+    },
+
     // 更新本地设置
     updateLocalConfig(partial: Partial<UserState>) {
       this.$patch(partial);

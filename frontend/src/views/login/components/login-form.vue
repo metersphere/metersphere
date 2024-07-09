@@ -118,12 +118,13 @@
   import { useRouter } from 'vue-router';
   import { useStorage } from '@vueuse/core';
   import { Message, SelectOptionData } from '@arco-design/web-vue';
+  import { partial } from 'lodash-es';
 
   import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { getAuthDetail, getAuthDetailByType } from '@/api/modules/setting/config';
-  import { getPlatformParamUrl } from '@/api/modules/user';
+  import { getPlatformParamUrl, isLogin as userIsLogin } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
@@ -131,6 +132,7 @@
   import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
+  import { UserState } from '@/store/modules/user/types';
   import { encrypted } from '@/utils';
   import { setLoginExpires, setToken } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
@@ -366,15 +368,13 @@
 
       // 分割查询参数
       const params = query.split('&');
-
       // 遍历参数，找到 _token 参数的值
       let variableValue;
       params.forEach((param) => {
-        const pair = param.split('=');
-        if (pair[0] === variable) {
-          console.log(pair[1]);
-          // eslint-disable-next-line prefer-destructuring
-          variableValue = pair[1];
+        const equalIndex = param.indexOf('=');
+        const variableName = param.substring(0, equalIndex);
+        if (variableName === variable) {
+          variableValue = param.substring(equalIndex + 1);
         }
       });
       return variableValue;
@@ -385,12 +385,10 @@
     const TOKEN = getQueryVariable('_token');
     const CSRF = getQueryVariable('_csrf');
     const pId = getQueryVariable('_pId');
-    const orgId = getQueryVariable('orgId');
+    const orgId = getQueryVariable('_orgId');
     if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
-      setToken(TOKEN, CSRF);
-      appStore.setCurrentOrgId(pId || '');
-      appStore.setCurrentProjectId(orgId || '');
-      await userStore.checkIsLogin(true);
+      setToken(window.atob(TOKEN), CSRF);
+      await userStore.setUserInfoByAuth(pId || '', orgId || '');
     }
   }
 
