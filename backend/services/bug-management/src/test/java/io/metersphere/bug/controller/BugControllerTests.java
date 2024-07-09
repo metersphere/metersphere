@@ -259,10 +259,10 @@ public class BugControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_ADD, paramMap).andExpect(status().isBadRequest());
         request.setProjectId("default-project-for-bug");
-        // 标签超过10个
+        // V3.1需求：标签超过10个不会报错，只会留下前10个
         request.setTags(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"));
         paramMap = getMultiPartParam(request, file);
-        this.requestMultipart(BUG_ADD, paramMap).andExpect(status().is5xxServerError());
+        this.requestMultipart(BUG_ADD, paramMap).andExpect(status().is2xxSuccessful());
         request.setTags(null);
         // 处理人为空
         request.setTitle("default-bug-title");

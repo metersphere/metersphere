@@ -168,8 +168,6 @@ public class BugService {
 
     public static final Long INTERVAL_POS = 5000L;
 
-    private static final int MAX_TAG_SIZE = 10;
-
     /**
      * 缺陷列表查询
      *
@@ -197,8 +195,7 @@ public class BugService {
      * @return 缺陷
      */
     public Bug addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, String currentOrgId, boolean isUpdate) {
-        // 前置校验: 标签长度
-        this.checkTagLength(request.getTags());
+        request.setTags(ServiceUtils.parseTags(request.getTags()));
         /*
          *  缺陷创建或者修改逻辑:
          *  1. 判断所属项目是否关联第三方平台;
@@ -439,9 +436,6 @@ public class BugService {
      * @param currentUser 当前用户
      */
     public void batchUpdate(BugBatchUpdateRequest request, String currentUser) {
-        //校验标签长度
-        this.checkTagLength(request.getTags());
-
         List<String> batchIds = getBatchIdsByRequest(request);
         // 批量日志{修改之前}
         List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, "/bug/batch-update",
@@ -457,17 +451,16 @@ public class BugService {
             bugTagMap.forEach((k, v) -> {
                 Bug record = new Bug();
                 record.setId(k);
-                record.setTags(ListUtils.union(v, request.getTags()));
+                record.setTags(ServiceUtils.parseTags(ListUtils.union(v, request.getTags())));
                 record.setUpdateUser(currentUser);
                 record.setUpdateTime(System.currentTimeMillis());
-                //校验标签长度
-                this.checkTagLength(record.getTags());
                 //入库
                 batchMapper.updateByPrimaryKeySelective(record);
             });
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         } else {
+            request.setTags(ServiceUtils.parseTags(request.getTags()));
             // 标签(覆盖)
             request.setUpdateUser(currentUser);
             request.setUpdateTime(System.currentTimeMillis());
@@ -1859,17 +1852,6 @@ public class BugService {
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> function) {
         Set<Object> keySet = ConcurrentHashMap.newKeySet();
         return t -> keySet.add(function.apply(t));
-    }
-
-    /**
-     * 校验TAG长度
-     *
-     * @param tags 标签集合
-     */
-    private void checkTagLength(List<String> tags) {
-        if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
-            throw new MSException(Translator.getWithArgs("bug_tags_size_large_than", String.valueOf(MAX_TAG_SIZE)));
-        }
     }
 
     /**

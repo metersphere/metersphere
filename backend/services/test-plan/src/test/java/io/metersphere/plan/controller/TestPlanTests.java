@@ -2380,16 +2380,43 @@ public class TestPlanTests extends BaseTest {
     @Order(307)
     public void testBatchEditTestPlan() throws Exception {
         TestPlanBatchEditRequest request = new TestPlanBatchEditRequest();
-        request.setTags(Arrays.asList("tag1", "tag2"));
-        request.setAppend(true);
         request.setType("ALL");
         request.setProjectId("songtianyang-fix-wx");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
-        this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
         request.setAppend(false);
         request.setTags(Arrays.asList("tag3", "tag4"));
-        request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
         this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
+        //检查标签是否覆盖
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertEquals(2, CollectionUtils.size(testPlan.getTags()));
+        Assertions.assertTrue(testPlan.getTags().contains("tag3"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag4"));
+
+        request.setAppend(true);
+        request.setTags(Arrays.asList("tag1", "tag2"));
+        this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
+        testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertEquals(4, CollectionUtils.size(testPlan.getTags()));
+        Assertions.assertTrue(testPlan.getTags().contains("tag1"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag2"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag3"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag4"));
+
+        //超过10个
+        request.setTags(Arrays.asList("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag0", "tag11"));
+        this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
+        testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertEquals(10, CollectionUtils.size(testPlan.getTags()));
+        Assertions.assertTrue(testPlan.getTags().contains("tag1"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag2"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag3"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag4"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag5"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag6"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag7"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag8"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag9"));
+        Assertions.assertTrue(testPlan.getTags().contains("tag0"));
     }
 
     @Test

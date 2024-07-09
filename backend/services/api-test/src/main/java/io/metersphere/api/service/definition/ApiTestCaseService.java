@@ -108,9 +108,7 @@ public class ApiTestCaseService extends MoveNodeService {
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
 
-
     private static final String CASE_TABLE = "api_test_case";
-    private static final int MAX_TAG_SIZE = 10;
 
     private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -179,7 +177,7 @@ public class ApiTestCaseService extends MoveNodeService {
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            testCase.setTags(this.parseTags(request.getTags()));
+            testCase.setTags(ServiceUtils.parseTags(request.getTags()));
         }
         apiTestCaseMapper.insertSelective(testCase);
 
@@ -285,7 +283,7 @@ public class ApiTestCaseService extends MoveNodeService {
         testCase.setUpdateUser(userId);
         testCase.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            testCase.setTags(this.parseTags(request.getTags()));
+            testCase.setTags(ServiceUtils.parseTags(request.getTags()));
         } else {
             testCase.setTags(null);
         }
@@ -513,7 +511,7 @@ public class ApiTestCaseService extends MoveNodeService {
                     if (CollectionUtils.isNotEmpty(v.getTags())) {
                         List<String> orgTags = v.getTags();
                         orgTags.addAll(request.getTags());
-                        v.setTags(this.parseTags(orgTags.stream().distinct().toList()));
+                        v.setTags(ServiceUtils.parseTags(orgTags.stream().distinct().toList()));
                     } else {
                         v.setTags(request.getTags());
                     }
@@ -523,7 +521,7 @@ public class ApiTestCaseService extends MoveNodeService {
                 });
             }
         } else {
-            updateCase.setTags(this.parseTags(request.getTags()));
+            updateCase.setTags(ServiceUtils.parseTags(request.getTags()));
             mapper.updateByExampleSelective(updateCase, example);
         }
     }
@@ -923,19 +921,5 @@ public class ApiTestCaseService extends MoveNodeService {
 
     public List<ReferenceDTO> getReference(ReferenceRequest request) {
         return extApiDefinitionMapper.getReference(request);
-    }
-
-    /**
-     * 解析Tag，只保留默认长度
-     *
-     * @param tags 标签集合
-     */
-    public List<String> parseTags(List<String> tags) {
-        if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
-            List<String> returnTags = new ArrayList<>(tags);
-            return returnTags.subList(0, MAX_TAG_SIZE);
-        } else {
-            return tags;
-        }
     }
 }

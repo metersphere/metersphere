@@ -323,7 +323,7 @@ public class ApiScenarioService extends MoveNodeService {
                     if (CollectionUtils.isNotEmpty(v.getTags())) {
                         List<String> orgTags = v.getTags();
                         orgTags.addAll(request.getTags());
-                        v.setTags(apiTestCaseService.parseTags(orgTags.stream().distinct().toList()));
+                        v.setTags(ServiceUtils.parseTags(orgTags.stream().distinct().toList()));
                     } else {
                         v.setTags(request.getTags());
                     }
@@ -333,7 +333,7 @@ public class ApiScenarioService extends MoveNodeService {
                 });
             }
         } else {
-            updateScenario.setTags(apiTestCaseService.parseTags(request.getTags().stream().distinct().toList()));
+            updateScenario.setTags(ServiceUtils.parseTags(request.getTags().stream().distinct().toList()));
             mapper.updateByExampleSelective(updateScenario, example);
         }
     }
@@ -384,7 +384,7 @@ public class ApiScenarioService extends MoveNodeService {
 
     public ApiScenario add(ApiScenarioAddRequest request, String creator) {
         checkAddExist(request);
-        request.setTags(apiTestCaseService.parseTags(request.getTags()));
+        request.setTags(ServiceUtils.parseTags(request.getTags()));
         ApiScenario scenario = getAddApiScenario(request, creator);
         scenario.setStepTotal(request.getSteps().size());
         apiScenarioMapper.insert(scenario);
@@ -706,7 +706,7 @@ public class ApiScenarioService extends MoveNodeService {
     public ApiScenario update(ApiScenarioUpdateRequest request, String updater) {
         checkResourceExist(request.getId());
         checkUpdateExist(request);
-        request.setTags(apiTestCaseService.parseTags(request.getTags()));
+        request.setTags(ServiceUtils.parseTags(request.getTags()));
         // 更新基础信息
         ApiScenario scenario = BeanUtils.copyBean(new ApiScenario(), request);
         scenario.setUpdateUser(updater);

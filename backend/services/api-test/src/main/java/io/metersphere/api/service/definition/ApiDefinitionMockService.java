@@ -192,7 +192,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMock.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMock.setCreateUser(userId);
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiDefinitionMock.setTags(apiTestCaseService.parseTags(request.getTags()));
+            apiDefinitionMock.setTags(ServiceUtils.parseTags(request.getTags()));
         }
         apiDefinitionMock.setEnable(true);
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
@@ -439,7 +439,7 @@ public class ApiDefinitionMockService {
                     if (CollectionUtils.isNotEmpty(v.getTags())) {
                         List<String> orgTags = v.getTags();
                         orgTags.addAll(request.getTags());
-                        v.setTags(apiTestCaseService.parseTags(orgTags.stream().distinct().toList()));
+                        v.setTags(ServiceUtils.parseTags(orgTags.stream().distinct().toList()));
                     } else {
                         v.setTags(request.getTags());
                     }
@@ -449,7 +449,7 @@ public class ApiDefinitionMockService {
                 });
             }
         } else {
-            updateMock.setTags(apiTestCaseService.parseTags(request.getTags()));
+            updateMock.setTags(ServiceUtils.parseTags(request.getTags()));
             mapper.updateByExampleSelective(updateMock, example);
         }
     }
