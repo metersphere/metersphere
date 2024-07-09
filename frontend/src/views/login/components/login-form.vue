@@ -132,7 +132,7 @@
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { encrypted } from '@/utils';
-  import { setLoginExpires, setToken } from '@/utils/auth';
+  import { setLoginExpires } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
@@ -359,43 +359,9 @@
     });
   }
 
-  function getQueryVariable(variable: string) {
-    const urlString = window.location.href;
-
-    const queryIndex = urlString.indexOf('?');
-    if (queryIndex !== -1) {
-      const query = urlString.substring(queryIndex + 1);
-
-      // 分割查询参数
-      const params = query.split('&');
-      // 遍历参数，找到 _token 参数的值
-      let variableValue;
-      params.forEach((param) => {
-        const equalIndex = param.indexOf('=');
-        const variableName = param.substring(0, equalIndex);
-        if (variableName === variable) {
-          variableValue = param.substring(equalIndex + 1);
-        }
-      });
-      return variableValue;
-    }
-  }
-
-  async function checkAuthUrlParam() {
-    const TOKEN = getQueryVariable('_token');
-    const CSRF = getQueryVariable('_csrf');
-    const pId = getQueryVariable('_pId');
-    const orgId = getQueryVariable('_orgId');
-    if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
-      setToken(window.atob(TOKEN), CSRF);
-      await userStore.setUserInfoByAuth(pId || '', orgId || '');
-    }
-  }
-
   onMounted(() => {
     userStore.getAuthentication();
     initPlatformInfo();
-    checkAuthUrlParam();
   });
 </script>
 

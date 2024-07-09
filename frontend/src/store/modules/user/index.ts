@@ -14,14 +14,13 @@ import { useI18n } from '@/hooks/useI18n';
 import useUser from '@/hooks/useUser';
 import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import useLicenseStore from '@/store/modules/setting/license';
-import { getHashParameters } from '@/utils';
+import { getHashParameters, getQueryVariable } from '@/utils';
 import { clearToken, setToken } from '@/utils/auth';
 import { composePermissions, getFirstRouteNameByPermission } from '@/utils/permission';
 import { removeRouteListener } from '@/utils/route-listener';
 
 import type { LoginData } from '@/models/user';
 import { LoginRes } from '@/models/user';
-import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
 import useAppStore from '../app';
 import { UserState } from './types';
@@ -186,7 +185,13 @@ const useUserStore = defineStore('user', {
         const appStore = useAppStore();
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
-        const { orgId, pId } = getHashParameters();
+        let { orgId, pId } = getHashParameters();
+        if (!pId) {
+          pId = getQueryVariable('_pId') || '';
+        }
+        if (!orgId) {
+          orgId = getQueryVariable('_orgId') || '';
+        }
         // 1. forceSet是强制设置，需要设置res的，2.非force且地址栏有，则也设置 3.地址栏参数为空就不设置
         // 如果访问页面的时候携带了组织 ID和项目 ID，则不设置
         if (!forceSet && orgId) {
@@ -204,47 +209,6 @@ const useUserStore = defineStore('user', {
         // eslint-disable-next-line no-console
         console.log(err);
         return false;
-      }
-    },
-
-    async setUserInfoByAuth(pId: string, orgId: string) {
-      const appStore = useAppStore();
-      const router = useRouter();
-      const res = await userIsLogin();
-      this.setInfo(res);
-      appStore.setCurrentOrgId(orgId);
-      appStore.setCurrentProjectId(pId);
-      try {
-        const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);
-        if (!HasProjectPermission) {
-          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
-          router.push({
-            name: NO_PROJECT_ROUTE_NAME,
-          });
-          return;
-        }
-        const resp = await getProjectInfo(appStore.currentProjectId);
-        if (!resp) {
-          // 如果项目被删除或者被禁用，跳转到无项目页面
-          router.push({
-            name: NO_PROJECT_ROUTE_NAME,
-          });
-        }
-        if (resp) {
-          appStore.setCurrentMenuConfig(resp?.moduleIds || []);
-        }
-      } catch (err) {
-        appStore.setCurrentMenuConfig([]);
-        // eslint-disable-next-line no-console
-        console.log(err);
-      }
-      const { isLoginPage } = useUser();
-      if (isLoginPage()) {
-        // 当前页面为登录页面，且已经登录，跳转到首页
-        const currentRouteName = router.getRoutes()
-          ? getFirstRouteNameByPermission(router.getRoutes())
-          : ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO;
-        router.push({ name: currentRouteName });
       }
     },
 
@@ -274,8 +238,8 @@ const useUserStore = defineStore('user', {
       }
     },
     async checkIsLogin(forceSet = false) {
-      const { isLoginPage } = useUser();
       const router = useRouter();
+      const { isLoginPage } = useUser();
       const appStore = useAppStore();
       const isLogin = await this.isLogin(forceSet);
       if (isLogin && appStore.currentProjectId !== 'no_such_project') {
@@ -308,9 +272,7 @@ const useUserStore = defineStore('user', {
       }
       if (isLoginPage() && isLogin) {
         // 当前页面为登录页面，且已经登录，跳转到首页
-        const currentRouteName = router.getRoutes()
-          ? getFirstRouteNameByPermission(router.getRoutes())
-          : ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO;
+        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
         router.push({ name: currentRouteName });
       }
     },
