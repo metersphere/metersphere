@@ -250,6 +250,6 @@
         <foreach collection="caseIds" item="caseId" open="(" close=")" separator=",">
             #{caseId}
         </foreach>
-        AND source_type in ('API','SCENARIO');
+        AND source_type in ('API','SCENARIO')
     </select>
 </mapper>
