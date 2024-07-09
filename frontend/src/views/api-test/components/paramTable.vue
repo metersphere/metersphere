@@ -74,7 +74,13 @@
       </div>
     </template>
     <template #batchAddTitle>
-      <MsButton type="text" size="mini" class="!mr-0" @click="emit('batchAdd')">
+      <MsButton
+        v-if="!props.disabledExceptParam && !props.disabledParamValue"
+        type="text"
+        size="mini"
+        class="!mr-0"
+        @click="emit('batchAdd')"
+      >
         {{ t('apiTestDebug.batchAdd') }}
       </MsButton>
     </template>
