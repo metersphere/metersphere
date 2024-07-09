@@ -14,13 +14,14 @@
     }"
     :table-key="TableKeyEnum.JSON_SCHEMA"
     :scroll="{ x: 'max-content' }"
+    :disabled="props.disabled"
     show-setting
     class="ms-json-schema"
     @row-select="handleSelect"
     @select-all="handleSelectAll"
   >
     <template #batchAddTitle>
-      <MsButton type="text" size="mini" class="!mr-0" @click="batchAdd">
+      <MsButton v-if="!props.disabled" type="text" size="mini" class="!mr-0" @click="batchAdd">
         {{ t('apiTestDebug.batchAdd') }}
       </MsButton>
     </template>
@@ -60,6 +61,7 @@
           type="icon"
           class="!mr-[4px] !p-[4px]"
           size="mini"
+          :disabled="props.disabled"
           @click="() => (record.required = !record.required)"
         >
           <div
@@ -76,12 +78,19 @@
         :options="getTypeOptions(record)"
         class="ms-form-table-input w-full"
         size="medium"
+        :disabled="props.disabled"
         @change="handleTypeChange(record)"
       />
     </template>
     <template #example="{ record }">
       <div v-if="['object', 'array', 'null'].includes(record.type)" class="ms-form-table-td-text">-</div>
-      <MsParamsInput v-else v-model:value="record.example" size="medium" @dblclick="() => quickInputParams(record)" />
+      <MsParamsInput
+        v-else
+        v-model:value="record.example"
+        size="medium"
+        :disabled="props.disabled"
+        @dblclick="() => quickInputParams(record)"
+      />
     </template>
     <template #minLength="{ record }">
       <a-input-number
@@ -91,6 +100,7 @@
         :min="0"
         :precision="0"
         size="medium"
+        :disabled="props.disabled"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -102,6 +112,7 @@
         :min="0"
         :precision="0"
         size="medium"
+        :disabled="props.disabled"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -111,6 +122,7 @@
         v-model:model-value="record.minimum"
         class="ms-form-table-input-number"
         size="medium"
+        :disabled="props.disabled"
       />
       <a-input-number
         v-else-if="record.type === 'integer'"
@@ -119,6 +131,7 @@
         size="medium"
         :step="1"
         :precision="0"
+        :disabled="props.disabled"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -128,6 +141,7 @@
         v-model:model-value="record.maximum"
         class="ms-form-table-input-number"
         size="medium"
+        :disabled="props.disabled"
       />
       <a-input-number
         v-else-if="record.type === 'integer'"
@@ -136,6 +150,7 @@
         size="medium"
         :step="1"
         :precision="0"
+        :disabled="props.disabled"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -148,6 +163,7 @@
         :min="0"
         :step="1"
         :precision="0"
+        :disabled="props.disabled"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -160,6 +176,7 @@
         :min="0"
         :step="1"
         :precision="0"
+        :disabled="props.disabled"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -169,6 +186,7 @@
         v-model:model-value="record.defaultValue"
         class="ms-form-table-input-number"
         size="medium"
+        :disabled="props.disabled"
       />
       <a-input-number
         v-else-if="record.type === 'integer'"
@@ -177,6 +195,7 @@
         size="medium"
         :step="1"
         :precision="0"
+        :disabled="props.disabled"
       />
       <a-select
         v-else-if="record.type === 'boolean'"
@@ -193,6 +212,7 @@
             value: false,
           },
         ]"
+        :disabled="props.disabled"
       />
       <div v-else-if="['object', 'array', 'null'].includes(record.type)" class="ms-form-table-td-text"> - </div>
       <a-input
@@ -200,6 +220,7 @@
         v-model:model-value="record.defaultValue"
         :placeholder="t('common.pleaseInput')"
         class="ms-form-table-input"
+        :disabled="props.disabled"
       />
     </template>
     <template #enumValues="{ record }">
@@ -208,9 +229,10 @@
         v-else
         v-model:model-value="record.enumValues"
         :title="t('ms.json.schema.enum')"
-        :popover-title="JSON.stringify(record.enumValues.split('\n'))"
+        :popover-title="record.enumValues ? JSON.stringify(record.enumValues.split('\n')) : ''"
         class="ms-form-table-input"
         type="textarea"
+        :disabled="props.disabled"
       >
       </MsQuickInput>
     </template>
@@ -221,12 +243,15 @@
             <icon-settings class="text-[var(--color-text-4)]" />
           </MsButton>
         </a-tooltip>
-        <a-tooltip v-if="['object', 'array'].includes(record.type)" :content="t('ms.json.schema.addChild')">
+        <a-tooltip
+          v-if="['object', 'array'].includes(record.type) && !props.disabled"
+          :content="t('ms.json.schema.addChild')"
+        >
           <MsButton type="icon" class="ms-json-schema-icon-button" @click="addChild(record)">
             <MsIcon type="icon-icon_add_outlined" class="text-[var(--color-text-4)]" />
           </MsButton>
         </a-tooltip>
-        <a-tooltip v-if="record.id !== 'root'" :content="t('common.delete')">
+        <a-tooltip v-if="record.id !== 'root' && !props.disabled" :content="t('common.delete')">
           <MsButton type="icon" class="ms-json-schema-icon-button" @click="deleteLine(record, rowIndex)">
             <icon-minus-circle class="cursor-pointer text-[var(--color-text-4)]" size="18" />
           </MsButton>
@@ -269,7 +294,7 @@
     :ok-text="t('common.save')"
     @confirm="applySetting"
   >
-    <a-form ref="setting" :model="activeRecord" layout="vertical">
+    <a-form ref="setting" :model="activeRecord" :disabled="props.disabled" layout="vertical">
       <a-form-item
         :label="t('ms.json.schema.name')"
         :rules="[{ required: true, message: t('ms.json.schema.nameNotNull') }]"
@@ -515,6 +540,9 @@
     parseTableDataToJsonSchema,
   } from './utils';
 
+  const props = defineProps<{
+    disabled?: boolean;
+  }>();
   const { t } = useI18n();
 
   const defaultItem: JsonSchemaTableItem = {

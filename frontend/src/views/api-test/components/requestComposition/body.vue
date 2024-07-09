@@ -130,6 +130,7 @@
       ref="jsonSchemaRef"
       v-model:data="innerParams.jsonBody.jsonSchemaTableData"
       v-model:selectedKeys="selectedKeys"
+      :disabled="props.disabledExceptParam"
     />
     <MsCodeEditor
       v-else
@@ -144,7 +145,13 @@
       is-adaptive
     >
       <template #rightTitle>
-        <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="autoMakeJson">
+        <a-button
+          type="outline"
+          class="arco-btn-outline--secondary p-[0_8px]"
+          size="mini"
+          :disabled="props.disabledParamValue"
+          @click="autoMakeJson"
+        >
           <div class="text-[var(--color-text-1)]">{{ t('apiTestManagement.autoMake') }}</div>
         </a-button>
       </template>

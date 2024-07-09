@@ -1,5 +1,5 @@
 <template>
-  <a-form ref="formRef" :model="propsRes" layout="vertical">
+  <a-form ref="formRef" :model="propsRes" :disabled="props.disabled" layout="vertical">
     <MsBaseTable
       v-bind="propsRes"
       v-model:original-selected-keys="originalSelectedKeys"
@@ -7,7 +7,10 @@
       :hoverable="false"
       is-simple-setting
       :span-method="props.spanMethod"
-      :class="!props.selectable && !props.draggable ? 'ms-form-table-no-left-action' : ''"
+      :class="[
+        !props.selectable && !props.draggable ? 'ms-form-table-no-left-action' : '',
+        props.disabled ? 'ms-form-table--disabled' : '',
+      ]"
       bordered
       v-on="propsEvent"
       @drag-change="tableChange"
@@ -38,7 +41,7 @@
               validRepeat(rowIndex, item.dataIndex as string, value, callback);
             },
           }"
-          :disabled="item.disabled || record.disabled"
+          :disabled="props.disabled || item.disabled || record.disabled"
         >
           <slot
             :name="item.slotName"
@@ -147,6 +150,7 @@
               v-else-if="item.inputType === 'quickInput'"
               v-model:model-value="record[item.dataIndex as string]"
               :title="item.title as string || ''"
+              :disabled="props.disabled || item.disabled || record.disabled"
               class="ms-form-table-input"
               type="textarea"
               @input="() => handleFormChange(record, rowIndex, item)"
@@ -528,6 +532,11 @@
         padding: 0 8px !important;
       }
     }
+    .arco-table-th {
+      .arco-icon-settings {
+        margin-left: 4px;
+      }
+    }
     .arco-table-tr-checked {
       .arco-table-td {
         background-color: white;
@@ -535,6 +544,22 @@
     }
     .arco-scrollbar-track-direction-horizontal {
       bottom: -8px;
+    }
+    .arco-textarea-disabled,
+    .arco-input-disabled,
+    .arco-select-view-disabled {
+      @apply !bg-transparent;
+      .arco-select-view-value {
+        color: var(--color-text-4) !important;
+      }
+    }
+  }
+  .ms-form-table--disabled {
+    :deep(.arco-table-td-content) {
+      span,
+      div {
+        color: var(--color-text-4) !important;
+      }
     }
   }
   :deep(.arco-table-content) {
