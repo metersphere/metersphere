@@ -256,6 +256,7 @@ public class TestPlanReportService {
         TestPlanReport record = new TestPlanReport();
         record.setId(genReportId);
         record.setDefaultLayout(false);
+        record.setName(request.getReportName());
         testPlanReportMapper.updateByPrimaryKeySelective(record);
         // 处理富文本文件
         transferRichTextTmpFile(genReportId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
@@ -602,7 +603,7 @@ public class TestPlanReportService {
     public List<TestPlanReportComponent> getLayout(String reportId) {
         TestPlanReportComponentExample example = new TestPlanReportComponentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(reportId);
-        return componentMapper.selectByExample(example);
+        return componentMapper.selectByExampleWithBLOBs(example);
     }
 
     /**
@@ -622,11 +623,10 @@ public class TestPlanReportService {
             testPlanReportSummaryMapper.updateByExampleSelective(reportSummary, example);
         } else {
             // 手动生成的布局, 只更新富文本组件的内容
-            TestPlanReportComponentExample componentExample = new TestPlanReportComponentExample();
-            componentExample.createCriteria().andIdEqualTo(request.getComponentId());
             TestPlanReportComponent record = new TestPlanReportComponent();
+            record.setId(request.getComponentId());
             record.setValue(request.getComponentValue());
-            componentMapper.updateByExample(record, componentExample);
+            componentMapper.updateByPrimaryKeySelective(record);
         }
         // 处理富文本文件
         transferRichTextTmpFile(request.getId(), planReport.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
