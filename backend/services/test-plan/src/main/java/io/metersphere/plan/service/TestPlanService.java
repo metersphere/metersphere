@@ -104,8 +104,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanReportCaseService testPlanReportCaseService;
 
-    private static final int MAX_TAG_SIZE = 10;
-
     @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
@@ -174,7 +172,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlan savePlanDTO(TestPlanCreateRequest createOrCopyRequest, String operator) {
         //检查模块的合法性
         checkModule(createOrCopyRequest.getModuleId());
-        this.checkTagsLength(createOrCopyRequest.getTags());
         if (StringUtils.equalsIgnoreCase(createOrCopyRequest.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)
                 && !StringUtils.equalsIgnoreCase(createOrCopyRequest.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             throw new MSException(Translator.get("test_plan.group.error"));
@@ -182,7 +179,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         TestPlan createTestPlan = new TestPlan();
         BeanUtils.copyBean(createTestPlan, createOrCopyRequest);
-
+        createTestPlan.setTags(ServiceUtils.parseTags(createTestPlan.getTags()));
         if (!StringUtils.equals(createTestPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             TestPlan groupPlan = testPlanGroupService.validateGroupCapacity(createTestPlan.getGroupId(), 1);
             // 判断测试计划组是否存在
@@ -398,8 +395,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         //判断标签的变化
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             List<String> tags = new ArrayList<>(request.getTags());
-            this.checkTagsLength(tags);
-            updateTestPlan.setTags(tags);
+            updateTestPlan.setTags(ServiceUtils.parseTags(tags));
         } else {
             updateTestPlan.setTags(new ArrayList<>());
         }
@@ -772,11 +768,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                     if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
                         List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
-                        checkTagsLength(tags);
-                        List<String> newTags = tags.stream().distinct().collect(Collectors.toList());
-                        testPlan.setTags(newTags);
+                        testPlan.setTags(ServiceUtils.parseTags(tags));
                     } else {
-                        testPlan.setTags(request.getTags());
+                        testPlan.setTags(ServiceUtils.parseTags(request.getTags()));
                     }
                     testPlan.setId(id);
                     testPlan.setUpdateTime(System.currentTimeMillis());
@@ -788,7 +782,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             } else {
                 //替换标签
                 TestPlan testPlan = new TestPlan();
-                testPlan.setTags(request.getTags());
+                testPlan.setTags(ServiceUtils.parseTags(request.getTags()));
                 testPlan.setProjectId(request.getProjectId());
                 testPlan.setUpdateTime(System.currentTimeMillis());
                 testPlan.setUpdateUser(userId);
@@ -796,18 +790,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             }
         }
 
-    }
-
-
-    /**
-     * 校验追加标签长度
-     *
-     * @param tags
-     */
-    private void checkTagsLength(List<String> tags) {
-        if (CollectionUtils.size(tags) > MAX_TAG_SIZE) {
-            throw new MSException(Translator.getWithArgs("tags_length_large_than", String.valueOf(MAX_TAG_SIZE)));
-        }
     }
 
     //通过项目删除测试计划
