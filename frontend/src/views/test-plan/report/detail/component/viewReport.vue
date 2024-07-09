@@ -575,7 +575,7 @@
     try {
       const params: UpdateReportDetailParams = {
         id: detail.value.id,
-        componentId: currentItem.type,
+        componentId: currentItem.id,
         componentValue: currentItem.content,
         richTextTmpFileIds: currentItem.richTextTmpFileIds,
       };
