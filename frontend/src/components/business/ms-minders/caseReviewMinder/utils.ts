@@ -3,9 +3,11 @@ import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 import { useI18n } from '@/hooks/useI18n';
 import { mapTree } from '@/utils';
 
+import { BatchApiParams } from '@/models/common';
+
 const { t } = useI18n();
 
-export function getMinderOffspringIds(node: MinderJsonNode) {
+export function getMinderOffspringIds(node: MinderJsonNode): string[] {
   const offspringIds: string[] = [];
   mapTree(node.children || [], (e) => {
     if (e.data.resource?.includes(t('common.module')) && e.data.id !== 'fakeNode') {
@@ -20,7 +22,7 @@ export function getMinderOffspringIds(node: MinderJsonNode) {
  * 获取脑图操作的参数
  * @param node 选中节点
  */
-export function getMinderOperationParams(node: MinderJsonNode) {
+export function getMinderOperationParams(node: MinderJsonNode): BatchApiParams {
   if (node.data?.resource?.includes(t('common.module'))) {
     return {
       selectIds: [],
@@ -30,8 +32,9 @@ export function getMinderOperationParams(node: MinderJsonNode) {
     };
   }
   return {
-    selectIds: [node.data?.caseId],
+    selectIds: [node.data?.id as string],
     selectAll: false,
     condition: {},
+    moduleIds: [],
   };
 }

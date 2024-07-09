@@ -138,7 +138,7 @@
         :module-id="props.activeFolder"
         :view-flag="props.onlyMine"
         :view-status-flag="onlyMineStatus"
-        :module-tree="props.moduleTree"
+        :module-tree="moduleTree"
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
         @operation="handleMinderOperation"
@@ -337,7 +337,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
-  import { BatchApiParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { BatchApiParams, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -354,10 +354,9 @@
     onlyMine: boolean;
     reviewPassRule: ReviewPassRule; // 评审规则
     offspringIds: string[]; // 当前选中节点的所有子节点id
-    moduleTree: ModuleTreeNode[];
     reviewProgress: string; // 评审进度
   }>();
-  const emit = defineEmits(['refresh', 'link']);
+  const emit = defineEmits(['refresh', 'link', 'selectParentNode']);
 
   const router = useRouter();
   const route = useRoute();
@@ -378,10 +377,14 @@
   const showType = ref<'list' | 'minder'>('list');
   const msCaseReviewMinderRef = ref<InstanceType<typeof MsCaseReviewMinder>>();
 
+  const moduleTree = computed(() => unref(caseReviewStore.moduleTree));
+  async function initModules() {
+    await caseReviewStore.initModules(route.query.id as string);
+  }
   const moduleNamePath = computed(() => {
     return props.activeFolder === 'all'
       ? t('caseManagement.featureCase.allCase')
-      : findNodeByKey<Record<string, any>>(props.moduleTree, props.activeFolder, 'id')?.name;
+      : findNodeByKey<Record<string, any>>(moduleTree.value, props.activeFolder, 'id')?.name;
   });
 
   const hasOperationPermission = computed(() =>
@@ -523,12 +526,16 @@
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
         total: propsRes.value.msPagination?.total,
-        moduleIds: [],
       };
     } else {
-      params = { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 };
+      params = { projectId: appStore.currentProjectId, pageSize: 10, current: 1 };
     }
-    await caseReviewStore.getModuleCount({ ...params, viewFlag: props.onlyMine, reviewId: route.query.id as string });
+    await caseReviewStore.getModuleCount({
+      ...params,
+      moduleIds: [],
+      viewFlag: props.onlyMine,
+      reviewId: route.query.id as string,
+    });
   }
 
   function searchCase(filter?: FilterResult) {
@@ -650,6 +657,7 @@
     try {
       disassociateLoading.value = true;
       await disassociateReviewCase(route.query.id as string, record.caseId);
+      initModules();
       emit('refresh');
       if (done) {
         done();
@@ -719,9 +727,16 @@
           });
           Message.success(t('common.updateSuccess'));
           dialogLoading.value = false;
-          refresh();
+          const folderTree = cloneDeep(moduleTree.value);
           emit('refresh');
-          // TODO: 模块树选中返回上一级
+          await initModules();
+          await getModuleCount();
+          if (!Object.keys(modulesCount.value).includes(props.activeFolder)) {
+            // 模块树选中返回上一级
+            emit('selectParentNode', folderTree);
+          } else {
+            refresh(false);
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -809,6 +824,7 @@
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
+          emit('refresh');
           refresh();
         } catch (error) {
           // eslint-disable-next-line no-console
