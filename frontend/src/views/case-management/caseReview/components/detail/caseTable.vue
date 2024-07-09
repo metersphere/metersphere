@@ -143,7 +143,7 @@
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
         @operation="handleMinderOperation"
-        @handle-review-done="emitRefresh"
+        @handle-review-done="handleReviewDone"
       />
     </div>
     <a-modal
@@ -303,7 +303,7 @@
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import type { MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
+  import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -313,6 +313,7 @@
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import MsCaseReviewMinder from '@/components/business/ms-minders/caseReviewMinder/index.vue';
+  import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import MsSelect from '@/components/business/ms-select';
 
   import {
@@ -367,7 +368,8 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const minderSelectData = ref(); // 当前脑图选中的数据
+  const minderSelectData = ref<MinderJsonNodeData>(); // 当前脑图选中的数据
+  const minderParams = ref();
   const keyword = ref('');
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
@@ -725,11 +727,7 @@
                   ...batchParams.value,
                   ...tableParams.value,
                 }
-              : {
-                  selectIds: [minderSelectData.value.id],
-                  selectAll: false,
-                  condition: {},
-                }),
+              : minderParams.value),
           });
           Message.success(t('common.updateSuccess'));
           dialogLoading.value = false;
@@ -786,11 +784,7 @@
               ...batchParams.value,
               ...tableParams.value,
             }
-          : {
-              selectIds: [minderSelectData.value.id],
-              selectAll: false,
-              condition: {},
-            }),
+          : minderParams.value),
       });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
@@ -822,11 +816,7 @@
                   ...tableParams.value,
                   selectIds: batchParams.value.selectIds.length > 0 ? batchParams.value.selectIds : [record.id],
                 }
-              : {
-                  selectIds: [minderSelectData.value.id],
-                  selectAll: false,
-                  condition: {},
-                }),
+              : minderParams.value),
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
@@ -927,9 +917,15 @@
   }
 
   // 脑图操作
-  function handleMinderOperation(type: string, data: MinderJsonNodeData) {
-    minderSelectData.value = data;
+  function handleMinderOperation(type: string, node: MinderJsonNode) {
+    minderSelectData.value = node.data;
+    minderParams.value = getMinderOperationParams(node);
     handleOperation(type);
+  }
+
+  function handleReviewDone() {
+    refresh(false);
+    emitRefresh();
   }
 
   /**
