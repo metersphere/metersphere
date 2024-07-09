@@ -2,6 +2,7 @@ package io.metersphere.api.parser.step;
 
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiScenarioStep;
+import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -106,11 +107,14 @@ public class ApiStepParser extends StepParser {
             return;
         }
         refList.forEach(item -> {
-            KeyValueParam keyValueParam = (KeyValueParam) item;
+            KeyValueParam refParam = (KeyValueParam) item;
             for (Object valueItem : valueList) {
                 KeyValueParam valueParam = (KeyValueParam) valueItem;
-                if (StringUtils.equals(keyValueParam.getKey(), valueParam.getKey())) {
-                    keyValueParam.setValue(valueParam.getValue());
+                if (StringUtils.equals(refParam.getKey(), valueParam.getKey())) {
+                    refParam.setValue(valueParam.getValue());
+                    if (refParam instanceof FormDataKV refFormDataKey && valueParam instanceof FormDataKV valueFormDataKey) {
+                        refFormDataKey.setFiles(valueFormDataKey.getFiles());
+                    }
                     break;
                 }
             }
