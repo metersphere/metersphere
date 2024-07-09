@@ -114,7 +114,6 @@
             :modules-count="modulesCount"
             :selected-keys="selectedKeys"
             @folder-node-select="handleFolderNodeSelect"
-            @init="initModuleTree"
           />
         </div>
       </template>
@@ -127,9 +126,9 @@
           :offspring-ids="offspringIds"
           :modules-count="modulesCount"
           :review-progress="reviewProgress"
-          :module-tree="moduleTree"
-          @refresh="handleRefresh"
+          @refresh="initDetail()"
           @link="associateDrawerVisible = true"
+          @select-parent-node="selectParentNode"
         ></CaseTable>
       </template>
     </MsSplitBox>
@@ -222,6 +221,10 @@
     set: (val) => val,
   });
   const caseTableRef = ref<InstanceType<typeof CaseTable>>();
+
+  function selectParentNode(folderTree: ModuleTreeNode[]) {
+    folderTreeRef.value?.selectParentNode(folderTree);
+  }
 
   function handleFolderNodeSelect(ids: string[], _offspringIds: string[]) {
     [activeFolderId.value] = ids;
@@ -368,16 +371,6 @@
         copyId: reviewId.value,
       },
     });
-  }
-
-  function handleRefresh() {
-    initDetail();
-    folderTreeRef.value?.initModules();
-  }
-
-  const moduleTree = ref<ModuleTreeNode[]>([]);
-  function initModuleTree(tree: ModuleTreeNode[]) {
-    moduleTree.value = unref(tree);
   }
 
   onMounted(() => {

@@ -42,12 +42,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import {
-    BatchReviewCaseParams,
-    ReviewFormParams,
-    ReviewPassRule,
-    ReviewResult,
-  } from '@/models/caseManagement/caseReview';
+  import { BatchReviewCaseParams, ReviewFormParams, ReviewPassRule } from '@/models/caseManagement/caseReview';
   import { StartReviewStatus } from '@/enums/caseEnum';
 
   const props = defineProps<{
