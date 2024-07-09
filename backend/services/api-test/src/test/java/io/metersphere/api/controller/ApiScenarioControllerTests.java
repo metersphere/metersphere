@@ -1625,11 +1625,30 @@ public class ApiScenarioControllerTests extends BaseTest {
         ApiScenarioExample example = new ApiScenarioExample();
         List<String> ids = extApiScenarioMapper.getIds(request, false);
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andDeletedEqualTo(false).andIdIn(ids);
-        apiScenarioMapper.selectByExample(example).forEach(apiTestCase -> {
-            Assertions.assertTrue(apiTestCase.getTags().contains("tag1"));
-            Assertions.assertTrue(apiTestCase.getTags().contains("tag3"));
-            Assertions.assertTrue(apiTestCase.getTags().contains("tag4"));
+        List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
+        scenarioList.forEach(scenario -> {
+            Assertions.assertTrue(scenario.getTags().contains("tag1"));
+            Assertions.assertTrue(scenario.getTags().contains("tag3"));
+            Assertions.assertTrue(scenario.getTags().contains("tag4"));
         });
+        //接着追加超过10个，判断是否只有前10个
+        request.setTags(new LinkedHashSet<>(List.of("tag11", "tag12", "tag13", "tag14", "tag15", "tag16", "tag17", "tag18", "tag19", "tag20", "tag21")));
+        requestPostAndReturn(BATCH_EDIT, request);
+        scenarioList = apiScenarioMapper.selectByExample(example);
+        scenarioList.forEach(scenario -> {
+            Assertions.assertEquals(10, CollectionUtils.size(scenario.getTags()));
+            Assertions.assertTrue(scenario.getTags().contains("tag1"));
+            Assertions.assertTrue(scenario.getTags().contains("tag3"));
+            Assertions.assertTrue(scenario.getTags().contains("tag4"));
+            Assertions.assertTrue(scenario.getTags().contains("tag11"));
+            Assertions.assertTrue(scenario.getTags().contains("tag12"));
+            Assertions.assertTrue(scenario.getTags().contains("tag13"));
+            Assertions.assertTrue(scenario.getTags().contains("tag14"));
+            Assertions.assertTrue(scenario.getTags().contains("tag15"));
+            Assertions.assertTrue(scenario.getTags().contains("tag16"));
+            //有些用例含有其余的标签，追加情况下无法被覆盖，所以只判断前几个
+        });
+
         //覆盖标签
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
         request.setAppend(false);

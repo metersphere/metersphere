@@ -207,8 +207,7 @@ public class ApiDefinitionService extends MoveNodeService {
         apiDefinition.setUpdateTime(System.currentTimeMillis());
         apiDefinition.setRefId(apiDefinition.getId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiTestCaseService.checkTagLength(request.getTags());
-            apiDefinition.setTags(request.getTags());
+            apiDefinition.setTags(apiTestCaseService.parseTags(request.getTags()));
         }
         apiDefinitionMapper.insertSelective(apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
@@ -261,8 +260,8 @@ public class ApiDefinitionService extends MoveNodeService {
     public ApiDefinition update(ApiDefinitionUpdateRequest request, String userId) {
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
-        apiTestCaseService.checkTagLength(request.getTags());
         BeanUtils.copyBean(apiDefinition, request);
+        apiDefinition.setTags(apiTestCaseService.parseTags(apiDefinition.getTags()));
         checkResponseNameCode(request.getResponse());
         if (originApiDefinition.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
             checkUpdateExist(apiDefinition, originApiDefinition);
@@ -615,8 +614,7 @@ public class ApiDefinitionService extends MoveNodeService {
                     if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
                         List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
-                        apiTestCaseService.checkTagLength(tags);
-                        apiDefinition.setTags(tags);
+                        apiDefinition.setTags(apiTestCaseService.parseTags(tags.stream().distinct().toList()));
                     } else {
                         apiDefinition.setTags(request.getTags());
                     }
@@ -631,7 +629,7 @@ public class ApiDefinitionService extends MoveNodeService {
         } else {
             //替换标签
             ApiDefinition apiDefinition = new ApiDefinition();
-            apiDefinition.setTags(request.getTags());
+            apiDefinition.setTags(apiTestCaseService.parseTags(request.getTags()));
             apiDefinition.setProjectId(request.getProjectId());
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setUpdateUser(userId);
