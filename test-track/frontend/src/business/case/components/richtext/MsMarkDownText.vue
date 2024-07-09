@@ -122,7 +122,7 @@
             n: DEFAULT_XSS_ATTR,
             segment: DEFAULT_XSS_ATTR
           },
-          stripIgnoreTagBody: true
+          stripIgnoreTagBody: false
         },
         defaultOpenValue: 'preview'
       }
