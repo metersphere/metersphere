@@ -128,7 +128,6 @@
           :modules-count="modulesCount"
           :review-progress="reviewProgress"
           :module-tree="moduleTree"
-          @init="initModulesCount"
           @refresh="handleRefresh"
           @link="associateDrawerVisible = true"
         ></CaseTable>
@@ -165,23 +164,14 @@
   import deleteReviewModal from './components/index/deleteReviewModal.vue';
   import passRateLine from './components/passRateLine.vue';
 
-  import {
-    associateReviewCase,
-    followReview,
-    getReviewDetail,
-    getReviewDetailModuleCount,
-  } from '@/api/modules/case-management/caseReview';
+  import { associateReviewCase, followReview, getReviewDetail } from '@/api/modules/case-management/caseReview';
   import { reviewDefaultDetail } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import useCaseReviewStore from '@/store/modules/case/caseReview';
   import useUserStore from '@/store/modules/user';
 
-  import type {
-    BaseAssociateCaseRequest,
-    ReviewDetailCaseListQueryParams,
-    ReviewItem,
-    ReviewStatus,
-  } from '@/models/caseManagement/caseReview';
+  import type { BaseAssociateCaseRequest, ReviewItem, ReviewStatus } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -190,6 +180,7 @@
   const userStore = useUserStore();
   const appStore = useAppStore();
   const { t } = useI18n();
+  const caseReviewStore = useCaseReviewStore();
 
   const loading = ref(false);
   const reviewDetail = ref<ReviewItem>({
@@ -221,20 +212,7 @@
   //   },
   // ]);
 
-  const modulesCount = ref<Record<string, any>>({});
-
-  async function getModuleCount(params: ReviewDetailCaseListQueryParams) {
-    try {
-      modulesCount.value = await getReviewDetailModuleCount({
-        ...params,
-        viewFlag: onlyMine.value,
-        reviewId: reviewId.value,
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
+  const modulesCount = computed(() => caseReviewStore.modulesCount);
 
   const folderTreeRef = ref<InstanceType<typeof CaseTree>>();
   const activeFolderId = ref<string>('all');
@@ -249,10 +227,6 @@
     [activeFolderId.value] = ids;
     offspringIds.value = [..._offspringIds];
     caseTableRef.value?.resetSelector();
-  }
-
-  function initModulesCount(params: ReviewDetailCaseListQueryParams) {
-    getModuleCount(params);
   }
 
   const associateDrawerVisible = ref(false);
@@ -396,8 +370,7 @@
     });
   }
 
-  function handleRefresh(params: ReviewDetailCaseListQueryParams) {
-    initModulesCount(params);
+  function handleRefresh() {
     initDetail();
     folderTreeRef.value?.initModules();
   }

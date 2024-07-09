@@ -5,7 +5,7 @@
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
-        :count="props.modulesCount[props.activeFolder] || 0"
+        :count="modulesCount[props.activeFolder] || 0"
         :name="moduleNamePath"
         :not-show-input-search="showType !== 'list'"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
@@ -139,7 +139,6 @@
         :view-flag="props.onlyMine"
         :view-status-flag="onlyMineStatus"
         :module-tree="props.moduleTree"
-        :modules-count="props.modulesCount"
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
         @operation="handleMinderOperation"
@@ -332,12 +331,13 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCaseReviewStore from '@/store/modules/case/caseReview';
   import useUserStore from '@/store/modules/user';
   import { characterLimit, findNodeByKey } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
-  import { BatchApiParams, ModuleTreeNode } from '@/models/common';
+  import { BatchApiParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -355,10 +355,9 @@
     reviewPassRule: ReviewPassRule; // 评审规则
     offspringIds: string[]; // 当前选中节点的所有子节点id
     moduleTree: ModuleTreeNode[];
-    modulesCount: Record<string, number>; // 模块数量
     reviewProgress: string; // 评审进度
   }>();
-  const emit = defineEmits(['init', 'refresh', 'link']);
+  const emit = defineEmits(['refresh', 'link']);
 
   const router = useRouter();
   const route = useRoute();
@@ -367,6 +366,7 @@
   const userStore = useUserStore();
   const { t } = useI18n();
   const { openModal } = useModal();
+  const caseReviewStore = useCaseReviewStore();
 
   const minderSelectData = ref<MinderJsonNodeData>(); // 当前脑图选中的数据
   const minderParams = ref();
@@ -514,6 +514,23 @@
     ],
   };
 
+  const modulesCount = computed(() => caseReviewStore.modulesCount);
+  async function getModuleCount() {
+    let params: TableQueryParams;
+    if (showType.value === 'list') {
+      params = {
+        ...tableParams.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        total: propsRes.value.msPagination?.total,
+        moduleIds: [],
+      };
+    } else {
+      params = { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 };
+    }
+    await caseReviewStore.getModuleCount({ ...params, viewFlag: props.onlyMine, reviewId: route.query.id as string });
+  }
+
   function searchCase(filter?: FilterResult) {
     tableParams.value = {
       projectId: appStore.currentProjectId,
@@ -530,13 +547,7 @@
     setLoadListParams(tableParams.value);
     resetSelector();
     loadList();
-    emit('init', {
-      ...tableParams.value,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-      total: propsRes.value.msPagination?.total,
-      moduleIds: [],
-    });
+    getModuleCount();
   }
 
   onBeforeMount(() => {
@@ -547,7 +558,7 @@
    * 更新数据
    * @param getCount 获取模块树数量
    */
-  function refresh(getCount = true) {
+  async function refresh(getCount = true) {
     if (showType.value === 'list') {
       if (getCount) {
         searchCase();
@@ -556,34 +567,10 @@
         loadList();
       }
     } else {
-      msCaseReviewMinderRef.value?.initCaseTree();
       if (getCount) {
-        emit('init', {
-          moduleIds: [props.activeFolder],
-          projectId: appStore.currentProjectId,
-          pageSize: 10,
-          current: 1,
-        });
+        await getModuleCount();
       }
-    }
-  }
-
-  function emitRefresh() {
-    if (showType.value === 'list') {
-      emit('refresh', {
-        ...tableParams.value,
-        current: propsRes.value.msPagination?.current,
-        pageSize: propsRes.value.msPagination?.pageSize,
-        total: propsRes.value.msPagination?.total,
-        moduleIds: [],
-      });
-    } else {
-      emit('refresh', {
-        moduleIds: [props.activeFolder],
-        projectId: appStore.currentProjectId,
-        pageSize: 10,
-        current: 1,
-      });
+      msCaseReviewMinderRef.value?.initCaseTree();
     }
   }
 
@@ -607,7 +594,7 @@
     if (val === 'minder') {
       keyword.value = '';
       // 切换到脑图刷新模块统计
-      emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
+      getModuleCount();
     } else {
       searchCase();
     }
@@ -663,12 +650,13 @@
     try {
       disassociateLoading.value = true;
       await disassociateReviewCase(route.query.id as string, record.caseId);
-      emitRefresh();
+      emit('refresh');
       if (done) {
         done();
       }
       Message.success(t('caseManagement.caseReview.disassociateSuccess'));
       loadList();
+      getModuleCount();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -731,8 +719,9 @@
           });
           Message.success(t('common.updateSuccess'));
           dialogLoading.value = false;
-          refresh(false);
-          emitRefresh();
+          refresh();
+          emit('refresh');
+          // TODO: 模块树选中返回上一级
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -789,7 +778,7 @@
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
       refresh(false);
-      emitRefresh();
+      emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -852,7 +841,7 @@
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
           resetSelector();
-          emitRefresh();
+          emit('refresh');
           loadList();
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -925,7 +914,7 @@
 
   function handleReviewDone() {
     refresh(false);
-    emitRefresh();
+    emit('refresh');
   }
 
   /**
