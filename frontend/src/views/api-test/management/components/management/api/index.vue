@@ -14,7 +14,7 @@
         @open-edit-api-tab="openApiTab"
       />
     </div>
-    <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
+    <div v-else-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <a-tabs
         v-model:active-key="activeApiTab.definitionActiveKey"
         animation

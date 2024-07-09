@@ -451,6 +451,7 @@
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
+  import useRequestCompositionStore from '@/store/modules/api/requestComposition';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
   import { filterTree, filterTreeNode, getGenerateId, parseQueryParams } from '@/utils';
@@ -556,6 +557,7 @@
   const appStore = useAppStore();
   const userStore = useUserStore();
   const { t } = useI18n();
+  const requestCompositionStore = useRequestCompositionStore();
 
   const loading = defineModel<boolean>('detailLoading', { default: false });
   const requestVModel = defineModel<RequestParam>('request', { required: true });
@@ -738,7 +740,6 @@
   const localExecuteUrl = computed(() => userStore.localExecuteUrl); // 本地执行地址
 
   const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
-  const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换tab导致动态表单数据丢失
   const pluginLoading = ref(false);
   const fApi = ref<Api>();
   const currentPluginOptions = computed<Record<string, any>>(
@@ -750,7 +751,7 @@
 
   // 处理插件表单输入框变化
   const handlePluginFormChange = debounce(() => {
-    temporaryPluginFormMap[requestVModel.value.id] = fApi.value?.formData();
+    requestCompositionStore.setPluginFormMap(requestVModel.value.id, fApi.value?.formData());
     handleActiveDebugChange();
   }, 300);
 
@@ -783,7 +784,7 @@
    * 设置插件表单数据
    */
   async function setPluginFormData() {
-    const tempForm = temporaryPluginFormMap[requestVModel.value.id];
+    const tempForm = requestCompositionStore.pluginFormMap[requestVModel.value.id];
     if (tempForm || !requestVModel.value.isNew || requestVModel.value.isCopy) {
       // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
       const formData = tempForm || requestVModel.value;
