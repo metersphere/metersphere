@@ -47,6 +47,7 @@
           class="ms-form-table-input"
           :max-length="255"
           size="medium"
+          @input="addLineIfLast(record, rowIndex)"
         />
       </a-popover>
     </template>
@@ -639,7 +640,6 @@
       slotName: 'title',
       inputType: 'input',
       size: 'medium',
-      addLineDisabled: true,
       columnSelectorDisabled: true,
       fixed: 'left',
     },
@@ -860,6 +860,12 @@
         });
       }
     });
+  }
+
+  function addLineIfLast(record: TableData, rowIndex: number) {
+    if (rowIndex === (record.parent || data.value[0]).children.length - 1) {
+      addChild(data.value[0]);
+    }
   }
 
   function handleSelectAll(checked: boolean) {

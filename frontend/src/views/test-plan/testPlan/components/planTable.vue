@@ -39,10 +39,6 @@
     :selectable="hasOperationPermission && showType !== testPlanTypeEnum.ALL && !isArchived"
     filter-icon-align-left
     :expanded-keys="expandedKeys"
-    :disabled-config="{
-      disabledChildren: true,
-      parentKey: 'parent',
-    }"
     :first-column-width="32"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
@@ -825,11 +821,15 @@
     showSelectorAll: false,
     draggable: { type: 'handle' },
     draggableCondition: true,
+    rowSelectionDisabledConfig: {
+      disabledChildren: true,
+      parentKey: 'parent',
+    },
   });
 
   function getTags(record: TestPlanItem) {
     if (record.children && record.children.length) {
-      record.children = record.children.map((child: TestPlanItem) => getTags(child));
+      record.children = record.children.map((child: TestPlanItem) => ({ ...getTags(child), disabled: true }));
     }
     return {
       ...record,

@@ -301,7 +301,7 @@ export default function useTableProps<T>(
         propsRes.value.excludeKeys.delete(item[rowKey]);
       }
 
-      if (item.children && item.children.length > 0) {
+      if (item.children && item.children.length > 0 && !props?.rowSelectionDisabledConfig?.disabledChildren) {
         processChildren(item.children as MsTableDataItem<T>[], rowKey);
       }
     });
@@ -344,7 +344,7 @@ export default function useTableProps<T>(
         propsRes.value.selectedKeys.add(item[rowKey]);
         propsRes.value.excludeKeys.delete(item[rowKey]);
       }
-      if (item.children) {
+      if (item.children && !props?.rowSelectionDisabledConfig?.disabledChildren) {
         collectIds(item.children, rowKey);
       }
     });
@@ -491,6 +491,20 @@ export default function useTableProps<T>(
       const { rowKey } = propsRes.value;
       const key = record[rowKey || 'id'];
       const { selectedKeys, excludeKeys, data } = propsRes.value;
+      if (props?.rowSelectionDisabledConfig?.disabledChildren) {
+        if (selectedKeys.has(key)) {
+          // 当前已选中，取消选中
+          selectedKeys.delete(key);
+          excludeKeys.add(key);
+        } else {
+          // 当前未选中，选中
+          selectedKeys.add(key);
+          if (excludeKeys.has(key)) {
+            excludeKeys.delete(key);
+          }
+        }
+        return;
+      }
       // 是否包含子级
       const isHasChildrenData = data.some((item) => item.children);
       let isSelectChildren;
