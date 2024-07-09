@@ -282,6 +282,8 @@ public class TestPlanExecuteTests extends BaseTest {
 
         this.requestPostWithOk(URL_POST_TEST_PLAN_SINGLE_EXECUTE, executeRequest);
 
+        Thread.sleep(1000);
+
         //检查队列
         List<String> allQueueIds = new ArrayList<>();
         List<String> collectionQueueIdList = new ArrayList<>();
