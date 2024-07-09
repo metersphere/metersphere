@@ -10,7 +10,13 @@
       @click="handleClick"
     />
     <MsFormItemSub
-      v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId && props.showButton && props.canEdit"
+      v-if="
+        hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) &&
+        !shareId &&
+        props.showButton &&
+        props.canEdit &&
+        props.isPreview
+      "
       :text="t('report.detail.oneClickSummary')"
       :show-fill-icon="true"
       @fill="handleSummary"
@@ -39,22 +45,23 @@
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import type { PlanReportDetail } from '@/models/testPlan/testPlanReport';
+  import type { customValueForm, PlanReportDetail } from '@/models/testPlan/testPlanReport';
 
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
 
   const { t } = useI18n();
   const props = defineProps<{
-    richText: { content: string; label: string; richTextTmpFileIds?: string[] };
+    richText: customValueForm;
     shareId?: string;
     showButton: boolean;
     isPlanGroup: boolean;
     detail: PlanReportDetail;
     canEdit: boolean;
+    isPreview?: boolean;
   }>();
 
   const emit = defineEmits<{
-    (e: 'updateSummary'): void;
+    (e: 'updateSummary', form: customValueForm): void;
     (e: 'cancel'): void;
     (e: 'dblclick'): void;
     (e: 'handleSummary', content: string): void;
@@ -67,7 +74,7 @@
   }
 
   function handleUpdateReportDetail() {
-    emit('updateSummary');
+    emit('updateSummary', innerSummary.value);
   }
 
   async function handleUploadImage(file: File) {
