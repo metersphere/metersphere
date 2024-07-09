@@ -675,6 +675,27 @@ export const getHashParameters = (): Record<string, string> => {
   return params;
 };
 
+export function getQueryVariable(variable: string) {
+  const urlString = window.location.href;
+  const queryIndex = urlString.indexOf('?');
+  if (queryIndex !== -1) {
+    const query = urlString.substring(queryIndex + 1);
+
+    // 分割查询参数
+    const params = query.split('&');
+    // 遍历参数，找到 _token 参数的值
+    let variableValue;
+    params.forEach((param) => {
+      const equalIndex = param.indexOf('=');
+      const variableName = param.substring(0, equalIndex);
+      if (variableName === variable) {
+        variableValue = param.substring(equalIndex + 1);
+      }
+    });
+    return variableValue;
+  }
+}
+
 let lastTimestamp = 0;
 let sequence = 0;
 

@@ -19,6 +19,8 @@
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
+  import { getQueryVariable } from '@/utils';
+  import { setToken } from '@/utils/auth';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
@@ -77,6 +79,11 @@
   onBeforeMount(async () => {
     await getPublicKey();
     if (WHITE_LIST.find((el) => el.path === window.location.hash.split('#')[1]) === undefined) {
+      const TOKEN = getQueryVariable('_token');
+      const CSRF = getQueryVariable('_csrf');
+      if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
+        setToken(window.atob(TOKEN), CSRF);
+      }
       await userStore.checkIsLogin();
     }
     const { height } = useWindowSize();
