@@ -709,6 +709,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                     testPlanGroupService.validateGroupCapacity(request.getTargetId(), moveTestPlanList.size());
                 }
                 moveCount = testPlanBatchOperationService.batchMoveGroup(moveTestPlanList, request.getTargetId(), userId);
+                //移动到计划组后要删除定时任务
+                moveTestPlanList.forEach(item -> this.deleteScheduleConfig(item.getId()));
             } else {
                 moveCount = testPlanBatchOperationService.batchMoveModule(moveTestPlanList, request.getTargetId(), userId);
             }
@@ -846,7 +848,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     public void deleteScheduleConfig(String testPlanId) {
         scheduleService.deleteByResourceId(testPlanId, TestPlanScheduleJob.getJobKey(testPlanId), TestPlanScheduleJob.getTriggerKey(testPlanId));
 
-        //判断有没有测试计划组
+        //判断是不是测试计划组
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andGroupIdEqualTo(testPlanId);
         testPlanMapper.selectByExample(testPlanExample).forEach(
