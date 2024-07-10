@@ -92,6 +92,7 @@ export const defaultResponseItem: ResponseDefinition = {
       enableJsonSchema: true,
       enableTransition: false,
       jsonSchemaTableData: [],
+      jsonSchemaTableSelectedRowKeys: [],
     },
     xmlBody: {
       value: '',
@@ -120,6 +121,7 @@ export const defaultBodyParams: ExecuteBody = {
     jsonValue: '',
     enableJsonSchema: true,
     jsonSchemaTableData: [],
+    jsonSchemaTableSelectedRowKeys: [],
   },
   xmlBody: { value: '' },
   rawBody: { value: '' },
@@ -317,6 +319,7 @@ export const mockDefaultParams: MockParams = {
         jsonValue: '',
         enableJsonSchema: true,
         jsonSchemaTableData: [],
+        jsonSchemaTableSelectedRowKeys: [],
       },
       xmlBody: { value: '' },
       rawBody: { value: '' },
@@ -339,6 +342,7 @@ export const mockDefaultParams: MockParams = {
         enableJsonSchema: true,
         enableTransition: false,
         jsonSchemaTableData: [],
+        jsonSchemaTableSelectedRowKeys: [],
       },
       xmlBody: {
         value: '',

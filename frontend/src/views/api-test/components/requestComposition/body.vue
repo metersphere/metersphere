@@ -129,7 +129,7 @@
       v-if="innerParams.jsonBody.enableJsonSchema"
       ref="jsonSchemaRef"
       v-model:data="innerParams.jsonBody.jsonSchemaTableData"
-      v-model:selectedKeys="selectedKeys"
+      v-model:selectedKeys="innerParams.jsonBody.jsonSchemaTableSelectedRowKeys"
       :disabled="props.disabledExceptParam"
     />
     <MsCodeEditor
@@ -214,7 +214,6 @@
   const innerParams = defineModel<ExecuteBody>('params', {
     required: true,
   });
-  const selectedKeys = ref<string[]>([]);
   const bodyLoading = ref(false);
 
   const batchAddKeyValVisible = ref(false);
@@ -237,10 +236,13 @@
     if (innerParams.value.jsonBody.jsonSchema) {
       const { result, ids } = parseSchemaToJsonSchemaTableData(innerParams.value.jsonBody.jsonSchema);
       innerParams.value.jsonBody.jsonSchemaTableData = result;
-      selectedKeys.value = ids;
-    } else {
+      innerParams.value.jsonBody.jsonSchemaTableSelectedRowKeys = ids;
+    } else if (
+      !innerParams.value.jsonBody.jsonSchemaTableData ||
+      innerParams.value.jsonBody.jsonSchemaTableData.length === 0
+    ) {
       innerParams.value.jsonBody.jsonSchemaTableData = [];
-      selectedKeys.value = [];
+      innerParams.value.jsonBody.jsonSchemaTableSelectedRowKeys = [];
     }
   });
 
@@ -385,7 +387,7 @@
         if (schema) {
           // 再将 json schema 转换为 json 格式
           const res = await convertJsonSchemaToJson(schema);
-          innerParams.value.jsonBody.jsonValue = JSON.stringify(res);
+          innerParams.value.jsonBody.jsonValue = res;
         } else {
           Message.warning(t('apiTestManagement.pleaseInputJsonSchema'));
         }

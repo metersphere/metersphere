@@ -44,8 +44,8 @@
         </template>
         <a-input
           v-model:model-value="record.title"
-          :placeholder="t(columnConfig.locale)"
-          class="ms-form-table-input"
+          :placeholder="t(columnConfig.locale || 'common.pleaseInput')"
+          class="ms-form-table-input ms-form-table-input--hasPlaceholder"
           :max-length="255"
           size="medium"
           @input="addLineIfLast(record, rowIndex)"
@@ -543,6 +543,7 @@
   const props = defineProps<{
     disabled?: boolean;
   }>();
+
   const { t } = useI18n();
 
   const defaultItem: JsonSchemaTableItem = {

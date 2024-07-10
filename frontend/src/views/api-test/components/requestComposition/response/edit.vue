@@ -424,7 +424,7 @@
         if (schema) {
           // 再将 json schema 转换为 json 格式
           const res = await convertJsonSchemaToJson(schema);
-          activeResponse.value.body.jsonBody.jsonValue = JSON.stringify(res);
+          activeResponse.value.body.jsonBody.jsonValue = res;
         } else {
           Message.warning(t('apiTestManagement.pleaseInputJsonSchema'));
         }

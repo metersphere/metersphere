@@ -105,7 +105,7 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
           :data="getAutoCompleteData(columnConfig, record)"
-          class="ms-form-table-input"
+          class="ms-form-table-input ms-form-table-input--hasPlaceholder"
           :trigger-props="{ contentClass: 'ms-form-table-input-trigger' }"
           :filter-option="false"
           @focus="handleAutoCompleteFocus(record)"
@@ -124,7 +124,7 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
-          class="ms-form-table-input"
+          class="ms-form-table-input ms-form-table-input--hasPlaceholder"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         />
       </a-popover>
@@ -147,7 +147,7 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
-          class="ms-form-table-input"
+          class="ms-form-table-input ms-form-table-input--hasPlaceholder"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
         />
       </a-popover>
