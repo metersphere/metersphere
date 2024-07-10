@@ -20,7 +20,7 @@
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
   import { getQueryVariable } from '@/utils';
-  import { setToken } from '@/utils/auth';
+  import { setLoginExpires, setToken } from '@/utils/auth';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
@@ -83,6 +83,7 @@
       const CSRF = getQueryVariable('_csrf');
       if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
         setToken(window.atob(TOKEN), CSRF);
+        setLoginExpires();
       }
       await userStore.checkIsLogin();
     }
