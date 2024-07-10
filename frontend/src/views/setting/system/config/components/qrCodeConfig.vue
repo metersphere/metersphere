@@ -177,7 +177,7 @@
       description: '先进企业合作与管理平台',
       enable: false,
       valid: false,
-      logo: 'icon-logo_dingtalk',
+      logo: 'icon-logo_lark',
       edit: false,
     },
     {
@@ -186,7 +186,7 @@
       description: '先进企业合作与管理平台',
       enable: false,
       valid: false,
-      logo: 'icon-logo_dingtalk',
+      logo: 'icon-logo_lark',
       edit: false,
     },
   ]);
