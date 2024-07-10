@@ -198,4 +198,10 @@ public class PerformanceReportController {
     public List<String> selectForPlanReport(@RequestBody List<String> apiReportIds) {
         return performanceReportService.selectForPlanReport(apiReportIds);
     }
+
+    @GetMapping("/download-content/{reportId}")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
+    public void exportReportContent(HttpServletResponse response, @PathVariable String reportId) throws Exception {
+        performanceReportService.exportReportStatistics(response, reportId);
+    }
 }

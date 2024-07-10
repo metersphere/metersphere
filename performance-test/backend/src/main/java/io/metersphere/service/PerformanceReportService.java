@@ -1,5 +1,7 @@
 package io.metersphere.service;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
@@ -585,5 +587,14 @@ public class PerformanceReportService {
 
     public List<String> selectForPlanReport(List<String> apiReportIds) {
         return extLoadTestReportMapper.getStatusByIds(apiReportIds);
+    }
+
+    public void exportReportStatistics(HttpServletResponse response, String reportId) throws Exception {
+        List<Statistics> reportStatistics = getReportStatistics(reportId);
+        EasyExcel.write(response.getOutputStream())
+                .head(Statistics.class)
+                .excelType(ExcelTypeEnum.XLSX)
+                .sheet("统计信息")
+                .doWrite(reportStatistics);
     }
 }

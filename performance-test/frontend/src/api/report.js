@@ -67,6 +67,17 @@ export function downloadZip(report) {
   return request(config);
 }
 
+export function downloadStatExcel(report) {
+  let reportId = report.id;
+  let config = {
+    url: `/performance/report/download-content/${reportId}`,
+    method: 'get',
+    responseType: 'blob'
+  };
+
+  return request(config);
+}
+
 export function initReportSocket(reportId) {
   return socket(`/websocket/performance/report/${reportId}`);
 }

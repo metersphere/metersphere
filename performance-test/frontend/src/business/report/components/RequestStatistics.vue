@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-button type="default" size="small" @click="exportStatExcel" style="float: right;margin-bottom: 5px;">导出为Excel</el-button>
     <el-table
       :data="tableData"
       stripe
@@ -131,6 +132,7 @@
 
 <script>
 import {getPerformanceReportContent, getSharePerformanceReportContent} from "../../../api/load-test";
+import {downloadStatExcel} from "@/api/report";
 
 export default {
   name: "RequestStatistics",
@@ -182,6 +184,25 @@ export default {
         return (item.label.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
       };
     },
+    exportStatExcel() {
+      downloadStatExcel(this.report)
+        .then(response => {
+          const filename = this.report.name + "_请求统计.xlsx";
+          const blob = new Blob([response.data]);
+          if ("download" in document.createElement("a")) {
+            // 非IE下载
+            //  chrome/firefox
+            let aTag = document.createElement('a');
+            aTag.download = filename;
+            aTag.href = URL.createObjectURL(blob);
+            aTag.click();
+            URL.revokeObjectURL(aTag.href);
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, filename);
+          }
+        });
+    }
   },
   watch: {
     report: {
