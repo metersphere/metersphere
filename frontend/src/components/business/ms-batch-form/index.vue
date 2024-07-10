@@ -21,8 +21,8 @@
             :class="[props.isShowDrag ? 'cursor-move' : '']"
           >
             <div v-if="props.isShowDrag" class="dragIcon ml-[8px] mr-[8px] pt-[8px]">
-              <MsIcon type="icon-icon_drag" class="block text-[16px] text-[var(--color-text-4)]"
-            /></div>
+              <MsIcon type="icon-icon_drag" class="block text-[16px] text-[var(--color-text-4)]" />
+            </div>
             <a-form-item
               v-for="model of props.models"
               :key="`${model.field}${index}`"
@@ -224,7 +224,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, unref, watchEffect } from 'vue';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -236,8 +235,6 @@
   import type { FormItemModel, FormMode } from './types';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import { FieldData } from '@arco-design/web-vue/es/form/interface';
-
-  const { t } = useI18n();
 
   const props = withDefaults(
     defineProps<{
@@ -259,6 +256,8 @@
     }
   );
   const emit = defineEmits(['change']);
+
+  const { t } = useI18n();
 
   const defaultForm = {
     list: [] as Record<string, any>[],
