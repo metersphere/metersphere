@@ -272,7 +272,7 @@ const useUserStore = defineStore('user', {
       if (isLoginPage() && isLogin) {
         // 当前页面为登录页面，且已经登录，跳转到首页
         const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
-        router.push({ name: currentRouteName });
+        await router.push({ name: currentRouteName });
       }
     },
   },
