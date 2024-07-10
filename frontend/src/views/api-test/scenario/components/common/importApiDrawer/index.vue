@@ -21,10 +21,20 @@
               <a-select
                 v-if="activeKey !== 'scenario'"
                 v-model:model-value="protocol"
-                :options="protocolOptions"
                 class="w-[90px]"
                 @change="resetModule"
-              />
+              >
+                <a-tooltip
+                  v-for="item of protocolOptions"
+                  :key="item.value as string"
+                  :content="item.label"
+                  :mouse-enter-delay="300"
+                >
+                  <a-option :value="item.value">
+                    {{ item.label }}
+                  </a-option>
+                </a-tooltip>
+              </a-select>
             </div>
             <moduleTree
               ref="moduleTreeRef"

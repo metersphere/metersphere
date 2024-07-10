@@ -15,11 +15,21 @@
           <a-select
             v-if="requestVModel.isNew"
             v-model:model-value="requestVModel.protocol"
-            :options="protocolOptions"
             :loading="protocolLoading"
             class="w-[90px]"
             @change="(val) => handleActiveDebugProtocolChange(val as string)"
-          />
+          >
+            <a-tooltip
+              v-for="item of protocolOptions"
+              :key="item.value as string"
+              :content="item.label"
+              :mouse-enter-delay="300"
+            >
+              <a-option :value="item.value">
+                {{ item.label }}
+              </a-option>
+            </a-tooltip>
+          </a-select>
           <div v-else class="flex items-center gap-[4px]">
             <apiMethodName
               :method="(requestVModel.protocol as RequestMethods)"
