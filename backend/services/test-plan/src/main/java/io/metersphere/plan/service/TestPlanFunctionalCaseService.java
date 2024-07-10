@@ -142,6 +142,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
         return extTestPlanFunctionalCaseMapper.selectDistinctExecResult(projectId);
     }
+
     @Override
     public long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime) {
         List<TestPlanFunctionalCase> copyList = new ArrayList<>();
@@ -797,7 +798,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private void buildTestPlanFunctionalCase(TestPlan testPlan, BaseCollectionAssociateRequest functional, SessionUser user, List<TestPlanFunctionalCase> testPlanFunctionalCaseList, boolean isRepeat) {
         super.checkCollection(testPlan.getId(), functional.getCollectionId(), CaseType.FUNCTIONAL_CASE.getKey());
         boolean selectAllModule = functional.getModules().isSelectAllModule();
-        List<Map<String, ModuleSelectDTO>> moduleMaps = functional.getModules().getModuleMaps();
+        Map<String, ModuleSelectDTO> moduleMaps = functional.getModules().getModuleMaps();
 
         if (selectAllModule) {
             // 选择了全部模块

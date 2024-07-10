@@ -179,7 +179,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         JSONObject body = respOrReq.optJSONObject("body");
 
         if (body != null) { //  将请求体转换成相应的格式导出
-            String bodyType = body.optString(PropertyConstant.BODYTYPE);
+            String bodyType = body.optString(PropertyConstant.BODY_TYPE);
             if (StringUtils.isNotBlank(bodyType) && bodyType.equalsIgnoreCase(Body.BodyType.JSON.name())) {
                 try {
                     // json
@@ -235,7 +235,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
 
         String type = null;
         if (respOrReq.optJSONObject("body") != null) {
-            type = respOrReq.optJSONObject("body").optString(PropertyConstant.BODYTYPE);
+            type = respOrReq.optJSONObject("body").optString(PropertyConstant.BODY_TYPE);
         }
         JSONObject content = new JSONObject();
         Object schema = bodyInfo;   //  请求体部分
@@ -516,7 +516,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         for (String key : kvs.keySet()) {
             JSONObject property = new JSONObject();
             JSONObject obj = ((JSONObject) kvs.get(key));
-            property.put(PropertyConstant.TYPE, StringUtils.isNotEmpty(obj.optString(PropertyConstant.PARAMTYPE)) ? obj.optString(PropertyConstant.PARAMTYPE) : PropertyConstant.STRING);
+            property.put(PropertyConstant.TYPE, StringUtils.isNotEmpty(obj.optString(PropertyConstant.PARAM_TYPE)) ? obj.optString(PropertyConstant.PARAM_TYPE) : PropertyConstant.STRING);
             String value = obj.optString("value");
             if (StringUtils.isBlank(value)) {
                 JSONObject mock = obj.optJSONObject(PropertyConstant.MOCK);
@@ -536,7 +536,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                 property.put(PropertyConstant.PROPERTIES, childProperties.optJSONObject(PropertyConstant.PROPERTIES));
             } else {
                 JSONObject childProperties = buildJsonSchema(obj);
-                if (StringUtils.equalsIgnoreCase(obj.optString(PropertyConstant.PARAMTYPE), PropertyConstant.ARRAY)) {
+                if (StringUtils.equalsIgnoreCase(obj.optString(PropertyConstant.PARAM_TYPE), PropertyConstant.ARRAY)) {
                     if (childProperties.optJSONObject(PropertyConstant.ITEMS) != null) {
                         property.put(PropertyConstant.ITEMS, childProperties.optJSONObject(PropertyConstant.ITEMS));
                     }
