@@ -15,7 +15,7 @@
     const data = await getLarkInfo();
     await load(true);
     // const callBack = encodeURIComponent(window.location.origin);
-    const redirectUrL = encodeURIComponent(`${window.location.origin}#/qrcode/transition`);
+    const redirectUrL = encodeURIComponent(window.location.origin);
     // const url = `https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=${data.agentId}&redirect_uri=${callBack}&response_type=code&state=fit2cloud-lark-qr`;
     const url = `https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=${data.agentId}&redirect_uri=${redirectUrL}&response_type=code&state=fit2cloud-lark-qr`;
 

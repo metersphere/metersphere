@@ -1,6 +1,8 @@
 <template>
   <a-config-provider :locale="locale">
-    <router-view />
+    <a-spin :loading="loading">
+      <router-view />
+    </a-spin>
     <!-- <global-setting /> -->
   </a-config-provider>
 </template>
@@ -24,7 +26,7 @@
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
-  import { getPublicKeyRequest } from './api/modules/user';
+  import { getLarkCallback, getLarkSuiteCallback, getPublicKeyRequest } from './api/modules/user';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 
@@ -43,6 +45,8 @@
         return zhCN;
     }
   });
+
+  const loading = ref(false);
 
   // 初始化平台风格和主题色
   watchStyle(appStore.pageConfig.style, appStore.pageConfig);
@@ -84,6 +88,31 @@
       if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
         setToken(window.atob(TOKEN), CSRF);
         setLoginExpires();
+      }
+      const state = ref('');
+      const code = getQueryVariable('code');
+      state.value = getQueryVariable('state') || '';
+      if (state.value.split('#')[0] === 'fit2cloud-lark-qr') {
+        try {
+          loading.value = true;
+          const larkCallback = await getLarkCallback(code || '');
+          userStore.qrCodeLogin(larkCallback);
+          setLoginExpires();
+          loading.value = false;
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      if (state.value.split('#')[0] === 'fit2cloud-lark-suite-qr') {
+        try {
+          loading.value = true;
+          const larkCallback = await getLarkSuiteCallback(code || '');
+          userStore.qrCodeLogin(larkCallback);
+          setLoginExpires();
+          loading.value = false;
+        } catch (err) {
+          console.log(err);
+        }
       }
       await userStore.checkIsLogin();
     }
