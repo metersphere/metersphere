@@ -125,27 +125,26 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
     }
 
 
-    public long batchCopy(List<TestPlan> copyPlanList, String targetId, String targetType, String userId) {
-        long copyCount = 0;
+    public List<TestPlan> batchCopy(List<TestPlan> originalPlanList, String targetId, String targetType, String userId) {
+        List<TestPlan> copyPlanResult = new ArrayList<>();
         long operatorTime = System.currentTimeMillis();
         //如果目标ID是测试计划组， 需要进行容量校验
         if (!StringUtils.equalsIgnoreCase(targetType, ModuleConstants.NODE_TYPE_DEFAULT)) {
-            testPlanGroupService.validateGroupCapacity(targetId, copyPlanList.size());
+            testPlanGroupService.validateGroupCapacity(targetId, originalPlanList.size());
         }
         /*
             此处不进行批量处理，原因有两点：
             1） 测试计划内（或者测试计划组内）数据量不可控，选择批量操作时更容易出现数据太多不走索引、数据太多内存溢出等问题。不批量操作可以减少这些问题出现的概率，代价是速度会变慢。
             2） 作为数据量不可控的操作，如果数据量少，不采用批量处理也不会消耗太多时间。如果数据量多，就会容易出现1的问题。并且本人不建议针对不可控数据量的数据支持批量操作。
          */
-        for (TestPlan copyPlan : copyPlanList) {
+        for (TestPlan copyPlan : originalPlanList) {
             if (StringUtils.equalsIgnoreCase(copyPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                this.copyPlanGroup(copyPlan, targetId, targetType, operatorTime, userId);
+                copyPlanResult.add(this.copyPlanGroup(copyPlan, targetId, targetType, operatorTime, userId));
             } else {
-                this.copyPlan(copyPlan, targetId, targetType, operatorTime, userId);
+                copyPlanResult.add(this.copyPlan(copyPlan, targetId, targetType, operatorTime, userId));
             }
-            copyCount++;
         }
-        return copyCount;
+        return copyPlanResult;
     }
 
 

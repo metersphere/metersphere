@@ -48,8 +48,6 @@ public class TestPlanExecuteTests extends BaseTest {
     private static TestPlan allParallelGroup;
     private static TestPlan noGroupPlan;
 
-    private static final String URL_POST_TEST_PLAN_SINGLE_EXECUTE = "/test-plan-execute/single";
-
     @Resource
     private CommonProjectService commonProjectService;
     @Resource
@@ -280,9 +278,7 @@ public class TestPlanExecuteTests extends BaseTest {
         executeRequest.setExecuteId(id);
         executeRequest.setRunMode(runMode);
 
-        this.requestPostWithOk(URL_POST_TEST_PLAN_SINGLE_EXECUTE, executeRequest);
-
-        Thread.sleep(1000);
+        testPlanExecuteService.singleExecuteTestPlan(executeRequest, IDGenerator.nextStr(), "admin");
 
         //检查队列
         List<String> allQueueIds = new ArrayList<>();

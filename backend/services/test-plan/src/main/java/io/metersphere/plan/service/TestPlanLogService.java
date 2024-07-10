@@ -182,9 +182,8 @@ public class TestPlanLogService {
      * @param requestUrl    请求URL
      * @param requestMethod 请求方法
      * @param requestType   请求类型
-     * @param typeKey       类型Key
      */
-    public void saveBatchLog(List<TestPlan> plans, String operator, String requestUrl, String requestMethod, String requestType, String typeKey) {
+    public void saveBatchLog(List<TestPlan> plans, String operator, String requestUrl, String requestMethod, String requestType) {
         if (CollectionUtils.isEmpty(plans)) {
             return;
         }

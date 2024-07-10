@@ -125,10 +125,7 @@ public class TestPlanExecuteService {
      * 这里涉及到嵌套查询，不使用事务。中间涉及到的报告生成、测试计划字段更改、测试报告汇总等操作会开启子事务处理。
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
-    public String singleExecuteTestPlan(TestPlanExecuteRequest request, String userId) {
-
-        String reportId = IDGenerator.nextStr();
-        Thread.startVirtualThread(() -> {
+    public String singleExecuteTestPlan(TestPlanExecuteRequest request, String reportId, String userId) {
             String queueId = IDGenerator.nextStr();
             TestPlanExecutionQueue singleExecuteRootQueue = new TestPlanExecutionQueue(
                     0,
@@ -149,7 +146,6 @@ public class TestPlanExecuteService {
             TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
             LogUtils.info("测试计划（组）的单独执行start！计划报告[{}] , 资源ID[{}]", singleExecuteRootQueue.getPrepareReportId(), singleExecuteRootQueue.getSourceID());
             executeTestPlanOrGroup(nextQueue);
-        });
         return reportId;
     }
 

@@ -8,6 +8,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.schedule.BaseScheduleJob;
+import io.metersphere.system.uid.IDGenerator;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
@@ -28,7 +29,7 @@ public class TestPlanScheduleJob extends BaseScheduleJob {
                 this.setExecuteId(resourceId);
                 this.setRunMode(runMode);
                 this.setExecutionSource(ApiExecuteRunMode.SCHEDULE.name());
-            }}, userId)
+            }}, IDGenerator.nextStr(), userId)
         );
     }
 
