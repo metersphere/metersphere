@@ -73,6 +73,9 @@ public class TestPlanReportApiScenario implements Serializable {
     @NotNull(message = "{test_plan_report_api_scenario.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
+    @Schema(description = "测试计划名称")
+    private String testPlanName;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -90,7 +93,8 @@ public class TestPlanReportApiScenario implements Serializable {
         apiScenarioExecuteUser("api_scenario_execute_user", "apiScenarioExecuteUser", "VARCHAR", false),
         apiScenarioExecuteResult("api_scenario_execute_result", "apiScenarioExecuteResult", "VARCHAR", false),
         apiScenarioExecuteReportId("api_scenario_execute_report_id", "apiScenarioExecuteReportId", "VARCHAR", false),
-        pos("pos", "pos", "BIGINT", false);
+        pos("pos", "pos", "BIGINT", false),
+        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -1053,6 +1053,76 @@ public class TestPlanReportFunctionCaseExample {
             addCriterion("function_case_execute_report_id not between", value1, value2, "functionCaseExecuteReportId");
             return (Criteria) this;
         }
+
+        public Criteria andTestPlanNameIsNull() {
+            addCriterion("test_plan_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameIsNotNull() {
+            addCriterion("test_plan_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameEqualTo(String value) {
+            addCriterion("test_plan_name =", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameNotEqualTo(String value) {
+            addCriterion("test_plan_name <>", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameGreaterThan(String value) {
+            addCriterion("test_plan_name >", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameGreaterThanOrEqualTo(String value) {
+            addCriterion("test_plan_name >=", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameLessThan(String value) {
+            addCriterion("test_plan_name <", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameLessThanOrEqualTo(String value) {
+            addCriterion("test_plan_name <=", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameLike(String value) {
+            addCriterion("test_plan_name like", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameNotLike(String value) {
+            addCriterion("test_plan_name not like", value, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameIn(List<String> values) {
+            addCriterion("test_plan_name in", values, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameNotIn(List<String> values) {
+            addCriterion("test_plan_name not in", values, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameBetween(String value1, String value2) {
+            addCriterion("test_plan_name between", value1, value2, "testPlanName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanNameNotBetween(String value1, String value2) {
+            addCriterion("test_plan_name not between", value1, value2, "testPlanName");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

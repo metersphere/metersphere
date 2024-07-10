@@ -98,6 +98,8 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
+    private TestPlanReportFunctionCaseMapper testPlanReportFunctionCaseMapper;
+    @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
@@ -146,6 +148,13 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 TestPlanFunctionalCase updateRecord = new TestPlanFunctionalCase();
                 updateRecord.setLastExecResult(result);
                 testPlanFunctionalCaseMapper.updateByExampleSelective(updateRecord, updateExample);
+                // 报告-功能用例的执行结果同步刷新
+                TestPlanReportFunctionCaseExample caseExample = new TestPlanReportFunctionCaseExample();
+                caseExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId).andTestPlanFunctionCaseIdIn(funcCaseIds);
+                TestPlanReportFunctionCase reportFunctionCase = new TestPlanReportFunctionCase();
+                reportFunctionCase.setFunctionCaseExecuteResult(result);
+                reportFunctionCase.setFunctionCaseExecuteReportId(null);
+                testPlanReportFunctionCaseMapper.updateByExampleSelective(reportFunctionCase, caseExample);
             });
         }
     }

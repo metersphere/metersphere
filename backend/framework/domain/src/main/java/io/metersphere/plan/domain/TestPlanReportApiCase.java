@@ -70,6 +70,9 @@ public class TestPlanReportApiCase implements Serializable {
     @NotNull(message = "{test_plan_report_api_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
+    @Schema(description = "测试计划名称")
+    private String testPlanName;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -86,7 +89,8 @@ public class TestPlanReportApiCase implements Serializable {
         apiCaseExecuteUser("api_case_execute_user", "apiCaseExecuteUser", "VARCHAR", false),
         apiCaseExecuteResult("api_case_execute_result", "apiCaseExecuteResult", "VARCHAR", false),
         apiCaseExecuteReportId("api_case_execute_report_id", "apiCaseExecuteReportId", "VARCHAR", false),
-        pos("pos", "pos", "BIGINT", false);
+        pos("pos", "pos", "BIGINT", false),
+        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS test_plan_report_component(
     PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '测试计划报告逐组件表';
 
+ALTER TABLE test_plan_report_function_case ADD `test_plan_name` VARCHAR(255) COMMENT '测试计划名称';
+ALTER TABLE test_plan_report_api_case ADD `test_plan_name` VARCHAR(255) COMMENT '测试计划名称';
+ALTER TABLE test_plan_report_api_scenario ADD `test_plan_name` VARCHAR(255) COMMENT '测试计划名称';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
