@@ -89,7 +89,7 @@ public class TestPlanStatisticsResponse {
 	}
 
 	public void calculateExecuteRate() {
-		this.executeRate = RateCalculateUtils.divWithPrecision(this.successCount - this.pendingCount, this.caseTotal, 2);
+		this.executeRate = RateCalculateUtils.divWithPrecision(this.caseTotal - this.pendingCount, this.caseTotal, 2);
 	}
 
 	public void calculateAllNumber(TestPlanStatisticsResponse childResponse) {
