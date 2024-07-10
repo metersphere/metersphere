@@ -117,9 +117,8 @@ public class TestPlanReportLogService {
      * @param report 报告
      * @param userId 用户ID
      * @param projectId 项目ID
-     * @param path 路径
      */
-    public void addLog(TestPlanReport report, String userId, String projectId, String path) {
+    public void addLog(TestPlanReport report, String userId, String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         LogDTO log = new LogDTO(
                 projectId,
@@ -129,7 +128,6 @@ public class TestPlanReportLogService {
                 OperationLogType.ADD.name(),
                 report.getIntegrated() ? OperationLogModule.TEST_PLAN_GROUP_REPORT : OperationLogModule.TEST_PLAN_REPORT,
                 report.getName());
-        log.setPath(path);
         log.setMethod(HttpMethodConstants.POST.name());
         log.setOriginalValue(JSON.toJSONBytes(report));
         operationLogService.add(log);

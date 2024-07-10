@@ -234,7 +234,7 @@ public class TestPlanReportService {
          * 2. 保存报告布局组件 (只对当前生成的计划/组有效, 不会对下面的子计划报告生效)
          * 3. 处理富文本图片
          */
-        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser, "/test-plan/report/gen");
+        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser);
         String genReportId = reportMap.get(request.getTestPlanId());
         List<TestPlanReportComponentSaveRequest> components = request.getComponents();
         if (CollectionUtils.isNotEmpty(components)) {
@@ -269,7 +269,7 @@ public class TestPlanReportService {
      * @param currentUser 当前用户
      */
     public String genReportByAuto(TestPlanReportGenRequest request, String currentUser) {
-        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser, "/test-plan/report/gen");
+        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser);
         return reportMap.get(request.getTestPlanId());
     }
 
@@ -282,10 +282,10 @@ public class TestPlanReportService {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Map<String, String> genReportByExecution(String prepareReportId, TestPlanReportGenRequest request, String currentUser) {
-        return genReport(prepareReportId, request, false, currentUser, "/test-plan/report/gen");
+        return genReport(prepareReportId, request, false, currentUser);
     }
 
-    public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser, String logPath) {
+    public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser) {
         Map<String, String> preReportMap = new HashMap<>();
         try {
             // 所有计划
@@ -312,7 +312,7 @@ public class TestPlanReportService {
                 genPreParam.setUseManual(manual);
                 //如果是测试计划的独立报告，使用参数中的预生成的报告id。否则只有测试计划组报告使用该id
                 String prepareItemReportId = isGroupReports ? IDGenerator.nextStr() : prepareReportId;
-                TestPlanReport preReport = preGenReport(prepareItemReportId, genPreParam, currentUser, logPath, moduleParam, childPlanIds);
+                TestPlanReport preReport = preGenReport(prepareItemReportId, genPreParam, currentUser, moduleParam, childPlanIds);
                 if (manual) {
                     // 汇总
                     if (genPreParam.getIntegrated()) {
@@ -332,10 +332,8 @@ public class TestPlanReportService {
                 preReportMap.put(plan.getId(), preReport.getId());
             });
         } catch (Exception e) {
-            LogUtils.error("生成报告异常: " + e.getMessage());
+            LogUtils.error("Generate report exception: " + e.getMessage());
         }
-
-        // 生成报告组件记录
 
         return preReportMap;
     }
@@ -345,7 +343,7 @@ public class TestPlanReportService {
      *
      * @return 报告
      */
-    public TestPlanReport preGenReport(String prepareId, TestPlanReportGenPreParam genParam, String currentUser, String logPath, TestPlanReportModuleParam moduleParam, List<String> childPlanIds) {
+    public TestPlanReport preGenReport(String prepareId, TestPlanReportGenPreParam genParam, String currentUser, TestPlanReportModuleParam moduleParam, List<String> childPlanIds) {
         // 计划配置
         TestPlanConfig config = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
 
@@ -371,7 +369,7 @@ public class TestPlanReportService {
             // 生成独立报告的关联数据
             reportCaseDetail = genReportDetail(genParam, moduleParam, report);
         } else {
-            // TODO: 计划组报告暂不统计各用例类型, 汇总时再入库
+            // 计划组报告暂不统计各用例类型, 汇总时再入库
             reportCaseDetail = TestPlanReportDetailCaseDTO.builder().build();
         }
         // 报告统计内容
@@ -386,7 +384,7 @@ public class TestPlanReportService {
         testPlanReportSummaryMapper.insertSelective(reportSummary);
 
         // 报告日志
-        testPlanReportLogService.addLog(report, currentUser, genParam.getProjectId(), logPath);
+        testPlanReportLogService.addLog(report, currentUser, genParam.getProjectId());
         return report;
     }
 
@@ -417,6 +415,7 @@ public class TestPlanReportService {
             reportFunctionCases.forEach(reportFunctionalCase -> {
                 reportFunctionalCase.setId(IDGenerator.nextStr());
                 reportFunctionalCase.setTestPlanReportId(report.getId());
+                reportFunctionalCase.setTestPlanName(genParam.getTestPlanName());
                 reportFunctionalCase.setFunctionCaseModule(moduleParam.getFunctionalModuleMap().getOrDefault(reportFunctionalCase.getFunctionCaseModule(),
                         ModuleTreeUtils.MODULE_PATH_PREFIX + reportFunctionalCase.getFunctionCaseModule()));
                 reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
@@ -439,6 +438,7 @@ public class TestPlanReportService {
             reportApiCases.forEach(reportApiCase -> {
                 reportApiCase.setId(IDGenerator.nextStr());
                 reportApiCase.setTestPlanReportId(report.getId());
+                reportApiCase.setTestPlanName(genParam.getTestPlanName());
                 reportApiCase.setApiCaseModule(moduleParam.getApiModuleMap().getOrDefault(reportApiCase.getApiCaseModule(),
                         ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiCase.getApiCaseModule()));
                 //根据不超过数据库字段最大长度压缩模块名
@@ -461,6 +461,7 @@ public class TestPlanReportService {
             reportApiScenarios.forEach(reportApiScenario -> {
                 reportApiScenario.setId(IDGenerator.nextStr());
                 reportApiScenario.setTestPlanReportId(report.getId());
+                reportApiScenario.setTestPlanName(genParam.getTestPlanName());
                 reportApiScenario.setApiScenarioModule(moduleParam.getScenarioModuleMap().getOrDefault(reportApiScenario.getApiScenarioModule(),
                         ModuleTreeUtils.MODULE_PATH_PREFIX + reportApiScenario.getApiScenarioModule()));
                 //根据不超过数据库字段最大长度压缩模块名

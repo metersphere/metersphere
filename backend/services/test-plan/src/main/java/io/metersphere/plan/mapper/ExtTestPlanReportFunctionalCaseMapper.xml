@@ -5,7 +5,7 @@
     <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportFunctionCase">
         select tpfc.id as testPlanFunctionCaseId, fc.id as functionCaseId, fc.num as functionCaseNum, fc.name as functionCaseName, tpfc.test_plan_collection_id testPlanCollectionId,
                if(fc.module_id = 'root','未规划用例', fc.module_id) as functionCaseModule, tpfc.execute_user as functionCaseExecuteUser,
-               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult, tpfc.pos pos
+               count(brc.id) as functionCaseBugCount, ifnull(tpfc.last_exec_result, 'PENDING') as functionCaseExecuteResult, tpfc.pos as pos
         from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
         left join functional_case_module fcm on fcm.id = fc.module_id
         left join bug_relation_case brc on brc.test_plan_case_id = tpfc.id
@@ -46,7 +46,7 @@
     <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
         <!-- ID、用例名称、所属模块、用例等级、执行人、执行结果、缺陷数、报告ID -->
         select tprfc.function_case_id as id, tprfc.function_case_num as num, tprfc.function_case_name as name,
-            tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority,
+            tprfc.function_case_module as moduleName, tprfc.function_case_priority as priority, tprfc.test_plan_name as planName,
             ifnull(tprfc.function_case_execute_result, 'PENDING') as executeResult, tprfc.function_case_execute_user as executeUser,
             ifnull(tprfc.function_case_bug_count, 0) as bugCount, tprfc.function_case_execute_report_id reportId, fc.project_id projectId
         from test_plan_report_function_case tprfc

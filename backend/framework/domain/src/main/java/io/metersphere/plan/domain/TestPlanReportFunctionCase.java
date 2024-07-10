@@ -72,6 +72,9 @@ public class TestPlanReportFunctionCase implements Serializable {
     @Schema(description = "执行报告ID")
     private String functionCaseExecuteReportId;
 
+    @Schema(description = "测试计划名称")
+    private String testPlanName;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -88,7 +91,8 @@ public class TestPlanReportFunctionCase implements Serializable {
         functionCaseExecuteResult("function_case_execute_result", "functionCaseExecuteResult", "VARCHAR", false),
         testPlanCollectionId("test_plan_collection_id", "testPlanCollectionId", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
-        functionCaseExecuteReportId("function_case_execute_report_id", "functionCaseExecuteReportId", "VARCHAR", false);
+        functionCaseExecuteReportId("function_case_execute_report_id", "functionCaseExecuteReportId", "VARCHAR", false),
+        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
