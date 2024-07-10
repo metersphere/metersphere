@@ -954,7 +954,7 @@
               })[0]
             ),
             name: `copy_${node.name}`.substring(0, 255),
-            copyFromStepId: stepDetail ? node.id : node.copyFromStepId,
+            copyFromStepId: stepDetail || node.isNew !== true ? node.id : node.copyFromStepId,
             sort: node.sort + 1,
             isNew: true,
             id,
