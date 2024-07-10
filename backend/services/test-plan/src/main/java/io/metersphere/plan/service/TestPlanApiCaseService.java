@@ -587,8 +587,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             apiCaseList.forEach(apiCase -> {
                 super.checkCollection(testPlan.getId(), apiCase.getCollectionId(), CaseType.API_CASE.getKey());
                 boolean selectAllModule = apiCase.getModules().isSelectAllModule();
-                List<Map<String, ModuleSelectDTO>> moduleMaps = apiCase.getModules().getModuleMaps();
-
+                Map<String, ModuleSelectDTO> moduleMaps = apiCase.getModules().getModuleMaps();
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
@@ -608,7 +607,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             apiCaseList.forEach(apiCase -> {
                 super.checkCollection(testPlan.getId(), apiCase.getCollectionId(), CaseType.API_CASE.getKey());
                 boolean selectAllModule = apiCase.getModules().isSelectAllModule();
-                List<Map<String, ModuleSelectDTO>> moduleMaps = apiCase.getModules().getModuleMaps();
+                Map<String, ModuleSelectDTO> moduleMaps = apiCase.getModules().getModuleMaps();
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());

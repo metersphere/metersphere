@@ -67,6 +67,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
     public abstract long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime);
 
     public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
+
     /**
      * 关联用例
      *
@@ -106,23 +107,21 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
      * @param moduleMaps
      * @return
      */
-    protected AssociateCaseDTO getCaseIds(List<Map<String, ModuleSelectDTO>> moduleMaps) {
+    protected AssociateCaseDTO getCaseIds(Map<String, ModuleSelectDTO> moduleMaps) {
         // 排除的ids
-        List<String> excludeIds = moduleMaps.stream()
-                .flatMap(map -> map.values().stream())
+        List<String> excludeIds = moduleMaps.values().stream()
                 .flatMap(moduleSelectDTO -> moduleSelectDTO.getExcludeIds().stream())
                 .toList();
         // 选中的ids
-        List<String> selectIds = moduleMaps.stream()
-                .flatMap(map -> map.values().stream())
+        List<String> selectIds = moduleMaps.values().stream()
                 .flatMap(moduleSelectDTO -> moduleSelectDTO.getSelectIds().stream())
                 .toList();
         // 全选的模块
-        List<String> moduleIds = moduleMaps.stream()
-                .flatMap(map -> map.entrySet().stream())
+        List<String> moduleIds = moduleMaps.entrySet().stream()
                 .filter(entry -> BooleanUtils.isTrue(entry.getValue().isSelectAll()) && org.apache.commons.collections.CollectionUtils.isEmpty(entry.getValue().getSelectIds()))
                 .map(Map.Entry::getKey)
                 .toList();
+
         AssociateCaseDTO associateCaseDTO = new AssociateCaseDTO(excludeIds, selectIds, moduleIds);
         return associateCaseDTO;
     }

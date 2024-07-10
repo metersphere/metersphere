@@ -222,13 +222,11 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(testPlanCollections));
     }
 
-    private List<Map<String, ModuleSelectDTO>> getModuleMaps() {
+    private Map<String, ModuleSelectDTO> getModuleMaps() {
         ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
         moduleSelectDTO.setSelectAll(true);
         moduleSelectDTO.setSelectIds(List.of("gyq_plan_api-case-associate-1"));
-        List<Map<String, ModuleSelectDTO>> moduleMaps = new ArrayList<>();
-        moduleMaps.add(Map.of("testmodule", moduleSelectDTO));
-        return moduleMaps;
+        return Map.of("testmodule", moduleSelectDTO);
     }
 
 

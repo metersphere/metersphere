@@ -294,15 +294,13 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         return associateDTO;
     }
 
-    private List<Map<String, ModuleSelectDTO>> buildModuleMap() {
-        List<Map<String, ModuleSelectDTO>> moduleMaps = new ArrayList<>();
+    private Map<String, ModuleSelectDTO> buildModuleMap() {
         Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
         ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
         moduleSelectDTO.setSelectAll(false);
         moduleSelectDTO.setSelectIds(List.of("wxxx_api_scenario_1"));
         moduleMap.put("wx_scenario_module_123", moduleSelectDTO);
-        moduleMaps.add(moduleMap);
-        return moduleMaps;
+        return moduleMap;
     }
 
 

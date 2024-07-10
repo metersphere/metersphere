@@ -306,15 +306,13 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         return associateDTO;
     }
 
-    private List<Map<String, ModuleSelectDTO>> buildModuleMap() {
-        List<Map<String, ModuleSelectDTO>> moduleMaps = new ArrayList<>();
+    private Map<String, ModuleSelectDTO> buildModuleMap() {
         Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
         ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
         moduleSelectDTO.setSelectAll(false);
         moduleSelectDTO.setSelectIds(List.of("wxxx_api_1"));
         moduleMap.put("123", moduleSelectDTO);
-        moduleMaps.add(moduleMap);
-        return moduleMaps;
+        return moduleMap;
     }
 
     private TestPlanCollectionAssociateDTO buildModulesAll(String type) {
