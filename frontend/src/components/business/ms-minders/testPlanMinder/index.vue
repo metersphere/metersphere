@@ -105,10 +105,7 @@
                 <a-divider margin="4px" direction="vertical" />
                 <MsButton
                   type="text"
-                  :disabled="
-                    !hasEditPermission ||
-                    (selectedAssociateCasesParams.totalCount || selectedAssociateCasesParams.selectIds.length) === 0
-                  "
+                  :disabled="!hasEditPermission || selectedAssociateCasesParams.totalCount === 0"
                   @click="clearSelectedCases"
                 >
                   {{ t('caseManagement.caseReview.clearSelectedCases') }}
@@ -120,9 +117,7 @@
                 <div class="text-[var(--color-text-2)]">
                   {{
                     t('ms.minders.selectedCases', {
-                      count: selectedAssociateCasesParams.selectAll
-                        ? selectedAssociateCasesParams.totalCount
-                        : selectedAssociateCasesParams.selectIds.length,
+                      count: selectedAssociateCasesParams.totalCount,
                     })
                   }}
                 </div>
@@ -243,8 +238,8 @@
   <caseAssociate
     v-model:visible="caseAssociateVisible"
     :association-type="currentSelectCase"
-    :has-not-associated-ids="selectedAssociateCasesParams.selectIds"
     :test-plan-id="props.planId"
+    :modules-maps="selectedAssociateCasesParams.moduleMaps"
     @success="writeAssociateCases"
   />
 </template>
@@ -273,7 +268,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import {
-    AssociateCaseRequest,
+    AssociateCaseRequestParams,
     PlanMinderEditListItem,
     PlanMinderNode,
     PlanMinderNodeData,
@@ -569,7 +564,7 @@
   const caseAssociateVisible = ref<boolean>(false);
 
   // 批量关联用例表格参数
-  const selectedAssociateCasesParams = ref<AssociateCaseRequest>({
+  const selectedAssociateCasesParams = ref<AssociateCaseRequestParams>({
     excludeIds: [],
     selectIds: [],
     selectAll: false,
@@ -578,26 +573,30 @@
     versionId: '',
     refId: '',
     projectId: '',
+    moduleMaps: {},
+    syncCase: true,
+    apiCaseCollectionId: '',
+    apiScenarioCollectionId: '',
+    selectAllModule: false,
   });
 
-  function writeAssociateCases(param: AssociateCaseRequest) {
+  function writeAssociateCases(param: AssociateCaseRequestParams) {
     selectedAssociateCasesParams.value = { ...param };
     const node: PlanMinderNode = window.minder.getSelectedNode();
     let associateType: string = '';
     if (node.data.type === PlanMinderCollectionType.SCENARIO) {
       associateType = PlanMinderAssociateType.SCENARIO_CASE;
     } else {
-      associateType =
-        node.data.type === PlanMinderCollectionType.API && param.associateApiType
-          ? param.associateApiType
-          : node.data.type;
+      associateType = param?.associateType ?? node.data.type;
     }
+
     node.data.associateDTOS = [
       {
-        ids: param.selectIds,
+        ...cloneDeep(param),
         associateType,
       },
     ];
+
     caseAssociateVisible.value = false;
   }
 
@@ -611,6 +610,11 @@
       versionId: '',
       refId: '',
       projectId: '',
+      moduleMaps: {},
+      syncCase: true,
+      apiCaseCollectionId: '',
+      apiScenarioCollectionId: '',
+      selectAllModule: false,
     };
     const node: PlanMinderNode = window.minder.getNodeById(activePlanSet.value?.data.id);
     if (node?.data) {

@@ -1,5 +1,6 @@
 import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
 import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+import type { saveParams } from '@/components/business/ms-associate-case/types';
 
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
@@ -37,6 +38,16 @@ export interface AssociateCaseRequest extends BatchApiParams {
   totalCount?: number;
   testPlanId?: string;
   associateApiType?: string;
+}
+
+export interface AssociateCaseRequestParams extends AssociateCaseRequest {
+  associateType?: string;
+  moduleMaps?: Record<string, saveParams>;
+  syncCase: boolean;
+  apiCaseCollectionId: string;
+  apiScenarioCollectionId: string;
+  selectAllModule: boolean;
+  projectId: string;
 }
 
 export type AssociateCaseRequestType = Pick<AssociateCaseRequest, 'functionalSelectIds' | 'testPlanId'>;

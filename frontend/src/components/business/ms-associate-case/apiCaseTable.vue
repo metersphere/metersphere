@@ -8,6 +8,9 @@
       moreAction: [],
     }"
     v-on="propsEvent"
+    @row-select-change="rowSelectChange"
+    @select-all-change="selectAllChange"
+    @clear-selector="clearSelector"
   >
     <template #num="{ record }">
       <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -41,6 +44,9 @@
     <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
       <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
     </template>
+    <template #count>
+      <slot></slot>
+    </template>
   </MsBaseTable>
 </template>
 
@@ -54,6 +60,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import useOpenNewPage from '@/hooks/useOpenNewPage';
@@ -69,6 +76,8 @@
   import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
+  import type { moduleKeysType } from './types';
+  import useModuleSelection from './useModuleSelection';
   import { getPublicLinkCaseListMap } from './utils/page';
   import { casePriorityOptions } from '@/views/api-test/components/config';
 
@@ -87,6 +96,7 @@
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
     protocols: string[];
+    moduleTree: MsTreeNodeData[];
   }>();
 
   const emit = defineEmits<{
@@ -95,6 +105,10 @@
     (e: 'initModules'): void;
     (e: 'update:selectedIds'): void;
   }>();
+
+  const innerSelectedModulesMaps = defineModel<Record<string, moduleKeysType>>('selectedModulesMaps', {
+    required: true,
+  });
 
   const tableStore = useTableStore();
 
@@ -331,6 +345,22 @@
       pId: record.projectId,
     });
   }
+
+  const { rowSelectChange, selectAllChange, clearSelector, setModuleTree } = useModuleSelection(
+    innerSelectedModulesMaps.value,
+    propsRes.value,
+    props.moduleTree
+  );
+
+  watch(
+    () => props.moduleTree,
+    (val) => {
+      setModuleTree(val);
+    },
+    {
+      immediate: true,
+    }
+  );
 
   defineExpose({
     getApiCaseSaveParams,

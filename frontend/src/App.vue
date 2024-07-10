@@ -1,8 +1,6 @@
 <template>
   <a-config-provider :locale="locale">
-    <a-spin :loading="loading">
-      <router-view />
-    </a-spin>
+    <router-view />
     <!-- <global-setting /> -->
   </a-config-provider>
 </template>
@@ -45,8 +43,6 @@
         return zhCN;
     }
   });
-
-  const loading = ref(false);
 
   // 初始化平台风格和主题色
   watchStyle(appStore.pageConfig.style, appStore.pageConfig);
@@ -94,24 +90,26 @@
       state.value = getQueryVariable('state') || '';
       if (state.value.split('#')[0] === 'fit2cloud-lark-qr') {
         try {
-          loading.value = true;
+          appStore.showLoading();
           const larkCallback = await getLarkCallback(code || '');
           userStore.qrCodeLogin(larkCallback);
           setLoginExpires();
-          loading.value = false;
         } catch (err) {
           console.log(err);
+        } finally {
+          appStore.hideLoading();
         }
       }
       if (state.value.split('#')[0] === 'fit2cloud-lark-suite-qr') {
         try {
-          loading.value = true;
+          appStore.showLoading();
           const larkCallback = await getLarkSuiteCallback(code || '');
           userStore.qrCodeLogin(larkCallback);
           setLoginExpires();
-          loading.value = false;
         } catch (err) {
           console.log(err);
+        } finally {
+          appStore.hideLoading();
         }
       }
       await userStore.checkIsLogin();

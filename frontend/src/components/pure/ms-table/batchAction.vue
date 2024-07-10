@@ -1,6 +1,8 @@
 <template>
   <div v-if="props.actionConfig" ref="refWrapper" class="flex flex-row flex-nowrap items-center">
-    <div class="title one-line-text">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</div>
+    <slot name="count">
+      <div class="title one-line-text">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</div>
+    </slot>
     <template v-for="(element, idx) in baseAction" :key="element.label">
       <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
       <a-button

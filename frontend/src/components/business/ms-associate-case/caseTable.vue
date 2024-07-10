@@ -9,6 +9,9 @@
     }"
     v-on="propsEvent"
     @filter-change="getModuleCount"
+    @row-select-change="rowSelectChange"
+    @select-all-change="selectAllChange"
+    @clear-selector="clearSelector"
   >
     <template #num="{ record }">
       <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -38,6 +41,9 @@
     <template #lastExecResult="{ record }">
       <ExecuteResult :execute-result="record.lastExecResult" />
     </template>
+    <template #count>
+      <slot></slot>
+    </template>
   </MsBaseTable>
 </template>
 
@@ -51,6 +57,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
@@ -63,6 +70,8 @@
   import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
+  import type { moduleKeysType } from './types';
+  import useModuleSelection from './useModuleSelection';
   import { getPublicLinkCaseListMap } from './utils/page';
   import { casePriorityOptions } from '@/views/api-test/components/config';
   import { executionResultMap, statusIconMap } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -77,6 +86,7 @@
     associatedIds?: string[]; // 已关联ids
     activeSourceType: keyof typeof CaseLinkEnum;
     keyword: string;
+    moduleTree: MsTreeNodeData[];
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
   }>();
@@ -86,11 +96,16 @@
     (e: 'refresh'): void;
     (e: 'initModules'): void;
     (e: 'update:selectedIds'): void;
+    (e: 'clearSelect'): void;
   }>();
 
   const tableStore = useTableStore();
 
   const innerSelectedIds = defineModel<string[]>('selectedIds', { required: true });
+
+  const innerSelectedModulesMaps = defineModel<Record<string, moduleKeysType>>('selectedModulesMaps', {
+    required: true,
+  });
 
   const reviewResultOptions = computed(() => {
     return Object.keys(statusIconMap).map((key) => {
@@ -218,26 +233,25 @@
     return undefined;
   }
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams, setTableSelected } =
-    useTable(
-      getPageList.value,
-      {
-        tableKey: TableKeyEnum.ASSOCIATE_CASE,
-        showSetting: true,
-        isSimpleSetting: true,
-        onlyPageSize: true,
-        selectable: true,
-        showSelectAll: true,
-        heightUsed: 310,
-        showSelectorAll: false,
-      },
-      (record) => {
-        return {
-          ...record,
-          caseLevel: getCaseLevel(record),
-        };
-      }
-    );
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetFilterParams, setTableSelected } = useTable(
+    getPageList.value,
+    {
+      tableKey: TableKeyEnum.ASSOCIATE_CASE,
+      showSetting: true,
+      isSimpleSetting: true,
+      onlyPageSize: true,
+      selectable: true,
+      showSelectAll: true,
+      heightUsed: 310,
+      showSelectorAll: false,
+    },
+    (record) => {
+      return {
+        ...record,
+        caseLevel: getCaseLevel(record),
+      };
+    }
+  );
 
   async function getTableParams() {
     const { excludeKeys } = propsRes.value;
@@ -253,6 +267,7 @@
 
   async function getModuleCount() {
     const tableParams = await getTableParams();
+    // 这里的count始终都是全量的
     emit('getModuleCount', {
       ...tableParams,
       current: propsRes.value.msPagination?.current,
@@ -301,6 +316,22 @@
     return [...propsRes.value.selectedKeys];
   });
 
+  const { rowSelectChange, selectAllChange, clearSelector, setModuleTree } = useModuleSelection(
+    innerSelectedModulesMaps.value,
+    propsRes.value,
+    props.moduleTree
+  );
+
+  watch(
+    () => props.moduleTree,
+    (val) => {
+      setModuleTree(val);
+    },
+    {
+      immediate: true,
+    }
+  );
+
   watch(
     () => selectIds.value,
     (val) => {
@@ -309,7 +340,6 @@
   );
 
   watch([() => props.currentProject, () => props.activeModule], () => {
-    resetSelector();
     resetFilterParams();
     loadCaseList();
   });

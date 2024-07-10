@@ -113,11 +113,15 @@
         </a-input-group>
       </div>
     </template>
-    <div class="flex h-[calc(100vh-58px)]">
+    <div class="flex h-[calc(100vh-118px)]">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <CaseTree
           ref="caseTreeRef"
+          v-model:checkedKeys="checkedKeys"
           v-model:selected-keys="selectedKeys"
+          v-model:halfCheckedKeys="halfCheckedKeys"
+          v-model:isCheckedAll="isCheckedAll"
+          v-model:indeterminate="indeterminate"
           :modules-count="modulesCount"
           :get-modules-api-type="props.getModulesApiType"
           :current-project="innerProject"
@@ -128,9 +132,12 @@
           @folder-node-select="handleFolderNodeSelect"
           @init="initModuleTree"
           @change-protocol="handleProtocolChange"
+          @select-parent="selectParent"
+          @check="checkNode"
+          @check-all-module="checkAllModule"
         />
       </div>
-      <div class="flex w-[calc(100%-293px)] flex-col p-[16px]">
+      <div class="relative flex w-[calc(100%-293px)] flex-col p-[16px]">
         <MsAdvanceFilter
           v-model:keyword="keyword"
           :filter-config-list="[]"
@@ -166,18 +173,6 @@
                   </div>
                 </template>
               </a-popover>
-              <!-- TODO 正式版暂时不上了 -->
-              <!-- <a-checkbox v-if="associationType === 'FUNCTIONAL'" v-model="isAddAssociatedCase">
-                <div class="flex items-center">
-                  {{ t('ms.case.associate.addAssociatedCase') }}
-                  <a-tooltip position="top" :content="t('ms.case.associate.automaticallyAddApiCase')">
-                    <icon-question-circle
-                      class="ml-[4px] mr-[12px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                      size="16"
-                    />
-                  </a-tooltip>
-                </div>
-              </a-checkbox> -->
             </div>
           </template>
         </MsAdvanceFilter>
@@ -186,6 +181,7 @@
           v-if="associationType === CaseLinkEnum.FUNCTIONAL"
           ref="functionalTableRef"
           v-model:selectedIds="selectedIds"
+          v-model:selectedModulesMaps="selectedModulesMaps"
           :association-type="associateType"
           :get-page-api-type="getPageApiType"
           :active-module="activeFolder"
@@ -195,14 +191,18 @@
           :active-source-type="associationType"
           :extra-table-params="props.extraTableParams"
           :keyword="keyword"
+          :module-tree="moduleTree"
           @get-module-count="initModulesCount"
           @refresh="loadCaseList"
-        />
+        >
+          <TotalCount :total-count="totalCount" />
+        </CaseTable>
         <!-- 接口用例 API -->
         <ApiTable
           v-if="associationType === CaseLinkEnum.API && showType === 'API'"
           ref="apiTableRef"
           v-model:selectedIds="selectedIds"
+          v-model:selectedModulesMaps="selectedModulesMaps"
           :get-page-api-type="getPageApiType"
           :extra-table-params="props.extraTableParams"
           :association-type="associateType"
@@ -214,13 +214,17 @@
           :keyword="keyword"
           :show-type="showType"
           :protocols="selectedProtocols"
+          :module-tree="moduleTree"
           @get-module-count="initModulesCount"
-        />
+        >
+          <TotalCount :total-count="totalCount" />
+        </ApiTable>
         <!-- 接口用例 CASE -->
         <ApiCaseTable
           v-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
           ref="caseTableRef"
           v-model:selectedIds="selectedIds"
+          v-model:selectedModulesMaps="selectedModulesMaps"
           :get-page-api-type="getPageApiType"
           :extra-table-params="props.extraTableParams"
           :association-type="associateType"
@@ -232,12 +236,16 @@
           :keyword="keyword"
           :show-type="showType"
           :protocols="selectedProtocols"
+          :module-tree="moduleTree"
           @get-module-count="initModulesCount"
-        />
+        >
+          <TotalCount :total-count="totalCount" />
+        </ApiCaseTable>
         <!-- 接口场景用例 -->
         <ScenarioCaseTable
           v-if="associationType === CaseLinkEnum.SCENARIO"
           ref="scenarioTableRef"
+          v-model:selectedModulesMaps="selectedModulesMaps"
           v-model:selectedIds="selectedIds"
           :association-type="associateType"
           :modules-count="modulesCount"
@@ -249,30 +257,85 @@
           :get-page-api-type="getPageApiType"
           :extra-table-params="props.extraTableParams"
           :keyword="keyword"
+          :module-tree="moduleTree"
+          :total-count="totalCount"
           @get-module-count="initModulesCount"
           @refresh="loadCaseList"
-        />
+        >
+          <TotalCount :total-count="totalCount" />
+        </ScenarioCaseTable>
+      </div>
+    </div>
+    <div class="footer !ml-[10px] w-[calc(100%-10px)]">
+      <div class="flex items-center">
+        <slot name="footerLeft">
+          <div v-if="props.associatedType === CaseLinkEnum.FUNCTIONAL" class="flex items-center">
+            <a-switch v-model:model-value="syncCase" size="small" type="line" />
+            <div class="ml-[8px]">{{ t('ms.case.associate.syncFunctionalCase') }}</div>
+            <a-tooltip :content="t('ms.case.associate.addAutomaticallyCase')" position="top">
+              <icon-question-circle
+                class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </div>
+          <div v-if="props.associatedType === CaseLinkEnum.FUNCTIONAL" class="ml-[16px] flex items-center">
+            <a-tree-select
+              v-model="apiCaseCollectionId"
+              :field-names="{
+                title: 'name',
+                key: 'id',
+                children: 'children',
+              }"
+              class="w-[200px]"
+              :data="apiSetTree"
+            >
+              <template #prefix>
+                <div class="text-[var(--color-text-brand)]">{{ t('ms.case.associate.api') }}</div>
+              </template>
+              <template #tree-slot-title="node">
+                <a-tooltip :content="`${node.name}`" position="tl">
+                  <div class="one-line-text w-[180px]">{{ node.name }}</div>
+                </a-tooltip>
+              </template>
+            </a-tree-select>
 
-        <div class="footer">
-          <div class="flex flex-1 items-center">
-            <slot name="footerLeft"></slot>
+            <a-tree-select
+              v-model="apiScenarioCollectionId"
+              :field-names="{
+                title: 'name',
+                key: 'id',
+                children: 'children',
+              }"
+              class="ml-[12px] w-[200px]"
+              :data="scenarioSetTree"
+            >
+              <template #prefix>
+                <div class="text-[var(--color-text-brand)]">{{ t('ms.case.associate.scenario') }}</div>
+              </template>
+              <template #tree-slot-title="node">
+                <a-tooltip :content="`${node.name}`" position="tl">
+                  <div class="one-line-text w-[180px]">{{ node.name }}</div>
+                </a-tooltip>
+              </template>
+            </a-tree-select>
           </div>
-          <div class="flex items-center">
-            <slot name="footerRight">
-              <a-button type="secondary" :disabled="props.confirmLoading" class="mr-[12px]" @click="cancel">
-                {{ t('common.cancel') }}
-              </a-button>
-              <a-button
-                :loading="props.confirmLoading"
-                type="primary"
-                :disabled="!selectedIds.length"
-                @click="handleConfirm"
-              >
-                {{ t('ms.case.associate.associate') }}
-              </a-button>
-            </slot>
-          </div>
-        </div>
+        </slot>
+      </div>
+      <div class="flex items-center">
+        <slot name="footerRight">
+          <a-button type="secondary" :disabled="props.confirmLoading" class="mr-[12px]" @click="cancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button
+            :loading="props.confirmLoading"
+            type="primary"
+            :disabled="!isDisabledSaveButton"
+            @click="handleConfirm"
+          >
+            {{ t('ms.case.associate.associate') }}
+          </a-button>
+        </slot>
       </div>
     </div>
   </MsDrawer>
@@ -284,13 +347,16 @@
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import ApiCaseTable from './apiCaseTable.vue';
   import ApiTable from './apiTable.vue';
   import CaseTable from './caseTable.vue';
   import CaseTree from './caseTree.vue';
   import ScenarioCaseTable from './scenarioCaseTable.vue';
+  import TotalCount from './totalCount.vue';
 
   import { getAssociatedProjectOptions } from '@/api/modules/case-management/featureCase';
+  import { getApiCaseModule, getApiScenarioModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
@@ -300,10 +366,10 @@
   import { CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
+  import type { moduleKeysType, saveParams } from './types';
   import { initGetModuleCountFunc } from './utils/moduleCount';
 
   const visitedKey = 'changeLinkProject';
-
   const { addVisited, getIsVisited } = useVisit(visitedKey);
 
   const appStore = useAppStore();
@@ -321,6 +387,7 @@
     extraModuleCountParams?: TableQueryParams; // 查询模块数量额外参数
     okButtonDisabled?: boolean; // 确认按钮是否禁用
     confirmLoading?: boolean;
+    modulesMaps?: Record<string, saveParams>;
     associatedIds?: string[]; // 已关联用例id集合用于去重已关联
     hideProjectSelect?: boolean; // 是否隐藏项目选择
     associatedType: keyof typeof CaseLinkEnum; // 关联类型
@@ -351,10 +418,23 @@
   const activeFolder = ref('all');
   const selectedIds = ref<string[]>([]);
 
+  const checkedKeys = ref<Array<string | number>>([]);
+  const halfCheckedKeys = ref<Array<string | number>>([]);
+
+  // 数据集合
+  const selectedModulesMaps = ref<Record<string, moduleKeysType>>({});
+
+  // 计算用例是否选择禁用关联按钮
+  const isDisabledSaveButton = computed(() => {
+    return Object.values(selectedModulesMaps.value).some((module) => module.selectAll || module.selectIds.size > 0);
+  });
+
   const selectedKeys = computed({
     get: () => [activeFolder.value],
     set: (val) => val,
   });
+
+  const syncCase = ref<boolean>(true);
 
   const folderName = computed(() => {
     switch (associationType.value) {
@@ -399,26 +479,54 @@
   const caseTableRef = ref<InstanceType<typeof ApiCaseTable>>();
   const scenarioTableRef = ref<InstanceType<typeof ScenarioCaseTable>>();
 
-  function makeParams() {
-    switch (props.associatedType) {
-      case CaseLinkEnum.FUNCTIONAL:
-        return functionalTableRef.value?.getFunctionalSaveParams();
-      case CaseLinkEnum.API:
-        return showType.value === 'API'
-          ? apiTableRef.value?.getApiSaveParams()
-          : caseTableRef.value?.getApiCaseSaveParams();
-      case CaseLinkEnum.SCENARIO:
-        return scenarioTableRef.value?.getScenarioSaveParams();
-      default:
-        break;
-    }
+  function getMapParams() {
+    const selectedParams: Record<string, saveParams> = {};
+    Object.entries(selectedModulesMaps.value).forEach(([moduleId, selectedProps]) => {
+      const { selectAll, selectIds, excludeIds, count } = selectedProps;
+      selectedParams[moduleId] = {
+        count,
+        selectAll,
+        selectIds: [...selectIds],
+        excludeIds: [...excludeIds],
+      };
+    });
+    return selectedParams;
   }
+
+  const isCheckedAll = ref<boolean>(false);
+  const indeterminate = ref<boolean>(false);
+
+  const totalCount = computed(() => {
+    if (isCheckedAll.value) {
+      return modulesCount.value.all;
+    }
+    return Object.values(selectedModulesMaps.value).reduce((total, module) => {
+      return total + (module.selectAll ? module.count : module.selectIds.size);
+    }, 0);
+  });
+
+  const apiCaseCollectionId = ref<string>('');
+  const apiScenarioCollectionId = ref<string>('');
+
   // 保存
   function handleConfirm() {
-    const params = makeParams();
-    if (!params?.selectIds.length) {
-      return;
+    const params = {
+      moduleMaps: getMapParams(),
+      syncCase: syncCase.value,
+      apiCaseCollectionId: apiCaseCollectionId.value,
+      apiScenarioCollectionId: apiScenarioCollectionId.value,
+      selectAllModule: isCheckedAll.value,
+      projectId: innerProject.value,
+      associateType: 'FUNCTIONAL',
+      totalCount: totalCount.value,
+    };
+
+    if (params.associateType === CaseLinkEnum.API) {
+      params.associateType = showType.value;
+    } else {
+      params.associateType = props.associatedType;
     }
+
     emit('save', params);
   }
 
@@ -445,11 +553,15 @@
       console.log(error);
     }
   }
+
   const selectedProtocols = ref<string[]>([]);
   async function initModulesCount(params: TableQueryParams) {
     try {
       modulesCount.value = await initGetModuleCountFunc(props.getModuleCountApiType, associationType.value, {
         ...params,
+        moduleIds: [],
+        filter: {},
+        keyword: '',
         ...props.extraModuleCountParams,
         protocols: associationType.value === CaseLinkEnum.API ? selectedProtocols.value : undefined,
       });
@@ -480,20 +592,32 @@
 
   const moduleTree = ref<ModuleTreeNode[]>([]);
   function initModuleTree(tree: ModuleTreeNode[], _protocols?: string[]) {
-    moduleTree.value = unref(tree);
+    moduleTree.value = tree;
     selectedProtocols.value = _protocols || [];
     if (props.associatedType === CaseLinkEnum.API) {
       loadCaseList();
     }
   }
 
-  const functionalType = ref('project');
-  const functionalList = ref([
-    {
-      id: 'project',
-      name: t('ms.case.associate.project'),
-    },
-  ]);
+  const apiSetTree = ref<ModuleTreeNode[]>();
+  const scenarioSetTree = ref<ModuleTreeNode[]>();
+
+  async function initTestSet() {
+    if (props.extraTableParams?.testPlanId) {
+      try {
+        apiSetTree.value = await getApiCaseModule({
+          testPlanId: props.extraTableParams.testPlanId,
+          treeType: 'COLLECTION',
+        });
+        scenarioSetTree.value = await getApiScenarioModule({
+          testPlanId: props.extraTableParams.testPlanId,
+          treeType: 'COLLECTION',
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   function changeProjectHandler(visible: boolean) {
     if (visible && !getIsVisited()) {
@@ -527,6 +651,7 @@
         associationType.value = props.associatedType;
         activeFolder.value = 'all';
         initProjectList();
+        initTestSet();
       }
       selectPopVisible.value = false;
       keyword.value = '';
@@ -539,6 +664,142 @@
     (val) => {
       if (val) {
         selectedIds.value = [];
+      }
+    }
+  );
+
+  // 选中当前节点 && 取消当前节点
+  function selectParent(nodeData: MsTreeNodeData, isSelected: boolean) {
+    selectedModulesMaps.value[nodeData.id] = {
+      selectAll: !isSelected,
+      selectIds: new Set(),
+      excludeIds: new Set(),
+      count: nodeData.count,
+    };
+  }
+
+  // 初始化左侧模块节点选中当前以及子节点
+  function processAllCurrentNode(node: MsTreeNodeData, check: boolean) {
+    if (node.children && node.children.length) {
+      node.children?.forEach((childrenNode: MsTreeNodeData) => processAllCurrentNode(childrenNode, check));
+    }
+    selectedModulesMaps.value[node.id] = {
+      selectAll: check,
+      selectIds: new Set(),
+      excludeIds: new Set(),
+      count: node.count,
+    };
+  }
+
+  // 选中当前节点以及子节点
+  function checkNode(_checkedKeys: Array<string | number>, checkedData: MsTreeNodeData) {
+    const { checked, node } = checkedData;
+    processAllCurrentNode(node, checked);
+  }
+
+  watch(
+    () => selectedModulesMaps.value,
+    (val) => {
+      const checkedKeysSet = new Set(checkedKeys.value);
+      const halfCheckedKeysSet = new Set(halfCheckedKeys.value);
+
+      if (!Object.keys(val).length) {
+        checkedKeysSet.clear();
+        halfCheckedKeysSet.clear();
+        isCheckedAll.value = false;
+        indeterminate.value = false;
+      }
+
+      Object.entries(val).forEach(([moduleId, selectedProps]) => {
+        const { selectAll: selectIdsAll, selectIds, count } = selectedProps;
+
+        // 全选和取消全选
+        if (selectIdsAll) {
+          checkedKeysSet.add(moduleId);
+        } else {
+          checkedKeysSet.delete(moduleId);
+        }
+
+        // 半选状态
+        if (selectIds.size > 0 && selectIds.size < count) {
+          halfCheckedKeysSet.add(moduleId);
+        } else {
+          halfCheckedKeysSet.delete(moduleId);
+        }
+      });
+
+      // 更新 checkedKeys 和 halfCheckedKeys
+      checkedKeys.value = Array.from(checkedKeysSet);
+      halfCheckedKeys.value = Array.from(halfCheckedKeysSet);
+
+      // 更新全选和半选状态
+      const isAllCheckedModuleProps = val.all;
+
+      if (isAllCheckedModuleProps) {
+        const { selectAll, selectIds, count } = isAllCheckedModuleProps;
+
+        isCheckedAll.value = selectAll;
+
+        if (selectIds.size > 0 && selectIds.size < count) {
+          indeterminate.value = true;
+        } else {
+          indeterminate.value = false;
+        }
+      }
+    },
+    { deep: true }
+  );
+
+  // 全选全部&取消全选
+  function setSelectAll(tree: MsTreeNodeData[], checkedAll: boolean) {
+    tree.forEach((node) => {
+      processAllCurrentNode(node, checkedAll);
+
+      if (node.children) {
+        setSelectAll(node.children, checkedAll);
+      }
+    });
+  }
+
+  function checkAllModule() {
+    selectedModulesMaps.value.all = {
+      selectAll: isCheckedAll.value,
+      selectIds: new Set(),
+      excludeIds: new Set(),
+      count: modulesCount.value.all,
+    };
+    setSelectAll(moduleTree.value, isCheckedAll.value);
+  }
+
+  // 切换项目的时候清空
+  function clearSelector() {
+    Object.keys(selectedModulesMaps.value).forEach((key) => {
+      delete selectedModulesMaps.value[key];
+    });
+  }
+
+  watch(
+    () => innerProject.value,
+    (val) => {
+      if (val) {
+        clearSelector();
+      }
+    }
+  );
+
+  watch(
+    () => props.modulesMaps,
+    (val) => {
+      if (val && Object.keys(val).length) {
+        Object.entries(val).forEach(([moduleId, selectedProps]) => {
+          const { selectAll, selectIds, excludeIds, count } = selectedProps;
+          selectedModulesMaps.value[moduleId] = {
+            selectAll,
+            count,
+            selectIds: new Set(selectIds),
+            excludeIds: new Set(excludeIds),
+          };
+        });
       }
     }
   );
