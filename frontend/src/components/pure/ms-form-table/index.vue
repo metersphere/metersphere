@@ -67,8 +67,8 @@
             <a-input
               v-else-if="item.inputType === 'input'"
               v-model:model-value="record[item.dataIndex as string]"
-              :placeholder="t(item.locale)"
-              class="ms-form-table-input"
+              :placeholder="t(item.locale || 'common.pleaseInput')"
+              class="ms-form-table-input ms-form-table-input--hasPlaceholder"
               :max-length="255"
               :size="item.size || 'medium'"
               @input="() => handleFormChange(record, rowIndex, item)"
@@ -626,6 +626,11 @@
       .arco-select {
         border-color: transparent !important;
       }
+    }
+  }
+  :deep(.ms-form-table-input--hasPlaceholder) {
+    .arco-input::placeholder {
+      @apply !visible;
     }
   }
   :deep(.ms-form-table-input-trigger) {

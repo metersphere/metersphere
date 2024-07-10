@@ -128,6 +128,7 @@ export interface ExecuteJsonBody {
   jsonValue: string;
   // 前端渲染字段
   jsonSchemaTableData?: JsonSchemaTableItem[];
+  jsonSchemaTableSelectedRowKeys?: string[];
 }
 // 执行请求配置
 export interface ExecuteOtherConfig {
