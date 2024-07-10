@@ -136,4 +136,6 @@ export default {
   'caseManagement.caseReview.reviewSuccess.widthAdmin':
     '提交成功！ 您不是当前项目指定的评审人，系统只会记录您的评审，不影响最终评审结果',
   'caseManagement.caseReview.reviewFormTip': '添加操作人的评审结果，多人评审需所有评审人评审通过',
+  'caseManagement.caseReview.reviewerTip': '如需评审用例，需要将用户添加为评审人；仅评审人的评审结果生效',
+  'caseManagement.caseReview.reviewDisabledTip': '非评审人不可评审，更改后可评审',
 };

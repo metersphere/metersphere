@@ -58,6 +58,20 @@
         <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
           <caseLevel :case-level="filterContent.text" />
         </template>
+        <template #reviewerTitle="{ columnConfig }">
+          <div class="flex items-center gap-[4px]">
+            <div class="text-[var(--color-text-3)]">{{ t(columnConfig.title as string) }}</div>
+            <a-tooltip
+              v-model:popupVisible="reviewerTitlePopupVisible"
+              :content="t('caseManagement.caseReview.reviewerTip')"
+            >
+              <icon-question-circle
+                class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </div>
+        </template>
         <template #num="{ record }">
           <a-tooltip :content="record.num">
             <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="review(record)">
@@ -88,6 +102,12 @@
             allow-search
             :multiple="true"
             :placeholder="t('project.messageManagement.receiverPlaceholder')"
+            :fallback-option="
+              (val) => ({
+                label: reviewersOptions.find((e) => e.value === val)?.label || (val as string),
+                value: val,
+              })
+            "
             @change="() => changeReviewer(record)"
           >
           </MsSelect>
@@ -104,10 +124,22 @@
           </div>
         </template>
         <template #action="{ record }">
-          <MsButton v-permission="['CASE_REVIEW:READ+REVIEW']" type="text" class="!mr-0" @click="review(record)">
-            {{ t('caseManagement.caseReview.review') }}
-          </MsButton>
-          <a-divider direction="vertical" :margin="8"></a-divider>
+          <a-tooltip :content="t('caseManagement.caseReview.reviewDisabledTip')" :disabled="userIsReviewer(record)">
+            <MsButton
+              v-permission="['CASE_REVIEW:READ+REVIEW']"
+              :disabled="!userIsReviewer(record)"
+              type="text"
+              class="!mr-0"
+              @click="review(record)"
+            >
+              {{ t('caseManagement.caseReview.review') }}
+            </MsButton>
+          </a-tooltip>
+          <a-divider
+            v-permission.all="['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE']"
+            direction="vertical"
+            :margin="8"
+          ></a-divider>
           <MsPopconfirm
             :title="t('caseManagement.caseReview.disassociateTip')"
             :sub-title-tip="t('caseManagement.caseReview.disassociateTipContent')"
@@ -420,25 +452,26 @@
         sorter: true,
       },
       showTooltip: true,
-      width: 200,
+      width: 150,
     },
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
       dataIndex: 'caseLevel',
       showInTable: true,
-      width: 200,
       showDrag: true,
       filterConfig: {
         options: caseLevelList.value,
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
+      width: 100,
     },
     {
       title: 'caseManagement.caseReview.reviewer',
       dataIndex: 'reviewNames',
       slotName: 'reviewNames',
       showInTable: true,
+      titleSlotName: 'reviewerTitle',
       width: 150,
     },
     {
@@ -517,6 +550,10 @@
     ],
   };
 
+  function userIsReviewer(record: ReviewCaseItem) {
+    return record.reviewers.some((e) => e === userStore.id);
+  }
+
   const modulesCount = computed(() => caseReviewStore.modulesCount);
   async function getModuleCount() {
     let params: TableQueryParams;
@@ -557,8 +594,12 @@
     getModuleCount();
   }
 
+  const reviewerTitlePopupVisible = ref(true);
   onBeforeMount(() => {
     searchCase();
+    setTimeout(() => {
+      reviewerTitlePopupVisible.value = false;
+    }, 5000);
   });
 
   /**
@@ -759,7 +800,7 @@
           slotName: 'caseLevel',
           dataIndex: 'caseLevel',
           showInTable: true,
-          width: 200,
+          width: 100,
           showDrag: true,
           filterConfig: {
             options: cloneDeep(caseLevelFields.value.options),
