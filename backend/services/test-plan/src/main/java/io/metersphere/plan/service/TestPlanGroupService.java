@@ -107,24 +107,24 @@ public class TestPlanGroupService extends TestPlanSortService {
     }
 
     public TestPlan validateGroupCapacity(String groupId, int size) {
-            // 判断测试计划组是否存在
-            TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
-            if (groupPlan == null) {
-                throw new MSException(Translator.get("test_plan.group.error"));
-            }
+        // 判断测试计划组是否存在
+        TestPlan groupPlan = testPlanMapper.selectByPrimaryKey(groupId);
+        if (groupPlan == null) {
+            throw new MSException(Translator.get("test_plan.group.error"));
+        }
         if (!StringUtils.equalsIgnoreCase(groupPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             throw new MSException(Translator.get("test_plan.group.error"));
         }
-            //判断并未归档
-            if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                throw new MSException(Translator.get("test_plan.group.error"));
-            }
-            //判断测试计划组下的测试计划数量是否超过20
-            TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andGroupIdEqualTo(groupId);
-            if (testPlanMapper.countByExample(example) + size > 20) {
-                throw new MSException(Translator.getWithArgs("test_plan.group.children.max", MAX_CHILDREN_COUNT));
-            }
+        //判断并未归档
+        if (StringUtils.equalsIgnoreCase(groupPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+            throw new MSException(Translator.get("test_plan.group.error"));
+        }
+        //判断测试计划组下的测试计划数量是否超过20
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andGroupIdEqualTo(groupId);
+        if (testPlanMapper.countByExample(example) + size > 20) {
+            throw new MSException(Translator.getWithArgs("test_plan.group.children.max", MAX_CHILDREN_COUNT));
+        }
         return groupPlan;
     }
 }

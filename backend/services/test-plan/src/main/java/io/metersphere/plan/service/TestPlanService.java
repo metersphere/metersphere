@@ -314,7 +314,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 // 计划组的删除暂时预留
                 this.deleteGroupByList(testPlanGroupList);
                 //记录日志
-                testPlanLogService.saveBatchLog(deleteTestPlanList, operator, requestUrl, requestMethod, OperationLogType.DELETE.name(), "delete");
+                testPlanLogService.saveBatchLog(deleteTestPlanList, operator, requestUrl, requestMethod, OperationLogType.DELETE.name());
             }
         }
     }
@@ -366,7 +366,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         updateTestPlan.setPlannedEndTime(request.getPlannedEndTime());
         updateTestPlan.setDescription(request.getDescription());
         //判断有没有用户组的变化
-        if (StringUtils.isNotBlank(request.getGroupId())) {
+        if (StringUtils.isNotBlank(request.getGroupId()) && !StringUtils.equalsIgnoreCase(request.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
             if (!StringUtils.equalsIgnoreCase(originalTestPlan.getGroupId(), request.getGroupId())) {
                 //用户更换了测试计划组
                 TestPlan testPlanGroup = testPlanGroupService.validateGroupCapacity(request.getGroupId(), 1);
@@ -518,7 +518,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 }
             });
             //日志
-            testPlanLogService.saveBatchLog(archivedPlanGroupList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.ARCHIVED.name(), "archive");
+            testPlanLogService.saveBatchLog(archivedPlanGroupList, currentUser, "/test-plan/batch-archived", HttpMethodConstants.POST.name(), OperationLogType.ARCHIVED.name());
         }
     }
 
@@ -666,15 +666,16 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (CollectionUtils.isNotEmpty(copyIds)) {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria().andIdIn(copyIds);
-            List<TestPlan> copyTestPlanList = testPlanMapper.selectByExample(example);
+            List<TestPlan> originalTestPlanList = testPlanMapper.selectByExample(example);
 
             //批量复制时，不允许存在测试计划组下的测试计划。
-            copyTestPlanList = copyTestPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
+            originalTestPlanList = originalTestPlanList.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID))
                     .collect(Collectors.toList());
             //日志
-            if (CollectionUtils.isNotEmpty(copyTestPlanList)) {
-                copyCount = testPlanBatchOperationService.batchCopy(copyTestPlanList, request.getTargetId(), request.getMoveType(), userId);
-                testPlanLogService.saveBatchLog(copyTestPlanList, userId, url, method, OperationLogType.ADD.name(), "copy");
+            if (CollectionUtils.isNotEmpty(originalTestPlanList)) {
+                List<TestPlan> copyPlanList = testPlanBatchOperationService.batchCopy(originalTestPlanList, request.getTargetId(), request.getMoveType(), userId);
+                copyCount = copyPlanList.size();
+                testPlanLogService.saveBatchLog(copyPlanList, userId, url, method, OperationLogType.ADD.name());
             }
 
         }
@@ -713,7 +714,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
             }
             //日志
             if (CollectionUtils.isNotEmpty(moveTestPlanList)) {
-                testPlanLogService.saveBatchLog(moveTestPlanList, userId, operationUrl, method, OperationLogType.UPDATE.name(), "update");
+                testPlanLogService.saveBatchLog(moveTestPlanList, userId, operationUrl, method, OperationLogType.UPDATE.name());
             }
         }
         return moveCount;
