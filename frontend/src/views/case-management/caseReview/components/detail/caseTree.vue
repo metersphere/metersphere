@@ -128,17 +128,18 @@
    * @param tree 原来的模块树
    */
   function selectParentNode(tree: ModuleTreeNode[]) {
-    if (tree[0].parentId) {
-      mapTree(tree || [], (e) => {
-        if (e.id === selectedKeys.value[0]) {
+    mapTree(tree || [], (e) => {
+      if (e.id === selectedKeys.value[0]) {
+        if (e.parentId) {
           selectedKeys.value = [e.parentId];
           folderNodeSelect([e.parentId], e.parent);
+        } else {
+          setActiveFolder('all');
         }
         return e;
-      });
-    } else {
-      setActiveFolder('all');
-    }
+      }
+      return e;
+    });
   }
 
   onBeforeMount(() => {
