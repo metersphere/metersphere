@@ -90,18 +90,18 @@
     <template #default="{ detail, loading }">
       <div ref="wrapperRef" class="bg-white">
         <div class="header relative h-[48px] border-b pl-2">
-          <div class="max-w-[calc(100%-72px)]"
-            ><MsTab
+          <div class="max-w-[calc(100%-72px)]">
+            <MsTab
               v-model:active-key="activeTab"
               :content-tab-list="tabSetting"
               :get-text-func="getTotal"
               class="no-content relative"
               @change="clickMenu"
-          /></div>
-
-          <span class="display-setting h-full text-[var(--color-text-2)]" @click="showMenuSetting">{{
-            t('caseManagement.featureCase.detailDisplaySetting')
-          }}</span>
+            />
+          </div>
+          <span class="display-setting h-full text-[var(--color-text-2)]" @click="showMenuSetting">
+            {{ t('caseManagement.featureCase.detailDisplaySetting') }}
+          </span>
         </div>
         <div>
           <div
@@ -247,9 +247,9 @@
   const commentInputIsActive = computed(() => commentInputRef.value?.isActive);
 
   const tabSetting = ref<TabItemType[]>([]);
-  const activeTab = ref<string>('detail');
+  const activeTab = ref<string | number>('detail');
 
-  function clickMenu(key: string) {
+  function clickMenu(key: string | number) {
     activeTab.value = key;
     featureCaseStore.setActiveTab(key);
     switch (activeTab.value) {

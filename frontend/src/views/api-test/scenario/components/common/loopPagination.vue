@@ -9,6 +9,7 @@
     show-total
     size="mini"
     class="loop-pagination"
+    @change="() => emit('change', currentLoop)"
   >
     <template #total="{ total }">
       <div
@@ -30,6 +31,9 @@
 
   const props = defineProps<{
     loopTotal: number;
+  }>();
+  const emit = defineEmits<{
+    (e: 'change', value: number): void;
   }>();
 
   const { t } = useI18n();

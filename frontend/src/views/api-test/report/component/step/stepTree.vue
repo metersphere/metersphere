@@ -128,25 +128,21 @@
                     <span v-show="step.requestTime !== null" class="resTime">
                       {{ t('report.detail.api.responseTime') }}
                       <a-popover position="left" content-class="response-popover-content">
-                        <span class="resTimeCount ml-2"
-                          >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
-                          }}{{
-                            step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms'
-                          }}</span
-                        >
+                        <span class="resTimeCount ml-2">
+                          {{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-' }}
+                          {{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}
+                        </span>
                         <template #content>
                           <span v-show="step.requestTime !== null" class="resTime">
                             {{ t('report.detail.api.responseTime') }}
-                            <span class="resTimeCount ml-2"
-                              >{{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-'
-                              }}{{
-                                step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms'
-                              }}</span
-                            ></span
-                          >
+                            <span class="resTimeCount ml-2">
+                              {{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[0] : '-' }}
+                              {{ step.requestTime !== null ? formatDuration(step.requestTime).split('-')[1] : 'ms' }}
+                            </span>
+                          </span>
                         </template>
-                      </a-popover></span
-                    >
+                      </a-popover>
+                    </span>
                     <span v-show="step.responseSize !== null" class="resSize">
                       {{ t('report.detail.api.responseSize') }}
                       <a-popover position="left" content-class="response-popover-content">
@@ -157,8 +153,8 @@
                             <span class="resTimeCount ml-2">{{ step.responseSize || 0 }} bytes</span></span
                           >
                         </template>
-                      </a-popover></span
-                    >
+                      </a-popover>
+                    </span>
                   </div>
                 </div>
               </div>

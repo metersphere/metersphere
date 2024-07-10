@@ -509,7 +509,7 @@
     }
   }
 
-  function changeTabInterceptor(newVal: string, oldVal: string, done: () => void) {
+  function changeTabInterceptor(newVal: string | number, oldVal: string | number, done: () => void) {
     if (oldVal === 'plan' && minderStore.minderUnsaved) {
       openModal({
         type: 'warning',

@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-4 flex h-[36px] items-center justify-between">
+  <div class="flex h-[36px] items-center justify-between">
     <div class="flex items-center">
       <div class="mr-2 font-medium leading-[36px]">{{ t('report.detail.api.reportDetail') }}</div>
       <a-radio-group v-model:model-value="innerActiveTab" type="button" size="small">

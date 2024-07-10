@@ -213,4 +213,6 @@ export default {
   'apiTestDebug.standardAdditionsTip':
     'Writing format: parameter name, type, required, parameter value; multiple records separated by newlines',
   'apiTestDebug.quickAdditions': 'Quick',
+  'apiTestDebug.first': 'First',
+  'apiTestDebug.retry': 'Retry',
 };

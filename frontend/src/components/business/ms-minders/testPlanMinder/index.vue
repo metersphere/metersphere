@@ -183,7 +183,11 @@
             </a-form-item>
             <a-form-item class="hidden-item">
               <div class="flex items-center gap-[8px]">
-                <a-switch v-model:model-value="configForm.retryOnFail" size="small"></a-switch>
+                <a-switch
+                  v-model:model-value="configForm.retryOnFail"
+                  :disabled="configForm.level === 2 && configForm.extended"
+                  size="small"
+                ></a-switch>
                 <div>{{ t('ms.minders.failRetry') }}</div>
               </div>
             </a-form-item>
@@ -201,6 +205,7 @@
                   :step="1"
                   :min="1"
                   :precision="0"
+                  :disabled="configForm.level === 2 && configForm.extended"
                   size="small"
                   class="w-[120px]"
                 ></a-input-number>
@@ -218,6 +223,7 @@
                   :step="100"
                   :min="0"
                   :precision="0"
+                  :disabled="configForm.level === 2 && configForm.extended"
                   size="small"
                   class="w-[120px]"
                 ></a-input-number>
