@@ -1,4 +1,3 @@
-import { useRouter } from 'vue-router';
 import { defineStore } from 'pinia';
 
 import { getProjectInfo } from '@/api/modules/project-management/project';
@@ -12,6 +11,7 @@ import {
 } from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
 import useUser from '@/hooks/useUser';
+import router from '@/router';
 import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import useLicenseStore from '@/store/modules/setting/license';
 import { getHashParameters, getQueryVariable } from '@/utils';
@@ -238,7 +238,6 @@ const useUserStore = defineStore('user', {
       }
     },
     async checkIsLogin(forceSet = false) {
-      const router = useRouter();
       const { isLoginPage } = useUser();
       const appStore = useAppStore();
       const isLogin = await this.isLogin(forceSet);

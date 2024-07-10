@@ -1,4 +1,3 @@
-import { useRouter } from 'vue-router';
 import { defineStore } from 'pinia';
 import { Notification } from '@arco-design/web-vue';
 import { cloneDeep } from 'lodash-es';
@@ -13,6 +12,7 @@ import { getPackageType, getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
+import router from '@/router';
 import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
@@ -262,7 +262,6 @@ const useAppStore = defineStore('app', {
         }
         const res = await getProjectInfo(this.currentProjectId);
         if (!res || res.deleted) {
-          const router = useRouter();
           router.push({
             name: NO_PROJECT_ROUTE_NAME,
           });
