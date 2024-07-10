@@ -250,7 +250,9 @@
       :class="{ 'justify-between': showBatchAction }"
     >
       <span v-if="props.actionConfig && selectedCount > 0 && !showBatchAction" class="title text-[var(--color-text-2)]">
-        {{ t('msTable.batch.selected', { count: selectedCount }) }}
+        <slot name="count">
+          {{ t('msTable.batch.selected', { count: selectedCount }) }}
+        </slot>
         <a-button class="clear-btn ml-[12px] px-2" type="text" @click="emit('clearSelector')">
           {{ t('msTable.batch.clear') }}
         </a-button>
@@ -265,7 +267,11 @@
           :size="props.paginationSize"
           @batch-action="handleBatchAction"
           @clear="() => emit('clearSelector')"
-        />
+        >
+          <template #count>
+            <slot name="count"></slot>
+          </template>
+        </batch-action>
       </div>
       <ms-pagination
         v-if="!!attrs.showPagination"

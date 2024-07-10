@@ -28,10 +28,21 @@
       </a-button>
     </a-tooltip>
   </div>
-  <a-spin class="w-full" :loading="moduleLoading">
+  <div class="flex items-center justify-between">
+    <a-checkbox v-model:model-value="isCheckAll" :indeterminate="indeterminate" @change="handleChangeAll">{{
+      t('ms.case.associate.allData')
+    }}</a-checkbox>
+    <span class="pr-[8px] text-[var(--color-text-brand)]">
+      {{ allCount }}
+    </span>
+  </div>
+  <a-spin class="w-full pl-[8px]" :loading="moduleLoading">
     <MsTree
       v-model:selected-keys="selectedKeys"
-      :data="caseTree"
+      v-model:checked-keys="checkedKeys"
+      v-model:halfCheckedKeys="halfCheckedKeys"
+      v-model:isCheckAll="isCheckAll"
+      v-model:data="caseTree"
       :keyword="moduleKeyword"
       :empty-text="t('common.noData')"
       :virtual-list-props="virtualListProps"
@@ -44,13 +55,29 @@
       :expand-all="isExpandAll"
       block-node
       title-tooltip-position="top"
+      checkable
+      check-strictly
       @select="folderNodeSelect"
+      @check="checkNode"
     >
       <template #title="nodeData">
         <div class="inline-flex w-full gap-[8px]">
           <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-          <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">{{ nodeData.count || 0 }}</div>
+          <div class="ms-tree-node-count ml-[4px] flex items-center text-[var(--color-text-brand)]">
+            {{ nodeData.count || 0 }}
+          </div>
         </div>
+      </template>
+      <template #extra="nodeData">
+        <MsButton
+          v-if="nodeData.children && nodeData.children.length"
+          @click="selectCurrent(nodeData, !!checkedKeys.includes(nodeData.id))"
+          >{{
+            checkedKeys.includes(nodeData.id)
+              ? t('ms.case.associate.cancelCurrent')
+              : t('ms.case.associate.selectCurrent')
+          }}</MsButton
+        >
       </template>
     </MsTree>
   </a-spin>
@@ -60,6 +87,7 @@
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
@@ -76,7 +104,7 @@
   const { t } = useI18n();
 
   const props = defineProps<{
-    modulesCount?: Record<string, number>; // 模块数量统计对象
+    modulesCount: Record<string, number>; // 模块数量统计对象
     selectedKeys: string[]; // 选中的节点 key
     currentProject: string;
     getModulesApiType: CaseModulesApiTypeEnum[keyof CaseModulesApiTypeEnum];
@@ -91,9 +119,25 @@
     (e: 'init', params: ModuleTreeNode[], selectedProtocols?: string[]): void;
     (e: 'changeProtocol', selectedProtocols: string[]): void;
     (e: 'update:selectedKeys', selectedKeys: string[]): void;
+    (e: 'update:halfCheckedKeys', halfCheckedKeys: string[]): void;
+    (e: 'check', _checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData): void;
+    (e: 'selectParent', node: MsTreeNodeData, isSelected: boolean): void;
+    (e: 'checkAllModule', isCheckedAll: boolean): void;
   }>();
 
   const selectedKeys = useVModel(props, 'selectedKeys', emit);
+  const checkedKeys = defineModel<(string | number)[]>('checkedKeys', {
+    required: true,
+  });
+  const halfCheckedKeys = defineModel<(string | number)[]>('halfCheckedKeys', {
+    required: true,
+  });
+  const isCheckAll = defineModel<boolean>('isCheckedAll', {
+    required: true,
+  });
+  const indeterminate = defineModel<boolean>('indeterminate', {
+    required: true,
+  });
   const moduleKeyword = ref('');
   const activeFolder = ref<string>('all');
   const allCount = ref(0);
@@ -103,7 +147,7 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 180px)',
+      height: 'calc(100vh - 236px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
@@ -129,6 +173,42 @@
   }
 
   const selectedProtocols = ref<string[]>([]);
+  // 递归计算并更新节点的 count
+  function processTreeData(nodes: MsTreeNodeData[]): MsTreeNodeData[] {
+    const traverse = (node: MsTreeNodeData): number => {
+      let totalChildrenCount = 0;
+
+      if (node.children && node.children.length > 0) {
+        totalChildrenCount = node.children.reduce((sum, child) => {
+          return sum + traverse(child);
+        }, 0);
+        node.count -= totalChildrenCount;
+      }
+
+      return node.count + totalChildrenCount;
+    };
+
+    nodes.forEach((node: MsTreeNodeData) => traverse(node));
+    return nodes;
+  }
+
+  function calculateTreeCount(treeData: MsTreeNodeData[]) {
+    caseTree.value = mapTree<ModuleTreeNode>(treeData, (node) => {
+      return {
+        ...node,
+        count: props.modulesCount[node.id],
+      };
+    });
+
+    const updatedModuleTreeCount = processTreeData(caseTree.value) as MsTreeNodeData[];
+    caseTree.value = mapTree<ModuleTreeNode>(updatedModuleTreeCount, (node) => {
+      return {
+        ...node,
+        count: node.count,
+      };
+    });
+    allCount.value = props.modulesCount.all || 0;
+  }
   /**
    * 初始化模块树
    */
@@ -143,15 +223,13 @@
       };
 
       const res = await getModuleTreeFunc(props.getModulesApiType, props.activeTab, getModuleParams);
-      caseTree.value = mapTree<ModuleTreeNode>(res, (node) => {
-        return {
-          ...node,
-          count: props.modulesCount?.[node.id] || 0,
-        };
-      });
+
+      calculateTreeCount(res);
+
       if (setDefault) {
         setActiveFolder('all');
       }
+
       emit('init', caseTree.value, selectedProtocols.value);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -166,21 +244,32 @@
     initModules();
   }
 
+  function checkNode(_checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData) {
+    emit('check', _checkedKeys, checkedNodes);
+  }
+
+  function selectCurrent(node: MsTreeNodeData, isSelected: boolean) {
+    emit('selectParent', node, isSelected);
+  }
+
   /**
    * 初始化模块文件数量
    */
   watch(
     () => props.modulesCount,
-    (obj) => {
-      caseTree.value = mapTree<ModuleTreeNode>(caseTree.value, (node) => {
-        return {
-          ...node,
-          count: obj?.[node.id] || 0,
-        };
-      });
-      allCount.value = obj?.all || 0;
+    () => {
+      calculateTreeCount(caseTree.value);
+    },
+    {
+      deep: true,
+      immediate: true,
     }
   );
+
+  function handleChangeAll(value: boolean | (string | number | boolean)[], ev: Event) {
+    isCheckAll.value = value as boolean;
+    emit('checkAllModule', isCheckAll.value);
+  }
 
   watch(
     () => props.showType,

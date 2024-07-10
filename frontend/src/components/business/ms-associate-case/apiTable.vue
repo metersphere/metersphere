@@ -10,6 +10,9 @@
     }"
     v-on="propsEvent"
     @filter-change="getModuleCount"
+    @row-select-change="rowSelectChange"
+    @select-all-change="selectAllChange"
+    @clear-selector="clearSelector"
   >
     <template #num="{ record }">
       <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -28,6 +31,9 @@
         <div class="one-line-text">{{ record.createUserName }}</div>
       </a-tooltip>
     </template>
+    <template #count>
+      <slot></slot>
+    </template>
   </MsBaseTable>
 </template>
 
@@ -36,6 +42,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -52,6 +59,8 @@
   import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
+  import type { moduleKeysType } from './types';
+  import useModuleSelection from './useModuleSelection';
   import { getPublicLinkCaseListMap } from './utils/page';
 
   const { t } = useI18n();
@@ -71,6 +80,7 @@
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
     protocols: string[];
+    moduleTree: MsTreeNodeData[];
   }>();
 
   const emit = defineEmits<{
@@ -81,6 +91,9 @@
   }>();
 
   const tableStore = useTableStore();
+  const innerSelectedModulesMaps = defineModel<Record<string, moduleKeysType>>('selectedModulesMaps', {
+    required: true,
+  });
 
   const requestMethodsOptions = computed(() => {
     return Object.values(RequestMethods).map((e) => {
@@ -180,10 +193,10 @@
     propsEvent,
     loadList,
     setLoadListParams,
-    resetSelector,
     setPagination,
     resetFilterParams,
     setTableSelected,
+    resetSelector,
   } = useTable(getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType].API, {
     tableKey: TableKeyEnum.ASSOCIATE_CASE_API,
     showSetting: true,
@@ -239,7 +252,6 @@
       setPagination({
         current: 1,
       });
-      resetSelector();
       resetFilterParams();
       loadApiList();
     }
@@ -298,6 +310,22 @@
       pId: record.projectId,
     });
   }
+
+  const { rowSelectChange, selectAllChange, clearSelector, setModuleTree } = useModuleSelection(
+    innerSelectedModulesMaps.value,
+    propsRes.value,
+    props.moduleTree
+  );
+
+  watch(
+    () => props.moduleTree,
+    (val) => {
+      setModuleTree(val);
+    },
+    {
+      immediate: true,
+    }
+  );
 
   defineExpose({
     getApiSaveParams,

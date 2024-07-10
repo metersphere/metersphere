@@ -6,6 +6,7 @@
       ref="treeRef"
       v-model:selected-keys="selectedKeys"
       v-model:checked-keys="checkedKeys"
+      v-model:half-checked-keys="halfCheckedKeys"
       :data="filterTreeData"
       class="ms-tree"
       :allow-drop="handleAllowDrop"
@@ -119,6 +120,7 @@
       emptyText?: string; // 空数据时的文案
       checkable?: boolean; // 是否可选中
       checkedStrategy?: 'all' | 'parent' | 'child'; // 选中节点时的策略
+      checkStrictly?: boolean; // 是否取消父子节点关联
       virtualListProps?: VirtualListProps; // 虚拟滚动列表的属性
       disabledTitleTooltip?: boolean; // 是否禁用标题 tooltip
       actionOnNodeClick?: 'expand'; // 点击节点时的操作
@@ -167,7 +169,7 @@
     ): void;
     (e: 'moreActionSelect', item: ActionsItem, node: MsTreeNodeData): void;
     (e: 'moreActionsClose'): void;
-    (e: 'check', val: Array<string | number>): void;
+    (e: 'check', val: Array<string | number>, node: MsTreeNodeData): void;
     (e: 'expand', node: MsTreeExpandedData): void;
   }>();
 
@@ -178,6 +180,9 @@
     default: [],
   });
   const checkedKeys = defineModel<(string | number)[]>('checkedKeys', {
+    default: [],
+  });
+  const halfCheckedKeys = defineModel<(string | number)[]>('halfCheckedKeys', {
     default: [],
   });
   const focusNodeKey = defineModel<string | number>('focusNodeKey', {
@@ -362,8 +367,8 @@
     emit('select', _selectedKeys, selectNode);
   }
 
-  function checked(_checkedKeys: Array<string | number>) {
-    emit('check', _checkedKeys);
+  function checked(_checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData) {
+    emit('check', _checkedKeys, checkedNodes);
   }
 
   const focusEl = ref<HTMLElement | null>(); // 存储聚焦的节点元素
