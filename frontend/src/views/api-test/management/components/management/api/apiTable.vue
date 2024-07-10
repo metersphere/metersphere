@@ -158,6 +158,7 @@
           unique-value
           retain-input-value
         />
+        <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
       </a-form-item>
       <a-form-item
         v-else
