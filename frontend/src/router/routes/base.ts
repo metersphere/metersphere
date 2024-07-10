@@ -75,9 +75,3 @@ export const NOT_FOUND_RESOURCE: RouteRecordRaw = {
   name: 'notResourceScreen',
   component: () => import('@/views/base/not-resource-screen/not-resource-screen.vue'),
 };
-
-export const LOGIN_REDIRECT: RouteRecordRaw = {
-  path: '/qrcode/transition',
-  name: 'loginRedirect',
-  component: () => import('@/views/base/login-redirect/index.vue'),
-};

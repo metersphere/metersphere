@@ -182,6 +182,9 @@ const useUserStore = defineStore('user', {
     async isLogin(forceSet = false) {
       try {
         const res = await userIsLogin();
+        if (!res) {
+          return false;
+        }
         const appStore = useAppStore();
         setToken(res.sessionId, res.csrfToken);
         this.setInfo(res);
