@@ -199,4 +199,6 @@ export default {
   'apiTestDebug.standardAdditions': '标准添加',
   'apiTestDebug.standardAdditionsTip': '书写格式：参数名，类型，必填，参数值；多条记录换行分隔',
   'apiTestDebug.quickAdditions': '快捷添加',
+  'apiTestDebug.first': '首次',
+  'apiTestDebug.retry': '重试',
 };

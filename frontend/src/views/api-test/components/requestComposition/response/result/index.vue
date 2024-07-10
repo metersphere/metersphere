@@ -1,33 +1,43 @@
 <template>
   <div class="flex flex-col" @click.stop="() => {}">
     <div class="response-header">
-      <div v-if="isShowLoopControl" class="flex w-full items-center justify-start bg-white p-4" @click.stop="() => {}">
-        <a-pagination
-          v-model:page-size="controlPageSize"
-          v-model:current="controlCurrent"
-          :total="controlTotal"
-          size="mini"
-          show-total
-          :show-jumper="controlTotal > 5"
+      <div
+        v-if="isShowLoopControl"
+        class="flex w-full items-center justify-start bg-white pb-[8px] pt-[16px]"
+        @click.stop="() => {}"
+      >
+        <MsTab
+          v-if="isFailedRetry"
+          v-model:activeKey="controlCurrent"
+          :content-tab-list="controlTotalList"
+          mode="button"
+          button-size="small"
           @change="loadControlLoop"
         />
-        <!-- <loopPagination v-model:current-loop="controlCurrent" :loop-total="controlTotal" /> -->
+        <loopPagination
+          v-else
+          v-model:current-loop="controlCurrent"
+          :loop-total="controlTotal"
+          class="!mb-0"
+          @change="loadControlLoop"
+        />
       </div>
       <div class="flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
         <div class="font-medium">
           <span
             :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"
             @click.stop="setActiveType('ResContent')"
-            >{{ t('report.detail.api.resContent') }}</span
           >
+            {{ t('report.detail.api.resContent') }}
+          </span>
           <span
             v-if="total > 0"
             :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'SubRequest' }"
             @click.stop="setActiveType('SubRequest')"
           >
             <a-divider direction="vertical" :margin="8"></a-divider>
-            {{ t('report.detail.api.subRequest') }}</span
-          >
+            {{ t('report.detail.api.subRequest') }}
+          </span>
         </div>
         <div class="flex flex-row gap-6 text-center">
           <a-popover position="left" content-class="response-popover-content">
@@ -121,7 +131,9 @@
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import result from '@/views/api-test/components/requestComposition/response/result.vue';
+  import loopPagination from '@/views/api-test/scenario/components/common/loopPagination.vue';
 
   import { reportCaseStepDetail, reportStepDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
@@ -337,7 +349,24 @@
     }
     return 0;
   });
-  const controlPageSize = ref(1);
+  const controlTotalList = computed(() => {
+    return Array.from({ length: controlTotal.value }, (v, k) => {
+      if (k === 0) {
+        return {
+          value: k + 1,
+          label: t('apiTestDebug.first'),
+        };
+      }
+      return {
+        value: k + 1,
+        label: `${t('apiTestDebug.retry')} ${k}`,
+      };
+    });
+  });
+  const isFailedRetry = computed(() => {
+    return !!props.stepItem?.stepChildren?.some((item) => item.requestName.includes('MsRetry_')); // 是否包含重试前缀
+  });
+
   /**
    *  循环次数控制器
    */

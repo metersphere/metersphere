@@ -5,7 +5,7 @@
     :class="[props.class, props.noContent ? 'no-content' : '']"
     @change="(val) => handleTabClick(val as string)"
   >
-    <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="item.label">
+    <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="`${item.label}`">
       <template v-if="props.showBadge" #title>
         <a-badge
           v-if="props.getTextFunc(item.value) !== ''"
@@ -27,8 +27,11 @@
     <div
       v-for="item of props.contentTabList"
       :key="item.value"
-      class="ms-tab--button-item"
-      :class="item.value === tempActiveKey ? 'ms-tab--button-item--active' : ''"
+      class="ms-tab-button-item"
+      :class="[
+        item.value === tempActiveKey ? 'ms-tab-button-item--active' : '',
+        props.buttonSize === 'small' ? 'ms-tab--button-item--small' : '',
+      ]"
       @click="handleTabClick(item.value)"
     >
       {{ item.label }}
@@ -40,23 +43,28 @@
   const props = withDefaults(
     defineProps<{
       mode?: 'origin' | 'button';
-      contentTabList: { label: string; value: string }[];
+      contentTabList: { label: string | number; value: string | number }[];
       class?: string;
       getTextFunc?: (value: any) => string;
       noContent?: boolean;
       showBadge?: boolean;
-      changeInterceptor?: (newVal: string, oldVal: string, done: () => void) => void;
+      changeInterceptor?: (newVal: string | number, oldVal: string | number, done: () => void) => void;
+      buttonSize?: 'small' | 'default';
     }>(),
     {
       mode: 'origin',
       showBadge: true,
       getTextFunc: (value: any) => value,
       class: '',
+      buttonSize: 'default',
     }
   );
+  const emit = defineEmits<{
+    (e: 'change', value: string | number): void;
+  }>();
 
   // 实际值，用于最终确认修改的 tab 值
-  const activeKey = defineModel<string>('activeKey', {
+  const activeKey = defineModel<string | number>('activeKey', {
     default: '',
   });
   // 临时值，用于组件内部变更，但未影响到实际值
@@ -69,7 +77,7 @@
     }
   );
 
-  function handleTabClick(value: string) {
+  function handleTabClick(value: string | number) {
     if (value === activeKey.value) {
       return;
     }
@@ -85,6 +93,7 @@
       // 不存在拦截器，直接修改实际值
       activeKey.value = value;
     }
+    emit('change', activeKey.value);
   }
 </script>
 
@@ -107,7 +116,7 @@
     @apply flex;
 
     border-radius: var(--border-radius-small);
-    .ms-tab--button-item {
+    .ms-tab-button-item {
       @apply cursor-pointer;
 
       padding: 4px 12px;
@@ -128,7 +137,12 @@
         color: rgb(var(--primary-5));
       }
     }
-    .ms-tab--button-item--active {
+    .ms-tab--button-item--small {
+      padding: 1px 12px;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .ms-tab-button-item--active {
       z-index: 2;
       border: 1px solid rgb(var(--primary-5)) !important;
       color: rgb(var(--primary-5));

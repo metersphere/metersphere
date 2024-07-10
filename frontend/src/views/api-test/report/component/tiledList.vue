@@ -5,10 +5,18 @@
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
     }"
   >
+    <div v-if="isFailedRetry" class="mb-[8px]">
+      <MsTab
+        v-model:activeKey="controlCurrent"
+        :content-tab-list="controlTotalList"
+        mode="button"
+        button-size="small"
+      />
+    </div>
     <!-- 步骤树 -->
     <StepTree
       ref="stepTreeRef"
-      v-model:steps="tiledList"
+      v-model:steps="currentTiledList"
       v-model:expandedKeys="expandedKeys"
       :show-type="props.showType"
       :active-type="props.activeType"
@@ -36,8 +44,11 @@
   import { ref } from 'vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   import StepDrawer from './step/stepDrawer.vue';
   import StepTree from './step/stepTree.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   import type { ReportDetail, ScenarioItemType } from '@/models/apiTest/report';
   import { ScenarioStepType } from '@/enums/apiEnum';
@@ -51,6 +62,8 @@
     keyWords: string;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
   }>();
+
+  const { t } = useI18n();
 
   const tiledList = ref<ScenarioItemType[]>([]);
 
@@ -81,6 +94,37 @@
     });
     originTreeData.value = cloneDeep(tiledList.value);
   }
+
+  const controlCurrent = ref(0);
+  const isFailedRetry = computed(() => {
+    // 所有步骤 id 相同且带有重试前缀，说明是单个用例的重试结果
+    return (
+      props.reportDetail.children.every((item) => item.stepId === props.reportDetail.children[0].stepId) &&
+      props.reportDetail.children.some((item) => item.requestName?.includes('MsRetry_'))
+    );
+  });
+  const currentTiledList = computed(() => {
+    if (isFailedRetry.value === false) {
+      // 不是失败重试结果
+      return tiledList.value;
+    }
+    // 失败重试的结果
+    return [tiledList.value[controlCurrent.value]];
+  });
+  const controlTotalList = computed(() => {
+    return Array.from({ length: props.reportDetail.children.length }, (v, k) => {
+      if (k === 0) {
+        return {
+          value: k,
+          label: t('apiTestDebug.first'),
+        };
+      }
+      return {
+        value: k,
+        label: `${t('apiTestDebug.retry')} ${k}`,
+      };
+    });
+  });
 
   watch(
     () => props.reportDetail,
