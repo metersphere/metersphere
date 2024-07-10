@@ -460,7 +460,7 @@ export default defineComponent(
             placeholder={t(props.placeholder || '')}
             allow-clear={allowClear.value}
             allow-search={props.allowSearch}
-            filter-option={true}
+            filter-option={false}
             loading={loading.value}
             multiple={props.multiple}
             max-tag-count={maxTagCount.value}
@@ -472,6 +472,7 @@ export default defineComponent(
             disabled={props.disabled}
             size={props.size}
             onChange={handleChange}
+            onBlur={emit('blur')}
             onSearch={handleSearch}
             onPopupVisibleChange={(val: boolean) => {
               popupVisible.value = val;
@@ -558,6 +559,7 @@ export default defineComponent(
       'remove',
       'change',
       'changeObject',
+      'blur',
     ],
   }
 );

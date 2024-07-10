@@ -17,7 +17,11 @@
       </div>
       <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
         <template #name="{ record }">
-          <a-button type="text" class="w-full overflow-hidden px-0" @click="openAuthDetail(record.id)">
+          <a-button
+            type="text"
+            class="max-w-full justify-start overflow-hidden px-0"
+            @click="openAuthDetail(record.id)"
+          >
             <div class="one-line-text">
               {{ record.name }}
             </div>
@@ -790,6 +794,7 @@
           Message.success(t('system.config.auth.deleteSuccess'));
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -1022,6 +1027,7 @@
           typeof res.configuration === 'string' ? JSON.parse(res.configuration || '{}') : res.configuration,
       };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;
@@ -1196,6 +1202,7 @@
       }
       loadList();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;

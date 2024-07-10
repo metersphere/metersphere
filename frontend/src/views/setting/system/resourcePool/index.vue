@@ -21,7 +21,7 @@
           <a-button
             type="text"
             class="px-0"
-            :class="record.id === '100001100001' ? '' : 'w-full justify-start'"
+            :class="record.id === '100001100001' ? '' : 'max-w-full justify-start'"
             @click="showPoolDetail(record.id)"
           >
             <div class="one-line-text">

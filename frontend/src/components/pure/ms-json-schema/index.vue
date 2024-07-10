@@ -406,7 +406,7 @@
               @change="handleSettingFormChange"
             />
           </a-form-item>
-          <a-form-item :label="t('ms.json.schema.regex')">
+          <a-form-item v-if="activeRecord.type === 'string'" :label="t('ms.json.schema.regex')">
             <a-input
               v-model:model-value="activeRecord.regex"
               :placeholder="t('ms.json.schema.regexPlaceholder', { reg: '/<title(.*?)</title>' })"

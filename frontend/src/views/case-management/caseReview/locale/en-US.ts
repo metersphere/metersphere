@@ -138,4 +138,7 @@ export default {
     'Submitted successfully! You are not the designated reviewer for the current project. The system will only record your review and will not affect the final review result.',
   'caseManagement.caseReview.reviewFormTip':
     'Add the review results of the operator, and multiple reviewers must pass the review by all reviewers',
+  'caseManagement.caseReview.reviewerTip':
+    "If you need to review use cases, you need to add the user as a reviewer; only the reviewer's review results take effect.",
+  'caseManagement.caseReview.reviewDisabledTip': 'Non-reviewers cannot review, but can review after modification',
 };
