@@ -433,7 +433,13 @@
       girdConcurrentNumber: 1,
       podThreads: 1,
       concurrentNumber: 1,
-      nodesList: [] as NodesListItem[],
+      nodesList: [
+        {
+          ip: '',
+          port: '',
+          concurrentNumber: 1,
+        },
+      ],
       ip: '',
       token: '',
       namespace: '',
@@ -605,6 +611,7 @@
       min: 1,
       max: maxConcurrentNumber.value,
       tooltip: licenseStore.hasLicense() ? '' : t('system.resourcePool.concurrentNumberMinToolTip'),
+      defaultValue: 1,
     },
   ]);
 
