@@ -847,7 +847,7 @@
         case_review_functional_case crfc
         LEFT JOIN functional_case fc ON crfc.case_id = fc.id
         LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
-        LEFT JOIN (select  * from (SELECT  crh.case_id, crh.`status`, ROW_NUMBER() OVER (PARTITION BY crh.case_id ORDER BY crh.create_time DESC) as rn from case_review_history crh where crh.review_id = #{request.reviewId}
+        LEFT JOIN (select  * from (SELECT  crh.case_id, crh.`status`, ROW_NUMBER() OVER (PARTITION BY crh.case_id ORDER BY crh.create_time DESC) as rn from case_review_history crh where crh.review_id = #{request.reviewId} and crh.deleted = false
         <if test="viewStatusUserId != null and viewStatusUserId != ''">
             AND crh.create_user = #{viewStatusUserId}
         </if>
