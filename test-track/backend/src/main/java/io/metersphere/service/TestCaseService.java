@@ -2419,6 +2419,7 @@ public class TestCaseService {
     }
 
     public TestCaseExample getBatchExample(TestCaseBatchRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getCondition());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
         TestCaseExample example = new TestCaseExample();
@@ -2824,6 +2825,7 @@ public class TestCaseService {
     }
 
     public void reduction(TestCaseBatchRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getCondition());
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extTestCaseMapper.selectIds(query));
         List<String> ids = request.getIds();
         if (CollectionUtils.isNotEmpty(ids)) {
@@ -3514,6 +3516,7 @@ public class TestCaseService {
     }
 
     public void batchRelateDemand(TestCaseBatchRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getCondition());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
         if (CollectionUtils.isEmpty(request.getIds())) {
