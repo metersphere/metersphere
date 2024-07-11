@@ -530,7 +530,7 @@
     done();
   }
 
-  // 复制 TODO:待联调
+  // 复制
   const copyLoading = ref<boolean>(false);
   async function copyHandler() {
     copyLoading.value = true;
@@ -539,9 +539,8 @@
       Message.success(t('common.copySuccess'));
       router.push({
         name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
-        // TODO 后台需要补id
         query: {
-          id: res.id,
+          id: res.operationId,
         },
       });
       initDetail();

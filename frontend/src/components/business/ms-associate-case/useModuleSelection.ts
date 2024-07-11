@@ -52,11 +52,16 @@ export default function useModuleSelections<T>(
     });
   }
 
-  // 单选或复选时处理全选状态
-  function setSelectedAll(moduleId: string) {
-    innerSelectedModulesMaps[moduleId].selectAll = true;
+  // 重置模块参数
+  function resetModule(moduleId: string, isChecked: boolean) {
+    innerSelectedModulesMaps[moduleId].selectAll = isChecked;
     innerSelectedModulesMaps[moduleId].selectIds = new Set([]);
     innerSelectedModulesMaps[moduleId].excludeIds = new Set([]);
+  }
+
+  // 单选或复选时处理全选状态
+  function setSelectedAll(moduleId: string) {
+    resetModule(moduleId, true);
     const selectedProp = innerSelectedModulesMaps[moduleId];
     if (selectedProp) {
       if (selectedProp.selectAll && !selectedProp.selectIds.size && !selectedProp.excludeIds.size) {
@@ -85,16 +90,27 @@ export default function useModuleSelections<T>(
     const selectedProps = innerSelectedModulesMaps[moduleId];
     if (selectedProps) {
       const { selectIds: selectModuleIds, count, excludeIds } = selectedProps;
-      if (selectModuleIds.size < count) {
-        innerSelectedModulesMaps[moduleId].selectAll = false;
-      }
-      if (selectModuleIds.size === count) {
-        setSelectedAll(moduleId);
-      }
-      if (excludeIds.size === count) {
-        innerSelectedModulesMaps[moduleId].selectAll = false;
-        innerSelectedModulesMaps[moduleId].selectIds = new Set([]);
-        innerSelectedModulesMaps[moduleId].excludeIds = new Set([]);
+
+      // 处理单个模块的选择状态
+      if (moduleId !== 'all') {
+        if (selectModuleIds.size < count) {
+          selectedProps.selectAll = false;
+        }
+        // 符合选择条数和总数相等，置空模块选择参数
+        if (selectModuleIds.size === count) {
+          setSelectedAll(moduleId);
+        }
+
+        if (excludeIds.size === count) {
+          resetModule(moduleId, false);
+        }
+      } else if (moduleId === 'all') {
+        // 处理全选选择状态
+        if (excludeIds.size) {
+          selectedProps.selectAll = false;
+        } else {
+          resetModule(moduleId, true);
+        }
       }
     }
   }
@@ -107,19 +123,20 @@ export default function useModuleSelections<T>(
       const excludedSet = selectedProps.excludeIds;
       const isSelectAllModule =
         selectedProps.selectAll && !selectedProps.selectIds.size && !selectedProps.excludeIds.size;
-
+      // 初始化全选优先级最高，若全选则按照模块右侧列表全部分类追加集合
       if (isSelectAllModule && moduleId === 'all') {
         Object.entries(moduleSelectedMap.value).forEach(([item, allSelectIds]) => {
           allSelectIds.forEach((key) => {
             selectedProps.selectIds.add(key);
           });
         });
+        // 只选择某模块则追加某模块的集合
       } else if (isSelectAllModule && moduleId !== 'all') {
         moduleSelectedMap.value[moduleId].forEach((key) => {
           selectedProps.selectIds.add(key);
         });
       }
-
+      // 在更新上边的ids集合后进行判断是选择还是取消
       if (selectedSet.has(id)) {
         selectedProps.excludeIds.add(id);
         selectedProps.selectIds.delete(id);
@@ -134,14 +151,14 @@ export default function useModuleSelections<T>(
       setSelectedModuleStatus(moduleId);
     }
   }
-
+  // 单独选择或取消行
   function rowSelectChange(record: Record<string, any>) {
     const { moduleId } = record;
     setUnSelectNode(moduleId);
     updateSelectModule(moduleId, record.id);
     updateSelectModule('all', record.id);
   }
-
+  // 全选当前页或者取消当前页
   function selectAllChange(v: SelectAllEnum) {
     const { data } = propsRes;
     if (v === 'current') {
