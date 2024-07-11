@@ -497,11 +497,21 @@
   const indeterminate = ref<boolean>(false);
 
   const totalCount = computed(() => {
-    if (isCheckedAll.value) {
-      return modulesCount.value.all;
-    }
-    return Object.values(selectedModulesMaps.value).reduce((total, module) => {
-      return total + (module.selectAll ? module.count : module.selectIds.size);
+    return Object.keys(selectedModulesMaps.value).reduce((total, key) => {
+      const module = selectedModulesMaps.value[key];
+      if (key !== 'all') {
+        // 未全选存在排除则要 count总-排除掉的 = 已选
+        if (module.excludeIds.size && !module.selectAll) {
+          total += module.count - module.excludeIds.size;
+          // 已全选未排除则要+count
+        } else if (module.selectAll && !module.excludeIds.size) {
+          total += module.count;
+          // 未全选则 + 选择的id集合
+        } else if (!module.selectAll && module.selectIds.size) {
+          total += module.selectIds.size;
+        }
+      }
+      return total;
     }, 0);
   });
 
@@ -712,19 +722,20 @@
 
       Object.entries(val).forEach(([moduleId, selectedProps]) => {
         const { selectAll: selectIdsAll, selectIds, count } = selectedProps;
+        if (selectedProps) {
+          // 全选和取消全选
+          if (selectIdsAll) {
+            checkedKeysSet.add(moduleId);
+          } else {
+            checkedKeysSet.delete(moduleId);
+          }
 
-        // 全选和取消全选
-        if (selectIdsAll) {
-          checkedKeysSet.add(moduleId);
-        } else {
-          checkedKeysSet.delete(moduleId);
-        }
-
-        // 半选状态
-        if (selectIds.size > 0 && selectIds.size < count) {
-          halfCheckedKeysSet.add(moduleId);
-        } else {
-          halfCheckedKeysSet.delete(moduleId);
+          // 半选状态
+          if (selectIds.size > 0 && selectIds.size < count) {
+            halfCheckedKeysSet.add(moduleId);
+          } else {
+            halfCheckedKeysSet.delete(moduleId);
+          }
         }
       });
 
@@ -736,11 +747,13 @@
       const isAllCheckedModuleProps = val.all;
 
       if (isAllCheckedModuleProps) {
-        const { selectAll, selectIds, count } = isAllCheckedModuleProps;
+        if (totalCount.value === isAllCheckedModuleProps.count) {
+          isCheckedAll.value = true;
+        } else {
+          isCheckedAll.value = false;
+        }
 
-        isCheckedAll.value = selectAll;
-
-        if (selectIds.size > 0 && selectIds.size < count) {
+        if (totalCount.value < isAllCheckedModuleProps.count) {
           indeterminate.value = true;
         } else {
           indeterminate.value = false;
