@@ -90,8 +90,9 @@
 
   function parseParams() {
     if (props.hasStandard && addType.value === 'standard') {
+      // 过滤掉空行和文件类型的参数
       batchParamsCode.value = props.params
-        .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)))
+        .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)) && e.paramType !== RequestParamsType.FILE)
         .map((item) => `${item.key},${item.paramType},${item.required},${item.value}`)
         .join('\n');
     } else {
@@ -167,7 +168,11 @@
     const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
     for (let i = 0; i < arr.length; i++) {
       if (arr[i] !== '') {
-        const [key, type, required, value] = arr[i].split(',');
+        const parts = arr[i].split(',');
+        // 提取前三个元素
+        const [key, type, required] = parts.slice(0, 3);
+        // 将第四个元素到最后一个元素合并成一个字符串
+        const value = parts.length >= 4 ? parts.slice(3).join(',') : '';
         if (key) {
           tempObj[key.trim()] = {
             id: getGenerateId(),
