@@ -3350,6 +3350,7 @@ public class TestCaseService {
     }
 
     public void copyTestCaseBath(TestCaseBatchRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getCondition());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
         List<String> ids = request.getIds();
