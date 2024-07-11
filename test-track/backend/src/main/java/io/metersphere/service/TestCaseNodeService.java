@@ -293,6 +293,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setProjectId(projectId);
         request.setNodeIds(null);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getCountNodes(request);
         countModules.forEach(item -> item.setProjectId(projectId));
         return getNodeTreeWithPruningTree(countModules);
