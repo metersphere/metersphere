@@ -16,7 +16,7 @@
         {{ t('login.form.accountLogin') }}
       </div>
       <div
-        v-if="isShowLDAP && userInfo.authenticate !== 'LOCAL'"
+        v-if="isShowLDAP && userInfo.authenticate === 'LDAP'"
         class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]"
         >{{ t('login.form.LDAPLogin') }}</div
       >
@@ -74,7 +74,7 @@
         </div>
       </a-form>
       <div v-if="showQrCodeTab">
-        <tab-qr-code :tab-name="activeName === 'WE_COM' ? 'WE_COM' : orgOptions[0].value"></tab-qr-code>
+        <tab-qr-code :tab-name="activeName ? activeName : orgOptions[0].value"></tab-qr-code>
       </div>
       <a-divider
         v-if="isShowLDAP || isShowOIDC || isShowOAUTH || isShowCAS || (isShowQRCode && orgOptions.length > 0)"
@@ -132,7 +132,7 @@
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { encrypted } from '@/utils';
-  import { setLoginExpires } from '@/utils/auth';
+  import { getLongType, setLoginExpires, setLongType } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
@@ -180,7 +180,7 @@
     username: string;
     password: string;
   }>({
-    authenticate: 'LOCAL',
+    authenticate: getLongType() || 'LOCAL',
     username: '',
     password: '',
   });
@@ -219,6 +219,7 @@
           password: encrypted(values.password),
           authenticate: userInfo.value.authenticate,
         } as LoginData);
+        setLongType(userInfo.value.authenticate);
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
         const { username, password } = values;
@@ -287,16 +288,14 @@
   async function initPlatformInfo() {
     try {
       const res = await getPlatformParamUrl();
-
+      if (getLongType() && getLongType() !== 'LOCAL' && getLongType() !== 'LDAP') {
+        showQrCodeTab.value = true;
+        activeName.value = getLongType() || 'WE_COM';
+      }
       orgOptions.value = res.map((e) => ({
         label: e.name,
         value: e.id,
       }));
-      res.forEach((e) => {
-        if (e.id === 'WE_COM') {
-          e.id = activeName.value;
-        }
-      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -331,6 +330,7 @@
           const config = JSON.parse(res.configuration);
           // eslint-disable-next-line no-eval
           const redirectUrl = eval(`\`${config.redirectUrl}\``);
+          setLongType('LOCAL');
           let url;
           if (authType === 'CAS') {
             url = `${config.loginUrl}?service=${encodeURIComponent(redirectUrl)}`;

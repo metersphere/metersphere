@@ -3,6 +3,7 @@ import { WHITE_LIST_NAME } from '@/router/constants';
 
 const SESSION_ID = 'sessionId';
 const CSRF_TOKEN = 'csrfToken';
+const LOGIN_TYPE = 'loginType';
 
 const isLogin = async () => {
   try {
@@ -20,6 +21,14 @@ const getToken = () => {
 const setToken = (sessionId: string, csrfToken: string) => {
   localStorage.setItem(SESSION_ID, sessionId);
   localStorage.setItem(CSRF_TOKEN, csrfToken);
+};
+
+const setLongType = (loginType: string) => {
+  localStorage.setItem(LOGIN_TYPE, loginType);
+};
+
+const getLongType = () => {
+  return localStorage.getItem(LOGIN_TYPE);
 };
 
 const clearToken = () => {
@@ -46,4 +55,4 @@ const isLoginExpires = () => {
   return diff > thirtyDay;
 };
 
-export { clearToken, getToken, hasToken, isLogin, isLoginExpires, setLoginExpires, setToken };
+export { clearToken, getLongType, getToken, hasToken, isLogin, isLoginExpires, setLoginExpires, setLongType, setToken };

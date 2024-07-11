@@ -22,6 +22,7 @@ export interface AppState {
   serverMenu: RouteRecordNormalized[];
   loading: boolean;
   loadingTip: string;
+  loginLoading: boolean;
   topMenus: RouteRecordRaw[];
   currentTopMenu: RouteRecordRaw;
   breadcrumbList: BreadcrumbItem[];

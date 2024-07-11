@@ -12,7 +12,7 @@
   import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { setLoginExpires } from '@/utils/auth';
+  import { setLoginExpires, setLongType } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import * as ww from '@wecom/jssdk';
@@ -48,6 +48,7 @@
       async onLoginSuccess({ code }: any) {
         const weComCallback = getWeComCallback(code);
         userStore.qrCodeLogin(await weComCallback);
+        setLongType('WE_COM');
         Message.success(t('login.form.login.success'));
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         const redirectHasPermission =
