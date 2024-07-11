@@ -1,5 +1,4 @@
 export default {
-  'ms.minders.allModule': 'All Modules',
   'ms.minders.precondition': 'Precondition',
   'ms.minders.stepDesc': 'Step Description',
   'ms.minders.stepExpect': 'Expected Result',
