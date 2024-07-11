@@ -87,6 +87,7 @@
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
     moduleTree: MsTreeNodeData[];
+    modulesCount: Record<string, any>;
   }>();
 
   const emit = defineEmits<{
@@ -282,16 +283,15 @@
     };
   }
 
-  const { rowSelectChange, selectAllChange, clearSelector, setModuleTree } = useModuleSelection(
+  const { rowSelectChange, selectAllChange, clearSelector, setModuleInfo } = useModuleSelection(
     innerSelectedModulesMaps.value,
-    propsRes.value,
-    props.moduleTree
+    propsRes.value
   );
 
   watch(
-    () => props.moduleTree,
+    [() => props.moduleTree, () => props.modulesCount],
     (val) => {
-      setModuleTree(val);
+      setModuleInfo(val);
     },
     {
       immediate: true,

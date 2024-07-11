@@ -68,6 +68,7 @@ import {
   TestPlanAndGroupCopyUrl,
   TestPlanApiAssociatedPageUrl,
   TestPlanAssociateBugUrl,
+  TestPlanAssociationUrl,
   TestPlanCancelBugUrl,
   TestPlanCaseAssociatedPageUrl,
   TestPlanCaseDetailUrl,
@@ -85,7 +86,6 @@ import type { CommonList, MoveModules, TableQueryParams } from '@/models/common'
 import { DragSortParams, ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
-  AssociateCaseRequestType,
   BatchApiCaseParams,
   BatchExecuteFeatureCaseParams,
   BatchExecutePlan,
@@ -428,4 +428,8 @@ export function getPlanMinder(testPlanId: string) {
 // 更新测试规划脑图
 export function editPlanMinder(data: PlanMinderEditParams) {
   return MSR.post({ url: EditPlanMinderUrl, data });
+}
+// 测试计划关联模块count
+export function testPlanAssociateModuleCount(data: TableQueryParams) {
+  return MSR.post({ url: TestPlanAssociationUrl, data });
 }

@@ -192,6 +192,7 @@
           :extra-table-params="props.extraTableParams"
           :keyword="keyword"
           :module-tree="moduleTree"
+          :modules-count="modulesCount"
           @get-module-count="initModulesCount"
           @refresh="loadCaseList"
         >
@@ -215,6 +216,7 @@
           :show-type="showType"
           :protocols="selectedProtocols"
           :module-tree="moduleTree"
+          :modules-count="modulesCount"
           @get-module-count="initModulesCount"
         >
           <TotalCount :total-count="totalCount" />
@@ -237,6 +239,7 @@
           :show-type="showType"
           :protocols="selectedProtocols"
           :module-tree="moduleTree"
+          :modules-count="modulesCount"
           @get-module-count="initModulesCount"
         >
           <TotalCount :total-count="totalCount" />
@@ -496,6 +499,7 @@
   const isCheckedAll = ref<boolean>(false);
   const indeterminate = ref<boolean>(false);
 
+  // TODO 需优化、手动触发计算、或者每次增量更新
   const totalCount = computed(() => {
     return Object.keys(selectedModulesMaps.value).reduce((total, key) => {
       const module = selectedModulesMaps.value[key];
@@ -517,6 +521,13 @@
 
   const apiCaseCollectionId = ref<string>('');
   const apiScenarioCollectionId = ref<string>('');
+
+  // 切换项目的时候清空
+  function clearSelector() {
+    Object.keys(selectedModulesMaps.value).forEach((key) => {
+      delete selectedModulesMaps.value[key];
+    });
+  }
 
   // 保存
   function handleConfirm() {
@@ -545,6 +556,7 @@
     keyword.value = '';
     activeFolder.value = 'all';
     activeFolderName.value = t('ms.case.associate.allCase');
+    clearSelector();
     emit('close');
   }
 
@@ -669,15 +681,6 @@
     }
   );
 
-  watch(
-    () => showType.value,
-    (val) => {
-      if (val) {
-        selectedIds.value = [];
-      }
-    }
-  );
-
   // 选中当前节点 && 取消当前节点
   function selectParent(nodeData: MsTreeNodeData, isSelected: boolean) {
     selectedModulesMaps.value[nodeData.id] = {
@@ -721,7 +724,7 @@
       }
 
       Object.entries(val).forEach(([moduleId, selectedProps]) => {
-        const { selectAll: selectIdsAll, selectIds, count } = selectedProps;
+        const { selectAll: selectIdsAll, selectIds, count, excludeIds } = selectedProps;
         if (selectedProps) {
           // 全选和取消全选
           if (selectIdsAll) {
@@ -731,7 +734,7 @@
           }
 
           // 半选状态
-          if (selectIds.size > 0 && selectIds.size < count) {
+          if (excludeIds.size || (selectIds.size > 0 && selectIds.size < count)) {
             halfCheckedKeysSet.add(moduleId);
           } else {
             halfCheckedKeysSet.delete(moduleId);
@@ -753,7 +756,9 @@
           isCheckedAll.value = false;
         }
 
-        if (totalCount.value < isAllCheckedModuleProps.count) {
+        if (totalCount.value === 0) {
+          indeterminate.value = false;
+        } else if (totalCount.value < isAllCheckedModuleProps.count) {
           indeterminate.value = true;
         } else {
           indeterminate.value = false;
@@ -781,24 +786,26 @@
       excludeIds: new Set(),
       count: modulesCount.value.all,
     };
+
     setSelectAll(moduleTree.value, isCheckedAll.value);
-  }
 
-  // 切换项目的时候清空
-  function clearSelector() {
-    Object.keys(selectedModulesMaps.value).forEach((key) => {
-      delete selectedModulesMaps.value[key];
-    });
-  }
-
-  watch(
-    () => innerProject.value,
-    (val) => {
-      if (val) {
-        clearSelector();
-      }
+    const lastProps = selectedModulesMaps.value.all;
+    if (lastProps.selectAll) {
+      selectedModulesMaps.value.all.selectAll = true;
+      selectedModulesMaps.value.all.selectIds = new Set([]);
+      selectedModulesMaps.value.all.excludeIds = new Set([]);
+    } else {
+      selectedModulesMaps.value.all.selectAll = false;
+      selectedModulesMaps.value.all.selectIds = new Set([]);
+      selectedModulesMaps.value.all.excludeIds = new Set([]);
     }
-  );
+  }
+
+  watch([() => innerProject.value, () => showType.value, () => props.associatedType], (val) => {
+    if (val) {
+      clearSelector();
+    }
+  });
 
   watch(
     () => props.modulesMaps,
