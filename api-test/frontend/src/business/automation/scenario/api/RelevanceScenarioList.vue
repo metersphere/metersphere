@@ -55,7 +55,7 @@
             style="margin-left: 0px; margin-right: 2px" />
         </template>
       </el-table-column>
-      <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip />
+      <el-table-column prop="creatorName" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
       <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
