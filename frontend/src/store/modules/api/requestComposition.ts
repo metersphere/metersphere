@@ -15,6 +15,11 @@ const useRequestCompositionStore = defineStore('visit', {
     setPluginFormMap(id: string | number, pluginForm?: Record<string, any>) {
       this.temporaryPluginFormMap[id] = pluginForm ? cloneDeep(pluginForm) : {};
     },
+    removePluginFormMapItem(id: string | number) {
+      if (this.temporaryPluginFormMap[id]) {
+        delete this.temporaryPluginFormMap[id];
+      }
+    },
   },
 });
 
