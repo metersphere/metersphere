@@ -1,3 +1,4 @@
+import { sleep } from '@/utils';
 import { clearToken, hasToken, isLoginExpires } from '@/utils/auth';
 
 import NProgress from 'nprogress'; // progress bar
@@ -25,6 +26,8 @@ export default function setupUserLoginInfoGuard(router: Router) {
           ...to.query,
         } as LocationQueryRaw,
       });
+      await sleep(0);
+      NProgress.done();
     }
   });
 }
