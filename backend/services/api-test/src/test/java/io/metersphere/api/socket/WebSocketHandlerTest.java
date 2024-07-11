@@ -34,7 +34,7 @@ public class WebSocketHandlerTest {
 
     @Test
     @Order(1)
-    void testOpenSession() throws IOException {
+    void testOpenSession() {
         // 模拟参数
         String reportId = "123";
         when(session.getAsyncRemote()).thenReturn(async);
@@ -57,14 +57,11 @@ public class WebSocketHandlerTest {
 
         // 调用被测试方法
         webSocketHandler.onMessage(reportId, message);
-
-        // 验证行为
-        // 这里可以添加更多的验证，例如检查 sendMessageSingle 的调用情况等
     }
 
     @Test
     @Order(3)
-    void testOnHeartbeatCheck() throws IOException {
+    void testOnHeartbeatCheck() {
         // 模拟参数
         when(session.getAsyncRemote()).thenReturn(async);
 

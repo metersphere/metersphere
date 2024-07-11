@@ -86,6 +86,7 @@ public class MockServerTestService {
         if (fileIds != null) {
             ApiFileResourceService apiFileResourceService = CommonBeanFactory.getBean(ApiFileResourceService.class);
             // 验证文件的关联关系，以及是否存入对象存储
+            assert apiFileResourceService != null;
             List<ApiFileResource> apiFileResources = apiFileResourceService.getByResourceId(id);
             Assertions.assertEquals(apiFileResources.size(), fileIds.size());
 
@@ -114,6 +115,7 @@ public class MockServerTestService {
      */
     public static void assertLinkFile(String id, List<String> fileIds) {
         FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
+        assert fileAssociationService != null;
         List<String> linkFileIds = fileAssociationService.getFiles(id)
                 .stream()
                 .map(FileInfo::getFileId)
@@ -226,7 +228,7 @@ public class MockServerTestService {
                 this.setBodyType(Body.BodyType.XML.name());
                 this.getXmlBody().setValue("<xml>input123</xml>");
             }});
-        } else if(StringUtils.equalsIgnoreCase(bodyParamType, "kv")) {
+        } else if (StringUtils.equalsIgnoreCase(bodyParamType, "kv")) {
             mockMatchRule.setBody(new BodyParamMatchRule() {{
                 this.setBodyType(Body.BodyType.FORM_DATA.name());
                 this.setFormDataBody(new MockFormDataBody() {{
@@ -254,74 +256,62 @@ public class MockServerTestService {
     public MockResponse genMockResponse(String returnType, int status, String valueKeyWord, String fileId, String fileName, ApiDefinitionBlob apiDefinitionBlob) {
         MockResponse mockResponse = new MockResponse();
         mockResponse.setStatusCode(status);
+
         if (apiDefinitionBlob != null) {
             mockResponse.setUseApiResponse(true);
             List<HttpResponse> msHttpResponseList = JSON.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class);
-            msHttpResponseList.forEach(item -> {
-                if (!item.isDefaultFlag()) {
-                    //特意使用非默认的响应
-                    mockResponse.setApiResponseId(item.getId());
-                }
-            });
+            msHttpResponseList.stream()
+                    .filter(item -> !item.isDefaultFlag())
+                    .findFirst()
+                    .ifPresent(item -> mockResponse.setApiResponseId(item.getId()));
         } else {
             ResponseBody body = new ResponseBody();
-            switch (returnType) {
-                case "file":
-                    body.setBodyType(Body.BodyType.BINARY.name());
-                    body.setBinaryBody(new ResponseBinaryBody() {{
-                        this.setSendAsBody(false);
-                        this.setFile(new ApiFile());
-                        this.getFile().setFileId(fileId);
-                        this.getFile().setFileName(fileName);
-                    }});
-                    break;
-                case "file-body":
-                    body.setBodyType(Body.BodyType.BINARY.name());
-                    body.setBinaryBody(new ResponseBinaryBody() {{
-                        this.setSendAsBody(false);
-                        this.setFile(new ApiFile());
-                        this.getFile().setFileId(fileId);
-                        this.getFile().setFileName(fileName);
-                    }});
-                    break;
-                case "json":
-                    body.setBodyType(Body.BodyType.JSON.name());
-                    body.setJsonBody(new JsonBody() {{
-                        this.setJsonValue("{\"inputAge\":123, \"testKeyWord\":\"" + valueKeyWord + "\"}");
-                    }});
-                    break;
-                case "xml":
-                    body.setBodyType(Body.BodyType.XML.name());
-                    body.setXmlBody(new XmlBody() {{
-                        this.setValue("<xml>" + valueKeyWord + "</xml>");
-                    }});
-                    break;
-                case "raw":
-                    body.setBodyType(Body.BodyType.RAW.name());
-                    body.setRawBody(new RawBody() {{
-                        this.setValue("Raw body content:" + valueKeyWord);
-                    }});
-                    break;
+
+            if ("file".equals(returnType) || "file-body".equals(returnType)) {
+                body.setBodyType(Body.BodyType.BINARY.name());
+                body.setBinaryBody(new ResponseBinaryBody() {{
+                    setSendAsBody(false);
+                    setFile(new ApiFile());
+                    getFile().setFileId(fileId);
+                    getFile().setFileName(fileName);
+                }});
+            } else if ("json".equals(returnType)) {
+                body.setBodyType(Body.BodyType.JSON.name());
+                body.setJsonBody(new JsonBody() {{
+                    setJsonValue("{\"inputAge\":123, \"testKeyWord\":\"" + valueKeyWord + "\"}");
+                }});
+            } else if ("xml".equals(returnType)) {
+                body.setBodyType(Body.BodyType.XML.name());
+                body.setXmlBody(new XmlBody() {{
+                    setValue("<xml>" + valueKeyWord + "</xml>");
+                }});
+            } else if ("raw".equals(returnType)) {
+                body.setBodyType(Body.BodyType.RAW.name());
+                body.setRawBody(new RawBody() {{
+                    setValue("Raw body content:" + valueKeyWord);
+                }});
             }
+
             mockResponse.setBody(body);
         }
 
-        List<MsHeader> headers = new ArrayList<>() {{
-            this.add(new MsHeader() {{
-                this.setKey("rspHeaderA");
-                this.setValue("header-1");
-            }});
-            this.add(new MsHeader() {{
-                this.setKey("rspHeaderB");
-                this.setValue("header-2");
-                this.setEnable(false);
-            }});
-            this.add(new MsHeader() {{
-                this.setKey("rspHeaderC");
-                this.setValue("header-3");
-            }});
-        }};
+        List<MsHeader> headers = List.of(
+                new MsHeader() {{
+                    this.setKey("rspHeaderA");
+                    this.setValue("header-1");
+                }},
+                new MsHeader() {{
+                    this.setKey("rspHeaderB");
+                    this.setValue("header-2");
+                    this.setEnable(false);
+                }},
+                new MsHeader() {{
+                    this.setKey("rspHeaderC");
+                    this.setValue("header-3");
+                }}
+        );
         mockResponse.setHeaders(headers);
+
         return mockResponse;
     }
 
