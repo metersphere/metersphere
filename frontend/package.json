@@ -38,7 +38,7 @@
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
     "@arco-design/web-vue": "^2.55.3",
-    "@arco-themes/vue-metersphere-v3": "^0.0.1",
+    "@arco-themes/vue-metersphere-v3": "^0.0.2",
     "@form-create/arco-design": "^3.1.29",
     "@halo-dev/richtext-editor": "0.0.0-alpha.33",
     "@tanstack/vue-query": "^5.49.1",

@@ -25,6 +25,9 @@
         {{ t('apiTestDebug.batchAdd') }}
       </MsButton>
     </template>
+    <template #typeTitle="{ columnConfig }">
+      <div class="pl-[30px] text-[var(--color-text-3)]">{{ t(columnConfig.title as string) }}</div>
+    </template>
     <template #title="{ record, columnConfig, rowIndex }">
       <span v-if="record.id === 'root'" class="px-[8px]">root</span>
       <span v-else-if="record.parent?.type === 'array'" class="px-[8px]">{{ rowIndex }}</span>
@@ -58,13 +61,14 @@
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
       >
         <MsButton
-          type="icon"
-          class="!mr-[4px] !p-[4px]"
+          type="button"
+          class="!mr-[4px] flex items-center justify-center !rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] !p-0"
           size="mini"
           :disabled="props.disabled"
           @click="() => (record.required = !record.required)"
         >
           <div
+            class="flex h-[22px] w-[22px] items-center justify-center"
             :style="{
               color: record.required ? 'rgb(var(--danger-5)) !important' : 'var(--color-text-brand) !important',
             }"
@@ -73,6 +77,7 @@
           </div>
         </MsButton>
       </a-tooltip>
+      <div v-else class="w-[38px]"></div>
       <a-select
         v-model:model-value="record.type"
         :options="getTypeOptions(record)"
@@ -676,6 +681,7 @@
       title: t('ms.json.schema.type'),
       dataIndex: 'type',
       slotName: 'type',
+      titleSlotName: 'typeTitle',
       size: 'medium',
       width: 120,
       addLineDisabled: true,
