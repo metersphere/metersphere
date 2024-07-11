@@ -227,6 +227,7 @@
         <MsIcon
           v-if="!props.disabled"
           type="icon-icon_mock"
+          :size="16"
           class="ms-params-input-suffix-icon"
           @click.stop="openParamSetting"
         />
@@ -693,7 +694,7 @@
       }
     }
   }
-  .ms-params-input:not(.arco-input-focus) {
+  .ms-params-input:not(.arco-input-focus, .ms-params-input--focus) {
     @apply bg-transparent;
 
     border-color: transparent !important;
