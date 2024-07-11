@@ -2,7 +2,10 @@
  * Api 列表
  */
 
+import { ModeType } from '@/store/modules/components/minder-editor/types';
+
 import type { MoveMode } from '@/models/common';
+import { MinderKeyEnum } from '@/enums/minderEnum';
 
 import type { PropType } from 'vue';
 
@@ -35,7 +38,7 @@ export interface MinderJsonNode {
 
 export interface MinderJson {
   root: MinderJsonNode;
-  template: string;
+  template?: ModeType;
   treePath: MinderJsonNodeData[];
 }
 // 脑图类
@@ -58,6 +61,7 @@ export const mainEditorProps = {
     type: Number,
     default: 500,
   },
+  minderKey: String as PropType<MinderKeyEnum>,
   disabled: Boolean,
   extractContentTabList: Array as PropType<{ label: string; value: string }[]>,
 };

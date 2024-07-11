@@ -5,6 +5,7 @@
       v-model:extra-visible="extraVisible"
       v-model:loading="loading"
       v-model:import-json="importJson"
+      :minder-key="MinderKeyEnum.CASE_REVIEW_MINDER"
       :extract-content-tab-list="extractContentTabList"
       :can-show-float-menu="canShowFloatMenu"
       :can-show-priority-menu="false"
@@ -153,7 +154,7 @@
     ReviewPassRule,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
-  import { MinderEventName } from '@/enums/minderEnum';
+  import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
   import { convertToFile, getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
 
@@ -188,7 +189,6 @@
   const moduleTag = t('common.module');
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
-    template: 'default',
     treePath: [],
   });
   const loading = ref(false);

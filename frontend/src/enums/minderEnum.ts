@@ -17,4 +17,16 @@ export enum MinderEventName {
   'DRAG_FINISH' = 'DRAG_FINISH', // 脑图节点拖拽结束事件
 }
 
+export enum MinderKeyEnum {
+  FEATURE_CASE_MINDER = 'featureCaseMinder',
+  CASE_REVIEW_MINDER = 'caseReviewMinder',
+  TEST_PLAN_MINDER = 'testPlanMinder',
+}
+
+export enum ModeIcon {
+  right = 'icon-icon_right_branch',
+  default = 'icon-icon_left_and_right_branch',
+  filetree = 'icon-icon_lower_branch1',
+}
+
 export default {};
