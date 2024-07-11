@@ -17,7 +17,7 @@
       :init-file-save-tips="t('ms.upload.waiting_save')"
       :show-upload-type-desc="true"
       :handle-delete="deleteFileHandler"
-      show-delete
+      :show-delete="!props.disabled"
       button-in-title
     >
       <template #title="{ item }">
@@ -38,7 +38,7 @@
           >
             {{ t('ms.upload.preview') }}
           </MsButton>
-          <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
+          <MsButton v-if="!props.disabled" type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
             {{ t('caseManagement.featureCase.storage') }}
           </MsButton>
           <SaveAsFilePopover
@@ -136,6 +136,7 @@
   const props = defineProps<{
     activeCase: Record<string, any>;
     notShowAddButton?: boolean;
+    disabled?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'uploadSuccess'): void;

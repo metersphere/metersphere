@@ -195,7 +195,7 @@
         children: caseTree.value,
         data: {
           id: 'NONE',
-          text: t('ms.minders.allModule'),
+          text: t('caseManagement.caseReview.allCases'),
           resource: [moduleTag],
           disabled: true,
         },

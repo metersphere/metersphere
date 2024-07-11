@@ -74,6 +74,7 @@
           v-else-if="activeExtraKey === 'attachment'"
           v-model:model-value="fileList"
           not-show-add-button
+          disabled
           :active-case="activeCaseInfo"
         />
         <div v-else class="pl-[16px]">
@@ -225,7 +226,7 @@
       children: tree,
       data: {
         id: 'NONE',
-        text: t('ms.minders.allModule'),
+        text: t('caseManagement.caseReview.allCases'),
         resource: [moduleTag],
         disabled: true,
         count: modulesCount.value.all,
