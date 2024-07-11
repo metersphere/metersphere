@@ -151,3 +151,5 @@ export const ApiScenarioReportDetailStepUrl = '/test-plan/api/scenario/report/ge
 export const GetPlanMinderUrl = '/test-plan/mind/data';
 // 修改测试规划脑图
 export const EditPlanMinderUrl = '/test-plan/mind/data/edit';
+// 获取测试计划-关联用例-接口模块数量
+export const TestPlanAssociationUrl = '/test-plan/association/api/case/module/count';

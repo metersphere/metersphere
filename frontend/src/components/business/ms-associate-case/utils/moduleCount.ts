@@ -1,6 +1,6 @@
-import { getModuleCount } from '@/api/modules/api-test/management';
 import { getModuleCount as getScenarioModuleCount } from '@/api/modules/api-test/scenario';
 import { getCaseModulesCounts, getPublicLinkCaseModulesCounts } from '@/api/modules/case-management/featureCase';
+import { testPlanAssociateModuleCount } from '@/api/modules/test-plan/testPlan';
 
 import { CaseCountApiTypeEnum } from '@/enums/associateCaseEnum';
 import { CaseLinkEnum } from '@/enums/caseEnum';
@@ -13,7 +13,7 @@ export const getModuleTreeCountApiMap: Record<string, any> = {
   },
   [CaseCountApiTypeEnum.TEST_PLAN_CASE_COUNT]: {
     [CaseLinkEnum.FUNCTIONAL]: getCaseModulesCounts,
-    [CaseLinkEnum.API]: getModuleCount,
+    [CaseLinkEnum.API]: testPlanAssociateModuleCount,
     [CaseLinkEnum.SCENARIO]: getScenarioModuleCount,
   },
 };
