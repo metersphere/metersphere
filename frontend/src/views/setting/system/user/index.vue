@@ -3,7 +3,7 @@
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
-          v-permission.all="['SYSTEM_USER:READ+ADD', 'SYSTEM_USER_ROLE:READ']"
+          v-permission.all="['SYSTEM_USER:READ+ADD']"
           class="mr-3"
           type="primary"
           @click="showUserModal('create')"
@@ -11,19 +11,14 @@
           {{ t('system.user.createUser') }}
         </a-button>
         <a-button
-          v-permission.all="['SYSTEM_USER:READ+INVITE', 'SYSTEM_USER_ROLE:READ']"
+          v-permission.all="['SYSTEM_USER:READ+INVITE']"
           class="mr-3"
           type="outline"
           @click="showEmailInviteModal"
         >
           {{ t('system.user.emailInvite') }}
         </a-button>
-        <a-button
-          v-permission.all="['SYSTEM_USER:READ+IMPORT', 'SYSTEM_USER_ROLE:READ']"
-          class="mr-3"
-          type="outline"
-          @click="showImportModal"
-        >
+        <a-button v-permission.all="['SYSTEM_USER:READ+IMPORT']" class="mr-3" type="outline" @click="showImportModal">
           {{ t('system.user.importUser') }}
         </a-button>
       </div>
