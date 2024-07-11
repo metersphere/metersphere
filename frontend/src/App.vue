@@ -19,7 +19,7 @@
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { getQueryVariable } from '@/utils';
+  import { getQueryVariable, getUrlParameterWidthRegExp } from '@/utils';
   import { setLoginExpires, setLongType, setToken } from '@/utils/auth';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
@@ -113,6 +113,18 @@
       await userStore.checkIsLogin();
       appStore.setLoginLoading(false);
     }
+    if (getQueryVariable('code') && getQueryVariable('state')) {
+      const currentUrl = window.location.href;
+      const url = new URL(currentUrl);
+      getUrlParameterWidthRegExp('code');
+      getUrlParameterWidthRegExp('state');
+      url.searchParams.delete('code');
+      url.searchParams.delete('state');
+      const newUrl = url.toString();
+      // 或者在不刷新页面的情况下更新URL（比如使用 History API）
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
     const { height } = useWindowSize();
     appStore.innerHeight = height.value;
     if (userStore.id) {

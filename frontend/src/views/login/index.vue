@@ -8,7 +8,7 @@
   >
     <div class="login-page" :style="props.isPreview ? '' : 'min-width: 1200px;'">
       <banner />
-      <a-spin :loading="appStore.getLoginLoadingStatus" class="w-full">
+      <a-spin :loading="appStore.getLoginLoadingStatus" class="flex-1">
         <loginForm :is-preview="props.isPreview" />
       </a-spin>
     </div>
