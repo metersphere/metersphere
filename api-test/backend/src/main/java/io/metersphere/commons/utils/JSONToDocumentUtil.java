@@ -12,6 +12,7 @@ import org.json.XML;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class JSONToDocumentUtil {
 
@@ -54,6 +55,9 @@ public class JSONToDocumentUtil {
                 jsonDataFormatting((JSONArray) value, childrenElements);
             } else {
                 String type = PropertyConstant.STRING;
+                if (value == JSONObject.NULL || value == null) {
+                    value = "null";
+                }
                 if (value != null) {
                     type = DocumentUtils.getType(value);
                 }
@@ -79,7 +83,7 @@ public class JSONToDocumentUtil {
         } else {
             if (StringUtils.equals(type, "JSON")) {
                 roots.add(new DocumentElement().newRoot(PropertyConstant.OBJECT, children));
-                JSONObject object = JSONUtil.parseObject(json);
+                JSONObject object = new JSONObject(json);
                 jsonDataFormatting(object, children);
             } else {
                 roots.add(new DocumentElement().newRoot(PropertyConstant.OBJECT, children));
