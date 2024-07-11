@@ -133,6 +133,9 @@
           'zoomin',
           'zoomout',
         ]);
+        if (props.disabled) {
+          ['movetoparent', 'arrange'].forEach((item) => notChangeCommands.add(item));
+        }
         if (selectNodes.length > 0 && !notChangeCommands.has(event.commandName.toLocaleLowerCase())) {
           minderStore.setMinderUnsaved(true);
           selectNodes.forEach((node: MinderJsonNode) => {

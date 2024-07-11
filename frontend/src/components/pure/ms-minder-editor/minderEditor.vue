@@ -143,6 +143,10 @@
         emit('action', event);
       },
       handleBeforeExecCommand: (event) => {
+        if (['movetoparent', 'arrange'].includes(event.commandName) && props.disabled) {
+          event.stopPropagation();
+          return;
+        }
         emit('beforeExecCommand', event);
       },
       handleViewChange() {

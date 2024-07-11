@@ -743,9 +743,11 @@
   // 批量解除关联用例拦截
   function batchDisassociate() {
     const batchDisassociateTitle =
-      showType.value === 'list'
-        ? t('caseManagement.caseReview.disassociateConfirmTitle', { count: batchParams.value.currentSelectCount })
-        : t('testPlan.featureCase.disassociateTip', { name: characterLimit(minderSelectData.value?.text) });
+      showType.value !== 'list' && minderSelectData.value?.resource?.includes(t('common.case'))
+        ? t('testPlan.featureCase.disassociateTip', { name: characterLimit(minderSelectData.value?.text) })
+        : t('caseManagement.caseReview.disassociateConfirmTitle', {
+            count: showType.value !== 'list' ? minderSelectData.value?.count : batchParams.value.currentSelectCount,
+          });
     openModal({
       type: 'warning',
       title: batchDisassociateTitle,
