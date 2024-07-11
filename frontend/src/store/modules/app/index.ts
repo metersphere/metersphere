@@ -48,6 +48,7 @@ const useAppStore = defineStore('app', {
     ...defaultSettings,
     loading: false,
     loadingTip: '',
+    loginLoading: false,
     topMenus: [] as RouteRecordRaw[],
     currentTopMenu: {} as RouteRecordRaw,
     breadcrumbList: [] as BreadcrumbItem[],
@@ -111,6 +112,9 @@ const useAppStore = defineStore('app', {
     },
     getEnvList(state: AppState): EnvironmentItem[] {
       return state.envList;
+    },
+    getLoginLoadingStatus(state: AppState): boolean {
+      return state.loginLoading;
     },
   },
   actions: {
@@ -231,6 +235,12 @@ const useAppStore = defineStore('app', {
     // 重置系统包的版本
     resetSystemPackageType() {
       this.packageType = '';
+    },
+    /**
+     * 设置登录页面的loading
+     */
+    setLoginLoading(value: boolean) {
+      this.loginLoading = value;
     },
     /**
      * 获取系统版本

@@ -8,7 +8,9 @@
   >
     <div class="login-page" :style="props.isPreview ? '' : 'min-width: 1200px;'">
       <banner />
-      <loginForm :is-preview="props.isPreview" />
+      <a-spin :loading="appStore.getLoginLoadingStatus" class="w-full">
+        <loginForm :is-preview="props.isPreview" />
+      </a-spin>
     </div>
   </a-scrollbar>
 </template>
@@ -16,6 +18,10 @@
 <script lang="ts" setup>
   import banner from './components/banner.vue';
   import loginForm from './components/login-form.vue';
+
+  import { useAppStore } from '@/store';
+
+  const appStore = useAppStore();
 
   const props = defineProps<{
     isPreview?: boolean;

@@ -20,7 +20,7 @@
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
   import { getQueryVariable } from '@/utils';
-  import { setLoginExpires, setToken } from '@/utils/auth';
+  import { setLoginExpires, setLongType, setToken } from '@/utils/auth';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
@@ -90,29 +90,28 @@
       state.value = getQueryVariable('state') || '';
       if (state.value.split('#')[0] === 'fit2cloud-lark-qr') {
         try {
-          appStore.showLoading();
+          appStore.setLoginLoading(true);
           const larkCallback = await getLarkCallback(code || '');
           userStore.qrCodeLogin(larkCallback);
+          setLongType('LARK');
           setLoginExpires();
         } catch (err) {
           console.log(err);
-        } finally {
-          appStore.hideLoading();
         }
       }
       if (state.value.split('#')[0] === 'fit2cloud-lark-suite-qr') {
         try {
-          appStore.showLoading();
+          appStore.setLoginLoading(true);
           const larkCallback = await getLarkSuiteCallback(code || '');
           userStore.qrCodeLogin(larkCallback);
+          setLongType('LARK_SUITE');
           setLoginExpires();
         } catch (err) {
           console.log(err);
-        } finally {
-          appStore.hideLoading();
         }
       }
       await userStore.checkIsLogin();
+      appStore.setLoginLoading(false);
     }
     const { height } = useWindowSize();
     appStore.innerHeight = height.value;
