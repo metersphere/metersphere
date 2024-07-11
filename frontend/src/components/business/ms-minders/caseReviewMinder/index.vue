@@ -9,13 +9,12 @@
       :extract-content-tab-list="extractContentTabList"
       :can-show-float-menu="canShowFloatMenu"
       :can-show-priority-menu="false"
-      :can-show-more-menu="canShowFloatMenu"
+      :can-show-more-menu="canShowMoreMenu"
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
       disabled
       @node-select="handleNodeSelect"
-      @before-exec-command="handleBeforeExecCommand"
     >
       <template #extractMenu>
         <!-- 评审 查看详情 -->
@@ -126,7 +125,6 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
-  import { MinderEvent } from '@/components/pure/ms-minder-editor/props';
   import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
@@ -230,6 +228,7 @@
         text: t('ms.minders.allModule'),
         resource: [moduleTag],
         disabled: true,
+        count: modulesCount.value.all,
       },
     };
     importJson.value.treePath = [];
@@ -433,8 +432,17 @@
       // 基本信息
       descriptions.value = [
         {
-          label: t('caseManagement.caseReview.belongModule'),
+          label: t('caseManagement.caseReview.caseName'),
+          value: res.name,
+        },
+        {
+          label: t('common.belongModule'),
           value: res.moduleName || t('common.root'),
+        },
+        {
+          label: t('common.tag'),
+          value: res.tags,
+          isTag: true,
         },
         // 解析用例模板的自定义字段
         ...res.customFields.map((e: Record<string, any>) => {
@@ -451,12 +459,12 @@
           }
         }),
         {
-          label: t('caseManagement.caseReview.creator'),
+          label: t('common.creator'),
           value: res.createUserName || '',
         },
         {
-          label: t('caseManagement.caseReview.createTime'),
-          value: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          label: t('common.createTime'),
+          value: dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss'),
         },
       ];
       // 附件文件
@@ -516,7 +524,9 @@
     }
   }
 
+  const hasOperationPermission = hasAnyPermission(['CASE_REVIEW:READ+UPDATE', 'CASE_REVIEW:READ+RELEVANCE']);
   const canShowFloatMenu = ref(false); // 是否展示浮动菜单
+  const canShowMoreMenu = ref(false); // 更多
   const isReviewer = ref(false); // 是否是此用例的评审人
   const caseReviewerList = ref<CaseReviewFunctionalCaseUserItem[]>([]);
   const canShowEnterNode = ref(false);
@@ -582,15 +592,24 @@
     }
     selectNode.value = node;
 
-    // 展示浮动菜单: 模块节点有子节点、用例节点
+    // 展示浮动菜单: 模块节点且有子节点且不是没权限的根结点、用例节点
     if (
       node.data?.resource?.includes(caseTag) ||
-      (node.data?.resource?.includes(moduleTag) && (node.children || []).length > 0)
+      (node.data?.resource?.includes(moduleTag) &&
+        (node.children || []).length > 0 &&
+        !(!hasOperationPermission && node.type === 'root'))
     ) {
       canShowFloatMenu.value = true;
       setMoreMenuOtherOperationList(node);
     } else {
       canShowFloatMenu.value = false;
+    }
+
+    // 不展示更多：没操作权限的用例
+    if (node.data?.resource?.includes(caseTag) && !hasOperationPermission) {
+      canShowMoreMenu.value = false;
+    } else {
+      canShowMoreMenu.value = true;
     }
 
     // 展示进入节点菜单: 模块节点
@@ -624,16 +643,6 @@
       removeFakeNode(node, 'fakeNode');
     }
     setPriorityView(true, 'P');
-  }
-
-  /**
-   * 脑图命令执行前拦截
-   * @param event 命令执行事件
-   */
-  function handleBeforeExecCommand(event: MinderEvent) {
-    if (['movetoparent', 'arrange'].includes(event.commandName)) {
-      event.stopPropagation();
-    }
   }
 
   defineExpose({
