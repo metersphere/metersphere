@@ -485,7 +485,7 @@
         </a-radio-group>
       </template>
       <template #rightTitle>
-        <div class="flex justify-between">
+        <div v-if="batchAddType === 'json'" class="flex justify-between">
           <div class="text-[var(--color-text-4)]">
             {{ t('ms.json.schema.batchAddTip') }}
           </div>
