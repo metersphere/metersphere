@@ -67,7 +67,7 @@ export default {
     main: {
       header: {
         minder: 'Minder',
-        style: 'Appearance style',
+        style: 'style',
       },
       main: {
         save: 'Save',

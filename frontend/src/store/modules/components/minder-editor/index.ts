@@ -2,11 +2,12 @@ import { defineStore } from 'pinia';
 
 import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 
+import useLocalForage from '@/hooks/useLocalForage';
 import { getGenerateId, mapTree } from '@/utils';
 
-import { MinderEventName } from '@/enums/minderEnum';
+import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
-import { MinderNodePosition, MinderState } from './types';
+import { MinderNodePosition, MinderState, MinderStoreLocalItem, ModeType } from './types';
 
 // 脑图组件的 store
 const useMinderStore = defineStore('minder', {
@@ -22,13 +23,16 @@ const useMinderStore = defineStore('minder', {
       nodeDom: undefined,
       nodes: undefined,
     },
-    mold: 0,
+    activeMode: 'right',
     clipboard: [],
     minderUnsaved: false,
   }),
   getters: {
     getMinderUnsaved(): boolean {
       return this.minderUnsaved;
+    },
+    getMinderActiveMode(): ModeType {
+      return this.activeMode;
     },
   },
   actions: {
@@ -58,8 +62,30 @@ const useMinderStore = defineStore('minder', {
         this.setClipboard(nodes);
       }
     },
-    setMold(val: number) {
-      this.mold = val;
+    async getMode(MinderKey: MinderKeyEnum) {
+      const { getItem } = useLocalForage();
+      const minderStoreLocalMap = await getItem<MinderStoreLocalItem>(MinderKey);
+      if (minderStoreLocalMap?.mode) {
+        return minderStoreLocalMap.mode;
+      }
+      return 'right';
+    },
+    async setMode(MinderKey: MinderKeyEnum, mode: ModeType) {
+      const { getItem, setItem } = useLocalForage();
+      this.activeMode = mode;
+      window.minder.execCommand('template', mode);
+      try {
+        const minderStoreLocalMap = await getItem<MinderStoreLocalItem>(MinderKey);
+        if (minderStoreLocalMap) {
+          minderStoreLocalMap.mode = mode;
+          await setItem(MinderKey, minderStoreLocalMap);
+        } else {
+          await setItem(MinderKey, { mode });
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
     },
     setClipboard(nodes?: MinderJsonNode[]) {
       this.clipboard = mapTree(nodes || [], (node) => {

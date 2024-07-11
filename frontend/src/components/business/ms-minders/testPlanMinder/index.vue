@@ -4,6 +4,7 @@
     v-model:loading="loading"
     v-model:import-json="importJson"
     :tags="[]"
+    :minder-key="MinderKeyEnum.TEST_PLAN_MINDER"
     :insert-node="(node, type) => insertNode(node as PlanMinderNode,type)"
     :can-show-enter-node="false"
     :insert-sibling-menus="[]"
@@ -274,7 +275,7 @@
     PlanMinderNodeData,
   } from '@/models/testPlan/testPlan';
   import { CaseLinkEnum } from '@/enums/caseEnum';
-  import { MinderEventName } from '@/enums/minderEnum';
+  import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
   import { PlanMinderAssociateType, PlanMinderCollectionType, RunMode } from '@/enums/testPlanEnum';
 
   const props = defineProps<{
@@ -291,7 +292,6 @@
   const loading = ref(false);
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
-    template: 'default',
     treePath: [],
   });
   const caseCountTag = t('ms.minders.caseCount');
@@ -802,15 +802,11 @@
         };
         return node;
       });
+      const template = await minderStore.getMode(MinderKeyEnum.TEST_PLAN_MINDER);
+      importJson.value.template = template;
       window.minder.importJson(importJson.value);
       if (firstInit) {
-        window.minder.execCommand('template', Object.keys(window.kityminder.Minder.getTemplateList())[3]);
-        setTimeout(() => {
-          // 初始化脑图完毕后，中心节点移动至左侧边缘
-          const position = window.minder.getViewDragger().getMovement();
-          position.x -= position.x - 40;
-          window.minder.getViewDragger().moveTo(position);
-        }, 200);
+        await minderStore.setMode(MinderKeyEnum.TEST_PLAN_MINDER, importJson.value.template);
       }
     } catch (error) {
       // eslint-disable-next-line no-console

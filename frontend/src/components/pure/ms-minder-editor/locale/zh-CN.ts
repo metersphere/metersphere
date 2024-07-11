@@ -61,7 +61,7 @@ export default {
     main: {
       header: {
         minder: '思维导图',
-        style: '外观样式',
+        style: '样式',
       },
       main: {
         save: '保存',

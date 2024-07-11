@@ -1,6 +1,11 @@
 <template>
   <div ref="mec" class="ms-minder-container">
-    <minderHeader :icon-buttons="props.iconButtons" :disabled="props.disabled" @save="save" />
+    <minderHeader
+      :minder-key="props.minderKey"
+      :icon-buttons="props.iconButtons"
+      :disabled="props.disabled"
+      @save="save"
+    />
     <Navigator />
     <div
       v-if="currentTreePath?.length > 0"
@@ -82,7 +87,6 @@
   });
   const innerImportJson = ref<MinderJson>({
     root: {},
-    template: 'default',
     treePath: [],
   });
   const currentTreePath = ref<MinderJsonNodeData[]>([]);
@@ -157,7 +161,8 @@
    * 切换脑图展示的节点层级
    * @param node 切换的节点
    */
-  function switchNode(node?: MinderJsonNode | MinderJsonNodeData) {
+  async function switchNode(node?: MinderJsonNode | MinderJsonNodeData) {
+    if (!props.minderKey) return;
     if (minderStore.minderUnsaved) {
       // 切换前，如果脑图未保存，先把更改的节点信息同步一次
       replaceNodeInTree(
@@ -175,7 +180,10 @@
     } else {
       innerImportJson.value = findNodePathByKey([importJson.value.root], node?.id, 'data', 'id') as MinderJson;
     }
+    const template = await minderStore.getMode(props.minderKey);
+    importJson.value.template = template;
     window.minder.importJson(innerImportJson.value);
+    await minderStore.setMode(props.minderKey, importJson.value.template);
     const root: MinderJsonNode = window.minder.getRoot();
     window.minder.toggleSelect(root); // 先取消选中
     window.minder.select(root); // 再选中，才能触发选中变化事件

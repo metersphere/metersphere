@@ -5,6 +5,7 @@
       v-model:extra-visible="extraVisible"
       v-model:loading="loading"
       v-model:import-json="importJson"
+      :minder-key="MinderKeyEnum.FEATURE_CASE_MINDER"
       :tags="[]"
       :replaceable-tags="replaceableTags"
       :insert-node="insertNode"
@@ -97,7 +98,7 @@
     FeatureCaseMinderUpdateParams,
   } from '@/models/caseManagement/featureCase';
   import { MoveMode, TableQueryParams } from '@/models/common';
-  import { MinderEventName } from '@/enums/minderEnum';
+  import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
   import useMinderBaseApi from './useMinderBaseApi';
   import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -139,7 +140,6 @@
   } = useMinderBaseApi({ hasEditPermission });
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
-    template: 'default',
     treePath: [],
   });
   const caseTree = ref<MinderJsonNode[]>([]);

@@ -2,6 +2,12 @@ import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 
 import type { MinderEventName } from '@/enums/minderEnum';
 
+export type ModeType = 'filetree' | 'default' | 'right';
+
+export interface MinderStoreLocalItem {
+  mode?: ModeType;
+}
+
 export interface MinderNodePosition {
   x: number;
   y: number;
@@ -26,7 +32,7 @@ export interface MinderCustomEvent {
 
 export interface MinderState {
   event: MinderCustomEvent;
-  mold: number;
+  activeMode: ModeType;
   clipboard: MinderJsonNode[]; // 剪切板
   minderUnsaved: boolean; // 脑图是否有未保存的内容
 }

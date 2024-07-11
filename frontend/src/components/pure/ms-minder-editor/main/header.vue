@@ -5,7 +5,36 @@
         <MsIcon :type="item.icon" class="text-[var(--color-text-4)]" />
       </MsButton>
     </a-tooltip>
-    <a-divider v-if="props.iconButtons?.length" direction="vertical" :margin="0"></a-divider>
+    <a-dropdown v-model:popup-visible="dropdownVisible" class="structure-dropdown" @select="handleChangeMode">
+      <a-tooltip :content="t('minder.main.header.style')">
+        <MsButton
+          type="icon"
+          :class="['ms-minder-editor-header-icon-button', `${dropdownVisible ? 'dropdown-visible' : ''}`]"
+        >
+          <MsIcon
+            :type="ModeIcon[minderStore.getMinderActiveMode as keyof typeof ModeIcon]"
+            class="text-[var(--color-text-4)]"
+          />
+        </MsButton>
+      </a-tooltip>
+      <template #content>
+        <a-doption
+          v-for="item in Object.entries(ModeIcon)"
+          :key="item[0]"
+          :value="item[0]"
+          :class="[
+            `${
+              item[0] === minderStore.getMinderActiveMode
+                ? '!bg-[rgb(var(--primary-9))] !text-[rgb(var(--primary-7))]'
+                : 'text-[var(--color-text-4)]'
+            }`,
+          ]"
+        >
+          <MsIcon :type="item[1]" />
+        </a-doption>
+      </template>
+    </a-dropdown>
+    <a-divider direction="vertical" :margin="0"></a-divider>
     <a-tooltip :content="isFullScreen ? t('common.offFullScreen') : t('common.fullScreen')">
       <MsButton v-if="isFullScreen" type="icon" class="ms-minder-editor-header-icon-button" @click="toggleFullScreen">
         <MsIcon type="icon-icon_off_screen" class="text-[var(--color-text-4)]" />
@@ -26,12 +55,17 @@
 
   import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
+  import { useMinderStore } from '@/store';
+  import { ModeType } from '@/store/modules/components/minder-editor/types';
+
+  import { MinderKeyEnum, ModeIcon } from '@/enums/minderEnum';
 
   import { MinderIconButtonItem } from '../props';
 
   const props = defineProps<{
     iconButtons?: MinderIconButtonItem[];
     disabled?: boolean;
+    minderKey?: MinderKeyEnum;
   }>();
   const emit = defineEmits<{
     (e: 'click', eventTag: string): void;
@@ -40,6 +74,14 @@
   }>();
 
   const { t } = useI18n();
+  const minderStore = useMinderStore();
+
+  const dropdownVisible = ref(false);
+  async function handleChangeMode(value: string | number | Record<string, any> | undefined) {
+    if (props.minderKey) {
+      await minderStore.setMode(props.minderKey, value as ModeType);
+    }
+  }
 
   const containerRef = ref<Element | null>(null);
   const { toggleFullScreen, isFullScreen } = useFullScreen(containerRef);
@@ -76,6 +118,24 @@
         background-color: rgb(var(--primary-1)) !important;
         .arco-icon {
           color: rgb(var(--primary-4)) !important;
+        }
+      }
+      &.dropdown-visible {
+        background-color: rgb(var(--primary-9)) !important;
+        .arco-icon {
+          color: rgb(var(--primary-7)) !important;
+        }
+      }
+    }
+  }
+  .structure-dropdown .arco-dropdown-list {
+    gap: 8px;
+    .arco-dropdown-option {
+      padding: 4px;
+      height: 24px;
+      &:hover {
+        .arco-icon {
+          color: rgb(var(--primary-4));
         }
       }
     }

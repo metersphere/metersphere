@@ -55,7 +55,6 @@
   function handleCommand(value: string | number | Record<string, any> | undefined) {
     moldIndex.value = (value as number) - 1;
     window.minder.execCommand('template', Object.keys(templateList.value)[(value as number) - 1]);
-    minderStore.setMold((value as number) - 1);
     emit('moldChange', (value as number) - 1);
   }
 
