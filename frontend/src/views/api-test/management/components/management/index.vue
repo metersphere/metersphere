@@ -7,6 +7,7 @@
       class="flex-1 overflow-hidden"
       :show-add="currentTab === 'api' && hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD'])"
       @add="newTab"
+      @close="handleTabClose"
     >
       <template #label="{ tab }">
         <apiMethodName
@@ -75,6 +76,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
+  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
   import api from './api/index.vue';
   import apiCase from './case/index.vue';
@@ -85,6 +87,7 @@
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
+  import useRequestCompositionStore from '@/store/modules/api/requestComposition';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -116,6 +119,7 @@
   }>();
   const appStore = useAppStore();
   const { t } = useI18n();
+  const requestCompositionStore = useRequestCompositionStore();
 
   const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
   const memberOptions = ref<{ label: string; value: string }[]>([]);
@@ -333,6 +337,14 @@
 
   function handleMockDebug(mock: MockDetail) {
     apiRef.value?.openApiTabAndDebugMock(mock);
+  }
+
+  function handleTabClose(item: TabItem) {
+    requestCompositionStore.removePluginFormMapItem(item.id);
+    const closingIndex = apiTabs.value.findIndex((e) => e.id === item.id);
+    if (closingIndex > -1) {
+      apiTabs.value.splice(closingIndex, 1);
+    }
   }
 
   onBeforeMount(() => {

@@ -23,6 +23,7 @@
               :readonly="!hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD'])"
               at-least-one
               @add="addDebugTab"
+              @close="handleDebugTabClose"
             >
               <template #label="{ tab }">
                 <apiMethodName :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol" class="mr-[4px]" />
@@ -124,6 +125,7 @@
   } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
+  import useRequestCompositionStore from '@/store/modules/api/requestComposition';
   import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -142,6 +144,7 @@
 
   const route = useRoute();
   const { t } = useI18n();
+  const requestCompositionStore = useRequestCompositionStore();
 
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -358,23 +361,14 @@
     }
   }
 
-  /**
-  async function openSaveAsApiModal(node: MsTreeNodeData) {
-    try {
-      const [modules] = await getModuleTreeOnlyModules({
-        keyword: '',
-        protocol: '',
-        projectId: appStore.currentProjectId,
-        moduleIds: [],
-      });
-      apiModules.value = modules;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
+  function handleDebugTabClose(item: TabItem) {
+    requestCompositionStore.removePluginFormMapItem(item.id);
+    const closingIndex = debugTabs.value.findIndex((e) => e.id === item.id);
+    if (closingIndex > -1) {
+      debugTabs.value.splice(closingIndex, 1);
     }
   }
-  */
+
   onMounted(() => {
     if (route.query.id) {
       openApiTab(route.query.id as string);
