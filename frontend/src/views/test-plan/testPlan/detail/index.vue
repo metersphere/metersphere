@@ -33,12 +33,8 @@
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
-      <MsTableMoreAction :list="reportMoreAction" @select="handleMoreReportSelect">
-        <MsButton
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && detail.status !== 'ARCHIVED'"
-          type="button"
-          status="default"
-        >
+      <MsTableMoreAction v-if="detail.status !== 'ARCHIVED'" :list="reportMoreAction" @select="handleMoreReportSelect">
+        <MsButton v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])" type="button" status="default">
           <MsIcon type="icon-icon_generate_report" class="mr-[8px]" />
           {{ t('testPlan.testPlanDetail.generateReport') }}
         </MsButton>
