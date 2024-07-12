@@ -71,7 +71,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
-  import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
+  import { expendNodeAndChildren, setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import attachment from './attachment.vue';
   import baseInfo from './basInfo.vue';
@@ -586,6 +586,8 @@
       if (extraVisible.value) {
         toggleDetail(true);
       }
+      // 用例下面所有节点都展开
+      expendNodeAndChildren(node);
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       await initNodeCases(node);

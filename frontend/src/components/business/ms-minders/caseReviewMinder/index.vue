@@ -125,7 +125,11 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
-  import { setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
+  import {
+    expendNodeAndChildren,
+    handleRenderNode,
+    setPriorityView,
+  } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
@@ -276,18 +280,6 @@
     if (fakeNode) {
       window.minder.removeNode(fakeNode);
     }
-  }
-
-  /**
-   * 渲染其子节点
-   * @param node 对应节点
-   * @param renderNode 需要渲染的子节点
-   */
-  function handleRenderNode(node: MinderJsonNode, renderNode: MinderJsonNode) {
-    if (!node.data) return;
-    window.minder.renderNodeBatch(renderNode);
-    node.layout();
-    node.data.isLoaded = true;
   }
 
   /**
@@ -625,6 +617,8 @@
       if (extraVisible.value) {
         toggleDetail(true);
       }
+      // 用例下面所有节点都展开
+      expendNodeAndChildren(node);
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       await initNodeCases(node);
