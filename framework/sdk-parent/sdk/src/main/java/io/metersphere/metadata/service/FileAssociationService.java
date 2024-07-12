@@ -122,7 +122,7 @@ public class FileAssociationService {
                 batchMapper.insert(fileAssociation);
             });
             sqlSession.flushStatements();
-            if (sqlSession != null && sqlSessionFactory != null) {
+            if (sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }

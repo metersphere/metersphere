@@ -40,8 +40,7 @@ public class ExtFileAssociationService extends FileAssociationService {
     public void saveScenario(String id, MsTestElement scenario) {
         this.deleteByResourceId(id);
         List<BodyFile> files = new ArrayList<>();
-        if (scenario != null && scenario instanceof MsScenario) {
-            MsScenario msScenario = (MsScenario) scenario;
+        if (scenario instanceof MsScenario msScenario) {
             if (!CollectionUtils.isEmpty(msScenario.getVariables())) {
                 msScenario.getVariables().stream().filter(ScenarioVariable::isCSVValid).forEach(keyValue -> {
                     files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
