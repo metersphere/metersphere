@@ -86,7 +86,12 @@
             </span>
           </div>
         </div>
-        <StatusProgress :status-detail="countDetail" height="8px" radius="var(--border-radius-mini)" />
+        <StatusProgress
+          :type="testPlanTypeEnum.TEST_PLAN"
+          :status-detail="countDetail"
+          height="8px"
+          radius="var(--border-radius-mini)"
+        />
       </div>
     </template>
     <MsTab

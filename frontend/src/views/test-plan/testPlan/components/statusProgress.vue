@@ -2,7 +2,7 @@
   <MsColorLine :color-data="colorData" :height="props.height" :radius="props.radius">
     <template #popoverContent>
       <table class="min-w-[144px]">
-        <tr>
+        <tr v-if="props.type === testPlanTypeEnum.TEST_PLAN">
           <td class="popover-label-td">
             <div>{{ t('testPlan.testPlanIndex.threshold') }}</div>
           </td>
@@ -73,10 +73,12 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { PassRateCountDetail } from '@/models/testPlan/testPlan';
+  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   const props = defineProps<{
     statusDetail: PassRateCountDetail | undefined;
     height: string;
+    type: testPlanTypeEnum;
     radius?: string;
   }>();
   const { t } = useI18n();
