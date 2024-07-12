@@ -4,6 +4,7 @@ import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
+import io.metersphere.functional.dto.ReviewerAndStatusDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
 import io.metersphere.functional.request.*;
@@ -60,6 +61,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     public static final String GET_CASE_REVIEWER_LIST = "/case/review/detail/reviewer/list";
+
+    public static final String GET_CASE_REVIEWER_AND_STATUS = "/case/review/detail/reviewer/status/total/";
+
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
@@ -573,6 +577,23 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         List<CaseReviewFunctionalCaseUser> optionDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), CaseReviewFunctionalCaseUser.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(optionDTOS));
     }
+
+    @Test
+    @Order(14)
+    public void getReviewerWidthTotalList() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(GET_CASE_REVIEWER_AND_STATUS + "/wx_review_id_1/gyq_case_id_5").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        ReviewerAndStatusDTO reviewerAndStatusDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ReviewerAndStatusDTO.class);
+        System.out.println(reviewerAndStatusDTO);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(reviewerAndStatusDTO.getReviewerStatus()));
+    }
+
+
 
     private List<OptionDTO> getOptionDTOS(String reviewId, String caseId) throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS + "/" + reviewId + "/" + caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
