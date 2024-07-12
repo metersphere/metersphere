@@ -23,6 +23,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -213,5 +214,20 @@ public class GitRepositoryUtil {
 
         return returnList;
 
+    }
+
+    public InputStream getFileAsStream(String commitId, String filePath) throws Exception {
+        InMemoryRepository repo = this.getGitRepositoryInMemory(this.repositoryUrl, this.userName, this.token);
+        ObjectId fileCommitObjectId = repo.resolve(commitId);
+        RevWalk revWalk = new RevWalk(repo);
+        RevCommit commit = revWalk.parseCommit(fileCommitObjectId);
+        RevTree tree = commit.getTree();
+        TreeWalk treeWalk = new TreeWalk(repo);
+        treeWalk.addTree(tree);
+        treeWalk.setRecursive(true);
+        treeWalk.setFilter(PathFilter.create(filePath));
+        ObjectId objectId = treeWalk.getObjectId(0);
+        ObjectLoader loader = repo.open(objectId);
+        return loader.openStream();
     }
 }

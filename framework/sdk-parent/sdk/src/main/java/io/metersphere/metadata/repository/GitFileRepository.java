@@ -10,7 +10,6 @@ import io.metersphere.metadata.vo.RepositoryRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -47,7 +46,10 @@ public class GitFileRepository implements FileRepository {
 
     @Override
     public InputStream getFileAsStream(FileRequest request) throws Exception {
-        return new ByteArrayInputStream(getFile(request));
+        RemoteFileAttachInfo gitFileInfo = request.getFileAttachInfo();
+        GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
+                gitFileInfo.getRepositoryPath(), gitFileInfo.getUserName(), gitFileInfo.getToken());
+        return repositoryUtils.getFileAsStream(gitFileInfo.getCommitId(), gitFileInfo.getFilePath());
     }
 
     @Override
