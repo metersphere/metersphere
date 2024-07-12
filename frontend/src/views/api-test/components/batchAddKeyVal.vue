@@ -96,8 +96,9 @@
         .map((item) => `${item.key},${item.paramType},${item.required},${item.value}`)
         .join('\n');
     } else {
+      // 过滤掉空行和文件类型的参数
       batchParamsCode.value = props.params
-        .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)))
+        .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)) && e.paramType !== RequestParamsType.FILE)
         .map((item) => `${item.key}:${item.value}`)
         .join('\n');
     }
