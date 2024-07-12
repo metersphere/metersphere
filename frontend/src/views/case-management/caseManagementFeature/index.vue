@@ -113,7 +113,7 @@
               :class="getActiveClass('recycle')"
               @click="setActiveFolder('recycle')"
             >
-              <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+              <MsIcon type="icon-icon_delete-trash_outlined1" class="folder-icon" />
               <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
               <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div>
             </div>

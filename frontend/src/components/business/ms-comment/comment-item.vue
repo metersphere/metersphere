@@ -111,7 +111,7 @@
       eventTag: 'delete',
       permission: ['PROJECT_BUG:READ+COMMENT', 'FUNCTIONAL_CASE:READ+COMMENT'],
       danger: true,
-      icon: 'icon-icon_delete-trash_outlined',
+      icon: 'icon-icon_delete-trash_outlined1',
     },
   ];
 

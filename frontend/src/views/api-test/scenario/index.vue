@@ -17,7 +17,7 @@
           <a-divider margin="0" />
           <div class="case">
             <div class="flex items-center px-[20px]" :class="getActiveClass('recycle')" @click="redirectRecycle()">
-              <MsIcon type="icon-icon_delete-trash_outlined" class="folder-icon" />
+              <MsIcon type="icon-icon_delete-trash_outlined1" class="folder-icon" />
               <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
               <div class="folder-count">({{ recycleModulesCount || 0 }})</div>
             </div>

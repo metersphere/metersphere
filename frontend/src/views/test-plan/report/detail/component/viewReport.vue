@@ -157,7 +157,7 @@
             </a-tooltip>
             <a-divider v-if="allowEdit(item.value)" direction="vertical" class="!m-0 !mx-2" />
             <a-tooltip :content="t('common.delete')">
-              <MsIcon type="icon-icon_delete-trash_filled" size="16" @click="deleteCard(item)" />
+              <MsIcon type="icon-icon_delete-trash_outlined1" size="16" @click="deleteCard(item)" />
             </a-tooltip>
           </div>
         </div>

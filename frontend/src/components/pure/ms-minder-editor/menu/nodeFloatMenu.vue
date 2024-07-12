@@ -179,7 +179,7 @@
       </a-dropdown>
       <a-tooltip v-else-if="props.canShowDeleteMenu" :content="t('common.delete')">
         <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="handleMinderMenuSelect('delete')">
-          <MsIcon type="icon-icon_delete-trash_outlined" class="text-[var(--color-text-4)]" />
+          <MsIcon type="icon-icon_delete-trash_outlined1" class="text-[var(--color-text-4)]" />
         </MsButton>
       </a-tooltip>
     </template>
