@@ -299,7 +299,7 @@
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
+          <!--          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="255"
@@ -307,7 +307,7 @@
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.loginUrlTip')" :show-fill-icon="false" />
-          </a-form-item>
+          </a-form-item>-->
         </template>
         <template v-else-if="activeAuthForm.type === 'OAUTH2'">
           <a-form-item
@@ -448,7 +448,7 @@
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
+          <!--          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="255"
@@ -456,7 +456,7 @@
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.loginUrlTip')" :show-fill-icon="false" />
-          </a-form-item>
+          </a-form-item>-->
         </template>
         <template v-else-if="activeAuthForm.type === 'LDAP'">
           <a-form-item
