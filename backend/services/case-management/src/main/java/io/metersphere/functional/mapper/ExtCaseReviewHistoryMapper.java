@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ExtCaseReviewHistoryMapper {
 
-    List<CaseReviewHistoryDTO> list(@Param("caseId") String caseId, @Param("reviewId") String reviewId);
+    List<CaseReviewHistoryDTO> listWidthAbandoned(@Param("caseId") String caseId, @Param("reviewId") String reviewId);
 
     List<CaseReviewHistoryDTO> getHistoryListWidthAbandoned(@Param("caseId") String caseId, @Param("reviewId") String reviewId);
 

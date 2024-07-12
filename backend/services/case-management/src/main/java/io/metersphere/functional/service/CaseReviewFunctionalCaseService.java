@@ -800,7 +800,7 @@ public class CaseReviewFunctionalCaseService {
     }
 
     public List<OptionDTO> getUserStatus(String reviewId, String caseId) {
-        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
+        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.listWidthAbandoned(caseId, reviewId);
         Map<String, List<CaseReviewHistoryDTO>> collect = list.stream().sorted(Comparator.comparingLong(CaseReviewHistoryDTO::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistoryDTO::getCreateUser, Collectors.toList()));
         List<OptionDTO> optionDTOS = new ArrayList<>();
         List<CaseReviewFunctionalCaseUser> reviewerList = getReviewerList(reviewId, caseId);
