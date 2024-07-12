@@ -147,7 +147,7 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 236px)',
+      height: 'calc(100vh - 250px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题

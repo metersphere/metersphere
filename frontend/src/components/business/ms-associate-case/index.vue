@@ -282,7 +282,7 @@
               />
             </a-tooltip>
           </div>
-          <div v-if="props.associatedType === CaseLinkEnum.FUNCTIONAL" class="ml-[16px] flex items-center">
+          <div v-if="props.associatedType === CaseLinkEnum.FUNCTIONAL && syncCase" class="ml-[16px] flex items-center">
             <a-tree-select
               v-model="apiCaseCollectionId"
               :field-names="{
@@ -292,6 +292,7 @@
               }"
               class="w-[200px]"
               :data="apiSetTree"
+              allow-clear
             >
               <template #prefix>
                 <div class="text-[var(--color-text-brand)]">{{ t('ms.case.associate.api') }}</div>
@@ -311,6 +312,7 @@
                 children: 'children',
               }"
               class="ml-[12px] w-[200px]"
+              allow-clear
               :data="scenarioSetTree"
             >
               <template #prefix>
@@ -366,6 +368,7 @@
 
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
+  import type { PlanDetailApiCaseTreeParams } from '@/models/testPlan/testPlan';
   import { CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -626,15 +629,20 @@
 
   async function initTestSet() {
     if (props.extraTableParams?.testPlanId) {
+      const params: PlanDetailApiCaseTreeParams = {
+        testPlanId: props.extraTableParams.testPlanId,
+        treeType: 'COLLECTION',
+      };
       try {
-        apiSetTree.value = await getApiCaseModule({
-          testPlanId: props.extraTableParams.testPlanId,
-          treeType: 'COLLECTION',
-        });
-        scenarioSetTree.value = await getApiScenarioModule({
-          testPlanId: props.extraTableParams.testPlanId,
-          treeType: 'COLLECTION',
-        });
+        const [apiSetTreeResult, scenarioSetTreeResult] = await Promise.all([
+          getApiCaseModule(params),
+          getApiScenarioModule(params),
+        ]);
+
+        apiSetTree.value = apiSetTreeResult;
+        scenarioSetTree.value = scenarioSetTreeResult;
+        apiCaseCollectionId.value = apiSetTree.value[0].id;
+        apiScenarioCollectionId.value = scenarioSetTree.value[0].id;
       } catch (error) {
         console.log(error);
       }
