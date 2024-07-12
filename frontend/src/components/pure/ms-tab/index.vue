@@ -93,7 +93,7 @@
       // 不存在拦截器，直接修改实际值
       activeKey.value = value;
     }
-    emit('change', activeKey.value);
+    emit('change', value);
   }
 </script>
 
