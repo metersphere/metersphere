@@ -1,3 +1,5 @@
+import { OptionItem } from '@/api/modules/message/index';
+
 import { BatchApiParams, TableQueryParams } from '@/models/common';
 
 // 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档(暂时没有)
@@ -245,6 +247,12 @@ export interface ReviewHistoryItem {
   userLogo: string;
   userName: string;
   contentText: string;
+}
+
+export interface ReviewerAndStatus {
+  reviewerStatus: OptionItem[]; // 每个评审人最终的评审结果
+  status: ReviewResult;
+  caseId: string; // 用例评审最终结果
 }
 
 // 评审详情-用例列表项
