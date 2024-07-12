@@ -60,7 +60,7 @@ export interface CaseManagementTable {
   reviewStatus: StatusType[keyof StatusType]; // 评审状态：未评审/评审中/通过/不通过/重新提审
   tags: any; // 标签（JSON)
   caseEditType: string; // 编辑模式：步骤模式/文本模式
-  prerequisite: string; // 前置条件
+  prerequisite: string; // 前置操作
   pos: number; // 自定义排序，间隔5000
   versionId: string; // 版本ID
   refId: string; // 指向初始版本ID
@@ -411,7 +411,7 @@ export interface FeatureCaseMinderUpdateCaseItem {
   moduleId: string;
   moveMode?: MoveMode; // 移动方式（节点移动或新增时需要）
   targetId?: string;
-  prerequisite: string; // 前置条件
+  prerequisite: string; // 前置操作
   caseEditType: FeatureCaseMinderEditType;
   steps: string;
   textDescription: string; // 文本描述

@@ -87,7 +87,7 @@ export default {
     tag: {
       case: '用例',
       module: '模块',
-      precondition: '前置条件',
+      precondition: '前置操作',
       desc: '步骤描述',
       expect: '预期结果',
       remark: '备注',

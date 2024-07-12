@@ -165,7 +165,7 @@ export enum RequestAssertionCondition {
   START_WITH = 'START_WITH', // 以 xx 开头
   UNCHECKED = 'UNCHECKED', // 不校验
 }
-// 接口请求-前后置条件-处理器类型
+// 接口请求-前后置操作-处理器类型
 export enum RequestConditionProcessor {
   SCRIPT = 'SCRIPT', // 脚本操作
   SQL = 'SQL', // SQL操作
@@ -174,7 +174,7 @@ export enum RequestConditionProcessor {
   SCENARIO_SCRIPT = 'ENV_SCENARIO_SCRIPT', // 场景脚本
   REQUEST_SCRIPT = 'ENV_REQUEST_SCRIPT', // 请求脚本
 }
-// 接口请求-前后置条件-脚本处理器语言
+// 接口请求-前后置操作-脚本处理器语言
 export enum RequestConditionScriptLanguage {
   BEANSHELL = 'BEANSHELL', // Beanshell
   BEANSHELL_JSR233 = 'BEANSHELL_JSR233', // Beanshell JSR233

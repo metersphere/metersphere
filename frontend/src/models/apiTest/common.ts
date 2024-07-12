@@ -222,7 +222,7 @@ export type ResponseScriptAssertion = ScriptCommonConfig;
 export interface ResponseVariableAssertion {
   variableAssertionItems: ResponseAssertionItem[];
 }
-// 执行请求-前后置条件处理器
+// 执行请求-前后置操作处理器
 export interface ExecuteConditionProcessorCommon {
   id: number; // 处理器ID，前端列表渲染需要，后台无此字段
   enable: boolean; // 是否启用
@@ -233,9 +233,9 @@ export interface ExecuteConditionProcessorCommon {
   beforeStepScript: boolean; // 是否是步骤内前置脚本前
   assertionType?: RequestConditionProcessor;
 }
-// 执行请求-前后置条件-脚本处理器
+// 执行请求-前后置操作-脚本处理器
 export type ScriptProcessor = ScriptCommonConfig & ExecuteConditionProcessorCommon;
-// 执行请求-前后置条件-SQL脚本处理器
+// 执行请求-前后置操作-SQL脚本处理器
 export interface SQLProcessor extends ExecuteConditionProcessorCommon {
   name: string; // 描述
   dataSourceId: string; // 数据源ID
@@ -246,7 +246,7 @@ export interface SQLProcessor extends ExecuteConditionProcessorCommon {
   variableNames: string; // 按列存储时的变量名集合,多个列可以使用逗号分隔
   extractParams: KeyValueParam[]; // 提取参数列表
 }
-// 执行请求-前后置条件-等待时间处理器
+// 执行请求-前后置操作-等待时间处理器
 export interface TimeWaitingProcessor extends ExecuteConditionProcessorCommon {
   delay: number; // 等待时间 单位：毫秒
 }
@@ -274,11 +274,11 @@ export type JSONPathExtract = ExpressionCommonConfig;
 export interface XPathExtract extends ExpressionCommonConfig {
   responseFormat: ResponseBodyXPathAssertionFormat; // 响应格式
 }
-// 执行请求-前后置条件-参数提取处理器
+// 执行请求-前后置操作-参数提取处理器
 export interface ExtractProcessor extends ExecuteConditionProcessorCommon {
   extractors: (RegexExtract | JSONPathExtract | XPathExtract)[];
 }
-// 执行请求-前后置条件配置
+// 执行请求-前后置操作配置
 export type ExecuteConditionProcessor = Partial<
   ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor
 > &

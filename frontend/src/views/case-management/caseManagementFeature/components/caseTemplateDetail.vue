@@ -731,7 +731,7 @@
     }
   }
 
-  // 前置条件附件id
+  // 前置操作附件id
   const prerequisiteFileIds = ref<string[]>([]);
   // 文本描述附件id
   const textDescriptionFileIds = ref<string[]>([]);
