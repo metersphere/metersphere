@@ -104,6 +104,7 @@
                 {{ t('ms.upload.preview') }}
               </MsButton>
               <SaveAsFilePopover
+                v-if="item.uid === activeTransferFileParams?.uid"
                 v-model:visible="transferVisible"
                 :saving-file="activeTransferFileParams"
                 :file-save-as-source-id="(form.id as string)"
