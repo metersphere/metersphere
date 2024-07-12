@@ -358,7 +358,7 @@
       : [];
   }
 
-  // 编辑前置条件
+  // 编辑前置操作
   function prepositionEdit() {
     isEditPreposition.value = !isEditPreposition.value;
   }
@@ -427,7 +427,7 @@
     );
   });
 
-  // 前置条件附件id
+  // 前置操作附件id
   const prerequisiteFileIds = ref<string[]>([]);
   // 文本描述附件id
   const textDescriptionFileIds = ref<string[]>([]);

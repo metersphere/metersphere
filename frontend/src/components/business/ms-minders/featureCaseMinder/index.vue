@@ -697,7 +697,7 @@
    */
   function getCaseNodeInfo(node?: MinderJsonNode) {
     let textStep: MinderJsonNode | undefined; // 文本描述
-    let prerequisiteNode: MinderJsonNode | undefined; // 前置条件
+    let prerequisiteNode: MinderJsonNode | undefined; // 前置操作
     let remarkNode: MinderJsonNode | undefined; // 备注
     const stepNodes: MinderJsonNode[] = []; // 步骤描述
     node?.children?.forEach((item) => {
