@@ -386,8 +386,13 @@ public class ApiExecutionQueueService {
                 executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                 continue;
             }
+
+            String reportId = StringUtils.equalsIgnoreCase(queue.getReportType(), RunModeConstants.SET_REPORT.toString())
+                    ? StringUtils.join(queue.getReportId(), "_", item.getTestId())
+                    : item.getReportId();
+
             // 在资源池中执行
-            if (StringUtils.isNotEmpty(queue.getPoolId()) && jMeterService.getRunningQueue(queue.getPoolId(), item.getReportId())) {
+            if (StringUtils.isNotEmpty(queue.getPoolId()) && jMeterService.getRunningQueue(queue.getPoolId(), reportId)) {
                 continue;
             }
             // 检查是否已经超时
@@ -405,7 +410,7 @@ public class ApiExecutionQueueService {
                     report.setStatus(ApiReportStatus.ERROR.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                     LoggerUtil.info("超时处理报告：" + report.getId());
-                    if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
+                    if (StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
                         LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
                         dto.setTestPlanReportId(queue.getReportId());
                         dto.setReportId(queue.getReportId());
