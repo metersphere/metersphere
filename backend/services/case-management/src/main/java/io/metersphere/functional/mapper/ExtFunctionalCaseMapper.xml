@@ -837,7 +837,12 @@
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
         crfc.id as id,
-        IFNULL(history.`status`, fc.review_status) as reviewStatus,
+        <if test="viewStatusUserId != null and viewStatusUserId != ''">
+            IFNULL(history.`status`, 'UN_REVIEWED') as reviewStatus,
+        </if>
+        <if test="viewStatusUserId == null or viewStatusUserId == ''">
+            IFNULL(history.`status`, crfc.status) as reviewStatus,
+        </if>
         fc.module_id as moduleId,
         fc.name as name,
         fc.id as caseId,
@@ -850,6 +855,9 @@
         LEFT JOIN (select  * from (SELECT  crh.case_id, crh.`status`, ROW_NUMBER() OVER (PARTITION BY crh.case_id ORDER BY crh.create_time DESC) as rn from case_review_history crh where crh.review_id = #{request.reviewId} and crh.deleted = false
         <if test="viewStatusUserId != null and viewStatusUserId != ''">
             AND crh.create_user = #{viewStatusUserId}
+        </if>
+        <if test="viewStatusUserId == null or viewStatusUserId == ''">
+            AND crh.create_user = null
         </if>
         order by crh.create_time desc ) as history_filter WHERE rn = 1 ) as history  ON history.case_id = crfc.case_id
         WHERE
