@@ -28,20 +28,12 @@
       </a-button>
     </a-tooltip>
   </div>
-  <div class="flex items-center justify-between">
-    <a-checkbox v-model:model-value="isCheckAll" :indeterminate="indeterminate" @change="handleChangeAll">{{
-      t('ms.case.associate.allData')
-    }}</a-checkbox>
-    <span class="pr-[8px] text-[var(--color-text-brand)]">
-      {{ allCount }}
-    </span>
-  </div>
+  <slot></slot>
   <a-spin class="w-full pl-[8px]" :loading="moduleLoading">
     <MsTree
       v-model:selected-keys="selectedKeys"
       v-model:checked-keys="checkedKeys"
       v-model:halfCheckedKeys="halfCheckedKeys"
-      v-model:isCheckAll="isCheckAll"
       v-model:data="caseTree"
       :keyword="moduleKeyword"
       :empty-text="t('common.noData')"
@@ -130,12 +122,6 @@
     required: true,
   });
   const halfCheckedKeys = defineModel<(string | number)[]>('halfCheckedKeys', {
-    required: true,
-  });
-  const isCheckAll = defineModel<boolean>('isCheckedAll', {
-    required: true,
-  });
-  const indeterminate = defineModel<boolean>('indeterminate', {
     required: true,
   });
   const moduleKeyword = ref('');
@@ -265,11 +251,6 @@
       immediate: true,
     }
   );
-
-  function handleChangeAll(value: boolean | (string | number | boolean)[], ev: Event) {
-    isCheckAll.value = value as boolean;
-    emit('checkAllModule', isCheckAll.value);
-  }
 
   watch(
     () => props.showType,

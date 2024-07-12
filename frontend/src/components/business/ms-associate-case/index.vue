@@ -120,8 +120,6 @@
           v-model:checkedKeys="checkedKeys"
           v-model:selected-keys="selectedKeys"
           v-model:halfCheckedKeys="halfCheckedKeys"
-          v-model:isCheckedAll="isCheckedAll"
-          v-model:indeterminate="indeterminate"
           :modules-count="modulesCount"
           :get-modules-api-type="props.getModulesApiType"
           :current-project="innerProject"
@@ -134,8 +132,16 @@
           @change-protocol="handleProtocolChange"
           @select-parent="selectParent"
           @check="checkNode"
-          @check-all-module="checkAllModule"
-        />
+        >
+          <div class="flex items-center justify-between">
+            <a-checkbox v-model:model-value="isCheckedAll" :indeterminate="indeterminate" @change="checkAllModule">{{
+              t('ms.case.associate.allData')
+            }}</a-checkbox>
+            <span class="pr-[8px] text-[var(--color-text-brand)]">
+              {{ modulesCount.all }}
+            </span>
+          </div>
+        </CaseTree>
       </div>
       <div class="relative flex w-[calc(100%-293px)] flex-col p-[16px]">
         <MsAdvanceFilter
@@ -352,7 +358,6 @@
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import ApiCaseTable from './apiCaseTable.vue';
   import ApiTable from './apiTable.vue';
   import CaseTable from './caseTable.vue';
@@ -372,7 +377,8 @@
   import { CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
-  import type { moduleKeysType, saveParams } from './types';
+  import type { saveParams } from './types';
+  import useTreeSelection from './useTreeSelection';
   import { initGetModuleCountFunc } from './utils/moduleCount';
 
   const visitedKey = 'changeLinkProject';
@@ -424,11 +430,47 @@
   const activeFolder = ref('all');
   const selectedIds = ref<string[]>([]);
 
-  const checkedKeys = ref<Array<string | number>>([]);
-  const halfCheckedKeys = ref<Array<string | number>>([]);
+  const moduleTree = ref<ModuleTreeNode[]>([]);
 
-  // 数据集合
-  const selectedModulesMaps = ref<Record<string, moduleKeysType>>({});
+  const selectedModuleProps = ref({
+    modulesTree: moduleTree.value,
+    moduleCount: modulesCount.value,
+  });
+
+  const {
+    selectedModulesMaps,
+    checkedKeys,
+    halfCheckedKeys,
+    isCheckedAll,
+    indeterminate,
+    selectParent,
+    checkNode,
+    checkAllModule,
+    totalCount,
+    clearSelector,
+  } = useTreeSelection(selectedModuleProps.value);
+
+  watch(
+    () => moduleTree.value,
+    (val) => {
+      if (val) {
+        selectedModuleProps.value.modulesTree = val;
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => modulesCount.value,
+    (val) => {
+      selectedModuleProps.value.moduleCount = val;
+    },
+    {
+      immediate: true,
+    }
+  );
 
   // 计算用例是否选择禁用关联按钮
   const isDisabledSaveButton = computed(() => {
@@ -499,38 +541,8 @@
     return selectedParams;
   }
 
-  const isCheckedAll = ref<boolean>(false);
-  const indeterminate = ref<boolean>(false);
-
-  // TODO 需优化、手动触发计算、或者每次增量更新
-  const totalCount = computed(() => {
-    return Object.keys(selectedModulesMaps.value).reduce((total, key) => {
-      const module = selectedModulesMaps.value[key];
-      if (key !== 'all') {
-        // 未全选存在排除则要 count总-排除掉的 = 已选
-        if (module.excludeIds.size && !module.selectAll) {
-          total += module.count - module.excludeIds.size;
-          // 已全选未排除则要+count
-        } else if (module.selectAll && !module.excludeIds.size) {
-          total += module.count;
-          // 未全选则 + 选择的id集合
-        } else if (!module.selectAll && module.selectIds.size) {
-          total += module.selectIds.size;
-        }
-      }
-      return total;
-    }, 0);
-  });
-
   const apiCaseCollectionId = ref<string>('');
   const apiScenarioCollectionId = ref<string>('');
-
-  // 切换项目的时候清空
-  function clearSelector() {
-    Object.keys(selectedModulesMaps.value).forEach((key) => {
-      delete selectedModulesMaps.value[key];
-    });
-  }
 
   // 保存
   function handleConfirm() {
@@ -615,7 +627,6 @@
     }
   }
 
-  const moduleTree = ref<ModuleTreeNode[]>([]);
   function initModuleTree(tree: ModuleTreeNode[], _protocols?: string[]) {
     moduleTree.value = tree;
     selectedProtocols.value = _protocols || [];
@@ -689,132 +700,6 @@
     }
   );
 
-  // 选中当前节点 && 取消当前节点
-  function selectParent(nodeData: MsTreeNodeData, isSelected: boolean) {
-    selectedModulesMaps.value[nodeData.id] = {
-      selectAll: !isSelected,
-      selectIds: new Set(),
-      excludeIds: new Set(),
-      count: nodeData.count,
-    };
-  }
-
-  // 初始化左侧模块节点选中当前以及子节点
-  function processAllCurrentNode(node: MsTreeNodeData, check: boolean) {
-    if (node.children && node.children.length) {
-      node.children?.forEach((childrenNode: MsTreeNodeData) => processAllCurrentNode(childrenNode, check));
-    }
-    selectedModulesMaps.value[node.id] = {
-      selectAll: check,
-      selectIds: new Set(),
-      excludeIds: new Set(),
-      count: node.count,
-    };
-  }
-
-  // 选中当前节点以及子节点
-  function checkNode(_checkedKeys: Array<string | number>, checkedData: MsTreeNodeData) {
-    const { checked, node } = checkedData;
-    processAllCurrentNode(node, checked);
-  }
-
-  watch(
-    () => selectedModulesMaps.value,
-    (val) => {
-      const checkedKeysSet = new Set(checkedKeys.value);
-      const halfCheckedKeysSet = new Set(halfCheckedKeys.value);
-
-      if (!Object.keys(val).length) {
-        checkedKeysSet.clear();
-        halfCheckedKeysSet.clear();
-        isCheckedAll.value = false;
-        indeterminate.value = false;
-      }
-
-      Object.entries(val).forEach(([moduleId, selectedProps]) => {
-        const { selectAll: selectIdsAll, selectIds, count, excludeIds } = selectedProps;
-        if (selectedProps) {
-          // 全选和取消全选
-          if (selectIdsAll) {
-            checkedKeysSet.add(moduleId);
-          } else {
-            checkedKeysSet.delete(moduleId);
-          }
-
-          // 半选状态
-          if (excludeIds.size || (selectIds.size > 0 && selectIds.size < count)) {
-            halfCheckedKeysSet.add(moduleId);
-          } else {
-            halfCheckedKeysSet.delete(moduleId);
-          }
-        }
-      });
-
-      // 更新 checkedKeys 和 halfCheckedKeys
-      checkedKeys.value = Array.from(checkedKeysSet);
-      halfCheckedKeys.value = Array.from(halfCheckedKeysSet);
-
-      // 更新全选和半选状态
-      const isAllCheckedModuleProps = val.all;
-
-      if (isAllCheckedModuleProps) {
-        if (totalCount.value === isAllCheckedModuleProps.count) {
-          isCheckedAll.value = true;
-        } else {
-          isCheckedAll.value = false;
-        }
-
-        if (totalCount.value === 0) {
-          indeterminate.value = false;
-        } else if (totalCount.value < isAllCheckedModuleProps.count) {
-          indeterminate.value = true;
-        } else {
-          indeterminate.value = false;
-        }
-      }
-    },
-    { deep: true }
-  );
-
-  // 全选全部&取消全选
-  function setSelectAll(tree: MsTreeNodeData[], checkedAll: boolean) {
-    tree.forEach((node) => {
-      processAllCurrentNode(node, checkedAll);
-
-      if (node.children) {
-        setSelectAll(node.children, checkedAll);
-      }
-    });
-  }
-
-  function checkAllModule() {
-    selectedModulesMaps.value.all = {
-      selectAll: isCheckedAll.value,
-      selectIds: new Set(),
-      excludeIds: new Set(),
-      count: modulesCount.value.all,
-    };
-
-    setSelectAll(moduleTree.value, isCheckedAll.value);
-
-    const lastProps = selectedModulesMaps.value.all;
-    if (lastProps.selectAll) {
-      selectedModulesMaps.value.all.selectAll = true;
-      selectedModulesMaps.value.all.selectIds = new Set([]);
-      selectedModulesMaps.value.all.excludeIds = new Set([]);
-    } else {
-      selectedModulesMaps.value.all.selectAll = false;
-      selectedModulesMaps.value.all.selectIds = new Set([]);
-      selectedModulesMaps.value.all.excludeIds = new Set([]);
-    }
-  }
-
-  watch([() => innerProject.value, () => showType.value, () => props.associatedType], (val) => {
-    if (val) {
-      clearSelector();
-    }
-  });
-
   watch(
     () => props.modulesMaps,
     (val) => {
@@ -831,6 +716,12 @@
       }
     }
   );
+
+  watch([() => innerProject.value, () => showType.value, () => props.associatedType], (val) => {
+    if (val) {
+      clearSelector();
+    }
+  });
 </script>
 
 <style scoped lang="less">
