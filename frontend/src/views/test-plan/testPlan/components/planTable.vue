@@ -167,7 +167,7 @@
 
     <template #passRate="{ record }">
       <div class="mr-[8px] w-[100px]">
-        <StatusProgress :status-detail="defaultCountDetailMap[record.id]" height="5px" />
+        <StatusProgress :status-detail="defaultCountDetailMap[record.id]" height="5px" :type="record.type" />
       </div>
       <div class="text-[var(--color-text-1)]">
         {{ `${defaultCountDetailMap[record.id]?.passRate ? defaultCountDetailMap[record.id].passRate : '-'}%` }}
