@@ -116,20 +116,20 @@ public class ApiDefinitionImportUtilService {
             for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
                 ApiDefinitionResult apiDefinitionResult = apiImportSendNoticeDTO.getApiDefinitionResult();
                 if (apiDefinitionResult != null && !apiDefinitionResult.isUpdated()) {
-                    String context = SessionUtils.getUserId().concat("新建了接口定义").concat(":").concat(apiDefinitionResult.getName());
+                    String context = Objects.requireNonNull(SessionUtils.getUserId()).concat("新建了接口定义").concat(":").concat(apiDefinitionResult.getName());
                     ApiDefinitionImportUtil.sendImportApiNotice(apiDefinitionResult, context, NoticeConstants.Event.CREATE, "api_create_notice");
                 }
                 if (apiDefinitionResult != null && apiDefinitionResult.isUpdated()) {
-                    String context = SessionUtils.getUserId().concat("更新了接口定义").concat(":").concat(apiDefinitionResult.getName());
+                    String context = Objects.requireNonNull(SessionUtils.getUserId()).concat("更新了接口定义").concat(":").concat(apiDefinitionResult.getName());
                     ApiDefinitionImportUtil.sendImportApiNotice(apiDefinitionResult, context, NoticeConstants.Event.UPDATE, "api_update_notice");
                 }
                 if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTO.getCaseDTOList())) {
                     for (ApiTestCaseDTO apiTestCaseDTO : apiImportSendNoticeDTO.getCaseDTOList()) {
                         if (apiTestCaseDTO.isUpdated()) {
-                            String context = SessionUtils.getUserId().concat("更新了接口用例").concat(":").concat(apiTestCaseDTO.getName());
+                            String context = Objects.requireNonNull(SessionUtils.getUserId()).concat("更新了接口用例").concat(":").concat(apiTestCaseDTO.getName());
                             ApiDefinitionImportUtil.sendImportCaseNotice(apiTestCaseDTO, context, NoticeConstants.Event.CASE_UPDATE, "api_case_update_notice");
                         } else {
-                            String context = SessionUtils.getUserId().concat("新建了接口用例").concat(":").concat(apiTestCaseDTO.getName());
+                            String context = Objects.requireNonNull(SessionUtils.getUserId()).concat("新建了接口用例").concat(":").concat(apiTestCaseDTO.getName());
                             ApiDefinitionImportUtil.sendImportCaseNotice(apiTestCaseDTO, context, NoticeConstants.Event.CASE_CREATE, "api_case_create_notice");
                         }
                     }
@@ -302,7 +302,7 @@ public class ApiDefinitionImportUtilService {
             mockConfigService.importMock(apiImport, sqlSession, request);
         }
         sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
+        if (sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
 
@@ -633,7 +633,7 @@ public class ApiDefinitionImportUtilService {
                     //指定版本无数据
                     //如果系统内的所有版本都不是当前选择的数据更新版本，需要与lasted = 1 比较请求参数，参数一致，仅变更接口模块为当前导入接口的模块，不一致，新增并变更接口模块为当前导入接口的模块
                     if (latestApi != null) {
-                        Boolean hasChange;
+                        boolean hasChange;
                         if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
                             hasChange = ApiDefinitionImportUtil.checkIsSynchronize(latestApi, apiDefinitionWithBLOBs);
                         } else {
@@ -1180,7 +1180,7 @@ public class ApiDefinitionImportUtilService {
             for (List<ApiTestCaseWithBLOBs> value : values) {
                 oldCaseList.addAll(value);
             }
-            List<ApiTestCaseWithBLOBs> collect = oldCaseList.stream().filter(t -> !caseIds.contains(t.getId())).collect(Collectors.toList());
+            List<ApiTestCaseWithBLOBs> collect = oldCaseList.stream().filter(t -> !caseIds.contains(t.getId())).toList();
             optionDataCases.addAll(collect);
         }
     }
@@ -1322,7 +1322,7 @@ public class ApiDefinitionImportUtilService {
             ScheduleExample schedule = new ScheduleExample();
             schedule.createCriteria().andResourceIdEqualTo(apiDefinitionImportParamDTO.getScheduleId());
             List<Schedule> list = scheduleMapper.selectByExample(schedule);
-            if (list.size() > 0) {
+            if (!list.isEmpty()) {
                 User user = baseUserService.getUserDTO(list.get(0).getUserId());
                 msOperLog.setOperUser(user.getName() + TIMING_SYNCHRONIZATION);
                 msOperLog.setCreateUser(user.getId());
