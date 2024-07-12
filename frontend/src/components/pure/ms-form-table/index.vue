@@ -38,7 +38,7 @@
           label=""
           :rules="{
             validator: (value, callback) => {
-              validRepeat(rowIndex, item.dataIndex as string, value, callback);
+              validRepeat(rowIndex, item.dataIndex as string, record[item.dataIndex as string], record, callback);
             },
           }"
           :disabled="props.disabled || item.disabled || record.disabled"
@@ -354,17 +354,31 @@
 
   // 校验重复
   const formRef = ref<FormInstance>();
-  async function validRepeat(rowIndex: number, dataIndex: string, value: any, callback: (error?: string) => void) {
+  async function validRepeat(
+    rowIndex: number,
+    dataIndex: string,
+    value: any,
+    record: Record<string, any>,
+    callback: (error?: string) => void
+  ) {
     const currentColumn = props.columns.find((item) => item.dataIndex === dataIndex);
     if (!currentColumn?.needValidRepeat) {
       callback();
       return;
     }
-    propsRes.value.data?.forEach((row, index) => {
-      if (row[dataIndex].length && index !== rowIndex && row[dataIndex] === value) {
-        callback(`${t(currentColumn?.title as string)}${t('msFormTable.paramRepeatMessage')}`);
-      }
-    });
+    if (record.parent) {
+      (record.parent.children as Record<string, any>[])?.forEach((row, index) => {
+        if (row[dataIndex].length && index !== rowIndex && row[dataIndex] === value) {
+          callback(`${t(currentColumn?.title as string)}${t('msFormTable.paramRepeatMessage')}`);
+        }
+      });
+    } else {
+      propsRes.value.data?.forEach((row, index) => {
+        if (row[dataIndex].length && index !== rowIndex && row[dataIndex] === value) {
+          callback(`${t(currentColumn?.title as string)}${t('msFormTable.paramRepeatMessage')}`);
+        }
+      });
+    }
     callback();
   }
 

@@ -6,12 +6,7 @@
     :columns="columns"
     show-empty-tree
     :selectable="false"
-    :row-selection="{
-      type: 'checkbox',
-      showCheckedAll: true,
-      checkStrictly: true,
-      width: 32,
-    }"
+    :row-selection="rowSelection"
     :table-key="TableKeyEnum.JSON_SCHEMA"
     :scroll="{ x: 'max-content' }"
     :disabled="props.disabled"
@@ -521,7 +516,7 @@
 </template>
 
 <script setup lang="ts">
-  import { SelectOptionData, TableData } from '@arco-design/web-vue';
+  import { SelectOptionData, TableData, TableRowSelection } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -578,6 +573,17 @@
     default: () => ['root'],
   });
 
+  const rowSelection = computed<TableRowSelection | undefined>(() => {
+    if (props.disabled) {
+      return undefined;
+    }
+    return {
+      type: 'checkbox',
+      showCheckedAll: true,
+      checkStrictly: true,
+      width: 32,
+    };
+  });
   // 初始化根节点
   watchEffect(() => {
     if (data.value.length === 0) {
@@ -676,6 +682,7 @@
       size: 'medium',
       columnSelectorDisabled: true,
       fixed: 'left',
+      needValidRepeat: true,
     },
     {
       title: t('ms.json.schema.type'),
@@ -866,6 +873,7 @@
     if (!selectedKeys.value.includes(child.id)) {
       selectedKeys.value.push(child.id);
     }
+    data.value = [...data.value];
   }
 
   /**
