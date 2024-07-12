@@ -22,6 +22,7 @@ import {
   GetReviewDetailModuleCountUrl,
   GetReviewDetailModuleTreeUrl,
   GetReviewDetailUrl,
+  GetReviewerAndStatusUrl,
   GetReviewListUrl,
   GetReviewModulesUrl,
   GetReviewUsersUrl,
@@ -49,6 +50,7 @@ import {
   Review,
   ReviewCaseItem,
   ReviewDetailCaseListQueryParams,
+  ReviewerAndStatus,
   ReviewHistoryItem,
   ReviewItem,
   ReviewListQueryParams,
@@ -211,3 +213,8 @@ export const getCaseReviewerList = (reviewId: string, caseId: string) => {
 export function getCaseReviewMinder(data: CaseReviewMinderParams) {
   return MSR.post<CommonList<MinderJsonNode>>({ url: `${GetCaseReviewMinderUrl}`, data });
 }
+
+// 脑图-获取用例评审最终结果和每个评审人最终的评审结果
+export const getReviewerAndStatus = (reviewId: string, caseId: string) => {
+  return MSR.get<ReviewerAndStatus>({ url: `${GetReviewerAndStatusUrl}/${reviewId}/${caseId}` });
+};

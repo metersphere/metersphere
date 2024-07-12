@@ -88,7 +88,7 @@
                 :class="`flex cursor-pointer items-center rounded p-[4px] hover:bg-[var(--color-text-n9)] 
                 ${statusVisible ? 'bg-[var(--color-text-n9)]' : ''} `"
               >
-                <ReviewResult :status="activeCaseInfo.reviewStatus" class="text-[12px]" :icon-size="12" />
+                <ReviewResult :status="reviewHistoryStatus" class="text-[12px]" :icon-size="12" />
                 <MsIcon type="icon-icon_expand-down_filled" size="12" class="ml-[4px] text-[var(--color-text-4)]" />
               </div>
               <template #content>
@@ -97,9 +97,9 @@
                 >
                   <div v-for="item in reviewUserStatusList" :key="item.id" class="my-[4px] flex justify-between">
                     <div class="one-line-text max-w-[80px]">
-                      {{ item.userName }}
+                      {{ item.id }}
                     </div>
-                    <ReviewResult :status="item.status" class="text-[12px]" :icon-size="12" />
+                    <ReviewResult :status="item.name as ReviewResultStatus" class="text-[12px]" :icon-size="12" />
                   </div>
                   <MsEmpty v-if="!reviewUserStatusList.length" />
                 </div>
@@ -119,7 +119,6 @@
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router';
-  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
@@ -137,8 +136,10 @@
     getCaseReviewerList,
     getCaseReviewHistoryList,
     getCaseReviewMinder,
+    getReviewerAndStatus,
   } from '@/api/modules/case-management/caseReview';
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import { OptionItem } from '@/api/modules/message/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
@@ -151,6 +152,7 @@
     CaseReviewFunctionalCaseUserItem,
     ReviewHistoryItem,
     ReviewPassRule,
+    ReviewResult as ReviewResultStatus,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
@@ -437,10 +439,6 @@
           value: res.name,
         },
         {
-          label: t('common.belongModule'),
-          value: res.moduleName || t('common.root'),
-        },
-        {
           label: t('common.tag'),
           value: res.tags,
           isTag: true,
@@ -459,14 +457,6 @@
             };
           }
         }),
-        {
-          label: t('common.creator'),
-          value: res.createUserName || '',
-        },
-        {
-          label: t('common.createTime'),
-          value: dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss'),
-        },
       ];
       // 附件文件
       if (activeCaseInfo.value.attachments) {
@@ -489,22 +479,24 @@
     }
   }
 
-  // 加载评审历史列表
-  const reviewHistoryList = ref<ReviewHistoryItem[]>([]);
-  const reviewUserStatusList = ref<ReviewHistoryItem[]>([]); // 每个评审人最后一次评审结果
+  const reviewHistoryList = ref<ReviewHistoryItem[]>([]); // 加载评审历史列表
+  const reviewHistoryStatus = ref<ReviewResultStatus>();
+  const reviewUserStatusList = ref<OptionItem[]>([]); // 每个评审人最后一次评审结果
   const statusVisible = ref(false);
   async function initReviewHistoryList(data: MinderJsonNodeData) {
     try {
       const res = await getCaseReviewHistoryList(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
       reviewHistoryList.value = res;
-      reviewUserStatusList.value = [];
-      const userNamesSet = new Set();
-      reviewHistoryList.value.forEach((reviewItem) => {
-        if (!userNamesSet.has(reviewItem.userName)) {
-          reviewUserStatusList.value.push(reviewItem);
-          userNamesSet.add(reviewItem.userName);
-        }
-      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  async function initReviewerAndStatus(data: MinderJsonNodeData) {
+    try {
+      const res = await getReviewerAndStatus(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
+      reviewUserStatusList.value = res.reviewerStatus;
+      reviewHistoryStatus.value = res.status as ReviewResultStatus;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -522,6 +514,7 @@
       activeExtraKey.value = 'history';
       initCaseDetail(data);
       initReviewHistoryList(data);
+      initReviewerAndStatus(data);
     }
   }
 
