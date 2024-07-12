@@ -22,7 +22,7 @@
         <if test="reviewId != null and reviewId != ''">
             and ch.review_id = #{reviewId}
         </if>
-        and ch.abandoned = false
+        and ch.deleted = false
     </select>
 
     <select id="getHistoryListWidthAbandoned" resultType="io.metersphere.functional.dto.CaseReviewHistoryDTO">
