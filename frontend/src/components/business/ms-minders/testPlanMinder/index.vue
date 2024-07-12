@@ -37,44 +37,25 @@
           <MsIcon type="icon-icon_add_outlined" class="text-[var(--color-text-4)]" />
         </MsButton>
       </a-tooltip>
-      <a-dropdown
-        v-if="canShowExecuteMethodMenu"
-        v-model:popup-visible="executeMethodMenuVisible"
-        class="ms-minder-dropdown"
-        :popup-translate="[0, 4]"
-        position="bl"
-        trigger="click"
-        @select="(val) => handleExecuteMethodMenuSelect(val as RunMode)"
-      >
-        <a-tooltip :content="t('ms.minders.executeMethod')">
-          <MsButton
-            type="icon"
-            class="ms-minder-node-float-menu-icon-button"
-            :class="[executeMethodMenuVisible ? 'ms-minder-node-float-menu-icon-button--focus' : '']"
-          >
-            <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
-          </MsButton>
-        </a-tooltip>
-        <template #content>
-          <div class="mx-[6px] px-[8px] py-[3px] text-[var(--color-text-4)]">
-            {{ t('ms.minders.executeMethod') }}
-          </div>
-          <a-doption :value="RunMode.SERIAL">
-            <div
-              class="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-[rgb(var(--link-1))] text-[12px] font-medium text-[rgb(var(--link-5))]"
-            >
-              {{ t('ms.minders.serial') }}
-            </div>
-          </a-doption>
-          <a-doption :value="RunMode.PARALLEL">
-            <div
-              class="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-[rgb(var(--success-1))] text-[12px] font-medium text-[rgb(var(--success-6))]"
-            >
-              {{ t('ms.minders.parallel') }}
-            </div>
-          </a-doption>
-        </template>
-      </a-dropdown>
+      <a-tooltip v-if="canShowExecuteMethodMenu && selectNodeExecuteMethod" :content="t('ms.minders.executeMethod')">
+        <div
+          :class="[
+            'flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full text-[12px] font-medium',
+            `${
+              selectNodeExecuteMethod === RunMode.SERIAL
+                ? 'bg-[rgb(var(--link-1))] text-[rgb(var(--link-5))]'
+                : 'bg-[rgb(var(--success-1))] text-[rgb(var(--success-6))]'
+            }`,
+          ]"
+          @click="
+            handleExecuteMethodMenuSelect(
+              selectNodeExecuteMethod === RunMode.SERIAL ? RunMode.PARALLEL : RunMode.SERIAL
+            )
+          "
+        >
+          {{ selectNodeExecuteMethod === RunMode.SERIAL ? t('ms.minders.serial') : t('ms.minders.parallel') }}
+        </div>
+      </a-tooltip>
       <a-tooltip v-if="showConfigMenu" :content="t('common.config')">
         <MsButton
           type="icon"
@@ -302,7 +283,6 @@
   const canShowAddTestPointsMenu = ref(false);
   const showAssociateCaseMenu = ref(false);
   const canShowExecuteMethodMenu = ref(false);
-  const executeMethodMenuVisible = ref(false);
   const showConfigMenu = ref(false);
   const canShowDeleteMenu = ref(false);
   const extraVisible = ref<boolean>(false);
@@ -359,12 +339,13 @@
         canShowDeleteMenu.value = true;
       }
     } else {
-      canShowFloatMenu.value = false;
-      canShowExecuteMethodMenu.value = false;
+      canShowFloatMenu.value = data.id === 'root';
+      canShowExecuteMethodMenu.value = data.id === 'root';
       showAssociateCaseMenu.value = false;
       showConfigMenu.value = false;
       extraVisible.value = false;
       canShowDeleteMenu.value = false;
+      canShowAddTestPointsMenu.value = false;
     }
   }
 
@@ -467,6 +448,7 @@
 
   // 当前激活的测试点节点
   const activePlanSet = ref<PlanMinderNode>();
+  const selectNodeExecuteMethod = ref<RunMode>(); // 当前选中节点的串/并
 
   // 优先级与串行/并行文本映射
   const priorityTextMap: Record<number, string> = {
@@ -553,6 +535,7 @@
     window.minder.execCommand('priority', priorityMap[val]);
     // 手动设置一次脑图的优先级 DOM 内容替换
     setCustomPriorityView(priorityTextMap);
+    selectNodeExecuteMethod.value = val;
     const node: PlanMinderNode = window.minder.getSelectedNode();
     if (configForm.value?.id === node?.data.id) {
       // 更新表单的执行方式
@@ -671,6 +654,11 @@
   function handleNodeSelect(node: PlanMinderNode) {
     if (checkConfigFormUnsaved()) {
       return;
+    }
+    if (node.data.priority) {
+      selectNodeExecuteMethod.value = getExecuteMethod(node.data);
+    } else {
+      selectNodeExecuteMethod.value = undefined;
     }
     if (node.data?.level === 3 && node.data?.resource?.[0] === caseCountTag) {
       window.minder.toggleSelect(node);
@@ -826,7 +814,7 @@
    * 生成脑图保存的入参
    */
   function makeMinderParams(fullJson: MinderJson) {
-    filterTree(fullJson.root.children, (node, nodeIndex) => {
+    filterTree(fullJson.root, (node, nodeIndex) => {
       if (node.data.isNew) {
         tempMinderParams.value.editList.push({
           ...node.data,
