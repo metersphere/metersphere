@@ -177,7 +177,8 @@ export function handleRenderNode(node: MinderJsonNode, renderNode: MinderJsonNod
 export function expendNodeAndChildren(node: MinderJsonNode) {
   if (node.children?.length) {
     node.expand();
-    handleRenderNode(node, node.children);
+    node.renderTree();
+    node.layout();
     node.children?.forEach((child) => expendNodeAndChildren(child));
   }
 }
