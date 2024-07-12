@@ -58,6 +58,9 @@ public class TestPlanCollectionMinderService {
     @Autowired
     private ApplicationContext applicationContext;
 
+	@Resource
+	private TestPlanConfigMapper testPlanConfigMapper;
+
     /**
      * 测试计划-脑图用例列表查询
      *
@@ -67,7 +70,15 @@ public class TestPlanCollectionMinderService {
         List<TestPlanCollectionMinderTreeDTO> list = new ArrayList<>();
         List<TestPlanCollectionConfigDTO> testPlanCollections = extTestPlanCollectionMapper.getList(planId);
         //构造根节点
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(planId);
         TestPlanCollectionMinderTreeNodeDTO testPlanCollectionMinderTreeNodeDTO = buildRoot();
+        // 根节点使用计划配置的执行方式
+        testPlanCollectionMinderTreeNodeDTO.setExecuteMethod(testPlanConfig.getCaseRunMode());
+        if (StringUtils.equalsIgnoreCase(testPlanCollectionMinderTreeNodeDTO.getExecuteMethod(), ApiBatchRunMode.PARALLEL.toString())) {
+            testPlanCollectionMinderTreeNodeDTO.setPriority(3);
+        } else {
+            testPlanCollectionMinderTreeNodeDTO.setPriority(2);
+        }
         TestPlanCollectionMinderTreeDTO testPlanCollectionMinderTreeDTO = new TestPlanCollectionMinderTreeDTO();
         testPlanCollectionMinderTreeDTO.setData(testPlanCollectionMinderTreeNodeDTO);
         //构造type节点
@@ -249,6 +260,17 @@ public class TestPlanCollectionMinderService {
 
     private void dealEditList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap) {
         if (CollectionUtils.isNotEmpty(request.getEditList())) {
+            // 根节点直接过滤后存在直接处理串并行参数
+            request.getEditList().stream()
+                    .filter(minderNode -> StringUtils.equals(minderNode.getId(), ModuleConstants.DEFAULT_NODE_ID))
+                    .findFirst()
+                    .ifPresent(rootNode -> {
+                        String executeMethod = rootNode.getExecuteMethod();
+                        TestPlanConfig config = new TestPlanConfig();
+                        config.setTestPlanId(request.getPlanId());
+                        config.setCaseRunMode(executeMethod);
+                        testPlanConfigMapper.updateByPrimaryKeySelective(config);
+                    });
             Map<String, List<TestPlanCollection>> parentMap = getParentMap(request);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             TestPlanCollectionMapper collectionMapper = sqlSession.getMapper(TestPlanCollectionMapper.class);
