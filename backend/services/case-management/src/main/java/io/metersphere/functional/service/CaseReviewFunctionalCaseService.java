@@ -26,11 +26,10 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.CustomFieldOption;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
@@ -110,6 +109,8 @@ public class CaseReviewFunctionalCaseService {
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
     private BaseCustomFieldOptionService baseCustomFieldOptionService;
+    @Resource
+    private UserMapper userMapper;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -802,12 +803,28 @@ public class CaseReviewFunctionalCaseService {
         List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
         Map<String, List<CaseReviewHistoryDTO>> collect = list.stream().sorted(Comparator.comparingLong(CaseReviewHistoryDTO::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistoryDTO::getCreateUser, Collectors.toList()));
         List<OptionDTO> optionDTOS = new ArrayList<>();
+        List<CaseReviewFunctionalCaseUser> reviewerList = getReviewerList(reviewId, caseId);
+        List<String> reviewerIds = reviewerList.stream().map(CaseReviewFunctionalCaseUser::getUserId).filter(t -> !collect.containsKey(t)).collect(Collectors.toList());
+        List<User> users = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(reviewerIds)) {
+            UserExample userExample = new UserExample();
+            userExample.createCriteria().andIdIn(reviewerIds);
+            users = userMapper.selectByExample(userExample);
+        }
         collect.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
             optionDTO.setId(v.getFirst().getUserName());
             optionDTO.setName(v.getFirst().getStatus());
             optionDTOS.add(optionDTO);
         });
+        if (CollectionUtils.isNotEmpty(users)) {
+            users.forEach(t->{
+                OptionDTO optionDTO = new OptionDTO();
+                optionDTO.setId(t.getName());
+                optionDTO.setName(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+                optionDTOS.add(optionDTO);
+            });
+        }
         return optionDTOS;
     }
 
@@ -860,5 +877,17 @@ public class CaseReviewFunctionalCaseService {
         CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
         caseReviewFunctionalCaseUserExample.createCriteria().andCaseIdEqualTo(caseId).andReviewIdEqualTo(reviewId);
         return caseReviewFunctionalCaseUserMapper.selectByExample(caseReviewFunctionalCaseUserExample);
+    }
+
+    public ReviewerAndStatusDTO getUserAndStatus(String reviewId, String caseId) {
+        ReviewerAndStatusDTO reviewerAndStatusDTO = new ReviewerAndStatusDTO();
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        reviewerAndStatusDTO.setCaseId(caseId);
+        reviewerAndStatusDTO.setStatus(caseReviewFunctionalCases.get(0).getStatus());
+        List<OptionDTO> userStatus = getUserStatus(reviewId, caseId);
+        reviewerAndStatusDTO.setReviewerStatus(userStatus);
+        return reviewerAndStatusDTO;
     }
 }

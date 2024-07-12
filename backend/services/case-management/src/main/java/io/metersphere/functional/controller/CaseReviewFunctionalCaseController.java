@@ -6,6 +6,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseUser;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
+import io.metersphere.functional.dto.ReviewerAndStatusDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.functional.service.CaseReviewLogService;
@@ -145,6 +146,17 @@ public class CaseReviewFunctionalCaseController {
                                          @PathVariable("reviewId") String reviewId, @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
                                          @PathVariable("caseId") String caseId) {
         return caseReviewFunctionalCaseService.getReviewerList(reviewId, caseId);
+    }
+
+
+    @GetMapping("/reviewer/status/total/{reviewId}/{caseId}")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-评审总结过结果和每个评审人最后结果气泡数据")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
+    public ReviewerAndStatusDTO getUserAndStatus(@Schema(description = "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @PathVariable("reviewId") String reviewId, @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @PathVariable("caseId") String caseId) {
+        return caseReviewFunctionalCaseService.getUserAndStatus(reviewId, caseId);
     }
 
 }
