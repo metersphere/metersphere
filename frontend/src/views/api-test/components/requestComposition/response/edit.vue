@@ -147,7 +147,9 @@
         "
       >
         <MsJsonSchema
-          v-if="activeResponse.body.jsonBody.enableJsonSchema"
+          v-if="
+            activeResponse.body.jsonBody.enableJsonSchema && activeResponse.body.bodyType === ResponseBodyFormat.JSON
+          "
           ref="jsonSchemaRef"
           v-model:data="activeResponse.body.jsonBody.jsonSchemaTableData"
           v-model:selectedKeys="selectedKeys"
@@ -165,7 +167,13 @@
           show-code-format
         >
           <template #rightTitle>
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="autoMakeJson">
+            <a-button
+              v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON"
+              type="outline"
+              class="arco-btn-outline--secondary p-[0_8px]"
+              size="mini"
+              @click="autoMakeJson"
+            >
               <div class="text-[var(--color-text-1)]">{{ t('apiTestManagement.autoMake') }}</div>
             </a-button>
           </template>

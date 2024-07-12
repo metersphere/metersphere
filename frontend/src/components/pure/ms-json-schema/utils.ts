@@ -11,10 +11,11 @@ import type { JsonSchema, JsonSchemaItem, JsonSchemaTableItem } from './types';
  * @param isRoot 是否为根节点
  */
 export function parseTableDataToJsonSchema(
-  schemaItem: JsonSchemaTableItem,
+  schemaItem?: JsonSchemaTableItem,
   isRoot: boolean = true
 ): JsonSchema | JsonSchemaItem | undefined {
   try {
+    if (!schemaItem) return undefined;
     let schema: JsonSchema | JsonSchemaItem = { type: schemaItem.type };
 
     // 对于 null 类型，只设置 type 和 enable 属性
@@ -84,7 +85,10 @@ export function parseTableDataToJsonSchema(
  */
 function createItem(key: string, value: any, parent?: JsonSchemaTableItem): JsonSchemaTableItem {
   let exampleValue; // 默认情况下，example 值为 undefined
-  const itemType = Array.isArray(value) ? 'array' : typeof value;
+  let itemType = Array.isArray(value) ? 'array' : typeof value;
+  if (value === null) {
+    itemType = 'null';
+  }
 
   // 如果值不是对象或数组，则直接将值作为 example
   if (itemType !== 'object' && itemType !== 'array') {
@@ -110,7 +114,7 @@ function createItem(key: string, value: any, parent?: JsonSchemaTableItem): Json
  * @param parent 父级
  */
 export function parseJsonToJsonSchemaTableData(
-  json: string | object | Array<any>,
+  json: string | object | Array<any> | null,
   parent?: JsonSchemaTableItem
 ): { result: JsonSchemaTableItem[]; ids: Array<string> } {
   if (typeof json === 'string') {
@@ -145,11 +149,11 @@ export function parseJsonToJsonSchemaTableData(
   const type = Array.isArray(json) ? 'array' : 'object';
   const ids: Array<string> = [];
 
-  if (type === 'object' || type === 'array') {
+  if ((type === 'object' || type === 'array') && json !== null) {
     // 遍历对象或数组
     Object.entries(json).forEach(([key, value]) => {
       const item: JsonSchemaTableItem = createItem(key, value, parent);
-      if (typeof value === 'object' || Array.isArray(value)) {
+      if ((typeof value === 'object' && value !== null) || Array.isArray(value)) {
         const children = parseJsonToJsonSchemaTableData(value, item);
         item.children = children.result;
         ids.push(...children.ids);

@@ -71,6 +71,7 @@
       disabled?: boolean;
       typeTitle?: string;
       hasStandard?: boolean; // 是否有标准模式
+      acceptTypes?: RequestParamsType[]; // 可接受的参数类型
     }>(),
     {
       noParamType: false,
@@ -179,7 +180,9 @@
             id: getGenerateId(),
             ...cloneDeep(props.defaultParamItem), // 深拷贝，避免有嵌套引用类型，数据隔离
             key: key.trim(),
-            paramType: Object.values(RequestParamsType).includes(type?.trim() as unknown as RequestParamsType)
+            paramType: (props.acceptTypes || Object.values(RequestParamsType)).includes(
+              type?.trim() as unknown as RequestParamsType
+            )
               ? type?.trim()
               : RequestParamsType.STRING,
             required: stringToBoolean(required),

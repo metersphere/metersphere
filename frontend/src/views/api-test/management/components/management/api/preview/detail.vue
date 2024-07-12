@@ -818,4 +818,7 @@
       box-shadow: 0 0 7px 0 rgb(15 0 78 / 9%);
     }
   }
+  :deep(.arco-table-td-content) {
+    padding: 5px 8px;
+  }
 </style>

@@ -86,7 +86,7 @@
     </div> -->
   </div>
   <a-spin v-else :loading="bodyLoading" class="block h-[calc(100%-34px)]">
-    <div class="mb-[8px] flex items-center justify-between">
+    <div v-if="innerParams.bodyType === RequestBodyFormat.JSON" class="mb-[8px] flex items-center justify-between">
       <div class="flex items-center gap-[8px]">
         <MsButton
           type="text"
@@ -126,7 +126,7 @@
       </a-button>
     </div>
     <MsJsonSchema
-      v-if="innerParams.jsonBody.enableJsonSchema"
+      v-if="innerParams.jsonBody.enableJsonSchema && innerParams.bodyType === RequestBodyFormat.JSON"
       ref="jsonSchemaRef"
       v-model:data="innerParams.jsonBody.jsonSchemaTableData"
       v-model:selectedKeys="innerParams.jsonBody.jsonSchemaTableSelectedRowKeys"
@@ -140,16 +140,17 @@
       height="100%"
       :show-full-screen="false"
       :show-theme-change="false"
-      :show-code-format="true"
+      :show-code-format="!(props.disabledExceptParam || props.disabledParamValue)"
       :language="currentCodeLanguage"
       is-adaptive
     >
       <template #rightTitle>
         <a-button
+          v-if="innerParams.bodyType === RequestBodyFormat.JSON"
           type="outline"
           class="arco-btn-outline--secondary p-[0_8px]"
           size="mini"
-          :disabled="props.disabledParamValue"
+          :disabled="props.disabledExceptParam || props.disabledParamValue"
           @click="autoMakeJson"
         >
           <div class="text-[var(--color-text-1)]">{{ t('apiTestManagement.autoMake') }}</div>
@@ -163,6 +164,7 @@
     :disabled="props.disabledExceptParam"
     :params="currentTableParams"
     :default-param-item="defaultBodyParamsItem"
+    :accept-types="innerParams.bodyType === RequestBodyFormat.WWW_FORM ? wwwFormParamsTypes : undefined"
     has-standard
     @apply="handleBatchParamApply"
   />
@@ -432,6 +434,9 @@
     return LanguageEnum.PLAINTEXT;
   });
 
+  const wwwFormParamsTypes = Object.values(RequestParamsType).filter(
+    (val) => ![RequestParamsType.JSON, RequestParamsType.FILE].includes(val)
+  );
   /**
    * 批量参数代码转换为参数表格数据
    */
