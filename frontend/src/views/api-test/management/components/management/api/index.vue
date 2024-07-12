@@ -41,7 +41,7 @@
                   class="error-6 text-[rgb(var(--danger-6))]"
                   @click="handleDelete"
                 >
-                  <MsIcon type="icon-icon_delete-trash_outlined" class="text-[rgb(var(--danger-6))]" />
+                  <MsIcon type="icon-icon_delete-trash_outlined1" class="text-[rgb(var(--danger-6))]" />
                   {{ t('common.delete') }}
                 </a-doption>
               </template>

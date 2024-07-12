@@ -33,7 +33,7 @@
           status="secondary"
           @click="handleDelete"
         >
-          <MsIcon type="icon-icon_delete-trash_outlined" />
+          <MsIcon type="icon-icon_delete-trash_outlined1" />
           {{ t('common.delete') }}
         </MsButton>
       </div>

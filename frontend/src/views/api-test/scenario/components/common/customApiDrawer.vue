@@ -86,7 +86,7 @@
             @replace="handleReplace"
           />
           <MsButton type="icon" status="secondary" class="mr-4" @click="emit('deleteStep')">
-            <MsIcon type="icon-icon_delete-trash_outlined" />
+            <MsIcon type="icon-icon_delete-trash_outlined1" />
             {{ t('common.delete') }}
           </MsButton>
         </div>

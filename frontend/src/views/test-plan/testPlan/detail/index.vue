@@ -57,7 +57,7 @@
         {{ t(detail.followFlag ? 'common.forked' : 'common.fork') }}
       </MsButton>
       <MsButton v-if="detail.status === 'ARCHIVED'" status="danger" type="button" @click="deleteHandler">
-        <MsIcon type="icon-icon_delete-trash_outlined" class="mr-[8px] text-[rgb(var(--danger-6))]" />
+        <MsIcon type="icon-icon_delete-trash_outlined1" class="mr-[8px] text-[rgb(var(--danger-6))]" />
         <span class="text-[rgb(var(--danger-6))]"> {{ t('common.delete') }}</span>
       </MsButton>
       <MsTableMoreAction v-else :list="moreAction" @select="handleMoreSelect">

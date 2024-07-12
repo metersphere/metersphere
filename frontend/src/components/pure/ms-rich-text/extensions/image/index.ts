@@ -191,7 +191,7 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
                 icon: markRaw(
                   // eslint-disable-next-line vue/one-component-per-file
                   defineComponent({
-                    template: "<MsIcon type='icon-icon_delete-trash_outlined' size='16' />",
+                    template: "<MsIcon type='icon-icon_delete-trash_outlined1' size='16' />",
                   })
                 ),
                 title: t('common.delete'),

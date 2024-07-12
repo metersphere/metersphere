@@ -168,7 +168,7 @@
                     <a-tooltip :content="t('ms.add.attachment.remove')">
                       <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
                         <MsIcon
-                          type="icon-icon_delete-trash_outlined"
+                          type="icon-icon_delete-trash_outlined1"
                           :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
                           size="16"
                         />

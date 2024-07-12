@@ -112,7 +112,7 @@
                 <a-tooltip :content="t('common.delete')">
                   <MsIcon
                     v-if="formItem.fieldName != t('case.caseLevel')"
-                    type="icon-icon_delete-trash_outlined"
+                    type="icon-icon_delete-trash_outlined1"
                     size="16"
                     @click="deleteSelectedField(formItem as DefinedFieldItem)"
                   />
