@@ -251,8 +251,8 @@ export interface ReviewHistoryItem {
 
 export interface ReviewerAndStatus {
   reviewerStatus: OptionItem[]; // 每个评审人最终的评审结果
-  status: ReviewResult;
-  caseId: string; // 用例评审最终结果
+  status: ReviewResult; // 用例评审最终结果
+  caseId: string;
 }
 
 // 评审详情-用例列表项

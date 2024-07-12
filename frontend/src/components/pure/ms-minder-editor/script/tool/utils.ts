@@ -157,3 +157,27 @@ export function isNodeInMinderView(node?: MinderJsonNode, nodePosition?: MinderN
   }
   return false;
 }
+
+/**
+ * 渲染其子节点
+ * @param node 对应节点
+ * @param renderNode 需要渲染的子节点
+ */
+export function handleRenderNode(node: MinderJsonNode, renderNode: MinderJsonNode) {
+  if (!node.data) return;
+  window.minder.renderNodeBatch(renderNode);
+  node.layout();
+  node.data.isLoaded = true;
+}
+
+/**
+ * 展开节点和其全部子节点
+ * @param node 对应节点
+ */
+export function expendNodeAndChildren(node: MinderJsonNode) {
+  if (node.children?.length) {
+    node.expand();
+    handleRenderNode(node, node.children);
+    node.children?.forEach((child) => expendNodeAndChildren(child));
+  }
+}
