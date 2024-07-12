@@ -30,7 +30,7 @@
         <!-- 本地文件 -->
         <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
           <MsButton
-            v-if="item.status !== 'init' && item.file.type.includes('image/')"
+            v-if="item.file.type.includes('/image')"
             type="button"
             status="primary"
             class="!mr-[4px]"
@@ -225,9 +225,7 @@
   // 预览图片
   async function handlePreview(item: MsFileItem) {
     try {
-      imageUrl.value = '';
-      previewVisible.value = true;
-      if (!item.local) {
+      if (item.status !== 'init') {
         const res = await previewFile({
           projectId: appStore.currentProjectId,
           caseId: props.activeCase.id,
@@ -239,6 +237,7 @@
       } else {
         imageUrl.value = item.url || '';
       }
+      previewVisible.value = true;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
