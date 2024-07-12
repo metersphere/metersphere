@@ -196,7 +196,7 @@
     tags: [],
     description: '',
     testPlanning: false,
-    automaticStatusUpdate: true,
+    automaticStatusUpdate: false,
     repeatCase: false,
     passThreshold: 100,
     type: testPlanTypeEnum.TEST_PLAN,
@@ -272,6 +272,12 @@
       label: 'testPlan.planForm.associateRepeatCase',
       tooltipPosition: 'bl',
       desc: ['testPlan.planForm.repeatCaseTip1', 'testPlan.planForm.repeatCaseTip2'],
+    },
+    {
+      key: 'automaticStatusUpdate',
+      label: 'testPlan.planForm.allowUpdateStatus',
+      tooltipPosition: 'bl',
+      desc: ['testPlan.planForm.enableAutomaticStatusTip', 'testPlan.planForm.closeAutomaticStatusTip'],
     },
   ];
 
