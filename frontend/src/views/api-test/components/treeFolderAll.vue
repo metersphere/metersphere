@@ -63,12 +63,15 @@
   import useAppStore from '@/store/modules/app';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
+  import { ProtocolKeyEnum } from '@/enums/apiEnum';
+
   const props = defineProps<{
     activeFolder?: string; // 选中的节点
     folderName: string; // 名称
     allCount: number; // 总数
     showExpandApi?: boolean; // 展示 展开请求的开关
     notShowOperation?: boolean; // 是否展示操作按钮
+    protocolKey: ProtocolKeyEnum;
   }>();
   const emit = defineEmits<{
     (e: 'setActiveFolder', val: string): void;
@@ -84,9 +87,7 @@
     required: false,
     default: undefined,
   });
-  const selectedProtocols = defineModel<string[]>('selectedProtocols', {
-    required: true,
-  });
+  const selectedProtocols = ref<string[]>([]);
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -123,7 +124,7 @@
   function changeApiExpand() {
     isExpandApi.value = !isExpandApi.value;
     nextTick(() => {
-      setLocalStorage('isExpandApi', isExpandApi.value);
+      setLocalStorage(`${props.protocolKey}_EXPAND_API`, isExpandApi.value);
       emit('changeApiExpand');
     });
   }
@@ -131,7 +132,7 @@
   watch(
     () => selectedProtocols.value,
     (val) => {
-      setLocalStorage('selectedProtocols', val);
+      setLocalStorage(props.protocolKey, val);
       emit('selectedProtocolsChange');
     }
   );
@@ -149,13 +150,17 @@
 
   onBeforeMount(async () => {
     await initProtocolList();
-    isExpandApi.value = getLocalStorage('isExpandApi') === 'true';
-    const protocols = getLocalStorage<string[]>('selectedProtocols');
+    isExpandApi.value = getLocalStorage(`${props.protocolKey}_EXPAND_API`) === 'true';
+    const protocols = getLocalStorage<string[]>(props.protocolKey);
     if (!protocols) {
       selectedProtocols.value = allProtocolList.value;
     } else {
       selectedProtocols.value = allProtocolList.value.filter((item) => protocols.includes(item as string));
     }
+  });
+
+  defineExpose({
+    selectedProtocols,
   });
 </script>
 
