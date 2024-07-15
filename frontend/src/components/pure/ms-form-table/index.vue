@@ -154,6 +154,7 @@
               class="ms-form-table-input"
               type="textarea"
               @input="() => handleFormChange(record, rowIndex, item)"
+              @change="() => handleFormChange(record, rowIndex, item)"
             >
             </MsQuickInput>
             <template v-else-if="item.inputType === 'text'">

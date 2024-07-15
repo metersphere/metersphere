@@ -131,6 +131,7 @@
       v-model:data="innerParams.jsonBody.jsonSchemaTableData"
       v-model:selectedKeys="innerParams.jsonBody.jsonSchemaTableSelectedRowKeys"
       :disabled="props.disabledExceptParam"
+      @change="() => emit('change')"
     />
     <MsCodeEditor
       v-else
@@ -381,15 +382,12 @@
     if (!innerParams.value.jsonBody.enableJsonSchema) {
       try {
         bodyLoading.value = true;
-        let schema = innerParams.value.jsonBody.jsonSchema;
-        if (!schema && innerParams.value.jsonBody.jsonSchemaTableData) {
-          // 若jsonSchema不存在，先将表格数据转换为 json schema格式
-          schema = parseTableDataToJsonSchema(innerParams.value.jsonBody.jsonSchemaTableData[0]);
-        }
+        const schema = parseTableDataToJsonSchema(innerParams.value.jsonBody.jsonSchemaTableData?.[0]);
         if (schema) {
           // 再将 json schema 转换为 json 格式
           const res = await convertJsonSchemaToJson(schema);
           innerParams.value.jsonBody.jsonValue = res;
+          emit('change');
         } else {
           Message.warning(t('apiTestManagement.pleaseInputJsonSchema'));
         }

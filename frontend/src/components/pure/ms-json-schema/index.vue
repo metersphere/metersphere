@@ -14,6 +14,7 @@
     class="ms-json-schema"
     @row-select="handleSelect"
     @select-all="handleSelectAll"
+    @form-change="emitChange('change')"
   >
     <template #batchAddTitle>
       <MsButton v-if="!props.disabled" type="text" size="mini" class="!mr-0" @click="batchAdd">
@@ -60,7 +61,7 @@
           class="!mr-[4px] flex items-center justify-center !rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] !p-0"
           size="mini"
           :disabled="props.disabled"
-          @click="() => (record.required = !record.required)"
+          @click="toggleRequired(record)"
         >
           <div
             class="flex h-[22px] w-[22px] items-center justify-center"
@@ -90,6 +91,7 @@
         size="medium"
         :disabled="props.disabled"
         @dblclick="() => quickInputParams(record)"
+        @change="emitChange('exampleInput')"
       />
     </template>
     <template #minLength="{ record }">
@@ -101,6 +103,7 @@
         :precision="0"
         size="medium"
         :disabled="props.disabled"
+        @change="emitChange('minLengthInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -113,6 +116,7 @@
         :precision="0"
         size="medium"
         :disabled="props.disabled"
+        @change="emitChange('maxLengthInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -123,6 +127,7 @@
         class="ms-form-table-input-number"
         size="medium"
         :disabled="props.disabled"
+        @change="emitChange('minimumInput')"
       />
       <a-input-number
         v-else-if="record.type === 'integer'"
@@ -132,6 +137,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        @change="emitChange('minimumInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -142,6 +148,7 @@
         class="ms-form-table-input-number"
         size="medium"
         :disabled="props.disabled"
+        @change="emitChange('maximumInput')"
       />
       <a-input-number
         v-else-if="record.type === 'integer'"
@@ -151,6 +158,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        @change="emitChange('maximumInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -164,6 +172,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        @change="emitChange('minItemsInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -177,6 +186,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        @change="emitChange('maxItemsInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
     </template>
@@ -187,6 +197,7 @@
         class="ms-form-table-input-number"
         size="medium"
         :disabled="props.disabled"
+        @change="emitChange('defaultValueInput')"
       />
       <a-input-number
         v-else-if="record.type === 'integer'"
@@ -196,6 +207,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        @change="emitChange('defaultValueInput')"
       />
       <a-select
         v-else-if="record.type === 'boolean'"
@@ -213,6 +225,7 @@
           },
         ]"
         :disabled="props.disabled"
+        @change="emitChange('defaultValueInput')"
       />
       <div v-else-if="['object', 'array', 'null'].includes(record.type)" class="ms-form-table-td-text"> - </div>
       <a-input
@@ -221,6 +234,7 @@
         :placeholder="t('common.pleaseInput')"
         class="ms-form-table-input"
         :disabled="props.disabled"
+        @change="emitChange('defaultValueInput')"
       />
     </template>
     <template #enumValues="{ record }">
@@ -233,6 +247,7 @@
         class="ms-form-table-input"
         type="textarea"
         :disabled="props.disabled"
+        @change="emitChange('enumValuesInput')"
       >
       </MsQuickInput>
     </template>
@@ -543,6 +558,9 @@
   const props = defineProps<{
     disabled?: boolean;
   }>();
+  const emit = defineEmits<{
+    (e: 'change', value: JsonSchemaTableItem[]): void;
+  }>();
 
   const { t } = useI18n();
 
@@ -828,6 +846,11 @@
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function emitChange(from: string) {
+    emit('change', data.value);
+  }
+
   /**
    * 获取类型选项，根节点只能是 object 或 array
    */
@@ -850,6 +873,12 @@
     } else {
       record.children = undefined;
     }
+    emitChange('typeChange');
+  }
+
+  function toggleRequired(record: JsonSchemaTableItem) {
+    record.required = !record.required;
+    emitChange('toggleRequired');
   }
 
   /**
@@ -874,6 +903,7 @@
       selectedKeys.value.push(child.id);
     }
     data.value = [...data.value];
+    emitChange('addChild');
   }
 
   /**
@@ -885,6 +915,7 @@
     } else {
       data.value.splice(rowIndex, 1);
     }
+    emitChange('deleteLine');
   }
 
   /**
@@ -902,6 +933,7 @@
           }
         });
       }
+      emitChange('select');
     });
   }
 
@@ -909,12 +941,14 @@
     if (rowIndex === (record.parent || data.value[0]).children.length - 1) {
       addChild(data.value[0]);
     }
+    emitChange('titleInput');
   }
 
   function handleSelectAll(checked: boolean) {
     traverseTree<JsonSchemaTableItem>(data.value, (item) => {
       item.enable = checked;
     });
+    emitChange('selectAll');
   }
 
   const batchAddDrawerVisible = ref(false);
@@ -938,6 +972,7 @@
         selectedKeys.value = res.ids;
       }
       batchAddDrawerVisible.value = false;
+      emitChange('batchAdd');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -990,27 +1025,31 @@
       }
     }
     settingDrawerVisible.value = false;
+    emitChange('applySetting');
   }
 
   const showQuickInputParam = ref(false);
-  const activeQuickInputRecord = ref<any>({});
+  const activeQuickInputRecord = ref<JsonSchemaTableItem>();
   const quickInputParamValue = ref('');
 
-  function quickInputParams(record: any) {
+  function quickInputParams(record: JsonSchemaTableItem) {
     activeQuickInputRecord.value = record;
     showQuickInputParam.value = true;
-    quickInputParamValue.value = record.value;
+    quickInputParamValue.value = record.example;
   }
 
   function clearQuickInputParam() {
-    activeQuickInputRecord.value = {};
+    activeQuickInputRecord.value = undefined;
     quickInputParamValue.value = '';
   }
 
   function applyQuickInputParam() {
-    activeQuickInputRecord.value.value = quickInputParamValue.value;
+    if (activeQuickInputRecord.value) {
+      activeQuickInputRecord.value.example = quickInputParamValue.value;
+    }
     showQuickInputParam.value = false;
     clearQuickInputParam();
+    emitChange('quickInputParam');
   }
 
   const previewDrawerVisible = ref(false);
