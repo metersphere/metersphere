@@ -64,6 +64,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         taskInfo.getRunModeConfig().setPoolId(apiRunModeConfigDTO.getPoolId());
         taskInfo.setSaveResult(true);
         taskInfo.setRealTime(false);
+        taskInfo.setUserId(userId);
         taskInfo.getRunModeConfig().setEnvironmentId(parseParam.getEnvironmentId());
         taskItem.setRequestCount(tmpParam.getRequestCount().get());
 
