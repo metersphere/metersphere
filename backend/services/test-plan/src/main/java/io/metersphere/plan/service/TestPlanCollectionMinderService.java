@@ -260,7 +260,7 @@ public class TestPlanCollectionMinderService {
 
     private void dealEditList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap) {
         if (CollectionUtils.isNotEmpty(request.getEditList())) {
-            // 根节点直接过滤后存在直接处理串并行参数
+            // 根节点直接过滤后存在直接处理串/并行参数, 后续不一起处理
             request.getEditList().stream()
                     .filter(minderNode -> StringUtils.equals(minderNode.getId(), ModuleConstants.DEFAULT_NODE_ID))
                     .findFirst()
@@ -271,6 +271,7 @@ public class TestPlanCollectionMinderService {
                         config.setCaseRunMode(executeMethod);
                         testPlanConfigMapper.updateByPrimaryKeySelective(config);
                     });
+            request.getEditList().removeIf(minderNode -> StringUtils.equals(minderNode.getId(), ModuleConstants.DEFAULT_NODE_ID));
             Map<String, List<TestPlanCollection>> parentMap = getParentMap(request);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             TestPlanCollectionMapper collectionMapper = sqlSession.getMapper(TestPlanCollectionMapper.class);
