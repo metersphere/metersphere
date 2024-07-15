@@ -250,8 +250,19 @@
         v-if="record.type === 'string'"
         v-model:model-value="record.format"
         :options="formatOptions"
+        :disabled="props.disabled"
         class="ms-form-table-input"
+        @change="emitChange('enumValuesInput')"
       ></a-select>
+    </template>
+    <template #pattern="{ record }">
+      <a-input
+        v-if="record.type === 'string'"
+        v-model:model-value="record.pattern"
+        :disabled="props.disabled"
+        class="ms-form-table-input"
+        @change="emitChange('enumValuesInput')"
+      ></a-input>
     </template>
     <template #action="{ record, rowIndex }">
       <div class="flex w-full items-center gap-[8px]">
@@ -312,10 +323,21 @@
     :footer="!props.disabled"
     @confirm="applySetting"
   >
-    <a-form ref="setting" :model="activeRecord" :disabled="props.disabled" layout="vertical">
+    <a-form ref="settingFormRef" :model="activeRecord" :disabled="props.disabled" layout="vertical">
       <a-form-item
+        field="title"
         :label="t('ms.json.schema.name')"
-        :rules="[{ required: true, message: t('ms.json.schema.nameNotNull') }]"
+        :rules="[
+          {
+            required: true,
+            message: t('ms.json.schema.nameNotNull'),
+          },
+          {
+            validator: (value, callback) => {
+              validRepeat(value, callback);
+            },
+          },
+        ]"
         asterisk-position="end"
       >
         <a-input
@@ -536,7 +558,7 @@
 </template>
 
 <script setup lang="ts">
-  import { SelectOptionData, TableData, TableRowSelection } from '@arco-design/web-vue';
+  import { FormInstance, SelectOptionData, TableData, TableRowSelection } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -823,11 +845,10 @@
       title: t('ms.json.schema.regex'),
       dataIndex: 'pattern',
       slotName: 'pattern',
-      inputType: 'input',
       size: 'medium',
       addLineDisabled: true,
       showInTable: false,
-      isNull: (record) => ['object', 'array', 'null', 'boolean'].includes(record.type),
+      isNull: (record) => record.type !== 'string',
     },
     {
       title: t('ms.json.schema.format'),
@@ -1015,21 +1036,38 @@
     );
   }
 
+  async function validRepeat(value: string, callback: (error?: string) => void) {
+    if (activeRecord.value.parent) {
+      (activeRecord.value.parent.children as Record<string, any>[])?.forEach((row) => {
+        if (row.title.length && row.title === value) {
+          callback(`${t('ms.json.schema.name')}${t('msFormTable.paramRepeatMessage')}`);
+        }
+      });
+    }
+    callback();
+  }
+
+  const settingFormRef = ref<FormInstance>();
+
   /**
    * 应用设置
    */
   function applySetting() {
-    if (activeRecord.value.id === 'root') {
-      data.value = [{ ...activeRecord.value }];
-    } else {
-      const brothers = activeRecord.value.parent?.children || [];
-      const index = brothers.findIndex((item: any) => item.id === activeRecord.value.id);
-      if (index > -1) {
-        brothers.splice(index, 1, { ...activeRecord.value });
+    settingFormRef.value?.validate((errors) => {
+      if (!errors) {
+        if (activeRecord.value.id === 'root') {
+          data.value = [{ ...activeRecord.value }];
+        } else {
+          const brothers = activeRecord.value.parent?.children || [];
+          const index = brothers.findIndex((item: any) => item.id === activeRecord.value.id);
+          if (index > -1) {
+            brothers.splice(index, 1, { ...activeRecord.value });
+          }
+        }
+        settingDrawerVisible.value = false;
+        emitChange('applySetting');
       }
-    }
-    settingDrawerVisible.value = false;
-    emitChange('applySetting');
+    });
   }
 
   const showQuickInputParam = ref(false);

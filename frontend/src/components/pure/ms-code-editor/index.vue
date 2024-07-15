@@ -306,6 +306,7 @@
           lineNumbersMinChars: 3,
           lineDecorationsWidth: 0,
           tabSize: 2,
+          scrollBeyondLastLine: false, // 内容超出初始化后的最后一行才显示滚动条
         });
 
         editor.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF); // 设置换行符
