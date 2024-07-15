@@ -18,6 +18,7 @@
         <MsTagsInput
           v-model:model-value="emailForm.emails"
           placeholder="system.user.inviteEmailPlaceholder"
+          tags-duplicate-text="system.user.inviteEmailRepeat"
           allow-clear
           unique-value
           retain-input-value
