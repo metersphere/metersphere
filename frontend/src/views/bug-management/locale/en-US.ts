@@ -9,6 +9,7 @@ export default {
     severity: 'Severity',
     status: 'Status',
     handleMan: 'Handler',
+    handleManTips: '"-"Indicates that the user member has been removed or does not exist in the system',
     numberOfCase: 'Cases',
     belongPlatform: 'Platform',
     tag: 'Tag',
