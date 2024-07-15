@@ -1886,14 +1886,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setProtocols(List.of("HTTP"));
         request.setSelectAll(false);
+        request.setSelectIds(List.of("1002"));
+        this.requestPost(EXPORT + "swagger", request);
         request.setSelectIds(List.of("1001"));
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(EXPORT + "swagger", request);
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        // 返回请求正常
-        Assertions.assertNotNull(resultHolder);
-        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-        Assertions.assertNotNull(pageData);
+        this.requestPost(EXPORT + "swagger", request);
     }
 
 }

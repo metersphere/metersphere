@@ -644,12 +644,10 @@
         SELECT
         api_definition.*,
 	    api_definition_blob.request,
-	    api_definition_blob.response,
-        api_definition_module.name as moduleName
+	    api_definition_blob.response
         FROM
 	    api_definition
 	    INNER JOIN api_definition_blob ON api_definition.id = api_definition_blob.id
-        inner join api_definition_module on api_definition.module_id = api_definition_module.id
         where api_definition.id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}

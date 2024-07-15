@@ -4,7 +4,8 @@ import io.metersphere.api.dto.definition.ApiDefinitionWithBlob;
 import io.metersphere.project.domain.Project;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ExportParser<T> {
-    T parse(List<ApiDefinitionWithBlob> list, Project project) throws Exception;
+    T parse(List<ApiDefinitionWithBlob> list, Project project, Map<String, String> moduleMap) throws Exception;
 }

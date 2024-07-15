@@ -9,7 +9,9 @@ import io.metersphere.api.utils.JSONUtil;
 import io.metersphere.api.utils.XMLUtil;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.Project;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +25,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
 
 
     @Override
-    public ApiExportResponse parse(List<ApiDefinitionWithBlob> list, Project project) throws Exception {
+    public ApiExportResponse parse(List<ApiDefinitionWithBlob> list, Project project, Map<String, String> moduleMap) throws Exception {
         SwaggerApiExportResponse response = new SwaggerApiExportResponse();
         //openapi
         response.setOpenapi("3.0.2");
@@ -49,7 +51,13 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         for (ApiDefinitionWithBlob apiDefinition : list) {
             SwaggerApiInfo swaggerApiInfo = new SwaggerApiInfo();
             swaggerApiInfo.setSummary(apiDefinition.getName());
-            swaggerApiInfo.setTags(Arrays.asList(apiDefinition.getModuleName()));
+            String moduleName = "";
+            if (StringUtils.equals(apiDefinition.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                moduleName = Translator.get("api_unplanned_request");
+            } else {
+                moduleName = moduleMap.get(apiDefinition.getModuleId());
+            }
+            swaggerApiInfo.setTags(Arrays.asList(moduleName));
             //请求体
             JSONObject requestObject = JSONUtil.parseObject(new String(apiDefinition.getRequest() == null ? new byte[0] : apiDefinition.getRequest(), StandardCharsets.UTF_8));
             JSONObject requestBody = buildRequestBody(requestObject, schemas);

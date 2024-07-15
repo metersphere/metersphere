@@ -76,6 +76,4 @@ public class ApiDefinitionWithBlob extends ApiDefinitionBlob {
     @Schema(description = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean deleted;
 
-    @Schema(description = "模块名称")
-    private String moduleName;
 }
