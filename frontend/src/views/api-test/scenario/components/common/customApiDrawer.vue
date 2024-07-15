@@ -215,7 +215,7 @@
           class="sticky-content no-content relative top-0 mx-[16px] border-b"
           @tab-click="requestTabClick"
         />
-        <div :class="`request-content-and-response ${activeLayout}`">
+        <div v-if="visible" :class="`request-content-and-response ${activeLayout}`">
           <a-spin class="request block h-full w-full" :loading="requestVModel.executeLoading || loading">
             <div class="request-tab-pane flex flex-col p-[16px]">
               <a-spin

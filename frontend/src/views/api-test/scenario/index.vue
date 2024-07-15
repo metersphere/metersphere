@@ -112,6 +112,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
+  import { RequestParam } from './components/common/customApiDrawer.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
@@ -530,6 +531,33 @@
     apiTableRef.value?.loadScenarioList();
   }
 
+  function getStepDetails() {
+    const stepDetails: Record<string, ScenarioStepDetails> = {};
+    activeScenarioTab.value.steps.forEach((step) => {
+      const currentDetail = activeScenarioTab.value.stepDetails[step.id] as RequestParam;
+      if (
+        currentDetail &&
+        [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(step.stepType)
+      ) {
+        // 接口类型需要处理 json-schema 的循环引用
+        stepDetails[step.id] = {
+          ...currentDetail,
+          body: {
+            ...currentDetail.body,
+            jsonBody: {
+              ...currentDetail.body.jsonBody,
+              jsonSchema: currentDetail.body.jsonBody.jsonSchema,
+              jsonSchemaTableData: [], // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+            },
+          },
+        };
+      } else {
+        stepDetails[step.id] = activeScenarioTab.value.stepDetails[step.id];
+      }
+    });
+    return stepDetails;
+  }
+
   async function realSaveScenario() {
     try {
       saveLoading.value = true;
@@ -537,6 +565,7 @@
       if (activeScenarioTab.value.isNew) {
         const res = await addScenario({
           ...activeScenarioTab.value,
+          stepDetails: getStepDetails(),
           steps: mapTree(activeScenarioTab.value.steps, (node) => {
             return {
               ...node,

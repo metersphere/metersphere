@@ -457,6 +457,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { parseTableDataToJsonSchema } from '@/components/pure/ms-json-schema/utils';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
@@ -1244,7 +1245,18 @@
       }
       if (realStep && !realStep.isQuoteScenarioStep) {
         request.isNew = false;
-        stepDetails.value[realStep.id] = request;
+        stepDetails.value[realStep.id] = {
+          ...request,
+          body: {
+            ...request.body,
+            jsonBody: {
+              ...request.body.jsonBody,
+              jsonSchema: request.body.jsonBody.jsonSchemaTableData
+                ? parseTableDataToJsonSchema(request.body.jsonBody.jsonSchemaTableData[0])
+                : undefined,
+            },
+          },
+        };
         scenario.value.stepFileParam[realStep?.id] = {
           linkFileIds: request.linkFileIds,
           uploadFileIds: request.uploadFileIds,
