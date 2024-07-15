@@ -548,14 +548,20 @@
   function handleConfirm() {
     const params = {
       moduleMaps: getMapParams(),
-      syncCase: syncCase.value,
-      apiCaseCollectionId: apiCaseCollectionId.value,
-      apiScenarioCollectionId: apiScenarioCollectionId.value,
+      syncCase: false,
+      apiCaseCollectionId: '',
+      apiScenarioCollectionId: '',
       selectAllModule: isCheckedAll.value,
       projectId: innerProject.value,
       associateType: 'FUNCTIONAL',
       totalCount: totalCount.value,
     };
+
+    if (props.associatedType === CaseLinkEnum.FUNCTIONAL) {
+      params.apiCaseCollectionId = apiCaseCollectionId.value;
+      params.apiScenarioCollectionId = apiScenarioCollectionId.value;
+      params.syncCase = syncCase.value;
+    }
 
     if (params.associateType === CaseLinkEnum.API) {
       params.associateType = showType.value;
@@ -692,7 +698,9 @@
         associationType.value = props.associatedType;
         activeFolder.value = 'all';
         initProjectList();
-        initTestSet();
+        if (props.associatedType === 'FUNCTIONAL') {
+          initTestSet();
+        }
       }
       selectPopVisible.value = false;
       keyword.value = '';
