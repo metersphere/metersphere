@@ -214,11 +214,11 @@
     return {
       keyword: props.keyword,
       projectId: props.currentProject,
-      protocols: props.protocols,
       moduleIds: props.activeModule === 'all' || !props.activeModule ? [] : [props.activeModule, ...props.offspringIds],
       excludeIds: [...excludeKeys],
       filter: propsRes.value.filter,
       ...props.extraTableParams,
+      protocols: props.protocols || [],
     };
   }
 
@@ -248,13 +248,16 @@
   }
 
   watch(
-    () => [() => props.currentProject, () => props.protocols],
+    [() => props.currentProject, () => props.protocols],
     () => {
       setPagination({
         current: 1,
       });
       resetFilterParams();
       loadApiList();
+    },
+    {
+      deep: true,
     }
   );
 
@@ -267,17 +270,6 @@
     () => selectIds.value,
     (val) => {
       innerSelectedIds.value = val;
-    }
-  );
-
-  watch(
-    () => props.showType,
-    (val) => {
-      if (val === 'API') {
-        resetSelector();
-        resetFilterParams();
-        loadApiList();
-      }
     }
   );
 
@@ -316,6 +308,10 @@
     innerSelectedModulesMaps.value,
     propsRes.value
   );
+
+  onMounted(() => {
+    loadApiList();
+  });
 
   watch(
     [() => props.moduleTree, () => props.modulesCount],

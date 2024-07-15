@@ -1020,6 +1020,13 @@ export const pathMap: PathMapItem[] = [
     level: MENU_LEVEL[2],
     children: [
       {
+        key: 'TEST_PLAN_MODULE', // 测试计划-模块
+        locale: 'testPlan.testPlanGroup.module',
+        route: RouteEnum.TEST_PLAN,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
         key: 'TEST_PLAN_PLAN', // 测试计划-计划
         locale: 'menu.testPlanShort',
         route: RouteEnum.TEST_PLAN_INDEX_DETAIL,
