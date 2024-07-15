@@ -245,6 +245,14 @@
       >
       </MsQuickInput>
     </template>
+    <template #format="{ record }">
+      <a-select
+        v-if="record.type === 'string'"
+        v-model:model-value="record.format"
+        :options="formatOptions"
+        class="ms-form-table-input"
+      ></a-select>
+    </template>
     <template #action="{ record, rowIndex }">
       <div class="flex w-full items-center gap-[8px]">
         <a-tooltip :content="t('common.advancedSettings')">
@@ -415,21 +423,23 @@
               @change="handleSettingFormChange"
             />
           </a-form-item>
-          <a-form-item v-if="activeRecord.type === 'string'" :label="t('ms.json.schema.regex')">
-            <a-input
-              v-model:model-value="activeRecord.regex"
-              :placeholder="t('ms.json.schema.regexPlaceholder', { reg: '/<title(.*?)</title>' })"
-              @change="handleSettingFormChange"
-            />
-          </a-form-item>
-          <a-form-item :label="t('ms.json.schema.format')">
-            <a-select
-              v-model:model-value="activeRecord.format"
-              :placeholder="t('common.pleaseSelect')"
-              :options="formatOptions"
-              @change="handleSettingFormChange"
-            />
-          </a-form-item>
+          <template v-if="activeRecord.type === 'string'">
+            <a-form-item :label="t('ms.json.schema.regex')">
+              <a-input
+                v-model:model-value="activeRecord.regex"
+                :placeholder="t('ms.json.schema.regexPlaceholder', { reg: '/<title(.*?)</title>' })"
+                @change="handleSettingFormChange"
+              />
+            </a-form-item>
+            <a-form-item :label="t('ms.json.schema.format')">
+              <a-select
+                v-model:model-value="activeRecord.format"
+                :placeholder="t('common.pleaseSelect')"
+                :options="formatOptions"
+                @change="handleSettingFormChange"
+              />
+            </a-form-item>
+          </template>
         </template>
       </template>
       <div v-if="activeRecord.type === 'array'" class="flex items-center gap-[24px]">
@@ -821,12 +831,10 @@
       title: t('ms.json.schema.format'),
       dataIndex: 'format',
       slotName: 'format',
-      inputType: 'select',
       size: 'medium',
-      options: formatOptions,
-      addLineDisabled: true,
       showInTable: false,
-      isNull: (record) => ['object', 'array', 'null', 'boolean'].includes(record.type),
+      isNull: (record) => record.type !== 'string',
+      width: 100,
     },
     {
       title: '',
