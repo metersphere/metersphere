@@ -166,6 +166,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         String moduleId = originalTestPlan.getModuleId();
         String groupId = originalTestPlan.getGroupId();
         long pos = originalTestPlan.getPos();
+        String sortRangeId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
         if (StringUtils.equals(targetType, TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             if (!StringUtils.equalsIgnoreCase(targetId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
                 TestPlan group = testPlanMapper.selectByPrimaryKey(targetId);
@@ -174,6 +175,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
                     testPlanGroupService.validateGroupCapacity(targetId, 1);
                 }
                 moduleId = group.getModuleId();
+                sortRangeId = targetId;
             }
             groupId = targetId;
         } else {
@@ -192,7 +194,7 @@ public class TestPlanBatchOperationService extends TestPlanBaseUtilsService {
         testPlan.setUpdateTime(operatorTime);
         testPlan.setModuleId(moduleId);
         testPlan.setGroupId(groupId);
-        testPlan.setPos(testPlanGroupService.getNextOrder(targetId));
+        testPlan.setPos(testPlanGroupService.getNextOrder(sortRangeId));
         testPlan.setActualEndTime(null);
         testPlan.setActualStartTime(null);
         testPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
