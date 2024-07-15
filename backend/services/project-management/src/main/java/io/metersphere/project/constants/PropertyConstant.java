@@ -22,5 +22,12 @@ public class PropertyConstant {
     public final static String MOCK = "mock";
     public final static String BODY_TYPE = "bodyType";
     public final static String PARAM_TYPE = "paramType";
+    public final static String ENUM_VALUES = "enumValues";
+    public final static String DEFAULT_VALUE = "defaultValue";
+    public final static String PATTERN = "pattern";
+    public final static String MAX_LENGTH = "maxLength";
+    public final static String MIN_LENGTH = "minLength";
+    public final static String MINIMUM = "minimum";
+    public final static String MAXIMUM = "maximum";
 
 }

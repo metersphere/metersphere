@@ -1195,6 +1195,14 @@ public class ApiDefinitionService extends MoveNodeService {
         return JsonSchemaBuilder.preview(JSON.toJSONString(jsonSchemaItem));
     }
 
+    public String jsonSchemaAutoGenerate(JsonSchemaItem jsonSchemaItem) {
+        if (BooleanUtils.isFalse(jsonSchemaItem.getEnable())) {
+            return "{}";
+        }
+        filterDisableItem(jsonSchemaItem);
+        return JsonSchemaBuilder.jsonSchemaAutoGenerate(JSON.toJSONString(jsonSchemaItem));
+    }
+
     private void filterDisableItem(JsonSchemaItem jsonSchemaItem) {
         if (isObjectItem(jsonSchemaItem)) {
             Map<String, JsonSchemaItem> properties = jsonSchemaItem.getProperties();

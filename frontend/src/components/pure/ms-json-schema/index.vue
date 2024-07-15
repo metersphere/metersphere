@@ -427,7 +427,7 @@
           <template v-if="activeRecord.type === 'string'">
             <a-form-item :label="t('ms.json.schema.regex')">
               <a-input
-                v-model:model-value="activeRecord.regex"
+                v-model:model-value="activeRecord.pattern"
                 :placeholder="t('ms.json.schema.regexPlaceholder', { reg: '/<title(.*?)</title>' })"
                 @change="handleSettingFormChange"
               />
@@ -821,8 +821,8 @@
     },
     {
       title: t('ms.json.schema.regex'),
-      dataIndex: 'regex',
-      slotName: 'regex',
+      dataIndex: 'pattern',
+      slotName: 'pattern',
       inputType: 'input',
       size: 'medium',
       addLineDisabled: true,

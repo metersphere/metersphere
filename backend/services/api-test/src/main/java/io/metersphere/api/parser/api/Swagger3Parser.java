@@ -310,7 +310,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
         } else {
             String jsonString = JSON.toJSONString(jsonSchemaItem);
             if (StringUtils.isNotBlank(jsonString)) {
-                jsonBody.setJsonValue(JsonSchemaBuilder.jsonSchemaToJson(jsonString));
+                jsonBody.setJsonValue(JsonSchemaBuilder.jsonSchemaToJson(jsonString, true));
             }
         }
         return jsonBody;
@@ -663,7 +663,10 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
         jsonSchemaItem.setFormat(StringUtils.isNotBlank(integerSchema.getFormat()) ? integerSchema.getFormat() : StringUtils.EMPTY);
         jsonSchemaItem.setMaximum(integerSchema.getMaximum());
         jsonSchemaItem.setMinimum(integerSchema.getMinimum());
-        jsonSchemaItem.setEnumValues(integerSchema.getEnum());
+        List<Number> enumValues = integerSchema.getEnum();
+        if (CollectionUtils.isNotEmpty(enumValues)) {
+            jsonSchemaItem.setEnumValues(enumValues.stream().map(item -> item.toString()).toList());
+        }
         return jsonSchemaItem;
     }
 
