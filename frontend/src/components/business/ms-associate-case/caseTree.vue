@@ -1,6 +1,7 @@
 <template>
   <TreeFolderAll
-    v-model:selectedProtocols="selectedProtocols"
+    ref="treeFolderAllRef"
+    :protocol-key="ProtocolKeyEnum.ASSOCIATE_CASE_PROTOCOL"
     :active-folder="activeFolder"
     :folder-name="props.folderName"
     :all-count="allCount"
@@ -88,6 +89,7 @@
   import { mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
+  import { ProtocolKeyEnum } from '@/enums/apiEnum';
   import { CaseModulesApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -158,7 +160,8 @@
     emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name);
   }
 
-  const selectedProtocols = ref<string[]>([]);
+  const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
+  const selectedProtocols = computed<string[]>(() => treeFolderAllRef.value?.selectedProtocols ?? []);
   // 递归计算并更新节点的 count
   function processTreeData(nodes: MsTreeNodeData[]): MsTreeNodeData[] {
     const traverse = (node: MsTreeNodeData): number => {
