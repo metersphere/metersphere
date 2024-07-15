@@ -108,7 +108,7 @@
                 ? 'font-medium !text-[rgb(var(--primary-5))]'
                 : '!text-[var(--color-text-4)]'
             "
-            @click="activeResponse.body.jsonBody.enableJsonSchema = true"
+            @click="handleChangeJsonType('Schema')"
           >
             Schema
           </MsButton>
@@ -121,7 +121,7 @@
                 ? 'font-medium !text-[rgb(var(--primary-5))]'
                 : '!text-[var(--color-text-4)]'
             "
-            @click="activeResponse.body.jsonBody.enableJsonSchema = false"
+            @click="handleChangeJsonType('Json')"
           >
             Json
           </MsButton>
@@ -550,6 +550,13 @@
 
   function handleStatusCodeChange() {
     emit('change');
+  }
+
+  function handleChangeJsonType(type: 'Schema' | 'Json') {
+    activeResponse.value.body.jsonBody.enableJsonSchema = type === 'Schema';
+    if (activeResponse.value.body.jsonBody.jsonValue === '') {
+      autoMakeJson();
+    }
   }
 </script>
 
