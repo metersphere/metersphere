@@ -48,6 +48,7 @@
       >
         <div v-for="element in couldCloseColumn" :key="element.value" class="column-drag-item">
           <div class="flex w-[90%] items-center">
+            <MsIcon type="icon-icon_drag" class="sort-handle cursor-move text-[16px] text-[var(--color-text-4)]" />
             <span class="ml-[8px]">{{ t(element.label) }}</span>
           </div>
           <a-switch v-model="element.isShow" size="small" type="line" @change="handleSwitchChange" />
