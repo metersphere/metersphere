@@ -46,12 +46,13 @@ public class MockServerUtils {
 
         try {
             if (request instanceof ShiroHttpServletRequest shiroHttpServletRequest) {
+                String contentType = StringUtils.isBlank(request.getContentType()) ? StringUtils.EMPTY : request.getContentType();
                 List<String> contentTypeLists = List.of(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_XML_VALUE, MediaType.TEXT_PLAIN_VALUE);
-                if (StringUtils.equals(request.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
+                if (StringUtils.equals(contentType, MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
                     InputStream inputStream = shiroHttpServletRequest.getRequest().getInputStream();
                     byte[] binaryParams = inputStream.readAllBytes();
                     requestParam.setBinaryParamsObj(binaryParams);
-                } else if (contentTypeLists.contains(request.getContentType())) {
+                } else if (contentTypeLists.contains(contentType)) {
                     String inputLine;
                     StringBuilder receiveData = new StringBuilder();
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -61,7 +62,7 @@ public class MockServerUtils {
                         }
                     }
                     requestPostString = receiveData.toString();
-                } else if (StringUtils.equals(request.getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+                } else if (StringUtils.equals(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
                     Map<String, String[]> parameterMap = request.getParameterMap();
                     LinkedHashMap<String, String> bodyParams = new LinkedHashMap<>();
                     if (parameterMap != null && !parameterMap.isEmpty()) {
