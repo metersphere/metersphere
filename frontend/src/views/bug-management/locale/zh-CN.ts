@@ -12,6 +12,7 @@ export default {
     severity: '严重程度',
     status: '状态',
     handleMan: '处理人',
+    handleManTips: '"-"表示该用户成员被移除或系统中不存在',
     numberOfCase: '用例数',
     belongPlatform: '所属平台',
     tag: '标签',

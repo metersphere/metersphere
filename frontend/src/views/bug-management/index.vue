@@ -70,6 +70,17 @@
         <template #statusName="{ record }">
           {{ record.statusName || '-' }}
         </template>
+        <template #handleUserTitle>
+          <div class="flex items-center text-[var(--color-text-3)]">
+            {{ t('bugManagement.handleMan') }}
+            <a-tooltip :content="t('bugManagement.handleManTips')" position="right">
+              <icon-question-circle
+                class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                size="16"
+              />
+            </a-tooltip>
+          </div>
+        </template>
       </MsBaseTable>
     </div>
   </MsCard>
@@ -315,7 +326,7 @@
       title: 'bugManagement.status',
       dataIndex: 'status',
       width: 100,
-      showTooltip: true,
+      showTooltip: false,
       slotName: 'statusName',
       filterConfig: {
         options: [],
@@ -328,6 +339,7 @@
       title: 'bugManagement.handleMan',
       dataIndex: 'handleUser',
       slotName: 'handleUser',
+      titleSlotName: 'handleUserTitle',
       showTooltip: true,
       width: 125,
       filterConfig: {
