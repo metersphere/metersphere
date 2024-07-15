@@ -96,7 +96,7 @@
               ? 'font-medium !text-[rgb(var(--primary-5))]'
               : '!text-[var(--color-text-4)]'
           "
-          @click="innerParams.jsonBody.enableJsonSchema = true"
+          @click="handleChangeJsonType('Schema')"
           >Schema</MsButton
         >
         <a-divider :margin="0" direction="vertical"></a-divider>
@@ -108,7 +108,7 @@
               ? 'font-medium !text-[rgb(var(--primary-5))]'
               : '!text-[var(--color-text-4)]'
           "
-          @click="innerParams.jsonBody.enableJsonSchema = false"
+          @click="handleChangeJsonType('Json')"
           >Json</MsButton
         >
       </div>
@@ -147,11 +147,12 @@
     >
       <template #rightTitle>
         <a-button
-          v-if="innerParams.bodyType === RequestBodyFormat.JSON"
+          v-if="
+            innerParams.bodyType === RequestBodyFormat.JSON && !props.disabledExceptParam && !props.disabledParamValue
+          "
           type="outline"
           class="arco-btn-outline--secondary p-[0_8px]"
           size="mini"
-          :disabled="props.disabledExceptParam || props.disabledParamValue"
           @click="autoMakeJson"
         >
           <div class="text-[var(--color-text-1)]">{{ t('apiTestManagement.autoMake') }}</div>
@@ -464,6 +465,13 @@
   function changeBodyFormat(val: RequestBodyFormat) {
     innerParams.value.bodyType = val;
     emit('change');
+  }
+
+  function handleChangeJsonType(type: 'Schema' | 'Json') {
+    innerParams.value.jsonBody.enableJsonSchema = type === 'Schema';
+    if (!props.disabledExceptParam && !props.disabledParamValue && innerParams.value.jsonBody.jsonValue === '') {
+      autoMakeJson();
+    }
   }
 </script>
 

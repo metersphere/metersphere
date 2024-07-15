@@ -229,7 +229,7 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumnData } from '@/components/pure/ms-table/type';
+  import type { MsTableColumnData, MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -332,7 +332,7 @@
     }
   }
 
-  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
+  const tableProps = ref<Partial<MsTableProps<Record<string, any>>>>({
     firstColumnWidth: 32,
     tableKey: props.showSetting ? props.tableKey : undefined,
     scroll: props.scroll,
@@ -346,6 +346,8 @@
     showPagination: false,
     rowSelection: props.selectable ? undefined : props.rowSelection,
   });
+
+  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), tableProps.value);
   const selectedKeys = computed(() => propsRes.value.data.filter((e) => e.enable).map((e) => e.id));
   propsEvent.value.rowSelectChange = (record: Record<string, any>) => {
     propsRes.value.data = propsRes.value.data.map((e) => {

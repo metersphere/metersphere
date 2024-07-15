@@ -309,6 +309,7 @@
     :width="600"
     :title="t('ms.json.schema.advancedSettings')"
     :ok-text="t('common.save')"
+    :footer="!props.disabled"
     @confirm="applySetting"
   >
     <a-form ref="setting" :model="activeRecord" :disabled="props.disabled" layout="vertical">
@@ -606,6 +607,7 @@
       width: 32,
     };
   });
+
   // 初始化根节点
   watchEffect(() => {
     if (data.value.length === 0) {

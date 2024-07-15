@@ -159,11 +159,15 @@ body {
   color: var(--color-text-1);
 }
 .ms-params-popover-value {
+  @apply overflow-y-auto;
+  .ms-scroll-bar();
+
   min-width: 100px;
   max-width: 280px;
+  max-height: 300px;
   font-size: 12px;
-  line-height: 16px;
   color: var(--color-text-1);
+  line-height: 16px;
 }
 
 /* 表格必填按钮 button */
