@@ -141,7 +141,7 @@ export default {
   'testPlan.testPlanGroup.planGroupDeleteContent':
     'It is recommended to select the archive, and the use case information and execution results will be retained;The data will not be restored if continue to delete,',
   'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': 'Please select the Plan group',
-  'testPlan.testPlanGroup.batchArchivedGroup': 'Confirm archive: {count} test plan groups',
+  'testPlan.testPlanGroup.batchArchivedGroup': 'Confirm archive: {count} test plan groups?',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': 'Are you sure to delete {count} test plan groups?',
   'testPlan.testPlanGroup.deleteScheduleTaskSuccess': 'Delete the scheduled task successfully',
   'testPlan.testPlanGroup.enableScheduleTaskSuccess': 'Start the scheduled task successfully',
