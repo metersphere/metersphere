@@ -20,13 +20,28 @@
     >
       <!-- 展开行-->
       <template #expand-icon="{ expanded, record }">
-        <div
-          class="flex items-end gap-[2px] text-[var(--color-text-4)]"
-          :class="expanded ? '!text-[rgb(var(--primary-5))]' : ''"
+        <a-tooltip
+          :content="
+            t(
+              record.children.length === 0
+                ? 'msFormTable.noChildren'
+                : expanded
+                ? 'msFormTable.collapse'
+                : 'msFormTable.expand'
+            )
+          "
         >
-          <MsIcon type="icon-icon_split_turn-down_arrow" />
-          <div v-if="record.children" class="break-keep">{{ record.children.length }}</div>
-        </div>
+          <div
+            class="flex items-end gap-[2px] text-[var(--color-text-4)]"
+            :class="[
+              expanded ? '!text-[rgb(var(--primary-5))]' : '',
+              record.children.length === 0 ? 'cursor-not-allowed' : '',
+            ]"
+          >
+            <MsIcon type="icon-icon_split_turn-down_arrow" />
+            <div v-if="record.children" class="break-keep">{{ record.children.length }}</div>
+          </div>
+        </a-tooltip>
       </template>
       <template
         v-for="item of props.columns.filter((e) => e.slotName !== undefined)"
