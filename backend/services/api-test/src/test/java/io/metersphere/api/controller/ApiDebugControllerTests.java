@@ -686,6 +686,12 @@ public class ApiDebugControllerTests extends BaseTest {
         apiFile.setFileName("test");
         formDataKV.setFiles(List.of(apiFile));
         formValues.add(formDataKV);
+
+        FormDataKV booleanItem = new FormDataKV();
+        formDataKV.setKey("aa");
+        formDataKV.setParamType(BodyParamType.BOOLEAN.getValue());
+        formValues.add(booleanItem);
+
         if (body.getBinaryBody() == null) {
             body.setBinaryBody(new BinaryBody());
         }
