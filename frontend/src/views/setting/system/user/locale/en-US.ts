@@ -67,6 +67,7 @@ export default {
   'system.user.invite': 'Email invite',
   'system.user.inviteEmail': 'Email',
   'system.user.inviteCancel': 'Cancel',
+  'system.user.inviteEmailRepeat': 'The same email address already exists',
   'system.user.inviteEmailPlaceholder': 'Enter multiple email addresses, separated by carriage returns',
   'system.user.inviteSendEmail': 'SendEmail',
   'system.user.inviteSuccess': 'Invitation successfully',
