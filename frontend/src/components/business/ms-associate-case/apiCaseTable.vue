@@ -284,25 +284,16 @@
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
 
   watch(
-    () => props.showType,
-    (val) => {
-      if (val === 'API_CASE') {
-        resetSelector();
-        resetFilterParams();
-        loadCaseList();
-      }
-    }
-  );
-
-  watch(
-    () => () => props.currentProject,
+    [() => props.currentProject, () => props.protocols],
     () => {
       setPagination({
         current: 1,
       });
-      resetSelector();
       resetFilterParams();
       loadCaseList();
+    },
+    {
+      deep: true,
     }
   );
   const innerSelectedIds = defineModel<string[]>('selectedIds', { required: true });
@@ -351,6 +342,10 @@
     innerSelectedModulesMaps.value,
     propsRes.value
   );
+
+  onMounted(() => {
+    loadCaseList();
+  });
 
   watch(
     [() => props.moduleTree, () => props.modulesCount],

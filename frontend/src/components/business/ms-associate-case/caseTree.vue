@@ -197,6 +197,8 @@
       };
     });
     allCount.value = props.modulesCount.all || 0;
+
+    emit('init', caseTree.value, selectedProtocols.value);
   }
   /**
    * 初始化模块树
@@ -218,8 +220,6 @@
       if (setDefault) {
         setActiveFolder('all');
       }
-
-      emit('init', caseTree.value, selectedProtocols.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

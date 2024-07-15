@@ -636,9 +636,6 @@
   function initModuleTree(tree: ModuleTreeNode[], _protocols?: string[]) {
     moduleTree.value = tree;
     selectedProtocols.value = _protocols || [];
-    if (props.associatedType === CaseLinkEnum.API) {
-      loadCaseList();
-    }
   }
 
   const apiSetTree = ref<ModuleTreeNode[]>();

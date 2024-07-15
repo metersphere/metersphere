@@ -99,7 +99,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { mapTree, traverseTree } from '@/utils';
+  import { characterLimit, mapTree, traverseTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
@@ -217,7 +217,7 @@
   const deleteHandler = (node: MsTreeNodeData) => {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.moduleDeleteTipTitle', { name: node.name }),
+      title: t('caseManagement.featureCase.moduleDeleteTipTitle', { name: characterLimit(node.name) }),
       content: t('caseManagement.featureCase.deleteCaseTipContent'),
       okText: t('caseManagement.featureCase.deleteConfirm'),
       okButtonProps: {
