@@ -24,9 +24,9 @@
       </div>
     </template>
     <template #typeTitle="{ columnConfig }">
-      <div class="flex items-center text-[var(--color-text-3)]">
+      <div class="flex items-center text-[var(--color-text-3)]" :class="columnConfig.hasRequired ? 'pl-[30px]' : ''">
         {{ t((columnConfig.title as string) || 'apiTestDebug.paramType') }}
-        <a-tooltip :disabled="!columnConfig.typeTitleTooltip" position="right">
+        <a-tooltip v-if="columnConfig.typeTitleTooltip" :disabled="!columnConfig.typeTitleTooltip" position="right">
           <template #content>
             <template v-if="Array.isArray(columnConfig.typeTitleTooltip)">
               <div v-for="tip of columnConfig.typeTitleTooltip" :key="tip">{{ tip }}</div>
@@ -158,17 +158,16 @@
         v-if="columnConfig.hasRequired"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
       >
-        <MsButton
-          :disabled="props.disabledExceptParam"
-          type="icon"
+        <div
+          class="ms-form-table-required-button"
           :class="[
-            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-            '!mr-[4px] !p-[4px]',
+            record.required ? 'ms-form-table-required-button--required' : '',
+            props.disabledExceptParam || props.disabledParamValue ? 'ms-form-table-required-button--disabled' : '',
           ]"
           @click="toggleRequired(record, rowIndex)"
         >
-          <div>*</div>
-        </MsButton>
+          <article>*</article>
+        </div>
       </a-tooltip>
       <a-select
         v-model:model-value="record.paramType"
@@ -400,17 +399,16 @@
         v-if="columnConfig.hasRequired"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
       >
-        <MsButton
-          type="icon"
+        <div
+          class="ms-form-table-required-button"
           :class="[
-            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-            '!mr-[4px] !p-[4px]',
+            record.required ? 'ms-form-table-required-button--required' : '',
+            props.disabledExceptParam || props.disabledParamValue ? 'ms-form-table-required-button--disabled' : '',
           ]"
-          :disabled="props.disabledExceptParam"
           @click="toggleRequired(record, rowIndex)"
         >
-          <div>*</div>
-        </MsButton>
+          <article>*</article>
+        </div>
       </a-tooltip>
       <a-input
         v-model="record.expectedValue"
@@ -937,6 +935,9 @@
   );
 
   function toggleRequired(record: Record<string, any>, rowIndex: number) {
+    if (props.disabledExceptParam || props.disabledParamValue) {
+      return;
+    }
     record.required = !record.required;
     addTableLine(rowIndex);
     emitChange('toggleRequired');

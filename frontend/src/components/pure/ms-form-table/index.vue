@@ -51,17 +51,16 @@
               v-if="item.hasRequired"
               :content="t(record.required ? 'msFormTable.paramRequired' : 'msFormTable.paramNotRequired')"
             >
-              <MsButton
-                type="icon"
+              <div
+                class="ms-form-table-required-button"
                 :class="[
-                  record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-                  '!mr-[4px] !p-[4px]',
+                  record.required ? 'ms-form-table-required-button--required' : '',
+                  props.disabled ? 'ms-form-table-required-button--disabled' : '',
                 ]"
-                :size="item.size || 'medium'"
-                @click="toggleRequired(record, rowIndex, item)"
+                @click="toggleRequired(record, rowIndex, column)"
               >
-                <div>*</div>
-              </MsButton>
+                <article>*</article>
+              </div>
             </a-tooltip>
             <div v-if="item.isNull && item.isNull(record)" class="ms-form-table-td-text">-</div>
             <a-input
@@ -213,7 +212,6 @@
   import { FormInstance } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumnData } from '@/components/pure/ms-table/type';
@@ -459,6 +457,9 @@
   }
 
   function toggleRequired(record: Record<string, any>, rowIndex: number, columnConfig: FormTableColumn) {
+    if (props.disabled) {
+      return;
+    }
     record.required = !record.required;
     emit('formChange', record, columnConfig, rowIndex);
     addTableLine(rowIndex, columnConfig.addLineDisabled);

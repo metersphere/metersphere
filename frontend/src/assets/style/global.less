@@ -165,3 +165,25 @@ body {
   line-height: 16px;
   color: var(--color-text-1);
 }
+
+/* 表格必填按钮 button */
+.ms-form-table-required-button {
+  @apply flex cursor-pointer items-center justify-center align-middle;
+
+  margin-right: 4px;
+  padding: 0 8px;
+  height: 24px;
+  font-size: 12px;
+  border: 1px solid var(--color-text-n8);
+  border-radius: var(--border-radius-small);
+  color: var(--color-text-brand);
+  &:hover:not(.ms-form-table-required-button--required, .ms-form-table-required-button--disabled) {
+    color: rgb(var(--primary-7));
+  }
+  &--required {
+    color: rgb(var(--danger-5));
+  }
+  &--disabled {
+    @apply cursor-not-allowed;
+  }
+}

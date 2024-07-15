@@ -408,7 +408,10 @@
         );
       };
 
-      let mouseEnterTimer: NodeJS.Timeout;
+      const currentOrgName = computed(() => {
+        const org = originOrgList.value.find((e) => e.id === appStore.currentOrgId);
+        return org?.name || '';
+      });
       // 渲染菜单项
       const renderMenuItem = (element: RouteRecordRaw | null, icon: (() => any) | null) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
@@ -421,23 +424,13 @@
               ) : (
                 t(element?.meta?.locale || '')
               )}
-              {xPack.value
-                ? orgTrigger(element, menuSwitchOrgVisible, () => (
-                    <div
-                      class={collapsed.value ? 'hidden' : '!bg-transparent'} // 菜单折叠时隐藏切换组织按钮
-                      onMouseenter={() => {
-                        mouseEnterTimer = setTimeout(() => {
-                          menuSwitchOrgVisible.value = true;
-                        }, 500);
-                      }}
-                      onMouseleave={() => {
-                        clearTimeout(mouseEnterTimer);
-                      }}
-                    >
-                      <MsIcon type="icon-icon_switch_outlined" class="text-[var(--color-text-4)]" />
-                    </div>
-                  ))
-                : ''}
+              <a-tooltip content={currentOrgName.value} position="right">
+                <div
+                  class={collapsed.value ? 'hidden' : 'current-org-tag'} // 菜单折叠时隐藏切换组织按钮
+                >
+                  {currentOrgName.value.substring(0, 1)}
+                </div>
+              </a-tooltip>
             </div>
           </a-menu-item>
         ) : (
@@ -671,5 +664,20 @@
   .active-org {
     color: rgb(var(--primary-5));
     background-color: rgb(var(--primary-1));
+  }
+  .current-org-tag {
+    @apply rounded-full text-center align-middle;
+
+    top: 24px;
+    right: -12px;
+    z-index: 101;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    border: 1px solid #ffffff;
+    color: var(--color-text-2);
+    background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+    box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+    line-height: 14px;
   }
 </style>

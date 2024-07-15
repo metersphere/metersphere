@@ -306,6 +306,7 @@
         title: 'apiTestDebug.paramType',
         dataIndex: 'paramType',
         slotName: 'paramType',
+        titleSlotName: 'typeTitle',
         hasRequired: true,
         options: options.value,
         width: 130,
