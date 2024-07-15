@@ -254,7 +254,7 @@
   import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
-  import { convertJsonSchemaToJson } from '@/api/modules/api-test/management';
+  import { jsonSchemaAutoGenerate } from '@/api/modules/api-test/management';
   import { responseHeaderOption } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -431,7 +431,7 @@
         }
         if (schema) {
           // 再将 json schema 转换为 json 格式
-          const res = await convertJsonSchemaToJson(schema);
+          const res = await jsonSchemaAutoGenerate(schema);
           activeResponse.value.body.jsonBody.jsonValue = res;
         } else {
           Message.warning(t('apiTestManagement.pleaseInputJsonSchema'));

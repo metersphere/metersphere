@@ -55,6 +55,7 @@ import {
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   ImportDefinitionUrl,
+  JsonSchemaAutoGenerateUrl,
   MockDetailUrl,
   MoveModuleUrl,
   OperationHistoryUrl,
@@ -306,6 +307,11 @@ export function getDefinitionReference(data: DefinitionReferencePageParams) {
 // 将json-schema转换为 json 数据
 export function convertJsonSchemaToJson(data: JsonSchema) {
   return MSR.post({ url: ConvertJsonSchemaToJsonUrl, data });
+}
+
+// json-schema 生成测试数据
+export function jsonSchemaAutoGenerate(data: JsonSchema) {
+  return MSR.post({ url: JsonSchemaAutoGenerateUrl, data });
 }
 
 /**

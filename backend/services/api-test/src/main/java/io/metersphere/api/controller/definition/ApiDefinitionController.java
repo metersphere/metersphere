@@ -278,11 +278,18 @@ public class ApiDefinitionController {
         return apiFileResourceService.transfer(request, SessionUtils.getUserId(), apiDefinitionDir);
     }
 
-    @PostMapping("/preview")
+    @PostMapping("/json-schema/preview")
     @Operation(summary = "接口测试-接口管理-接口-json-schema-预览")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public String preview(@RequestBody JsonSchemaItem jsonSchemaItem) {
         return apiDefinitionService.preview(jsonSchemaItem);
+    }
+
+    @PostMapping("/json-schema/auto-generate")
+    @Operation(summary = "接口测试-接口管理-接口-json-schema-自动生成测试数据")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    public String jsonSchemaAutoGenerate(@RequestBody JsonSchemaItem jsonSchemaItem) {
+        return apiDefinitionService.jsonSchemaAutoGenerate(jsonSchemaItem);
     }
 
     @PostMapping("/debug")

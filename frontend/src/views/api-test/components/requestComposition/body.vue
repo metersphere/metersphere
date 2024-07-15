@@ -185,7 +185,7 @@
   import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
-  import { convertJsonSchemaToJson } from '@/api/modules/api-test/management';
+  import { jsonSchemaAutoGenerate } from '@/api/modules/api-test/management';
   import { requestBodyTypeMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -387,7 +387,7 @@
         const schema = parseTableDataToJsonSchema(innerParams.value.jsonBody.jsonSchemaTableData?.[0]);
         if (schema) {
           // 再将 json schema 转换为 json 格式
-          const res = await convertJsonSchemaToJson(schema);
+          const res = await jsonSchemaAutoGenerate(schema);
           innerParams.value.jsonBody.jsonValue = res;
           emit('change');
         } else {

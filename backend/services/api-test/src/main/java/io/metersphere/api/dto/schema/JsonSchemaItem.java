@@ -106,7 +106,7 @@ public class JsonSchemaItem {
     /**
      * 参数值的枚举
      */
-    private List<? extends Object> enumValues;
+    private List<String> enumValues;
     /**
      * 是否启用
      */
