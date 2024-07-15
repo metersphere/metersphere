@@ -24,4 +24,6 @@ export default {
   'system.authorized.orgAndProTipContent':
     'The community edition only supports 1 organization, if you want to add more organizations, you can apply',
   'system.authorized.applyTrial': 'Enterprise trial',
+  'system.authorized.resourcePoolTableTip':
+    'The community version only supports 1 resource pool. If you need to add/enable more resource pools, you can apply',
 };

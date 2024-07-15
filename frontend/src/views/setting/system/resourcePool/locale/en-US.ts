@@ -5,7 +5,7 @@ export default {
   'system.resourcePool.tableEnable': 'Enable',
   'system.resourcePool.tableEnabled': 'Enabled',
   'system.resourcePool.tableDisable': 'Disabled',
-  'system.resourcePool.tableDisabled': '已禁用',
+  'system.resourcePool.tableDisabled': 'Disabled',
   'system.resourcePool.editPool': 'Edit',
   'system.resourcePool.tableColumnName': 'Name',
   'system.resourcePool.tableColumnStatus': 'Status',

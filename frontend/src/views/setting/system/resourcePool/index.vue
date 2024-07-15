@@ -33,15 +33,23 @@
       </template>
       <template #enable="{ record }">
         <div class="flex items-center gap-[8px]">
-          <a-switch
-            v-model:model-value="record.enable"
-            v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
-            v-xpack
-            size="small"
-            :before-change="(val) => handleToggle(val, record)"
-          >
-          </a-switch>
-          {{ record.enable ? t('system.resourcePool.tableEnabled') : t('system.resourcePool.tableDisabled') }}
+          <a-tooltip class="ms-tooltip-white" :disabled="licenseStore.hasLicense()">
+            <a-switch
+              v-model:model-value="record.enable"
+              v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
+              size="small"
+              :disabled="!licenseStore.hasLicense()"
+              :before-change="(val) => handleToggle(val, record)"
+            >
+            </a-switch>
+            {{ record.enable ? t('system.resourcePool.tableEnabled') : t('system.resourcePool.tableDisabled') }}
+            <template #content>
+              <span class="text-[var(--color-text-000)]">{{ t('system.authorized.resourcePoolTableTip') }}</span>
+              <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
+                {{ t('system.authorized.applyTrial') }}
+              </span>
+            </template>
+          </a-tooltip>
         </div>
       </template>
       <template #action="{ record }">
@@ -118,12 +126,14 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { ResourcePoolDetail, ResourcePoolItem } from '@/models/setting/resourcePool';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  const licenseStore = useLicenseStore();
   const { t } = useI18n();
   const router = useRouter();
   const route = useRoute();
@@ -472,6 +482,10 @@
     router.push({
       name: 'settingSystemResourcePoolDetail',
     });
+  }
+
+  function goTry() {
+    window.open('https://jinshuju.net/f/CzzAOe', '_blank');
   }
 </script>
 
