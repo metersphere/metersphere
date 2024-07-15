@@ -131,7 +131,7 @@ export default {
     ' 已完成 建议选择归档，用例信息及执行结果都将被保留；若继续删除，数据将不会恢复，',
   'testPlan.testPlanGroup.module': '模块',
   'testPlan.testPlanGroup.selectTestPlanGroupPlaceHolder': '请选择计划组',
-  'testPlan.testPlanGroup.batchArchivedGroup': '确认归档：{count} 个测试计划组吗',
+  'testPlan.testPlanGroup.batchArchivedGroup': '确认归档：{count} 个测试计划组吗？',
   'testPlan.testPlanGroup.confirmBatchDeletePlanGroup': '确认删除 {count} 个测试计划组吗？',
   'testPlan.testPlanGroup.deleteScheduleTaskSuccess': '删除定时任务成功',
   'testPlan.testPlanGroup.enableScheduleTaskSuccess': '开启定时任务成功',
