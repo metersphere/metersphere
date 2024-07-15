@@ -28,6 +28,7 @@ public enum BodyParamType implements ValueEnum {
      * 默认 application/text
      */
     NUMBER("number"),
+    BOOLEAN("boolean"),
     /**
      * 数组
      * 默认 application/text
