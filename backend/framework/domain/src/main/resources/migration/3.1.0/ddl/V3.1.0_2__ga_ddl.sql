@@ -25,6 +25,9 @@ ALTER TABLE test_plan_report_function_case ADD `test_plan_name` VARCHAR(255) COM
 ALTER TABLE test_plan_report_api_case ADD `test_plan_name` VARCHAR(255) COMMENT '测试计划名称';
 ALTER TABLE test_plan_report_api_scenario ADD `test_plan_name` VARCHAR(255) COMMENT '测试计划名称';
 
+-- 缺陷评论内容字段类型修改
+ALTER TABLE bug_comment MODIFY content LONGTEXT;
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
 
