@@ -56,22 +56,16 @@
         v-if="record.id !== 'root'"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
       >
-        <MsButton
-          type="button"
-          class="!mr-[4px] flex items-center justify-center !rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] !p-0"
-          size="mini"
-          :disabled="props.disabled"
+        <div
+          class="ms-form-table-required-button"
+          :class="[
+            record.required ? 'ms-form-table-required-button--required' : '',
+            props.disabled ? 'ms-form-table-required-button--disabled' : '',
+          ]"
           @click="toggleRequired(record)"
         >
-          <div
-            class="flex h-[22px] w-[22px] items-center justify-center"
-            :style="{
-              color: record.required ? 'rgb(var(--danger-5)) !important' : 'var(--color-text-brand) !important',
-            }"
-          >
-            *
-          </div>
-        </MsButton>
+          <article>*</article>
+        </div>
       </a-tooltip>
       <div v-else class="w-[38px]"></div>
       <a-select

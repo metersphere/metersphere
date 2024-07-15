@@ -1200,6 +1200,7 @@
           showDrawer.value = false;
         }
       }
+      authFormRef.value?.resetFields();
       loadList();
     } catch (error) {
       // eslint-disable-next-line no-console
