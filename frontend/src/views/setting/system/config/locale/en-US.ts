@@ -75,11 +75,11 @@ export default {
   'system.config.page.sloganTip': 'The slogan under the product logo',
   'system.config.page.title': 'Website name',
   'system.config.page.titlePlaceholder': 'Please enter a website name',
-  'system.config.page.titleTip': 'The platform name displayed on the web page tab',
+  'system.config.page.titleTip': 'The name displayed in the web Tab',
   'system.config.page.loginPreviewTip':
     'tips: The default is the MeterSphere system interface, which supports custom platform interface settings',
-  'system.config.page.platformConfig': 'Platform settings',
-  'system.config.page.platformLogo': 'Platform logo',
+  'system.config.page.platformConfig': 'Settings',
+  'system.config.page.platformLogo': 'Logo',
   'system.config.page.platformLogoTip':
     'The logo displayed at the top of the platform page; it is recommended to use a transparent background image in SVG or PNG format, with a height of not less than 32px; the image size is only supported within 200 KB',
   'system.config.page.platformName': 'Platform name',
@@ -91,7 +91,7 @@ export default {
   'system.config.page.helpDocPlaceholder': 'Please enter the address of the help document',
   'system.config.page.helpDocTip': 'Help document jump link can be set, the default is official help document',
   'system.config.page.platformConfigTip':
-    'tips: The default is the MeterSphere system interface, which supports custom platform interface settings',
+    'tips: MeterSphere system interface by default, support for custom interface Settings',
   'system.config.page.resetAll': 'Reset',
   'system.config.page.save': 'Save & Apply',
   'system.config.page.unsave': 'Unsaved',

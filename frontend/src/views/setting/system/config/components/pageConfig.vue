@@ -300,7 +300,7 @@
               :rules="{ platformName: [{ required: true, message: t('system.config.page.platformNameRequired') }] }"
             >
               <a-form-item
-                :label="t('system.config.page.platformName')"
+                :label="t('common.name')"
                 field="platformName"
                 asterisk-position="end"
                 class="mb-[12px]"
