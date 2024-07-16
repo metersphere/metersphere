@@ -64,6 +64,7 @@
       size?: 'small' | 'large' | 'medium' | 'mini';
       disabled?: boolean;
       noTooltip?: boolean;
+      inputValidator?: (value: string) => boolean;
     }>(),
     {
       retainInputValue: true,
@@ -153,11 +154,16 @@
       validateTagsCountBlur() &&
       (innerInputValue.value || '').trim().length <= props.maxLength
     ) {
-      innerModelValue.value.push(innerInputValue.value.trim());
-      innerInputValue.value = '';
-      tagsLength.value += 1;
-      emit('update:modelValue', innerModelValue.value);
-      emit('change', innerModelValue.value);
+      if (props.inputValidator && !props.inputValidator(innerInputValue.value.trim())) {
+        innerModelValue.value.splice(-1, 1);
+        emit('update:modelValue', innerModelValue.value);
+      } else {
+        innerModelValue.value.push(innerInputValue.value.trim());
+        innerInputValue.value = '';
+        tagsLength.value += 1;
+        emit('update:modelValue', innerModelValue.value);
+        emit('change', innerModelValue.value);
+      }
     }
     emit('blur');
   }
@@ -169,8 +175,13 @@
       innerInputValue.value &&
       innerInputValue.value.trim().length <= props.maxLength
     ) {
-      innerInputValue.value = '';
-      tagsLength.value += 1;
+      if (props.inputValidator && !props.inputValidator(innerInputValue.value.trim())) {
+        innerModelValue.value.splice(-1, 1);
+        emit('update:modelValue', innerModelValue.value);
+      } else {
+        innerInputValue.value = '';
+        tagsLength.value += 1;
+      }
     } else {
       innerModelValue.value = innerModelValue.value.filter((item: any) => item.length <= props.maxLength);
       innerInputValue.value = '';
