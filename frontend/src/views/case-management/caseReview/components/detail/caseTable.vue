@@ -11,7 +11,7 @@
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
         @keyword-search="(val, filter) => searchCase(filter)"
         @adv-search="searchCase"
-        @refresh="refresh()"
+        @refresh="handleRefreshAndInitModules"
       >
         <template v-if="showType !== 'list'" #nameRight>
           <div v-if="reviewPassRule === 'MULTIPLE'" class="ml-[16px]">
@@ -620,6 +620,11 @@
       }
       msCaseReviewMinderRef.value?.initCaseTree();
     }
+  }
+
+  async function handleRefreshAndInitModules() {
+    await initModules();
+    refresh();
   }
 
   watch(
