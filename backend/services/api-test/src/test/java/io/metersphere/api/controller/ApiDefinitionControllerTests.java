@@ -1729,7 +1729,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // 校验转换是否正确
         String schema = """
-                {"type":"object","enable":true,"properties":{"array":{"type":"array","enable":true,"items":[{"type":"string","example":"1","enable":true},{"type":"number","example":"2","enable":true}]},"string":{"type":"string","example":"stringValue","enable":true},"int":{"type":"integer","example":"1","enable":true},"num":{"type":"number","example":"1.00","enable":true},"boolean":{"type":"boolean","example":"booleanValue","enable":true},"null":{"type":"null","enable":true}}}
+                {"type":"object","enable":true,"properties":{"array":{"type":"array","enable":true,"items":[{"type":"string","example":"1","enable":true},{"type":"number","example":"2","enable":true}]},"string":{"type":"string","example":"stringValue","enable":true},"int":{"type":"integer","example":"1","enable":true},"num":{"type":"number","example":"1.00","enable":true},"boolean":{"type":"boolean","example":"booleanValue","enable":true},"null":{"type":"null","enable":true},"":{"type":"string","enable":true}}}
                 """;
         String jsonResult = """
                 {

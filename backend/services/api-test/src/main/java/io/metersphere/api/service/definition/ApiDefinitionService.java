@@ -1214,7 +1214,7 @@ public class ApiDefinitionService extends MoveNodeService {
                     if (item == null) {
                         continue;
                     }
-                    if (BooleanUtils.isFalse(item.getEnable())) {
+                    if (BooleanUtils.isFalse(item.getEnable()) || StringUtils.isBlank(key)) {
                         iterator.remove();
                     } else if (isObjectItem(jsonSchemaItem) || isArrayItem(jsonSchemaItem)) {
                         filterDisableItem(item);
