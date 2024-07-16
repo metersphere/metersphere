@@ -567,6 +567,7 @@
             eventTag: 'exportSwagger',
           },
         ],
+        permission: ['PROJECT_API_DEFINITION:READ+EXPORT'],
       },
       {
         label: 'common.edit',

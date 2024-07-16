@@ -160,7 +160,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                     statusCodeInfo.put("description", responseJSONObject.optString("value"));
                 }
                 if (StringUtils.isNotBlank(responseJSONObject.optString("name"))) {
-                    responseBody.put(responseJSONObject.optString("name"), statusCodeInfo);
+                    responseBody.put(statusCode, statusCodeInfo);
                 }
             }
         }

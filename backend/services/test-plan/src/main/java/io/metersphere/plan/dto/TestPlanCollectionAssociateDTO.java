@@ -19,7 +19,7 @@ public class TestPlanCollectionAssociateDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "是否选择所有模块")
-    private boolean selectAllModule;
+    private boolean selectAllModule = false;
 
     @Schema(description = "模块下的id集合属性", requiredMode = Schema.RequiredMode.REQUIRED)
     private Map<String, ModuleSelectDTO> moduleMaps;
