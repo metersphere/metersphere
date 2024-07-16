@@ -279,7 +279,7 @@
       <div class="flex items-center">
         <slot name="footerLeft">
           <div v-if="props.associatedType === CaseLinkEnum.FUNCTIONAL" class="flex items-center">
-            <a-switch v-model:model-value="syncCase" size="small" type="line" />
+            <a-switch v-model:model-value="syncCase" size="small" type="line" @change="changeSyncCase" />
             <div class="ml-[8px]">{{ t('ms.case.associate.syncFunctionalCase') }}</div>
             <a-tooltip :content="t('ms.case.associate.addAutomaticallyCase')" position="top">
               <icon-question-circle
@@ -482,7 +482,7 @@
     set: (val) => val,
   });
 
-  const syncCase = ref<boolean>(true);
+  const syncCase = ref<boolean>(false);
 
   const folderName = computed(() => {
     switch (associationType.value) {
@@ -556,8 +556,8 @@
       associateType: 'FUNCTIONAL',
       totalCount: totalCount.value,
     };
-
-    if (props.associatedType === CaseLinkEnum.FUNCTIONAL) {
+    // 只有关联功能用例才有关联接口用例测试集和场景用例测试集且如果关闭则清空已选择测试集
+    if (props.associatedType === CaseLinkEnum.FUNCTIONAL && syncCase.value) {
       params.apiCaseCollectionId = apiCaseCollectionId.value;
       params.apiScenarioCollectionId = apiScenarioCollectionId.value;
       params.syncCase = syncCase.value;
@@ -663,6 +663,15 @@
     }
   }
 
+  function changeSyncCase(value: string | number | boolean, ev: Event) {
+    if (value) {
+      initTestSet();
+    } else {
+      apiCaseCollectionId.value = '';
+      apiScenarioCollectionId.value = '';
+    }
+  }
+
   function changeProjectHandler(visible: boolean) {
     if (visible && !getIsVisited()) {
       selectPopVisible.value = true;
@@ -695,9 +704,6 @@
         associationType.value = props.associatedType;
         activeFolder.value = 'all';
         initProjectList();
-        if (props.associatedType === 'FUNCTIONAL') {
-          initTestSet();
-        }
       }
       selectPopVisible.value = false;
       keyword.value = '';
@@ -718,6 +724,9 @@
             excludeIds: new Set(excludeIds),
           };
         });
+        // 保存后不再回显，则清空
+      } else {
+        clearSelector();
       }
     }
   );
