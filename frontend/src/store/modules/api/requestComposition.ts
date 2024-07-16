@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash-es';
 import type { RequestCompositionState } from './types';
 
 // 用于记录请求组合的临时插件表单数据
-const useRequestCompositionStore = defineStore('visit', {
+const useRequestCompositionStore = defineStore('pluginForm', {
   state: (): RequestCompositionState => ({
     temporaryPluginFormMap: {},
   }),
