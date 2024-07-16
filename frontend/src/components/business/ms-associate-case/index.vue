@@ -419,7 +419,7 @@
   const projectList = ref<ProjectListItem[]>([]);
   const innerProject = useVModel(props, 'projectId', emit);
 
-  const showType = ref('API');
+  const showType = ref<'API' | 'CASE'>('API');
   const innerVisible = useVModel(props, 'visible', emit);
 
   const associateType = ref<string>('project');
@@ -600,14 +600,19 @@
   const selectedProtocols = ref<string[]>([]);
   async function initModulesCount(params: TableQueryParams) {
     try {
-      modulesCount.value = await initGetModuleCountFunc(props.getModuleCountApiType, associationType.value, {
-        ...params,
-        moduleIds: [],
-        filter: {},
-        keyword: '',
-        ...props.extraModuleCountParams,
-        protocols: associationType.value === CaseLinkEnum.API ? selectedProtocols.value : undefined,
-      });
+      modulesCount.value = await initGetModuleCountFunc(
+        props.getModuleCountApiType,
+        associationType.value,
+        showType.value,
+        {
+          ...params,
+          moduleIds: [],
+          filter: {},
+          keyword: '',
+          ...props.extraModuleCountParams,
+          protocols: associationType.value === CaseLinkEnum.API ? selectedProtocols.value : undefined,
+        }
+      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

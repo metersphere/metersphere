@@ -279,6 +279,12 @@
     const tableParams = await getTableParams();
     setLoadListParams(tableParams);
     loadList();
+
+    emit('getModuleCount', {
+      ...tableParams,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+    });
   }
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
