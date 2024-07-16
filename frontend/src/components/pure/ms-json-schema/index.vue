@@ -1,5 +1,6 @@
 <template>
   <MsFormTable
+    ref="formTableRef"
     v-model:originalSelectedKeys="selectedKeys"
     v-model:expanded-keys="expandKeys"
     :data="data"
@@ -617,7 +618,6 @@
   const selectedKeys = defineModel<string[]>('selectedKeys', {
     default: () => ['root'],
   });
-
   const rowSelection = computed<TableRowSelection | undefined>(() => {
     if (props.disabled) {
       return undefined;
@@ -629,6 +629,7 @@
       width: 32,
     };
   });
+  const formTableRef = ref<InstanceType<typeof MsFormTable>>();
 
   // 初始化根节点
   watchEffect(() => {
@@ -963,7 +964,13 @@
   }
 
   function addLineIfLast(record: TableData, rowIndex: number) {
-    if (rowIndex === (record.parent || data.value[0]).children.length - 1) {
+    formTableRef.value?.validateAndUpdateErrorMessageList(); // 输入名称，校验重复名
+    const firstLevelLastChild = data.value[0].children?.[data.value[0].children.length - 1]; // root 的最后一个子节点
+    // 当前输入的是最后一行，且 root 的最后一个子节点不是默认行数据，则自动新增一行默认数据
+    if (
+      rowIndex === (record.parent || data.value[0]).children.length - 1 &&
+      (firstLevelLastChild?.title !== '' || firstLevelLastChild?.type !== 'string')
+    ) {
       addChild(data.value[0]);
     }
     emitChange('titleInput');
