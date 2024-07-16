@@ -95,7 +95,7 @@
       dataIndex: 'priority',
       slotName: 'priority',
       filterConfig: {
-        options: casePriorityOptions,
+        options: props.isPreview ? casePriorityOptions : [],
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
       width: 150,
@@ -106,7 +106,7 @@
       dataIndex: 'executeResult',
       slotName: 'lastExecResult',
       filterConfig: {
-        options: lastReportStatusListOptions.value,
+        options: props.isPreview ? lastReportStatusListOptions.value : [],
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
       width: 150,
@@ -153,7 +153,10 @@
   });
 
   async function loadCaseList() {
-    currentCaseTable.value.setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
+    currentCaseTable.value.setLoadListParams({
+      reportId: props.reportId,
+      shareId: props.shareId ?? undefined,
+    });
     currentCaseTable.value.loadList();
   }
 
@@ -183,9 +186,8 @@
     }
   }
 
-  watchEffect(() => {
-    if (props.reportId && props.activeType && props.isPreview) {
-      currentCaseTable.value.resetFilterParams();
+  onMounted(() => {
+    if (props.reportId && props.isPreview) {
       currentCaseTable.value.resetPagination();
       loadCaseList();
     } else {
