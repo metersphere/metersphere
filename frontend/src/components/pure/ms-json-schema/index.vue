@@ -252,6 +252,7 @@
         v-model:model-value="record.format"
         :options="formatOptions"
         :disabled="props.disabled"
+        allow-clear
         class="ms-form-table-input"
         @change="emitChange('enumValuesInput')"
       ></a-select>
@@ -460,6 +461,7 @@
                 v-model:model-value="activeRecord.format"
                 :placeholder="t('common.pleaseSelect')"
                 :options="formatOptions"
+                allow-clear
                 @change="handleSettingFormChange"
               />
             </a-form-item>
@@ -896,6 +898,11 @@
         // 没有子节点，初始化
         record.children = [];
       }
+      if (record.type === 'array') {
+        record.children.forEach((e, i) => {
+          e.title = `${i}`;
+        });
+      }
     } else {
       record.children = undefined;
     }
@@ -1046,7 +1053,7 @@
   async function validRepeat(value: string, callback: (error?: string) => void) {
     if (activeRecord.value.parent) {
       (activeRecord.value.parent.children as Record<string, any>[])?.forEach((row) => {
-        if (row.title.length && row.title === value) {
+        if (row.title.length && row.title === value && row.id !== activeRecord.value.id) {
           callback(`${t('ms.json.schema.name')}${t('msFormTable.paramRepeatMessage')}`);
         }
       });

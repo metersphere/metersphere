@@ -14,7 +14,6 @@
     >
       <a-scrollbar v-if="!props.simple" :style="{ overflow: 'auto' }">
         <div class="ms-card-header" :style="props.headerMinWidth ? { minWidth: `${props.headerMinWidth}px` } : {}">
-          <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
           <slot name="headerLeft">
             <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
             <div class="text-[var(--color-text-4)]">{{ props.subTitle }}</div>
@@ -56,9 +55,9 @@
         </div>
         <slot name="footerRight">
           <div class="flex justify-end gap-[16px]">
-            <a-button :disabled="props.loading" type="secondary" @click="back">{{
-              t('mscard.defaultCancelText')
-            }}</a-button>
+            <a-button :disabled="props.loading" type="secondary" @click="back">
+              {{ t('mscard.defaultCancelText') }}
+            </a-button>
             <a-button
               v-if="!props.hideContinue && !props.isEdit"
               :loading="props.loading"
