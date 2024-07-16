@@ -17,7 +17,6 @@ export default {
   'ms.json.schema.format': 'Format',
   'ms.json.schema.preview': 'Preview',
   'ms.json.schema.batchAdd': 'Batch Add',
-  'ms.json.schema.batchAddTip': 'Write in the format: "key":"value", e.g. "name":"natural"',
   'ms.json.schema.convertFailed': 'Data conversion failed, please try again',
   'ms.json.schema.minItems': 'Minimum number of items',
   'ms.json.schema.maxItems': 'Maximum number of items',
