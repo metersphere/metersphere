@@ -231,10 +231,15 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                     schemas = new LinkedList<>();
                 }
                 schemas.add(jsonObject);
-            } else if (bodyType != null && (bodyType.equalsIgnoreCase(Body.BodyType.WWW_FORM.name()) || bodyType.equalsIgnoreCase(Body.BodyType.FORM_DATA.name()))) {    //  key-value 类格式
+            } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.WWW_FORM.name())) {
                 String wwwFormBody = body.optString("wwwFormBody");
                 JSONObject wwwFormObject = JSONUtil.parseObject(wwwFormBody);
                 JSONObject formData = getformDataProperties(wwwFormObject.optJSONArray("formValues"));
+                bodyInfo = buildFormDataSchema(formData);
+            } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.FORM_DATA.name())) {
+                String formDataBody = body.optString("formDataBody");
+                JSONObject formDataObject = JSONUtil.parseObject(formDataBody);
+                JSONObject formData = getformDataProperties(formDataObject.optJSONArray("formValues"));
                 bodyInfo = buildFormDataSchema(formData);
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.BINARY.name())) {
                 bodyInfo = buildBinary();
