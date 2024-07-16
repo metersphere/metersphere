@@ -8,11 +8,16 @@ import useAppStore from '@/store/modules/app';
 import { findNodeByKey, getGenerateId, mapTree, traverseTree } from '@/utils';
 
 import type { RequestResult } from '@/models/apiTest/common';
-import type { ApiScenarioDebugRequest, Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
+import type {
+  ApiScenarioDebugRequest,
+  Scenario,
+  ScenarioStepDetails,
+  ScenarioStepItem,
+} from '@/models/apiTest/scenario';
 import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
 import type { RequestParam } from '../common/customApiDrawer.vue';
-import updateStepStatus, { getScenarioFileParams } from '../utils';
+import updateStepStatus, { getScenarioFileParams, getStepDetails } from '../utils';
 
 /**
  * 步骤执行逻辑
@@ -27,7 +32,7 @@ export default function useStepExecute({
 }: {
   scenario: Ref<Scenario>;
   steps: Ref<ScenarioStepItem[]>;
-  stepDetails: Ref<Record<string, any>>;
+  stepDetails: Ref<Record<string, ScenarioStepDetails>>;
   activeStep: Ref<ScenarioStepItem | undefined>;
   isPriorityLocalExec: Ref<boolean> | undefined;
   localExecuteUrl: Ref<string> | undefined;
@@ -89,6 +94,7 @@ export default function useStepExecute({
           ...getScenarioFileParams(scenario.value),
         },
         ...executeParams,
+        stepDetails: getStepDetails(executeParams.steps, executeParams.stepDetails),
         steps: mapTree(executeParams.steps, (node) => {
           return {
             ...node,
