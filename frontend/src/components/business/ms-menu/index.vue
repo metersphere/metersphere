@@ -221,11 +221,11 @@
       }
 
       watch(
-        () => xPack.value,
-        async (val) => {
+        () => [xPack.value, appStore.getPackageType],
+        async ([val, packageType]) => {
           if (val) {
             personalMenus.value = [...copyPersonalMenus.value];
-            if (appStore.packageType === 'enterprise' && licenseStore.hasLicense()) {
+            if (packageType === 'enterprise') {
               getOrgList();
             }
           } else {
@@ -248,7 +248,7 @@
 
       watchEffect(() => {
         if (switchOrgVisible.value || menuSwitchOrgVisible.value) {
-          if (appStore.packageType === 'enterprise' && licenseStore.hasLicense()) {
+          if (appStore.getPackageType === 'enterprise' && licenseStore.hasLicense()) {
             getOrgList();
           }
           nextTick(() => {
@@ -424,13 +424,17 @@
               ) : (
                 t(element?.meta?.locale || '')
               )}
-              <a-tooltip content={currentOrgName.value} position="right">
-                <div
-                  class={collapsed.value ? 'hidden' : 'current-org-tag'} // 菜单折叠时隐藏切换组织按钮
-                >
-                  {currentOrgName.value.substring(0, 1)}
-                </div>
-              </a-tooltip>
+              {xPack.value ? (
+                <a-tooltip content={currentOrgName.value} position="right">
+                  <div
+                    class={collapsed.value ? 'hidden' : 'current-org-tag'} // 菜单折叠时隐藏切换组织按钮
+                  >
+                    {currentOrgName.value.substring(0, 1)}
+                  </div>
+                </a-tooltip>
+              ) : (
+                ''
+              )}
             </div>
           </a-menu-item>
         ) : (

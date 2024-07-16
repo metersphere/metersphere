@@ -116,6 +116,9 @@ const useAppStore = defineStore('app', {
     getLoginLoadingStatus(state: AppState): boolean {
       return state.loginLoading;
     },
+    getPackageType(state: AppState): string {
+      return state.packageType;
+    },
   },
   actions: {
     /**
