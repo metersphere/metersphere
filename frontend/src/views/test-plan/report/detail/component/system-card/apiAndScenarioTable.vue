@@ -186,12 +186,18 @@
     }
   }
 
-  onMounted(() => {
-    if (props.reportId && props.isPreview) {
-      currentCaseTable.value.resetPagination();
-      loadCaseList();
-    } else {
-      currentCaseTable.value.propsRes.value.data = detailTableExample[props.activeType];
+  watch(
+    [() => props.reportId, () => props.isPreview],
+    () => {
+      if (props.reportId && props.isPreview) {
+        currentCaseTable.value.resetPagination();
+        loadCaseList();
+      } else {
+        currentCaseTable.value.propsRes.value.data = detailTableExample[props.activeType];
+      }
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 </script>

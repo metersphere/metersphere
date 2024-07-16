@@ -21,6 +21,7 @@
       v-model:raw="innerTextForm.content"
       v-model:filedIds="innerTextForm.richTextTmpFileIds"
       :upload-image="handleUploadImage"
+      :preview-url="ReportPlanPreviewImageUrl"
       class="mt-[8px] w-full"
       :editable="props.canEdit"
       @click="handleClick"
@@ -41,6 +42,7 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
   import { editorUploadFile } from '@/api/modules/test-plan/report';
+  import { ReportPlanPreviewImageUrl } from '@/api/requrls/test-plan/report';
   import useDoubleClick from '@/hooks/useDoubleClick';
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';

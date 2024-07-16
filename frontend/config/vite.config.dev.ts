@@ -41,6 +41,11 @@ export default mergeConfig(
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/bug\/attachment/, ''),
         },
+        '/test-plan/report': {
+          target: process.env.VITE_DEV_DOMAIN,
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/front\/test-plan\/report/, ''),
+        },
         '/plugin/image': {
           target: process.env.VITE_DEV_DOMAIN,
           changeOrigin: true,
