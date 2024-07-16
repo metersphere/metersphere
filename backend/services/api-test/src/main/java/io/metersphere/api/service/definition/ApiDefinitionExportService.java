@@ -10,6 +10,7 @@ import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.parser.api.Swagger3ExportParser;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,6 +37,7 @@ public class ApiDefinitionExportService {
     private ProjectMapper projectMapper;
 
     public ApiExportResponse export(ApiDefinitionBatchRequest request, String type, String userId) {
+        request.setProtocols(List.of(ModuleConstants.NODE_PROTOCOL_HTTP));
         List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocols(), false, userId);
         if (CollectionUtils.isEmpty(ids)) {
             return new ApiExportResponse();
