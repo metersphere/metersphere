@@ -48,7 +48,7 @@
         ref="treeFolderAllRef"
         v-model:isExpandApi="isExpandApi"
         v-model:isExpandAll="isExpandAll"
-        :protocol-key="ProtocolKeyEnum.API_PROTOCOL"
+        :protocol-key="ProtocolKeyEnum.API_MODULE_TREE_PROTOCOL"
         :folder-name="t('apiTestManagement.allApi')"
         :all-count="allFileCount"
         :active-folder="selectedKeys[0] as string"
