@@ -19,6 +19,7 @@
           v-model:model-value="emailForm.emails"
           placeholder="system.user.inviteEmailPlaceholder"
           tags-duplicate-text="system.user.inviteEmailRepeat"
+          :input-validator="validateInputEmailTag"
           allow-clear
           unique-value
           retain-input-value
@@ -61,6 +62,7 @@
   import { inviteUser } from '@/api/modules/setting/user';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { validateEmail } from '@/utils/validate';
 
   import { ProjectUserOption } from '@/models/projectManagement/projectAndPermission';
   import type { SystemRole } from '@/models/setting/user';
@@ -118,6 +120,14 @@
       }
     }
   );
+
+  function validateInputEmailTag(value: string) {
+    if (validateEmail(value)) {
+      return true;
+    }
+    Message.warning(t('system.config.email.emailErrTip'));
+    return false;
+  }
 
   function cancelInvite() {
     inviteVisible.value = false;
