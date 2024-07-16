@@ -511,27 +511,24 @@
     :ok-text="t('common.add')"
     @confirm="applyBatchAdd"
   >
-    <MsCodeEditor
-      v-model:model-value="batchAddValue"
-      theme="vs"
-      height="100%"
-      :language="LanguageEnum.JSON"
-      :show-full-screen="false"
-    >
-      <template #leftTitle>
-        <a-radio-group v-model:model-value="batchAddType" type="button" @change="batchAddValue = ''">
-          <a-radio value="json">Json</a-radio>
-          <a-radio value="schema">JsonSchema</a-radio>
-        </a-radio-group>
-      </template>
-      <template #rightTitle>
-        <div v-if="batchAddType === 'json'" class="flex justify-between">
-          <div class="text-[var(--color-text-4)]">
-            {{ t('ms.json.schema.batchAddTip') }}
-          </div>
-        </div>
-      </template>
-    </MsCodeEditor>
+    <a-spin class="block h-full w-full" :loading="batchAddLoading">
+      <MsCodeEditor
+        ref="batchAddCodeEditorRef"
+        v-model:model-value="batchAddValue"
+        theme="vs"
+        height="100%"
+        :language="LanguageEnum.JSON"
+        :show-full-screen="false"
+        show-code-format
+      >
+        <template #leftTitle>
+          <a-radio-group v-model:model-value="batchAddType" type="button" @change="handleBatchAddTypeChange">
+            <a-radio value="json">Json</a-radio>
+            <a-radio value="schema">JsonSchema</a-radio>
+          </a-radio-group>
+        </template>
+      </MsCodeEditor>
+    </a-spin>
   </MsDrawer>
   <MsDrawer
     v-model:visible="previewDrawerVisible"
@@ -542,7 +539,7 @@
   >
     <a-spin class="block h-full w-full" :loading="previewDrawerLoading">
       <MsCodeEditor
-        v-model:model-value="activePreviewValue"
+        :model-value="activePreviewValue"
         theme="vs"
         height="100%"
         :language="LanguageEnum.JSON"
@@ -550,7 +547,7 @@
         read-only
       >
         <template #leftTitle>
-          <a-radio-group v-model:model-value="previewShowType" type="button" @change="batchAddValue = ''">
+          <a-radio-group v-model:model-value="previewShowType" type="button">
             <a-radio value="json">Json</a-radio>
             <a-radio value="schema">JsonSchema</a-radio>
           </a-radio-group>
@@ -991,10 +988,54 @@
   }
 
   const batchAddDrawerVisible = ref(false);
-  const batchAddValue = ref('');
   const batchAddType = ref<'json' | 'schema'>('json');
+  const batchAddLoading = ref(false);
+  const batchAddCodeEditorRef = ref<InstanceType<typeof MsCodeEditor>>();
+  const batchAddCurrentJson = ref('');
+  const batchAddCurrentSchema = ref('');
+  const batchAddValue = computed({
+    get: () => (batchAddType.value === 'json' ? batchAddCurrentJson.value : batchAddCurrentSchema.value),
+    set: (value) => {
+      return value;
+    },
+  });
 
-  function batchAdd() {
+  function handleBatchAddTypeChange(value: string | number | boolean) {
+    if (value === 'json') {
+      batchAddValue.value = batchAddCurrentJson.value;
+    } else {
+      batchAddValue.value = batchAddCurrentSchema.value;
+    }
+    nextTick(() => {
+      batchAddCodeEditorRef.value?.format();
+    });
+  }
+
+  async function batchAdd() {
+    batchAddLoading.value = true;
+    let schema: JsonSchema | JsonSchemaItem | undefined;
+    try {
+      // 先将表格数据转换为 json schema格式
+      schema = parseTableDataToJsonSchema(data.value[0] as JsonSchemaTableItem);
+      batchAddCurrentSchema.value = JSON.stringify(schema);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      batchAddCurrentSchema.value = t('ms.json.schema.convertFailed');
+      batchAddLoading.value = false;
+      return;
+    }
+    try {
+      // 再将 json schema 转换为 json 格式
+      const res = await convertJsonSchemaToJson(schema as JsonSchema);
+      batchAddCurrentJson.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      batchAddCurrentJson.value = t('ms.json.schema.convertFailed');
+    } finally {
+      batchAddLoading.value = false;
+    }
     batchAddDrawerVisible.value = true;
   }
 

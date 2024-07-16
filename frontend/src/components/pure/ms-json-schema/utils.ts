@@ -15,7 +15,7 @@ export function parseTableDataToJsonSchema(
   isRoot: boolean = true
 ): JsonSchema | JsonSchemaItem | undefined {
   try {
-    if (!schemaItem) return undefined;
+    if (!schemaItem || !schemaItem.title) return undefined;
     let schema: JsonSchema | JsonSchemaItem = { type: schemaItem.type };
 
     // 对于 null 类型，只设置 type 和 enable 属性
