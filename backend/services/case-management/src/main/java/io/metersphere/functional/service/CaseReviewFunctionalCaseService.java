@@ -564,6 +564,8 @@ public class CaseReviewFunctionalCaseService {
         if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
             if (StringUtils.isBlank(request.getContent())) {
                 throw new MSException(Translator.get("case_review_content.not.exist"));
+            }else {
+                caseReviewHistory.setContent(request.getContent().getBytes());
             }
         } else {
             if (StringUtils.isNotBlank(request.getContent())) {
