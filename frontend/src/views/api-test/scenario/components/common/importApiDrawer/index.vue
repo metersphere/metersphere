@@ -18,12 +18,7 @@
           <div class="flex flex-col">
             <div class="mb-[12px] flex items-center gap-[8px]">
               <MsProjectSelect v-model:project="currentProject" @change="resetModule" />
-              <a-select
-                v-if="activeKey !== 'scenario'"
-                v-model:model-value="protocol"
-                class="w-[90px]"
-                @change="resetModule"
-              >
+              <a-select v-if="activeKey !== 'scenario'" v-model:model-value="protocol" class="w-[90px]">
                 <a-tooltip
                   v-for="item of protocolOptions"
                   :key="item.value as string"
@@ -123,10 +118,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId, mapTree } from '@/utils';
+  import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
   import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
   import type { ApiScenarioTableItem } from '@/models/apiTest/scenario';
-  import { ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
+  import { ProtocolKeyEnum, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   export interface ImportData {
     api: MsTableDataItem<ApiDefinitionDetail>[];
@@ -178,7 +174,7 @@
 
   const activeModule = ref<MsTreeNodeData>({});
   const currentProject = ref(appStore.currentProjectId);
-  const protocol = ref('HTTP');
+  const protocol = ref('');
   const protocolOptions = ref<SelectOptionData[]>([]);
   const protocolLoading = ref(false);
 
@@ -203,6 +199,16 @@
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
   const moduleIds = ref<(string | number)[]>([]);
+
+  watch(
+    () => protocol.value,
+    (val) => {
+      setLocalStorage(ProtocolKeyEnum.API_SCENARIO_IMPORT_PROTOCOL, val);
+      nextTick(() => {
+        moduleTreeRef.value?.init(activeKey.value);
+      });
+    }
+  );
 
   function resetModule() {
     nextTick(() => {
@@ -398,16 +404,14 @@
     }
   }
 
-  onBeforeMount(() => {
-    initProtocolList();
-  });
-
-  // 外面需要使用 v-if 动态渲染
-  onMounted(() => {
-    nextTick(() => {
-      // 外面使用 v-if 动态渲染时，需要在 nextTick 中执行初始化数据，因为子组件 ref 引用需要在渲染后才能获取到
-      moduleTreeRef.value?.init(activeKey.value);
-    });
+  onBeforeMount(async () => {
+    await initProtocolList();
+    const localProtocol = getLocalStorage<string>(ProtocolKeyEnum.API_SCENARIO_IMPORT_PROTOCOL);
+    if (localProtocol?.length && protocolOptions.value.some((item) => item.value === localProtocol)) {
+      protocol.value = localProtocol;
+    } else {
+      protocol.value = 'HTTP';
+    }
   });
 </script>
 

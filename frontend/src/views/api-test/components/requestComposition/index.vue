@@ -479,6 +479,7 @@
   import { AddApiCaseParams } from '@/models/apiTest/management';
   import { ModuleTreeNode, TransferFileParams } from '@/models/common';
   import {
+    ProtocolKeyEnum,
     RequestAuthType,
     RequestBodyFormat,
     RequestCaseStatus,
@@ -536,6 +537,7 @@
 
   const props = defineProps<{
     request: RequestParam; // 请求参数集合
+    protocolKey?: ProtocolKeyEnum; // 用于记住协议下拉值
     moduleTree?: ModuleTreeNode[]; // 模块树
     isCase?: boolean; // 是否是用例引用的组件,只显示请求参数和响应内容,响应内容默认为空且折叠
     apiDetail?: RequestParam; // 用例引用的时候需要接口定义的数据
@@ -868,7 +870,9 @@
         requestVModel.value.method = RequestMethods.GET;
       }
     }
-    localStorage.setItem('currentProtocol', requestVModel.value.protocol);
+    if (props.protocolKey) {
+      localStorage.setItem(props.protocolKey, requestVModel.value.protocol);
+    }
     handleActiveDebugChange();
   }
 

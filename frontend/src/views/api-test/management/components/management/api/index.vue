@@ -71,6 +71,7 @@
             ref="requestCompositionRef"
             v-model:detail-loading="loading"
             v-model:request="activeApiTab"
+            :protocol-key="ProtocolKeyEnum.API_NEW_PROTOCOL"
             :module-tree="props.moduleTree"
             :create-api="addDefinition"
             :update-api="updateDefinition"
@@ -157,6 +158,7 @@
   import { MockDetail } from '@/models/apiTest/mock';
   import { ModuleTreeNode } from '@/models/common';
   import {
+    ProtocolKeyEnum,
     RequestAuthType,
     RequestBodyFormat,
     RequestComposition,
@@ -226,7 +228,7 @@
   });
 
   const initDefaultId = `definition-${Date.now()}`;
-  const localProtocol = localStorage.getItem('currentProtocol');
+  const localProtocol = localStorage.getItem(ProtocolKeyEnum.API_NEW_PROTOCOL);
   const defaultDefinitionParams: RequestParam = {
     type: 'api',
     definitionActiveKey: 'definition',
@@ -300,7 +302,7 @@
 
   function addApiTab(defaultProps?: Partial<TabItem>) {
     const id = `definition-${Date.now()}`;
-    const protocol = localStorage.getItem('currentProtocol');
+    const protocol = localStorage.getItem(ProtocolKeyEnum.API_NEW_PROTOCOL);
     apiTabs.value.push({
       ...cloneDeep(defaultDefinitionParams),
       moduleId: props.activeModule === 'all' ? 'root' : props.activeModule,

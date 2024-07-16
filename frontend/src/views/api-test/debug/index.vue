@@ -40,6 +40,7 @@
               v-model:detail-loading="loading"
               v-model:request="activeDebug"
               :module-tree="folderTree"
+              :protocol-key="ProtocolKeyEnum.API_DEBUG_NEW_PROTOCOL"
               :create-api="addDebug"
               :update-api="updateDebug"
               :execute-api="executeDebug"
@@ -131,6 +132,7 @@
 
   import { ModuleTreeNode } from '@/models/common';
   import {
+    ProtocolKeyEnum,
     RequestAuthType,
     RequestComposition,
     RequestContentTypeEnum,
@@ -158,7 +160,7 @@
   }
 
   const initDefaultId = `debug-${Date.now()}`;
-  const localProtocol = localStorage.getItem('currentProtocol');
+  const localProtocol = localStorage.getItem(ProtocolKeyEnum.API_DEBUG_NEW_PROTOCOL);
   const defaultDebugParams: RequestParam = {
     type: 'api',
     id: initDefaultId,
@@ -233,7 +235,7 @@
 
   function addDebugTab(defaultProps?: Partial<TabItem>) {
     const id = `debug-${Date.now()}`;
-    const protocol = localStorage.getItem('currentProtocol');
+    const protocol = localStorage.getItem(ProtocolKeyEnum.API_DEBUG_NEW_PROTOCOL);
     debugTabs.value.push({
       ...cloneDeep(defaultDebugParams),
       id,
