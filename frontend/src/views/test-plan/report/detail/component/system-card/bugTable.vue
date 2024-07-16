@@ -3,6 +3,9 @@
 </template>
 
 <script setup lang="ts">
+  import { TableSortable } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
+
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -22,16 +25,22 @@
     isPreview?: boolean;
   }>();
 
+  const sortableConfig = computed<TableSortable | undefined>(() => {
+    return props.isPreview
+      ? {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        }
+      : undefined;
+  });
+
   const columns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
       slotName: 'num',
       sortIndex: 1,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      sortable: cloneDeep(sortableConfig.value),
       fixed: 'left',
       width: 100,
       showTooltip: true,
@@ -41,10 +50,7 @@
       dataIndex: 'title',
       width: 150,
       showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      sortable: cloneDeep(sortableConfig.value),
     },
     {
       title: 'bugManagement.status',
@@ -78,7 +84,7 @@
     loadList();
   }
 
-  watchEffect(() => {
+  onMounted(() => {
     if (props.reportId && props.isPreview) {
       loadCaseList();
     } else {

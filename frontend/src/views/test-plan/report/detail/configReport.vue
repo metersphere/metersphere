@@ -24,7 +24,7 @@
     passThreshold: 100, // 通过阈值
     passRate: 100, // 通过率
     executeRate: 100, // 执行完成率
-    bugCount: 0,
+    bugCount: 10,
     caseTotal: 0,
     executeCount: {
       success: 0,

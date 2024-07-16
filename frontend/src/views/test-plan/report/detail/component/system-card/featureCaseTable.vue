@@ -28,7 +28,8 @@
 </template>
 
 <script setup lang="ts">
-  import { onBeforeMount } from 'vue';
+  import { TableSortable } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -62,16 +63,22 @@
   }>();
   const { t } = useI18n();
 
+  const sortableConfig = computed<TableSortable | undefined>(() => {
+    return props.isPreview
+      ? {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        }
+      : undefined;
+  });
+
   const staticColumns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
       slotName: 'num',
       sortIndex: 1,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      sortable: cloneDeep(sortableConfig.value),
       fixed: 'left',
       width: 100,
       ellipsis: true,
@@ -81,10 +88,7 @@
       title: 'case.caseName',
       dataIndex: 'name',
       showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
+      sortable: cloneDeep(sortableConfig.value),
       width: 180,
     },
     {
@@ -94,7 +98,7 @@
       filterConfig: {
         valueKey: 'key',
         labelKey: 'statusText',
-        options: Object.values(executionResultMap),
+        options: props.isPreview ? Object.values(executionResultMap) : [],
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
       },
       width: 150,
@@ -127,7 +131,7 @@
       width: 100,
     },
   ];
-  // TODO 计划组用例明细字段接口目前还没有
+
   const testPlanNameColumns: MsTableColumn = [
     {
       title: 'report.plan.name',
@@ -159,7 +163,7 @@
     loadList();
   }
 
-  watchEffect(() => {
+  onMounted(() => {
     if (props.reportId && props.isPreview) {
       loadCaseList();
     } else {
@@ -182,6 +186,7 @@
       });
       executeList.value = [res];
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       executeLoading.value = false;

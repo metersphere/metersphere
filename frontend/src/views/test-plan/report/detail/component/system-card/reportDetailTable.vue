@@ -14,6 +14,11 @@
     <template #resultStatus="{ record }">
       <ExecutionStatus v-if="record.resultStatus !== '-'" :status="record.resultStatus" />
     </template>
+    <template #passThreshold="{ record }">
+      <div>
+        {{ `${record.passThreshold || '0.00'}%` }}
+      </div>
+    </template>
     <template #passRate="{ record }">
       <div>
         {{ `${record.passRate || '0.00'}%` }}
@@ -97,7 +102,7 @@
       dataIndex: 'resultStatus',
       slotName: 'resultStatus',
       filterConfig: {
-        options: statusResultOptions.value,
+        options: props.isPreview ? statusResultOptions.value : [],
         filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
       },
       width: 200,
@@ -138,7 +143,7 @@
     loadList();
   }
 
-  watchEffect(() => {
+  onMounted(() => {
     if (props.reportId && props.isPreview) {
       loadReportDetailList();
     } else {
