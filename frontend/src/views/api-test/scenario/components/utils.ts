@@ -1,6 +1,8 @@
 import { RequestResult } from '@/models/apiTest/common';
-import { type Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
+import { type Scenario, type ScenarioStepDetails, ScenarioStepItem } from '@/models/apiTest/scenario';
 import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
+
+import type { RequestParam } from './common/customApiDrawer.vue';
 
 /**
  * 调试或执行结束后，调用本方法更新步骤的执行状态
@@ -113,4 +115,35 @@ export function getScenarioFileParams(scenario: Scenario) {
     linkFileIds: Array.from(linkFileIds),
     uploadFileIds: Array.from(uploadFileIds),
   };
+}
+
+/**
+ * 获取步骤详情参数集合
+ * @param details 传入指定的详情映射
+ */
+export function getStepDetails(steps: ScenarioStepItem[], details: Record<string, ScenarioStepDetails>) {
+  const newStepDetails: Record<string, ScenarioStepDetails> = {};
+  steps.forEach((step) => {
+    const currentDetail = details[step.id] as RequestParam;
+    if (
+      currentDetail &&
+      [ScenarioStepType.API, ScenarioStepType.API_CASE, ScenarioStepType.CUSTOM_REQUEST].includes(step.stepType)
+    ) {
+      // 接口类型需要处理 json-schema 的循环引用
+      newStepDetails[step.id] = {
+        ...currentDetail,
+        body: {
+          ...currentDetail.body,
+          jsonBody: {
+            ...currentDetail.body.jsonBody,
+            jsonSchema: currentDetail.body.jsonBody.jsonSchema,
+            jsonSchemaTableData: [], // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
+          },
+        },
+      };
+    } else {
+      newStepDetails[step.id] = details[step.id];
+    }
+  });
+  return newStepDetails;
 }
