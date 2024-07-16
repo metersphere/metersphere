@@ -1,3 +1,4 @@
+import { getModuleCount } from '@/api/modules/api-test/management';
 import { getModuleCount as getScenarioModuleCount } from '@/api/modules/api-test/scenario';
 import { getCaseModulesCounts, getPublicLinkCaseModulesCounts } from '@/api/modules/case-management/featureCase';
 import { testPlanAssociateModuleCount } from '@/api/modules/test-plan/testPlan';
@@ -13,7 +14,11 @@ export const getModuleTreeCountApiMap: Record<string, any> = {
   },
   [CaseCountApiTypeEnum.TEST_PLAN_CASE_COUNT]: {
     [CaseLinkEnum.FUNCTIONAL]: getCaseModulesCounts,
-    [CaseLinkEnum.API]: testPlanAssociateModuleCount,
+
+    [CaseLinkEnum.API]: {
+      API: getModuleCount,
+      CASE: testPlanAssociateModuleCount,
+    },
     [CaseLinkEnum.SCENARIO]: getScenarioModuleCount,
   },
 };
@@ -22,9 +27,13 @@ export const getModuleTreeCountApiMap: Record<string, any> = {
 export function initGetModuleCountFunc(
   type: CaseCountApiTypeEnum[keyof CaseCountApiTypeEnum],
   activeTab: keyof typeof CaseLinkEnum,
+  showType: 'API' | 'CASE',
   params: Record<string, any>
 ) {
-  return getModuleTreeCountApiMap[type as keyof typeof CaseCountApiTypeEnum][activeTab](params);
+  if (activeTab !== CaseLinkEnum.API) {
+    return getModuleTreeCountApiMap[type as keyof typeof CaseCountApiTypeEnum][activeTab](params);
+  }
+  return getModuleTreeCountApiMap[type as keyof typeof CaseCountApiTypeEnum][activeTab][showType](params);
 }
 
 export default {};
