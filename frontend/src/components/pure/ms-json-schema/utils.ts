@@ -101,7 +101,7 @@ function createItem(key: string, value: any, parent?: JsonSchemaTableItem): Json
     type: itemType,
     description: '',
     enable: true,
-    required: true,
+    required: false,
     defaultValue: '',
     example: exampleValue, // 仅当值不是对象或数组时，才赋予 example 值
     parent,
@@ -135,7 +135,7 @@ export function parseJsonToJsonSchemaTableData(
       type: Array.isArray(json) ? 'array' : 'object',
       description: '',
       enable: true,
-      required: true,
+      required: false,
       example: '',
       defaultValue: '',
     };
@@ -202,7 +202,7 @@ export function parseSchemaToJsonSchemaTableData(schema: string | JsonSchema): {
         type: node.type,
         description: node.description,
         enable: true,
-        required: true,
+        required: false,
         example: '',
         defaultValue: '',
       };
