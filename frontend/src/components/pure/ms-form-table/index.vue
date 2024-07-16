@@ -535,6 +535,10 @@
     emit('selectAll', checked);
   }
 
+  defineExpose({
+    validateAndUpdateErrorMessageList,
+  });
+
   await initColumns();
 </script>
 
