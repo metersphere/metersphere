@@ -282,6 +282,7 @@
     sortDefinition,
     updateDefinition,
   } from '@/api/modules/api-test/management';
+  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -933,7 +934,8 @@
       },
       type
     );
-    downloadByteFile(new Blob([JSON.stringify(result)]), 'Swagger_Api_Case.json');
+    const res = await getProjectInfo(appStore.currentProjectId);
+    downloadByteFile(new Blob([JSON.stringify(result)]), `Swagger_Api_${res.name}.json`);
   }
 
   /**
