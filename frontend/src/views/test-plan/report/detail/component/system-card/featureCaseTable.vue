@@ -163,13 +163,19 @@
     loadList();
   }
 
-  onMounted(() => {
-    if (props.reportId && props.isPreview) {
-      loadCaseList();
-    } else {
-      propsRes.value.data = detailTableExample[ReportCardTypeEnum.FUNCTIONAL_DETAIL];
+  watch(
+    [() => props.reportId, () => props.isPreview],
+    () => {
+      if (props.reportId && props.isPreview) {
+        loadCaseList();
+      } else {
+        propsRes.value.data = detailTableExample[ReportCardTypeEnum.FUNCTIONAL_DETAIL];
+      }
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 
   const showDetailVisible = ref<boolean>(false);
 

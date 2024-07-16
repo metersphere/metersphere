@@ -143,13 +143,19 @@
     loadList();
   }
 
-  onMounted(() => {
-    if (props.reportId && props.isPreview) {
-      loadReportDetailList();
-    } else {
-      propsRes.value.data = detailTableExample[ReportCardTypeEnum.SUB_PLAN_DETAIL];
+  watch(
+    [() => props.reportId, () => props.isPreview],
+    () => {
+      if (props.reportId && props.isPreview) {
+        loadReportDetailList();
+      } else {
+        propsRes.value.data = detailTableExample[ReportCardTypeEnum.SUB_PLAN_DETAIL];
+      }
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 
   const reportVisible = ref(false);
 

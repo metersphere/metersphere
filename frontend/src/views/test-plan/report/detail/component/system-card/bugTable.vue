@@ -84,11 +84,17 @@
     loadList();
   }
 
-  onMounted(() => {
-    if (props.reportId && props.isPreview) {
-      loadCaseList();
-    } else {
-      propsRes.value.data = detailTableExample[ReportCardTypeEnum.BUG_DETAIL];
+  watch(
+    [() => props.reportId, () => props.isPreview],
+    () => {
+      if (props.reportId && props.isPreview) {
+        loadCaseList();
+      } else {
+        propsRes.value.data = detailTableExample[ReportCardTypeEnum.BUG_DETAIL];
+      }
+    },
+    {
+      immediate: true,
     }
-  });
+  );
 </script>
