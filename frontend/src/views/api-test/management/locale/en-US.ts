@@ -80,7 +80,7 @@ export default {
   'apiTestManagement.moreSetting': 'More Settings',
   'apiTestManagement.importType': 'Import Type',
   'apiTestManagement.urlImport': 'URL Import',
-  'apiTestManagement.swagger.export': 'Export Swagger3.0',
+  'apiTestManagement.swagger.export': 'Export Swagger3.0(Only supports HTTP protocol)',
   'apiTestManagement.syncImportCase': 'Sync Import API Cases',
   'apiTestManagement.syncUpdateDirectory': 'Sync Update API Directory',
   'apiTestManagement.importSwaggerFileTip1': 'Supports Swagger 3.0 version JSON files,',
