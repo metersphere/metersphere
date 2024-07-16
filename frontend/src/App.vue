@@ -53,7 +53,7 @@
     try {
       appStore.initSystemVersion(); // 初始化系统版本
       // 企业版才校验license
-      if (appStore.packageType === 'enterprise') {
+      if (appStore.getPackageType === 'enterprise') {
         licenseStore.getValidateLicense();
       }
       if (licenseStore.hasLicense()) {
@@ -96,6 +96,7 @@
           setLongType('LARK');
           setLoginExpires();
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.log(err);
         }
       }
@@ -107,6 +108,7 @@
           setLongType('LARK_SUITE');
           setLoginExpires();
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.log(err);
         }
       }

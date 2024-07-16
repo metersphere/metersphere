@@ -36,7 +36,7 @@
 
   function checkAuthMenu() {
     const topMenus = appStore.getTopMenus;
-    if (appStore.packageType === 'community') {
+    if (appStore.getPackageType === 'community') {
       appStore.setTopMenus(topMenus.filter((item) => item.name !== RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT));
     } else {
       appStore.setTopMenus(topMenus);
@@ -120,7 +120,7 @@
     () => appStore.currentOrgId,
     async () => {
       await appStore.initSystemPackage();
-      if (appStore.packageType === 'enterprise') {
+      if (appStore.getPackageType === 'enterprise') {
         licenseStore.getValidateLicense();
       }
     },
@@ -130,8 +130,8 @@
   );
 
   watch(
-    () => appStore.packageType,
-    (val) => {
+    () => appStore.getPackageType,
+    () => {
       checkAuthMenu();
     }
   );
