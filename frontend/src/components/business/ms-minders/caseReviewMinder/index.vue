@@ -538,7 +538,7 @@
       },
       {
         value: 'disassociate',
-        label: t('caseManagement.caseReview.disassociate'),
+        label: t('caseManagement.caseReview.disassociateCase'),
         permission: ['CASE_REVIEW:READ+RELEVANCE'],
         onClick: () => {
           emit('operation', 'disassociate', node);

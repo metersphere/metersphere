@@ -36,6 +36,11 @@
       ? {
           ...reviewResultMap,
           ...{
+            PASS: {
+              label: 'common.pass',
+              color: 'rgb(var(--success-6))',
+              icon: 'icon-icon_succeed_filled',
+            },
             UNDER_REVIEWED: {
               label: 'caseManagement.caseReview.suggestion',
               color: 'rgb(var(--warning-6))',

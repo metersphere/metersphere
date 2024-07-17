@@ -2,7 +2,7 @@
   <MsCard :min-width="1100" has-breadcrumb hide-footer no-content-padding hide-divider show-full-screen>
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
-        <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
+        <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
           {{ reviewDetail.name }}
         </div>
       </a-tooltip>
@@ -54,7 +54,7 @@
                 <div>{{ item.num }}</div>
                 <div v-if="onlyMineStatus" class="flex items-center gap-[4px] leading-[22px]">
                   <MsIcon
-                    :type="reviewResultMap[item.myStatus]?.icon"
+                    :type="reviewResultMap[item.myStatus]?.icon ?? ''"
                     :style="{ color: reviewResultMap[item.myStatus]?.color }"
                   />
                   {{ t(reviewResultMap[item.myStatus]?.label) }}
@@ -110,7 +110,7 @@
             <div class="flex items-center">
               <MsIcon type="icon-icon_folder_filled1" class="mr-[4px] text-[var(--color-text-4)]" />
               <a-tooltip :content="caseDetail.moduleName || t('common.root')">
-                <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
+                <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
                   {{ caseDetail.moduleName || t('common.root') }}
                 </div>
               </a-tooltip>
@@ -383,7 +383,8 @@
 
   const activeCaseId = ref(route.query.caseId as string);
   const activeCaseReviewStatus = computed(() => {
-    return caseList.value.find((e) => e.caseId === activeCaseId.value)?.status;
+    const activeCase = caseList.value.find((e) => e.caseId === activeCaseId.value);
+    return onlyMineStatus.value ? activeCase?.myStatus : activeCase?.status;
   });
   const defaultCaseDetail: DetailCase = {
     id: '',
