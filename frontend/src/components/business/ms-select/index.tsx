@@ -173,7 +173,10 @@ export default defineComponent(
                 if (e[key]?.toLowerCase().includes(val.toLowerCase())) {
                   // 是否匹配
                   hasMatch = true;
-                  item[key] = e[key].replace(new RegExp(val, 'gi'), highlightedKeyword); // 高亮关键字替换
+                  item[key] = e[key].replace(
+                    new RegExp(val.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), // 转义搜索关键字中的所有特殊字符
+                    highlightedKeyword
+                  ); // 高亮关键字替换
                 }
               }
             }
@@ -189,6 +192,8 @@ export default defineComponent(
             return null;
           })
           .filter((e) => e) as SelectOptionData[];
+
+        console.log('filterOptions.value', filterOptions.value);
         if (props.shouldCalculateMaxTag !== false && props.multiple) {
           calculateMaxTag();
         }
