@@ -9,34 +9,76 @@ import { SelectAllEnum } from '@/enums/tableEnum';
 
 import type { moduleKeysType } from './types';
 
+export interface SelectedModuleProps {
+  modulesTree: MsTreeNodeData[];
+  moduleCount: Record<string, any>;
+}
+
 export default function useModuleSelections<T>(
   innerSelectedModulesMaps: Record<string, moduleKeysType>,
-  propsRes: MsTableProps<T>
+  propsRes: MsTableProps<T>,
+  tableSelectedProps: SelectedModuleProps
 ) {
   const moduleSelectedMap = ref<Record<string, string[]>>({});
+  const { modulesTree, moduleCount } = tableSelectedProps;
+  const moduleTree = ref<MsTreeNodeData[]>(modulesTree);
+  const allModuleTotal = ref<Record<string, any>>(moduleCount);
 
-  const moduleTree = ref<MsTreeNodeData[]>([]);
-  const allModuleTotal = ref<Record<string, any>>({});
+  // 初始化节点，防止选择时报错
+  function setUnSelectNode(moduleId: string, key = 'id') {
+    if (!innerSelectedModulesMaps[moduleId]) {
+      const node = findNodeByKey<MsTreeNodeData>(moduleTree.value, moduleId, key);
+      innerSelectedModulesMaps[moduleId] = {
+        selectAll: false,
+        selectIds: new Set(),
+        excludeIds: new Set(),
+        count: moduleId === 'all' ? allModuleTotal.value.all : node?.count ?? 0,
+      };
+    }
+  }
 
   // 初始化表格数据的选择
   function initTableDataSelected() {
     propsRes.selectedKeys = new Set([]);
     propsRes.excludeKeys = new Set([]);
     const allSelectIds: Set<string> = new Set();
+    if (!innerSelectedModulesMaps.all) {
+      setUnSelectNode('all');
+    }
     propsRes.data.forEach((item: any) => {
       const selectAllProps = innerSelectedModulesMaps[item.moduleId];
+      // 首次上来默认全选则追加moduleSelectedMap里边所对应moduleId所有的Ids
       if (
         selectAllProps &&
         selectAllProps.selectAll &&
         !selectAllProps.selectIds.size &&
         !selectAllProps.excludeIds.size
       ) {
-        (moduleSelectedMap.value[item.moduleId] || []).forEach((id) => allSelectIds.add(id));
-      } else if (selectAllProps && !selectAllProps.selectAll && selectAllProps.selectIds.size) {
+        (moduleSelectedMap.value[item.moduleId] || []).forEach((id) => {
+          allSelectIds.add(id);
+          innerSelectedModulesMaps.all.selectIds.add(id);
+          innerSelectedModulesMaps.all.excludeIds.delete(id);
+        });
+      }
+      // 有选择则从选择里边的去回显选项项
+      if (selectAllProps && selectAllProps.selectIds.size) {
         selectAllProps.selectIds.forEach((id) => allSelectIds.add(id));
       }
+      // 有排除的则从全部的里边排除掉排除的进行回显选择项
+      // 确保单独更新行选中或者取消能精确判断是否已经选中或排除
+      if (selectAllProps && selectAllProps.excludeIds.size) {
+        (moduleSelectedMap.value[item.moduleId] || []).forEach((id) => {
+          if (!selectAllProps.excludeIds.has(id)) {
+            allSelectIds.add(id);
+            innerSelectedModulesMaps[item.moduleId].selectIds.add(id);
+            innerSelectedModulesMaps.all.selectIds.add(id);
+          } else {
+            innerSelectedModulesMaps[item.moduleId].excludeIds.add(id);
+            innerSelectedModulesMaps.all.excludeIds.add(id);
+          }
+        });
+      }
     });
-
     propsRes.selectedKeys = new Set([...allSelectIds]);
   }
 
@@ -72,39 +114,27 @@ export default function useModuleSelections<T>(
     }
   }
 
-  // 初始化节点，防止选择时报错
-  function setUnSelectNode(moduleId: string, key = 'id') {
-    if (!innerSelectedModulesMaps[moduleId]) {
-      const node = findNodeByKey<MsTreeNodeData>(moduleTree.value, moduleId, key);
-      innerSelectedModulesMaps[moduleId] = {
-        selectAll: false,
-        selectIds: new Set(),
-        excludeIds: new Set(),
-        count: moduleId === 'all' ? allModuleTotal.value.all : node?.count ?? 0,
-      };
-    }
-  }
-
   // 设置最新状态
   function setSelectedModuleStatus(moduleId: string) {
     const selectedProps = innerSelectedModulesMaps[moduleId];
     if (selectedProps) {
-      const { selectIds: selectModuleIds, count, excludeIds } = selectedProps;
+      const { selectIds: selectModuleIds, count, excludeIds, selectAll } = selectedProps;
 
-      if (excludeIds.size) {
-        selectedProps.selectAll = false;
-      }
-
+      // 如果排除的数量等于总count则置为false且清空
       if (excludeIds.size === count) {
         resetModule(moduleId, false);
       }
-
+      // 如果选中的数量等于总count则置为true且清空
       if (selectModuleIds.size === count) {
-        if (moduleId === 'all') {
-          resetModule(moduleId, true);
-        } else {
-          setSelectedAll(moduleId);
-        }
+        resetModule(moduleId, true);
+      }
+      // 全选无排除则全选为了上来全选取消一条再选择则为全选
+      if (selectAll && !excludeIds.size) {
+        resetModule(moduleId, true);
+      }
+      // 右侧表格选择后再排除此刻设置为false且清空已选项
+      if (!selectAll && !selectModuleIds.size) {
+        resetModule(moduleId, false);
       }
     }
   }
@@ -112,6 +142,8 @@ export default function useModuleSelections<T>(
   // 更新选择数据
   function updateSelectModule(moduleId: string, id: string) {
     const selectedProps = innerSelectedModulesMaps[moduleId];
+    console.log(222);
+
     if (selectedProps) {
       const selectedSet = selectedProps.selectIds;
       const excludedSet = selectedProps.excludeIds;
@@ -140,7 +172,6 @@ export default function useModuleSelections<T>(
       } else if (!selectedSet.has(id) && !excludedSet.has(id)) {
         selectedProps.selectIds.add(id);
       }
-
       innerSelectedModulesMaps[moduleId] = selectedProps;
       setSelectedModuleStatus(moduleId);
     }
@@ -149,7 +180,6 @@ export default function useModuleSelections<T>(
   function rowSelectChange(record: Record<string, any>) {
     const { moduleId } = record;
     setUnSelectNode(moduleId);
-    setUnSelectNode('all');
     updateSelectModule(moduleId, record.id);
     updateSelectModule('all', record.id);
   }
@@ -162,7 +192,8 @@ export default function useModuleSelections<T>(
         const { moduleId } = item;
         setUnSelectNode(moduleId);
         const lastSelectedProps = innerSelectedModulesMaps[moduleId];
-        if (!lastSelectedProps.selectAll) {
+        // 数据为data当前分页的数据
+        if (lastSelectedProps) {
           innerSelectedModulesMaps[moduleId].selectIds.add(item.id);
           innerSelectedModulesMaps[moduleId].excludeIds.delete(item.id);
           setSelectedModuleStatus(moduleId);
@@ -175,14 +206,19 @@ export default function useModuleSelections<T>(
         setUnSelectNode(moduleId);
         innerSelectedModulesMaps[item.moduleId].selectIds.delete(item.id);
         innerSelectedModulesMaps[item.moduleId].excludeIds.add(item.id);
+        const selectedProps = innerSelectedModulesMaps[moduleId];
+        if (selectedProps) {
+          const resultIds = (moduleSelectedMap.value[moduleId] || []).filter((id) => !selectedProps.excludeIds.has(id));
+          // 取消加了排除ids此刻全选状态为false，并且排除当前页ids，则从所有列表里边收集到模块ids
+          resultIds.forEach((e) => {
+            innerSelectedModulesMaps[moduleId].selectIds.add(e);
+            innerSelectedModulesMaps[moduleId].excludeIds.delete(e);
+          });
+        }
         setSelectedModuleStatus(moduleId);
         updateSelectModule('all', item.id);
       });
     }
-  }
-  function setModuleInfo([tree, count]: [MsTreeNodeData[], Record<string, any>]) {
-    moduleTree.value = tree;
-    allModuleTotal.value = count;
   }
 
   function clearSelector() {
@@ -213,6 +249,46 @@ export default function useModuleSelections<T>(
     }
   );
 
+  // 设置模块树
+  function setModuleTree(tree: MsTreeNodeData[]) {
+    moduleTree.value = tree;
+  }
+
+  // 设置模块
+  function setModuleCount(count: Record<string, any>) {
+    allModuleTotal.value = count;
+  }
+
+  watch(
+    () => tableSelectedProps.modulesTree,
+    (val) => {
+      setModuleTree(val);
+    },
+    {
+      immediate: true,
+      deep: true,
+    }
+  );
+
+  watch(
+    () => tableSelectedProps.moduleCount,
+    (val) => {
+      if (val) {
+        setModuleCount(val);
+        innerSelectedModulesMaps.all = {
+          selectAll: false,
+          selectIds: new Set(),
+          excludeIds: new Set(),
+          count: val.all || 0,
+        };
+      }
+    },
+    {
+      immediate: true,
+      deep: true,
+    }
+  );
+
   return {
     moduleSelectedMap,
     rowSelectChange,
@@ -224,6 +300,5 @@ export default function useModuleSelections<T>(
     setSelectedAll,
     updateSelectModule,
     clearSelector,
-    setModuleInfo,
   };
 }
