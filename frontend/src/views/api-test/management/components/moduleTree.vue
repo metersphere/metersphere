@@ -455,9 +455,6 @@
             path: e.path,
             fullPath,
           };
-          if (!isSetDefaultKey && e.id === selectedKeys.value[0]) {
-            folderNodeSelect([selectedKeys.value[0]], e);
-          }
           return {
             ...e,
             hideMoreAction: e.id === 'root',

@@ -118,9 +118,9 @@
   function setActiveApi(params: RequestParam) {
     if (params.id === 'all') {
       // 切换到全部 tab 时需设置为上次激活的 api 节点的模块
-      activeNodeId.value = params.moduleId;
-    } else {
       activeNodeId.value = params.id;
+    } else {
+      activeNodeId.value = params.moduleId;
     }
   }
 
@@ -148,8 +148,6 @@
 
   async function refreshModuleTree() {
     await moduleTreeRef.value?.refresh();
-    //  涉及到模块树的刷新操作（比如删除），也会刷新回收站的数量
-    selectRecycleCount();
   }
 
   function refreshModuleTreeCount(params: ApiDefinitionGetModuleParams) {
