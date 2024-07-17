@@ -199,6 +199,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 super.checkCollection(testPlan.getId(), apiScenario.getCollectionId(), CaseType.SCENARIO_CASE.getKey());
                 boolean selectAllModule = apiScenario.getModules().isSelectAllModule();
                 Map<String, ModuleSelectDTO> moduleMaps = apiScenario.getModules().getModuleMaps();
+                moduleMaps.remove(MODULE_ALL);
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiScenario> scenarioList = extApiScenarioMapper.selectAllCase(isRepeat, apiScenario.getModules().getProjectId(), testPlan.getId());

@@ -799,7 +799,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         super.checkCollection(testPlan.getId(), functional.getCollectionId(), CaseType.FUNCTIONAL_CASE.getKey());
         boolean selectAllModule = functional.getModules().isSelectAllModule();
         Map<String, ModuleSelectDTO> moduleMaps = functional.getModules().getModuleMaps();
-
+        moduleMaps.remove(MODULE_ALL);
         if (selectAllModule) {
             // 选择了全部模块
             List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.selectAllFunctionalCase(isRepeat, functional.getModules().getProjectId(), testPlan.getId());

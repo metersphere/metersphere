@@ -42,6 +42,8 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
 
+    public static final String MODULE_ALL = "all";
+
     /**
      * 取消关联资源od
      *
@@ -118,7 +120,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
                 .toList();
         // 全选的模块
         List<String> moduleIds = moduleMaps.entrySet().stream()
-                .filter(entry -> BooleanUtils.isTrue(entry.getValue().isSelectAll()) && org.apache.commons.collections.CollectionUtils.isEmpty(entry.getValue().getSelectIds()))
+                .filter(entry -> BooleanUtils.isTrue(entry.getValue().isSelectAll()) && CollectionUtils.isEmpty(entry.getValue().getSelectIds()))
                 .map(Map.Entry::getKey)
                 .toList();
 

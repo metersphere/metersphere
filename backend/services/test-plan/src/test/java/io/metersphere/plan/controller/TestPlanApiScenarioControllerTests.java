@@ -309,6 +309,13 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         associateDTO.setSelectAllModule(true);
         associateDTO.setAssociateType(AssociateCaseType.API_SCENARIO);
         associateDTO.setProjectId("wxx_project_1234");
+
+        Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
+        ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
+        moduleSelectDTO.setSelectAll(true);
+        moduleSelectDTO.setSelectIds(new ArrayList<>());
+        moduleMap.put("wx_scenario_module_123", moduleSelectDTO);
+        associateDTO.setModuleMaps(moduleMap);
         return associateDTO;
     }
 

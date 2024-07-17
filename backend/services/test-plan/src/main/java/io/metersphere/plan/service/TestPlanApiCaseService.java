@@ -588,6 +588,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 super.checkCollection(testPlan.getId(), apiCase.getCollectionId(), CaseType.API_CASE.getKey());
                 boolean selectAllModule = apiCase.getModules().isSelectAllModule();
                 Map<String, ModuleSelectDTO> moduleMaps = apiCase.getModules().getModuleMaps();
+                moduleMaps.remove(MODULE_ALL);
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
