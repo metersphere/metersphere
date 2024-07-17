@@ -5,6 +5,7 @@ import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.TestPlanCollectionMinderEditRequest;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.CommonConstants;
@@ -12,6 +13,7 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -61,6 +63,12 @@ public class TestPlanCollectionMinderService {
 	@Resource
 	private TestPlanConfigMapper testPlanConfigMapper;
 
+    @Resource
+    private ExtProjectMapper extProjectMapper;
+
+    @Resource
+    private TestPlanMapper testPlanMapper;
+
     /**
      * 测试计划-脑图用例列表查询
      *
@@ -69,6 +77,18 @@ public class TestPlanCollectionMinderService {
     public List<TestPlanCollectionMinderTreeDTO> getMindTestPlanCase(String planId) {
         List<TestPlanCollectionMinderTreeDTO> list = new ArrayList<>();
         List<TestPlanCollectionConfigDTO> testPlanCollections = extTestPlanCollectionMapper.getList(planId);
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        List<TestResourcePool> apiTest = extProjectMapper.getResourcePoolOption(testPlan.getProjectId(), "api_test");
+        Map<String, String> resourcePoolMap = apiTest.stream().collect(Collectors.toMap(TestResourcePool::getId, TestResourcePool::getName));
+        testPlanCollections.forEach(t->{
+            if (StringUtils.isBlank(resourcePoolMap.get(t.getTestResourcePoolId()))) {
+                t.setPoolName(Translator.get("resource_pool_not_exist"));
+                t.setNoResourcePool(true);
+            } else {
+                t.setPoolName(t.getPoolName());
+            }
+        });
+
         //构造根节点
         TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(planId);
         TestPlanCollectionMinderTreeNodeDTO testPlanCollectionMinderTreeNodeDTO = buildRoot();
@@ -190,18 +210,21 @@ public class TestPlanCollectionMinderService {
         if (CollectionUtils.isNotEmpty(testPlanApiScenarios)) {
             count = testPlanApiScenarios.size();
         }
-        buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList);
+        buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList, false);
         TestPlanCollectionMinderTreeDTO envTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO envTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList);
+        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList, false);
         TestPlanCollectionMinderTreeDTO poolTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO poolTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList);
+        buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList, planCollection.isNoResourcePool());
     }
 
-    private static void buildChild(TestPlanCollectionMinderTreeNodeDTO treeNodeDTO, String text, String key, TestPlanCollectionMinderTreeDTO treeDTO, List<TestPlanCollectionMinderTreeDTO> endList) {
+    private static void buildChild(TestPlanCollectionMinderTreeNodeDTO treeNodeDTO, String text, String key, TestPlanCollectionMinderTreeDTO treeDTO, List<TestPlanCollectionMinderTreeDTO> endList, boolean noResourcePool) {
         treeNodeDTO.setText(text);
         treeNodeDTO.setResource(List.of(Translator.get(key)));
+        if (noResourcePool) {
+            treeNodeDTO.setPriority(0);
+        }
         treeDTO.setData(treeNodeDTO);
         treeDTO.setChildren(new ArrayList<>());
         if (StringUtils.isNotBlank(text)) {
@@ -217,13 +240,13 @@ public class TestPlanCollectionMinderService {
         if (CollectionUtils.isNotEmpty(testPlanApiCases)) {
             count = testPlanApiCases.size();
         }
-        buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList);
+        buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList, false);
         TestPlanCollectionMinderTreeDTO envTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO envTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList);
+        buildChild(envTreeNodeDTO, StringUtils.equalsIgnoreCase(planCollection.getEnvironmentId(), ModuleConstants.ROOT_NODE_PARENT_ID) ? Translator.get("api_report_default_env") : planCollection.getEnvName(), "test_plan.mind.environment", envTreeDTO, endList, false);
         TestPlanCollectionMinderTreeDTO poolTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO poolTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList);
+        buildChild(poolTreeNodeDTO, planCollection.getPoolName(), "test_plan.mind.test_resource_pool", poolTreeDTO, endList, planCollection.isNoResourcePool());
     }
 
     private static void buildFunctionalChild(Map<String, List<TestPlanFunctionalCase>> testPlanFunctionalCaseMap, TestPlanCollectionConfigDTO planCollection, List<TestPlanCollectionMinderTreeDTO> endList) {
@@ -234,7 +257,7 @@ public class TestPlanCollectionMinderService {
         }
         TestPlanCollectionMinderTreeDTO countTreeDTO = new TestPlanCollectionMinderTreeDTO();
         TestPlanCollectionMinderTreeNodeDTO countTreeNodeDTO = new TestPlanCollectionMinderTreeNodeDTO();
-        buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList);
+        buildChild(countTreeNodeDTO, count + Translator.get("test_plan.mind.strip"), "test_plan.mind.case_count", countTreeDTO, endList, false);
     }
 
     @NotNull
