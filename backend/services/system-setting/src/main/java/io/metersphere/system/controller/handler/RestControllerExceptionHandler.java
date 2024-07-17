@@ -123,7 +123,7 @@ public class RestControllerExceptionHandler {
     @ExceptionHandler({EofException.class})
     public ResponseEntity<Object> handleEofException(HttpServletRequest request, Exception e) {
         String requestURI = request.getRequestURI();
-        if (StringUtils.startsWith(requestURI, "/assets")) {
+        if (StringUtils.startsWith(requestURI, "/assets") || StringUtils.startsWith(requestURI, "/fonts")) {
             return ResponseEntity.internalServerError().body(null);
         }
         return ResponseEntity.internalServerError()
