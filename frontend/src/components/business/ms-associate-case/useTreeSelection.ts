@@ -138,7 +138,7 @@ export default function useTreeSelection(selectedModuleProps: SelectedModuleProp
       const isAllCheckedModuleProps = val.all;
 
       if (isAllCheckedModuleProps) {
-        if (totalCount.value === isAllCheckedModuleProps.count) {
+        if (totalCount.value === isAllCheckedModuleProps.count && isAllCheckedModuleProps.selectAll) {
           isCheckedAll.value = true;
         } else {
           isCheckedAll.value = false;

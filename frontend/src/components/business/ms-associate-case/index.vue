@@ -338,12 +338,7 @@
           <a-button type="secondary" :disabled="props.confirmLoading" class="mr-[12px]" @click="cancel">
             {{ t('common.cancel') }}
           </a-button>
-          <a-button
-            :loading="props.confirmLoading"
-            type="primary"
-            :disabled="!isDisabledSaveButton"
-            @click="handleConfirm"
-          >
+          <a-button :loading="props.confirmLoading" type="primary" :disabled="!totalCount" @click="handleConfirm">
             {{ t('ms.case.associate.associate') }}
           </a-button>
         </slot>
@@ -471,11 +466,6 @@
       immediate: true,
     }
   );
-
-  // 计算用例是否选择禁用关联按钮
-  const isDisabledSaveButton = computed(() => {
-    return Object.values(selectedModulesMaps.value).some((module) => module.selectAll || module.selectIds.size > 0);
-  });
 
   const selectedKeys = computed({
     get: () => [activeFolder.value],
