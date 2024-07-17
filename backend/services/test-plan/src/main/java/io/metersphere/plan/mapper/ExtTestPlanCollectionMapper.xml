@@ -10,13 +10,11 @@
         tpc.test_resource_pool_id, tpc.retry_on_fail,
         tpc.retry_times, tpc.retry_interval, tpc.stop_on_fail,
         tpc.create_user, tpc.create_time, tpc.pos,
-        trp.name as poolName,
         IF(env.name is not null, env.name, envg.name) as envName
         FROM
         test_plan_collection tpc
-        LEFT JOIN test_resource_pool trp ON tpc.test_resource_pool_id = trp.id
         LEFT JOIN environment env ON tpc.environment_id = env.id
-        LEFT JOIN environment_group envg ON tpc.test_resource_pool_id = envg.id
+        LEFT JOIN environment_group envg ON tpc.environment_id = envg.id
         WHERE tpc.test_plan_id = #{planId}
     </select>
 
