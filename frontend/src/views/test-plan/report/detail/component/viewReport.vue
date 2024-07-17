@@ -174,11 +174,7 @@
           />
           <Summary
             v-else-if="item.value === ReportCardTypeEnum.SUMMARY"
-            :rich-text="{
-              content: item.content || '',
-              label: t(item.label),
-              richTextTmpFileIds: [],
-            }"
+            :rich-text="getContent(item)"
             :share-id="shareId"
             :is-preview="props.isPreview"
             :can-edit="item.enableEdit"
@@ -480,14 +476,18 @@
     }
   }
 
+  const isDefaultLayout = ref<boolean>(false);
+
   watchEffect(() => {
     if (props.detailInfo) {
       detail.value = cloneDeep(props.detailInfo);
-      richText.value.summary = detail.value.summary;
-      reportForm.value.reportName = detail.value.name;
+      const { defaultLayout, id, name, summary } = detail.value;
+      isDefaultLayout.value = defaultLayout;
+      richText.value.summary = summary;
+      reportForm.value.reportName = name;
       initOptionsData();
       if (props.isPreview) {
-        if (!detail.value.defaultLayout && detail.value.id) {
+        if (!defaultLayout && id) {
           getDefaultLayout();
         } else {
           innerCardList.value = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
@@ -495,6 +495,22 @@
       }
     }
   });
+
+  // 获取内容详情
+  function getContent(item: configItem): customValueForm {
+    if (isDefaultLayout.value) {
+      return {
+        content: richText.value.summary || '',
+        label: t(item.label),
+        richTextTmpFileIds: [],
+      };
+    }
+    return {
+      content: item.content || '',
+      label: t(item.label),
+      richTextTmpFileIds: item.richTextTmpFileIds,
+    };
+  }
 
   onMounted(async () => {
     nextTick(() => {
@@ -516,7 +532,11 @@
   }
 
   function handleSummary(content: string, cardItem: configItem) {
-    cardItem.content = content;
+    if (isDefaultLayout.value) {
+      richText.value.summary = content;
+    } else {
+      cardItem.content = content;
+    }
   }
 
   const currentMode = ref<string>('drawer');
