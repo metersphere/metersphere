@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.EmailInviteSource;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ParamConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
@@ -435,12 +436,18 @@ public class SimpleUserService {
         if (MapUtils.isNotEmpty(errorMap)) {
             throw new MSException(SystemResultCode.INVITE_EMAIL_EXIST, JSON.toJSONString(errorMap.keySet()));
         }
+        String logProjectId = "", logOrgId = "";
         if (StringUtils.equals(inviteSource, EmailInviteSource.SYSTEM.name())) {
+            logProjectId = OperationLogConstants.SYSTEM;
+            logOrgId = OperationLogConstants.SYSTEM;
             //校验角色的合法性
             globalUserRoleService.checkRoleIsGlobalAndHaveMember(request.getUserRoleIds(), true);
             request.setOrganizationId(EmailInviteSource.SYSTEM.name());
             request.setProjectId(EmailInviteSource.SYSTEM.name());
         } else if (StringUtils.equals(inviteSource, EmailInviteSource.ORGANIZATION.name())) {
+            logProjectId = OperationLogConstants.ORGANIZATION;
+            logOrgId = request.getOrganizationId();
+
             OrganizationService organizationService = CommonBeanFactory.getBean(OrganizationService.class);
             organizationService.checkOrgExistById(request.getOrganizationId());
             organizationService.checkUseRoleExist(request.getUserRoleIds(), request.getOrganizationId());
@@ -452,12 +459,15 @@ public class SimpleUserService {
                 throw new MSException(Translator.get("project_not_exist"));
             }
             request.setOrganizationId(project.getOrganizationId());
+
+            logProjectId = project.getId();
+            logOrgId = project.getOrganizationId();
         }
 
         List<UserInvite> inviteList = userInviteService.batchInsert(
                 request.getInviteEmails(), inviteUser.getId(), request.getUserRoleIds(), request.getOrganizationId(), request.getProjectId());
         //记录日志
-        userLogService.addEmailInviteLog(inviteList, inviteUser.getId());
+        userLogService.addEmailInviteLog(inviteList, logProjectId, logOrgId, inviteUser.getId());
         this.sendInviteEmail(inviteList, inviteUser.getName());
         return new UserInviteResponse(inviteList);
     }

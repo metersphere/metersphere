@@ -20,6 +20,7 @@ public class BaseScheduleConfigRequest {
 
     @Schema(description = "Cron表达式")
     @NotBlank
+    @Size(max = 255, message = "{length.too.large}")
     private String cron;
 
     @Schema(description = "运行配置")
