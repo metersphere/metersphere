@@ -65,6 +65,7 @@ export default {
   'project.menu.demandType': 'Requirement Type',
   'project.menu.howGetJiraKey': 'How to Get JIRA Project Key',
   'project.menu.preview': 'Preview',
+  'project.menu.show': 'Show',
   'project.menu.pleaseInputJiraKey': 'Please enter JIRA project key',
   'project.menu.addFalseAlertRules': 'Add False Alert Rule',
   'project.menu.updateFalseAlertRules': 'Update False Alert Rule',

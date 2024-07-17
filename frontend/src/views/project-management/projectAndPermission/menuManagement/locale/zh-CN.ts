@@ -60,6 +60,7 @@ export default {
   'project.menu.demandType': '需求类型',
   'project.menu.howGetJiraKey': '如何获取JIRA 项目 key ',
   'project.menu.preview': '预览',
+  'project.menu.show': '查看',
   'project.menu.pleaseInputJiraKey': '请输入 JIRA 项目 key',
   'project.menu.addFalseAlertRules': '新增误报规则',
   'project.menu.updateFalseAlertRules': '更新误报规则',

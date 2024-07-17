@@ -8,17 +8,8 @@
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
     <span class="mt-2 text-[var(--color-text-4)]">{{ attrs.subDesc }}</span>
-    <a-popover position="rt">
-      <template #title>
-        {{ null }}
-      </template>
-      <template #content>
-        <div class="max-w-[300px]">
-          <img class="w-full" :src="previewIcon" />
-        </div>
-      </template>
-      <span class="mt-2 cursor-pointer text-[rgb(var(--primary-5))]">{{ t('project.menu.preview') }}</span>
-    </a-popover>
+    <a v-if="previewIcon" class="show-sub" @click="showPreviewImg">{{ t('project.menu.show') }}</a>
+    <a-image-preview v-model:visible="imgVisible" :default-scale="0.75" :src="previewIcon" />
   </div>
 </template>
 
@@ -33,6 +24,7 @@
 
   const attrs = useAttrs();
   const { formCreateInject } = attrs;
+  const imgVisible = ref(false);
 
   const props = defineProps<{
     instructionsIcon: string;
@@ -71,6 +63,9 @@
       }
     }
   };
+  const showPreviewImg = () => {
+    imgVisible.value = true;
+  };
   watchEffect(() => {
     if (props.value) {
       inputValue.value = props.value;
@@ -78,4 +73,11 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped>
+  .show-sub {
+    font-size: 12px;
+    padding-top: 0.6rem;
+    color: rgb(var(--primary-5)) !important;
+    cursor: pointer;
+  }
+</style>
