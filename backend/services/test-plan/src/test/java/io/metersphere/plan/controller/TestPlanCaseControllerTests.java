@@ -409,6 +409,13 @@ public class TestPlanCaseControllerTests extends BaseTest {
         associateDTO.setSelectAllModule(true);
         associateDTO.setAssociateType(AssociateCaseType.FUNCTIONAL);
         associateDTO.setProjectId("123");
+
+        Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
+        ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();
+        moduleSelectDTO.setSelectAll(true);
+        moduleSelectDTO.setSelectIds(new ArrayList<>());
+        moduleMap.put("100001", moduleSelectDTO);
+        associateDTO.setModuleMaps(moduleMap);
         return associateDTO;
     }
 
