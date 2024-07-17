@@ -192,8 +192,6 @@ export default defineComponent(
             return null;
           })
           .filter((e) => e) as SelectOptionData[];
-
-        console.log('filterOptions.value', filterOptions.value);
         if (props.shouldCalculateMaxTag !== false && props.multiple) {
           calculateMaxTag();
         }
