@@ -115,12 +115,13 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
                 .flatMap(moduleSelectDTO -> moduleSelectDTO.getExcludeIds().stream())
                 .toList();
         // 选中的ids
-        List<String> selectIds = moduleMaps.values().stream()
-                .flatMap(moduleSelectDTO -> moduleSelectDTO.getSelectIds().stream())
+        List<String> selectIds = moduleMaps.entrySet().stream()
+                .filter(entry -> BooleanUtils.isFalse(entry.getValue().isSelectAll()) && CollectionUtils.isNotEmpty(entry.getValue().getSelectIds()))
+                .map(Map.Entry::getKey)
                 .toList();
         // 全选的模块
         List<String> moduleIds = moduleMaps.entrySet().stream()
-                .filter(entry -> BooleanUtils.isTrue(entry.getValue().isSelectAll()) && CollectionUtils.isEmpty(entry.getValue().getSelectIds()))
+                .filter(entry -> BooleanUtils.isTrue(entry.getValue().isSelectAll()))
                 .map(Map.Entry::getKey)
                 .toList();
 
