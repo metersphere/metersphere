@@ -282,7 +282,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { downloadByteFile, getGenerateId, sleep } from '@/utils';
+  import { characterLimit, downloadByteFile, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
@@ -527,7 +527,7 @@
     } else {
       openModal({
         type: 'error',
-        title: t('caseManagement.featureCase.deleteFile', { name: item?.name }),
+        title: t('caseManagement.featureCase.deleteFile', { name: characterLimit(item?.name) }),
         content: t('caseManagement.featureCase.deleteFileTip'),
         okText: t('common.confirmDelete'),
         cancelText: t('common.cancel'),
