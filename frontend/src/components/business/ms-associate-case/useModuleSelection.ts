@@ -142,8 +142,6 @@ export default function useModuleSelections<T>(
   // 更新选择数据
   function updateSelectModule(moduleId: string, id: string) {
     const selectedProps = innerSelectedModulesMaps[moduleId];
-    console.log(222);
-
     if (selectedProps) {
       const selectedSet = selectedProps.selectIds;
       const excludedSet = selectedProps.excludeIds;
