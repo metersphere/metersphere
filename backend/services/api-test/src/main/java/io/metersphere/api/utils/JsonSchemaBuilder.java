@@ -32,8 +32,6 @@ public class JsonSchemaBuilder {
     }
 
     private static JsonNode generateJson(JsonNode jsonSchemaNode, Map<String, String> processMap, boolean isPreview) {
-        ObjectNode jsonNode = ApiDataUtils.createObjectNode();
-
         if (jsonSchemaNode instanceof NullNode) {
             return NullNode.getInstance();
         }
@@ -42,6 +40,7 @@ public class JsonSchemaBuilder {
             JsonNode propertiesNode = jsonSchemaNode.get(PropertyConstant.PROPERTIES);
             // 遍历 properties
             if (propertiesNode != null) {
+                ObjectNode jsonNode = ApiDataUtils.createObjectNode();
                 propertiesNode.fields().forEachRemaining(entry -> {
                     String propertyName = entry.getKey();
                     JsonNode propertyNode = entry.getValue();
@@ -51,20 +50,38 @@ public class JsonSchemaBuilder {
                     // 将属性和值添加到 JSON 对象节点
                     jsonNode.set(propertyName, valueNode);
                 });
+                return jsonNode;
             }
         } else if (StringUtils.equals(type, PropertyConstant.ARRAY)) {
             JsonNode items = jsonSchemaNode.get(PropertyConstant.ITEMS);
+            JsonNode maxItems = jsonSchemaNode.get(PropertyConstant.MAX_ITEMS);
+            JsonNode minItems = jsonSchemaNode.get(PropertyConstant.MIN_ITEMS);
             if (items != null) {
                 ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-                items.forEach(item -> {
-                    JsonNode valueNode = isPreview ? generateValueForPreview(null, item, processMap)
-                            : generateValue(null, item, processMap);
-                    arrayNode.add(valueNode);
-                });
+                if (isPreview) {
+                    items.forEach(item -> arrayNode.add(generateValueForPreview(null, item, processMap)));
+                } else {
+                    int max = isTextNotBlank(maxItems) ? maxItems.asInt() : Integer.MAX_VALUE;
+                    int min = isTextNotBlank(minItems) ? minItems.asInt() : 0;
+                    // 自动生成数据，根据 minItems 和 maxItems 生成
+                    int itemSize = Math.min(items.size(), max);
+                    for (int i = 0; i < itemSize; i++) {
+                        JsonNode itemNode = items.get(i);
+                        JsonNode valueNode = generateValue(null, itemNode, processMap);
+                        arrayNode.add(valueNode);
+                    }
+                    if (min > itemSize) {
+                        for (int i = itemSize; i < min; i++) {
+                            // 如果不足最小个数，则默认补充字符类型的数组项
+                            TextNode itemNode = new TextNode(generateStr(8));
+                            arrayNode.add(itemNode);
+                        }
+                    }
+                }
                 return arrayNode;
             }
         }
-        return jsonNode;
+        return null;
     }
 
     private static JsonNode generateValueForPreview(String propertyName, JsonNode propertyNode, Map<String, String> processMap) {
@@ -75,8 +92,7 @@ public class JsonSchemaBuilder {
         String type = getPropertyTextValue(propertyNode, PropertyConstant.TYPE);
         String value = getPropertyTextValue(propertyNode, PropertyConstant.EXAMPLE);
         return switch (type) {
-            case PropertyConstant.STRING ->
-                    new TextNode(StringUtils.isBlank(value) ? "string" : value);
+            case PropertyConstant.STRING -> new TextNode(StringUtils.isBlank(value) ? "string" : value);
             case PropertyConstant.INTEGER -> {
                 if (isVariable(value)) {
                     yield getJsonNodes(propertyName, processMap, value);
@@ -103,14 +119,7 @@ public class JsonSchemaBuilder {
                 }
             }
             case PropertyConstant.OBJECT -> generateJson(propertyNode, processMap, true);
-            case PropertyConstant.ARRAY -> {
-                ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-                JsonNode items = propertyNode.get(PropertyConstant.ITEMS);
-                if (items != null) {
-                    items.forEach(item -> arrayNode.add(generateValueForPreview(null, item, processMap)));
-                }
-                yield arrayNode;
-            }
+            case PropertyConstant.ARRAY -> generateJson(propertyNode, processMap, true);
             default -> NullNode.getInstance();
         };
 
@@ -135,13 +144,22 @@ public class JsonSchemaBuilder {
                     int min = isTextNotBlank(minLength) ? minLength.asInt() : 1;
                     if (enumValues != null && enumValues instanceof ArrayNode) {
                         value = enumValues.get(new Random().nextInt(enumValues.size())).asText();
-                    } else if (isTextNotBlank(defaultValue)) {
-                        value = defaultValue.asText();
+                        if (value.length() > max) {
+                            value = value.substring(0, max);
+                        }
                     } else if (isTextNotBlank(pattern)) {
                         Xeger generator = new Xeger(pattern.asText());
                         value = generator.generate();
+                    } else if (isTextNotBlank(defaultValue)) {
+                        value = defaultValue.asText();
+                        if (value.length() > max) {
+                            value = value.substring(0, max);
+                        }
+                        if (value.length() < min) {
+                            value = value + generateStr(min - value.length());
+                        }
                     } else {
-                        value = RandomStringGenerator.builder().withinRange('0', 'z').build().generate(new Random().nextInt(max - min + 1) + min);
+                        value = generateStr(new Random().nextInt(max - min + 1) + min);
                     }
                 }
                 yield new TextNode(value);
@@ -207,18 +225,15 @@ public class JsonSchemaBuilder {
                     yield BooleanNode.valueOf(propertyNode.get(PropertyConstant.EXAMPLE).asBoolean());
                 }
             }
-            case PropertyConstant.OBJECT -> generateJson(propertyNode, processMap, true);
-            case PropertyConstant.ARRAY -> {
-                ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-                JsonNode items = propertyNode.get(PropertyConstant.ITEMS);
-                if (items != null) {
-                    items.forEach(item -> arrayNode.add(generateValue(null, item, processMap)));
-                }
-                yield arrayNode;
-            }
+            case PropertyConstant.OBJECT -> generateJson(propertyNode, processMap, false);
+            case PropertyConstant.ARRAY -> generateJson(propertyNode, processMap, false);
             default -> NullNode.getInstance();
         };
 
+    }
+
+    private static String generateStr(int length) {
+        return RandomStringGenerator.builder().withinRange('0', 'z').build().generate(length);
     }
 
     private static boolean isTextNotBlank(JsonNode jsonNode) {
