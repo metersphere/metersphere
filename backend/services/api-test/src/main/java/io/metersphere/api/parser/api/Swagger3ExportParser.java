@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -57,7 +58,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
             } else {
                 moduleName = moduleMap.get(apiDefinition.getModuleId());
             }
-            swaggerApiInfo.setTags(Arrays.asList(moduleName));
+            swaggerApiInfo.setTags(Collections.singletonList(moduleName));
             //请求体
             JSONObject requestObject = JSONUtil.parseObject(new String(apiDefinition.getRequest() == null ? new byte[0] : apiDefinition.getRequest(), StandardCharsets.UTF_8));
             JSONObject requestBody = buildRequestBody(requestObject, schemas);
@@ -89,7 +90,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         }
         response.setPaths(JSONUtil.parseObjectNode(paths.toString()));
         if (CollectionUtils.isNotEmpty(schemas)) {
-            components.put("schemas", schemas.get(0));
+            components.put("schemas", schemas.getFirst());
         }
         response.setComponents(JSONUtil.parseObjectNode(components.toString()));
 
@@ -130,7 +131,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
     }
 
     private JSONObject buildResponseBody(JSONArray response, List<JSONObject> schemas) {
-        if (response.length() == 0) {
+        if (response.isEmpty()) {
             return new JSONObject();
         }
         JSONObject responseBody = new JSONObject();
@@ -234,12 +235,12 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.WWW_FORM.name())) {
                 String wwwFormBody = body.optString("wwwFormBody");
                 JSONObject wwwFormObject = JSONUtil.parseObject(wwwFormBody);
-                JSONObject formData = getformDataProperties(wwwFormObject.optJSONArray("formValues"));
+                JSONObject formData = getFormDataProperties(wwwFormObject.optJSONArray("formValues"));
                 bodyInfo = buildFormDataSchema(formData);
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.FORM_DATA.name())) {
                 String formDataBody = body.optString("formDataBody");
                 JSONObject formDataObject = JSONUtil.parseObject(formDataBody);
-                JSONObject formData = getformDataProperties(formDataObject.optJSONArray("formValues"));
+                JSONObject formData = getFormDataProperties(formDataObject.optJSONArray("formValues"));
                 bodyInfo = buildFormDataSchema(formData);
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.BINARY.name())) {
                 bodyInfo = buildBinary();
@@ -290,7 +291,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.ARRAY);
                 if (items != null) {
                     JSONObject itemsObject = new JSONObject();
-                    if (items.length() > 0) {
+                    if (!items.isEmpty()) {
                         items.forEach(item -> {
                             if (item instanceof JSONObject) {
                                 JSONObject itemJson = buildJsonSchema((JSONObject) item);
@@ -335,11 +336,10 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
      * @return
      */
     private JSONObject buildJson(String jsonValue) {
-        JSONObject jsonObject = JSONUtil.parseObject(jsonValue);
-        return jsonObject;
+        return JSONUtil.parseObject(jsonValue);
     }
 
-    private JSONObject getformDataProperties(JSONArray requestBody) {
+    private JSONObject getFormDataProperties(JSONArray requestBody) {
         JSONObject result = new JSONObject();
         for (Object item : requestBody) {
             if (item instanceof JSONObject) {
@@ -358,76 +358,83 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         for (String key : requestBody.keySet()) {
             Object param = requestBody.get(key);
             JSONObject parsedParam = new JSONObject();
-            if (param instanceof String) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.STRING);
-                parsedParam.put("example", param == null ? StringUtils.EMPTY : param);
-            } else if (param instanceof Integer) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.INTEGER);
-                parsedParam.put("format", "int64");
-                parsedParam.put("example", param);
-            } else if (param instanceof JSONObject) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
-                Object attribute = ((JSONObject) param).opt("attribute");
-                //build properties
-                JSONObject paramObject = buildRequestBodyXmlSchema((JSONObject) param);
-                if (attribute != null && attribute instanceof JSONArray) {
-                    JSONObject jsonObject = buildXmlProperties(((JSONArray) attribute).getJSONObject(0));
-                    paramObject.remove("attribute");
-                    for (String paramKey : paramObject.keySet()) {
-                        Object paramChild = paramObject.get(paramKey);
-                        if (paramChild instanceof String) {
-                            JSONObject one = new JSONObject();
-                            one.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
-                            one.put("properties", jsonObject);
-                            paramObject.remove("example");
-                            paramObject.remove(paramKey);
-                            paramObject.put(paramKey, one);
-                        }
-                        if (paramChild instanceof JSONObject) {
-                            Object properties = ((JSONObject) paramChild).opt("properties");
-                            if (properties != null) {
-                                for (String aa : jsonObject.keySet()) {
-                                    Object value = jsonObject.get(aa);
-                                    if (((JSONObject) properties).opt(aa) == null) {
-                                        ((JSONObject) properties).put(aa, value);
-                                    }
-                                }
-                            } else {
-                                ((JSONObject) paramChild).put("properties", jsonObject);
+            switch (param) {
+                case String ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.STRING);
+                    parsedParam.put("example", ObjectUtils.defaultIfNull(param, StringUtils.EMPTY));
+                }
+                case Integer ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.INTEGER);
+                    parsedParam.put("format", "int64");
+                    parsedParam.put("example", param);
+                }
+                case JSONObject object -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
+                    Object attribute = object.opt("attribute");
+                    //build properties
+                    JSONObject paramObject = buildRequestBodyXmlSchema(object);
+                    if (attribute != null && attribute instanceof JSONArray) {
+                        JSONObject jsonObject = buildXmlProperties(((JSONArray) attribute).getJSONObject(0));
+                        paramObject.remove("attribute");
+                        for (String paramKey : paramObject.keySet()) {
+                            Object paramChild = paramObject.get(paramKey);
+                            if (paramChild instanceof String) {
+                                JSONObject one = new JSONObject();
+                                one.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
+                                one.put("properties", jsonObject);
+                                paramObject.remove("example");
+                                paramObject.remove(paramKey);
+                                paramObject.put(paramKey, one);
                             }
-                            if (((JSONObject) paramChild).opt("type") == "string") {
-                                ((JSONObject) paramChild).put("type", "object");
-                                ((JSONObject) paramChild).remove("example");
+                            if (paramChild instanceof JSONObject) {
+                                Object properties = ((JSONObject) paramChild).opt("properties");
+                                if (properties != null) {
+                                    for (String aa : jsonObject.keySet()) {
+                                        Object value = jsonObject.get(aa);
+                                        if (((JSONObject) properties).opt(aa) == null) {
+                                            ((JSONObject) properties).put(aa, value);
+                                        }
+                                    }
+                                } else {
+                                    ((JSONObject) paramChild).put("properties", jsonObject);
+                                }
+                                if (((JSONObject) paramChild).opt("type") == "string") {
+                                    ((JSONObject) paramChild).put("type", "object");
+                                    ((JSONObject) paramChild).remove("example");
+                                }
                             }
                         }
                     }
+                    parsedParam.put("properties", paramObject);
+                    if (StringUtils.isNotBlank(requestBody.optString("description"))) {
+                        parsedParam.put("description", requestBody.optString("description"));
+                    }
                 }
-                parsedParam.put("properties", paramObject);
-                if (StringUtils.isNotBlank(requestBody.optString("description"))) {
-                    parsedParam.put("description", requestBody.optString("description"));
+                case Boolean ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.BOOLEAN);
+                    parsedParam.put("example", param);
                 }
-            } else if (param instanceof Boolean) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.BOOLEAN);
-                parsedParam.put("example", param);
-            } else if (param instanceof java.math.BigDecimal) {  //  double 类型会被 fastJson 转换为 BigDecimal
-                parsedParam.put(PropertyConstant.TYPE, "double");
-                parsedParam.put("example", param);
-            } else {    //  JSONOArray
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
+                case java.math.BigDecimal ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, "double");
+                    parsedParam.put("example", param);   //  double 类型会被 fastJson 转换为 BigDecimal
+                }
+                case null, default -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
 
-                if (param == null) {
-                    param = new JSONArray();
+                    if (param == null) {
+                        param = new JSONArray();
+                    }
+                    JSONObject jsonObjects = new JSONObject();
+                    if (!((JSONArray) param).isEmpty()) {
+                        ((JSONArray) param).forEach(t -> {
+                            JSONObject item = buildRequestBodyXmlSchema((JSONObject) t);
+                            for (String s : item.keySet()) {
+                                jsonObjects.put(s, item.get(s));
+                            }
+                        });
+                    }
+                    parsedParam.put(PropertyConstant.PROPERTIES, jsonObjects);     //  JSONOArray
                 }
-                JSONObject jsonObjects = new JSONObject();
-                if (((JSONArray) param).length() > 0) {
-                    ((JSONArray) param).forEach(t -> {
-                        JSONObject item = buildRequestBodyXmlSchema((JSONObject) t);
-                        for (String s : item.keySet()) {
-                            jsonObjects.put(s, item.get(s));
-                        }
-                    });
-                }
-                parsedParam.put(PropertyConstant.PROPERTIES, jsonObjects);
             }
             schema.put(key, parsedParam);
         }
@@ -442,10 +449,9 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
             Object param = kvs.opt(key);
             if (param instanceof String) {
                 property.put(PropertyConstant.TYPE, PropertyConstant.STRING);
-                property.put("example", param == null ? StringUtils.EMPTY : param);
+                property.put("example", ObjectUtils.defaultIfNull(param, StringUtils.EMPTY));
             }
-            if (param instanceof JSONObject) {
-                JSONObject obj = ((JSONObject) param);
+            if (param instanceof JSONObject obj) {
                 property.put(PropertyConstant.TYPE, StringUtils.isNotEmpty(obj.optString(PropertyConstant.TYPE)) ? obj.optString(PropertyConstant.TYPE) : PropertyConstant.STRING);
                 String value = obj.optString("value");
                 if (StringUtils.isBlank(value)) {
@@ -489,33 +495,38 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         for (String key : requestBody.keySet()) {
             Object param = requestBody.get(key);
             JSONObject parsedParam = new JSONObject();
-            if (param instanceof String) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.STRING);
-                parsedParam.put("example", param == null ? StringUtils.EMPTY : param);
-            } else if (param instanceof Integer) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.INTEGER);
-                parsedParam.put("format", "int64");
-                parsedParam.put("example", param);
-            } else if (param instanceof JSONObject) {
-                parsedParam = buildRequestBodyJsonInfo((JSONObject) param);
-            } else if (param instanceof Boolean) {
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.BOOLEAN);
-                parsedParam.put("example", param);
-            } else if (param instanceof java.math.BigDecimal) {  //  double 类型会被 fastJson 转换为 BigDecimal
-                parsedParam.put(PropertyConstant.TYPE, "double");
-                parsedParam.put("example", param);
-            } else {    //  JSONOArray
-                parsedParam.put(PropertyConstant.TYPE, PropertyConstant.ARRAY);
-                JSONObject item = new JSONObject();
-                if (param == null) {
-                    param = new JSONArray();
+            switch (param) {
+                case String ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.STRING);
+                    parsedParam.put("example", ObjectUtils.defaultIfNull(param, StringUtils.EMPTY));
                 }
-                if (((JSONArray) param).length() > 0) {
-                    if (((JSONArray) param).get(0) instanceof JSONObject) {  ///
-                        item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) param).get(0));
+                case Integer ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.INTEGER);
+                    parsedParam.put("format", "int64");
+                    parsedParam.put("example", param);
+                }
+                case JSONObject jsonObject -> parsedParam = buildRequestBodyJsonInfo(jsonObject);
+                case Boolean ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.BOOLEAN);
+                    parsedParam.put("example", param);
+                }
+                case java.math.BigDecimal ignored -> {
+                    parsedParam.put(PropertyConstant.TYPE, "double");
+                    parsedParam.put("example", param);   //  double 类型会被 fastJson 转换为 BigDecimal
+                }
+                case null, default -> {
+                    parsedParam.put(PropertyConstant.TYPE, PropertyConstant.ARRAY);
+                    JSONObject item = new JSONObject();
+                    if (param == null) {
+                        param = new JSONArray();
                     }
+                    if (!((JSONArray) param).isEmpty()) {
+                        if (((JSONArray) param).get(0) instanceof JSONObject) {  ///
+                            item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) param).get(0));
+                        }
+                    }
+                    parsedParam.put(PropertyConstant.ITEMS, item);     //  JSONOArray
                 }
-                parsedParam.put(PropertyConstant.ITEMS, item);
             }
             schema.put(key, parsedParam);
         }
@@ -579,8 +590,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         JSONObject mock = item.optJSONObject(PropertyConstant.MOCK);
         if (mock != null) {
             if (StringUtils.isNotBlank(mock.optString("mock"))) {
-                Object value = mock.get(PropertyConstant.MOCK);
-                return value;
+                return mock.get(PropertyConstant.MOCK);
             }
         }
         return null;
