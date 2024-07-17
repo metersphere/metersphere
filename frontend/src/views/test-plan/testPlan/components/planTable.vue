@@ -351,7 +351,9 @@
     <template #title>
       <div class="flex items-center">
         <div>{{ t('testPlan.featureCase.executionHistory') }}</div>
-        <div class="text-[var(--color-text-4)]"> （{{ activeRecord?.name }}） </div>
+        <a-tooltip :content="activeRecord?.name" :mouse-enter-delay="300">
+          <div class="text-[var(--color-text-4)]"> （{{ characterLimit(activeRecord?.name) }}） </div>
+        </a-tooltip>
       </div>
     </template>
     <executeHistoryTable v-if="executionHistoryDrawerVisible" :plan-id="activeRecord?.id" is-group />

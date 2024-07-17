@@ -99,7 +99,7 @@
                 <div class="text-[var(--color-text-2)]">
                   {{
                     t('ms.minders.selectedCases', {
-                      count: selectedAssociateCasesParams.totalCount,
+                      count: selectedAssociateCasesParams.totalCount || 0,
                     })
                   }}
                 </div>
