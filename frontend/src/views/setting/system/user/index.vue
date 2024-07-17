@@ -362,6 +362,7 @@
       title: 'system.user.tableColumnPhone',
       dataIndex: 'phone',
       showDrag: true,
+      showTooltip: true,
       width: 140,
     },
     {
