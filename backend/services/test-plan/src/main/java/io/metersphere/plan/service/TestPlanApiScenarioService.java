@@ -57,10 +57,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -206,8 +203,30 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                     buildTestPlanApiScenarioDTO(apiScenario, scenarioList, testPlan, user, testPlanApiScenarioList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
-                    List<ApiScenario> scenarioList = extApiScenarioMapper.selectCaseByModules(isRepeat, apiScenario.getModules().getProjectId(), dto, testPlan.getId());
-                    buildTestPlanApiScenarioDTO(apiScenario, scenarioList, testPlan, user, testPlanApiScenarioList);
+                    List<ApiScenario> scenarioList = new ArrayList<>();
+                    //获取全选的模块数据
+                    if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
+                        scenarioList = extApiScenarioMapper.getListBySelectModules(apiScenario.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                    }
+
+                    if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
+                        CollectionUtils.removeAll(dto.getSelectIds(), scenarioList.stream().map(ApiScenario::getId).toList());
+                        //获取选中的ids数据
+                        List<ApiScenario> selectIdList = extApiScenarioMapper.getListBySelectIds(apiScenario.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId());
+                        scenarioList.addAll(selectIdList);
+                    }
+
+                    if (CollectionUtils.isNotEmpty(dto.getExcludeIds())) {
+                        //排除的ids
+                        List<String> excludeIds = dto.getExcludeIds();
+                        scenarioList = scenarioList.stream().filter(item -> !excludeIds.contains(item.getId())).toList();
+                    }
+
+                    if (CollectionUtils.isNotEmpty(scenarioList)) {
+                        List<ApiScenario> list = scenarioList.stream().sorted(Comparator.comparing(ApiScenario::getPos).reversed()).toList();
+                        buildTestPlanApiScenarioDTO(apiScenario, list, testPlan, user, testPlanApiScenarioList);
+                    }
+
                 }
             });
         }

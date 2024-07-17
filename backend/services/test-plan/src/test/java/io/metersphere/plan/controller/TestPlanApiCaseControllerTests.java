@@ -280,7 +280,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         collectionAssociates1.put(AssociateCaseType.API_CASE, baseCollectionAssociateRequests1);
         testPlanApiCaseService.associateCollection("wxxx_1", collectionAssociates1, user);
 
-        baseCollectionAssociateRequest1.setModules(buildModules(AssociateCaseType.API));
+        baseCollectionAssociateRequest1.setModules(buildModules(AssociateCaseType.API_CASE));
         testPlanApiCaseService.associateCollection("wxxx_1", collectionAssociates1, user);
 
         apiTestCase = initApiData();
