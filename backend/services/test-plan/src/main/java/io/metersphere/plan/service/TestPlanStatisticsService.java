@@ -7,6 +7,7 @@ import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.constants.ScheduleResourceType;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
@@ -131,11 +132,15 @@ public class TestPlanStatisticsService {
 
 		groupTestPlanMap.forEach((rootPlan, children) -> {
 			TestPlanStatisticsResponse rootResponse = this.genTestPlanStatisticsResponse(rootPlan, planConfigMap, planFunctionalCaseMap, planApiCaseMap, planApiScenarioMap, scheduleMap);
+			rootResponse.setStatus(rootPlan.getStatus());
+
 			List<TestPlanStatisticsResponse> childrenResponse = new ArrayList<>();
 			if (!CollectionUtils.isEmpty(children)) {
 				List<String> childStatus = new ArrayList<>();
 				children.forEach(child -> {
 					TestPlanStatisticsResponse childResponse = this.genTestPlanStatisticsResponse(child, planConfigMap, planFunctionalCaseMap, planApiCaseMap, planApiScenarioMap, scheduleMap);
+					childResponse.setStatus(child.getStatus());
+					
 					childResponse.calculateStatus();
 					childStatus.add(childResponse.getStatus());
 					//添加到rootResponse中
@@ -145,7 +150,9 @@ public class TestPlanStatisticsService {
 				rootResponse.calculateCaseTotal();
 				rootResponse.calculatePassRate();
 				rootResponse.calculateExecuteRate();
-				rootResponse.setStatus(testPlanBaseUtilsService.calculateStatusByChildren(childStatus));
+				if (!StringUtils.equalsIgnoreCase(rootResponse.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+					rootResponse.setStatus(testPlanBaseUtilsService.calculateStatusByChildren(childStatus));
+				}
 			} else {
 				rootResponse.calculateCaseTotal();
 				rootResponse.calculatePassRate();

@@ -8,6 +8,7 @@ import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 测试计划统计详情
@@ -66,17 +67,20 @@ public class TestPlanStatisticsResponse {
 
 	/**
 	 * 计算测试计划状态
+	 * 非未归档的开始计算：
 	 * 未开始：执行进度0%
 	 * 进行中：执行进度不到100%
 	 * 已完成：执行进度100%
 	 */
 	public void calculateStatus() {
-		if (this.successCount == 0 && errorCount == 0 && fakeErrorCount == 0 && blockCount == 0) {
-			this.status = TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED;
-		} else if (this.pendingCount == 0) {
-			this.status = TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED;
-		} else {
-			this.status = TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY;
+		if (!StringUtils.equalsIgnoreCase(this.status, TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+			if (this.successCount == 0 && errorCount == 0 && fakeErrorCount == 0 && blockCount == 0) {
+				this.status = TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED;
+			} else if (this.pendingCount == 0) {
+				this.status = TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED;
+			} else {
+				this.status = TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY;
+			}
 		}
 	}
 
