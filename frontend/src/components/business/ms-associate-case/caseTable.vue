@@ -7,6 +7,7 @@
       baseAction: [],
       moreAction: [],
     }"
+    always-show-selected-count
     v-on="propsEvent"
     @filter-change="getModuleCount"
     @row-select-change="rowSelectChange"
@@ -317,15 +318,34 @@
     return [...propsRes.value.selectedKeys];
   });
 
-  const { rowSelectChange, selectAllChange, clearSelector, setModuleInfo } = useModuleSelection(
+  const tableSelectedProps = ref({
+    modulesTree: props.moduleTree,
+    moduleCount: props.modulesCount,
+  });
+  const { rowSelectChange, selectAllChange, clearSelector } = useModuleSelection(
     innerSelectedModulesMaps.value,
-    propsRes.value
+    propsRes.value,
+    tableSelectedProps.value
   );
 
   watch(
-    [() => props.moduleTree, () => props.modulesCount],
+    () => props.moduleTree,
     (val) => {
-      setModuleInfo(val);
+      if (val) {
+        tableSelectedProps.value.modulesTree = val;
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => props.modulesCount,
+    (val) => {
+      if (val) {
+        tableSelectedProps.value.moduleCount = val;
+      }
     },
     {
       immediate: true,

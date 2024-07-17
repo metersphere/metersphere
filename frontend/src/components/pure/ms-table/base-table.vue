@@ -244,7 +244,7 @@
       </template>
     </a-table>
     <div
-      v-if="showBatchAction || !!attrs.showPagination"
+      v-if="showBatchAction || !!attrs.showPagination || alwaysShowSelectedCount"
       id="ms-table-footer-wrapper"
       class="mt-[16px] flex w-full flex-row flex-nowrap items-center overflow-hidden"
       :class="{ 'justify-between': showBatchAction }"
@@ -259,7 +259,7 @@
       </span>
       <div class="flex flex-grow items-center">
         <batch-action
-          v-if="showBatchAction"
+          v-if="showBatchAction || alwaysShowSelectedCount"
           class="flex-1"
           :select-row-count="selectedCount"
           :action-config="props.actionConfig"
@@ -360,6 +360,7 @@
     showSelectorAll?: boolean;
     firstColumnWidth?: number; // 选择、拖拽列的宽度
     paginationSize?: 'small' | 'mini' | 'medium' | 'large';
+    alwaysShowSelectedCount?: boolean; // 是否总是保持显示已选项
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;

@@ -83,14 +83,14 @@ export default function useTreeSelection(selectedModuleProps: SelectedModuleProp
     return Object.keys(selectedModulesMaps.value).reduce((total, key) => {
       const module = selectedModulesMaps.value[key];
       if (key !== 'all') {
-        // 未全选存在排除则要 count总-排除掉的 = 已选
-        if (module.excludeIds.size && !module.selectAll) {
-          total += module.count - module.excludeIds.size;
-          // 已全选未排除则要+count
-        } else if (module.selectAll && !module.excludeIds.size) {
+        // 全选
+        if (module.selectAll && !module.excludeIds.size && !module.selectIds.size) {
           total += module.count;
-          // 未全选则 + 选择的id集合
-        } else if (!module.selectAll && module.selectIds.size) {
+          // 具有排除项则半选
+        } else if (module.selectAll && module.excludeIds.size) {
+          total += module.count - module.excludeIds.size;
+          // 初始化上来选择右侧列表计算selectIds.size为和
+        } else if (!module.selectAll) {
           total += module.selectIds.size;
         }
       }
@@ -114,8 +114,8 @@ export default function useTreeSelection(selectedModuleProps: SelectedModuleProp
       Object.entries(val).forEach(([moduleId, selectedProps]) => {
         const { selectAll: selectIdsAll, selectIds, count, excludeIds } = selectedProps;
         if (selectedProps) {
-          // 全选和取消全选
-          if (selectIdsAll) {
+          // 全选状态则其他参数的size都为0
+          if (selectIdsAll && !selectIds.size && !excludeIds.size) {
             checkedKeysSet.add(moduleId);
           } else {
             checkedKeysSet.delete(moduleId);
