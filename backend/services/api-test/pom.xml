@@ -94,12 +94,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- 根据正则表达式，生成随机字符串 -->
-        <dependency>
-            <groupId>com.github.krraghavan</groupId>
-            <artifactId>xeger</artifactId>
-            <version>${xeger.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
