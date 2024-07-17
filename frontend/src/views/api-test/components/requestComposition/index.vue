@@ -246,6 +246,7 @@
               :file-save-as-source-id="props.fileSaveAsSourceId"
               :file-save-as-api="props.fileSaveAsApi"
               :file-module-options-api="props.fileModuleOptionsApi"
+              :is-debug="requestVModel.mode === 'debug'"
               @change="handleActiveDebugChange"
             />
             <httpQuery

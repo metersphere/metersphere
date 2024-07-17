@@ -201,4 +201,5 @@ export default {
   'apiTestDebug.quickAdditions': '快捷添加',
   'apiTestDebug.first': '首次',
   'apiTestDebug.retry': '重试',
+  'apiTestDebug.autoMakeJsonTip': '根据Schema高级设置中的规则生成 Json 数据',
 };

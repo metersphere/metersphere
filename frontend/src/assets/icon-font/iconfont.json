@@ -6,6 +6,62 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "41093192",
+      "name": "icon_alarm_outlined",
+      "font_class": "icon_alarm_outlined",
+      "unicode": "e7f3",
+      "unicode_decimal": 59379
+    },
+    {
+      "icon_id": "40821975",
+      "name": "icon_save_outlined",
+      "font_class": "icon_save_outlined",
+      "unicode": "e6bc",
+      "unicode_decimal": 59068
+    },
+    {
+      "icon_id": "40822009",
+      "name": "icon_play-round_outlined",
+      "font_class": "icon_play-round_outlined",
+      "unicode": "e6d2",
+      "unicode_decimal": 59090
+    },
+    {
+      "icon_id": "40895391",
+      "name": "icon_disabled_outlined 1",
+      "font_class": "a-icon_disabled_outlined1",
+      "unicode": "e6ed",
+      "unicode_decimal": 59117
+    },
+    {
+      "icon_id": "40920970",
+      "name": "icon_inbox_filled",
+      "font_class": "icon_inbox_filled",
+      "unicode": "e7f1",
+      "unicode_decimal": 59377
+    },
+    {
+      "icon_id": "40967349",
+      "name": "icon_preferences_outlined",
+      "font_class": "icon_preferences_outlined",
+      "unicode": "e7f2",
+      "unicode_decimal": 59378
+    },
+    {
+      "icon_id": "40966853",
+      "name": "icon_tab",
+      "font_class": "icon_tab",
+      "unicode": "e6f3",
+      "unicode_decimal": 59123
+    },
+    {
+      "icon_id": "40966514",
+      "name": "icon_press",
+      "font_class": "icon_press",
+      "unicode": "e6f0",
+      "unicode_decimal": 59120
+    },
+    {
       "icon_id": "40886382",
       "name": "icon_right_branch",
       "font_class": "icon_right_branch",
@@ -351,14 +407,14 @@
     {
       "icon_id": "40628129",
       "name": "icon_title-top-align_outlined",
-      "font_class": "icon_title-top-align_outlined1",
+      "font_class": "icon_title-top-align_outlined",
       "unicode": "e7be",
       "unicode_decimal": 59326
     },
     {
       "icon_id": "40628128",
       "name": "icon_title-left-align_outlined",
-      "font_class": "icon_title-left-align_outlined1",
+      "font_class": "icon_title-left-align_outlined",
       "unicode": "e7bf",
       "unicode_decimal": 59327
     },
@@ -2204,13 +2260,6 @@
       "unicode_decimal": 59116
     },
     {
-      "icon_id": "33794382",
-      "name": "icon_delete-trash_filled",
-      "font_class": "icon_delete-trash_filled",
-      "unicode": "e6ed",
-      "unicode_decimal": 59117
-    },
-    {
       "icon_id": "33794383",
       "name": "icon_pie_filled",
       "font_class": "icon_pie_filled",
@@ -2618,7 +2667,7 @@
     },
     {
       "icon_id": "32849858",
-      "name": "icon_share-label_outlined-1",
+      "name": "icon_share-label_filled",
       "font_class": "icon_share-label_filled",
       "unicode": "e6ac",
       "unicode_decimal": 59052
@@ -2706,13 +2755,6 @@
       "font_class": "icon-lock",
       "unicode": "e6b9",
       "unicode_decimal": 59065
-    },
-    {
-      "icon_id": "32849874",
-      "name": "icon_title-left-align_outlined",
-      "font_class": "icon_title-left-align_outlined",
-      "unicode": "e6bc",
-      "unicode_decimal": 59068
     },
     {
       "icon_id": "32849875",
@@ -2846,13 +2888,6 @@
       "font_class": "icon-group",
       "unicode": "e6d0",
       "unicode_decimal": 59088
-    },
-    {
-      "icon_id": "32849896",
-      "name": "icon_title-top-align_outlined",
-      "font_class": "icon_title-top-align_outlined",
-      "unicode": "e6d2",
-      "unicode_decimal": 59090
     },
     {
       "icon_id": "32849897",

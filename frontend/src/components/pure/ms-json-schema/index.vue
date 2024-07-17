@@ -474,11 +474,12 @@
                 @change="handleSettingFormChange"
               />
             </a-form-item>
-            <a-form-item :label="t('ms.json.schema.format')">
+            <a-form-item id="jsonSchemaFormatItem" class="relative" :label="t('ms.json.schema.format')">
               <a-select
                 v-model:model-value="activeRecord.format"
                 :placeholder="t('common.pleaseSelect')"
                 :options="formatOptions"
+                popup-container="#jsonSchemaFormatItem"
                 allow-clear
                 @change="handleSettingFormChange"
               />
@@ -1095,7 +1096,7 @@
     };
     try {
       const schema = parseTableDataToJsonSchema(record, record.id === 'root');
-      activePreviewJsonSchemaValue.value = JSON.stringify(schema);
+      activePreviewJsonSchemaValue.value = schema ? JSON.stringify(schema) : '';
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
