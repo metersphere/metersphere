@@ -1240,6 +1240,7 @@
         if (_stepType.isQuoteCase && !realStep.isQuoteScenarioStep) {
           realStep.name = request.stepName || request.name;
           stepDetails.value[realStep.id] = request; // 为了设置一次正确的polymorphicName
+          activeStep.value = undefined;
           return;
         }
       }
