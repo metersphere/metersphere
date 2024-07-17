@@ -385,11 +385,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 updateTestPlan.setModuleId(testPlanGroup.getModuleId());
             }
         } else {
-            request.setGroupId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+            updateTestPlan.setGroupId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
             if (!StringUtils.equalsIgnoreCase(originalTestPlan.getGroupId(), request.getGroupId())) {
                 //移出了测试计划组
                 this.deleteScheduleConfig(request.getId());
-                updateTestPlan.setPos(testPlanGroupService.getNextOrder(request.getGroupId()));
+                updateTestPlan.setPos(testPlanGroupService.getNextOrder(updateTestPlan.getGroupId()));
             }
         }
         //判断有没有模块的变化
