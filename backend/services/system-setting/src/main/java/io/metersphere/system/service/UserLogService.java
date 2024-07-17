@@ -294,15 +294,24 @@ public class UserLogService {
         operationLogService.batchAdd(logs);
     }
 
-    public void addEmailInviteLog(List<UserInvite> userInviteList, String inviteUserId) {
+    public void addEmailInviteLog(List<UserInvite> userInviteList, String projectId, String orgId, String inviteUserId) {
+        String module = null;
+        if (StringUtils.equals(projectId, OperationLogConstants.SYSTEM)) {
+            module = OperationLogModule.SETTING_SYSTEM_USER_SINGLE;
+        } else if (StringUtils.equals(projectId, OperationLogConstants.ORGANIZATION)) {
+            module = OperationLogModule.SETTING_ORGANIZATION_USER_ROLE;
+        } else {
+            module = OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_USER_ROLE;
+        }
         User inviteUser = userMapper.selectByPrimaryKey(inviteUserId);
         List<LogDTO> saveLogs = new ArrayList<>();
+        String finalModule = module;
         userInviteList.forEach(userInvite -> {
             LogDTO log = LogDTOBuilder.builder()
-                    .projectId(OperationLogConstants.SYSTEM)
-                    .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
+                    .projectId(projectId)
+                    .module(finalModule)
                     .createUser(inviteUserId)
-                    .organizationId(OperationLogConstants.SYSTEM)
+                    .organizationId(orgId)
                     .sourceId(inviteUserId)
                     .type(OperationLogType.ADD.name())
                     .content(inviteUser.getName() + Translator.get("user.invite.email") + ":" + userInvite.getEmail())
