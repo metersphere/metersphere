@@ -313,7 +313,6 @@
     try {
       caseListLoading.value = true;
       const res = await getPlanDetailFeatureCaseList({
-        projectId: appStore.currentProjectId,
         testPlanId: route.query.id as string,
         keyword: keyword.value,
         current: pageNation.value.current || 1,
@@ -557,7 +556,17 @@
   onBeforeMount(async () => {
     const lastPageParams = window.history.state.params ? JSON.parse(window.history.state.params) : null; // 获取上个页面带过来的表格查询参数
     if (lastPageParams) {
-      const { total, pageSize, current, keyword: _keyword, sort, moduleIds } = lastPageParams;
+      const {
+        total,
+        pageSize,
+        current,
+        keyword: _keyword,
+        sort,
+        moduleIds,
+        collectionId,
+        treeType,
+        projectId,
+      } = lastPageParams;
       pageNation.value = {
         total: total || 0,
         pageSize,
@@ -567,6 +576,9 @@
       otherListQueryParams.value = {
         sort,
         moduleIds,
+        collectionId,
+        treeType,
+        projectId,
       };
     }
     getPlanDetail();
