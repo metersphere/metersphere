@@ -129,16 +129,21 @@ public class TestPlanTaskCenterService {
         if (CollectionUtils.isNotEmpty(projectIds)) {
             Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
             list = extTestPlanReportMapper.taskCenterlist(request, isSystem ? new ArrayList<>() : projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+            // 执行历史ID集合
+            List<String> reportIds = list.stream().map(TaskCenterDTO::getId).collect(Collectors.toList());
             // 查询计划组的任务的子计划任务
             List<String> groupReportIds = list.stream().filter(TaskCenterDTO::isIntegrated).map(TaskCenterDTO::getId).toList();
             if (CollectionUtils.isNotEmpty(groupReportIds)) {
                 List<TaskCenterDTO> childTaskCenterList = extTestPlanReportMapper.getChildTaskCenter(groupReportIds);
                 Map<String, List<TaskCenterDTO>> childTaskMap = childTaskCenterList.stream().collect(Collectors.groupingBy(TaskCenterDTO::getParent));
-                list.forEach(item -> item.setChildren(childTaskMap.get(item.getId())));
+                list.forEach(item -> {
+                    item.setChildren(childTaskMap.get(item.getId()));
+                    if (CollectionUtils.isNotEmpty(item.getChildren())) {
+                        reportIds.addAll(item.getChildren().stream().map(TaskCenterDTO::getId).toList());
+                    }
+                });
             }
 
-            // 执行历史列表
-            List<String> reportIds = list.stream().map(TaskCenterDTO::getId).toList();
             if (CollectionUtils.isNotEmpty(reportIds)) {
                 List<ExecuteReportDTO> historyDeletedList = extTestPlanReportMapper.getHistoryDeleted(reportIds);
                 historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
