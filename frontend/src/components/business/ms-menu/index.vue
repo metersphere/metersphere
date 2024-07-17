@@ -376,7 +376,10 @@
             }}
           >
             <a-menu-item
-              class={['flex w-full items-center justify-between', collapsed.value ? 'h-[56px] w-[56px]' : '']}
+              class={[
+                'flex w-full items-center justify-between overflow-hidden',
+                collapsed.value ? 'h-[56px] w-[56px]' : '',
+              ]}
               key="personalInfo"
             >
               {
@@ -384,14 +387,14 @@
                   class={[
                     collapsed.value
                       ? 'relative flex h-full items-center justify-center hover:!bg-transparent'
-                      : 'relative flex items-center gap-[8px] hover:!bg-transparent',
+                      : 'relative flex flex-1 items-center gap-[8px] overflow-hidden hover:!bg-transparent',
                   ]}
                 >
-                  <MsAvatar is-user size={20} class="!mr-0 hover:!bg-transparent" />
-                  {collapsed.value ? null : userStore.name}
+                  <MsAvatar is-user size={20} class="!mr-0 w-[20px] hover:!bg-transparent" />
+                  <div class="one-line-text flex-1">{collapsed.value ? null : userStore.name}</div>
                 </div>
               }
-              {collapsed.value ? null : <icon-caret-down class="!m-0" />}
+              {collapsed.value ? null : <icon-caret-down class="!m-0 w-[16px]" />}
             </a-menu-item>
           </a-trigger>
         );

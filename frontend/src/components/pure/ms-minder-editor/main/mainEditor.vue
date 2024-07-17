@@ -9,13 +9,15 @@
     <Navigator />
     <div
       v-if="currentTreePath?.length > 0"
-      class="absolute left-[50%] top-[24px] z-50 translate-x-[-50%] bg-white p-[8px]"
+      class="absolute left-[50%] top-[16px] z-[9] w-[60%] translate-x-[-50%] overflow-hidden bg-white p-[8px]"
     >
-      <a-breadcrumb>
-        <a-breadcrumb-item v-for="crumb of currentTreePath" :key="crumb.name" @click="switchNode(crumb)">
-          {{ crumb.text }}
-        </a-breadcrumb-item>
-      </a-breadcrumb>
+      <a-menu v-model:selected-keys="selectedBreadcrumbKeys" mode="horizontal" class="ms-minder-breadcrumb">
+        <a-menu-item v-for="(crumb, i) of currentTreePath" :key="crumb.id" @click="switchNode(crumb, i)">
+          <a-tooltip :content="crumb.text" :mouse-enter-delay="300">
+            <div class="one-line-text">{{ crumb.text }}</div>
+          </a-tooltip>
+        </a-menu-item>
+      </a-menu>
     </div>
     <nodeFloatMenu
       v-if="props.canShowFloatMenu"
@@ -160,12 +162,19 @@
     return innerImportJson.value.treePath?.filter((e, i) => i <= index) || [];
   }
 
+  const selectedBreadcrumbKeys = computed({
+    get: () => [currentTreePath.value[currentTreePath.value.length - 1]?.id],
+    set: (val) => {
+      return val;
+    },
+  });
+
   /**
    * 切换脑图展示的节点层级
    * @param node 切换的节点
    */
-  async function switchNode(node?: MinderJsonNode | MinderJsonNodeData) {
-    if (!props.minderKey) return;
+  async function switchNode(node?: MinderJsonNode | MinderJsonNodeData, index?: number) {
+    if (!props.minderKey || index === currentTreePath.value.length - 1) return;
     if (minderStore.minderUnsaved) {
       // 切换前，如果脑图未保存，先把更改的节点信息同步一次
       replaceNodeInTree(
@@ -275,6 +284,7 @@
 </script>
 
 <style lang="less">
+  @import '@/assets/icon-font/iconfont.css';
   @import '../style/editor.less';
   .save-btn {
     @apply !absolute;
@@ -285,6 +295,49 @@
   .ms-minder-dropdown {
     .arco-dropdown-list-wrapper {
       max-height: none;
+    }
+  }
+  .ms-minder-breadcrumb {
+    @apply bg-white p-0;
+    .arco-menu-inner {
+      @apply bg-white p-0;
+      .arco-menu-item {
+        @apply relative p-0;
+
+        padding-right: 24px;
+        max-width: 200px;
+        &:hover {
+          color: rgb(var(--primary-4));
+        }
+        &:not(:last-child)::after {
+          @apply absolute;
+
+          top: 50%;
+          right: 7px;
+          font-size: 12px;
+          font-family: iconfont;
+          content: '\e6d5';
+          color: var(--color-text-brand);
+          line-height: 16px;
+          transform: translateY(-50%);
+        }
+      }
+      .arco-menu-item,
+      .arco-menu-overflow-sub-menu {
+        @apply ml-0 bg-white;
+
+        color: var(--color-text-4);
+      }
+      .arco-menu-selected {
+        color: rgb(var(--primary-4));
+        &:hover {
+          @apply !bg-white;
+        }
+      }
+      .arco-menu-pop::after,
+      .arco-menu-selected-label {
+        @apply hidden;
+      }
     }
   }
 </style>
