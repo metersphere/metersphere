@@ -655,7 +655,6 @@
       newIndex = newDragData.findIndex((item: any) => item[rowKey || 'id'] === extra.dragTarget?.[rowKey || 'id']);
       oldIndex = oldDragData.findIndex((item: any) => item[rowKey || 'id'] === extra.dragTarget?.[rowKey || 'id']);
       let position: 'AFTER' | 'BEFORE' = 'BEFORE';
-
       position = newIndex > oldIndex ? 'AFTER' : 'BEFORE';
       const params: DragSortParams = {
         projectId: appStore.currentProjectId,
@@ -677,9 +676,8 @@
         targetIndex = newIndex - 1;
       }
       params.targetId = newDragData[targetIndex]?.[rowKey || 'id'] ?? newDragData[newIndex]?.[rowKey || 'id'];
-
-      if (oldIndex !== newIndex) {
-        // 原地移动不触发
+      // 只有一个的时候不允许拖拽放置参数报错
+      if (newDragData.length > 1) {
         emit('dragChange', params);
       }
     }
