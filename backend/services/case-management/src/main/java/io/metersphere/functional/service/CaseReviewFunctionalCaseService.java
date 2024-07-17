@@ -522,15 +522,17 @@ public class CaseReviewFunctionalCaseService {
             }
             //根据用例ID 查询所有评审人 再查所有评审人最后一次的评审结果（只有通过/不通过算结果）
             List<CaseReviewHistory> caseReviewHistoriesExp = caseHistoryMap.get(caseReviewFunctionalCase.getCaseId());
-            Map<String, List<CaseReviewHistory>> hasReviewedUserMap = caseReviewHistoriesExp.stream().sorted(Comparator.comparingLong(CaseReviewHistory::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, Collectors.toList()));
+            Map<String, List<CaseReviewHistory>> hasReviewedUserMap = caseReviewHistoriesExp.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, Collectors.toList()));
             List<CaseReviewFunctionalCaseUser> caseReviewFunctionalCaseUsersExp = reviewerMap.get(caseReviewFunctionalCase.getCaseId());
             AtomicInteger passCount = new AtomicInteger();
             AtomicInteger unPassCount = new AtomicInteger();
             hasReviewedUserMap.forEach((k, v) -> {
-                if (StringUtils.equalsIgnoreCase(v.getFirst().getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                //过滤掉每个人的评审中状态，每个人的评审中为建议，建议不做评审结果，这里排除
+                List<CaseReviewHistory> list = v.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString())).sorted(Comparator.comparing(CaseReviewHistory::getCreateTime).reversed()).toList();
+                if (CollectionUtils.isNotEmpty(list) && StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
                     passCount.set(passCount.get() + 1);
                 }
-                if (StringUtils.equalsIgnoreCase(v.getFirst().getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                if (CollectionUtils.isNotEmpty(list) && StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });
@@ -540,15 +542,14 @@ public class CaseReviewFunctionalCaseService {
             }
             if (unPassCount.get() > 0) {
                 caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
-            } else if (caseReviewFunctionalCaseUsersExp != null && caseReviewFunctionalCaseUsersExp.size() > hasReviewedUserMap.size()) {
+            } else if (caseReviewFunctionalCaseUsersExp != null && (caseReviewFunctionalCaseUsersExp.size() > passCount.get()) && passCount.get() > 0) {
+                //通过> 0 但不是全部通过 为评审中
                 caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+            } else if (caseReviewFunctionalCaseUsersExp != null && passCount.get() == caseReviewFunctionalCaseUsersExp.size()) {
+                //检查是否全部是通过，全是才是PASS
+                caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.PASS.toString());
             } else {
-                //检查是否全部是通过，全是才是PASS,否则是评审中
-                if (passCount.get() == hasReviewedUserMap.size()) {
-                    caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.PASS.toString());
-                } else {
-                    caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
-                }
+                caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
             }
         }
     }
@@ -564,7 +565,7 @@ public class CaseReviewFunctionalCaseService {
         if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
             if (StringUtils.isBlank(request.getContent())) {
                 throw new MSException(Translator.get("case_review_content.not.exist"));
-            }else {
+            } else {
                 caseReviewHistory.setContent(request.getContent().getBytes());
             }
         } else {
@@ -820,7 +821,7 @@ public class CaseReviewFunctionalCaseService {
             optionDTOS.add(optionDTO);
         });
         if (CollectionUtils.isNotEmpty(users)) {
-            users.forEach(t->{
+            users.forEach(t -> {
                 OptionDTO optionDTO = new OptionDTO();
                 optionDTO.setId(t.getName());
                 optionDTO.setName(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
