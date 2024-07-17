@@ -85,7 +85,6 @@
         <commons-jexl3.version>3.3</commons-jexl3.version>
         <revision>3.x</revision>
         <monitoring-engine.revision>3.0</monitoring-engine.revision>
-        <xeger.version>1.0.0-RELEASE</xeger.version>
     </properties>
 
     <modules>

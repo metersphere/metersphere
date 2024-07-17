@@ -2,14 +2,16 @@ package io.metersphere.api.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
+import io.metersphere.api.utils.regex.model.Node;
+import io.metersphere.api.utils.regex.model.OrdinaryNode;
 import io.metersphere.project.constants.PropertyConstant;
-import nl.flotsam.xeger.Xeger;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.RandomStringGenerator;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -143,13 +145,17 @@ public class JsonSchemaBuilder {
                     int max = isTextNotBlank(maxLength) ? maxLength.asInt() : 20;
                     int min = isTextNotBlank(minLength) ? minLength.asInt() : 1;
                     if (enumValues != null && enumValues instanceof ArrayNode) {
-                        value = enumValues.get(new Random().nextInt(enumValues.size())).asText();
+                        value = enumValues.get(new SecureRandom().nextInt(enumValues.size())).asText();
                         if (value.length() > max) {
                             value = value.substring(0, max);
                         }
                     } else if (isTextNotBlank(pattern)) {
-                        Xeger generator = new Xeger(pattern.asText());
-                        value = generator.generate();
+                        try {
+                            Node node = new OrdinaryNode(pattern.asText());
+                            value = node.random();
+                        } catch (Exception e) {
+                            value = pattern.asText();
+                        }
                     } else if (isTextNotBlank(defaultValue)) {
                         value = defaultValue.asText();
                         if (value.length() > max) {
@@ -159,7 +165,7 @@ public class JsonSchemaBuilder {
                             value = value + generateStr(min - value.length());
                         }
                     } else {
-                        value = generateStr(new Random().nextInt(max - min + 1) + min);
+                        value = generateStr(new SecureRandom().nextInt(max - min + 1) + min);
                     }
                 }
                 yield new TextNode(value);
@@ -169,7 +175,7 @@ public class JsonSchemaBuilder {
                     JsonNode enumValues = propertyNode.get(PropertyConstant.ENUM_VALUES);
                     JsonNode defaultValue = propertyNode.get(PropertyConstant.DEFAULT_VALUE);
                     if (enumValues != null && enumValues instanceof ArrayNode) {
-                        value = enumValues.get(new Random().nextInt(enumValues.size())).asText();
+                        value = enumValues.get(new SecureRandom().nextInt(enumValues.size())).asText();
                     } else if (isTextNotBlank(defaultValue)) {
                         value = defaultValue.asText();
                     } else {
@@ -178,7 +184,7 @@ public class JsonSchemaBuilder {
                         int max = isTextNotBlank(maximum) ? maximum.asInt() : Integer.MAX_VALUE;
                         int min = isTextNotBlank(minimum) ? minimum.asInt() : Integer.MIN_VALUE;
                         // 这里减去负数可能超过整型最大值，使用 Long 类型
-                        value = new Random().nextLong(Long.valueOf(max) - Long.valueOf(min)) + min + StringUtils.EMPTY;
+                        value = new SecureRandom().nextLong(Long.valueOf(max) - Long.valueOf(min)) + min + StringUtils.EMPTY;
                     }
                 } else {
                     if (isVariable(value)) {
@@ -196,7 +202,7 @@ public class JsonSchemaBuilder {
                     JsonNode enumValues = propertyNode.get(PropertyConstant.ENUM_VALUES);
                     JsonNode defaultValue = propertyNode.get(PropertyConstant.DEFAULT_VALUE);
                     if (enumValues != null && enumValues instanceof ArrayNode) {
-                        value = enumValues.get(new Random().nextInt(enumValues.size())).asText();
+                        value = enumValues.get(new SecureRandom().nextInt(enumValues.size())).asText();
                     } else if (isTextNotBlank(defaultValue)) {
                         value = defaultValue.asText();
                     } else {
