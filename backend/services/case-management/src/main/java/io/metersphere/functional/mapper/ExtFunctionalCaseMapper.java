@@ -11,7 +11,6 @@ import io.metersphere.functional.request.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
-import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
 
@@ -102,5 +101,7 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCase> selectAllFunctionalCase(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
 
-    List<FunctionalCase> selectCaseByModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("dto") AssociateCaseDTO dto, @Param("testPlanId") String testPlanId);
+    List<FunctionalCase> getListBySelectModules(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("testPlanId") String testPlanId);
+
+    List<FunctionalCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId);
 }

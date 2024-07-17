@@ -595,8 +595,30 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
-                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectCaseByModules(isRepeat, apiCase.getModules().getProjectId(), dto, testPlan.getId());
-                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+                    List<ApiTestCase> apiTestCaseList = new ArrayList<>();
+                    //获取全选的模块数据
+                    if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
+                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                    }
+
+                    if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
+                        CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
+                        //获取选中的ids数据
+                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId());
+                        apiTestCaseList.addAll(selectIdList);
+                    }
+
+                    if (CollectionUtils.isNotEmpty(dto.getExcludeIds())) {
+                        //排除的ids
+                        List<String> excludeIds = dto.getExcludeIds();
+                        apiTestCaseList = apiTestCaseList.stream().filter(item -> !excludeIds.contains(item.getId())).toList();
+                    }
+
+                    if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
+                        List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos).reversed()).toList();
+                        buildTestPlanApiCaseDTO(apiCase, list, testPlan, user, testPlanApiCaseList);
+                    }
+
                 }
             });
         }
@@ -615,8 +637,30 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
-                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectCaseByApiModules(isRepeat, apiCase.getModules().getProjectId(), dto, testPlan.getId());
-                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+                    List<ApiTestCase> apiTestCaseList = new ArrayList<>();
+                    //获取全选的模块数据
+                    if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
+                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                    }
+
+                    if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
+                        CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
+                        //获取选中的ids数据
+                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getCaseListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId());
+                        apiTestCaseList.addAll(selectIdList);
+                    }
+
+                    if (CollectionUtils.isNotEmpty(dto.getExcludeIds())) {
+                        //排除的ids
+                        List<String> excludeIds = dto.getExcludeIds();
+                        apiTestCaseList = apiTestCaseList.stream().filter(item -> !excludeIds.contains(item.getId())).toList();
+                    }
+
+                    if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
+                        List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos).reversed()).toList();
+                        buildTestPlanApiCaseDTO(apiCase, list, testPlan, user, testPlanApiCaseList);
+                    }
+
                 }
             });
         }

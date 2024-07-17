@@ -807,9 +807,31 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             handleSyncCase(functionalCaseList, functional, testPlan, user);
         } else {
             AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
-            List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.selectCaseByModules(isRepeat, functional.getModules().getProjectId(), dto, testPlan.getId());
-            buildTestPlanFunctionalCaseDTO(functional, functionalCaseList, testPlan, user, testPlanFunctionalCaseList);
-            handleSyncCase(functionalCaseList, functional, testPlan, user);
+            List<FunctionalCase> functionalCaseList = new ArrayList<>();
+            //获取全选的模块数据
+            if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
+                functionalCaseList = extFunctionalCaseMapper.getListBySelectModules(functional.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+            }
+
+            if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
+                CollectionUtils.removeAll(dto.getSelectIds(), functionalCaseList.stream().map(FunctionalCase::getId).toList());
+                //获取选中的ids数据
+                List<FunctionalCase> selectIdList = extFunctionalCaseMapper.getListBySelectIds(functional.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId());
+                functionalCaseList.addAll(selectIdList);
+            }
+
+            if (CollectionUtils.isNotEmpty(dto.getExcludeIds())) {
+                //排除的ids
+                List<String> excludeIds = dto.getExcludeIds();
+                functionalCaseList = functionalCaseList.stream().filter(item -> !excludeIds.contains(item.getId())).toList();
+            }
+
+            if (CollectionUtils.isNotEmpty(functionalCaseList)) {
+                List<FunctionalCase> list = functionalCaseList.stream().sorted(Comparator.comparing(FunctionalCase::getPos).reversed()).toList();
+                buildTestPlanFunctionalCaseDTO(functional, list, testPlan, user, testPlanFunctionalCaseList);
+                handleSyncCase(functionalCaseList, functional, testPlan, user);
+            }
+
         }
     }
 
