@@ -942,6 +942,7 @@
     const child = {
       ...cloneDeep(defaultItem),
       id: getGenerateId(),
+      title: record.type === 'array' ? `${record.children.length}` : '',
       parent: record,
     };
     record.children.push(child);
@@ -1014,12 +1015,7 @@
   const batchAddCodeEditorRef = ref<InstanceType<typeof MsCodeEditor>>();
   const batchAddCurrentJson = ref('');
   const batchAddCurrentSchema = ref('');
-  const batchAddValue = computed({
-    get: () => (batchAddType.value === 'json' ? batchAddCurrentJson.value : batchAddCurrentSchema.value),
-    set: (value) => {
-      return value;
-    },
-  });
+  const batchAddValue = ref(batchAddType.value === 'json' ? batchAddCurrentJson.value : batchAddCurrentSchema.value);
 
   function handleBatchAddTypeChange(value: string | number | boolean) {
     if (value === 'json') {
@@ -1050,6 +1046,7 @@
       // 再将 json schema 转换为 json 格式
       const res = await convertJsonSchemaToJson(schema as JsonSchema);
       batchAddCurrentJson.value = res;
+      handleBatchAddTypeChange(batchAddType.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
