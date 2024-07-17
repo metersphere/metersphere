@@ -65,6 +65,8 @@ export function parseTableDataToJsonSchema(
           type: 'array',
           enable: schemaItem.enable,
           items: schemaItem.children.map((child) => parseTableDataToJsonSchema(child, false) as JsonSchemaItem),
+          minItems: schemaItem.minItems,
+          maxItems: schemaItem.maxItems,
         };
       }
     }
@@ -205,6 +207,8 @@ export function parseSchemaToJsonSchemaTableData(schema: string | JsonSchema): {
         required: false,
         example: '',
         defaultValue: '',
+        maxItems: node.maxItems,
+        minItems: node.minItems,
       };
     } else {
       // 子孙节点

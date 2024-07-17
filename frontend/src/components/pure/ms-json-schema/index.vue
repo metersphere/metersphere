@@ -98,6 +98,7 @@
         :precision="0"
         size="medium"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('minLengthInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
@@ -111,6 +112,7 @@
         :precision="0"
         size="medium"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('maxLengthInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
@@ -122,6 +124,7 @@
         class="ms-form-table-input-number"
         size="medium"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('minimumInput')"
       />
       <a-input-number
@@ -132,6 +135,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('minimumInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
@@ -143,6 +147,7 @@
         class="ms-form-table-input-number"
         size="medium"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('maximumInput')"
       />
       <a-input-number
@@ -153,6 +158,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('maximumInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
@@ -167,6 +173,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('minItemsInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
@@ -181,6 +188,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('maxItemsInput')"
       />
       <div v-else class="ms-form-table-td-text">-</div>
@@ -192,6 +200,7 @@
         class="ms-form-table-input-number"
         size="medium"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('defaultValueInput')"
       />
       <a-input-number
@@ -202,6 +211,7 @@
         :step="1"
         :precision="0"
         :disabled="props.disabled"
+        model-event="input"
         @change="emitChange('defaultValueInput')"
       />
       <a-select
@@ -367,6 +377,7 @@
                 :min="0"
                 :step="1"
                 :precision="0"
+                model-event="input"
                 @change="handleSettingFormChange"
               />
             </a-form-item>
@@ -377,6 +388,7 @@
                 :min="0"
                 :step="1"
                 :precision="0"
+                model-event="input"
                 @change="handleSettingFormChange"
               />
             </a-form-item>
@@ -389,12 +401,14 @@
                 mode="button"
                 :step="1"
                 :precision="0"
+                model-event="input"
                 @change="handleSettingFormChange"
               />
               <a-input-number
                 v-else
                 v-model:model-value="activeRecord.minimum"
                 mode="button"
+                model-event="input"
                 @change="handleSettingFormChange"
               />
             </a-form-item>
@@ -405,12 +419,14 @@
                 mode="button"
                 :step="1"
                 :precision="0"
+                model-event="input"
                 @change="handleSettingFormChange"
               />
               <a-input-number
                 v-else
                 v-model:model-value="activeRecord.maximum"
                 mode="button"
+                model-event="input"
                 @change="handleSettingFormChange"
               />
             </a-form-item>
@@ -421,6 +437,7 @@
               v-model:model-value="activeRecord.defaultValue"
               mode="button"
               :placeholder="t('common.pleaseInput')"
+              model-event="input"
               @change="handleSettingFormChange"
             />
             <a-input-number
@@ -430,6 +447,7 @@
               :placeholder="t('common.pleaseInput')"
               :step="1"
               :precision="0"
+              model-event="input"
               @change="handleSettingFormChange"
             />
             <a-input
@@ -476,6 +494,7 @@
             :min="0"
             :step="1"
             :precision="0"
+            model-event="input"
             @change="handleSettingFormChange"
           />
         </a-form-item>
@@ -486,6 +505,7 @@
             :min="0"
             :step="1"
             :precision="0"
+            model-event="input"
             @change="handleSettingFormChange"
           />
         </a-form-item>

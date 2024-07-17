@@ -36,4 +36,6 @@ export interface JsonSchema {
   items?: JsonSchemaItem[];
   required?: string[];
   description?: string;
+  minItems?: number;
+  maxItems?: number;
 }
