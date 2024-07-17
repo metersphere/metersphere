@@ -290,6 +290,9 @@ public class TestPlanReportService {
         try {
             // 所有计划
             List<TestPlan> plans = getPlans(request.getTestPlanId());
+            if (CollectionUtils.isEmpty(plans) || (plans.size() == 1 && StringUtils.equals(plans.getFirst().getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP))) {
+                throw new MSException(Translator.get("test_plan_report_gen_no_plan"));
+            }
             // 模块参数
             TestPlanReportModuleParam moduleParam = getModuleParam(request.getProjectId());
 
@@ -333,6 +336,7 @@ public class TestPlanReportService {
             });
         } catch (Exception e) {
             LogUtils.error("Generate report exception: " + e.getMessage());
+            throw new MSException(e.getMessage());
         }
 
         return preReportMap;
