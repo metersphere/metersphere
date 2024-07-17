@@ -768,7 +768,9 @@
         : archiveActions;
 
     const reportAction =
-      planStatus !== 'ARCHIVED' && record.type === testPlanTypeEnum.GROUP ? [...configReportActions] : [];
+      planStatus !== 'ARCHIVED' && record.type === testPlanTypeEnum.GROUP && record.childrenCount
+        ? [...configReportActions]
+        : [];
 
     const executeHistoryAction =
       record.type === testPlanTypeEnum.GROUP
