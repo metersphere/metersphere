@@ -19,6 +19,7 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +60,7 @@ public class ReviewFunctionalCaseService {
      * @param userId  当前操作人
      */
     public void saveReview(ReviewFunctionalCaseRequest request, String userId) {
-        //保存评审历史
+        //获取用例所有评审人
         String reviewId = request.getReviewId();
         String caseId = request.getCaseId();
         CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
@@ -76,7 +77,7 @@ public class ReviewFunctionalCaseService {
         if (!users.contains(userId)) {
             throw new MSException(Translator.get("case_review_user"));
         }
-
+        //保存评审历史
         CaseReviewHistory caseReviewHistory = buildReviewHistory(request, userId);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
         caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false).andAbandonedEqualTo(false);
@@ -150,28 +151,29 @@ public class ReviewFunctionalCaseService {
             AtomicInteger passCount = new AtomicInteger();
             AtomicInteger unPassCount = new AtomicInteger();
             hasReviewedUserMap.forEach((k, v) -> {
-                List<CaseReviewHistory> list = v.stream().sorted(Comparator.comparing(CaseReviewHistory::getCreateTime).reversed()).toList();
-                if (StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                //过滤掉每个人的评审中状态，每个人的评审中为建议，建议不做评审结果，这里排除
+                List<CaseReviewHistory> list = v.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString())).sorted(Comparator.comparing(CaseReviewHistory::getCreateTime).reversed()).toList();
+                if (CollectionUtils.isNotEmpty(list) && StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
                     passCount.set(passCount.get() + 1);
                 }
-                if (StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                if (CollectionUtils.isNotEmpty(list) && StringUtils.equalsIgnoreCase(list.getFirst().getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });
-            //检查是否全部是通过，全是才是PASS,否则是评审中(如果时自动重新提审，会有个system用户，这里需要排出一下)
-            if (hasReviewedUserMap.get(UserRoleScope.SYSTEM) !=null) {
+            //检查是否全部是通过，全是才是PASS,否则是评审中(如果时自动重新提审，会有个system用户，这里需要排出一下) 建议不是评审中
+            if (hasReviewedUserMap.get(UserRoleScope.SYSTEM) != null) {
                 hasReviewedUserMap.remove(UserRoleScope.SYSTEM);
             }
             if (unPassCount.get() > 0) {
                 functionalCaseStatus = FunctionalCaseReviewStatus.UN_PASS.toString();
-            } else if (reviewerNum > hasReviewedUserMap.size()) {
+            } else if (passCount.get() > 0 && passCount.get() < reviewerNum) {
+                //通过> 0 但不是全部通过 为评审中
                 functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
+            } else if (passCount.get() == reviewerNum) {
+                //检查是否全部是通过，全是才是PASS
+                functionalCaseStatus = FunctionalCaseReviewStatus.PASS.toString();
             } else {
-                if (passCount.get() == hasReviewedUserMap.size()) {
-                    functionalCaseStatus = FunctionalCaseReviewStatus.PASS.toString();
-                } else {
-                    functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
-                }
+                functionalCaseStatus = FunctionalCaseReviewStatus.UN_REVIEWED.toString();
             }
         }
         return functionalCaseStatus;
