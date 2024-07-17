@@ -166,15 +166,16 @@
           :show-charset-change="false"
           show-code-format
         >
-          <template #rightTitle>
+          <template #leftTitle>
             <a-button
               v-if="activeResponse.body.bodyType === ResponseBodyFormat.JSON"
-              type="outline"
-              class="arco-btn-outline--secondary p-[0_8px]"
-              size="mini"
+              type="text"
+              class="arco-btn-text--primary gap-[4px] p-[2px_6px]"
+              size="small"
               @click="autoMakeJson"
             >
-              <div class="text-[var(--color-text-1)]">{{ t('apiTestManagement.autoMake') }}</div>
+              <MsIcon :size="14" type="icon-icon_press" />
+              <div class="text-[12px]">{{ t('apiTestManagement.autoMake') }}</div>
             </a-button>
           </template>
         </MsCodeEditor>

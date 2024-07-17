@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1719821100136') format('woff2'), url('iconfont.woff?t=1719821100136') format('woff'),
-    url('iconfont.ttf?t=1719821100136') format('truetype'), url('iconfont.svg?t=1719821100136#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1721202041572') format('woff2'), url('iconfont.woff?t=1721202041572') format('woff'),
+    url('iconfont.ttf?t=1721202041572') format('truetype'), url('iconfont.svg?t=1721202041572#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,30 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_alarm_outlined::before {
+  content: '\e7f3';
+}
+.icon-icon_save_outlined::before {
+  content: '\e6bc';
+}
+.icon-icon_play-round_outlined::before {
+  content: '\e6d2';
+}
+.icon-a-icon_disabled_outlined1::before {
+  content: '\e6ed';
+}
+.icon-icon_inbox_filled::before {
+  content: '\e7f1';
+}
+.icon-icon_preferences_outlined::before {
+  content: '\e7f2';
+}
+.icon-icon_tab::before {
+  content: '\e6f3';
+}
+.icon-icon_press::before {
+  content: '\e6f0';
 }
 .icon-icon_right_branch::before {
   content: '\e7ef';
@@ -157,10 +181,10 @@
 .icon-icon_setting-inter_outlined::before {
   content: '\e7e6';
 }
-.icon-icon_title-top-align_outlined1::before {
+.icon-icon_title-top-align_outlined::before {
   content: '\e7be';
 }
-.icon-icon_title-left-align_outlined1::before {
+.icon-icon_title-left-align_outlined::before {
   content: '\e7bf';
 }
 .icon-icon_protocol::before {
@@ -952,9 +976,6 @@
 .icon-icon_approval_outlined::before {
   content: '\e6ec';
 }
-.icon-icon_delete-trash_filled::before {
-  content: '\e6ed';
-}
 .icon-icon_pie_filled::before {
   content: '\e6ee';
 }
@@ -1168,9 +1189,6 @@
 .icon-icon-lock::before {
   content: '\e6b9';
 }
-.icon-icon_title-left-align_outlined::before {
-  content: '\e6bc';
-}
 .icon-icon_top-align_outlined::before {
   content: '\e6bd';
 }
@@ -1227,9 +1245,6 @@
 }
 .icon-icon-group::before {
   content: '\e6d0';
-}
-.icon-icon_title-top-align_outlined::before {
-  content: '\e6d2';
 }
 .icon-icon_link-copy_outlined::before {
   content: '\e6d3';

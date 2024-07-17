@@ -41,12 +41,12 @@
           v-if="showCodeFormat"
           type="outline"
           class="arco-btn-outline--secondary p-[0_8px]"
-          size="mini"
+          size="small"
           @click="format"
         >
           <div class="flex items-center gap-[4px]">
             <icon-code-square class="text-[var(--color-text-4)]" />
-            <div class="text-[var(--color-text-1)]">{{ t('msCodeEditor.format') }}</div>
+            <div class="text-[12px] text-[var(--color-text-1)]">{{ t('msCodeEditor.format') }}</div>
           </div>
         </a-button>
         <div

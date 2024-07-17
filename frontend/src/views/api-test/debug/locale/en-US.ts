@@ -215,4 +215,5 @@ export default {
   'apiTestDebug.quickAdditions': 'Quick',
   'apiTestDebug.first': 'First',
   'apiTestDebug.retry': 'Retry',
+  'apiTestDebug.autoMakeJsonTip': 'Generate Json data based on rules in Schema advanced settings',
 };
