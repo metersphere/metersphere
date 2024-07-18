@@ -126,11 +126,13 @@
           </a-form-item>
           <template v-if="configForm.type !== PlanMinderCollectionType.FUNCTIONAL">
             <a-form-item :label="t('system.project.resourcePool')">
-              <a-select
+              <MsSelect
                 v-model:model-value="configForm.testResourcePoolId"
                 :options="resourcePoolOptions"
                 :disabled="configForm.level === 2 && configForm.extended"
-              ></a-select>
+                :option-not-exits-text="t('system.resourcePool.notExit')"
+              >
+              </MsSelect>
             </a-form-item>
             <a-form-item :label="t('project.environmental.env')">
               <a-select
@@ -181,6 +183,7 @@
                   mode="button"
                   :step="1"
                   :min="1"
+                  :max="10"
                   :precision="0"
                   :disabled="configForm.level === 2 && configForm.extended"
                   size="small"
@@ -239,6 +242,7 @@
     MinderJsonNodeData,
   } from '@/components/pure/ms-minder-editor/props';
   import { setCustomPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
+  import MsSelect from '@/components/business/ms-select';
   import caseAssociate from './associateDrawer.vue';
 
   import { getPoolOption } from '@/api/modules/api-test/management';
@@ -452,6 +456,7 @@
 
   // 优先级与串行/并行文本映射
   const priorityTextMap: Record<number, string> = {
+    1: '!',
     2: t('ms.minders.serial'),
     3: t('ms.minders.parallel'),
   };
@@ -470,7 +475,7 @@
 
   const configFormRef = ref<FormInstance>();
   const configForm = ref<PlanMinderNodeData>();
-  const resourcePoolOptions = ref<SelectOptionData[]>();
+  const resourcePoolOptions = ref<SelectOptionData[]>([]);
   const environmentOptions = computed(() => [
     {
       label: t('testPlan.testPlanIndex.defaultEnv'),
@@ -786,6 +791,7 @@
           level,
           isNew: false,
           changed: false,
+          priority: node.data.priority === 0 ? 1 : node.data.priority,
           disabled: level !== 2, // 只有测试点能改文本
         };
         return node;
