@@ -225,6 +225,7 @@
     if (isCopy) {
       detailForm.value = cloneDeep(record as RequestParam);
       detailForm.value.name = `copy_${record?.name}`;
+      detailForm.value.isCopy = true;
       environmentId.value = record?.environmentId;
       if (detailForm.value.name.length > 255) {
         detailForm.value.name = detailForm.value.name.slice(0, 255);
