@@ -553,12 +553,11 @@
       params.syncCase = syncCase.value;
     }
 
-    if (params.associateType === CaseLinkEnum.API) {
-      params.associateType = showType.value;
+    if (props.associatedType === CaseLinkEnum.API) {
+      params.associateType = showType.value === 'API' ? showType.value : 'API_CASE';
     } else {
       params.associateType = props.associatedType;
     }
-
     emit('save', params);
   }
 
