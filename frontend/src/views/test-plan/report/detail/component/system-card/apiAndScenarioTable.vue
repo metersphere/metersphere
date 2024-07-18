@@ -72,9 +72,10 @@
     shareId?: string;
     activeType: ReportCardTypeEnum;
     isPreview?: boolean;
+    isGroup?: boolean;
   }>();
 
-  const columns: MsTableColumn = [
+  const staticColumns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -112,6 +113,16 @@
       width: 150,
       showDrag: true,
     },
+  ];
+  const testPlanNameColumns: MsTableColumn = [
+    {
+      title: 'report.plan.name',
+      dataIndex: 'planName',
+      showTooltip: true,
+      width: 200,
+    },
+  ];
+  const lastStaticColumns: MsTableColumn = [
     {
       title: 'common.belongModule',
       dataIndex: 'moduleName',
@@ -135,15 +146,22 @@
     },
   ];
 
+  const columns = computed(() => {
+    if (props.isGroup) {
+      return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
+    }
+    return [...staticColumns, ...lastStaticColumns];
+  });
+
   const useApiTable = useTable(getApiPage, {
     scroll: { x: '100%' },
-    columns,
+    columns: columns.value,
     showSelectorAll: false,
     showSetting: false,
   });
   const useScenarioTable = useTable(getScenarioPage, {
     scroll: { x: '100%' },
-    columns,
+    columns: columns.value,
     showSelectorAll: false,
     showSetting: false,
   });

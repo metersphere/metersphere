@@ -209,6 +209,7 @@
             :share-id="shareId"
             :active-type="item.value"
             :is-preview="props.isPreview"
+            :is-group="props.isGroup"
           />
           <CustomRichText
             v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD"
