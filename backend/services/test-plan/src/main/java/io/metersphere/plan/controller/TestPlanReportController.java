@@ -163,7 +163,6 @@ public class TestPlanReportController {
     @GetMapping("/detail/functional/case/step/{reportId}")
     @Operation(summary = "测试计划-报告-详情-功能用例-执行步骤结果")
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
-    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_case_execute_history")
     public TestPlanCaseExecHistoryResponse getFunctionalExecuteResult(@PathVariable String reportId) {
         return testPlanReportService.getFunctionalExecuteResult(reportId);
     }
