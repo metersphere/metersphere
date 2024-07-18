@@ -969,7 +969,7 @@
   function handleClose() {
     if (isReplace.value) {
       isReplace.value = false;
-    } else if (!requestVModel.value.isNew) {
+    } else {
       emit('applyStep', cloneDeep(makeRequestParams()) as RequestParam);
     }
   }

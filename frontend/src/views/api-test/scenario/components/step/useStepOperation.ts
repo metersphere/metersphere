@@ -195,11 +195,13 @@ export default function useStepOperation({
       }
       loading.value = true;
       const offspringIds: string[] = [];
-      mapTree(cloneDeep(dragNode.children || []), (e) => {
+      const realStep = findNodeByKey<ScenarioStepItem>(steps.value, dragNode.uniqueId, 'uniqueId');
+      if (!realStep) return;
+      mapTree(cloneDeep(realStep.children || []), (e) => {
         offspringIds.push(e.uniqueId);
         return e;
       });
-      const stepIdAndOffspringIds = [dragNode.uniqueId, ...offspringIds];
+      const stepIdAndOffspringIds = [realStep.uniqueId, ...offspringIds];
       if (dropPosition === 0) {
         // 拖拽到节点内
         if (selectedKeys.value.includes(dropNode.uniqueId)) {
@@ -209,7 +211,7 @@ export default function useStepOperation({
       } else if (dropNode.parent && selectedKeys.value.includes(dropNode.parent.uniqueId)) {
         // 释放位置的节点的父节点已选中，则需要把拖动的节点及其子孙节点也需要选中（因为父级选中子级也会展示选中状态）
         selectedKeys.value = selectedKeys.value.concat(stepIdAndOffspringIds);
-      } else if (dragNode.parent && selectedKeys.value.includes(dragNode.parent.uniqueId)) {
+      } else if (realStep.parent && selectedKeys.value.includes(realStep.parent.uniqueId)) {
         // 如果被拖动的节点的父节点在选中的节点中，则需要把被拖动的节点及其子孙节点从选中的节点中移除
         selectedKeys.value = selectedKeys.value.filter((e) => {
           for (let i = 0; i < stepIdAndOffspringIds.length; i++) {
@@ -222,7 +224,7 @@ export default function useStepOperation({
           return true;
         });
       }
-      const dragResult = handleTreeDragDrop(steps.value, dragNode, dropNode, dropPosition, 'uniqueId');
+      const dragResult = handleTreeDragDrop(steps.value, realStep, dropNode, dropPosition, 'uniqueId');
       if (dragResult) {
         Message.success(t('common.moveSuccess'));
         scenario.value.unSaved = true;

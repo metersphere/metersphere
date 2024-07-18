@@ -1,3 +1,5 @@
+import { traverseTree } from '@/utils';
+
 import { RequestResult } from '@/models/apiTest/common';
 import { type Scenario, type ScenarioStepDetails, ScenarioStepItem } from '@/models/apiTest/scenario';
 import { ScenarioExecuteStatus, ScenarioStepType } from '@/enums/apiEnum';
@@ -123,7 +125,7 @@ export function getScenarioFileParams(scenario: Scenario) {
  */
 export function getStepDetails(steps: ScenarioStepItem[], details: Record<string, ScenarioStepDetails>) {
   const newStepDetails: Record<string, ScenarioStepDetails> = {};
-  steps.forEach((step) => {
+  traverseTree(steps, (step) => {
     const currentDetail = details[step.id] as RequestParam;
     if (
       currentDetail &&
