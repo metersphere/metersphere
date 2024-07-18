@@ -135,7 +135,7 @@ public class OperatingLogService {
                     columns.stream().forEach(column -> {
                         if (StringUtils.isNotEmpty(column.getColumnTitle())) {
                             if (StringUtils.equalsIgnoreCase(TestCaseReference.testCaseColumns.get(column.getColumnName()), column.getColumnTitle())) {
-                                column.setOriginalValue(Translator.get(column.getOriginalValue().toString()).replace("Not Support Key:", ""));
+                                column.setOriginalValue(Translator.get(Optional.ofNullable(column.getOriginalValue()).orElse(StringUtils.EMPTY).toString()).replace("Not Support Key:", ""));
                                 column.setNewValue(Translator.get(column.getNewValue().toString()).replace("Not Support Key:", ""));
                             }
                             String columnsTitle = Translator.get(column.getColumnTitle());
