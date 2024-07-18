@@ -15,7 +15,7 @@
   </MsBaseTable>
   <MsDrawer
     v-model:visible="showDetailVisible"
-    :title="t('ms.case.associate.title')"
+    :title="t('common.detail')"
     :width="1200"
     :footer="false"
     no-content-padding
