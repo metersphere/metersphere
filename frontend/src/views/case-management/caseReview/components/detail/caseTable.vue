@@ -840,7 +840,12 @@
       });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
-      refresh(false);
+      if (showType.value === 'list') {
+        resetSelector();
+        loadList();
+      } else {
+        msCaseReviewMinderRef.value?.updateResource('RE_REVIEWED');
+      }
       emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -976,8 +981,10 @@
     handleOperation(type);
   }
 
-  function handleReviewDone() {
-    refresh(false);
+  function handleReviewDone(refreshTree?: boolean) {
+    if (refreshTree) {
+      refresh(false);
+    }
     emit('refresh');
   }
 

@@ -95,7 +95,8 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { CaseReviewFunctionalCaseUserItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
+  import { CaseReviewFunctionalCaseUserItem, ReviewPassRule } from '@/models/caseManagement/caseReview';
+  import { StartReviewStatus } from '@/enums/caseEnum';
 
   const props = defineProps<{
     reviewId: string;
@@ -113,7 +114,7 @@
   const dialogFormRef = ref<FormInstance>();
   const caseReviewerList = ref<CaseReviewFunctionalCaseUserItem[]>([]);
   const caseResultForm = ref({
-    result: 'PASS' as ReviewResult,
+    result: StartReviewStatus.PASS,
     reason: '',
     fileList: [] as string[],
     commentIds: [] as string[],
@@ -121,7 +122,7 @@
   const submitReviewLoading = ref(false);
   const submitDisabled = computed(
     () =>
-      caseResultForm.value.result !== 'PASS' &&
+      caseResultForm.value.result !== StartReviewStatus.PASS &&
       (caseResultForm.value.reason === '' || caseResultForm.value.reason.trim() === '<p style=""></p>')
   );
   const modalVisible = ref(false);
@@ -169,7 +170,7 @@
           }
 
           caseResultForm.value = {
-            result: 'PASS' as ReviewResult,
+            result: StartReviewStatus.PASS,
             reason: '',
             fileList: [] as string[],
             commentIds: [] as string[],

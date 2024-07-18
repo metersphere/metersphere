@@ -53,7 +53,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'done'): void;
+    (e: 'done', status: StartReviewStatus): void;
   }>();
 
   const { t } = useI18n();
@@ -109,7 +109,7 @@
       await batchReview(params);
       modalVisible.value = false;
       Message.success(t('caseManagement.caseReview.reviewSuccess'));
-      emit('done');
+      emit('done', form.value.status);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

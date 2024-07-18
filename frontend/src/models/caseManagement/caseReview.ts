@@ -1,6 +1,7 @@
 import { OptionItem } from '@/api/modules/message/index';
 
 import { BatchApiParams, TableQueryParams } from '@/models/common';
+import { StartReviewStatus } from '@/enums/caseEnum';
 
 // 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档(暂时没有)
 export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED';
@@ -221,7 +222,7 @@ export interface ReviewCaseItem {
 }
 // 评审详情-提交评审入参
 export interface ReviewFormParams {
-  status: ReviewResult;
+  status: StartReviewStatus;
   content: string;
   notifiers?: string[];
   reviewCommentFileIds?: string[];
