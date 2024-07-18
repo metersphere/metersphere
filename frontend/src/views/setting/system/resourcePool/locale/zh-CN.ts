@@ -121,4 +121,5 @@ export default {
   'system.resourcePool.addAndContinue': '保存并继续添加',
   'system.resourcePool.supportMultiResource': '社区版仅支持 1 个资源，如需添加更多资源，可申请',
   'system.resourcePool.concurrentNumberMinToolTip': '社区版单个节点最大并发数为 10，如需更大并发数，可申请',
+  'system.resourcePool.notExit': '资源池不存在',
 };
