@@ -866,7 +866,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             List<String> caseIds = functionalCaseList.stream().map(FunctionalCase::getId).toList();
             List<ApiScenario> scenarioList = extFunctionalCaseTestMapper.selectApiScenarioByCaseIds(caseIds);
             List<TestPlanApiScenario> testPlanApiScenarioList = new ArrayList<>();
-            testPlanApiScenarioService.buildTestPlanApiScenarioDTO(functional, scenarioList, testPlan, user, testPlanApiScenarioList);
+            testPlanApiScenarioService.buildTestPlanApiScenarioDTO(functional.getModules().getApiScenarioCollectionId(), scenarioList, testPlan, user, testPlanApiScenarioList);
             if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
                 testPlanApiScenarioMapper.batchInsert(testPlanApiScenarioList);
             }
@@ -886,7 +886,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             List<String> caseIds = functionalCaseList.stream().map(FunctionalCase::getId).toList();
             List<ApiTestCase> apiTestCaseList = extFunctionalCaseTestMapper.selectApiCaseByCaseIds(caseIds);
             List<TestPlanApiCase> testPlanApiCaseList = new ArrayList<>();
-            testPlanApiCaseService.buildTestPlanApiCaseDTO(functional, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+            testPlanApiCaseService.buildTestPlanApiCaseDTO(functional.getModules().getApiCaseCollectionId(), apiTestCaseList, testPlan, user, testPlanApiCaseList);
             if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
                 testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
             }

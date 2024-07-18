@@ -590,7 +590,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
-                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+                    buildTestPlanApiCaseDTO(apiCase.getCollectionId(), apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
                     List<ApiTestCase> apiTestCaseList = new ArrayList<>();
@@ -614,7 +614,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
                     if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
                         List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos).reversed()).toList();
-                        buildTestPlanApiCaseDTO(apiCase, list, testPlan, user, testPlanApiCaseList);
+                        buildTestPlanApiCaseDTO(apiCase.getCollectionId(), list, testPlan, user, testPlanApiCaseList);
                     }
 
                 }
@@ -632,7 +632,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
-                    buildTestPlanApiCaseDTO(apiCase, apiTestCaseList, testPlan, user, testPlanApiCaseList);
+                    buildTestPlanApiCaseDTO(apiCase.getCollectionId(), apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
                     List<ApiTestCase> apiTestCaseList = new ArrayList<>();
@@ -656,7 +656,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
                     if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
                         List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos).reversed()).toList();
-                        buildTestPlanApiCaseDTO(apiCase, list, testPlan, user, testPlanApiCaseList);
+                        buildTestPlanApiCaseDTO(apiCase.getCollectionId(), list, testPlan, user, testPlanApiCaseList);
                     }
 
                 }
@@ -668,18 +668,18 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     /**
      * 构建测试计划接口用例对象
      *
-     * @param apiCase
+     * @param collectionId
      * @param apiTestCaseList
      * @param testPlan
      * @param user
      * @param testPlanApiCaseList
      */
-    public void buildTestPlanApiCaseDTO(BaseCollectionAssociateRequest apiCase, List<ApiTestCase> apiTestCaseList, TestPlan testPlan, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
-        AtomicLong nextOrder = new AtomicLong(getNextOrder(apiCase.getCollectionId()));
+    public void buildTestPlanApiCaseDTO(String collectionId, List<ApiTestCase> apiTestCaseList, TestPlan testPlan, SessionUser user, List<TestPlanApiCase> testPlanApiCaseList) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         apiTestCaseList.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(IDGenerator.nextStr());
-            testPlanApiCase.setTestPlanCollectionId(apiCase.getCollectionId());
+            testPlanApiCase.setTestPlanCollectionId(collectionId);
             testPlanApiCase.setTestPlanId(testPlan.getId());
             testPlanApiCase.setApiCaseId(apiTestCase.getId());
             testPlanApiCase.setEnvironmentId(apiTestCase.getEnvironmentId());

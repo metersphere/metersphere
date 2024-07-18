@@ -201,7 +201,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 if (selectAllModule) {
                     // 选择了全部模块
                     List<ApiScenario> scenarioList = extApiScenarioMapper.selectAllCase(isRepeat, apiScenario.getModules().getProjectId(), testPlan.getId());
-                    buildTestPlanApiScenarioDTO(apiScenario, scenarioList, testPlan, user, testPlanApiScenarioList);
+                    buildTestPlanApiScenarioDTO(apiScenario.getCollectionId(), scenarioList, testPlan, user, testPlanApiScenarioList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
                     List<ApiScenario> scenarioList = new ArrayList<>();
@@ -225,7 +225,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
                     if (CollectionUtils.isNotEmpty(scenarioList)) {
                         List<ApiScenario> list = scenarioList.stream().sorted(Comparator.comparing(ApiScenario::getPos).reversed()).toList();
-                        buildTestPlanApiScenarioDTO(apiScenario, list, testPlan, user, testPlanApiScenarioList);
+                        buildTestPlanApiScenarioDTO(apiScenario.getCollectionId(), list, testPlan, user, testPlanApiScenarioList);
                     }
 
                 }
@@ -236,20 +236,20 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     /**
      * 构建测试计划场景用例对象
      *
-     * @param apiScenario
+     * @param collectionId
      * @param scenarioList
      * @param testPlan
      * @param user
      * @param testPlanApiScenarioList
      */
-    public void buildTestPlanApiScenarioDTO(BaseCollectionAssociateRequest apiScenario, List<ApiScenario> scenarioList, TestPlan testPlan, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
-        AtomicLong nextOrder = new AtomicLong(getNextOrder(apiScenario.getCollectionId()));
+    public void buildTestPlanApiScenarioDTO(String collectionId, List<ApiScenario> scenarioList, TestPlan testPlan, SessionUser user, List<TestPlanApiScenario> testPlanApiScenarioList) {
+        AtomicLong nextOrder = new AtomicLong(getNextOrder(collectionId));
         scenarioList.forEach(scenario -> {
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(IDGenerator.nextStr());
             testPlanApiScenario.setTestPlanId(testPlan.getId());
             testPlanApiScenario.setApiScenarioId(scenario.getId());
-            testPlanApiScenario.setTestPlanCollectionId(apiScenario.getCollectionId());
+            testPlanApiScenario.setTestPlanCollectionId(collectionId);
             testPlanApiScenario.setGrouped(scenario.getGrouped());
             testPlanApiScenario.setEnvironmentId(scenario.getEnvironmentId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
