@@ -8,7 +8,7 @@
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
     <span class="mt-2 text-[var(--color-text-4)]">{{ attrs.subDesc }}</span>
-    <a v-if="previewIcon" class="show-sub" @click="showPreviewImg">{{ t('project.menu.show') }}</a>
+    <a class="show-sub" @click="showPreviewImg">{{ t('project.menu.show') }}</a>
     <a-image-preview v-model:visible="imgVisible" :default-scale="0.75" :src="previewIcon" />
   </div>
 </template>
