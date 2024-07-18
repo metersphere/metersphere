@@ -42,7 +42,7 @@
                   <template #overflow="{ number }">
                     <a-tooltip
                       :content="(Array.isArray(item.value) ? item.value : [item.value]).join('，')"
-                      :position="item.tagPosition"
+                      :position="item.tagPosition ?? 'tl'"
                     >
                       <MsTag
                         :theme="item.tagTheme || 'outline'"
