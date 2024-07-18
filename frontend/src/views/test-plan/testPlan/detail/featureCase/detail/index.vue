@@ -67,7 +67,7 @@
             >
             <div class="flex-1 overflow-hidden">
               <a-tooltip :content="caseDetail.name">
-                <div class="one-line-text max-w-[100%] font-medium">
+                <div class="one-line-text w-[fit-content] max-w-[100%] font-medium">
                   {{ caseDetail.name }}
                 </div>
               </a-tooltip>

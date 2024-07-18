@@ -335,4 +335,8 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.file-name-first) {
+    max-width: 170px;
+  }
+</style>
