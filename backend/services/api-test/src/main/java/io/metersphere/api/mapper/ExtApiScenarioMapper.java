@@ -87,7 +87,7 @@ public interface ExtApiScenarioMapper {
     List<ApiScenario> selectAllCase(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
 
 
-    List<ApiScenario> getListBySelectModules(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("testPlanId") String testPlanId);
+    List<ApiScenario> getListBySelectModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("testPlanId") String testPlanId);
 
     List<ApiScenario> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId);
 }

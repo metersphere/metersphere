@@ -930,6 +930,11 @@
         <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
             #{moduleId}
         </foreach>
+        <if test="!isRepeat">
+            AND functional_case.id not in (
+            select functional_case_id from test_plan_functional_case where test_plan_id = #{testPlanId}
+            )
+        </if>
     </select>
 
 

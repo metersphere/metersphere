@@ -25,9 +25,9 @@ public interface ExtFunctionalCaseTestMapper {
 
     List<TestPlanCaseExecuteHistoryDTO> getPlanExecuteHistoryList(@Param("caseId") String caseId, @Param("planId") String planId);
 
-    List<ApiTestCase> selectApiCaseByCaseIds(@Param("caseIds") List<String> caseIds);
+    List<ApiTestCase> selectApiCaseByCaseIds(@Param("isRepeat") boolean isRepeat, @Param("caseIds") List<String> caseIds, @Param("testPlanId") String testPlanId);
 
-    List<ApiScenario> selectApiScenarioByCaseIds(@Param("caseIds") List<String> caseIds);
+    List<ApiScenario> selectApiScenarioByCaseIds(@Param("isRepeat") boolean isRepeat, @Param("caseIds") List<String> caseIds, @Param("testPlanId") String testPlanId);
 
     List<FunctionalCaseTest> selectApiAndScenarioIdsFromCaseIds(@Param("caseIds") List<String> functionalCaseIds);
 }

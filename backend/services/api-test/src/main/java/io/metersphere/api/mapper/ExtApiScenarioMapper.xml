@@ -708,6 +708,11 @@
         <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
             #{moduleId}
         </foreach>
+        <if test="!isRepeat">
+            AND api_scenario.id not in (
+            select api_scenario_id from test_plan_api_scenario where test_plan_id = #{testPlanId}
+            )
+        </if>
     </select>
 
     <select id="getListBySelectIds" resultType="io.metersphere.api.domain.ApiScenario">
