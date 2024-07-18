@@ -647,6 +647,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 && StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
             testCase.setStepDescription(data.getStepDesc());
             testCase.setExpectedResult(data.getStepResult());
+            testCase.setSteps("[]");
         } else {
             String steps = getSteps(data);
             testCase.setSteps(steps);
