@@ -135,7 +135,7 @@
   const testPlanNameColumns: MsTableColumn = [
     {
       title: 'report.plan.name',
-      dataIndex: 'name',
+      dataIndex: 'planName',
       showTooltip: true,
       width: 200,
     },
