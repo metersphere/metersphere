@@ -434,6 +434,7 @@
           label: t('common.tag'),
           value: res.tags,
           isTag: true,
+          tagPosition: 'tr',
         },
         // 解析用例模板的自定义字段
         ...res.customFields.map((e: Record<string, any>) => {
