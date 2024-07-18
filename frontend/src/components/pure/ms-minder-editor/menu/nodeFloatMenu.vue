@@ -35,7 +35,7 @@
             class="ms-minder-node-float-menu-icon-button"
             :class="[insertSiblingMenuVisible ? 'ms-minder-node-float-menu-icon-button--focus' : '']"
           >
-            <MsIcon type="icon-icon_title-top-align_outlined1" class="text-[var(--color-text-4)]" />
+            <MsIcon type="icon-icon_title-top-align_outlined" class="text-[var(--color-text-4)]" />
           </MsButton>
         </a-tooltip>
         <template #content>
@@ -62,7 +62,7 @@
             class="ms-minder-node-float-menu-icon-button"
             :class="[insertSonMenuVisible ? 'ms-minder-node-float-menu-icon-button--focus' : '']"
           >
-            <MsIcon type="icon-icon_title-left-align_outlined1" class="text-[var(--color-text-4)]" />
+            <MsIcon type="icon-icon_title-left-align_outlined" class="text-[var(--color-text-4)]" />
           </MsButton>
         </a-tooltip>
         <template #content>
