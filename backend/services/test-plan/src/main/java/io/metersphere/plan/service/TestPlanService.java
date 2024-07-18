@@ -150,7 +150,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 testPlanFunctionalCaseMapper.updateByExampleSelective(updateRecord, updateExample);
                 // 报告-功能用例的执行结果同步刷新
                 TestPlanReportFunctionCaseExample caseExample = new TestPlanReportFunctionCaseExample();
-                caseExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId).andTestPlanFunctionCaseIdIn(funcCaseIds);
+                caseExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId).andFunctionCaseIdIn(funcCaseIds);
                 TestPlanReportFunctionCase reportFunctionCase = new TestPlanReportFunctionCase();
                 reportFunctionCase.setFunctionCaseExecuteResult(result);
                 reportFunctionCase.setFunctionCaseExecuteReportId(null);
