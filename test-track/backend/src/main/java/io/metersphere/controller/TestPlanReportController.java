@@ -67,13 +67,12 @@ public class TestPlanReportController {
         return testPlanReportService.getReport(reportId);
     }
 
-    @GetMapping("/status/{planId}")
+    @GetMapping("/status/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REPORT_READ)
-    public String getStatus(@PathVariable String planId) {
-        testPlanReportService.checkOwner(planId, SessionUtils.getUserId());
-        TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
-        String status = report.getStatus();
-        return status;
+    public String getStatus(@PathVariable String reportId) {
+        testPlanReportService.checkOwner(reportId, SessionUtils.getUserId());
+        TestPlanReport report = testPlanReportService.getTestPlanReport(reportId);
+        return report.getStatus();
     }
 
     @PostMapping("/delete")
