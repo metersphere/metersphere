@@ -17,6 +17,7 @@ export interface FeatureCaseItem {
   executeUserName: string;
   bugCount: number;
   reportId: string;
+  projectId: string;
 }
 
 export interface UpdateReportDetailParams {

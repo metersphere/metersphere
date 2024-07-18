@@ -1,5 +1,8 @@
 <template>
   <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <template #num="{ record }">
+      <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
+    </template>
     <template #caseLevel="{ record }">
       <CaseLevel :case-level="record.priority" />
     </template>
@@ -46,14 +49,18 @@
     getReportShareFeatureCaseList,
   } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
 
   import { FeatureCaseItem } from '@/models/testPlan/report';
   import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
   import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
+
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     reportId: string;
@@ -161,6 +168,13 @@
   async function loadCaseList() {
     setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
     loadList();
+  }
+  // 跳转用例详情
+  function toDetail(record: FeatureCaseItem) {
+    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
+      id: record.id,
+      pId: record.projectId,
+    });
   }
 
   watch(

@@ -135,6 +135,7 @@ const functionalList: FeatureCaseItem = {
   executeUserName: '',
   bugCount: 0,
   reportId: '',
+  projectId: '',
 };
 // 缺陷明细
 const bugList: ReportBugItem = {
