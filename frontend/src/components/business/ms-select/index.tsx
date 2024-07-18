@@ -447,6 +447,9 @@ export default defineComponent(
     });
 
     function checkOptionExit(label?: string) {
+      if (typeof props.optionLabelRender === 'function') {
+        return label;
+      }
       const option = remoteOriginOptions.value.find((e) => e[props.labelKey || 'label'] === label);
       return option ? option[props.labelKey || 'label'] : props.optionNotExitsText || t('ms.select.optionsNotExits');
     }
