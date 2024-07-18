@@ -391,7 +391,9 @@
                   ]}
                 >
                   <MsAvatar is-user size={20} class="!mr-0 w-[20px] hover:!bg-transparent" />
-                  <div class="one-line-text flex-1">{collapsed.value ? null : userStore.name}</div>
+                  <div class="one-line-text flex-1 hover:!bg-transparent">
+                    {collapsed.value ? null : userStore.name}
+                  </div>
                 </div>
               }
               {collapsed.value ? null : <icon-caret-down class="!m-0 w-[16px]" />}

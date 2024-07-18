@@ -36,7 +36,7 @@
             </MsEditableTab>
           </div>
           <div class="flex-1 overflow-hidden">
-            <debug
+            <requestComposition
               v-model:detail-loading="loading"
               v-model:request="activeDebug"
               :module-tree="folderTree"
@@ -49,6 +49,7 @@
               :file-save-as-source-id="activeDebug.id"
               :file-save-as-api="transferFile"
               :file-module-options-api="getTransferOptions"
+              hide-json-schema
               :permission-map="{
                 execute: 'PROJECT_API_DEBUG:READ+EXECUTE',
                 update: 'PROJECT_API_DEBUG:READ+UPDATE',
@@ -112,7 +113,7 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import moduleTree from './components/moduleTree.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
-  import debug, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {

@@ -247,6 +247,8 @@
               :file-save-as-api="props.fileSaveAsApi"
               :file-module-options-api="props.fileModuleOptionsApi"
               :is-debug="requestVModel.mode === 'debug'"
+              :hide-json-schema="props.hideJsonSchema"
+              :is-case="props.isCase"
               @change="handleActiveDebugChange"
             />
             <httpQuery
@@ -546,6 +548,7 @@
     isDefinition?: boolean; // 是否是接口定义模式
     hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     otherParams?: Record<string, any>; // 保存请求时的其他参数
+    hideJsonSchema?: boolean; // 是否隐藏json schema
     executeApi?: (params: ExecuteRequestParams) => Promise<any>; // 执行接口
     localExecuteApi?: (url: string, params: ExecuteRequestParams) => Promise<any>; // 本地执行接口
     createApi?: (...args: any) => Promise<any>; // 创建接口
