@@ -15,6 +15,7 @@
       :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
       disabled
       @node-select="handleNodeSelect"
+      @node-unselect="handleNodeUnselect"
     >
       <template #extractMenu>
         <!-- 评审 查看详情 -->
@@ -159,6 +160,7 @@
     ReviewResult as ReviewResultStatus,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
+  import { StartReviewStatus } from '@/enums/caseEnum';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
   import { convertToFile, getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -174,7 +176,7 @@
 
   const emit = defineEmits<{
     (e: 'operation', type: string, node: MinderJsonNode): void;
-    (e: 'handleReviewDone'): void;
+    (e: 'handleReviewDone', refreshTree?: boolean): void;
   }>();
 
   const route = useRoute();
@@ -550,9 +552,38 @@
 
   const selectNode = ref();
   const reviewVisible = ref(false);
-  function handleReviewDone() {
+  function handleReviewDone(status: StartReviewStatus) {
     reviewVisible.value = false;
-    emit('handleReviewDone');
+    if (
+      props.reviewPassRule !== 'MULTIPLE' &&
+      status !== StartReviewStatus.UNDER_REVIEWED &&
+      selectNode.value.data?.resource?.includes(caseTag)
+    ) {
+      window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
+      emit('handleReviewDone');
+    } else {
+      emit('handleReviewDone', true);
+    }
+  }
+
+  // 递归更新子节点的用例标签
+  function updateChildResources(status: string, node?: MinderJsonNode) {
+    node?.children?.forEach((child: MinderJsonNode) => {
+      if (child.data?.resource?.includes(caseTag)) {
+        child.setData('resource', [statusTagMap[status], caseTag]).render();
+      } else if (child.data?.resource?.includes(moduleTag)) {
+        updateChildResources(status, child);
+      }
+    });
+  }
+
+  // 更新状态标签
+  function updateResource(status: string) {
+    if (selectNode.value.data?.resource?.includes(moduleTag)) {
+      updateChildResources(status, selectNode.value);
+    } else if (selectNode.value.data?.resource?.includes(caseTag)) {
+      window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
+    }
   }
 
   /**
@@ -634,8 +665,13 @@
     setPriorityView(true, 'P');
   }
 
+  function handleNodeUnselect() {
+    extraVisible.value = false;
+  }
+
   defineExpose({
     initCaseTree,
+    updateResource,
   });
 </script>
 
