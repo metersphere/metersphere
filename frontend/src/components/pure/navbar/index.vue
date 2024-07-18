@@ -148,7 +148,7 @@
       </li>
       <li>
         <a-dropdown trigger="click" position="br" @select="changeLocale as any">
-          <a-tooltip :content="t('settings.language')">
+          <a-tooltip :content="t('settings.language')" position="br">
             <a-button type="secondary">
               <template #icon>
                 <icon-translate />

@@ -42,7 +42,7 @@
                   <template #overflow="{ number }">
                     <a-tooltip
                       :content="(Array.isArray(item.value) ? item.value : [item.value]).join('，')"
-                      position="tl"
+                      :position="item.tagPosition"
                     >
                       <MsTag
                         :theme="item.tagTheme || 'outline'"
@@ -157,6 +157,20 @@
     tagClass?: string; // 标签自定义类名
     tagType?: TagType; // 标签类型
     tagTheme?: Theme; // 标签主题
+    tagPosition?:
+      | 'top'
+      | 'tl'
+      | 'tr'
+      | 'bottom'
+      | 'bl'
+      | 'br'
+      | 'left'
+      | 'lt'
+      | 'lb'
+      | 'right'
+      | 'rt'
+      | 'rb'
+      | undefined; // 提示位置防止窗口抖动
     tagMaxWidth?: string; // 标签最大宽度
     closable?: boolean; // 标签是否可关闭
     showTagAdd?: boolean; // 是否显示添加标签
