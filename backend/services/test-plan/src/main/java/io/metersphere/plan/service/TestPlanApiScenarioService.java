@@ -113,6 +113,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
         return extTestPlanApiScenarioMapper.selectDistinctExecResult(projectId);
     }
+
     @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
@@ -522,10 +523,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extTestPlanApiScenarioMapper.countModuleIdByRequest(request, false);
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
         Map<String, Long> projectModuleCountMap = projectModuleCountDTOList.stream()
-                .collect(Collectors.groupingBy(
-                        FunctionalCaseModuleCountDTO::getModuleId,
-                        Collectors.summingLong(FunctionalCaseModuleCountDTO::getDataCount)));
-
+                .filter(item -> StringUtils.equals(item.getModuleId(), item.getProjectId() + "_" + ModuleConstants.DEFAULT_NODE_ID))
+                .collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getModuleId, Collectors.summingLong(FunctionalCaseModuleCountDTO::getDataCount)));
         projectCountMap.forEach((projectId, moduleCountDTOList) -> {
             List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
             for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {

@@ -372,10 +372,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
         //projectModuleCountDTOList转新的map key 是moduleId value是数量 stream实现
         Map<String, Long> projectModuleCountMap = projectModuleCountDTOList.stream()
-                .collect(Collectors.groupingBy(
-                        FunctionalCaseModuleCountDTO::getModuleId,
-                        Collectors.summingLong(FunctionalCaseModuleCountDTO::getDataCount)));
-
+                .filter(item -> StringUtils.equals(item.getModuleId(), item.getProjectId() + "_" + ModuleConstants.DEFAULT_NODE_ID))
+                .collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getModuleId, Collectors.summingLong(FunctionalCaseModuleCountDTO::getDataCount)));
         projectCountMap.forEach((projectId, moduleCountDTOList) -> {
             List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
             for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {
