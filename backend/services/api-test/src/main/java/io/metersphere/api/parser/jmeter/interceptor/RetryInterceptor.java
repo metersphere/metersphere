@@ -8,6 +8,7 @@ import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.JmeterElementConvertInterceptor;
 import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.sdk.dto.api.task.ApiRunRetryConfig;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.control.WhileController;
@@ -29,6 +30,7 @@ public class RetryInterceptor implements JmeterElementConvertInterceptor {
                 try {
                     String retryValueName = "VARS_" + retryId;
                     String retryTimes = "%s";
+                    String retryInterval = "%s";
                     if (prev.isSuccess()) {
                         vars.put(retryId, "STOPPED");
                     }
@@ -36,6 +38,7 @@ public class RetryInterceptor implements JmeterElementConvertInterceptor {
                         vars.put(retryValueName, "0");
                     } else {
                         int retryNum = Integer.parseInt(vars.get(retryValueName));
+                        sleep(Integer.parseInt(retryInterval));
                         retryNum++;
                         log.info("重试：" + retryNum);
                         prev.setSampleLabel("MsRetry_" + retryNum + "_" + prev.getSampleLabel());
@@ -55,12 +58,12 @@ public class RetryInterceptor implements JmeterElementConvertInterceptor {
         AbstractMsTestElement abstractMsTestElement = (AbstractMsTestElement) element;
         ApiParamConfig apiParamConfig = (ApiParamConfig) config;
         if (isRetryEnable(apiParamConfig) && isRetryElement(element) && !isInLoop(abstractMsTestElement)) {
-           return addRetryWhileController(tree, abstractMsTestElement.getName(), apiParamConfig.getRetryConfig().getRetryTimes());
+           return addRetryWhileController(tree, abstractMsTestElement.getName(), apiParamConfig.getRetryConfig());
         }
         return tree;
     }
 
-    public HashTree addRetryWhileController(HashTree tree, String name, int retryTimes) {
+    public HashTree addRetryWhileController(HashTree tree, String name, ApiRunRetryConfig retryConfig) {
         String retryId = UUID.randomUUID().toString();
         String whileCondition = String.format("""
                     ${__jexl3("${%s}" != "STOPPED")}
@@ -72,7 +75,7 @@ public class RetryInterceptor implements JmeterElementConvertInterceptor {
         postProcessor.setProperty(TestElement.TEST_CLASS, JSR223Listener.class.getName());
         postProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JmeterAlias.TEST_BEAN_GUI));
         postProcessor.setProperty("scriptLanguage", "groovy");
-        postProcessor.setProperty("script", getRetryScript(retryId, retryTimes));
+        postProcessor.setProperty("script", getRetryScript(retryId, retryConfig));
         hashTree.add(postProcessor);
         return hashTree;
     }
@@ -90,10 +93,11 @@ public class RetryInterceptor implements JmeterElementConvertInterceptor {
         return controller;
     }
 
-    private String getRetryScript(String retryId, int retryTimes) {
+    private String getRetryScript(String retryId, ApiRunRetryConfig retryConfig) {
         return String.format(template,
                 retryId,
-                retryTimes
+                retryConfig.getRetryTimes(),
+                retryConfig.getRetryInterval()
         );
     }
 

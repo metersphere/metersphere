@@ -18,5 +18,5 @@ public class ApiRunRetryConfig implements Serializable {
     /**
      * 失败重试间隔(单位: ms)
      */
-    private Integer retryInterval;
+    private Integer retryInterval = 0;
 }
