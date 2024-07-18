@@ -135,41 +135,7 @@ public class JsonSchemaBuilder {
         String type = getPropertyTextValue(propertyNode, PropertyConstant.TYPE);
         String value = getPropertyTextValue(propertyNode, PropertyConstant.EXAMPLE);
         return switch (type) {
-            case PropertyConstant.STRING -> {
-                if (StringUtils.isBlank(value)) {
-                    JsonNode enumValues = propertyNode.get(PropertyConstant.ENUM_VALUES);
-                    JsonNode defaultValue = propertyNode.get(PropertyConstant.DEFAULT_VALUE);
-                    JsonNode pattern = propertyNode.get(PropertyConstant.PATTERN);
-                    JsonNode maxLength = propertyNode.get(PropertyConstant.MAX_LENGTH);
-                    JsonNode minLength = propertyNode.get(PropertyConstant.MIN_LENGTH);
-                    int max = isTextNotBlank(maxLength) ? maxLength.asInt() : 20;
-                    int min = isTextNotBlank(minLength) ? minLength.asInt() : 1;
-                    if (enumValues != null && enumValues instanceof ArrayNode) {
-                        value = enumValues.get(new SecureRandom().nextInt(enumValues.size())).asText();
-                        if (value.length() > max) {
-                            value = value.substring(0, max);
-                        }
-                    } else if (isTextNotBlank(pattern)) {
-                        try {
-                            Node node = new OrdinaryNode(pattern.asText());
-                            value = node.random();
-                        } catch (Exception e) {
-                            value = pattern.asText();
-                        }
-                    } else if (isTextNotBlank(defaultValue)) {
-                        value = defaultValue.asText();
-                        if (value.length() > max) {
-                            value = value.substring(0, max);
-                        }
-                        if (value.length() < min) {
-                            value = value + generateStr(min - value.length());
-                        }
-                    } else {
-                        value = generateStr(new SecureRandom().nextInt(max - min + 1) + min);
-                    }
-                }
-                yield new TextNode(value);
-            }
+            case PropertyConstant.STRING -> new TextNode(generateStrValue(propertyNode, value));
             case PropertyConstant.INTEGER -> {
                 if (StringUtils.isBlank(value)) {
                     JsonNode enumValues = propertyNode.get(PropertyConstant.ENUM_VALUES);
@@ -236,6 +202,58 @@ public class JsonSchemaBuilder {
             default -> NullNode.getInstance();
         };
 
+    }
+
+    private static String generateStrValue(JsonNode propertyNode, String value) {
+        if (StringUtils.isBlank(value)) {
+            JsonNode enumValues = propertyNode.get(PropertyConstant.ENUM_VALUES);
+            JsonNode defaultValue = propertyNode.get(PropertyConstant.DEFAULT_VALUE);
+            JsonNode pattern = propertyNode.get(PropertyConstant.PATTERN);
+            JsonNode maxLength = propertyNode.get(PropertyConstant.MAX_LENGTH);
+            JsonNode minLength = propertyNode.get(PropertyConstant.MIN_LENGTH);
+            int max;
+            int min;
+            if (isTextNotBlank(maxLength) && isTextNotBlank(minLength)) {
+                max = maxLength.asInt();
+                min = minLength.asInt();
+            } else if (isTextNotBlank(maxLength)) {
+                // 只填了最大值，最小值默为 1
+                max = maxLength.asInt();
+                min = max > 0 ? 1 : 0;
+            } else if (isTextNotBlank(minLength)) {
+                // 只填了最小值，最大值默为最小值 + 10
+                min = minLength.asInt();
+                max = min + 10;
+            } else {
+                // 都没填，默认生成8位
+                max = 8;
+                min = 8;
+            }
+            if (enumValues != null && enumValues instanceof ArrayNode) {
+                value = enumValues.get(new SecureRandom().nextInt(enumValues.size())).asText();
+                if (isTextNotBlank(maxLength) && value.length() > max) {
+                    value = value.substring(0, max);
+                }
+            } else if (isTextNotBlank(pattern)) {
+                try {
+                    Node node = new OrdinaryNode(pattern.asText());
+                    value = node.random();
+                } catch (Exception e) {
+                    value = pattern.asText();
+                }
+            } else if (isTextNotBlank(defaultValue)) {
+                value = defaultValue.asText();
+                if (isTextNotBlank(maxLength) && value.length() > max) {
+                    value = value.substring(0, max);
+                }
+                if (value.length() < min) {
+                    value = value + generateStr(min - value.length());
+                }
+            } else {
+                value = generateStr(new SecureRandom().nextInt(max - min + 1) + min);
+            }
+        }
+        return value;
     }
 
     private static String generateStr(int length) {
