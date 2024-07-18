@@ -126,6 +126,7 @@
       actionOnNodeClick?: 'expand'; // 点击节点时的操作
       nodeHighlightClass?: string; // 节点高亮背景色
       hideSwitcher?: boolean; // 隐藏展开折叠图标
+      handleDrop?: boolean; // 是否处理拖拽
       titleTooltipPosition?:
         | 'top'
         | 'tl'
@@ -333,6 +334,10 @@
     dropNode: MsTreeNodeData; // 放入的节点
     dropPosition: number; // 放入的位置，-1 为放入节点前，1 为放入节点后，0 为放入节点内
   }) {
+    if (props.handleDrop) {
+      emit('drop', data.value, dragNode, dropNode, dropPosition);
+      return;
+    }
     loop(data.value, dragNode.key, (item, index, arr) => {
       arr.splice(index, 1);
     });

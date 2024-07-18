@@ -26,6 +26,7 @@
         block-node
         draggable
         hide-switcher
+        handle-drop
         @select="(selectedKeys, node) => handleStepSelect(node as ScenarioStepItem)"
         @expand="handleStepExpand"
         @more-actions-close="() => setFocusNodeKey('')"
@@ -910,7 +911,11 @@
         const { isQuoteScenario } = getStepType(node as ScenarioStepItem);
         if (stepDetail) {
           // 如果复制的步骤还有详情数据，则也复制详情数据
-          stepDetails.value[id] = cloneDeep(stepDetail);
+          stepDetails.value[id] = cloneDeep({
+            ...stepDetail,
+            stepId: id,
+            uniqueId: id,
+          });
         }
         if (stepFileParam) {
           // 如果复制的步骤还有详情数据，则也复制详情数据
