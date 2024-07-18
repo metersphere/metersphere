@@ -85,18 +85,20 @@
           />
         </a-spin>
       </div>
-      <a-spin :loading="caseDetailLoading" class="relative flex flex-1 flex-col">
+      <a-spin :loading="caseDetailLoading" class="relative flex flex-1 flex-col overflow-hidden">
         <div class="content-center">
           <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
-            <div class="mb-[12px] flex items-center justify-between">
-              <a-tooltip :content="`【${caseDetail.num}】${caseDetail.name}`">
-                <div
-                  class="one-line-text cursor-pointer font-medium text-[rgb(var(--primary-5))]"
-                  @click="goCaseDetail"
-                >
-                  【{{ caseDetail.num }}】{{ caseDetail.name }}
-                </div>
-              </a-tooltip>
+            <div class="mb-[12px] flex items-center">
+              <div class="mr-[16px] flex-1 overflow-hidden">
+                <a-tooltip :content="`【${caseDetail.num}】${caseDetail.name}`">
+                  <div
+                    class="one-line-text w-[fit-content] max-w-[100%] cursor-pointer font-medium text-[rgb(var(--primary-5))]"
+                    @click="goCaseDetail"
+                  >
+                    【{{ caseDetail.num }}】{{ caseDetail.name }}
+                  </div>
+                </a-tooltip>
+              </div>
               <a-button
                 v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
                 type="outline"
