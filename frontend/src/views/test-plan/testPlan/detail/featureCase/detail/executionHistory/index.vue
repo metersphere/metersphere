@@ -1,6 +1,6 @@
 <template>
   <a-spin :loading="loading" class="w-full">
-    <div class="execute-history-list">
+    <div :class="`${props.height || 'h-full'} execute-history-list`">
       <div v-for="item of props.executeList" :key="item.status" class="execute-history-list-item">
         <div class="flex items-center">
           <MsAvatar :avatar="item.userLogo" />
@@ -68,6 +68,7 @@
     executeList: ExecuteHistoryItem[];
     loading: boolean;
     showStepResult?: boolean; // 是否展示执行步骤
+    height?: string;
   }>();
 
   function getStepData(steps: string) {
@@ -88,7 +89,6 @@
 
 <style scoped lang="less">
   .execute-history-list {
-    height: calc(100vh - 240px);
     @apply overflow-auto;
     .ms-scroll-bar();
     .execute-history-list-item {
