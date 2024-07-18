@@ -234,7 +234,7 @@ public class TestPlanReportService {
          * 2. 保存报告布局组件 (只对当前生成的计划/组有效, 不会对下面的子计划报告生效)
          * 3. 处理富文本图片
          */
-        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser);
+        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser, request.getReportName());
         String genReportId = reportMap.get(request.getTestPlanId());
         List<TestPlanReportComponentSaveRequest> components = request.getComponents();
         if (CollectionUtils.isNotEmpty(components)) {
@@ -256,7 +256,6 @@ public class TestPlanReportService {
         TestPlanReport record = new TestPlanReport();
         record.setId(genReportId);
         record.setDefaultLayout(false);
-        record.setName(request.getReportName());
         testPlanReportMapper.updateByPrimaryKeySelective(record);
         // 处理富文本文件
         transferRichTextTmpFile(genReportId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, TestPlanReportAttachmentSourceType.RICH_TEXT.name());
@@ -269,7 +268,7 @@ public class TestPlanReportService {
      * @param currentUser 当前用户
      */
     public String genReportByAuto(TestPlanReportGenRequest request, String currentUser) {
-        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser);
+        Map<String, String> reportMap = genReport(IDGenerator.nextStr(), request, true, currentUser, null);
         return reportMap.get(request.getTestPlanId());
     }
 
@@ -282,11 +281,12 @@ public class TestPlanReportService {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Map<String, String> genReportByExecution(String prepareReportId, TestPlanReportGenRequest request, String currentUser) {
-        return genReport(prepareReportId, request, false, currentUser);
+        return genReport(prepareReportId, request, false, currentUser, null);
     }
 
-    public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser) {
+    public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser, String manualReportName) {
         Map<String, String> preReportMap = new HashMap<>();
+        TestPlanReportManualParam reportManualParam = TestPlanReportManualParam.builder().manualName(manualReportName).targetId(request.getTestPlanId()).build();
         try {
             // 所有计划
             List<TestPlan> plans = getPlans(request.getTestPlanId());
@@ -312,7 +312,7 @@ public class TestPlanReportService {
                 genPreParam.setUseManual(manual);
                 //如果是测试计划的独立报告，使用参数中的预生成的报告id。否则只有测试计划组报告使用该id
                 String prepareItemReportId = isGroupReports ? IDGenerator.nextStr() : prepareReportId;
-                TestPlanReport preReport = preGenReport(prepareItemReportId, genPreParam, currentUser, moduleParam, childPlanIds);
+                TestPlanReport preReport = preGenReport(prepareItemReportId, genPreParam, currentUser, moduleParam, childPlanIds, reportManualParam);
                 if (manual) {
                     // 汇总
                     if (genPreParam.getIntegrated()) {
@@ -343,7 +343,8 @@ public class TestPlanReportService {
      *
      * @return 报告
      */
-    public TestPlanReport preGenReport(String prepareId, TestPlanReportGenPreParam genParam, String currentUser, TestPlanReportModuleParam moduleParam, List<String> childPlanIds) {
+    public TestPlanReport preGenReport(String prepareId, TestPlanReportGenPreParam genParam, String currentUser, TestPlanReportModuleParam moduleParam,
+                                       List<String> childPlanIds, TestPlanReportManualParam reportManualParam) {
         // 计划配置
         TestPlanConfig config = testPlanConfigMapper.selectByPrimaryKey(genParam.getTestPlanId());
 
@@ -355,7 +356,8 @@ public class TestPlanReportService {
         TestPlanReport report = new TestPlanReport();
         BeanUtils.copyBean(report, genParam);
         report.setId(genParam.getIntegrated() ? genParam.getGroupReportId() : prepareId);
-        report.setName(genParam.getTestPlanName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+        report.setName((StringUtils.equals(genParam.getTestPlanId(), reportManualParam.getTargetId()) && StringUtils.isNotBlank(reportManualParam.getManualName())) ?
+                reportManualParam.getManualName() : genParam.getTestPlanName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
         report.setCreateUser(currentUser);
         report.setCreateTime(System.currentTimeMillis());
         report.setDeleted(false);
