@@ -86,7 +86,10 @@
     </div> -->
   </div>
   <a-spin v-else :loading="bodyLoading" class="block h-[calc(100%-34px)]">
-    <div v-if="innerParams.bodyType === RequestBodyFormat.JSON" class="mb-[8px] flex items-center justify-between">
+    <div
+      v-if="innerParams.bodyType === RequestBodyFormat.JSON && !props.hideJsonSchema"
+      class="mb-[8px] flex items-center justify-between"
+    >
       <div class="flex items-center gap-[8px]">
         <MsButton
           type="text"
@@ -145,7 +148,7 @@
       :language="currentCodeLanguage"
       is-adaptive
     >
-      <template #leftTitle>
+      <template v-if="!props.hideJsonSchema" #leftTitle>
         <a-popconfirm
           v-if="
             innerParams.bodyType === RequestBodyFormat.JSON && !props.disabledExceptParam && !props.disabledParamValue
@@ -157,6 +160,7 @@
             size: 'small',
           }"
           position="bl"
+          :disabled="getIsVisited()"
           @ok="addVisited"
         >
           <a-button type="text" class="arco-btn-text--primary gap-[4px] p-[2px_6px]" size="small" @click="autoMakeJson">
@@ -221,6 +225,8 @@
     disabledParamValue?: boolean; // 参数值禁用
     disabledExceptParam?: boolean; // 除了可以修改参数值其他都禁用
     isDebug?: boolean; // 是否调试模式
+    hideJsonSchema?: boolean; // 隐藏json schema
+    isCase?: boolean; // 是否是 case
     uploadTempFileApi?: (file: File) => Promise<any>; // 上传临时文件接口
     fileSaveAsSourceId?: string | number; // 文件转存关联的资源id
     fileSaveAsApi?: (params: TransferFileParams) => Promise<string>; // 文件转存接口
@@ -267,6 +273,10 @@
   );
 
   watchEffect(() => {
+    if (props.hideJsonSchema || props.isCase) {
+      innerParams.value.jsonBody.enableJsonSchema = false;
+      return;
+    }
     if (
       innerParams.value.jsonBody.jsonSchema &&
       (!innerParams.value.jsonBody.jsonSchemaTableData || innerParams.value.jsonBody.jsonSchemaTableData.length === 0)

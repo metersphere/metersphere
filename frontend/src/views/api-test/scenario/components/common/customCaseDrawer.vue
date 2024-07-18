@@ -161,6 +161,7 @@
                 :file-save-as-source-id="activeStep?.id"
                 :file-save-as-api="stepTransferFile"
                 :file-module-options-api="getTransferOptions"
+                is-case
                 @change="handleActiveDebugChange"
               />
               <httpQuery
