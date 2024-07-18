@@ -159,6 +159,7 @@
                         <exclude>io/metersphere/**/dto/**</exclude>
                         <exclude>io/metersphere/**/config/**</exclude>
                         <exclude>io/metersphere/**/constants/**</exclude>
+                        <exclude>io/metersphere/**/utils/**</exclude>
                         <exclude>io/metersphere/*/excel/**</exclude>
                         <exclude>io/metersphere/sdk/**</exclude>
                         <exclude>io/metersphere/provider/**</exclude>
@@ -167,6 +168,7 @@
                         <exclude>io/metersphere/system/notice/**</exclude>
                         <exclude>io/metersphere/system/schedule/**</exclude>
                         <exclude>io/metersphere/system/security/**</exclude>
+                        <exclude>io/metersphere/system/controller/handler/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
