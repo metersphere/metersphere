@@ -207,7 +207,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                     List<ApiScenario> scenarioList = new ArrayList<>();
                     //获取全选的模块数据
                     if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                        scenarioList = extApiScenarioMapper.getListBySelectModules(apiScenario.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                        scenarioList = extApiScenarioMapper.getListBySelectModules(isRepeat, apiScenario.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
                     }
 
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {

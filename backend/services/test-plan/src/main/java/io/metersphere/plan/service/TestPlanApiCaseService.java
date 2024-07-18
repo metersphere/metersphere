@@ -596,7 +596,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     List<ApiTestCase> apiTestCaseList = new ArrayList<>();
                     //获取全选的模块数据
                     if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(isRepeat, apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
                     }
 
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
@@ -638,7 +638,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     List<ApiTestCase> apiTestCaseList = new ArrayList<>();
                     //获取全选的模块数据
                     if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(isRepeat, apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
                     }
 
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {

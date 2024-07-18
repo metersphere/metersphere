@@ -806,13 +806,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             // 选择了全部模块
             List<FunctionalCase> functionalCaseList = extFunctionalCaseMapper.selectAllFunctionalCase(isRepeat, functional.getModules().getProjectId(), testPlan.getId());
             buildTestPlanFunctionalCaseDTO(functional, functionalCaseList, testPlan, user, testPlanFunctionalCaseList);
-            handleSyncCase(functionalCaseList, functional, testPlan, user);
+            handleSyncCase(isRepeat, functionalCaseList, functional, testPlan, user);
         } else {
             AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
             List<FunctionalCase> functionalCaseList = new ArrayList<>();
             //获取全选的模块数据
             if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                functionalCaseList = extFunctionalCaseMapper.getListBySelectModules(functional.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                functionalCaseList = extFunctionalCaseMapper.getListBySelectModules(isRepeat, functional.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
             }
 
             if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
@@ -831,7 +831,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             if (CollectionUtils.isNotEmpty(functionalCaseList)) {
                 List<FunctionalCase> list = functionalCaseList.stream().sorted(Comparator.comparing(FunctionalCase::getPos).reversed()).toList();
                 buildTestPlanFunctionalCaseDTO(functional, list, testPlan, user, testPlanFunctionalCaseList);
-                handleSyncCase(functionalCaseList, functional, testPlan, user);
+                handleSyncCase(isRepeat, functionalCaseList, functional, testPlan, user);
             }
 
         }
@@ -841,30 +841,32 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     /**
      * 处理同步添加功能用例关联的用例
      *
+     * @param isRepeat
      * @param functionalCaseList
      * @param functional
      * @param testPlan
      * @param user
      */
-    private void handleSyncCase(List<FunctionalCase> functionalCaseList, BaseCollectionAssociateRequest functional, TestPlan testPlan, SessionUser user) {
+    private void handleSyncCase(boolean isRepeat, List<FunctionalCase> functionalCaseList, BaseCollectionAssociateRequest functional, TestPlan testPlan, SessionUser user) {
         if (BooleanUtils.isTrue(functional.getModules().isSyncCase())) {
-            handleApiCaseData(functionalCaseList, functional, testPlan, user);
-            handleApiScenarioData(functionalCaseList, functional, testPlan, user);
+            handleApiCaseData(isRepeat, functionalCaseList, functional, testPlan, user);
+            handleApiScenarioData(isRepeat, functionalCaseList, functional, testPlan, user);
         }
     }
 
     /**
      * 处理场景用例数据
      *
+     * @param isRepeat
      * @param functionalCaseList
      * @param functional
      * @param testPlan
      * @param user
      */
-    private void handleApiScenarioData(List<FunctionalCase> functionalCaseList, BaseCollectionAssociateRequest functional, TestPlan testPlan, SessionUser user) {
+    private void handleApiScenarioData(boolean isRepeat, List<FunctionalCase> functionalCaseList, BaseCollectionAssociateRequest functional, TestPlan testPlan, SessionUser user) {
         if (StringUtils.isNotBlank(functional.getModules().getApiScenarioCollectionId()) && checkApiCollection(testPlan, functional.getModules().getApiScenarioCollectionId(), CaseType.SCENARIO_CASE.getKey())) {
             List<String> caseIds = functionalCaseList.stream().map(FunctionalCase::getId).toList();
-            List<ApiScenario> scenarioList = extFunctionalCaseTestMapper.selectApiScenarioByCaseIds(caseIds);
+            List<ApiScenario> scenarioList = extFunctionalCaseTestMapper.selectApiScenarioByCaseIds(isRepeat, caseIds, testPlan.getId());
             List<TestPlanApiScenario> testPlanApiScenarioList = new ArrayList<>();
             testPlanApiScenarioService.buildTestPlanApiScenarioDTO(functional.getModules().getApiScenarioCollectionId(), scenarioList, testPlan, user, testPlanApiScenarioList);
             if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
@@ -881,10 +883,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param testPlan
      * @param user
      */
-    private void handleApiCaseData(List<FunctionalCase> functionalCaseList, BaseCollectionAssociateRequest functional, TestPlan testPlan, SessionUser user) {
+    private void handleApiCaseData(boolean isRepeat, List<FunctionalCase> functionalCaseList, BaseCollectionAssociateRequest functional, TestPlan testPlan, SessionUser user) {
         if (StringUtils.isNotBlank(functional.getModules().getApiCaseCollectionId()) && checkApiCollection(testPlan, functional.getModules().getApiCaseCollectionId(), CaseType.API_CASE.getKey())) {
             List<String> caseIds = functionalCaseList.stream().map(FunctionalCase::getId).toList();
-            List<ApiTestCase> apiTestCaseList = extFunctionalCaseTestMapper.selectApiCaseByCaseIds(caseIds);
+            List<ApiTestCase> apiTestCaseList = extFunctionalCaseTestMapper.selectApiCaseByCaseIds(isRepeat, caseIds, testPlan.getId());
             List<TestPlanApiCase> testPlanApiCaseList = new ArrayList<>();
             testPlanApiCaseService.buildTestPlanApiCaseDTO(functional.getModules().getApiCaseCollectionId(), apiTestCaseList, testPlan, user, testPlanApiCaseList);
             if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
