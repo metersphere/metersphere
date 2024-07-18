@@ -928,6 +928,9 @@
   }
 
   function toggleRequired(record: JsonSchemaTableItem) {
+    if (props.disabled) {
+      return;
+    }
     record.required = !record.required;
     emitChange('toggleRequired');
   }
