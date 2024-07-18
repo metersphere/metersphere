@@ -195,6 +195,7 @@
             v-if="activeTab === 'executionHistory'"
             :execute-list="executeHistoryList"
             :loading="executeLoading"
+            height="h-[calc(100vh-240px)]"
           />
         </div>
       </a-spin>
