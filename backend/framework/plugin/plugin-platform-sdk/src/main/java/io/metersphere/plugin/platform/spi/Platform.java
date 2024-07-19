@@ -111,9 +111,9 @@ public interface Platform extends ExtensionPoint {
     /**
      * 删除平台缺陷
      *
-     * @param platformBugId 平台缺陷ID
+     * @param request 平台缺陷删除参数
      */
-    void deleteBug(String platformBugId);
+    void deleteBug(PlatformBugDeleteRequest request);
 
     /**
      * 平台是否支持附件API

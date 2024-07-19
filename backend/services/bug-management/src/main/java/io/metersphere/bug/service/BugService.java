@@ -329,7 +329,10 @@ public class BugService {
             if (StringUtils.equals(platformName, bug.getPlatform())) {
                 // 需同步删除平台缺陷
                 Platform platform = projectApplicationService.getPlatform(bug.getProjectId(), true);
-                platform.deleteBug(bug.getPlatformBugId());
+                PlatformBugDeleteRequest deleteRequest = new PlatformBugDeleteRequest();
+                deleteRequest.setPlatformBugKey(bug.getPlatformBugId());
+                deleteRequest.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(bug.getProjectId()));
+                platform.deleteBug(deleteRequest);
             }
             // 删除缺陷后, 前置操作: 删除关联用例, 删除关联附件
             bugCommonService.clearAssociateResource(bug.getProjectId(), List.of(id));
