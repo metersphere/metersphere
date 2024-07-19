@@ -137,6 +137,7 @@ export interface BatchReviewCaseParams extends BatchApiParams {
   status: ReviewResult; // 评审结果
   content: string; // 评论内容
   notifier: string; // 评论@的人的Id, 多个以';'隔开
+  reviewCommentFileIds?: string[]; // 富文本ids
 }
 // 评审详情-批量修改评审人
 export interface BatchChangeReviewerParams extends BatchApiParams {
