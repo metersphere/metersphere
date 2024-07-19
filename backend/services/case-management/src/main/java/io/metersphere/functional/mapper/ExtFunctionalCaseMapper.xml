@@ -951,4 +951,11 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getProjectIdByIds" resultType="io.metersphere.functional.domain.FunctionalCase">
+        select id, project_id from functional_case where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
