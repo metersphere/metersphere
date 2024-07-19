@@ -87,23 +87,22 @@ public abstract class MsBodyConverter<T> {
      * @return
      */
     protected String parseTextMock(String text) {
-        String pattern = "@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";
+        String pattern = "[\"\\s:]@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(text);
         while (matcher.find()) {
             //取出group的最后一个字符 主要是防止 @string|number 和 @string 这种情况
             //如果是 “ 或者, 结尾的  需要截取
             String group = matcher.group();
-            String lastChar = null;
             if (group.endsWith(",") || group.endsWith("\"")) {
-                lastChar = group.substring(group.length() - 1);
                 group = group.substring(0, group.length() - 1);
             }
-            text = text.replace(matcher.group(), StringUtils.join("${__Mock(", group, ")}", lastChar));
+            // 去掉第一个字符，因为第一个字符是 " : 或者空格
+            group = group.substring(1, group.length());
+            text = text.replace(group, StringUtils.join("${__Mock(", group.replace(",", "\\,"), ")}"));
         }
         return text;
     }
-
     /**
      * 处理raw格式参数
      * 包含了 json 等格式
