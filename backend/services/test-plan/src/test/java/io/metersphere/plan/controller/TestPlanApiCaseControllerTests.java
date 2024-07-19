@@ -303,6 +303,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         associateDTO.setAssociateType(type);
         associateDTO.setProjectId("wxx_1234");
         associateDTO.setModuleMaps(buildModuleMap());
+        associateDTO.setProtocols(List.of("HTTP"));
         return associateDTO;
     }
 
@@ -320,6 +321,7 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         associateDTO.setSelectAllModule(true);
         associateDTO.setAssociateType(type);
         associateDTO.setProjectId("wxx_1234");
+        associateDTO.setProtocols(List.of("HTTP"));
 
         Map<String, ModuleSelectDTO> moduleMap = new HashMap<>();
         ModuleSelectDTO moduleSelectDTO = new ModuleSelectDTO();

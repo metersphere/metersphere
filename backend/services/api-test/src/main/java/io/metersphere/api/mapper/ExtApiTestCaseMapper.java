@@ -10,7 +10,6 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
-import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -103,11 +102,11 @@ public interface ExtApiTestCaseMapper {
 
     ApiTestCase getCaseByReportId(String resourceId);
 
-    List<ApiTestCase> selectAllApiCase(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("testPlanId") String testPlanId);
+    List<ApiTestCase> selectAllApiCase(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
-    List<ApiTestCase> getListBySelectModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("testPlanId") String testPlanId);
+    List<ApiTestCase> getListBySelectModules(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
-    List<ApiTestCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId);
+    List<ApiTestCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
-    List<ApiTestCase> getCaseListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId);
+    List<ApiTestCase> getCaseListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 }
