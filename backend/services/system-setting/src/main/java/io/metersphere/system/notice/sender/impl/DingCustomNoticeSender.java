@@ -25,7 +25,7 @@ public class DingCustomNoticeSender extends AbstractNoticeSender {
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
-        List<User> users = super.getUsers(userIds, messageDetail.getProjectId());
+        List<User> users = super.getUsers(userIds, messageDetail.getProjectId(), true);
         List<String> mobileList = users.stream().map(User::getPhone).toList();
 
         LogUtils.info("钉钉自定义机器人收件人: {}", userIds);
