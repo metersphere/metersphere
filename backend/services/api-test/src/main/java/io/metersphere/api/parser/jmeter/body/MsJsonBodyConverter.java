@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.body;
 
 import io.metersphere.api.dto.request.http.body.JsonBody;
-import io.metersphere.jmeter.mock.Mock;
+import io.metersphere.jmeter.functions.MockFunction;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Author: jianxing
@@ -44,11 +46,11 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
                 if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
                     List list = JSON.parseArray(jsonStr);
                     parseMock(list);
-                    return JSON.toJSONString(list);
+                    return replaceMockComma(JSON.toJSONString(list));
                 } else {
                     Map<String, Object> map = JSON.parseObject(jsonStr, Map.class);
                     parseMock(map);
-                    return JSON.toJSONString(map);
+                    return replaceMockComma(JSON.toJSONString(map));
                 }
             } catch (Exception e) {
                 // 如果json串中的格式不是标准的json格式，正则替换变量
@@ -66,7 +68,7 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
                 parseMock((Map) obj);
             } else if (obj instanceof String) {
                 if (StringUtils.isNotBlank((String) obj)) {
-                    String str = Mock.buildFunctionCallString((String) obj);
+                    String str = buildFunctionCallString((String) obj);
                     replaceDataMap.put(index, str);
                 }
             }
@@ -87,10 +89,44 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
                 parseMock((Map) value);
             } else if (value instanceof String) {
                 if (StringUtils.isNotBlank((String) value)) {
-                    value = Mock.buildFunctionCallString((String) value);
+                    value = buildFunctionCallString((String) value);
                 }
                 map.put(key, value);
             }
         }
+    }
+
+    /**
+     * ${__Mock(@integer(1,100))} -> ${__Mock(@integer(1\,100))}
+     * 将 mock 函数中的逗号转义，让 jmeter 识别
+     *
+     * @param text
+     * @return
+     */
+    protected String replaceMockComma(String text) {
+        String pattern = "\\$\\{__Mock\\((.+)\\)\\}";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(text);
+        while (matcher.find()) {
+            String group = matcher.group();
+            if (StringUtils.contains(group, ",")) {
+                text = text.replace(group, group.replace(",", "\\,"));
+            }
+        }
+        return text;
+    }
+
+    /**
+     * 将文本中的 @xxx 转换成 ${__Mock(@xxx)}
+     * 这里不使用 Mock.buildFunctionCallString 的逗号转义
+     *
+     * @param input
+     * @return
+     */
+    public static String buildFunctionCallString(String input) {
+        if (!StringUtils.startsWith(input, "@")) {
+            return input;
+        }
+        return String.format("${%s(%s)}", MockFunction.KEY, input);
     }
 }
