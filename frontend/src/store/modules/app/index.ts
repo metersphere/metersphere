@@ -274,7 +274,9 @@ const useAppStore = defineStore('app', {
           return;
         }
         const res = await getProjectInfo(this.currentProjectId);
-        if (!res || res.deleted) {
+        const routeName = router.currentRoute.value.name as string;
+        if ((!res || res.deleted) && !routeName?.includes('setting')) {
+          // 如果没有项目信息，且访问的不是系统设置下的页面，则跳转到无项目页面
           router.push({
             name: NO_PROJECT_ROUTE_NAME,
           });
