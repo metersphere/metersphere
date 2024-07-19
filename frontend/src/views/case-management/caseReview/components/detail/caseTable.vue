@@ -244,6 +244,7 @@
             <MsRichText
               v-model:raw="dialogForm.reason"
               v-model:commentIds="dialogForm.commentIds"
+              v-model:filed-ids="reviewCommentFileIds"
               :upload-image="handleUploadImage"
               :auto-height="false"
               :preview-url="PreviewEditorImageUrl"
@@ -889,7 +890,7 @@
       }
     });
   }
-
+  const reviewCommentFileIds = ref<string[]>([]);
   // 提交评审结果
   function commitResult() {
     dialogFormRef.value?.validate(async (errors) => {
@@ -906,6 +907,7 @@
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             ...batchParams.value,
             ...tableParams.value,
+            reviewCommentFileIds: reviewCommentFileIds.value,
           });
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
