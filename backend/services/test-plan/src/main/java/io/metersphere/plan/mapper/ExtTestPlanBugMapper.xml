@@ -41,7 +41,7 @@
 
 
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
-        select brc.test_plan_case_id as id, fc.num as num, brc.bug_id as bugId, fc.name as name
+        select brc.case_id as id, fc.num as num, brc.bug_id as bugId, fc.name as name
         from bug_relation_case brc
             join functional_case fc on brc.case_id = fc.id
         <!-- 后续会有其他用例, 根据关联用例类型, 取不同用例表 -->
