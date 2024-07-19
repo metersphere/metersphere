@@ -589,20 +589,20 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 moduleMaps.remove(MODULE_ALL);
                 if (selectAllModule) {
                     // 选择了全部模块
-                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
+                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId(), apiCase.getModules().getProtocols());
                     buildTestPlanApiCaseDTO(apiCase.getCollectionId(), apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
                     List<ApiTestCase> apiTestCaseList = new ArrayList<>();
                     //获取全选的模块数据
                     if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(isRepeat, apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(isRepeat, apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId(), apiCase.getModules().getProtocols());
                     }
 
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
                         CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
                         //获取选中的ids数据
-                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId());
+                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId(), apiCase.getModules().getProtocols());
                         apiTestCaseList.addAll(selectIdList);
                     }
 
@@ -631,20 +631,20 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 Map<String, ModuleSelectDTO> moduleMaps = apiCase.getModules().getModuleMaps();
                 if (selectAllModule) {
                     // 选择了全部模块
-                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId());
+                    List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(isRepeat, apiCase.getModules().getProjectId(), testPlan.getId(), apiCase.getModules().getProtocols());
                     buildTestPlanApiCaseDTO(apiCase.getCollectionId(), apiTestCaseList, testPlan, user, testPlanApiCaseList);
                 } else {
                     AssociateCaseDTO dto = super.getCaseIds(moduleMaps);
                     List<ApiTestCase> apiTestCaseList = new ArrayList<>();
                     //获取全选的模块数据
                     if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(isRepeat, apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId());
+                        apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(isRepeat, apiCase.getModules().getProjectId(), dto.getModuleIds(), testPlan.getId(), apiCase.getModules().getProtocols());
                     }
 
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
                         CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
                         //获取选中的ids数据
-                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getCaseListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId());
+                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getCaseListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId(), apiCase.getModules().getProtocols());
                         apiTestCaseList.addAll(selectIdList);
                     }
 

@@ -40,5 +40,8 @@ public class TestPlanCollectionAssociateDTO implements Serializable {
     @Schema(description = "场景计划集id")
     private String apiScenarioCollectionId;
 
+    @Schema(description = "协议")
+    private List<String> protocols;
+
 
 }

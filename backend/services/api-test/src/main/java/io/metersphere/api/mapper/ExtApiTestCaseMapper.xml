@@ -624,8 +624,15 @@
         api_test_case.create_user,
         api_test_case.environment_id
         from api_test_case
+        INNER JOIN api_definition ON api_test_case.api_definition_id = api_definition.id
         where api_test_case.deleted = false
         and api_test_case.project_id = #{projectId}
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
         <if test="!isRepeat">
             AND api_test_case.id not in (
             select test_plan_api_case.api_case_id from test_plan_api_case where test_plan_api_case.test_plan_id = #{testPlanId}
@@ -649,6 +656,12 @@
         <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
             #{moduleId}
         </foreach>
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
         <if test="!isRepeat">
             AND api_test_case.id not in (
             select api_case_id from test_plan_api_case where test_plan_id = #{testPlanId}
@@ -670,6 +683,12 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
     </select>
 
 
@@ -687,6 +706,12 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
     </select>
 
 
