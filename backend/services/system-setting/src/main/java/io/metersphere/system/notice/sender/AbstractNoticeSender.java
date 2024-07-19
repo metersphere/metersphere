@@ -189,7 +189,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         // 去重复
         List<String> userIds = toUsers.stream().map(Receiver::getUserId).toList();
         LogUtils.info("userIds: ", JSON.toJSONString(userIds));
-        List<User> users = getUsers(userIds, messageDetail.getProjectId());
+        List<User> users = getUsers(userIds, messageDetail.getProjectId(), false);
         List<String> realUserIds = users.stream().map(User::getId).distinct().toList();
         return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).distinct().toList();
     }
@@ -336,9 +336,13 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return receivers;
     }
 
-    protected List<User> getUsers(List<String> userIds, String projectId) {
+    protected List<User> getUsers(List<String> userIds, String projectId, boolean enable) {
         if (CollectionUtils.isNotEmpty(userIds)) {
-            return extSystemProjectMapper.getProjectMemberByUserId(projectId, userIds);
+            if (enable) {
+                return extSystemProjectMapper.getEnableProjectMemberByUserId(projectId, userIds);
+            } else {
+                return extSystemProjectMapper.getProjectMemberByUserId(projectId, userIds);
+            }
         } else {
             return new ArrayList<>();
         }

@@ -42,7 +42,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
-        String[] users = super.getUsers(userIds, projectId).stream()
+        String[] users = super.getUsers(userIds, projectId, true).stream()
                 .map(User::getEmail)
                 .distinct()
                 .toArray(String[]::new);

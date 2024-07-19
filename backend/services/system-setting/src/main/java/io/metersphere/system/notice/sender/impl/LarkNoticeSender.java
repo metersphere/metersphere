@@ -27,7 +27,7 @@ public class LarkNoticeSender extends AbstractNoticeSender {
                 .distinct()
                 .collect(Collectors.toList());
 
-        List<User> users = super.getUsers(userIds, messageDetail.getProjectId());
+        List<User> users = super.getUsers(userIds, messageDetail.getProjectId(), true);
         List<String> collect = users.stream()
                 .map(ud -> "<at email=\"" + ud.getEmail() + "\">" + ud.getName() + "</at>")
                 .toList();
