@@ -24,8 +24,9 @@
     :ok-text="t('caseManagement.caseReview.commitResult')"
     :ok-button-props="{ disabled: submitDisabled }"
     @before-ok="submit"
+    @cancel="cancel"
   >
-    <ReviewForm v-model:form="form" />
+    <ReviewForm v-model:form="dialogForm" />
   </a-modal>
 </template>
 
@@ -33,6 +34,7 @@
   import { nextTick, onMounted, ref, watch } from 'vue';
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
   import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
@@ -67,6 +69,7 @@
   };
 
   const form = ref({ ...defaultForm });
+  const dialogForm = ref({ ...defaultForm });
 
   const modalVisible = ref(false);
   const submitLoading = ref(false);
@@ -82,6 +85,7 @@
       const editorContent = document.querySelector('.execute-form')?.querySelector('.editor-content');
       useEventListener(editorContent, 'dblclick', () => {
         modalVisible.value = true;
+        dialogForm.value = cloneDeep(form.value);
       });
     });
   });
@@ -93,6 +97,14 @@
     }
   );
 
+  function cancel(e: Event) {
+    // 点击取消/关闭，弹窗关闭，富文本内容都清空；点击空白处，弹窗关闭，将弹窗内容填入下面富文本内容里
+    if (!(e.target as any)?.classList.contains('arco-modal-wrapper')) {
+      dialogForm.value = { ...defaultForm };
+    }
+    form.value = cloneDeep(dialogForm.value);
+  }
+
   // 提交执行
   async function submit() {
     try {
@@ -102,7 +114,7 @@
         userId: props.userId,
         reviewId: props.reviewId,
         reviewPassRule: props.reviewPassRule,
-        ...form.value,
+        ...(modalVisible.value ? dialogForm.value : form.value),
         notifier: form.value.notifiers?.join(';') ?? '',
         ...getMinderOperationParams(props.selectNode),
       };
