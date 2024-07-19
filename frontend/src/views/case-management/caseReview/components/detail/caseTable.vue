@@ -109,7 +109,7 @@
                 value: val,
               })
             "
-            @change="() => changeReviewer(record)"
+            @popup-visible-change="(value) => selectChangeReviewer(value, record)"
           >
           </MsSelect>
         </template>
@@ -890,6 +890,11 @@
         }
       }
     });
+  }
+  function selectChangeReviewer(val: boolean, record?: any) {
+    if (!val) {
+      changeReviewer(record);
+    }
   }
   const reviewCommentFileIds = ref<string[]>([]);
   // 提交评审结果
