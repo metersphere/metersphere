@@ -623,10 +623,10 @@ public class TestCaseReviewService {
             testReviews.forEach(testReview -> {
                 List<CountMapDTO> countMapDTOS = extTestReviewCaseMapper.getStatusMapByReviewId(testReview.getId());
 
-                TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
-                testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
-                List<String> userIds = testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample).
-                        stream().map(TestCaseReviewTestCaseUsers::getUserId).distinct().collect(Collectors.toList());
+                TestCaseReviewUsersExample reviewUserExample = new TestCaseReviewUsersExample();
+                reviewUserExample.createCriteria().andReviewIdEqualTo(testReview.getId());
+                List<String> userIds = testCaseReviewUsersMapper.selectByExample(reviewUserExample).
+                        stream().map(TestCaseReviewUsers::getUserId).distinct().collect(Collectors.toList());
 
                 String reviewName = getReviewName(userIds, projectId);
                 testReview.setReviewerName(reviewName);
