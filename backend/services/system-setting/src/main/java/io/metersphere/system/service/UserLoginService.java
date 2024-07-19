@@ -246,6 +246,10 @@ public class UserLoginService {
                         user.setLastProjectId(project.getId());
                         updateUser(user);
                         return true;
+                    } else {
+                        // 组织下无项目, 走前端逻辑, 跳转到无项目的路由
+                        updateUser(user);
+                        return true;
                     }
                 }
             }
