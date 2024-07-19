@@ -350,6 +350,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
+  import { isEqual } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -368,7 +369,7 @@
 
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
-  import type { PlanDetailApiCaseTreeParams } from '@/models/testPlan/testPlan';
+  import type { AssociateCaseRequestParams, PlanDetailApiCaseTreeParams } from '@/models/testPlan/testPlan';
   import { CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -398,6 +399,7 @@
     associatedIds?: string[]; // 已关联用例id集合用于去重已关联
     hideProjectSelect?: boolean; // 是否隐藏项目选择
     associatedType: keyof typeof CaseLinkEnum; // 关联类型
+    protocols?: string[]; // 上一次选择的协议
   }>();
 
   const emit = defineEmits<{
@@ -533,10 +535,10 @@
 
   const apiCaseCollectionId = ref<string>('');
   const apiScenarioCollectionId = ref<string>('');
-
+  const selectedProtocols = ref<string[]>([]);
   // 保存
   function handleConfirm() {
-    const params = {
+    const params: AssociateCaseRequestParams = {
       moduleMaps: getMapParams(),
       syncCase: false,
       apiCaseCollectionId: '',
@@ -545,6 +547,7 @@
       projectId: innerProject.value,
       associateType: 'FUNCTIONAL',
       totalCount: totalCount.value,
+      protocols: [],
     };
     // 只有关联功能用例才有关联接口用例测试集和场景用例测试集且如果关闭则清空已选择测试集
     if (props.associatedType === CaseLinkEnum.FUNCTIONAL && syncCase.value) {
@@ -555,6 +558,7 @@
 
     if (props.associatedType === CaseLinkEnum.API) {
       params.associateType = showType.value === 'API' ? showType.value : 'API_CASE';
+      params.protocols = selectedProtocols.value;
     } else {
       params.associateType = props.associatedType;
     }
@@ -586,7 +590,6 @@
     }
   }
 
-  const selectedProtocols = ref<string[]>([]);
   async function initModulesCount(params: TableQueryParams) {
     try {
       modulesCount.value = await initGetModuleCountFunc(
@@ -652,6 +655,7 @@
         apiCaseCollectionId.value = apiSetTree.value[0].id;
         apiScenarioCollectionId.value = scenarioSetTree.value[0].id;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     }
@@ -689,6 +693,12 @@
 
   function handleProtocolChange(val: string[]) {
     selectedProtocols.value = val;
+    // 如果外边未保存则初始化上来协议改变不清空，再次改变协议的时候清空上一次的选择结果
+    nextTick(() => {
+      if (!isEqual(props.protocols, selectedProtocols.value)) {
+        clearSelector();
+      }
+    });
   }
 
   watch(

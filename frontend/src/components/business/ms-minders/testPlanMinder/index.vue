@@ -225,6 +225,7 @@
     :association-type="currentSelectCase"
     :test-plan-id="props.planId"
     :modules-maps="selectedAssociateCasesParams.moduleMaps"
+    :protocols="selectedAssociateCasesParams.protocols"
     @success="writeAssociateCases"
   />
 </template>
@@ -553,19 +554,13 @@
 
   // 批量关联用例表格参数
   const selectedAssociateCasesParams = ref<AssociateCaseRequestParams>({
-    excludeIds: [],
-    selectIds: [],
-    selectAll: false,
-    condition: {},
-    moduleIds: [],
-    versionId: '',
-    refId: '',
     projectId: '',
     moduleMaps: {},
     syncCase: true,
     apiCaseCollectionId: '',
     apiScenarioCollectionId: '',
     selectAllModule: false,
+    protocols: [],
   });
 
   function writeAssociateCases(param: AssociateCaseRequestParams) {
@@ -590,19 +585,13 @@
 
   function clearSelectedCases() {
     selectedAssociateCasesParams.value = {
-      excludeIds: [],
-      selectIds: [],
-      selectAll: false,
-      condition: {},
-      moduleIds: [],
-      versionId: '',
-      refId: '',
       projectId: '',
       moduleMaps: {},
       syncCase: true,
       apiCaseCollectionId: '',
       apiScenarioCollectionId: '',
       selectAllModule: false,
+      protocols: [],
     };
     const node: PlanMinderNode = window.minder.getNodeById(activePlanSet.value?.data.id);
     if (node?.data) {
@@ -632,7 +621,7 @@
   }
 
   watch(
-    () => [configForm.value, selectedAssociateCasesParams.value.selectIds],
+    () => [configForm.value, selectedAssociateCasesParams.value.moduleMaps],
     () => {
       if (!switchingConfigFormData.value && configForm.value) {
         configFormUnsaved.value = true;
