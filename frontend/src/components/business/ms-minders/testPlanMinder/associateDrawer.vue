@@ -20,16 +20,13 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
-
   import MsCaseAssociate from '@/components/business/ms-associate-case/index.vue';
   import type { saveParams } from '@/components/business/ms-associate-case/types';
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { AssociateCaseRequestParams, AssociateCaseRequestType } from '@/models/testPlan/testPlan';
+  import type { AssociateCaseRequestParams } from '@/models/testPlan/testPlan';
   import { CaseCountApiTypeEnum, CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -37,7 +34,6 @@
   const props = defineProps<{
     associationType: CaseLinkEnum;
     modulesMaps?: Record<string, saveParams>;
-    saveApi?: (params: AssociateCaseRequestType) => Promise<any>;
     testPlanId?: string;
   }>();
   const innerVisible = defineModel<boolean>('visible', {
@@ -48,31 +44,13 @@
   }>();
 
   const appStore = useAppStore();
-  const route = useRoute();
   const currentProjectId = ref(appStore.currentProjectId);
 
   const confirmLoading = ref<boolean>(false);
-  const planId = ref(route.query.id as string);
 
   async function saveHandler(params: AssociateCaseRequestParams) {
-    if (typeof props.saveApi !== 'function') {
-      emit('success', { ...params });
-    } else {
-      try {
-        confirmLoading.value = true;
-        await props.saveApi({
-          functionalSelectIds: params.selectIds,
-          testPlanId: planId.value,
-        });
-        emit('success', { ...params });
-        Message.success(t('ms.case.associate.associateSuccess'));
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        confirmLoading.value = false;
-      }
-    }
+    emit('success', { ...params });
+
     innerVisible.value = false;
   }
 </script>

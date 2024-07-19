@@ -40,14 +40,17 @@ export interface AssociateCaseRequest extends BatchApiParams {
   associateApiType?: string;
 }
 
-export interface AssociateCaseRequestParams extends AssociateCaseRequest {
-  associateType?: string;
+export interface AssociateCaseRequestParams {
   moduleMaps?: Record<string, saveParams>;
   syncCase: boolean;
   apiCaseCollectionId: string;
   apiScenarioCollectionId: string;
   selectAllModule: boolean;
   projectId: string;
+  protocols: string[];
+  totalCount?: number;
+  associateApiType?: string;
+  associateType?: string;
 }
 
 export type AssociateCaseRequestType = Pick<AssociateCaseRequest, 'functionalSelectIds' | 'testPlanId'>;
