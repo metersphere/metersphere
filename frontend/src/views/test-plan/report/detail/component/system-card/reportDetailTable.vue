@@ -133,6 +133,7 @@
   };
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportDetailList(), {
+    scroll: { x: '100%' },
     columns,
     heightUsed: 20,
     showSelectorAll: false,
