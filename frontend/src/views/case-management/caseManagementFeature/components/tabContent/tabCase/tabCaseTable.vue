@@ -53,7 +53,7 @@
     <!-- TODO: 涉及接口调整放到下一个版本再替换暂时还是使用原来的 -->
     <MsCaseAssociate
       v-model:visible="innerVisible"
-      v-model:currentSelectCase="currentSelectCase"
+      :current-select-case="currentSelectCase"
       :ok-button-disabled="associateForm.reviewers.length === 0"
       :get-modules-func="getPublicLinkModuleTree"
       :modules-params="modulesTreeParams"
@@ -191,14 +191,14 @@
 
   const associatedIds = ref<string[]>([]);
 
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('API');
+  const currentSelectCase = ref<CaseLinkEnum>(CaseLinkEnum.API);
 
   const modulesTreeParams = ref<TableQueryParams>({});
 
   const getTableParams = ref<TableQueryParams>({});
 
   function handleSelect(value: string | number | Record<string, any> | undefined) {
-    currentSelectCase.value = value as keyof typeof CaseLinkEnum;
+    currentSelectCase.value = value as CaseLinkEnum;
     innerVisible.value = true;
   }
 

@@ -1,7 +1,7 @@
 <template>
   <MsCaseAssociate
     v-model:visible="innerVisible"
-    v-model:currentSelectCase="currentSelectCase"
+    :current-select-case="currentSelectCase"
     :project-id="innerProject"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getCaseModuleTree"
@@ -143,7 +143,7 @@
     }
   }
 
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
+  const currentSelectCase = ref<CaseLinkEnum>(CaseLinkEnum.FUNCTIONAL);
 
   // const associatedIds = useVModel(props, 'associatedIds', emit);
   const confirmLoading = ref<boolean>(false);

@@ -14,6 +14,7 @@
           v-model="caseType"
           class="ml-2 max-w-[100px]"
           :placeholder="t('caseManagement.featureCase.PleaseSelect')"
+          @change="changeCaseType"
         >
           <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">
             {{ t(item.label) }}
@@ -24,16 +25,14 @@
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
-          <div
-            v-if="!props.hideProjectSelect"
-            :class="`${!props.hideProjectSelect && caseType !== 'API' ? 'max-w-[259px]' : 'max-w-[162px]'} flex-1`"
-          >
+          <div v-if="!props.hideProjectSelect" class="w-full max-w-[259px]">
             <a-select
               v-model="innerProject"
               class="mb-[16px] w-full"
               :default-value="innerProject"
               allow-search
               :placeholder="t('common.pleaseSelect')"
+              @change="changeProject"
             >
               <template #arrow-icon>
                 <icon-caret-down />
@@ -45,9 +44,6 @@
               </a-tooltip>
             </a-select>
           </div>
-          <a-select v-if="caseType === 'API'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
-            <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
-          </a-select>
         </div>
         <div class="mb-[8px] flex items-center gap-[8px]">
           <a-input
@@ -67,23 +63,17 @@
             </a-button>
           </a-tooltip>
         </div>
-
-        <div class="folder">
-          <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
-            <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-            <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
-            <div class="folder-count">({{ modulesCount.total || modulesCount.all || 0 }})</div>
-          </div>
-          <!-- <div class="ml-auto flex items-center">
-            <a-tooltip
-              :content="isExpandAll ? t('common.collapseAllSubModule') : t('common.expandAllSubModule')"
-            >
-              <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="expandHandler">
-                <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-              </MsButton>
-            </a-tooltip>
-          </div> -->
-        </div>
+        <TreeFolderAll
+          ref="treeFolderAllRef"
+          :protocol-key="ProtocolKeyEnum.CASE_MANAGEMENT_ASSOCIATE_PROTOCOL"
+          :active-folder="activeFolder"
+          :folder-name="t('caseManagement.featureCase.allCase')"
+          :all-count="modulesCount.total || modulesCount.all || 0"
+          :show-expand-api="false"
+          :not-show-operation="caseType !== 'API'"
+          @set-active-folder="setActiveFolder"
+          @selected-protocols-change="selectedProtocolsChange"
+        />
         <a-divider class="my-[8px]" />
         <a-spin class="w-full" :loading="moduleLoading">
           <MsTree
@@ -148,11 +138,7 @@
           @filter-change="filterChange"
         >
           <template #num="{ record }">
-            <a-tooltip :content="`${record.num}`">
-              <a-button type="text" class="px-0" @click="openDetail(record.id)">
-                <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
-              </a-button>
-            </a-tooltip>
+            <a-button type="text" class="px-0" @click="openDetail(record.id)">{{ record.num }} </a-button>
           </template>
           <template #caseLevel="{ record }">
             <caseLevel v-if="getCaseLevel(record)" :case-level="getCaseLevel(record)" />
@@ -220,6 +206,7 @@
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
+  import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
 
   import { getAssociatedProjectOptions, getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
@@ -229,6 +216,7 @@
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
+  import { ProtocolKeyEnum } from '@/enums/apiEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -252,7 +240,7 @@
       getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表请求函数
       tableParams?: TableQueryParams; // 查询表格的额外的参数
       okButtonDisabled?: boolean; // 确认按钮是否禁用
-      currentSelectCase: keyof typeof CaseLinkEnum; // 当前选中的用例类型
+      currentSelectCase: CaseLinkEnum; // 当前选中的用例类型
       moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
       confirmLoading: boolean;
       associatedIds: string[]; // 已关联用例id集合用于去重已关联
@@ -272,7 +260,6 @@
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
     (e: 'update:projectId', val: string): void;
-    (e: 'update:currentSelectCase', val: string | number | Record<string, any> | undefined): void;
     (e: 'init', val: TableQueryParams): void; // 初始化模块数量
     (e: 'close'): void;
     (e: 'save', params: any): void; // 保存对外传递关联table 相关参数
@@ -291,10 +278,6 @@
   const activeFolderName = ref(t('ms.case.associate.allCase'));
   const filterRowCount = ref(0);
 
-  function getFolderClass(id: string) {
-    return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
-  }
-
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const moduleLoading = ref(false);
@@ -310,20 +293,10 @@
   const innerVisible = useVModel(props, 'visible', emit);
   const innerProject = ref<string | undefined>(props.projectId);
 
-  const protocolType = ref('HTTP'); // 协议类型
-  const protocolOptions = ref(['HTTP']);
   const modulesCount = ref<Record<string, any>>({});
   const isExpandAll = ref(false);
 
-  // 选中用例类型
-  const caseType = computed({
-    get() {
-      return props.currentSelectCase;
-    },
-    set(val) {
-      emit('update:currentSelectCase', val);
-    },
-  });
+  const caseType = ref<CaseLinkEnum>(props.currentSelectCase);
 
   /**
    * 初始化模块树
@@ -555,6 +528,9 @@
     version: version.value,
   });
 
+  const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
+  const selectedProtocols = computed<string[]>(() => treeFolderAllRef.value?.selectedProtocols ?? []);
+
   function getLoadListParams() {
     if (activeFolder.value === 'all' || !activeFolder.value) {
       searchParams.value.moduleIds = [];
@@ -574,6 +550,7 @@
       condition: {
         keyword: keyword.value,
       },
+      protocols: caseType.value === 'API' ? selectedProtocols.value : [],
     });
     if (props.hasNotAssociatedIds && props.hasNotAssociatedIds.length > 0) {
       props.hasNotAssociatedIds.forEach((hasNotAssociatedId) => {
@@ -701,22 +678,36 @@
     }
   }
 
+  function searchCase() {
+    getLoadListParams();
+    loadList();
+    initModuleCount();
+  }
+
+  function setAllSelectModule() {
+    nextTick(() => {
+      if (activeFolder.value !== 'all') {
+        setActiveFolder('all');
+      } else {
+        searchCase();
+      }
+    });
+  }
+
   async function initProjectList(setDefault: boolean) {
     try {
       projectList.value = await getAssociatedProjectOptions(appStore.currentOrgId, caseType.value);
       if (setDefault) {
         innerProject.value = projectList.value[0].id;
       }
+      resetSelector();
+      resetFilterParams();
+      initModules();
+      setAllSelectModule();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  }
-
-  function searchCase() {
-    getLoadListParams();
-    loadList();
-    initModuleCount();
   }
 
   // 保存参数
@@ -769,13 +760,9 @@
     (val) => {
       if (val) {
         resetFilterParams();
+        resetSelector();
         if (!props.hideProjectSelect) {
           initProjectList(true);
-        } else {
-          resetSelector();
-          initModules();
-          searchCase();
-          initFilter();
         }
       } else {
         cancel();
@@ -784,32 +771,39 @@
   );
 
   watch(
-    () => caseType.value,
+    () => props.currentSelectCase,
     (val) => {
-      if (val) {
-        if (!props.hideProjectSelect) {
-          initProjectList(true);
-        }
-        resetFilterParams();
-        initModules(true);
-        searchCase();
-        initFilter();
-      }
+      caseType.value = val;
+    },
+    {
+      immediate: true,
     }
   );
 
-  watch(
-    () => innerProject.value,
-    (val) => {
-      if (val) {
-        resetSelector();
-        resetFilterParams();
-        initModules(true);
-        searchCase();
-        initFilter();
-      }
-    }
-  );
+  // 改变关联类型
+  function changeCaseType(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    caseType.value = value as CaseLinkEnum;
+    initModules();
+    setAllSelectModule();
+    initFilter();
+  }
+
+  function selectedProtocolsChange() {
+    initModules();
+    setAllSelectModule();
+    initFilter();
+  }
+  // 改变项目
+  function changeProject(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    innerProject.value = value as string;
+    initModules();
+    setAllSelectModule();
+    initFilter();
+  }
 
   watch(
     () => activeFolder.value,
