@@ -271,6 +271,12 @@ const useUserStore = defineStore('user', {
           // eslint-disable-next-line no-console
           console.log(err);
         }
+      } else if (isLogin && appStore.currentProjectId === 'no_such_project') {
+        // 切换组织后，可能存在组织无项目情况，此时需要跳转到无项目权限页面
+        router.push({
+          name: NO_PROJECT_ROUTE_NAME,
+        });
+        throw new Error('no project');
       }
       if (isLoginPage() && isLogin) {
         // 当前页面为登录页面，且已经登录，跳转到首页
