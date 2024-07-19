@@ -65,7 +65,7 @@
   </ms-base-table>
   <MsCaseAssociate
     v-model:visible="innerVisible"
-    v-model:currentSelectCase="currentSelectCase"
+    :current-select-case="currentSelectCase"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getModuleTree"
     :modules-params="modulesTreeParams"
@@ -194,7 +194,6 @@
   });
 
   const innerVisible = ref(false);
-  const innerProject = ref(currentProjectId.value);
 
   const associateForm = ref({
     reviewers: [],
@@ -202,7 +201,7 @@
 
   const associatedIds = ref<string[]>([]);
 
-  const currentSelectCase = ref<keyof typeof CaseLinkEnum>('FUNCTIONAL');
+  const currentSelectCase = ref<CaseLinkEnum>(CaseLinkEnum.FUNCTIONAL);
 
   const modulesTreeParams = ref<TableQueryParams>({});
 
