@@ -44,8 +44,6 @@ public class AppStartListener implements ApplicationRunner {
         LogUtils.info("初始化接口事件源");
         ApiEventSource apiEventSource = CommonBeanFactory.getBean(ApiEventSource.class);
         LogUtils.info("初始化用例管理事件源");
-        LogUtils.info("初始化性能测试事件源");
-        //LoadEventSource loadEventSource = CommonBeanFactory.getBean(LoadEventSource.class);
         //todo: 注册其他事件源
 
         // 创建监听器对象并注册到多个事件源
@@ -53,11 +51,9 @@ public class AppStartListener implements ApplicationRunner {
         apiEventSource.addListener(listener);
 
         //todo: 注册其他监听器
-        //loadEventSource.addListener(listener);
 
         // 触发事件
         apiEventSource.fireEvent("API", "Event after removing the listener test.");
-        //loadEventSource.fireEvent("LOAD","Event after removing the listener.");
         // 加载插件
         pluginLoadService.loadPlugins();
     }
