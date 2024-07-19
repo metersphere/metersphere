@@ -505,10 +505,6 @@ public class FunctionalCaseAttachmentService {
                     fileCopyRequest.setStorage(StorageType.MINIO.toString());
                     fileService.upload(previewImg, fileCopyRequest);
                 }
-                // 删除临时文件
-                fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
-                fileCopyRequest.setFileName(fileName);
-                defaultRepository.delete(fileCopyRequest);
             } catch (Exception e) {
                 LogUtils.error("上传副文本文件失败：{}",e);
                 throw new MSException(Translator.get("file_upload_fail"));

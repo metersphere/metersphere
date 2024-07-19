@@ -71,8 +71,9 @@ public class FunctionalCaseCommentService {
      * @return FunctionalCaseComment
      */
     public FunctionalCaseComment saveComment(FunctionalCaseCommentRequest functionalCaseCommentRequest, String userId) {
-        checkCase(functionalCaseCommentRequest.getCaseId());
+        FunctionalCase functionalCase = checkCase(functionalCaseCommentRequest.getCaseId());
         FunctionalCaseComment functionalCaseComment = getFunctionalCaseComment(functionalCaseCommentRequest, userId);
+        functionalCaseCommentRequest.setProjectId(functionalCase.getProjectId());
         if (StringUtils.equals(functionalCaseCommentRequest.getEvent(), NoticeConstants.Event.REPLY)) {
             return saveCommentWidthReply(functionalCaseCommentRequest, functionalCaseComment, userId);
         } else {
@@ -100,11 +101,12 @@ public class FunctionalCaseCommentService {
         return functionalCaseComment;
     }
 
-    private void checkCase(String caseId) {
+    private FunctionalCase checkCase(String caseId) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
         if (functionalCase == null) {
             throw new MSException(Translator.get("case_comment.case_is_null"));
         }
+        return functionalCase;
     }
 
     /**

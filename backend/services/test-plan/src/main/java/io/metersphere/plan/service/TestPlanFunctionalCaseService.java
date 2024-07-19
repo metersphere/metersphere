@@ -626,14 +626,16 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<TestPlanFunctionalCase> functionalCases = testPlanFunctionalCaseMapper.selectByExample(example);
         List<String> caseIds = functionalCases.stream().map(TestPlanFunctionalCase::getFunctionalCaseId).collect(Collectors.toList());
         Map<String, String> idsMap = functionalCases.stream().collect(Collectors.toMap(TestPlanFunctionalCase::getId, TestPlanFunctionalCase::getFunctionalCaseId));
-        List<TestPlanCaseExecuteHistory> historyList = getExecHistory(ids, request, logInsertModule, idsMap);
+        List<FunctionalCase> list = extFunctionalCaseMapper.getProjectIdByIds(caseIds);
+        Map<String, String> projectMap = list.stream().collect(Collectors.toMap(FunctionalCase::getId, FunctionalCase::getProjectId));
+        List<TestPlanCaseExecuteHistory> historyList = getExecHistory(ids, request, logInsertModule, idsMap, projectMap);
         testPlanCaseExecuteHistoryMapper.batchInsert(historyList);
 
         updateFunctionalCaseStatus(caseIds, request.getLastExecResult());
 
     }
 
-    private List<TestPlanCaseExecuteHistory> getExecHistory(List<String> ids, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule, Map<String, String> idsMap) {
+    private List<TestPlanCaseExecuteHistory> getExecHistory(List<String> ids, TestPlanCaseBatchRunRequest request, LogInsertModule logInsertModule, Map<String, String> idsMap, Map<String, String> projectMap) {
 
         List<TestPlanCaseExecuteHistory> historyList = new ArrayList<>();
         ids.forEach(id -> {
@@ -649,8 +651,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             executeHistory.setCreateUser(logInsertModule.getOperator());
             executeHistory.setCreateTime(System.currentTimeMillis());
             historyList.add(executeHistory);
-
-            handleFileAndNotice(idsMap.get(id), request.getProjectId(), request.getPlanCommentFileIds(), logInsertModule.getOperator(), CaseFileSourceType.PLAN_COMMENT.toString(), request.getNotifier(), request.getTestPlanId(), request.getLastExecResult());
+            String caseId = idsMap.get(id);
+            handleFileAndNotice(caseId, projectMap.get(caseId), request.getPlanCommentFileIds(), logInsertModule.getOperator(), CaseFileSourceType.PLAN_COMMENT.toString(), request.getNotifier(), request.getTestPlanId(), request.getLastExecResult());
 
 
         });
