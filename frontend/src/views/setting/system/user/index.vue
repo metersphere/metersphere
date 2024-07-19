@@ -345,18 +345,21 @@
       dataIndex: 'email',
       showTooltip: true,
       sortIndex: 0,
+      columnSelectorDisabled: true,
     },
     {
       title: 'system.user.tableColumnName',
       dataIndex: 'name',
       showTooltip: true,
       sortIndex: 1,
+      columnSelectorDisabled: true,
     },
     {
       title: 'system.user.tableColumnEmail',
       dataIndex: 'email',
       showTooltip: true,
       sortIndex: 2,
+      columnSelectorDisabled: true,
     },
     {
       title: 'system.user.tableColumnPhone',
