@@ -100,7 +100,12 @@
                     <div class="one-line-text max-w-[80px]">
                       {{ item.id }}
                     </div>
-                    <ReviewResult :status="item.name as ReviewResultStatus" class="text-[12px]" :icon-size="12" />
+                    <ReviewResult
+                      :status="item.name as ReviewResultStatus"
+                      is-part
+                      class="text-[12px]"
+                      :icon-size="12"
+                    />
                   </div>
                   <MsEmpty v-if="!reviewUserStatusList.length" />
                 </div>
@@ -436,7 +441,6 @@
           label: t('common.tag'),
           value: res.tags,
           isTag: true,
-          tagPosition: 'tr',
         },
         // 解析用例模板的自定义字段
         ...res.customFields.map((e: Record<string, any>) => {
@@ -452,7 +456,7 @@
             };
           }
         }),
-      ];
+      ].map((item) => ({ ...item, tooltipPosition: 'tr' }));
       // 附件文件
       if (activeCaseInfo.value.attachments) {
         fileList.value = activeCaseInfo.value.attachments
