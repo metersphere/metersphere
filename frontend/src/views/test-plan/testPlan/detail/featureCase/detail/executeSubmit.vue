@@ -14,8 +14,9 @@
     :ok-loading="submitLoading"
     :ok-text="t('caseManagement.caseReview.commitResult')"
     @before-ok="submit"
+    @cancel="cancel"
   >
-    <ExecuteForm v-model:form="form" />
+    <ExecuteForm v-model:form="dialogForm" />
   </a-modal>
 </template>
 
@@ -23,6 +24,7 @@
   import { ref } from 'vue';
   import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
@@ -50,6 +52,7 @@
   const appStore = useAppStore();
 
   const form = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
+  const dialogForm = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
 
   const modalVisible = ref(false);
   const submitLoading = ref(false);
@@ -60,6 +63,7 @@
       const editorContent = document.querySelector('.execute-form')?.querySelector('.editor-content');
       useEventListener(editorContent, 'dblclick', () => {
         modalVisible.value = true;
+        dialogForm.value = cloneDeep(form.value);
       });
     });
   });
@@ -86,6 +90,14 @@
     }
   );
 
+  function cancel(e: Event) {
+    // 点击取消/关闭，弹窗关闭，富文本内容都清空；点击空白处，弹窗关闭，将弹窗内容填入下面富文本内容里
+    if (!(e.target as any)?.classList.contains('arco-modal-wrapper')) {
+      dialogForm.value = { ...defaultExecuteForm };
+    }
+    form.value = cloneDeep(dialogForm.value);
+  }
+
   // 提交执行
   async function submit() {
     try {
@@ -95,7 +107,7 @@
         caseId: props.caseId,
         testPlanId: props.testPlanId,
         id: props.id,
-        ...form.value,
+        ...(modalVisible.value ? dialogForm.value : form.value),
         stepsExecResult: JSON.stringify(props.stepExecutionResult) ?? '',
         notifier: form.value?.commentIds?.join(';'),
       };
