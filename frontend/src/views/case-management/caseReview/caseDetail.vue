@@ -202,9 +202,17 @@
               <a-spin :loading="reviewHistoryListLoading" class="h-full w-full">
                 <div v-for="item of reviewHistoryList" :key="item.id" class="ms-comment-list-item">
                   <MSAvatar :avatar="item.userLogo" />
-                  <div class="flex-1">
+                  <div class="flex-1 overflow-hidden">
                     <div class="flex items-center gap-[8px]">
-                      <div class="font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
+                      <div class="flex-1 overflow-hidden">
+                        <a-tooltip :content="item.userName">
+                          <div
+                            class="one-line-text w-[fit-content] max-w-[100%] font-medium text-[var(--color-text-1)]"
+                          >
+                            {{ item.userName }}
+                          </div>
+                        </a-tooltip>
+                      </div>
                       <div v-if="item.status === 'PASS'" class="flex items-center">
                         <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
                         {{ t('caseManagement.caseReview.pass') }}

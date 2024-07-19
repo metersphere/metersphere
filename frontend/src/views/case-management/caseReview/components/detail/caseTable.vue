@@ -102,6 +102,7 @@
             allow-search
             :multiple="true"
             :placeholder="t('project.messageManagement.receiverPlaceholder')"
+            :at-least-one="true"
             :fallback-option="
               (val) => ({
                 label: reviewersOptions.find((e) => e.value === val)?.label || (val as string),
