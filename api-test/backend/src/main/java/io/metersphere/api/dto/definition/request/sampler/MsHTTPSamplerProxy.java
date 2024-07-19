@@ -261,7 +261,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     if (this.getEnvironmentId() == null) {
                         el.setEnvironmentId(useEnvironment);
                     } else {
-                        el.setEnvironmentId(this.getEnvironmentId());
+                        // http内部的子组件， 实际使用ID以useEnvironment为准
+                        if (StringUtils.isEmpty(this.useEnvironment)) {
+                            el.setEnvironmentId(this.getEnvironmentId());
+                        } else {
+                            el.setEnvironmentId(this.useEnvironment);
+                        }
+
                     }
                 }
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
