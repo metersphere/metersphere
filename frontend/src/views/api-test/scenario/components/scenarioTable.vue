@@ -965,7 +965,7 @@
    * 删除接口
    */
   function deleteScenario(record?: ApiScenarioTableItem, isBatch?: boolean, params?: ApiScenarioBatchParam) {
-    let title = t('api_scenario.table.deleteScenarioTipTitle', { name: record?.name });
+    let title = t('api_scenario.table.deleteScenarioTipTitle', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('api_scenario.table.batchDeleteScenarioTip', {
