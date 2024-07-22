@@ -10,8 +10,7 @@
     @set-active-folder="setActiveFolder"
     @selected-protocols-change="selectedProtocolsChange"
   />
-  <a-divider class="my-[8px] mt-0" />
-  <div class="mb-[8px] flex items-center gap-[8px]">
+  <div class="my-[8px] flex items-center gap-[8px]">
     <a-input
       v-model:model-value="moduleKeyword"
       :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
@@ -275,36 +274,6 @@
 </script>
 
 <style scoped lang="less">
-  .folder {
-    @apply flex cursor-pointer items-center justify-between;
-
-    padding: 8px 4px;
-    border-radius: var(--border-radius-small);
-    &:hover {
-      background-color: rgb(var(--primary-1));
-    }
-    .folder-text {
-      @apply flex cursor-pointer items-center;
-      .folder-icon {
-        margin-right: 4px;
-        color: var(--color-text-4);
-      }
-      .folder-name {
-        color: var(--color-text-1);
-      }
-      .folder-count {
-        margin-left: 4px;
-        color: var(--color-text-4);
-      }
-    }
-    .folder-text--active {
-      .folder-icon,
-      .folder-name,
-      .folder-count {
-        color: rgb(var(--primary-5));
-      }
-    }
-  }
   .footer {
     @apply flex items-center justify-between;
 

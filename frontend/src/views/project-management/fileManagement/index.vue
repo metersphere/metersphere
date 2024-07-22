@@ -10,7 +10,7 @@
               <div class="folder-count">({{ myFileCount }})</div>
             </div>
           </div>
-          <div class="folder" @click="setActiveFolder('all')">
+          <div class="folder mb-[8px]" @click="setActiveFolder('all')">
             <div :class="getFolderClass('all')">
               <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
               <div class="folder-name">{{ t('project.fileManagement.allFile') }}</div>
@@ -50,7 +50,6 @@
               </popConfirm>
             </div>
           </div>
-          <a-divider class="my-[8px]" />
           <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
             <a-radio value="Module">{{ t('project.fileManagement.module') }}</a-radio>
             <a-radio value="Storage">{{ t('project.fileManagement.storage') }}</a-radio>

@@ -24,7 +24,6 @@
             <div class="folder-count">({{ modulesCount['all'] }})</div>
           </div>
         </div>
-        <a-divider class="my-[8px]" />
         <a-spin class="w-full" :loading="moduleLoading">
           <MsTree
             v-model:focus-node-key="focusNodeKey"
@@ -543,13 +542,15 @@
   .folder {
     @apply flex cursor-pointer items-center justify-between;
 
-    padding: 8px 4px;
+    padding: 4px;
     border-radius: var(--border-radius-small);
     &:hover {
       background-color: rgb(var(--primary-1));
     }
     .folder-text {
       @apply flex cursor-pointer items-center;
+
+      height: 26px;
       .folder-icon {
         margin-right: 4px;
         color: var(--color-text-4);

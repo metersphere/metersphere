@@ -24,7 +24,6 @@
                 </a-tooltip>
               </div>
             </div>
-            <a-divider class="my-[8px]" />
             <a-spin class="h-[calc(100vh-274px)] w-full" :loading="loading">
               <MsTree
                 v-model:focus-node-key="focusNodeKey"

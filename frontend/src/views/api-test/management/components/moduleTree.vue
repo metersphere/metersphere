@@ -76,7 +76,6 @@
           </popConfirm>
         </template>
       </TreeFolderAll>
-      <a-divider class="my-[8px]" />
     </template>
     <a-input
       v-else

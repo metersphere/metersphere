@@ -88,7 +88,6 @@
                 </MsPopConfirm>
               </div>
             </div>
-            <a-divider class="my-[8px]" />
             <div class="h-[calc(100vh-236px)]">
               <FeatureCaseTree
                 ref="caseTreeRef"

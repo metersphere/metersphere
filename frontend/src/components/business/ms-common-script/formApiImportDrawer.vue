@@ -32,7 +32,6 @@
             <div class="folder-count">({{ modulesCount['all'] || 0 }})</div>
           </div>
         </div>
-        <a-divider class="my-[8px]" />
         <a-spin class="w-full" :loading="moduleLoading">
           <MsTree
             v-model:selected-keys="selectedModuleKeys"
