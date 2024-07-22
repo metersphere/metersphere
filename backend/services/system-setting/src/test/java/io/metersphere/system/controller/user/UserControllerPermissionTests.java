@@ -96,7 +96,7 @@ public class UserControllerPermissionTests extends BaseTest {
 
 
         //校验权限：系统全局用户组获取
-        this.requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, UserRequestUtils.URL_GET_GLOBAL_SYSTEM);
+        this.requestGetPermissionTest(PermissionConstants.SYSTEM_USER_READ, UserRequestUtils.URL_GET_GLOBAL_SYSTEM);
         //        查看组织
         this.requestGetPermissionsTest(List.of(PermissionConstants.SYSTEM_USER_ROLE_READ, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ), UserRequestUtils.URL_GET_ORGANIZATION);
         //查看项目
