@@ -254,7 +254,6 @@
     featureCaseStore.setActiveTab(key);
     switch (activeTab.value) {
       case 'setting':
-        activeTab.value = 'detail';
         showMenuSetting();
         break;
       default:
@@ -570,7 +569,6 @@
     showSettingDrawer.value = false;
     const tmpArr = (await featureCaseStore.getContentTabList()) || [];
     tabSetting.value = tmpArr.filter((item) => item.isShow);
-    activeTab.value = 'detail';
   };
 
   async function handleUploadImage(file: File) {
