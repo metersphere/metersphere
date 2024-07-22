@@ -1,5 +1,5 @@
 <template>
-  <a-spin class="min-h-[400px] w-full" :loading="loading">
+  <a-spin class="w-full" :loading="loading">
     <a-input
       v-if="props.isModal"
       v-model:model-value="moduleKeyword"

@@ -89,34 +89,32 @@
               </div>
             </div>
             <a-divider class="my-[8px]" />
-            <FeatureCaseTree
-              ref="caseTreeRef"
-              v-model:selected-keys="selectedKeys"
-              v-model:group-keyword="groupKeyword"
-              :all-names="rootModulesName"
-              :active-folder="activeFolder"
-              :is-expand-all="isExpandAll"
-              :modules-count="modulesCount"
-              :is-modal="false"
-              @case-node-select="caseNodeSelect"
-              @init="setRootModules"
-              @drag-update="dragUpdate"
-              @delete-node="deleteNode"
-            />
+            <div class="h-[calc(100vh-236px)]">
+              <FeatureCaseTree
+                ref="caseTreeRef"
+                v-model:selected-keys="selectedKeys"
+                v-model:group-keyword="groupKeyword"
+                :all-names="rootModulesName"
+                :active-folder="activeFolder"
+                :is-expand-all="isExpandAll"
+                :modules-count="modulesCount"
+                :is-modal="false"
+                @case-node-select="caseNodeSelect"
+                @init="setRootModules"
+                @drag-update="dragUpdate"
+                @delete-node="deleteNode"
+              />
+            </div>
           </div>
         </div>
         <div class="flex-1">
           <a-divider class="!my-0 !mb-0" />
-          <div class="case">
-            <div
-              class="flex items-center px-[20px]"
-              :class="getActiveClass('recycle')"
-              @click="setActiveFolder('recycle')"
-            >
+          <div class="case h-[40px] !px-[24px]">
+            <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
               <MsIcon type="icon-icon_delete-trash_outlined1" class="folder-icon" />
               <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
-              <div class="folder-count">({{ recycleModulesCount.all || 0 }})</div>
             </div>
+            <div class="folder-count">{{ recycleModulesCount.all || 0 }}</div>
           </div>
         </div>
       </template>
