@@ -224,7 +224,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                     }
 
                     if (CollectionUtils.isNotEmpty(scenarioList)) {
-                        List<ApiScenario> list = scenarioList.stream().sorted(Comparator.comparing(ApiScenario::getPos).reversed()).toList();
+                        List<ApiScenario> list = scenarioList.stream().sorted(Comparator.comparing(ApiScenario::getPos)).toList();
                         buildTestPlanApiScenarioDTO(apiScenario.getCollectionId(), list, testPlan, user, testPlanApiScenarioList);
                     }
 
