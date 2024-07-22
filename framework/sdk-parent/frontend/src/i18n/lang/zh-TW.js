@@ -3371,7 +3371,7 @@ const message = {
     import_template: "導入模板",
     download_template: "下載模板",
     import_desc: "導入說明",
-    el_import_tip_1: "1.如果導入的ID已存在,則更新元素;",
+    el_import_tip_1: "1.如果導入的ID已存在，則更新元素;",
     el_import_tip_2: "2.如果導入的ID為空或ID不存在，則新增元素;",
     el_import: "元素導入",
     empty_text: "暫無數據",

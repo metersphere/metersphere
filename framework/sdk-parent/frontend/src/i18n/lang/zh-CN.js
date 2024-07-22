@@ -3376,7 +3376,7 @@ const message = {
     import_template: "导入模板",
     download_template: "下载模板",
     import_desc: "导入说明",
-    el_import_tip_1: "1.如果导入的ID已存在,则更新元素;",
+    el_import_tip_1: "1.如果导入的ID已存在，则更新元素;",
     el_import_tip_2: "2.如果导入的ID为空或ID不存在，则新增元素;",
     el_import: "元素导入",
     empty_text: "暂无数据",
