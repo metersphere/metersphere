@@ -831,7 +831,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             }
 
             if (CollectionUtils.isNotEmpty(functionalCaseList)) {
-                List<FunctionalCase> list = functionalCaseList.stream().sorted(Comparator.comparing(FunctionalCase::getPos).reversed()).toList();
+                List<FunctionalCase> list = functionalCaseList.stream().sorted(Comparator.comparing(FunctionalCase::getPos)).toList();
                 buildTestPlanFunctionalCaseDTO(functional, list, testPlan, user, testPlanFunctionalCaseList);
                 handleSyncCase(isRepeat, functionalCaseList, functional, testPlan, user);
             }

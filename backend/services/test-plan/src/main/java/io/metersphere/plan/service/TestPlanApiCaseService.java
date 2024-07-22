@@ -613,7 +613,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     }
 
                     if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
-                        List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos).reversed()).toList();
+                        List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos)).toList();
                         buildTestPlanApiCaseDTO(apiCase.getCollectionId(), list, testPlan, user, testPlanApiCaseList);
                     }
 
@@ -655,7 +655,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     }
 
                     if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
-                        List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos).reversed()).toList();
+                        List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos)).toList();
                         buildTestPlanApiCaseDTO(apiCase.getCollectionId(), list, testPlan, user, testPlanApiCaseList);
                     }
 
