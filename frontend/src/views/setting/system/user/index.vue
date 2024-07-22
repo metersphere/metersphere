@@ -742,11 +742,9 @@
 
   async function init() {
     try {
-      if (hasAnyPermission(['SYSTEM_USER_ROLE:READ'])) {
-        userGroupOptions.value = await getSystemRoles();
-        if (userGroupOptions.value.length) {
-          userForm.value.userGroup = userGroupOptions.value.filter((e: SystemRole) => e.selected === true);
-        }
+      userGroupOptions.value = await getSystemRoles();
+      if (userGroupOptions.value.length) {
+        userForm.value.userGroup = userGroupOptions.value.filter((e: SystemRole) => e.selected === true);
       }
     } catch (error) {
       // eslint-disable-next-line no-console

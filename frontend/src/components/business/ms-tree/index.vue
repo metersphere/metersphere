@@ -98,7 +98,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import useContainerShadow from '@/hooks/useContainerShadow';
-  import { mapTree } from '@/utils';
+  import { mapTree, traverseTree } from '@/utils';
 
   import type { MsTreeExpandedData, MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
   import { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
@@ -127,6 +127,9 @@
       nodeHighlightClass?: string; // 节点高亮背景色
       hideSwitcher?: boolean; // 隐藏展开折叠图标
       handleDrop?: boolean; // 是否处理拖拽
+      // 是否使用新的映射数据
+      // (使用映射数据代表会根据传入的 data 深拷贝出新的 filterTreeData 树，此时针对 slot 传入的 node 节点的操作都不会影响data；不使用则代表 data 和 filterTreeData 节点数据是共用的，区别只在搜索展示数量不同)
+      useMapData?: boolean;
       titleTooltipPosition?:
         | 'top'
         | 'tl'
@@ -156,6 +159,7 @@
         isLeaf: 'isLeaf',
       }),
       disabledTitleTooltip: false,
+      useMapData: true,
     }
   );
 
@@ -260,10 +264,17 @@
     () => data.value,
     debounce((val) => {
       if (!props.keyword) {
-        filterTreeData.value = mapTree(val, (node) => {
-          node.expanded = props.defaultExpandAll;
-          return node;
-        });
+        if (props.useMapData) {
+          filterTreeData.value = mapTree(val, (node) => {
+            node.expanded = props.defaultExpandAll;
+            return node;
+          });
+        } else {
+          traverseTree(val, (node) => {
+            node.expanded = props.defaultExpandAll;
+          });
+          filterTreeData.value = val;
+        }
         if (props.defaultExpandAll && treeRef.value) {
           treeRef.value.expandAll(true);
         }
@@ -281,7 +292,18 @@
     () => props.keyword,
     (val) => {
       if (!val) {
-        filterTreeData.value = data.value;
+        if (props.useMapData) {
+          filterTreeData.value = mapTree(data.value, (node) => {
+            node.expanded = props.defaultExpandAll;
+            return node;
+          });
+        } else {
+          traverseTree(data.value, (node) => {
+            node.expanded = props.defaultExpandAll;
+          });
+          filterTreeData.value = data.value;
+        }
+        treeRef.value?.expandAll(false);
       } else {
         updateDebouncedSearch();
       }
@@ -409,7 +431,7 @@
     (val) => {
       if (typeof val === 'boolean') {
         treeRef.value?.expandAll(val);
-        filterTreeData.value = mapTree(filterTreeData.value, (node) => {
+        traverseTree(filterTreeData.value, (node) => {
           node.expanded = val;
           return node;
         });

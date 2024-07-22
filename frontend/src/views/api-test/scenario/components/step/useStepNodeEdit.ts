@@ -3,7 +3,7 @@ import { Message } from '@arco-design/web-vue';
 import MsTree from '@/components/business/ms-tree/index.vue';
 
 import { getScenarioDetail } from '@/api/modules/api-test/scenario';
-import { t } from '@/hooks/useI18n';
+import { useI18n } from '@/hooks/useI18n';
 import { findNodeByKey, getGenerateId, mapTree } from '@/utils';
 
 import type { Scenario, ScenarioStepConfig, ScenarioStepDetail, ScenarioStepItem } from '@/models/apiTest/scenario';
@@ -43,6 +43,8 @@ export default function useStepNodeEdit({
   selectedKeys: Ref<Array<string | number>>;
   showScenarioConfig: Ref<boolean>;
 }) {
+  const { t } = useI18n();
+
   /**
    * 打开快速输入
    * @param dataKey 快速输入的数据 key
