@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -155,6 +156,9 @@ public class CaseReviewService {
             passList = new ArrayList<>();
         }
         caseReviewDTO.setPassCount(passList.size());
+
+        BigDecimal passRate = BigDecimal.valueOf(caseReviewDTO.getPassCount()).divide(BigDecimal.valueOf(caseReviewDTO.getCaseCount()), 2, RoundingMode.HALF_UP);
+        caseReviewDTO.setPassRate(passRate.multiply(BigDecimal.valueOf(100)));
 
         List<CaseReviewFunctionalCase> unPassList = statusCaseMap.get(FunctionalCaseReviewStatus.UN_PASS.toString());
         if (unPassList == null) {
