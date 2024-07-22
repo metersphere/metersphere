@@ -27,7 +27,7 @@ public class TestPlanReportDetailResponse {
     @Schema(description = "报告内容")
     private String summary;
     @Schema(description = "用例总数")
-    private Integer caseTotal = 0;
+    private Integer caseTotal;
 
     /**
      * 报告分析
