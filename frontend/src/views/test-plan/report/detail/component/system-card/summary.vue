@@ -109,13 +109,13 @@
       return `<p style=""><span color="" fontsize=""> <strong>${props.detail.testPlanName}</strong>包含 ${props.detail.planCount}个子计划。
              其中 ${props.detail.passCountOfPlan} 个子计划通过， ${props.detail.failCountOfPlan} 个子计划不通过。</span></p>`;
     }
-    const functionalCasText = `（1）本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共发现缺陷${props.detail.functionalBugCount}个。<br>`;
+    const functionalCasText = `▪ 本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共发现缺陷${props.detail.functionalBugCount}个。<br>`;
     const functionCaseDesc = functionalCaseDetail.caseTotal ? `${functionalCasText}` : ``;
 
-    const apiCaseText = `（2）本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共发现缺陷 ${props.detail.apiBugCount} 个。<br>`;
+    const apiCaseText = `▪ 本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共发现缺陷 ${props.detail.apiBugCount} 个。<br>`;
     const apiCaseDesc = apiCaseDetail.caseTotal ? `${apiCaseText}` : ``;
 
-    const scenarioCaseText = `（3）本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}%，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共发现缺陷${props.detail.scenarioBugCount}个`;
+    const scenarioCaseText = `▪ 本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}%，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共发现缺陷${props.detail.scenarioBugCount}个`;
     const scenarioCaseDesc = apiScenarioDetail.caseTotal ? `${scenarioCaseText}` : ``;
 
     const isPass = Number(allSuccessRate) >= Number(props.detail.passThreshold);
