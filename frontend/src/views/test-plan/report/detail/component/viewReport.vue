@@ -530,6 +530,10 @@
     }
     showButton.value = false;
     cardItem.enableEdit = false;
+    if (isDefaultLayout.value) {
+      cardItem.content = detail.value.summary;
+      richText.value.summary = detail.value.summary;
+    }
   }
 
   function handleSummary(content: string, cardItem: configItem) {
