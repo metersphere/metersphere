@@ -14,7 +14,6 @@
         </a-tooltip>
       </div>
     </div>
-    <a-divider class="my-[8px]" />
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input
         v-model:model-value="moduleKeyword"

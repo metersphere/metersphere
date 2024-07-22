@@ -18,7 +18,6 @@
       :all-count="allCount"
       @set-active-folder="setActiveFolder"
     />
-    <a-divider class="my-[8px]" />
     <a-spin class="min-h-[200px] w-full" :loading="loading">
       <MsTree
         :selected-keys="selectedKeys"

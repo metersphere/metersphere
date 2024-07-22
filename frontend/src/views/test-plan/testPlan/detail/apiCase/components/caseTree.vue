@@ -22,7 +22,6 @@
       @set-active-folder="setActiveFolder"
       @selected-protocols-change="selectedProtocolsChange"
     />
-    <a-divider class="my-[8px]" />
     <a-spin class="min-h-[200px] w-full" :loading="loading">
       <MsTree
         :selected-keys="selectedKeys"

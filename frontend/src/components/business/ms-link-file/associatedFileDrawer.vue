@@ -14,14 +14,13 @@
     <MsSplitBox>
       <template #first>
         <div class="p-[16px] pt-0">
-          <div class="folder" @click="setActiveFolder('all')">
+          <div class="folder mb-[8px]" @click="setActiveFolder('all')">
             <div class="folder-text" :class="getFolderClass('all')">
               <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
               <div class="folder-name">{{ t('project.fileManagement.allFile') }}</div>
               <div class="folder-count">({{ allFileCount }})</div>
             </div>
           </div>
-          <a-divider class="my-[8px]" />
           <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
             <a-radio value="Module">{{ t('project.fileManagement.module') }}</a-radio>
             <a-radio value="Storage">{{ t('project.fileManagement.storage') }}</a-radio>

@@ -62,13 +62,15 @@
   .folder {
     @apply flex cursor-pointer items-center justify-between;
 
-    padding: 8px 4px;
+    padding: 4px;
     border-radius: var(--border-radius-small);
     &:hover {
       background-color: rgb(var(--primary-1));
     }
     .folder-text {
       @apply flex cursor-pointer items-center;
+
+      height: 26px;
       .folder-icon {
         margin-right: 4px;
         color: var(--color-text-4);

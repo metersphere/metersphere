@@ -20,7 +20,6 @@
         <div class="folder-count">({{ allScenarioCount }})</div>
       </div>
     </div>
-    <a-divider class="my-[8px]" />
     <a-spin class="w-full" :loading="loading">
       <MsTree
         v-model:selected-keys="selectedKeys"

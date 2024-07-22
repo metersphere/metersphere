@@ -42,7 +42,6 @@
         </popConfirm>
       </template>
     </MsFolderAll>
-    <a-divider v-if="!props.isModal" class="my-[8px]" />
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"

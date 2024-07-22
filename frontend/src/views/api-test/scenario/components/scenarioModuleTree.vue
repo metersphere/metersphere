@@ -49,8 +49,6 @@
         </popConfirm>
       </div>
     </div>
-    <a-divider class="my-[8px]" />
-
     <a-spin class="w-full" :style="{ height: `calc(100vh - 248px)` }" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"

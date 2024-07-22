@@ -59,7 +59,6 @@
         </popConfirm>
       </div>
     </div>
-    <a-divider class="my-[8px]" />
     <a-spin class="max-h-[calc(100%-98px)] w-full" :loading="loading">
       <MsTree
         v-model:selected-keys="selectedKeys"
