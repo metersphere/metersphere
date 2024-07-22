@@ -21,6 +21,7 @@
         title-class="step-tree-node-title"
         node-highlight-class="step-tree-node-focus"
         action-on-node-click="expand"
+        :use-map-data="false"
         disabled-title-tooltip
         checkable
         block-node

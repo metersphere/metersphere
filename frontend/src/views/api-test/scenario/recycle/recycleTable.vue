@@ -107,6 +107,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { operationWidth } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
@@ -324,8 +325,8 @@
       scroll: { x: '100%' },
       tableKey: props.readOnly ? undefined : TableKeyEnum.API_SCENARIO,
       showSetting: !props.readOnly,
-      selectable: true,
-      showSelectAll: !props.readOnly,
+      selectable: hasAnyPermission(['PROJECT_API_SCENARIO:READ+DELETE']),
+      showSelectAll: hasAnyPermission(['PROJECT_API_SCENARIO:READ+DELETE']),
       draggable: undefined,
       heightUsed: 374,
       showSubdirectory: true,

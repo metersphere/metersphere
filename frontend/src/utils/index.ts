@@ -494,7 +494,6 @@ export function insertNodes<T>(
     }
     return false;
   }
-
   insertNodeInTree(treeArr);
 }
 
