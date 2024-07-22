@@ -173,7 +173,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-批量复制测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public TestPlanOperationResponse TestPlanOperationResponse(@Validated @RequestBody TestPlanBatchRequest request) {
+    public TestPlanOperationResponse batchCopy(@Validated @RequestBody TestPlanBatchRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.filterArchivedIds(request);
         return new TestPlanOperationResponse(

@@ -142,8 +142,7 @@
         tpr.deleted
 
         from test_plan_report tpr
-            INNER JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
-
+            LEFT JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
         <include refid="queryWhereConditionByParentId"/>
     </select>
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
@@ -259,6 +258,10 @@
             #{id}
         </foreach>
     </select>
+
+    <delete id="deleteGroupReport" parameterType="java.lang.String">
+        delete from test_plan_report where id = #{id} or parent_id = #{id}
+    </delete>
 
     <update id="batchUpdateExecuteTimeAndStatus" parameterType="java.lang.String">
         update test_plan_report

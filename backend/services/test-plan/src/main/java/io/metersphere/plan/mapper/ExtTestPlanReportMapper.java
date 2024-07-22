@@ -65,4 +65,6 @@ public interface ExtTestPlanReportMapper {
     void batchUpdateExecuteTimeAndStatus(@Param("startTime") long startTime, @Param("ids") List<String> ids);
 
     List<ReportDTO> getReportsByIds(@Param("ids") List<String> ids);
+
+    void deleteGroupReport(@Param("id") String id);
 }

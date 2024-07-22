@@ -105,11 +105,12 @@ public class TestPlanService extends TestPlanBaseUtilsService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private TestPlanReportCaseService testPlanReportCaseService;
-
     @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
+    @Resource
+    private ExtTestPlanReportMapper extTestPlanReportMapper;
 
     public void autoUpdateFunctionalCase(String testPlanReportId) {
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportId);
@@ -276,7 +277,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 /*
                  * 计划组删除逻辑{第一版需求: 删除组, 组下的子计划Group置为None}:
                  * 1. 查询计划组下的全部子计划并删除(级联删除这些子计划的关联资源)
-                 * 2. 删除所有计划组
                  */
                 TestPlanExample testPlanExample = new TestPlanExample();
                 testPlanExample.createCriteria().andGroupIdIn(deleteGroupIds);

@@ -184,19 +184,33 @@ public class TestPlanReportService {
     }
 
     /**
-     * 删除测试计划报告（包括summary
+     * 删除测试计划报告（包括汇总, 明细)
      */
     public void deleteByTestPlanIds(List<String> testPlanIds) {
         if (CollectionUtils.isNotEmpty(testPlanIds)) {
-            List<String> reportIdList = extTestPlanReportMapper.selectReportIdTestPlanIds(testPlanIds);
-
-            SubListUtils.dealForSubList(reportIdList, SubListUtils.DEFAULT_BATCH_SIZE, subList -> {
-                TestPlanReportExample example = new TestPlanReportExample();
-                example.createCriteria().andIdIn(subList);
-                testPlanReportMapper.deleteByExample(example);
-
-                this.deleteTestPlanReportBlobs(subList);
-            });
+            TestPlanReportExample reportExample = new TestPlanReportExample();
+            reportExample.createCriteria().andTestPlanIdIn(testPlanIds);
+            List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(reportExample);
+            if (CollectionUtils.isNotEmpty(testPlanReports)) {
+                Map<String, TestPlanReport> reportMap = testPlanReports.stream().collect(Collectors.toMap(TestPlanReport::getId, r -> r));
+                List<String> reportIdList = testPlanReports.stream().map(TestPlanReport::getId).toList();
+                reportIdList.forEach(reportId -> {
+                    /**
+                     * 独立计划直接删除; 子计划的报告删除时, 保留报告记录
+                     */
+                    TestPlanReport report = reportMap.get(reportId);
+                    if (StringUtils.isNotBlank(report.getParentId()) && !report.getIntegrated() && !report.getDeleted()) {
+                        TestPlanReport record = new TestPlanReport();
+                        record.setId(reportId);
+                        record.setDeleted(true);
+                        testPlanReportMapper.updateByPrimaryKeySelective(record);
+                    } else {
+                        extTestPlanReportMapper.deleteGroupReport(reportId);
+                    }
+                });
+                // 清除汇总, 明细数据
+                this.deleteTestPlanReportBlobs(reportIdList);
+            }
         }
     }
 
