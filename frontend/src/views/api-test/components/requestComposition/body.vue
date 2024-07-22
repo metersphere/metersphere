@@ -273,9 +273,12 @@
   );
 
   watchEffect(() => {
-    if (props.hideJsonSchema || props.isCase) {
+    if (props.hideJsonSchema) {
       innerParams.value.jsonBody.enableJsonSchema = false;
       return;
+    }
+    if (props.isCase) {
+      innerParams.value.jsonBody.enableJsonSchema = false;
     }
     if (
       innerParams.value.jsonBody.jsonSchema &&

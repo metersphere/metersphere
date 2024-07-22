@@ -594,7 +594,7 @@
   .ms-form-table--disabled {
     :deep(.arco-table-td-content) {
       span,
-      div {
+      div:not(.ms-form-table-required-button--required) {
         color: var(--color-text-4) !important;
       }
     }
