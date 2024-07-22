@@ -627,6 +627,8 @@
       canShowFloatMenu.value = false;
     }
 
+    reviewVisible.value = false;
+
     // 不展示更多：没操作权限的用例
     if (node.data?.resource?.includes(caseTag) && !hasOperationPermission) {
       canShowMoreMenu.value = false;
