@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.metersphere.api.dto.definition.ApiDefinitionWithBlob;
 import io.metersphere.api.dto.export.*;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -43,7 +44,10 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         response.setTags(new ArrayList<>());
 
         response.setComponents(JSONUtil.createObj());
-        response.setExternalDocs(JSONUtil.createObj());
+        ObjectNode externalDocs = JSONUtil.createObj();
+        externalDocs.put("description", "");
+        externalDocs.put("url", "");
+        response.setExternalDocs(externalDocs);
 
         //path
         JSONObject paths = new JSONObject();
@@ -213,7 +217,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                 bodyInfo = new JSONObject();
                 ((JSONObject) bodyInfo).put(PropertyConstant.TYPE, PropertyConstant.STRING);
                 if (body != null && body.optString("rawBody") != null) {
-                    ((JSONObject) bodyInfo).put("example", body.optString("rawBody"));
+                    ((JSONObject) bodyInfo).put("example", body.optJSONObject("rawBody").optString("value"));
                 }
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.XML.name())) {
                 String xmlText = body.optString("xmlBody");
