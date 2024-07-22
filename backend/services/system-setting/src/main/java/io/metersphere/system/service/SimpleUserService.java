@@ -126,6 +126,7 @@ public class SimpleUserService {
         Map<String, String> errorEmails = this.validateUserInfo(userCreateDTO.getUserInfoList().stream().map(UserCreateInfo::getEmail).toList());
         if (MapUtils.isNotEmpty(errorEmails)) {
             response.setErrorEmails(errorEmails);
+            throw new MSException(SystemResultCode.INVITE_EMAIL_EXIST, JSON.toJSONString(errorEmails.keySet()));
         } else {
             response.setSuccessList(this.saveUserAndRole(userCreateDTO, source, operator, "/system/user/addUser"));
         }
