@@ -1,6 +1,6 @@
 <template>
   <MsSelect
-    v-model:model-value="currentValue"
+    v-model:model-value="innerValue"
     mode="remote"
     :options="[]"
     :placeholder="props.placeholder || 'common.pleaseSelectMember'"
@@ -16,7 +16,13 @@
     :remote-func="loadList"
     :remote-extra-params="{ ...props.loadOptionParams, type: props.type }"
     :option-label-render="optionLabelRender"
+    :fallback-option="(val) => ({
+      label: (val as Record<string, any>).name,
+      value: val,
+    })"
+    :object-value="true"
     :should-calculate-max-tag="false"
+    @remote-search="handleRemoteSearch"
   >
   </MsSelect>
 </template>
@@ -61,7 +67,8 @@
     }
   );
 
-  const currentValue = defineModel<(string | number)[] | string>({ default: [] });
+  const currentValue = defineModel<(string | number)[]>('modelValue', { default: [] });
+  const innerValue = ref<MsUserSelectorOption[]>([]);
   const loading = ref(true);
 
   const loadList = async (params: Record<string, any>) => {
@@ -99,4 +106,28 @@
     }
     return `<span class='text-[var(--color-text-1)]'>${option.name}</span>`;
   };
+
+  watch(
+    () => innerValue.value,
+    (value) => {
+      const values: (string | number)[] = [];
+      value.forEach((item) => {
+        values.push(item.id);
+      });
+      currentValue.value = values;
+    }
+  );
+
+  function handleRemoteSearch(options: MsUserSelectorOption[]) {
+    if (currentValue.value.length > 0 && innerValue.value.length === 0) {
+      const values: MsUserSelectorOption[] = [];
+      currentValue.value.forEach((item) => {
+        const option = options.find((o) => o.id === item);
+        if (option) {
+          values.push(option);
+        }
+      });
+      innerValue.value = values;
+    }
+  }
 </script>

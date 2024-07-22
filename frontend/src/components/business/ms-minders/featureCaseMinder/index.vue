@@ -89,7 +89,7 @@
   import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
-  import { filterTree, findNodeByKey, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
+  import { filterTree, findNodeByKey, getGenerateId, mapTree, replaceNodeInTree, traverseTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import {
@@ -762,6 +762,21 @@
       deleteResourceList: clearDeleteResource ? [] : tempMinderParams.value.deleteResourceList, // 请求错误的时候，删除的资源不清空，因为此时节点已经被脑图删除
       additionalNodeList: [],
     };
+    if (clearDeleteResource) {
+      traverseTree(importJson.value.root.children, (node) => {
+        const minderNode: MinderJsonNode = window.minder.getNodeById(node.data.id);
+        if (minderNode?.data) {
+          // 能找到对应的脑图节点，重置 isNew 和 changed 状态
+          minderNode.data.isNew = false;
+          minderNode.data.changed = false;
+        } else {
+          // 找不到对应的脑图节点，说明当前是进入了模块层级，之前更改的节点没有渲染，重置源数据 isNew 和 changed 状态
+          node.data.isNew = false;
+          node.data.changed = false;
+        }
+        return true;
+      });
+    }
   }
 
   /**
@@ -810,16 +825,6 @@
           });
         }
       }
-      const minderNode: MinderJsonNode = window.minder.getNodeById(node.data.id);
-      if (minderNode?.data) {
-        // 能找到对应的脑图节点，重置 isNew 和 changed 状态
-        minderNode.data.isNew = false;
-        minderNode.data.changed = false;
-      } else {
-        // 找不到对应的脑图节点，说明当前是进入了模块层级，之前更改的节点没有渲染，重置源数据 isNew 和 changed 状态
-        node.data.isNew = false;
-        node.data.changed = false;
-      }
       return true;
     });
     return tempMinderParams.value;
@@ -830,7 +835,7 @@
    * @param fullJson 脑图导出的完整数据
    * @param callback 保存成功回调
    */
-  async function handleMinderSave(fullJson: MinderJson, callback: (refersh: boolean) => void) {
+  async function handleMinderSave(fullJson: MinderJson, callback: (refresh: boolean) => void) {
     try {
       loading.value = true;
       await saveCaseMinder(makeMinderParams(fullJson));

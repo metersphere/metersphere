@@ -57,6 +57,6 @@ export default {
   'project.taskCenter.filterProPlaceholderText': '请选择所属项目',
   'project.taskCenter.filterOrgPlaceholderText': '请选择所属组织',
   'project.executionHistory.cleared': '执行结果被清理',
-    'project.taskCenter.plan': '计划',
-    'project.taskCenter.planGroup': '计划组',
+  'project.taskCenter.plan': '计划',
+  'project.taskCenter.planGroup': '计划组',
 };

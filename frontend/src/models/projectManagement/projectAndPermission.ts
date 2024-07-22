@@ -58,7 +58,7 @@ export interface SearchParams {
 
 export interface AddProjectMember {
   projectId?: string;
-  userIds: string[] | string;
+  userIds: string[];
   roleIds: string[] | string;
 }
 
