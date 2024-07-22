@@ -13,7 +13,7 @@ public class ModuleDTO implements Serializable {
     @Schema(description = "模块", allowableValues = {"workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"})
     private String module;
 
-    @Schema(description = "是否启用", allowableValues = {"true", "false"})
+    @Schema(description = "是否启用", type = "boolean")
     private Boolean moduleEnable;
 
     public ModuleDTO(String module, Boolean moduleEnable) {
