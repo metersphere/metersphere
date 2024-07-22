@@ -38,6 +38,8 @@
       }"
       no-disable
       v-on="propsEvent"
+      @row-select-change="rowSelectChange"
+      @select-all-change="selectAllChange"
     >
       <template #name="{ record }">
         <MsTag
@@ -90,7 +92,7 @@
   import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { FileListQueryParams } from '@/models/projectManagement/file';
   import { Repository } from '@/models/projectManagement/file';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
 
@@ -100,7 +102,7 @@
     offspringIds: string[]; // 当前选中文件夹的所有子孙节点id
     modulesCount: Record<string, any>; // 模块数量
     folderTree: ModuleTreeNode[];
-    selectFile: AssociatedList[]; // 表格选中项
+    // selectFile: AssociatedList[]; // 表格选中项
     getListRequest: (params: TableQueryParams) => Promise<CommonList<AssociatedList>>;
     showType: 'Module' | 'Storage'; // 展示类型
     storageList: Repository[]; // 存储库列表
@@ -111,7 +113,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
-    (e: 'update:selectFile', val: AssociatedList[]): void;
+    // (e: 'update:selectFile', val: AssociatedList[]): void;
     (e: 'updateFileIds', val: string[]): void;
   }>();
 
@@ -125,6 +127,9 @@
   const combine = ref<Record<string, any>>({});
   const isMyOrAllFolder = computed(() => ['my', 'all'].includes(props.activeFolder)); // 是否是我的文件/全部文件
 
+  const innerSelectFile = defineModel<AssociatedList[]>('selectFile', {
+    required: true,
+  });
   const columns: MsTableColumn = [
     {
       title: 'project.fileManagement.name',
@@ -337,31 +342,66 @@
     };
   });
 
-  const selectedIds = computed(() => {
+  const selectedFileIds = computed(() => {
     return [...propsRes.value.selectedKeys];
   });
 
   watch(
-    () => selectedIds.value,
+    () => selectedFileIds.value,
     (val) => {
-      emit(
-        'update:selectFile',
-        propsRes.value.data.filter((item: any) => selectedIds.value.indexOf(item.id) > -1)
-      );
-      emit('updateFileIds', val);
+      const newValue = [...val];
+      if (!newValue.length) {
+        innerSelectFile.value = [];
+      }
+    },
+    {
+      deep: true,
     }
   );
 
+  const selectedIds = computed(() => {
+    return innerSelectFile.value.map((file) => file.id);
+  });
+
   const selectedKey = ref('');
+
   watch(
     () => selectedKey.value,
     (key) => {
-      emit(
-        'update:selectFile',
-        propsRes.value.data.filter((item: any) => key === item.id)
-      );
+      innerSelectFile.value = propsRes.value.data.filter((item: any) => key === item.id);
     }
   );
+
+  // 更新选择文件
+  function updateInnerSelectFile(record: Record<string, any>, shouldAdd: boolean) {
+    const index = innerSelectFile.value.findIndex((e) => e.id === record.id);
+    // 已选择id且列表里边不存在id则push
+    if (shouldAdd) {
+      if (index === -1) {
+        innerSelectFile.value.push(record as AssociatedList);
+      }
+      // 否则则移除
+    } else if (index !== -1) {
+      innerSelectFile.value.splice(index, 1);
+    }
+    emit('updateFileIds', selectedIds.value);
+  }
+
+  // 单选行
+  function rowSelectChange(record: Record<string, any>) {
+    updateInnerSelectFile(record, propsRes.value.selectedKeys.has(record.id));
+  }
+
+  // 多选当前页
+  function selectAllChange(v: SelectAllEnum) {
+    propsRes.value.data.forEach((record: Record<string, any>) => {
+      if (v === 'current') {
+        updateInnerSelectFile(record, true);
+      } else {
+        updateInnerSelectFile(record, false);
+      }
+    });
+  }
 
   defineExpose({
     resetSelector,
