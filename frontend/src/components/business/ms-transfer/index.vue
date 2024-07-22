@@ -41,6 +41,7 @@
           fixedSize: true,
           buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
         }"
+        hide-switcher-if-no-children
         @check="onSelect"
       >
         <template #title="nodeData">
@@ -158,6 +159,7 @@
             key: itemKey,
             label: itemTitle,
             children: itemChildren ? travel(itemChildren) : [],
+            expanded: true,
           });
         }
       });
@@ -186,6 +188,11 @@
       height: v-bind(height);
       .arco-transfer-view-header {
         @apply bg-white;
+      }
+      .arco-transfer-view-body {
+        .ms-tree-container {
+          padding-left: 16px;
+        }
       }
     }
     .arco-transfer-operations {

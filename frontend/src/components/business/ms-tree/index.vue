@@ -31,7 +31,7 @@
               <icon-caret-down v-if="_props.expanded" class="text-[var(--color-text-4)]" />
               <icon-caret-right v-else class="text-[var(--color-text-4)]" />
             </div>
-            <div v-else class="h-full w-[16px]"></div>
+            <div v-else-if="!props.hideSwitcherIfNoChildren" class="h-full w-[16px]"></div>
           </template>
           <a-tooltip
             v-if="$slots['title']"
@@ -126,6 +126,7 @@
       actionOnNodeClick?: 'expand'; // 点击节点时的操作
       nodeHighlightClass?: string; // 节点高亮背景色
       hideSwitcher?: boolean; // 隐藏展开折叠图标
+      hideSwitcherIfNoChildren?: boolean; // 隐藏无子节点的节点的展开折叠图标
       handleDrop?: boolean; // 是否处理拖拽
       // 是否使用新的映射数据
       // (使用映射数据代表会根据传入的 data 深拷贝出新的 filterTreeData 树，此时针对 slot 传入的 node 节点的操作都不会影响data；不使用则代表 data 和 filterTreeData 节点数据是共用的，区别只在搜索展示数量不同)
@@ -160,6 +161,7 @@
       }),
       disabledTitleTooltip: false,
       useMapData: true,
+      hideSwitcherIfNoChildren: false,
     }
   );
 
@@ -275,9 +277,11 @@
           });
           filterTreeData.value = val;
         }
-        if (props.defaultExpandAll && treeRef.value) {
-          treeRef.value.expandAll(true);
-        }
+        nextTick(() => {
+          if (props.defaultExpandAll && treeRef.value) {
+            treeRef.value.expandAll(true);
+          }
+        });
       } else {
         updateDebouncedSearch();
       }
@@ -303,7 +307,9 @@
           });
           filterTreeData.value = data.value;
         }
-        treeRef.value?.expandAll(false);
+        nextTick(() => {
+          treeRef.value?.expandAll(false);
+        });
       } else {
         updateDebouncedSearch();
       }
