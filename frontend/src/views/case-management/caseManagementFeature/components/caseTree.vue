@@ -394,7 +394,8 @@
         node.count = obj?.[node.id] || 0;
         node.hideMoreAction = node.id === 'root' || props.isModal;
       });
-    }
+    },
+    { deep: true }
   );
 
   onBeforeMount(() => {

@@ -904,9 +904,9 @@
     return {
       moduleIds,
       projectId: currentProjectId.value,
-      excludeIds: batchParams.value.excludeIds,
+      excludeIds: batchParams.value.excludeIds || [],
       selectAll: batchParams.value.selectAll,
-      selectIds: batchParams.value.selectedIds as string[],
+      selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
       combine: batchParams.value.condition,
     };
@@ -1058,9 +1058,8 @@
         Message.success(t('caseManagement.featureCase.batchCopySuccess'));
       }
       isMove.value = false;
-      emitTableParams();
       resetSelector();
-      loadList();
+      initData();
     } catch (error) {
       console.log(error);
     } finally {
