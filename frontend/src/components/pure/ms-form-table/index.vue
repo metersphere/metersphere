@@ -158,6 +158,7 @@
               class="ms-form-table-input"
               :auto-size="{ minRows: 1, maxRows: 1 }"
               :size="item.size || 'medium'"
+              :max-length="item.maxLength"
               @input="() => handleFormChange(record, rowIndex, item)"
             ></a-textarea>
             <MsQuickInput
@@ -165,6 +166,7 @@
               v-model:model-value="record[item.dataIndex as string]"
               :title="item.title as string || ''"
               :disabled="props.disabled || item.disabled || record.disabled"
+              :max-length="item.maxLength"
               class="ms-form-table-input"
               type="textarea"
               @input="() => handleFormChange(record, rowIndex, item)"

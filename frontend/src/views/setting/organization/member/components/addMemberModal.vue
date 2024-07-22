@@ -20,7 +20,7 @@
         <!-- 编辑项目 -->
         <a-form-item v-if="type === 'edit'" :label="t('organization.member.project')" asterisk-position="end">
           <MsUserSelector
-            v-model="form.projectIds"
+            v-model:modelValue="form.projectIds"
             :load-option-params="{ organizationId: lastOrganizationId }"
             :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_PROJECT"
             placeholder="organization.member.selectProjectScope"
@@ -35,7 +35,7 @@
           :rules="[{ required: true, message: t('organization.member.selectMemberEmptyTip') }]"
         >
           <MsUserSelector
-            v-model="form.memberIds"
+            v-model:modelValue="form.memberIds"
             :load-option-params="{ organizationId: lastOrganizationId }"
             :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION_MEMBER"
             placeholder="organization.member.selectMemberScope"
@@ -100,8 +100,8 @@
   export interface InitFromType {
     organizationId?: string;
     userRoleIds: string[];
-    memberIds: string[];
-    projectIds: string[];
+    memberIds: (string | number)[];
+    projectIds: (string | number)[];
   }
 
   const initFormValue: InitFromType = {
