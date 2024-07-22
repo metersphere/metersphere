@@ -88,7 +88,7 @@
                 </MsPopConfirm>
               </div>
             </div>
-            <div class="h-[calc(100vh-236px)]">
+            <div class="h-[calc(100vh-220px)]">
               <FeatureCaseTree
                 ref="caseTreeRef"
                 v-model:selected-keys="selectedKeys"
