@@ -12,18 +12,17 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseUserRoleService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +50,8 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
+	@Autowired
+	private UserRolePermissionMapper userRolePermissionMapper;
 
     public List<ProjectUserRoleDTO> list(ProjectUserRoleRequest request) {
         List<ProjectUserRoleDTO> roles = extProjectUserRoleMapper.list(request);
@@ -81,7 +82,14 @@ public class ProjectUserRoleService extends BaseUserRoleService {
         userRole.setInternal(false);
         userRole.setType(UserRoleType.PROJECT.name());
         checkNewRoleExist(userRole);
-        return super.add(userRole);
+        UserRole role = super.add(userRole);
+        // 初始化项目-基本信息权限
+        UserRolePermission initPermission = new UserRolePermission();
+        initPermission.setId(IDGenerator.nextStr());
+        initPermission.setRoleId(role.getId());
+        initPermission.setPermissionId("PROJECT_BASE_INFO:READ");
+        userRolePermissionMapper.insert(initPermission);
+        return role;
     }
 
     @Override
@@ -126,8 +134,8 @@ public class ProjectUserRoleService extends BaseUserRoleService {
     public void removeMember(ProjectUserRoleMemberEditRequest request) {
         String removeUserId = request.getUserIds().getFirst();
         checkMemberParam(removeUserId, request.getUserRoleId());
-        //检查移除的是不是管理员
-        if (StringUtils.equals(request.getUserRoleId(),InternalUserRole.PROJECT_ADMIN.getValue())) {
+        // 检查移除的是不是管理员
+        if (StringUtils.equals(request.getUserRoleId(), InternalUserRole.PROJECT_ADMIN.getValue())) {
             UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
             userRoleRelationExample.createCriteria().andUserIdNotEqualTo(removeUserId)
                     .andSourceIdEqualTo(request.getProjectId())

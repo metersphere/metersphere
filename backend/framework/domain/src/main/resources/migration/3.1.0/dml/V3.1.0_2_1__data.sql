@@ -56,5 +56,9 @@ WHERE status != 'ARCHIVED';
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_MEMBER:READ+INVITE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_USER:READ+INVITE');
 
+-- 项目用户组内置基本信息权限位
+delete from user_role_permission where role_id in (select id from user_role where type = 'PROJECT') and permission_id = 'PROJECT_BASE_INFO:READ';
+insert into user_role_permission (id, role_id, permission_id) SELECT UUID_SHORT(), id, 'PROJECT_BASE_INFO:READ' from user_role where type = 'PROJECT';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

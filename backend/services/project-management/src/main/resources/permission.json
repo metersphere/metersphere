@@ -9,9 +9,6 @@
         "name": "permission.project_base_info.name",
         "permissions": [
           {
-            "id": "PROJECT_BASE_INFO:READ"
-          },
-          {
             "id": "PROJECT_BASE_INFO:READ+UPDATE"
           }
         ]
