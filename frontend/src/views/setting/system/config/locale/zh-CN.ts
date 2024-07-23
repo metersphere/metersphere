@@ -172,7 +172,7 @@ export default {
   'system.config.auth.userFilter': '用户过滤器',
   'system.config.auth.userFilterRequired': '用户过滤器不能为空',
   'system.config.auth.userFilterPlaceholder': '请输入',
-  'system.config.auth.userFilterTip': 'cn or uid or sAMAccountName=%(user)s',
+  'system.config.auth.userFilterTip': '输入过滤器 [可能的选项是cn或uid或sAMAccountName={0},如:(uid={0})]',
   'system.config.auth.LDAPPropertyMap': 'LDAP 属性映射',
   'system.config.auth.LDAPPropertyMapRequired': 'LDAP 属性映射不能为空',
   'system.config.auth.LDAPPropertyMapPlaceholder': '请输入 {map} 键值对格式参数',
