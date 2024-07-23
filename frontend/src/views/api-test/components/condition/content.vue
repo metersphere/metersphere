@@ -400,7 +400,6 @@
               class="ms-params-input"
               :max-length="255"
               :placeholder="t('ms.paramsInput.commonPlaceholder')"
-              size="mini"
               :disabled="props.disabled"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"

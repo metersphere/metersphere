@@ -16,8 +16,8 @@
       <div class="flex h-[calc(100%-49px)]">
         <div class="w-[300px] border-r p-[16px]">
           <div class="flex flex-col">
-            <div class="mb-[12px] flex items-center gap-[8px]">
-              <MsProjectSelect v-model:project="currentProject" @change="resetModule" />
+            <div class="mb-[12px] flex items-center gap-[8px] overflow-hidden">
+              <MsProjectSelect v-model:project="currentProject" class="flex-1 overflow-hidden" @change="resetModule" />
               <a-select v-if="activeKey !== 'scenario'" v-model:model-value="protocol" class="w-[90px]">
                 <a-tooltip
                   v-for="item of protocolOptions"
