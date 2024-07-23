@@ -675,6 +675,11 @@
       dataIndex: 'enable',
     },
     {
+      title: 'system.config.auth.type',
+      slotName: 'type',
+      dataIndex: 'type',
+    },
+    {
       title: 'common.desc',
       dataIndex: 'description',
       showTooltip: true,

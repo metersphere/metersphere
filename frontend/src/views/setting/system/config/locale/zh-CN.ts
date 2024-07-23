@@ -110,6 +110,7 @@ export default {
   'system.config.auth.edit': '编辑',
   'system.config.auth.name': '名称',
   'system.config.auth.status': '状态',
+  'system.config.auth.type': '类型',
   'system.config.auth.createTime': '创建时间',
   'system.config.auth.updateTime': '更新时间',
   'system.config.auth.action': '操作',
