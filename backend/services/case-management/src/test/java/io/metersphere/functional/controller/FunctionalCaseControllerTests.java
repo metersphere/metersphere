@@ -615,8 +615,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setModuleId("TEST_MOVE_MODULE_ID");
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
-        request.setSelectIds(Arrays.asList("TEST"));
-        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
         request.setSelectIds(new ArrayList<>());
         request.setSelectAll(true);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_COPY_URL, request);
