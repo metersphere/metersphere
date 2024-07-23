@@ -780,7 +780,6 @@
   async function getColumnHeaders() {
     try {
       customColumns = await getCustomFieldColumns();
-      console.log(customColumns);
       customColumns.forEach((item) => {
         // 目前自定义字段的过滤只支持严重程度
         if (item.title === '严重程度' || item.title === 'Bug Degree') {
