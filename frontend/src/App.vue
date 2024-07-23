@@ -78,7 +78,7 @@
 
   onBeforeMount(async () => {
     await getPublicKey();
-    if (WHITE_LIST.find((el) => el.path === window.location.hash.split('#')[1]) === undefined) {
+    if (WHITE_LIST.find((el) => window.location.hash.split('#')[1].includes(el.path)) === undefined) {
       const TOKEN = getQueryVariable('_token');
       const CSRF = getQueryVariable('_csrf');
       if (TOKEN !== null && TOKEN !== undefined && CSRF !== null && CSRF !== undefined) {
