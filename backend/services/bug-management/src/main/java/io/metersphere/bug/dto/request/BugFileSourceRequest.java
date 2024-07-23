@@ -9,8 +9,7 @@ import java.io.Serializable;
 @Data
 public class BugFileSourceRequest implements Serializable {
 
-    @Schema(description = "缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{bug.id.not_blank}")
+    @Schema(description = "缺陷ID")
     private String bugId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
