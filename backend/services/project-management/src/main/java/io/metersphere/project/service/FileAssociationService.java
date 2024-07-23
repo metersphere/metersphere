@@ -204,7 +204,7 @@ public class FileAssociationService {
         fileAssociationUpdateServiceInvoker.handleUpgrade(fileAssociation, newFileMetadata);
         if(StringUtils.equals(newFileMetadata.getId(),fileAssociation.getFileId())){
             return fileAssociation.getFileId();
-        }else {
+        } else {
             fileAssociation.setFileId(newFileMetadata.getId());
             fileAssociation.setFileVersion(newFileMetadata.getFileVersion());
             fileAssociationMapper.updateByPrimaryKeySelective(fileAssociation);
