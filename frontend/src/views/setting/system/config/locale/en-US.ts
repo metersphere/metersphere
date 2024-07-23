@@ -176,7 +176,8 @@ export default {
   'system.config.auth.userFilter': 'User filter',
   'system.config.auth.userFilterRequired': 'User filter cannot be empty',
   'system.config.auth.userFilterPlaceholder': 'Please enter',
-  'system.config.auth.userFilterTip': 'cn or uid or sAMAccountName=%(user)s',
+  'system.config.auth.userFilterTip':
+    'Input filter [possible options are cn or uid or sAMAccountName={0}, such as: (uid={0})]',
   'system.config.auth.LDAPPropertyMap': 'LDAP attribute mapping',
   'system.config.auth.LDAPPropertyMapRequired': 'LDAP attribute map cannot be empty',
   'system.config.auth.LDAPPropertyMapPlaceholder': 'Please enter {map} format parameters',
