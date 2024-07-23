@@ -3,6 +3,7 @@ package io.metersphere.bug.service;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugContent;
 import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.mapper.BugContentMapper;
 import io.metersphere.bug.mapper.BugMapper;
@@ -13,6 +14,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +41,7 @@ public class BugLogService {
      * @return 日志
      */
     public LogDTO addLog(BugEditRequest request, List<MultipartFile> files) {
-        LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, request.getTitle());
+        LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, getPlatformTitle(request));
         dto.setHistory(true);
         dto.setPath("/bug/add");
         dto.setMethod(HttpMethodConstants.POST.name());
@@ -56,7 +58,7 @@ public class BugLogService {
      */
     public LogDTO updateLog(BugEditRequest request, List<MultipartFile> files) {
         BugDTO history = getOriginalValue(request.getId());
-        LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, request.getTitle());
+        LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, getPlatformTitle(request));
         dto.setHistory(true);
         dto.setPath("/bug/update");
         dto.setMethod(HttpMethodConstants.POST.name());
@@ -122,5 +124,15 @@ public class BugLogService {
         }
         // 缺陷自定义字段
         return bugService.handleCustomField(List.of(originalBug), originalBug.getProjectId()).getFirst();
+    }
+
+    /**
+     * 获取缺陷的标题
+     * @param request 请求参数
+     * @return 缺陷标题
+     */
+    private String getPlatformTitle(BugEditRequest request) {
+        BugCustomFieldDTO platformTitle = request.getCustomFields().stream().filter(field -> StringUtils.equalsAny(field.getId(), "summary")).findFirst().get();
+        return StringUtils.isNotBlank(request.getTitle()) ? request.getTitle() : platformTitle.getValue();
     }
 }
