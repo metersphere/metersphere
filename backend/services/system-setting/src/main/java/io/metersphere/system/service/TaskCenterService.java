@@ -9,6 +9,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.DateUtils;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
@@ -208,9 +209,9 @@ public class TaskCenterService {
 
     private static String getLogModule(String moduleType, String module) {
         return switch (ScheduleTagType.valueOf(moduleType)) {
-            case ScheduleTagType.API_IMPORT -> StringUtils.join(module, "_TIME_API_IMPORT");
-            case ScheduleTagType.API_SCENARIO -> StringUtils.join(module, "_TIME_API_SCENARIO");
-            case ScheduleTagType.TEST_PLAN -> StringUtils.join(module, "_TIME_TEST_PLAN");
+            case API_IMPORT -> StringUtils.join(module, "_TIME_API_IMPORT");
+            case API_SCENARIO -> StringUtils.join(module, "_TIME_API_SCENARIO");
+            case TEST_PLAN -> StringUtils.join(module, "_TIME_TEST_PLAN");
             default -> throw new MSException(Translator.get("module_type_error"));
         };
     }
@@ -227,8 +228,13 @@ public class TaskCenterService {
         Schedule schedule = checkScheduleExit(id);
         schedule.setEnable(!schedule.getEnable());
         scheduleService.editSchedule(schedule);
-        scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
-                new TriggerKey(schedule.getKey(), schedule.getJob()), BaseScheduleJob.class);
+        try {
+            scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
+                    new TriggerKey(schedule.getKey(), schedule.getJob()), Class.forName(schedule.getJob()));
+        } catch (ClassNotFoundException e) {
+            LogUtils.error(e);
+            throw new RuntimeException(e);
+        }
         apiScheduleNoticeService.sendScheduleNotice(schedule, userId);
         String logModule = getLogModule(moduleType, module);
         saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), logModule, OperationLogType.UPDATE.name());
@@ -304,8 +310,13 @@ public class TaskCenterService {
             list.forEach(s -> {
                 s.setEnable(enable);
                 batchMapper.updateByPrimaryKeySelective(s);
-                scheduleService.addOrUpdateCronJob(s, new JobKey(s.getKey(), s.getJob()),
-                        new TriggerKey(s.getKey(), s.getJob()), BaseScheduleJob.class);
+                try {
+                    scheduleService.addOrUpdateCronJob(s, new JobKey(s.getKey(), s.getJob()),
+                            new TriggerKey(s.getKey(), s.getJob()), Class.forName(s.getJob()));
+                } catch (ClassNotFoundException e) {
+                    LogUtils.error(e);
+                    throw new RuntimeException(e);
+                }
             });
             sqlSession.flushStatements();
         });
