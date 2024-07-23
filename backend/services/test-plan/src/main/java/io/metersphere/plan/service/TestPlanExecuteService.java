@@ -505,6 +505,17 @@ public class TestPlanExecuteService {
     private void testPlanExecuteQueueFinish(String queueID, String queueType) {
         LogUtils.info("收到测试计划执行完成的信息： 队列ID[{}],队列类型[{}]，下一个节点的执行工作准备中...", queueID, queueType);
         TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueID, queueType);
+
+        /*
+        7-23日新增逻辑： 当查找的是测试计划组，并且测试计划组选择的执行方式是并行,在执行之后队列就会删除。此时进行停止，是无法查找到队列的。
+        之前不会进行这种查找。但是本迭代在任务中心增加了测试计划组的展示。
+        所以之前不会出现的情况， 在这个迭代可以出现了。
+        也就是说，在这样的情况下nextQueue是可能为null的
+         */
+        if (nextQueue == null) {
+            return;
+        }
+
         if (StringUtils.equalsIgnoreCase(nextQueue.getRunMode(), ApiBatchRunMode.SERIAL.name())) {
             if (!nextQueue.isExecuteFinish()) {
                 boolean execError = false;
