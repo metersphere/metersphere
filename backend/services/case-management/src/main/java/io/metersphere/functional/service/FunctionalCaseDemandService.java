@@ -273,11 +273,7 @@ public class FunctionalCaseDemandService {
             //校验重复
             List<FunctionalCaseDemand> functionalCaseDemands = existMap.get(demandDTO.getDemandId());
             if (CollectionUtils.isNotEmpty(functionalCaseDemands)) {
-                List<FunctionalCaseDemand> list = functionalCaseDemands.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getDemandId(), functionalCaseDemand.getDemandId()) && StringUtils.equalsIgnoreCase(t.getParent(), functionalCaseDemand.getParent())
-                        && StringUtils.equalsIgnoreCase(t.getDemandName(), functionalCaseDemand.getDemandName()) && StringUtils.equalsIgnoreCase(t.getDemandUrl(), functionalCaseDemand.getDemandUrl())).toList();
-                if (CollectionUtils.isNotEmpty(list)) {
-                    continue;
-                }
+                continue;
             }
             //校验当前关联的需求在系统或传入的数据结构中是否带有父节点，如果有置为true,用来做查询的root节点
             List<FunctionalCaseDemand> functionalCaseDemandParents = existMap.get(demandDTO.getParent());
