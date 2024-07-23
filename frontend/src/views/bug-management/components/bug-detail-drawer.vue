@@ -257,6 +257,7 @@
   const rightLoading = ref(false);
   const detailLoading = ref(false);
   const activeTab = ref<string>('detail');
+  const currentDetailId = ref(props.detailId);
 
   const commentInputRef = ref<InstanceType<typeof CommentInput>>();
   const commentInputIsActive = computed(() => commentInputRef.value?.isActive);
@@ -311,6 +312,7 @@
   };
   // TODO:: Record<string, any>
   async function loadedBug(detail: BugEditFormObject) {
+    currentDetailId.value = detail.id;
     // 是否平台默认模板
     isPlatformDefaultTemplate.value = detail.platformDefault;
     // 关闭loading
@@ -407,7 +409,7 @@
   const editLoading = ref<boolean>(false);
 
   async function getDetail() {
-    const res = await getBugDetail(props.detailId);
+    const res = await getBugDetail(currentDetailId.value);
     loadedBug(res);
   }
 

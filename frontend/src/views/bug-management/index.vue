@@ -197,7 +197,6 @@
   import useModal from '@/hooks/useModal';
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
   import { customFieldDataToTableData, customFieldToColumns, downloadByteFile } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -232,8 +231,6 @@
   const batchEditVisible = ref(false);
   const keyword = ref('');
   const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
-  const licenseStore = useLicenseStore();
-  const isXpack = computed(() => licenseStore.hasLicense());
   const { openDeleteModal } = useModal();
   const route = useRoute();
   const severityFilterOptions = ref<BugOptionItem[]>([]);
