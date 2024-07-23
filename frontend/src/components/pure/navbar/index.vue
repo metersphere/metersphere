@@ -253,12 +253,7 @@
         projectId: value as string,
         userId: userStore.id || '',
       });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
       await userStore.checkIsLogin(true);
-      appStore.hideLoading();
       router.replace({
         name: getFirstRouteNameByPermission(router.getRoutes()),
         query: {
@@ -266,6 +261,11 @@
           pId: value as string,
         },
       });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
     }
   }
 

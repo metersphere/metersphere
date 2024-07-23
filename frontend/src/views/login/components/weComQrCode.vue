@@ -77,7 +77,6 @@
       },
       onLoginFail(err: WWLoginErrorResp) {
         Message.error(`errorMsg of errorCbk: ${err.errMsg}`);
-        console.log(err);
       },
     });
   };
