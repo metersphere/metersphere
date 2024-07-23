@@ -33,7 +33,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         response.setOpenapi("3.0.2");
         //info
         SwaggerInfo swaggerInfo = new SwaggerInfo();
-        swaggerInfo.setVersion("3.0");
+        swaggerInfo.setVersion("3.x");
         swaggerInfo.setTitle("ms-" + project.getName());
         swaggerInfo.setDescription(StringUtils.EMPTY);
         swaggerInfo.setTermsOfService(StringUtils.EMPTY);
@@ -107,7 +107,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         Hashtable<String, String> typeMap = new Hashtable<String, String>() {{
             put("headers", "header");
             put("rest", "path");
-            put("arguments", "query");
+            put("query", "query");
         }};
         Set<String> typeKeys = typeMap.keySet();
         for (String type : typeKeys) {
@@ -123,7 +123,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                     swaggerParam.setDescription(param.optString("description"));
                     swaggerParam.setName(param.optString("key"));
                     swaggerParam.setEnable(param.optBoolean(PropertyConstant.ENABLE));
-                    swaggerParam.setValue(param.optString("value"));
+                    swaggerParam.setExample(param.optString("value"));
                     JSONObject schema = new JSONObject();
                     schema.put(PropertyConstant.TYPE, PropertyConstant.STRING);
                     swaggerParam.setSchema(JSONUtil.parseObjectNode(schema.toString()));
@@ -164,9 +164,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                 if (StringUtils.isNotBlank(responseJSONObject.optString("value"))) {
                     statusCodeInfo.put("description", responseJSONObject.optString("value"));
                 }
-                if (StringUtils.isNotBlank(responseJSONObject.optString("name"))) {
-                    responseBody.put(statusCode, statusCodeInfo);
-                }
+                responseBody.put(statusCode, statusCodeInfo);
             }
         }
         return responseBody;

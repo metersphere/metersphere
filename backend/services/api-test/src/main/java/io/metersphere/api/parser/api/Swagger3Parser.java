@@ -257,6 +257,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                     body.setBodyType(Body.BodyType.NONE.name());
                 }
                 httpResponse.setBody(body);
+                httpResponse.setId(IDGenerator.nextStr());
                 response.add(httpResponse);
             });
             // 判断  如果是200  默认defaultFlag为true 否则的话  随机挑一个为true
