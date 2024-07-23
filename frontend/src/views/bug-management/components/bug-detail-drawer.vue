@@ -350,9 +350,12 @@
         } else if (item.type === 'INT' || item.type === 'FLOAT') {
           tmpObj[item.id] = Number(item.value);
         } else if (item.type === 'CASCADER') {
-          const arr = JSON.parse(item.value);
-          if (arr && arr instanceof Array && arr.length > 0) {
-            tmpObj[item.id] = arr[arr.length - 1];
+          console.log(item.value === '');
+          if (item.value !== '') {
+            const arr = JSON.parse(item.value);
+            if (arr && arr instanceof Array && arr.length > 0) {
+              tmpObj[item.id] = arr[arr.length - 1];
+            }
           }
         } else if (SINGLE_TYPE.includes(item.type)) {
           const multipleOptions = getOptionFromTemplate(
