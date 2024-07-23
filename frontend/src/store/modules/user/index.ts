@@ -255,6 +255,12 @@ const useUserStore = defineStore('user', {
             });
             return;
           }
+          const routeName = router.currentRoute.value.name as string;
+          if (routeName?.includes('setting')) {
+            // 访问系统设置下的页面，不需要获取项目信息，会在切换到非系统设置页面时获取(ms-menu组件内初始化会获取)
+            appStore.setCurrentMenuConfig([]);
+            return;
+          }
           const res = await getProjectInfo(appStore.currentProjectId);
           if (!res) {
             // 如果项目被删除或者被禁用，跳转到无项目页面
