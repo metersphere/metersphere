@@ -75,7 +75,12 @@
         ></a-input>
       </a-form-item>
       <a-form-item :label="t('project.fileManagement.storagePlatform')" field="platform" asterisk-position="end">
-        <a-radio-group v-model:model-value="activeStorageForm.platform" type="button" @change="platformChange">
+        <a-radio-group
+          v-model:model-value="activeStorageForm.platform"
+          type="button"
+          :disabled="isEdit"
+          @change="platformChange"
+        >
           <a-radio v-for="item of gitPlatformTypes" :key="item" :value="item">{{ item }}</a-radio>
         </a-radio-group>
       </a-form-item>
