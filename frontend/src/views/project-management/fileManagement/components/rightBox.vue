@@ -27,7 +27,7 @@
           v-if="props.activeFolderType === 'folder'"
           v-model:model-value="fileType"
           type="button"
-          class="file-show-type min-w-[92px]"
+          class="file-show-type min-w-[96px]"
           @change="changeFileType"
         >
           <a-radio value="module" class="show-type-icon">{{ t('project.fileManagement.module') }}</a-radio>

@@ -13,6 +13,7 @@
     :ok-permission="['PROJECT_APPLICATION_BUG:UPDATE']"
     @cancel="handleCancel(false)"
     @confirm="handleConfirm"
+    @close="handleCancel(false)"
   >
     <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
       <a-form-item field="platformKey" :label="t('project.menu.platformLabel')">
@@ -183,6 +184,7 @@
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
     resetForm();
+    form.PLATFORM_KEY = '';
   };
   const handlePlatformChange = async (value: SelectValue) => {
     platformRules.value = [];

@@ -63,7 +63,6 @@
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
   import type { ExtractedKeys } from './utils';
-  import { on } from 'events';
 
   const { t } = useI18n();
 
