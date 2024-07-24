@@ -265,7 +265,8 @@ public class JsonSchemaBuilder {
     }
 
     private static String getPropertyTextValue(JsonNode propertyNode, String key) {
-        return propertyNode.get(key) == null ? StringUtils.EMPTY : propertyNode.get(key).asText();
+        JsonNode jsonNode = propertyNode.get(key);
+        return jsonNode == null || jsonNode instanceof NullNode ? StringUtils.EMPTY : jsonNode.asText();
     }
 
     private static boolean isVariable(String value) {
