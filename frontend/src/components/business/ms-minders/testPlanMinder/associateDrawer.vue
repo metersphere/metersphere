@@ -23,14 +23,12 @@
   import MsCaseAssociate from '@/components/business/ms-associate-case/index.vue';
   import type { saveParams } from '@/components/business/ms-associate-case/types';
 
-  import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import type { AssociateCaseRequestParams } from '@/models/testPlan/testPlan';
   import { CaseCountApiTypeEnum, CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
-  const { t } = useI18n();
   const props = defineProps<{
     associationType: CaseLinkEnum;
     modulesMaps?: Record<string, saveParams>;
