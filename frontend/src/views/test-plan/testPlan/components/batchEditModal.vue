@@ -27,7 +27,7 @@
         v-if="form.selectedAttrsId === 'tags'"
         field="tags"
         :label="t('apiTestManagement.batchUpdate')"
-        :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
+        :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         asterisk-position="end"
         :validate-trigger="['blur', 'input']"
         class="mb-0"

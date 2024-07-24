@@ -57,10 +57,11 @@
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
           :validate-trigger="['blur', 'input']"
-          :rules="[{ required: true, message: t('bugManagement.batchUpdate.required.value') }]"
+          :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
           <template v-if="valueMode === 'tags'">
             <MsTagsInput v-model:modelValue="form.value" :disabled="!form.attribute"></MsTagsInput>
+            <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
           </template>
           <template v-else-if="valueMode === 'user_selector'">
             <MsUserSelector
