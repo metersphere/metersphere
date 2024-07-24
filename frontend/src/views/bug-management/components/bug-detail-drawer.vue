@@ -514,7 +514,7 @@
           if (!props.pagination && !props.tableData) {
             showDrawerVisible.value = false;
           } else {
-            detailDrawerRef.value?.openPrevDetail();
+            detailDrawerRef.value?.openNextDetail();
           }
         } catch (error) {
           // eslint-disable-next-line no-console
