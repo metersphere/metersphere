@@ -33,7 +33,6 @@
         :data="getTreeData()"
         :keyword="sourceKeyword"
         block-node
-        default-expand-all
         :selectable="false"
         :virtual-list-props="{
           height: '100%',
@@ -159,7 +158,7 @@
             key: itemKey,
             label: itemTitle,
             children: itemChildren ? travel(itemChildren) : [],
-            expanded: true,
+            expanded: item.expanded,
           });
         }
       });
