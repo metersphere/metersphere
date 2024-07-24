@@ -88,7 +88,6 @@ export default {
   'caseManagement.featureCase.batchCopy': 'Copy Successfully!',
   'caseManagement.featureCase.editSuccess': 'update Successfully',
   'caseManagement.featureCase.PleaseSelect': 'Please select',
-  'caseManagement.featureCase.PleaseInputTags': 'Please enter the update tag to add',
   'caseManagement.featureCase.expectedResult': 'Expected Result',
   'caseManagement.featureCase.remark': 'Remark',
   'caseManagement.featureCase.addAttachment': 'Add attachment',

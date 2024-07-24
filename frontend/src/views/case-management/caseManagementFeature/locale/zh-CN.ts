@@ -89,7 +89,6 @@ export default {
   'caseManagement.featureCase.batchMoveSuccess': '移动成功',
   'caseManagement.featureCase.editSuccess': '更新成功',
   'caseManagement.featureCase.PleaseSelect': '请选择',
-  'caseManagement.featureCase.PleaseInputTags': '请输入更新标签回车添加',
   'caseManagement.featureCase.expectedResult': '预期结果',
   'caseManagement.featureCase.remark': '备注',
   'caseManagement.featureCase.addAttachment': '添加附件',

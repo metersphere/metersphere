@@ -35,7 +35,7 @@
           :validate-trigger="['blur', 'input']"
           :label="t('caseManagement.featureCase.batchUpdate')"
           asterisk-position="end"
-          :rules="[{ required: true, message: t('caseManagement.featureCase.PleaseInputTags') }]"
+          :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
           <MsTagsInput v-model:modelValue="form.tags" allow-clear></MsTagsInput>
           <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
