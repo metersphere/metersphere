@@ -806,6 +806,25 @@
   });
 
   /**
+   * 保存测试点配置
+   */
+  function handleConfigSave() {
+    configFormRef.value?.validate((errors) => {
+      if (!errors) {
+        const node: MinderJsonNode = window.minder.getSelectedNode();
+        if (node && node?.data && configForm.value) {
+          node.data = {
+            ...node.data,
+            ...cloneDeep(configForm.value),
+          };
+        }
+        // 派发SAVE_MINDER事件触发脑图的保存处理
+        minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
+      }
+    });
+  }
+
+  /**
    * 生成脑图保存的入参
    */
   function makeMinderParams(fullJson: MinderJson) {
@@ -831,8 +850,25 @@
 
   async function handleMinderSave(fullJson: MinderJson, callback: () => void) {
     try {
+      let configFormValidResult = false;
+      if (extraVisible.value) {
+        //  如果此时配置抽屉是打开状态，则校验配置表单并写入最新表单数据
+        await configFormRef.value?.validate((errors) => {
+          if (!errors) {
+            const node: MinderJsonNode = window.minder.getSelectedNode();
+            if (node && node?.data && configForm.value) {
+              node.data = {
+                ...node.data,
+                ...cloneDeep(configForm.value),
+              };
+            }
+            configFormValidResult = true;
+          }
+        });
+      }
+      if (!configFormValidResult) return;
       loading.value = true;
-      await editPlanMinder(makeMinderParams(fullJson));
+      await editPlanMinder(makeMinderParams(extraVisible.value ? window.minder.exportJson() : fullJson));
       Message.success(t('common.saveSuccess'));
       emit('save');
       clearSelectedCases();
@@ -851,25 +887,6 @@
       };
       clearSelectedCases();
     }
-  }
-
-  /**
-   * 保存测试点配置
-   */
-  function handleConfigSave() {
-    configFormRef.value?.validate((errors) => {
-      if (!errors) {
-        const node: MinderJsonNode = window.minder.getSelectedNode();
-        if (node && node?.data && configForm.value) {
-          node.data = {
-            ...node.data,
-            ...cloneDeep(configForm.value),
-          };
-        }
-        // 派发SAVE_MINDER事件触发脑图的保存处理
-        minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
-      }
-    });
   }
 
   async function initResourcePoolList() {
