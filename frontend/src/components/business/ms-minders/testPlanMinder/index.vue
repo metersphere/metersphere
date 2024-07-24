@@ -26,7 +26,7 @@
     <template #extractMenu>
       <a-tooltip v-if="canShowAddTestPointsMenu" :content="t('ms.minders.addTestSet')">
         <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="addTestSet">
-          <MsIcon type="icon-icon_test_set1" class="text-[var(--color-text-4)]" />
+          <MsIcon type="icon-icon_title-left-align_outlined" class="text-[var(--color-text-4)]" />
         </MsButton>
       </a-tooltip>
       <a-tooltip
