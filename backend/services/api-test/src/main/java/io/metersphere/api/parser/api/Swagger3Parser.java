@@ -14,6 +14,7 @@ import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.utils.JsonSchemaBuilder;
+import io.metersphere.api.utils.XMLUtil;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.dto.environment.auth.NoAuth;
@@ -33,6 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
@@ -217,6 +219,9 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                 formDataKV.setParamType(value.getType());
                 formDataKV.setMinLength(value.getMinLength());
                 formDataKV.setMaxLength(value.getMaxLength());
+                if (StringUtils.equals(value.getType(), PropertyConstant.FILE)) {
+                    formDataKV.setFiles(new ArrayList<>());
+                }
                 formDataKVS.add(formDataKV);
             }
         });
@@ -286,6 +291,8 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                 body.setBodyType(Body.BodyType.XML.name());
                 XmlBody xml = new XmlBody();
                 //xml.setValue(XMLUtils.jsonToXmlStr(jsonValue));
+                String xmlBody = parseXmlBody(value.getSchema(), jsonSchemaItem);
+                xml.setValue(xmlBody);
                 body.setXmlBody(xml);
             }
             case MediaType.MULTIPART_FORM_DATA_VALUE -> {
@@ -297,6 +304,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
             case MediaType.TEXT_PLAIN_VALUE -> {
                 body.setBodyType(Body.BodyType.RAW.name());
                 RawBody rawBody = new RawBody();
+                rawBody.setValue(value.getSchema().getExample().toString());
                 body.setRawBody(rawBody);
             }
             default -> body.setBodyType(Body.BodyType.NONE.name());
@@ -328,6 +336,8 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                 body.setBodyType(Body.BodyType.XML.name());
                 XmlBody xml = new XmlBody();
                 //xml.setValue(XMLUtils.jsonToXmlStr(jsonValue));
+                String xmlBody = parseXmlBody(value.getSchema(), jsonSchemaItem);
+                xml.setValue(xmlBody);
                 body.setXmlBody(xml);
             }
             case MediaType.APPLICATION_FORM_URLENCODED_VALUE -> {
@@ -344,9 +354,35 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
             case MediaType.TEXT_PLAIN_VALUE -> {
                 body.setBodyType(Body.BodyType.RAW.name());
                 RawBody rawBody = new RawBody();
+                rawBody.setValue(value.getSchema().getExample().toString());
                 body.setRawBody(rawBody);
             }
             default -> body.setBodyType(Body.BodyType.NONE.name());
+        }
+    }
+
+    private String parseXmlBody(Schema schema, JsonSchemaItem jsonSchemaItem) {
+        if (jsonSchemaItem instanceof JsonSchemaItem) {
+            if (MapUtils.isNotEmpty(jsonSchemaItem.getProperties())) {
+                if (jsonSchemaItem.getProperties().keySet().size() > 1) {
+                    JSONObject object = new JSONObject();
+                    if (StringUtils.isNotBlank(schema.get$ref())) {
+                        String ref = schema.get$ref();
+                        if (ref.split("/").length > 3) {
+                            ref = ref.replace("#/components/schemas/", StringUtils.EMPTY);
+                            object.put(ref, jsonSchemaItem.getProperties());
+                            return XMLUtil.jsonToPrettyXml(object);
+                        }
+                    }
+                }
+            }
+            return "";
+        } else {
+            JSONObject object = new JSONObject();
+            if (StringUtils.isNotBlank(schema.getName())) {
+                object.put(schema.getName(), schema.getExample());
+            }
+            return XMLUtil.jsonToPrettyXml(object);
         }
     }
 
@@ -510,6 +546,9 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                                 JsonSchemaItem item = parseProperty(value, false);
                                 jsonSchemaProperties.put(key, item);
                             });
+                        }
+                        if (StringUtils.isNotBlank(modelByRef.getType())) {
+                            jsonSchemaItem.setType(modelByRef.getType());
                         }
                         jsonSchemaItem.setProperties(jsonSchemaProperties);
                         yield jsonSchemaItem;

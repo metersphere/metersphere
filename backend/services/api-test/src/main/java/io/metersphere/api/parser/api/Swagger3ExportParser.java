@@ -19,6 +19,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.http.MediaType;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -178,12 +179,12 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
 
     private JSONObject buildContent(JSONObject respOrReq, List<JSONObject> schemas) {
         Hashtable<String, String> typeMap = new Hashtable<String, String>() {{
-            put(Body.BodyType.XML.name(), org.springframework.http.MediaType.APPLICATION_XML_VALUE);
-            put(Body.BodyType.JSON.name(), org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
-            put(Body.BodyType.RAW.name(), "application/urlencoded");
-            put(Body.BodyType.BINARY.name(), org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            put(Body.BodyType.FORM_DATA.name(), org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE);
-            put(Body.BodyType.WWW_FORM.name(), org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+            put(Body.BodyType.XML.name(), MediaType.APPLICATION_XML_VALUE);
+            put(Body.BodyType.JSON.name(), MediaType.APPLICATION_JSON_VALUE);
+            put(Body.BodyType.RAW.name(), MediaType.TEXT_PLAIN_VALUE);
+            put(Body.BodyType.BINARY.name(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            put(Body.BodyType.FORM_DATA.name(), MediaType.MULTIPART_FORM_DATA_VALUE);
+            put(Body.BodyType.WWW_FORM.name(), MediaType.APPLICATION_FORM_URLENCODED_VALUE);
         }};
         Object bodyInfo = null;
         Object jsonInfo = null;

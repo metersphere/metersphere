@@ -32,4 +32,6 @@ public class PropertyConstant {
     public final static String MAX_ITEMS = "maxItems";
     public final static String MIN_ITEMS = "minItems";
 
+    public final static String FILE = "file";
+
 }
