@@ -173,6 +173,13 @@
       showDrag: true,
     },
     {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'common.tag',
       slotName: 'tags',
       dataIndex: 'tags',
