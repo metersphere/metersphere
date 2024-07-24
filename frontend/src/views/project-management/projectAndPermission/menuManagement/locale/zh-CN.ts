@@ -35,7 +35,7 @@ export default {
   'project.menu.SYNC_ENABLE': '状态',
   'project.menu.MECHANISM': '接口测试待更新同步规则',
   'project.menu.row1': '系统根据设定的规则将符合的数据展示在我的待办-待更新列表',
-  'project.menu.row2': '将平台创建的缺陷同步至第三方项目管理平台',
+  'project.menu.row2': '与第三方项目管理平台的缺陷进行双向同步',
   'project.menu.row3': '可将用例添加至公共用例库共用',
   'project.menu.row4': '可将用例与第三方项目管理平台进行关联',
   'project.menu.row5': '评审活动中用例发生变更，用例状态自动切换为重新提审',

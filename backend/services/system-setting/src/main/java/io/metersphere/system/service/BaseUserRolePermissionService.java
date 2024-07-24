@@ -1,16 +1,16 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.domain.UserRolePermissionExample;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.mapper.UserRolePermissionMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
-import io.metersphere.system.uid.IDGenerator;
 import java.util.stream.Collectors;
 
 /**
@@ -56,10 +56,10 @@ public class BaseUserRolePermissionService {
     public void updatePermissionSetting(PermissionSettingUpdateRequest request) {
         List<PermissionSettingUpdateRequest.PermissionUpdateRequest> permissions = request.getPermissions();
 
-        // 先删除
+        // 先删除 (排除内置基本信息用户组)
         UserRolePermissionExample userGroupPermissionExample = new UserRolePermissionExample();
         userGroupPermissionExample.createCriteria()
-                .andRoleIdEqualTo(request.getUserRoleId());
+                .andRoleIdEqualTo(request.getUserRoleId()).andPermissionIdNotEqualTo("PROJECT_BASE_INFO:READ");
         userRolePermissionMapper.deleteByExample(userGroupPermissionExample);
 
         // 再新增

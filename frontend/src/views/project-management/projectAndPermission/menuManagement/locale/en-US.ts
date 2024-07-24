@@ -38,7 +38,7 @@ export default {
   'project.menu.SYNC_ENABLE': 'Status',
   'project.menu.MECHANISM': 'Interface Test Update Synchronization Rule',
   'project.menu.row1': 'The system displays data that meets the rules in My To-Do List - To Be Updated',
-  'project.menu.row2': 'Synchronize defects created on the platform to third-party project management platforms',
+  'project.menu.row2': 'Bidirectional synchronization with defects of third-party project management platforms',
   'project.menu.row3': 'Add test cases to the public test case library for sharing',
   'project.menu.row4': 'Associate test cases with third-party project management platforms',
   'project.menu.row5':
