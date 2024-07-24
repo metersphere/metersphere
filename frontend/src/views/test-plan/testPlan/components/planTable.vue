@@ -1326,16 +1326,14 @@
       return;
     }
     activeRecord.value = cloneDeep(record);
+    // 状态需要从统计里边获取
+    activeRecord.value.status = getStatus(record.id);
     showStatusDeleteModal.value = true;
   }
-  // 计划组配置报告 TODO 后台需要加接口
+
+  // 计划组自定义报告
   async function configReportHandler(record: TestPlanItem) {
     try {
-      // await generateReport({
-      //   projectId: appStore.currentProjectId,
-      //   testPlanId: record.id,
-      //   triggerMode: 'MANUAL',
-      // });
       router.push({
         name: TestPlanRouteEnum.TEST_PLAN_INDEX_CONFIG,
         query: {
