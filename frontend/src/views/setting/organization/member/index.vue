@@ -194,7 +194,7 @@
     {
       title: 'organization.member.tableColunmEmail',
       dataIndex: 'email',
-      width: 200,
+      width: 150,
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
@@ -229,7 +229,7 @@
       slotName: 'enable',
       dataIndex: 'enable',
       showInTable: true,
-      width: 200,
+      width: 100,
       showDrag: true,
     },
     {
@@ -262,7 +262,7 @@
     getMemberList,
     {
       tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
-      scroll: { x: 1600 },
+      scroll: { x: '100%' },
       selectable: hasAnyPermission(['ORGANIZATION_MEMBER:READ+ADD', 'ORGANIZATION_MEMBER:READ+UPDATE']),
       heightUsed: 288,
       showSetting: true,
