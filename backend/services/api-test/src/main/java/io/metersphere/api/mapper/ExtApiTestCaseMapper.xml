@@ -712,6 +712,11 @@
                 #{protocol}
             </foreach>
         </if>
+        <if test="!isRepeat">
+            AND api_test_case.id not in (
+            select api_case_id from test_plan_api_case where test_plan_id = #{testPlanId}
+            )
+        </if>
     </select>
 
 

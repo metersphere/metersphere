@@ -644,7 +644,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
                         CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
                         //获取选中的ids数据
-                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getCaseListBySelectIds(apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId(), apiCase.getModules().getProtocols());
+                        List<ApiTestCase> selectIdList = extApiTestCaseMapper.getCaseListBySelectIds(isRepeat, apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId(), apiCase.getModules().getProtocols());
                         apiTestCaseList.addAll(selectIdList);
                     }
 
