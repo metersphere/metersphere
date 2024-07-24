@@ -85,7 +85,7 @@ public class TestPlanCollectionMinderService {
                 t.setPoolName(Translator.get("resource_pool_not_exist"));
                 t.setNoResourcePool(true);
             } else {
-                t.setPoolName(t.getPoolName());
+                t.setPoolName(resourcePoolMap.get(t.getTestResourcePoolId()));
             }
         });
 
