@@ -98,7 +98,7 @@ public class UserRoleRelationService {
     }
 
     public Map<String, UserTableResponse> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {
-        List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.selectGlobalRoleByUserIdList(userIdList);
+        List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.selectRoleByUserIdList(userIdList);
         List<String> userRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).distinct().collect(Collectors.toList());
         List<String> sourceIdList = userRoleRelationList.stream().map(UserRoleRelation::getSourceId).distinct().collect(Collectors.toList());
         Map<String, UserRole> userRoleMap = new HashMap<>();
@@ -125,11 +125,11 @@ public class UserRoleRelationService {
             }
             UserRole userRole = userRoleMap.get(userRoleRelation.getRoleId());
             if (userRole != null && StringUtils.equalsIgnoreCase(userRole.getType(), UserRoleScope.SYSTEM)) {
-                userInfo.getUserRoleList().add(userRole);
+                userInfo.setUserRole(userRole);
             }
             Organization organization = organizationMap.get(userRoleRelation.getSourceId());
             if (organization != null && !userInfo.getOrganizationList().contains(organization)) {
-                userInfo.getOrganizationList().add(organization);
+                userInfo.setOrganization(organization);
             }
         }
         return returnMap;
