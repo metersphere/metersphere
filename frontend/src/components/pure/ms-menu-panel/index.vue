@@ -3,24 +3,25 @@
     <div class="menu-content">
       <div v-if="props.title" class="mb-2 font-medium">{{ props.title }}</div>
       <div class="menu">
-        <div
-          v-for="(item, index) of innerMenuList"
-          :key="item.name"
-          class="menu-item px-2"
-          :class="{
-            'text-[--color-text-4]': item.level === 1,
-            'menu-item--active': item.name === currentKey && item.level !== 1,
-            'cursor-pointer': item.level !== 1,
-            'mt-[2px]': item.level === 1 && index !== 0,
-            [props.activeClass || '']: item.name === currentKey && item.level !== 1,
-          }"
-          :style="{
-            'border-top': item.level === 1 && index !== 0 ? '1px solid var(--color-border-2)' : 'none',
-          }"
-          @click.stop="toggleMenu(item)"
-        >
-          <div>{{ item.title }}</div>
-        </div>
+        <template v-for="(item, index) of innerMenuList" :key="item.name">
+          <div
+            v-if="item.showCondition ? item.showCondition() : true"
+            class="menu-item px-2"
+            :class="{
+              'text-[--color-text-4]': item.level === 1,
+              'menu-item--active': item.name === currentKey && item.level !== 1,
+              'cursor-pointer': item.level !== 1,
+              'mt-[2px]': item.level === 1 && index !== 0,
+              [props.activeClass || '']: item.name === currentKey && item.level !== 1,
+            }"
+            :style="{
+              'border-top': item.level === 1 && index !== 0 ? '1px solid var(--color-border-2)' : 'none',
+            }"
+            @click.stop="toggleMenu(item)"
+          >
+            <div>{{ item.title }}</div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -33,6 +34,7 @@
     title: string;
     level: number;
     name: string;
+    showCondition?: () => boolean; // 是否显示
   }
   const props = defineProps<{
     title?: string;
