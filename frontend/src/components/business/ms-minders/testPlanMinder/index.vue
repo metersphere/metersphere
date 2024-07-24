@@ -860,7 +860,7 @@
     configFormRef.value?.validate((errors) => {
       if (!errors) {
         const node: MinderJsonNode = window.minder.getSelectedNode();
-        if (node.data && configForm.value) {
+        if (node && node?.data && configForm.value) {
           node.data = {
             ...node.data,
             ...cloneDeep(configForm.value),
