@@ -98,7 +98,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import useContainerShadow from '@/hooks/useContainerShadow';
-  import { mapTree, traverseTree } from '@/utils';
+  import { findNodeByKey, mapTree, traverseTree } from '@/utils';
 
   import type { MsTreeExpandedData, MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
   import { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
@@ -177,7 +177,7 @@
     (e: 'moreActionSelect', item: ActionsItem, node: MsTreeNodeData): void;
     (e: 'moreActionsClose'): void;
     (e: 'check', val: Array<string | number>, node: MsTreeNodeData): void;
-    (e: 'expand', node: MsTreeExpandedData): void;
+    (e: 'expand', node: MsTreeExpandedData, _expandKeys: Array<string | number>): void;
   }>();
 
   const data = defineModel<MsTreeNodeData[]>('data', {
@@ -195,6 +195,7 @@
   const focusNodeKey = defineModel<string | number>('focusNodeKey', {
     default: '',
   });
+  const expandKeys = ref<Set<string | number>>(new Set([]));
 
   const treeContainerRef: Ref = ref(null);
   const treeRef = ref<TreeInstance>();
@@ -262,33 +263,46 @@
     }
   }, props.searchDebounce);
 
+  onBeforeMount(() => {
+    if (props.useMapData) {
+      filterTreeData.value = mapTree(data.value, (node) => {
+        node.expanded = props.defaultExpandAll;
+        return node;
+      });
+    } else {
+      traverseTree(data.value, (node) => {
+        node.expanded = props.defaultExpandAll;
+      });
+      filterTreeData.value = data.value;
+    }
+    nextTick(() => {
+      if (props.defaultExpandAll && treeRef.value) {
+        treeRef.value.expandAll(true);
+      }
+    });
+  });
+
   watch(
     () => data.value,
     debounce((val) => {
       if (!props.keyword) {
         if (props.useMapData) {
           filterTreeData.value = mapTree(val, (node) => {
-            node.expanded = props.defaultExpandAll;
+            node.expanded = expandKeys.value.has(node[props.fieldNames.key]);
             return node;
           });
         } else {
           traverseTree(val, (node) => {
-            node.expanded = props.defaultExpandAll;
+            node.expanded = expandKeys.value.has(node[props.fieldNames.key]);
           });
           filterTreeData.value = val;
         }
-        nextTick(() => {
-          if (props.defaultExpandAll && treeRef.value) {
-            treeRef.value.expandAll(true);
-          }
-        });
       } else {
         updateDebouncedSearch();
       }
     }, 0),
     {
       deep: true,
-      immediate: true,
     }
   );
 
@@ -447,11 +461,18 @@
 
   function handleExpand(node: MsTreeNodeData) {
     node.expanded = !node.expanded;
+    if (props.useMapData) {
+      const realNode = findNodeByKey<MsTreeNodeData>(data.value, node[props.fieldNames.key]);
+      if (realNode) {
+        realNode.expanded = node.expanded;
+      }
+    }
     treeRef.value?.expandNode(node[props.fieldNames.key], node.expanded);
   }
 
-  function expand(expandKeys: Array<string | number>, node: MsTreeExpandedData) {
-    emit('expand', node);
+  function expand(_expandKeys: Array<string | number>, node: MsTreeExpandedData) {
+    expandKeys.value = new Set(_expandKeys);
+    emit('expand', node, _expandKeys);
   }
 
   function checkAll(val: boolean) {
