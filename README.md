@@ -30,6 +30,8 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 
 如果是内网环境，推荐使用 [离线安装包方式](https://community.fit2cloud.com/#/products/metersphere/downloads) 进行安装部署。
 
+友情提示：社区版限制1个组织，1个资源池，30个用户。
+
 如你有更多问题，可以通过论坛和技术交流群与我们交流。
 
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
