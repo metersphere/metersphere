@@ -66,7 +66,7 @@ export default function useModuleSelections<T>(
       }
       // 有排除的则从全部的里边排除掉排除的进行回显选择项
       // 确保单独更新行选中或者取消能精确判断是否已经选中或排除
-      if (selectAllProps && selectAllProps.excludeIds.size) {
+      if (selectAllProps && selectAllProps.selectAll && selectAllProps.excludeIds.size) {
         (moduleSelectedMap.value[item.moduleId] || []).forEach((id) => {
           if (!selectAllProps.excludeIds.has(id)) {
             allSelectIds.add(id);
