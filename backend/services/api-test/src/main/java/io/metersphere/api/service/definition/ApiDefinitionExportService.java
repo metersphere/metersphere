@@ -1,10 +1,13 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiDefinitionExample;
 import io.metersphere.api.domain.ApiDefinitionModule;
 import io.metersphere.api.domain.ApiDefinitionModuleExample;
 import io.metersphere.api.dto.definition.ApiDefinitionBatchRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionWithBlob;
 import io.metersphere.api.dto.export.ApiExportResponse;
+import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.parser.api.Swagger3ExportParser;
@@ -12,6 +15,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.utils.CustomFieldUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -27,20 +31,20 @@ import java.util.stream.Collectors;
 @Service
 public class ApiDefinitionExportService {
 
-    @Resource
-    private ApiDefinitionService apiDefinitionService;
+
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
 
     public ApiExportResponse export(ApiDefinitionBatchRequest request, String type, String userId) {
-        request.setProtocols(List.of(ModuleConstants.NODE_PROTOCOL_HTTP));
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocols(), false, userId);
+        List<String> ids = getBatchApiIds(request, request.getProjectId(), List.of(ModuleConstants.NODE_PROTOCOL_HTTP), false, userId);
         if (CollectionUtils.isEmpty(ids)) {
-            return new ApiExportResponse();
+            return null;
         }
         List<ApiDefinitionWithBlob> list = extApiDefinitionMapper.selectApiDefinitionWithBlob(ids);
         List<String> moduleIds = list.stream().map(ApiDefinitionWithBlob::getModuleId).toList();
@@ -55,6 +59,23 @@ public class ApiDefinitionExportService {
                 return new ApiExportResponse();
         }
 
+    }
+
+    private List<String> getBatchApiIds(ApiDefinitionBatchRequest request, String projectId, List<String> protocols, boolean deleted, String userId) {
+        if (request.isSelectAll()) {
+            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request.getCondition(), userId);
+            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocols, deleted);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            request.getSelectIds().removeAll(request.getExcludeIds());
+            ApiDefinitionExample definitionExample = new ApiDefinitionExample();
+            definitionExample.createCriteria().andIdIn(request.getSelectIds()).andProtocolIn(protocols).andDeletedEqualTo(deleted);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(definitionExample);
+            return apiDefinitions.stream().map(ApiDefinition::getId).toList();
+        }
     }
 
     private ApiExportResponse exportSwagger(ApiDefinitionBatchRequest request, List<ApiDefinitionWithBlob> list, Map<String, String> moduleMap) {

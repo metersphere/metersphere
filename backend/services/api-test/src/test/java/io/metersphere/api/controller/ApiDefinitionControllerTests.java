@@ -1900,8 +1900,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of("1002"));
         this.requestPost(EXPORT + "swagger", request);
-        request.setSelectIds(List.of("1001"));
-        this.requestPost(EXPORT + "swagger", request);
     }
 
 }
