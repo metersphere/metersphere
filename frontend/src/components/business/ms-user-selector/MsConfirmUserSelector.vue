@@ -11,7 +11,7 @@
   </div>
   <div v-else>
     <div class="flex flex-row items-center">
-      <MsUserSelector v-bind="$attrs" v-model="memberList" class="min-w-[262px]" />
+      <MsUserSelector v-bind="$attrs" v-model="memberList" class="!w-[260px]" />
       <a-button
         type="outline"
         :disabled="!memberList.length"
