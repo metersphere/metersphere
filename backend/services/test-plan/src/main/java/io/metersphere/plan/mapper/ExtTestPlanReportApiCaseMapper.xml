@@ -20,8 +20,11 @@
     </select>
 
     <select id="getPlanExecuteCaseModules" resultType="io.metersphere.plan.dto.TestPlanBaseModule">
-        select adm.id, adm.name, adm.parent_id as parentId from api_definition_module adm
-        where adm.project_id = #{id}
+        select adm.id, adm.name from api_definition_module adm
+        where adm.id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </select>
 
     <select id="list" resultType="io.metersphere.plan.dto.ReportDetailCasePageDTO">
