@@ -74,7 +74,11 @@ public class NoticeSendService {
                     .forEach(messageDetail -> {
                         MessageDetail m = SerializationUtils.clone(messageDetail);
                         NoticeModel n = SerializationUtils.clone(noticeModel);
-                        this.getNoticeSender(m).send(m, n);
+                        try {
+                            this.getNoticeSender(m).send(m, n);
+                        } catch (Exception e) {
+                            LogUtils.error(e);
+                        }
                     });
 
         } catch (Exception e) {
@@ -126,7 +130,11 @@ public class NoticeSendService {
                     .forEach(messageDetail -> {
                         MessageDetail m = SerializationUtils.clone(messageDetail);
                         NoticeModel n = SerializationUtils.clone(noticeModel);
-                        this.getNoticeSender(m).send(m, n);
+                        try {
+                            this.getNoticeSender(m).send(m, n);
+                        } catch (Exception e) {
+                            LogUtils.error(e);
+                        }
                     });
 
         } catch (Exception e) {
@@ -148,7 +156,11 @@ public class NoticeSendService {
                     .forEach(messageDetail -> {
                         MessageDetail m = SerializationUtils.clone(messageDetail);
                         NoticeModel n = SerializationUtils.clone(noticeModel);
-                        this.getNoticeSender(m).send(m, n);
+                        try {
+                            this.getNoticeSender(m).send(m, n);
+                        } catch (Exception e) {
+                            LogUtils.error(e);
+                        }
                     });
 
         } catch (Exception e) {
