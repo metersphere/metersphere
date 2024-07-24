@@ -1,6 +1,6 @@
 <script lang="tsx">
   import { computed, defineComponent, h, ref } from 'vue';
-  import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
+  import { RouteRecordRaw, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
@@ -32,7 +32,6 @@
       const userStore = useUserStore();
       const { logout } = useUser();
       const router = useRouter();
-      const route = useRoute();
       // @desc: 初始化配置的项目模块
       appStore.getProjectInfos();
       const { menuTree } = useMenuTree();
@@ -55,14 +54,6 @@
             // 如果菜单是外链
             if (regexUrl.test(item.path)) {
               openWindow(item.path);
-              selectedKey.value = [item.name as string];
-              return;
-            }
-            // 已激活的菜单重复点击不处理
-            if (
-              route.name === item.name ||
-              ((route.name as string).includes(item.name as string) && route.meta?.hideChildrenInMenu)
-            ) {
               selectedKey.value = [item.name as string];
               return;
             }
