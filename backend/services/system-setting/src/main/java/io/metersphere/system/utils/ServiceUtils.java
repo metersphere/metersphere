@@ -8,6 +8,7 @@ import io.metersphere.system.dto.sdk.request.PosRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -120,6 +121,9 @@ public class ServiceUtils {
     }
 
     public static String compressName(String name, int maxSize) {
+        if (StringUtils.isBlank(name)) {
+            return StringUtils.EMPTY;
+        }
         String newName = name;
         // 限制名称长度 （数据库里最大的长度是255，这里判断超过250时截取到200附近）
         if (newName.length() > maxSize) {

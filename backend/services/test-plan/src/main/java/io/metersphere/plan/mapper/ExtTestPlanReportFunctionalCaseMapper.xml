@@ -14,8 +14,11 @@
     </select>
 
     <select id="getPlanExecuteCaseModules" resultType="io.metersphere.plan.dto.TestPlanBaseModule">
-        select fcm.id, fcm.name, fcm.parent_id as parentId from functional_case_module fcm
-        where fcm.project_id = #{id}
+        select fcm.id, fcm.name from functional_case_module fcm
+        where fcm.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <select id="getCasePriorityByIds" resultType="io.metersphere.plugin.platform.dto.SelectOption">

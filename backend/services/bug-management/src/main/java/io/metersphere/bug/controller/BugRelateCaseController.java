@@ -43,7 +43,7 @@ public class BugRelateCaseController {
     private BugRelateCaseCommonService bugRelateCaseCommonService;
 
     @PostMapping("/un-relate/page")
-    @Operation(description = "缺陷管理-关联用例-未关联用例-列表分页")
+    @Operation(summary = "缺陷管理-关联用例-未关联用例-列表分页")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<TestCaseProviderDTO>> unRelatedPage(@Validated @RequestBody TestCasePageProviderRequest request) {
         bugRelateCaseCommonService.checkCaseTypeParamIllegal(request.getSourceType());
@@ -77,7 +77,7 @@ public class BugRelateCaseController {
     }
 
     @PostMapping("/page")
-    @Operation(description = "缺陷管理-关联用例-列表分页查询")
+    @Operation(summary = "缺陷管理-关联用例-列表分页查询")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<BugRelateCaseDTO>> page(@Validated @RequestBody BugRelatedCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
@@ -85,7 +85,7 @@ public class BugRelateCaseController {
     }
 
     @GetMapping("/un-relate/{id}")
-    @Operation(description = "缺陷管理-关联用例-取消关联用例")
+    @Operation(summary = "缺陷管理-关联用例-取消关联用例")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @Parameter(name = "id", description = "ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.getRelateLog(#id)", msClass = BugRelateCaseLogService.class)
@@ -94,7 +94,7 @@ public class BugRelateCaseController {
     }
 
     @GetMapping("/check-permission/{projectId}/{caseType}")
-    @Operation(description = "缺陷管理-关联用例-查看用例权限校验")
+    @Operation(summary = "缺陷管理-关联用例-查看用例权限校验")
     @Parameters({
             @Parameter(name = "projectId", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
             @Parameter(name = "caseType", description = "关联用例类型(FUNCTIONAL, API, SCENARIO)", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))

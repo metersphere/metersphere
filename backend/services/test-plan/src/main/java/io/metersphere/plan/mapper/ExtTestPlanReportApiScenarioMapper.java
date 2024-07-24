@@ -27,10 +27,10 @@ public interface ExtTestPlanReportApiScenarioMapper {
 
 	/**
 	 * 获取项目下场景用例所属模块集合
-	 * @param projectId 计划ID
+	 * @param ids 模块ID集合
 	 * @return 模块集合
 	 */
-	List<TestPlanBaseModule> getPlanExecuteCaseModules(@Param("id") String projectId);
+	List<TestPlanBaseModule> getPlanExecuteCaseModules(@Param("ids") List<String> ids);
 
 	/**
 	 * 分页查询报告关联的用例
