@@ -10,13 +10,21 @@
         <foreach collection="userIds" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
-        <!--        <foreach collection="userIds" item="userId" open="(" close=")" separator="OR">-->
-        <!--            user_id = #{userId}-->
-        <!--        </foreach>-->
         AND role_id IN (
         SELECT id FROM user_role WHERE scope_id = 'global'
         )
     </select>
+
+    <select id="selectRoleByUserIdList" resultType="io.metersphere.system.domain.UserRoleRelation">
+        SELECT * FROM
+        user_role_relation
+        WHERE
+        user_id IN
+        <foreach collection="userIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
     <select id="selectGlobalRoleByUserId" resultType="io.metersphere.system.domain.UserRoleRelation">
         SELECT *
         FROM user_role_relation
