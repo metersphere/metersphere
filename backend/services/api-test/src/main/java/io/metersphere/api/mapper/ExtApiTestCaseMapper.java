@@ -108,5 +108,5 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
-    List<ApiTestCase> getCaseListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
+    List<ApiTestCase> getCaseListBySelectIds(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 }
