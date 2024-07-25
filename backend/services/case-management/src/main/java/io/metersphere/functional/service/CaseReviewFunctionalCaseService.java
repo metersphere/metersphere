@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -803,7 +804,7 @@ public class CaseReviewFunctionalCaseService {
     }
 
     public List<OptionDTO> getUserStatus(String reviewId, String caseId) {
-        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
+        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.resultList(caseId, reviewId);
         Map<String, List<CaseReviewHistoryDTO>> collect = list.stream().sorted(Comparator.comparingLong(CaseReviewHistoryDTO::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistoryDTO::getCreateUser, Collectors.toList()));
         List<OptionDTO> optionDTOS = new ArrayList<>();
         List<CaseReviewFunctionalCaseUser> reviewerList = getReviewerList(reviewId, caseId);
@@ -814,10 +815,20 @@ public class CaseReviewFunctionalCaseService {
             userExample.createCriteria().andIdIn(reviewerIds);
             users = userMapper.selectByExample(userExample);
         }
+        AtomicBoolean hasReReview = new AtomicBoolean(false);
+        final long[] createTime = {0L};
+        final long[] reReviewTime = {0L};
         collect.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
             optionDTO.setId(v.getFirst().getUserName());
             optionDTO.setName(v.getFirst().getStatus());
+            if (createTime[0] < v.getFirst().getCreateTime()) {
+                createTime[0] = v.getFirst().getCreateTime();
+            }
+            if (StringUtils.equalsIgnoreCase(v.getFirst().getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+                reReviewTime[0] = v.getFirst().getCreateTime();
+                hasReReview.set(true);
+            }
             optionDTOS.add(optionDTO);
         });
         if (CollectionUtils.isNotEmpty(users)) {
@@ -827,6 +838,11 @@ public class CaseReviewFunctionalCaseService {
                 optionDTO.setName(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
                 optionDTOS.add(optionDTO);
             });
+        }
+        if (hasReReview.get() && reReviewTime[0] >= createTime[0]) {
+            for (OptionDTO optionDTO : optionDTOS) {
+                optionDTO.setName(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+            }
         }
         return optionDTOS;
     }
