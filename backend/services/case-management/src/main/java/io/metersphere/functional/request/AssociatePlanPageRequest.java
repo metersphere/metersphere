@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class AssociatePlanPageRequest extends BaseProviderCondition {
@@ -26,4 +28,7 @@ public class AssociatePlanPageRequest extends BaseProviderCondition {
     @Max(value = 500, message = "每页显示条数不能大于500")
     @Schema(description =  "每页显示条数")
     private int pageSize;
+
+    @Schema(description = "要包含的测试计划ID")
+    private List<String> includeTestPlanIds;
 }

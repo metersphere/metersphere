@@ -2431,4 +2431,61 @@ public class TestPlanTests extends BaseTest {
         testPlanService.deletePlanCollectionResource(List.of("init_collection-delete-4"));
         testPlanService.deletePlanCollectionResource(List.of("init_collection-delete-1", "init_collection-delete-2", "init_collection-delete-3"));
     }
+
+    @Test
+    @Order(310)
+    void testStatusSelectMethod() {
+        //initSQL中，功能用例id：oasis_fc_1 的数据关联到了测试计划
+        List<String> testPlanStatusList = new ArrayList<>();
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus("oasis_fc_1", testPlanStatusList);
+        testPlanStatusList = new ArrayList<>();
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus("oasis_fc_1", testPlanStatusList);
+        testPlanStatusList = new ArrayList<>();
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus("oasis_fc_1", testPlanStatusList);
+        testPlanStatusList = new ArrayList<>();
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus("oasis_fc_1", testPlanStatusList);
+        testPlanStatusList = new ArrayList<>();
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus("oasis_fc_1", testPlanStatusList);
+        testPlanStatusList = new ArrayList<>();
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+        testPlanStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus("oasis_fc_1", testPlanStatusList);
+
+        //测试不存在的数据
+        testPlanManagementService.selectTestPlanIdByFuncCaseIdAndStatus(IDGenerator.nextStr(), testPlanStatusList);
+
+        Map<String, List<String>> testPlanExecMap = new HashMap<>();
+        testPlanExecMap.put("test1", new ArrayList<>() {{
+            this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+        }});
+        testPlanExecMap.put("test2", new ArrayList<>() {{
+            this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+        }});
+        testPlanExecMap.put("test3", new ArrayList<>() {{
+            this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+            this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+        }});
+        List<String> completedTestPlanIds = new ArrayList<>();
+        List<String> preparedTestPlanIds = new ArrayList<>();
+        List<String> underwayTestPlanIds = new ArrayList<>();
+        testPlanManagementService.filterTestPlanIdWithStatus(testPlanExecMap, completedTestPlanIds, preparedTestPlanIds, underwayTestPlanIds);
+        Assertions.assertEquals(1, completedTestPlanIds.size());
+        Assertions.assertEquals("test1", completedTestPlanIds.getFirst());
+
+        Assertions.assertEquals(1, preparedTestPlanIds.size());
+        Assertions.assertEquals("test2", preparedTestPlanIds.getFirst());
+
+        Assertions.assertEquals(1, underwayTestPlanIds.size());
+        Assertions.assertEquals("test3", underwayTestPlanIds.getFirst());
+    }
+
 }

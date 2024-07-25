@@ -2,6 +2,7 @@ package io.metersphere.plan.controller;
 
 import io.metersphere.plan.dto.request.TestPlanBugPageRequest;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
+import io.metersphere.plan.service.TestPlanBugService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.JSON;
@@ -30,6 +31,8 @@ public class TestPlanBugControllerTests extends BaseTest {
 
 	@Resource
 	private ProjectMapper projectMapper;
+	@Resource
+	private TestPlanBugService testPlanBugService;
 
 	public static final String TEST_PLAN_BUG_PAGE = "/test-plan/bug/page";
 
@@ -97,5 +100,14 @@ public class TestPlanBugControllerTests extends BaseTest {
 		projectMapper.updateByPrimaryKeySelective(project);
 		this.requestGet(TEST_PLAN_DELETE + "/test-plan-id-for-bug");
 		this.requestGet(TEST_PLAN_DELETE + "/test-plan-id-for-bug-1");
+	}
+
+	@Test
+	@Order(4)
+	void emptyFunctionTest() throws Exception {
+		testPlanBugService.caseExecResultCount("testPlanId");
+		testPlanBugService.selectDistinctExecResultByTestPlanIds(null);
+		testPlanBugService.updatePos(null, 0);
+		testPlanBugService.refreshPos(null);
 	}
 }

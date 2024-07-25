@@ -736,4 +736,27 @@
         where test_plan.project_id = #{projectId}
           AND test_plan.status != 'ARCHIVED'
     </select>
+    <select id="selectDistinctExecResultByTestPlanIds"
+            resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
+        select distinct resource.test_plan_id AS testPlanId,
+        CASE
+        WHEN resource.last_exec_result = 'BLOCKED'
+        THEN 'COMPLETED'
+        WHEN resource.last_exec_result = 'FAKE_ERROR'
+        THEN 'COMPLETED'
+        WHEN resource.last_exec_result = 'ERROR'
+        THEN 'COMPLETED'
+        WHEN resource.last_exec_result = 'SUCCESS'
+        THEN 'COMPLETED'
+        ELSE 'PENDING'
+        END AS execResult,
+        test_plan.group_id AS testPlanGroupId
+        from test_plan_api_case resource
+        INNER JOIN test_plan ON test_plan.id = resource.test_plan_id
+        where test_plan.id IN
+        <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
+            #{testPlanId}
+        </foreach>
+        AND test_plan.status != 'ARCHIVED'
+    </select>
 </mapper>

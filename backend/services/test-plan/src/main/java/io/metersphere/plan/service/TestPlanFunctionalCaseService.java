@@ -139,8 +139,13 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     @Override
-    public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId) {
         return extTestPlanFunctionalCaseMapper.selectDistinctExecResult(projectId);
+    }
+
+    @Override
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds) {
+        return extTestPlanFunctionalCaseMapper.selectDistinctExecResultByTestPlanIds(testPlanIds);
     }
 
     @Override

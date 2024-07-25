@@ -19,7 +19,9 @@ import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.provider.BaseAssociateScenarioProvider;
+import io.metersphere.provider.BaseTestPlanProvider;
 import io.metersphere.request.*;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -30,7 +32,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.redisson.api.IdGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,9 @@ public class FunctionalTestCaseService {
 
     @Resource
     private BaseAssociateScenarioProvider associateScenarioProvider;
+
+    @Resource
+    private BaseTestPlanProvider baseTestPlanProvider;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -260,7 +264,25 @@ public class FunctionalTestCaseService {
      * @return List<FunctionalCaseTestPlanDTO>
      */
     public List<FunctionalCaseTestPlanDTO> hasAssociatePlanPage(AssociatePlanPageRequest request) {
+        this.initDefaultFilter(request);
         return extFunctionalCaseTestMapper.getPlanList(request);
+    }
+
+    private void initDefaultFilter(AssociatePlanPageRequest request) {
+
+        if (request.getFilter() != null && request.getFilter().get("planStatus") != null) {
+
+            List<String> statusList = new ArrayList<>(request.getFilter().get("planStatus"));
+            if (statusList.contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                statusList.remove(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            }
+
+            if (statusList.size() < 3 && baseTestPlanProvider != null) {
+                //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
+                request.setIncludeTestPlanIds(baseTestPlanProvider.selectTestPlanIdByFunctionCaseAndStatus(request.getCaseId(), statusList));
+            }
+        }
+
     }
 
     public List<TestPlanCaseExecuteHistoryDTO> getTestPlanCaseExecuteHistory(String caseId) {
