@@ -575,8 +575,17 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         //处理数据
         handleApiData(collectionAssociates.get(AssociateCaseType.API), user, testPlanApiCaseList, testPlan, isRepeat);
         handleApiCaseData(collectionAssociates.get(AssociateCaseType.API_CASE), user, testPlanApiCaseList, testPlan, isRepeat);
+
         if (CollectionUtils.isNotEmpty(testPlanApiCaseList)) {
-            testPlanApiCaseMapper.batchInsert(testPlanApiCaseList);
+            List<TestPlanApiCase> distinctList = testPlanApiCaseList.stream()
+                    .collect(Collectors.toMap(
+                            TestPlanApiCase::getApiCaseId,
+                            Function.identity(),
+                            (existing, replacement) -> existing
+                    ))
+                    .values().stream()
+                    .toList();
+            testPlanApiCaseMapper.batchInsert(distinctList);
         }
     }
 
