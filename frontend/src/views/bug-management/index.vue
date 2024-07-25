@@ -127,13 +127,16 @@
     v-model:visible="exportVisible"
     :export-loading="exportLoading"
     :all-data="exportOptionData"
+    :disabled-cancel-keys="['name']"
     @confirm="exportConfirm"
   >
     <template #title>
-      <span class="text-[var(--color-text-1)]">{{ t('bugManagement.exportBug') }}</span>
-      <span v-if="currentSelectParams.currentSelectCount" class="text-[var(--color-text-4)]"
-        >({{ t('bugManagement.exportBugCount', { count: currentSelectParams.currentSelectCount }) }})</span
-      >
+      <div>
+        <span class="text-[var(--color-text-1)]">{{ t('bugManagement.exportBug') }}</span>
+        <span v-if="currentSelectParams.currentSelectCount" class="text-[var(--color-text-4)]">
+          ({{ t('bugManagement.exportBugCount', { count: currentSelectParams.currentSelectCount }) }})
+        </span>
+      </div>
     </template>
   </MsExportDrawer>
   <BugDetailDrawer
