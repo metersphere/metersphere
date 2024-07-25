@@ -457,6 +457,7 @@
       if (val) {
         messageHistoryList.value = [];
         pageNation.value.current = 1;
+        currentResourceType.value = '';
         // 左侧模块树加载
         loadModuleList();
         // 右边默认数据加载
