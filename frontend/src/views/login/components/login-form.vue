@@ -219,6 +219,7 @@
           password: encrypted(values.password),
           authenticate: userInfo.value.authenticate,
         } as LoginData);
+        setLoginExpires();
         setLongType(userInfo.value.authenticate);
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
@@ -250,7 +251,6 @@
         if (res) {
           appStore.setCurrentMenuConfig(res?.moduleIds || []);
         }
-        setLoginExpires();
         router.push({
           name: redirectHasPermission ? (redirect as string) : currentRouteName,
           query: {

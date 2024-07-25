@@ -54,52 +54,6 @@
           </div>
         </div>
       </div>
-      <!-- TODO:UI 测试暂无 -->
-      <!-- <div v-xpack class="config-card">
-        <div class="config-card-title">
-          <div class="config-card-title-text">{{ t('ms.personal.uiLocalExecution') }}</div>
-          <MsTag
-            v-if="uiConfig.status !== 'none'"
-            theme="outline"
-            :type="tagMap[uiConfig.status].type"
-            size="small"
-            class="px-[4px]"
-          >
-            {{ tagMap[uiConfig.status].text }}
-          </MsTag>
-        </div>
-        <a-input
-          v-model:model-value="uiConfig.userUrl"
-          :placeholder="t('ms.personal.uiLocalExecutionPlaceholder')"
-          class="mb-[16px]"
-          :max-length="255"
-          @press-enter="testUi"
-        ></a-input>
-        <div class="config-card-footer">
-          <a-button
-            type="outline"
-            class="px-[8px]"
-            size="mini"
-            :disabled="uiConfig.userUrl.trim() === ''"
-            :loading="testUiLoading"
-            @click="testUi"
-          >
-            {{ t('ms.personal.test') }}
-          </a-button>
-          <div class="flex items-center">
-            <div class="mr-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
-              {{ t('ms.personal.priorityLocalExec') }}
-            </div>
-            <a-switch
-              v-model:model-value="uiConfig.enable"
-              size="small"
-              :disabled="uiConfig.id === '' || testUiLoading"
-              :before-change="(val) => handleUiPriorityBeforeChange(val)"
-              type="line"
-            />
-          </div>
-        </div>
-      </div> -->
     </div>
   </a-spin>
 </template>
@@ -240,65 +194,6 @@
     }
   }
 
-  const testUiLoading = ref(false);
-  const uiConfig = ref<LocalConfig & Config>({
-    id: '',
-    userUrl: '',
-    enable: false,
-    type: 'UI',
-    status: 0,
-  });
-
-  async function testUi() {
-    if (uiConfig.value.userUrl.trim() === '') {
-      return;
-    }
-    try {
-      testUiLoading.value = true;
-      if (uiConfig.value.id) {
-        // 已经存在配置
-        await updateLocalConfig({
-          id: uiConfig.value.id,
-          userUrl: uiConfig.value.userUrl.trim(),
-        });
-      } else {
-        const result = await addLocalConfig({
-          type: 'UI',
-          userUrl: uiConfig.value.userUrl.trim(),
-        });
-        uiConfig.value.id = result.id;
-      }
-      const res = await validLocalConfig(uiConfig.value.userUrl.trim());
-      uiConfig.value.status = res === 'OK' ? 1 : 2;
-      if (res) {
-        Message.success(t('ms.personal.testPass'));
-      } else {
-        Message.error(t('ms.personal.testFail'));
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      testUiLoading.value = false;
-    }
-  }
-
-  async function handleUiPriorityBeforeChange(val: string | number | boolean) {
-    try {
-      if (val) {
-        await enableLocalConfig(uiConfig.value.id);
-      } else {
-        await disableLocalConfig(uiConfig.value.id);
-      }
-      Message.success(val ? t('ms.personal.uiLocalExecutionOpen') : t('ms.personal.uiLocalExecutionClose'));
-      return true;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      return false;
-    }
-  }
-
   onBeforeMount(async () => {
     try {
       loading.value = true;
@@ -310,11 +205,6 @@
         res.forEach((config) => {
           if (config.type === 'API') {
             apiConfig.value = {
-              ...config,
-              status: 'none',
-            };
-          } else if (config.type === 'UI') {
-            uiConfig.value = {
               ...config,
               status: 'none',
             };
