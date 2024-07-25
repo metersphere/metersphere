@@ -362,28 +362,21 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
     }
 
     private String parseXmlBody(Schema schema, JsonSchemaItem jsonSchemaItem) {
-        if (jsonSchemaItem instanceof JsonSchemaItem) {
-            if (MapUtils.isNotEmpty(jsonSchemaItem.getProperties())) {
-                if (jsonSchemaItem.getProperties().keySet().size() > 1) {
-                    JSONObject object = new JSONObject();
-                    if (StringUtils.isNotBlank(schema.get$ref())) {
-                        String ref = schema.get$ref();
-                        if (ref.split("/").length > 3) {
-                            ref = ref.replace("#/components/schemas/", StringUtils.EMPTY);
-                            object.put(ref, jsonSchemaItem.getProperties());
-                            return XMLUtil.jsonToPrettyXml(object);
-                        }
-                    }
-                }
+        JSONObject object = new JSONObject();
+
+        if (jsonSchemaItem != null && MapUtils.isNotEmpty(jsonSchemaItem.getProperties())) {
+            if (StringUtils.isNotBlank(schema.get$ref()) && schema.get$ref().split("/").length > 3) {
+                String ref = schema.get$ref().replace("#/components/schemas/", StringUtils.EMPTY);
+                object.put(ref, jsonSchemaItem.getProperties());
+                return XMLUtil.jsonToPrettyXml(object);
             }
-            return "";
         } else {
-            JSONObject object = new JSONObject();
-            if (StringUtils.isNotBlank(schema.getName())) {
+            if (schema != null && StringUtils.isNotBlank(schema.getName())) {
                 object.put(schema.getName(), schema.getExample());
             }
-            return XMLUtil.jsonToPrettyXml(object);
         }
+
+        return XMLUtil.jsonToPrettyXml(object);
     }
 
     private ApiDefinitionImportDetail buildSwaggerApiDefinition(Operation operation, String path, String
