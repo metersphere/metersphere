@@ -431,7 +431,7 @@
   // 全部标记为已读
   async function prepositionEdit() {
     // 全读不需要类型KEY
-    await getMessageReadAll();
+    await getMessageReadAll(currentResourceType.value);
     messageHistoryList.value = [];
     pageNation.value.current = 1;
     // 左侧消息总数
