@@ -2,19 +2,18 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.config.PermissionCache;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.domain.UserRoleExample;
-import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.permission.Permission;
 import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -41,6 +40,8 @@ public class BaseUserRoleService {
     private PermissionCache permissionCache;
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserRolePermissionMapper userRolePermissionMapper;
     @Resource
     private UserMapper userMapper;
     @Resource
@@ -141,6 +142,14 @@ public class BaseUserRoleService {
         userRole.setCreateTime(System.currentTimeMillis());
         userRole.setUpdateTime(System.currentTimeMillis());
         userRoleMapper.insert(userRole);
+        if (StringUtils.equals(userRole.getType(), UserRoleType.PROJECT.name())) {
+            // 项目级别用户组, 初始化基本信息权限
+            UserRolePermission initPermission = new UserRolePermission();
+            initPermission.setId(IDGenerator.nextStr());
+            initPermission.setRoleId(userRole.getId());
+            initPermission.setPermissionId("PROJECT_BASE_INFO:READ");
+            userRolePermissionMapper.insert(initPermission);
+        }
         return userRole;
     }
 
