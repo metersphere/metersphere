@@ -78,39 +78,13 @@
           disabled
           :active-case="activeCaseInfo"
         />
-        <div v-else class="pl-[16px]">
+        <div v-show="activeExtraKey === 'history'" class="pl-[16px]">
           <div v-if="props.reviewPassRule === 'MULTIPLE'" class="mb-[8px] flex items-center justify-between">
             <div class="text-[12px]">
               <span class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.progress') }}</span>
               {{ props.reviewProgress }}
             </div>
-            <a-trigger v-model:popup-visible="statusVisible" trigger="click" position="br" :popup-translate="[0, 4]">
-              <div
-                :class="`flex cursor-pointer items-center rounded p-[4px] hover:bg-[var(--color-text-n9)] 
-                ${statusVisible ? 'bg-[var(--color-text-n9)]' : ''} `"
-              >
-                <ReviewResult :status="reviewHistoryStatus" class="text-[12px]" :icon-size="12" />
-                <MsIcon type="icon-icon_expand-down_filled" size="12" class="ml-[4px] text-[var(--color-text-4)]" />
-              </div>
-              <template #content>
-                <div
-                  class="trigger-content w-[150px] rounded-[var(--border-radius-medium)] bg-white p-[6px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
-                >
-                  <div v-for="item in reviewUserStatusList" :key="item.id" class="my-[4px] flex justify-between">
-                    <div class="one-line-text max-w-[80px]">
-                      {{ item.id }}
-                    </div>
-                    <ReviewResult
-                      :status="item.name as ReviewResultStatus"
-                      is-part
-                      class="text-[12px]"
-                      :icon-size="12"
-                    />
-                  </div>
-                  <MsEmpty v-if="!reviewUserStatusList.length" />
-                </div>
-              </template>
-            </a-trigger>
+            <ReviewStatusTrigger ref="reviewStatusTriggerRef" :size="12" />
           </div>
           <ReviewCommentList
             :review-comment-list="reviewHistoryList"
@@ -128,7 +102,6 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
-  import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import {
@@ -138,18 +111,16 @@
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
+  import ReviewStatusTrigger from './components/reviewStatusTrigger.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
-  import ReviewResult from '@/views/case-management/caseReview/components/reviewResult.vue';
   import ReviewSubmit from '@/views/case-management/caseReview/components/reviewSubmit.vue';
 
   import {
     getCaseReviewerList,
     getCaseReviewHistoryList,
     getCaseReviewMinder,
-    getReviewerAndStatus,
   } from '@/api/modules/case-management/caseReview';
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
-  import { OptionItem } from '@/api/modules/message/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
@@ -162,7 +133,6 @@
     CaseReviewFunctionalCaseUserItem,
     ReviewHistoryItem,
     ReviewPassRule,
-    ReviewResult as ReviewResultStatus,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
   import { StartReviewStatus } from '@/enums/caseEnum';
@@ -479,9 +449,6 @@
   }
 
   const reviewHistoryList = ref<ReviewHistoryItem[]>([]); // 加载评审历史列表
-  const reviewHistoryStatus = ref<ReviewResultStatus>();
-  const reviewUserStatusList = ref<OptionItem[]>([]); // 每个评审人最后一次评审结果
-  const statusVisible = ref(false);
   async function initReviewHistoryList(data: MinderJsonNodeData) {
     try {
       const res = await getCaseReviewHistoryList(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
@@ -491,20 +458,11 @@
       console.log(error);
     }
   }
-  async function initReviewerAndStatus(data: MinderJsonNodeData) {
-    try {
-      const res = await getReviewerAndStatus(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
-      reviewUserStatusList.value = res.reviewerStatus;
-      reviewHistoryStatus.value = res.status as ReviewResultStatus;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
 
   /**
    * 切换用例详情显示
    */
+  const reviewStatusTriggerRef = ref<InstanceType<typeof ReviewStatusTrigger>>();
   async function toggleDetail(val?: boolean) {
     extraVisible.value = val !== undefined ? val : !extraVisible.value;
     const node: MinderJsonNode = window.minder.getSelectedNode();
@@ -513,7 +471,10 @@
       activeExtraKey.value = 'history';
       initCaseDetail(data);
       initReviewHistoryList(data);
-      initReviewerAndStatus(data);
+      reviewStatusTriggerRef.value?.initReviewerAndStatus(
+        route.query.id as string,
+        data?.caseId || activeCaseInfo.value.caseId
+      );
     }
   }
 
@@ -684,10 +645,5 @@
 <style lang="less" scoped>
   :deep(.comment-list-item-name) {
     max-width: 200px;
-  }
-  .trigger-content {
-    max-height: 192px;
-    @apply overflow-y-auto overflow-x-hidden;
-    .ms-scroll-bar();
   }
 </style>
