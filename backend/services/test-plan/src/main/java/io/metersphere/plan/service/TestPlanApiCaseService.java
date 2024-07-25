@@ -642,7 +642,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                     }
 
                     if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
-                        CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
                         //获取选中的ids数据
                         List<ApiTestCase> selectIdList = extApiTestCaseMapper.getCaseListBySelectIds(isRepeat, apiCase.getModules().getProjectId(), dto.getSelectIds(), testPlan.getId(), apiCase.getModules().getProtocols());
                         apiTestCaseList.addAll(selectIdList);
@@ -650,8 +649,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
                     if (CollectionUtils.isNotEmpty(dto.getExcludeIds())) {
                         //排除的ids
-                        List<String> excludeIds = dto.getExcludeIds();
-                        apiTestCaseList = apiTestCaseList.stream().filter(item -> !excludeIds.contains(item.getId())).toList();
+                        List<ApiTestCase> excludeList = extApiTestCaseMapper.getCaseListBySelectIds(isRepeat, apiCase.getModules().getProjectId(), dto.getExcludeIds(), testPlan.getId(), apiCase.getModules().getProtocols());
+                        List<String> excludeIds = excludeList.stream().map(ApiTestCase::getId).toList();
+                        apiTestCaseList = apiTestCaseList.stream().filter(item -> !excludeIds.contains(item.getId())).distinct().toList();
                     }
 
                     if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
