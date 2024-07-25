@@ -90,6 +90,7 @@ export default {
   'system.orgTemplate.expectedResult': 'Expected Result',
   'system.orgTemplate.actualResult': 'Actual result',
   'system.orgTemplate.stepExecutionResult': 'Step execution result',
+  'system.orgTemplate.stepDetail': 'Step details',
   'system.orgTemplate.numberIndex': 'Index',
   'system.orgTemplate.addStep': 'Add Step',
   'system.orgTemplate.caseName': 'Use case name',

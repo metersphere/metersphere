@@ -8,6 +8,23 @@
             <a-tooltip :content="item.userName" :mouse-enter-delay="300">
               <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
             </a-tooltip>
+            <a-divider v-if="props.showStepDetailTrigger" direction="vertical" margin="8px"></a-divider>
+            <a-trigger v-if="props.showStepDetailTrigger" trigger="click" position="bottom" :popup-translate="[0, 4]">
+              <MsButton type="text" class="!mr-0">
+                {{ t('system.orgTemplate.stepDetail') }}
+              </MsButton>
+              <template #content>
+                <div class="step-detail-trigger-content">
+                  <StepDetail
+                    :step-list="getStepData(item.stepsExecResult)"
+                    is-disabled
+                    is-preview
+                    is-test-plan
+                    :is-disabled-test-plan="false"
+                  />
+                </div>
+              </template>
+            </a-trigger>
             <a-divider direction="vertical" margin="8px"></a-divider>
             <div v-if="item.status === 'SUCCESS'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
@@ -54,6 +71,7 @@
   import dayjs from 'dayjs';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import StepDetail from '@/views/case-management/caseManagementFeature/components/addStep.vue';
 
@@ -69,6 +87,7 @@
     loading: boolean;
     showStepResult?: boolean; // 是否展示执行步骤
     height?: string;
+    showStepDetailTrigger?: boolean; // 是否展示步骤详情
   }>();
 
   function getStepData(steps: string) {
@@ -96,5 +115,12 @@
         margin-bottom: 16px;
       }
     }
+  }
+  .step-detail-trigger-content {
+    padding: 16px;
+    width: 700px;
+    border-radius: var(--border-radius-medium);
+    box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
+    @apply bg-white;
   }
 </style>

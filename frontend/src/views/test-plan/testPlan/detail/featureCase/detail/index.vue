@@ -196,6 +196,7 @@
             :execute-list="executeHistoryList"
             :loading="executeLoading"
             height="h-[calc(100vh-240px)]"
+            show-step-detail-trigger
           />
         </div>
       </a-spin>
