@@ -68,7 +68,9 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     public abstract long copyResource(String originalTestPlanId, String newTestPlanId, Map<String, String> oldCollectionIdToNewCollectionId, String operator, long operatorTime);
 
-    public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
+    public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId);
+
+    public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds);
 
     /**
      * 关联用例

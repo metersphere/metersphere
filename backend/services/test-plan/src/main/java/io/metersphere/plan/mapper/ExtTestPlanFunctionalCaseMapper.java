@@ -69,4 +69,8 @@ public interface ExtTestPlanFunctionalCaseMapper {
     List<TestPlanFunctionalCase> getPlanCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
+
+    List<String> selectTestPlanIdByFunctionCaseId(String functionalCaseId);
+
+    List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 }

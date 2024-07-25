@@ -110,8 +110,13 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private TestPlanConfigService testPlanConfigService;
 
     @Override
-    public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId) {
         return extTestPlanApiScenarioMapper.selectDistinctExecResult(projectId);
+    }
+
+    @Override
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds) {
+        return extTestPlanApiScenarioMapper.selectDistinctExecResultByTestPlanIds(testPlanIds);
     }
 
     @Override

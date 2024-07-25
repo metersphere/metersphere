@@ -9,6 +9,7 @@ import io.metersphere.plan.dto.TestPlanGroupCountDTO;
 import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
@@ -22,6 +23,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +44,8 @@ public class TestPlanManagementService {
     private ProjectMapper projectMapper;
     @Resource
     private ExtTestPlanModuleMapper extTestPlanModuleMapper;
+    @Resource
+    private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
     @Resource
     private TestPlanModuleService testPlanModuleService;
     @Resource
@@ -75,6 +79,110 @@ public class TestPlanManagementService {
         return PageUtils.setPageInfo(page, this.list(request));
     }
 
+    public void filterTestPlanIdWithStatus(Map<String, List<String>> testPlanExecMap, List<String> completedTestPlanIds, List<String> preparedTestPlanIds, List<String> underwayTestPlanIds) {
+        testPlanExecMap.forEach((planId, resultList) -> {
+            String result = testPlanBaseUtilsService.calculateTestPlanStatus(resultList);
+            if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                completedTestPlanIds.add(planId);
+            } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                underwayTestPlanIds.add(planId);
+            } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                preparedTestPlanIds.add(planId);
+            }
+        });
+    }
+
+    public List<String> selectTestPlanIdByFuncCaseIdAndStatus(String functionalCaseId, @NotEmpty List<String> statusList) {
+        List<String> returnIdList = new ArrayList<>();
+
+        List<String> testPlanIdList = extTestPlanFunctionalCaseMapper.selectTestPlanIdByFunctionCaseId(functionalCaseId);
+        if (CollectionUtils.isEmpty(testPlanIdList)) {
+            return new ArrayList<>();
+        }
+        List<String> completedTestPlanIds = new ArrayList<>();
+        List<String> preparedTestPlanIds = new ArrayList<>();
+        List<String> underwayTestPlanIds = new ArrayList<>();
+
+        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+        // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
+        List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
+        beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctExecResultByTestPlanIds(testPlanIdList)));
+        Map<String, List<String>> testPlanExecMap = execResults.stream().collect(
+                Collectors.groupingBy(TestPlanResourceExecResultDTO::getTestPlanId, Collectors.mapping(TestPlanResourceExecResultDTO::getExecResult, Collectors.toList())));
+        this.filterTestPlanIdWithStatus(testPlanExecMap, completedTestPlanIds, preparedTestPlanIds, underwayTestPlanIds);
+
+        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+            // 已完成
+            returnIdList.addAll(completedTestPlanIds);
+        }
+        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+            // 进行中
+            returnIdList.addAll(underwayTestPlanIds);
+        }
+        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+            // 未开始
+            returnIdList.addAll(preparedTestPlanIds);
+        }
+        return returnIdList;
+    }
+
+    private List<String> selectTestPlanIdByProjectIdAndStatus(String projectId, @NotEmpty List<String> statusList) {
+        List<String> innerIdList = new ArrayList<>();
+        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+        // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
+        List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
+        beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctExecResultByProjectId(projectId)));
+        Map<String, Map<String, List<String>>> testPlanExecMap = testPlanBaseUtilsService.parseExecResult(execResults);
+        Map<String, Long> groupCountMap = extTestPlanMapper.countByGroupPlan(projectId)
+                .stream().collect(Collectors.toMap(TestPlanGroupCountDTO::getGroupId, TestPlanGroupCountDTO::getCount));
+
+        List<String> completedTestPlanIds = new ArrayList<>();
+        List<String> preparedTestPlanIds = new ArrayList<>();
+        List<String> underwayTestPlanIds = new ArrayList<>();
+        testPlanExecMap.forEach((groupId, planMap) -> {
+            if (StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                this.filterTestPlanIdWithStatus(planMap, completedTestPlanIds, preparedTestPlanIds, underwayTestPlanIds);
+            } else {
+                long itemPlanCount = groupCountMap.getOrDefault(groupId, 0L);
+                List<String> itemStatusList = new ArrayList<>();
+                if (itemPlanCount > planMap.size()) {
+                    // 存在未执行或者没有用例的测试计划。 此时这种测试计划的状态为未开始
+                    itemStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                }
+                planMap.forEach((planId, resultList) -> {
+                    itemStatusList.add(testPlanBaseUtilsService.calculateTestPlanStatus(resultList));
+                });
+                String groupStatus = testPlanBaseUtilsService.calculateStatusByChildren(itemStatusList);
+                if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                    completedTestPlanIds.add(groupId);
+                } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                    underwayTestPlanIds.add(groupId);
+                } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                    preparedTestPlanIds.add(groupId);
+                }
+            }
+        });
+
+        testPlanExecMap = null;
+        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+            // 已完成
+            innerIdList.addAll(completedTestPlanIds);
+        }
+
+        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+            // 进行中
+            innerIdList.addAll(underwayTestPlanIds);
+        }
+        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+            // 未开始   有一些测试计划/计划组没有用例 / 测试计划， 在上面的计算中无法过滤。所以用排除法机型处理
+            List<String> withoutList = new ArrayList<>();
+            withoutList.addAll(completedTestPlanIds);
+            withoutList.addAll(underwayTestPlanIds);
+            innerIdList.addAll(extTestPlanMapper.selectIdByProjectIdAndWithoutList(projectId, withoutList));
+        }
+        return innerIdList;
+    }
+
     @Autowired
     private ApplicationContext applicationContext;
     private void initDefaultFilter(TestPlanTableRequest request) {
@@ -92,72 +200,9 @@ public class TestPlanManagementService {
         } else if (!request.getFilter().get("status").contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
             List<String> statusList = request.getFilter().get("status");
             request.getFilter().put("status", defaultStatusList);
+            //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
             if (statusList.size() < 3) {
-                List<String> innerIdList = new ArrayList<>();
-                // 条件过滤
-                Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
-                // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
-                List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
-                beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctExecResult(request.getProjectId())));
-                Map<String, Map<String, List<String>>> testPlanExecMap = testPlanBaseUtilsService.parseExecResult(execResults);
-                Map<String, Long> groupCountMap = extTestPlanMapper.countByGroupPlan(request.getProjectId())
-                        .stream().collect(Collectors.toMap(TestPlanGroupCountDTO::getGroupId, TestPlanGroupCountDTO::getCount));
-
-                List<String> completedTestPlanIds = new ArrayList<>();
-                List<String> preparedTestPlanIds = new ArrayList<>();
-                List<String> underwayTestPlanIds = new ArrayList<>();
-                testPlanExecMap.forEach((groupId, planMap) -> {
-                    if (StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-                        planMap.forEach((planId, resultList) -> {
-                            String result = testPlanBaseUtilsService.calculateTestPlanStatus(resultList);
-                            if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
-                                completedTestPlanIds.add(planId);
-                            } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
-                                underwayTestPlanIds.add(planId);
-                            } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
-                                preparedTestPlanIds.add(planId);
-                            }
-                        });
-                    } else {
-                        long itemPlanCount = groupCountMap.getOrDefault(groupId, 0L);
-                        List<String> itemStatusList = new ArrayList<>();
-                        if (itemPlanCount > planMap.size()) {
-                            // 存在未执行或者没有用例的测试计划。 此时这种测试计划的状态为未开始
-                            itemStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
-                        }
-                        planMap.forEach((planId, resultList) -> {
-                            itemStatusList.add(testPlanBaseUtilsService.calculateTestPlanStatus(resultList));
-                        });
-                        String groupStatus = testPlanBaseUtilsService.calculateStatusByChildren(itemStatusList);
-                        if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
-                            completedTestPlanIds.add(groupId);
-                        } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
-                            underwayTestPlanIds.add(groupId);
-                        } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
-                            preparedTestPlanIds.add(groupId);
-                        }
-                    }
-                });
-
-                testPlanExecMap = null;
-                if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
-                    // 已完成
-                    innerIdList.addAll(completedTestPlanIds);
-                }
-
-                if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
-                    // 进行中
-                    innerIdList.addAll(underwayTestPlanIds);
-                }
-                if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
-                    // 未开始   有一些测试计划/计划组没有用例 / 测试计划， 在上面的计算中无法过滤。所以用排除法机型处理
-                    List<String> withoutList = new ArrayList<>();
-                    withoutList.addAll(completedTestPlanIds);
-                    withoutList.addAll(underwayTestPlanIds);
-                    innerIdList.addAll(extTestPlanMapper.selectIdByProjectIdAndWithoutList(request.getProjectId(), withoutList));
-                    withoutList = null;
-                }
-                request.setInnerIds(innerIdList);
+                request.setInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
             }
         }
 

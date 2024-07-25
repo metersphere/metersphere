@@ -76,9 +76,10 @@ public class TestPlanBaseUtilsService {
     }
 
     public String calculateTestPlanStatus(List<String> resultList) {
-        //同时包含两种状态：进行中
-        if (resultList.size() == 1) {
-            if (resultList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+        List<String> calculateList = resultList.stream().distinct().toList();
+        //目前只有三个状态。如果同时包含多种状态(进行中/未开始、进行中/已完成、已完成/未开始、进行中/未开始/已完成),根据算法可得测试计划都会是进行中
+        if (calculateList.size() == 1) {
+            if (calculateList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
                 return TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED;
             } else
                 return TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED;
