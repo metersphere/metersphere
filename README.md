@@ -1,5 +1,5 @@
 <p align="center"><a href="https://metersphere.io"><img src="https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/MeterSphere-%E7%B4%AB%E8%89%B2.png" alt="MeterSphere" width="300" /></a></p>
-<h3 align="center">现代化、开源的测试管理和接口测试工具</h3>
+<h3 align="center">新一代的开源持续测试工具</h3>
 <p align="center">
   <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://shields.io/github/license/metersphere/metersphere?color=%231890FF" alt="License: GPL v3"></a>
   <a href="https://www.codacy.com/gh/metersphere/metersphere/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=metersphere/metersphere&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/da67574fd82b473992781d1386b937ef" alt="Codacy"></a>
@@ -10,7 +10,7 @@
 </p>
 <hr />
 
-MeterSphere 是新一代的测试管理和接口测试工具，让软件测试工作更简单、更高效，不再成为持续交付的瓶颈。
+MeterSphere 是新一代的开源持续测试工具，让软件测试工作更简单、更高效，不再成为持续交付的瓶颈。
 
 -   **测试管理**：从测试用例管理，到测试计划执行、缺陷管理、测试报告生成，具有远超 TestLink 等传统测试管理工具的使用体验；
 -   **接口测试**：集 Postman 的易用与 JMeter 的灵活于一体，接口调试、接口定义、接口 Mock、场景自动化、接口报告，你想要的都有；
@@ -30,15 +30,12 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 
 如果是内网环境，推荐使用 [离线安装包方式](https://community.fit2cloud.com/#/products/metersphere/downloads) 进行安装部署。
 
-友情提示：社区版限制1个组织，1个资源池，30个用户。
-
 如你有更多问题，可以通过论坛和技术交流群与我们交流。
 
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
 -   技术交流群
      
 <image height="150px" width="150px" src="https://github.com/metersphere/metersphere/assets/23045261/57314d2c-ea97-4a7d-b20c-0eb577c0ebbf"/>
-
 
 ## UI 展示
 
@@ -76,6 +73,8 @@ MeterSphere v3.x 的版本发布计划：
 - 2024 年 5 月 30 日：发布 v3.0 beta 版本；
 - 2024 年 6 月 27 日：发布 v3.0 正式版本；
 - 2024 年 12 月 26 日：发布 v3.6-lts LTS 版本。
+
+友情提示：MeterSphere v3.x 社区版不支持多组织，资源池只能添加一个主机，最多支持 30 个用户。
 
 ## 技术栈
 
