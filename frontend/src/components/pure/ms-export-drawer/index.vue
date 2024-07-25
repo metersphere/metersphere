@@ -6,28 +6,42 @@
     :width="800"
     min-width="800px"
     unmount-on-close
+    no-content-padding
     :show-continue="false"
     :ok-disabled="!selectedList.length"
+    :footer="false"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
+    <template #title>
+      <slot name="title"></slot>
+    </template>
     <div class="panel-wrapper">
       <div class="inner-wrapper">
         <div class="optional-field">
           <div class="optional-header">
-            <div class="font-medium">{{
-              props.titleProps?.selectableTitle || t('system.orgTemplate.optionalField')
-            }}</div>
-            <a-checkbox :model-value="isCheckedAll" :indeterminate="indeterminate" @change="handleChangeAll">
-              <span class="font-medium text-[var(--color-text-3)]">{{ t('system.orgTemplate.selectAll') }}</span>
-            </a-checkbox>
+            <div class="font-medium">
+              <a-checkbox :model-value="isCheckedAll" :indeterminate="indeterminate" @change="handleChangeAll">
+                <span class="font-medium text-[var(--color-text-3)]">
+                  {{ props.titleProps?.selectableTitle || t('system.orgTemplate.optionalField') }}
+                </span>
+              </a-checkbox>
+            </div>
           </div>
           <div class="p-[16px]">
-            <a-checkbox-group :model-value="selectedIds" @change="handleGroupChange">
+            <div class="text-[var(--color-text-4)]">
+              <a-checkbox
+                :model-value="isCheckedSystemAll"
+                :indeterminate="systemIndeterminate"
+                @change="(value) => handleChange(value as boolean, 'system')"
+              >
+                <span class="font-medium text-[var(--color-text-4)]">
+                  {{ props.titleProps?.systemTitle || t('ms-export-drawer.systemFiled') }}
+                </span>
+              </a-checkbox>
+            </div>
+            <a-checkbox-group :model-value="selectedSystemIds" @change="(value) => handleGroupChange(value, 'system')">
               <div v-if="systemList.length" class="mb-[32px]">
-                <div class="text-[var(--color-text-4)]">{{
-                  props.titleProps?.systemTitle || t('ms-export-drawer.systemFiled')
-                }}</div>
                 <div class="flex flex-row flex-wrap">
                   <a-checkbox
                     v-for="item in systemList"
@@ -42,8 +56,20 @@
                   </a-checkbox>
                 </div>
               </div>
+            </a-checkbox-group>
+            <div class="text-[var(--color-text-4)]">
+              <a-checkbox
+                :model-value="isCheckedCustomAll"
+                :indeterminate="customIndeterminate"
+                @change="(value) => handleChange(value as boolean, 'custom')"
+              >
+                <span class="font-medium text-[var(--color-text-4)]">
+                  {{ t('ms-export-drawer.customFiled') }}
+                </span>
+              </a-checkbox>
+            </div>
+            <a-checkbox-group :model-value="selectedCustomIds" @change="(value) => handleGroupChange(value, 'custom')">
               <div v-if="customList.length" class="mb-[32px]">
-                <div class="text-[var(--color-text-4)]">{{ t('ms-export-drawer.customFiled') }}</div>
                 <div class="flex flex-row flex-wrap">
                   <a-checkbox
                     v-for="item in customList"
@@ -57,13 +83,27 @@
                   </a-checkbox>
                 </div>
               </div>
-              <div v-if="otherList.length" class="mb-[32px]">
-                <div class="flex flex-row items-center gap-[4px]">
-                  <div class="text-[var(--color-text-4)]"> {{ t('ms-export-drawer.otherFiled') }}</div>
+            </a-checkbox-group>
+            <div class="flex flex-row items-center gap-[4px]">
+              <div class="text-[var(--color-text-4)]">
+                <a-checkbox
+                  :model-value="isCheckedOtherAll"
+                  :indeterminate="otherIndeterminate"
+                  @change="(value) => handleChange(value as boolean, 'other')"
+                >
+                  <span class="font-medium text-[var(--color-text-4)]">
+                    {{ t('ms-export-drawer.otherFiled') }}
+                  </span>
                   <a-tooltip :content="t('ms-export-drawer.otherTip')" position="right">
-                    <icon-question-circle class="text-[rgb(var(--primary-5))]" />
+                    <icon-question-circle
+                      class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                    />
                   </a-tooltip>
-                </div>
+                </a-checkbox>
+              </div>
+            </div>
+            <a-checkbox-group :model-value="selectedOtherIds" @change="(value) => handleGroupChange(value, 'other')">
+              <div v-if="otherList.length" class="mb-[32px]">
                 <div class="flex flex-row flex-wrap">
                   <a-checkbox
                     v-for="item in otherList"
@@ -82,9 +122,10 @@
         </div>
         <div>
           <div class="optional-header min-w-[270px]">
-            <div class="font-medium">{{
-              props.titleProps?.selectedTitle || t('system.orgTemplate.selectedField')
-            }}</div>
+            <div class="font-medium">
+              {{ props.titleProps?.selectedTitle || t('system.orgTemplate.selectedField') }}
+              ({{ selectedList.length }})
+            </div>
             <MsButton @click="handleReset">{{ t('system.orgTemplate.clear') }}</MsButton>
           </div>
           <div class="p-[16px]">
@@ -110,9 +151,26 @@
         </div>
       </div>
     </div>
-    <template #title>
-      <slot name="title"></slot>
-    </template>
+    <div class="footer !ml-[10px] w-[calc(100%-10px)]">
+      <div class="flex items-center">
+        <slot name="footerLeft"></slot>
+      </div>
+      <div class="flex items-center">
+        <slot name="footerRight">
+          <a-button type="secondary" :disabled="props.exportLoading" class="mr-[12px]" @click="handleDrawerCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button
+            :loading="props.exportLoading"
+            type="primary"
+            :disabled="!selectedList.length"
+            @click="handleDrawerConfirm"
+          >
+            {{ t('common.export') }}
+          </a-button>
+        </slot>
+      </div>
+    </div>
   </MsDrawer>
 </template>
 
@@ -135,8 +193,6 @@
 
   const { t } = useI18n();
 
-  const drawerLoading = ref<boolean>(false);
-
   interface MsExportDrawerProps {
     visible: boolean;
     allData: MsExportDrawerMap;
@@ -150,16 +206,21 @@
       systemTitle: string; // 已选字段| 环境
       selectedTitle: string; // 已选字段| 环境
     };
+    disabledCancelKeys?: string[]; // 禁止取消系统字段
   }
 
   const props = withDefaults(defineProps<MsExportDrawerProps>(), {
     visible: false,
     exportLoading: false,
     defaultSelectedKeys: () => ['name', 'id', 'title', 'status', 'handle_user', 'content'],
+    disabledCancelKeys: () => [],
   });
 
   const selectedList = ref<MsExportDrawerOption[]>([]); // 已选字段
-  const selectedIds = ref<string[]>([]); // 已选字段id
+
+  const selectedSystemIds = ref<string[]>([]); // 已选系统字段id
+  const selectedCustomIds = ref<string[]>([]); // 已选自定义字段id
+  const selectedOtherIds = ref<string[]>([]); // 已选其他字段id
 
   const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
@@ -240,6 +301,12 @@
     return [...systemList.value, ...customList.value, ...otherList.value];
   });
 
+  const selectSystemIds = computed(() => systemList.value.map((e) => e.key));
+
+  const selectCustomIds = computed(() => customList.value.map((e) => e.key));
+
+  const selectOtherIds = computed(() => otherList.value.map((e) => e.key));
+
   const handleReset = () => {
     selectedList.value = allList.value.filter((item) => props.defaultSelectedKeys.includes(item.key));
   };
@@ -261,11 +328,57 @@
     return selectedList.value.length > 0 && selectedList.value.length < allList.value.length;
   });
 
+  // 系统字段全选
+  const isCheckedSystemAll = computed(
+    () =>
+      selectedList.value.length > 0 && selectSystemIds.value.every((id) => selectedList.value.some((e) => e.key === id))
+  );
+
+  // 自定义字段全选
+  const isCheckedCustomAll = computed(
+    () =>
+      selectedList.value.length > 0 && selectCustomIds.value.every((id) => selectedList.value.some((e) => e.key === id))
+  );
+
+  // 其他字段全选
+  const isCheckedOtherAll = computed(() => {
+    return (
+      selectedList.value.length > 0 && selectOtherIds.value.every((id) => selectedList.value.some((e) => e.key === id))
+    );
+  });
+
+  // 系统字段半选
+  const systemIndeterminate = computed(
+    () =>
+      selectedList.value.length > 0 &&
+      selectedList.value.some((e) => selectSystemIds.value.includes(e.key)) &&
+      !isCheckedSystemAll.value
+  );
+
+  // 自定义字段半选
+  const customIndeterminate = computed(
+    () =>
+      selectedList.value.length > 0 &&
+      selectedList.value.some((e) => selectCustomIds.value.includes(e.key)) &&
+      !isCheckedCustomAll.value
+  );
+
+  // 其他字段半选
+  const otherIndeterminate = computed(() => {
+    return (
+      selectedList.value.length > 0 &&
+      selectedList.value.some((e) => selectOtherIds.value.includes(e.key)) &&
+      !isCheckedOtherAll.value
+    );
+  });
+
+  // 全选所有可选字段
   const handleChangeAll = (value: boolean | (string | number | boolean)[]) => {
     if (value) {
       selectedList.value = allList.value;
     } else {
-      selectedList.value = [];
+      // 全选取消时不允许取消
+      selectedList.value = selectedList.value.filter((e) => props.disabledCancelKeys.includes(e.key));
     }
   };
 
@@ -273,12 +386,69 @@
     selectedList.value = selectedList.value.filter((item) => item.key !== id);
   };
 
-  const handleGroupChange = (value: (string | number | boolean)[]) => {
-    selectedList.value = allList.value.filter((item) => value.includes(item.key));
+  const selectedItemIds = computed(() => [
+    ...selectedSystemIds.value,
+    ...selectedCustomIds.value,
+    ...selectedOtherIds.value,
+  ]);
+
+  // 更新选择的列表
+  function updateSelectedList() {
+    selectedList.value = allList.value.filter((item) => selectedItemIds.value.includes(item.key));
+  }
+
+  // 获取全部对应类型ids
+  function getIdsByType(type: string) {
+    switch (type) {
+      case 'system':
+        return selectSystemIds.value;
+      case 'custom':
+        return selectCustomIds.value;
+      case 'other':
+        return selectOtherIds.value;
+      default:
+        return [];
+    }
+  }
+
+  // 更新选择的字段ID
+  function updateSelectedIds(type: string, ids: string[]) {
+    switch (type) {
+      case 'system':
+        selectedSystemIds.value = ids;
+        break;
+      case 'custom':
+        selectedCustomIds.value = ids;
+        break;
+      case 'other':
+        selectedOtherIds.value = ids;
+        break;
+      default:
+        break;
+    }
+    updateSelectedList();
+  }
+
+  // 选择组
+  const handleGroupChange = (value: (string | number | boolean)[], type: string) => {
+    const selectedValue: string[] = value as string[];
+    updateSelectedIds(type, selectedValue);
   };
 
+  // 全选字段类型
+  function handleChange(value: boolean, type: string) {
+    // 如果有禁止取消则取消时候不取消
+    const ids = value ? getIdsByType(type) : [...props.disabledCancelKeys];
+    updateSelectedIds(type, ids);
+  }
+
   watchEffect(() => {
-    selectedIds.value = selectedList.value.map((item) => item.key);
+    const selectSysIds = selectedList.value.filter((e) => e.columnType === 'system').map((e) => e.key);
+    const selectCusIds = selectedList.value.filter((e) => e.columnType === 'custom').map((e) => e.key);
+    const selectOthIds = selectedList.value.filter((e) => e.columnType === 'other').map((e) => e.key);
+    selectedSystemIds.value = selectSysIds;
+    selectedCustomIds.value = selectCusIds;
+    selectedOtherIds.value = selectOthIds;
   });
 
   watchEffect(() => {
@@ -293,7 +463,7 @@
   .panel-wrapper {
     display: flex;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 112px);
     flex-flow: row nowrap;
     .inner-wrapper {
       display: flex;
@@ -323,5 +493,12 @@
   :deep(.arco-checkbox-group .arco-checkbox) {
     margin-top: 10px;
     margin-right: 20px;
+  }
+  .footer {
+    @apply flex items-center justify-between;
+
+    margin: auto -16px -16px;
+    padding: 12px 16px;
+    box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%);
   }
 </style>
