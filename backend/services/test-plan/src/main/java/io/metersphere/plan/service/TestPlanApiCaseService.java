@@ -118,8 +118,13 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
-    public List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId) {
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId) {
         return extTestPlanApiCaseMapper.selectDistinctExecResult(projectId);
+    }
+
+    @Override
+    public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds) {
+        return extTestPlanApiCaseMapper.selectDistinctExecResultByTestPlanIds(testPlanIds);
     }
 
     @Override

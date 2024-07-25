@@ -72,4 +72,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanApiScenario> getPlanScenarioCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
+
+    List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 }

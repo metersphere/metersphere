@@ -84,18 +84,23 @@
         test_plan_functional_case tpfc
         LEFT JOIN test_plan tp ON tpfc.test_plan_id = tp.id
         LEFT JOIN project p ON tp.project_id = p.id
-        WHERE tpfc.functional_case_id = #{request.caseId}
-        <if test="request.keyword != null">
-            AND
-            (
-            tp.name LIKE concat('%', #{request.keyword},'%')
-            OR tp.num LIKE concat('%', #{request.keyword},'%')
-            )
-        </if>
-        <include refid="planFilters">
-            <property name="filter" value="request.filter"/>
-        </include>
-        order by tpfc.last_exec_time desc) as r group by r.test_plan_id
+        <where>
+            tpfc.functional_case_id = #{request.caseId}
+
+            <if test="request.keyword != null">
+                AND
+                (
+                tp.name LIKE concat('%', #{request.keyword},'%')
+                OR tp.num LIKE concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <include refid="planFilters">
+                <property name="filter" value="request.filter"/>
+            </include>
+        </where>
+
+        order by tpfc.last_exec_time desc) as r
+        group by r.test_plan_id
     </select>
 
     <select id="getPlanExecuteHistoryList" resultType="io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO">
@@ -193,8 +198,19 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='planStatus'">
-                            AND tp.status in
+                            AND
+                            (
+                            tp.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+
+                            <if test="request.includeTestPlanIds != null and request.includeTestPlanIds.size() > 0 ">
+                                OR tpfc.test_plan_id in
+                                <foreach collection="request.includeTestPlanIds" item="testPlanId" open="(" close=")"
+                                         separator=",">
+                                    #{testPlanId}
+                                </foreach>
+                            </if>
+                            )
                         </when>
                         <when test="key=='lastExecResult'">
                             AND tpfc.last_exec_result in
