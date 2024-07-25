@@ -13,6 +13,9 @@ public interface ExtCaseReviewHistoryMapper {
 
     List<CaseReviewHistoryDTO> list(@Param("caseId") String caseId, @Param("reviewId") String reviewId);
 
+    List<CaseReviewHistoryDTO> resultList(@Param("caseId") String caseId, @Param("reviewId") String reviewId);
+
+
     List<CaseReviewHistoryDTO> getHistoryListWidthAbandoned(@Param("caseId") String caseId, @Param("reviewId") String reviewId);
 
     List<CaseReviewHistoryDTO> getHistoryListWidthCaseId(@Param("caseId") String caseId, @Param("reviewId") String reviewId);

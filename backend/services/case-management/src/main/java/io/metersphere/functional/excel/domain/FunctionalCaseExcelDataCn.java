@@ -30,7 +30,7 @@ public class FunctionalCaseExcelDataCn extends FunctionalCaseExcelData {
     private String name;
 
     @NotBlank(message = "{cannot_be_null}")
-    @Length(max = 50)
+    @Length(max = 100)
     @ExcelProperty("所属模块")
     @ColumnWidth(30)
     private String module;
