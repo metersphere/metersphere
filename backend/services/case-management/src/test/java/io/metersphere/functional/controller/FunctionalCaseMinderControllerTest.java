@@ -1,14 +1,20 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.dto.*;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseStepDTO;
+import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
+import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
+import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,6 +63,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     private MindAdditionalNodeMapper mindAdditionalNodeMapper;
     @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+    @Resource
+    private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
 
     @Test
     @Order(1)
@@ -410,12 +418,46 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
         request.setPlanId("TEST_MINDER_PLAN_ID_1");
         request.setCurrent(1);
+        TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
+        String nextStr = IDGenerator.nextStr();
+        executeHistory.setId(nextStr);
+        executeHistory.setTestPlanCaseId("test_plan_functional_case_minder_id1");
+        executeHistory.setTestPlanId("TEST_MINDER_PLAN_ID_1");
+        executeHistory.setCaseId("TEST_FUNCTIONAL_MINDER_CASE_ID_5");
+        executeHistory.setStatus("SUCCESS");
+        List<FunctionalCaseStepDTO> list = new ArrayList<>();
+        FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
+        functionalCaseStepDTO.setId("12455");
+        functionalCaseStepDTO.setNum(0);
+        functionalCaseStepDTO.setDesc("ddd");
+        functionalCaseStepDTO.setResult("步骤一结果");
+        functionalCaseStepDTO.setActualResult("实际结果");
+        functionalCaseStepDTO.setExecuteResult("SUCCESS");
+        list.add(functionalCaseStepDTO);
+        functionalCaseStepDTO = new FunctionalCaseStepDTO();
+        functionalCaseStepDTO.setId("12ddd455");
+        functionalCaseStepDTO.setNum(1);
+        functionalCaseStepDTO.setDesc("步骤二");
+        functionalCaseStepDTO.setResult("fff");
+        functionalCaseStepDTO.setActualResult("实际结果二");
+        functionalCaseStepDTO.setExecuteResult("BLOCKED");
+        list.add(functionalCaseStepDTO);
+        executeHistory.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
+        executeHistory.setDeleted(false);
+        executeHistory.setNotifier("admin");
+        executeHistory.setCreateUser("admin");
+        executeHistory.setCreateTime(System.currentTimeMillis());
+        testPlanCaseExecuteHistoryMapper.insert(executeHistory);
+        TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = testPlanCaseExecuteHistoryMapper.selectByPrimaryKey(nextStr);
+        Assertions.assertNotNull(testPlanCaseExecuteHistory);
+        String prerequisiteText = new String(testPlanCaseExecuteHistory.getSteps(), StandardCharsets.UTF_8);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_PLAN_LIST_URL, request);
         Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         Assertions.assertNotNull(tableData.getList());
         Assertions.assertEquals(2, tableData.getList().size());
+       // System.out.println(JSON.toJSONString(tableData.getList()));
     }
 
 }

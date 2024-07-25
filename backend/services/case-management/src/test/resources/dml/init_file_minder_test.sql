@@ -22,6 +22,7 @@ VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 1, 'TEST_MINDER_MODULE_ID_GYQ', 'pro
 
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_3', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_5', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', NULL, NULL, NULL, NULL, NULL);
 
 
