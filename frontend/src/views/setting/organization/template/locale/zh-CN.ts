@@ -89,6 +89,7 @@ export default {
   'system.orgTemplate.expectedResult': '预期结果',
   'system.orgTemplate.actualResult': '实际结果',
   'system.orgTemplate.stepExecutionResult': '步骤执行结果',
+  'system.orgTemplate.stepDetail': '步骤详情',
   'system.orgTemplate.numberIndex': '序号',
   'system.orgTemplate.addStep': '添加步骤',
   'system.orgTemplate.caseName': '用例名称',
