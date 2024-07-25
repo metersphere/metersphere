@@ -83,7 +83,6 @@
         <!-- 用于解析 ${__jexl2} 和 ${__jexl3} 函数变量 -->
         <commons-jexl.version>2.1.1</commons-jexl.version>
         <commons-jexl3.version>3.3</commons-jexl3.version>
-        <revision>3.x</revision>
         <monitoring-engine.revision>3.0</monitoring-engine.revision>
     </properties>
 
