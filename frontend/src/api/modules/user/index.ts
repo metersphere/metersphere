@@ -139,7 +139,7 @@ export function validLocalConfig(host: string) {
 
 // 个人设置-获取本地执行配置
 export function getLocalConfig() {
-  return MSR.get<LocalConfig[]>({ url: GetLocalConfigUrl });
+  return MSR.get<LocalConfig[]>({ url: GetLocalConfigUrl }, { ignoreCancelToken: true });
 }
 
 // 个人设置-启用本地执行配置
