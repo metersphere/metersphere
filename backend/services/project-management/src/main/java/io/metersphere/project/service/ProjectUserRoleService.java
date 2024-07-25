@@ -12,7 +12,10 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -82,14 +85,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
         userRole.setInternal(false);
         userRole.setType(UserRoleType.PROJECT.name());
         checkNewRoleExist(userRole);
-        UserRole role = super.add(userRole);
-        // 初始化项目-基本信息权限
-        UserRolePermission initPermission = new UserRolePermission();
-        initPermission.setId(IDGenerator.nextStr());
-        initPermission.setRoleId(role.getId());
-        initPermission.setPermissionId("PROJECT_BASE_INFO:READ");
-        userRolePermissionMapper.insert(initPermission);
-        return role;
+        return super.add(userRole);
     }
 
     @Override
