@@ -93,6 +93,7 @@ MeterSphere v3.x 的版本发布计划：
 - [Jenkins](https://www.jenkins.io/) 持续集成插件：实现在 Jenkins 流水线中触发并自动执行 MeteSphere 测试计划。
 - 自定义数据库驱动：支持对 达梦、Oracle、SQLite、Microsoft SQL Server 等数据库的连接和数据访问。
 - 接口协议插件：实现接口测试中对 TCP、Dubbo、MQTT 等协议的支持。
+- IDE 插件：[IDEA 插件](https://github.com/metersphere/metersphere-idea-plugin/) 支持在开发工具 IDEA 中一键将 API 同步到 MeterSphere。
 
 ## 飞致云的其他明星项目
 
