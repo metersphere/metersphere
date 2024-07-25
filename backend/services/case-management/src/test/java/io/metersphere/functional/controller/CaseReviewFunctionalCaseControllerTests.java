@@ -43,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     public static final String GET_CASE_IDS = "/case/review/detail/get-ids/";
+
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
 
     public static final String REVIEW_CASE_PAGE = "/case/review/detail/page";
@@ -589,6 +590,25 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         ReviewerAndStatusDTO reviewerAndStatusDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ReviewerAndStatusDTO.class);
+        System.out.println(reviewerAndStatusDTO);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(reviewerAndStatusDTO.getReviewerStatus()));
+
+        BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("gyq_test_5"));
+        request.setContent("测试批量评审通过");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+        result = mockMvc.perform(MockMvcRequestBuilders.get(GET_CASE_REVIEWER_AND_STATUS + "/wx_review_id_1/gyq_case_id_5").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        reviewerAndStatusDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ReviewerAndStatusDTO.class);
         System.out.println(reviewerAndStatusDTO);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(reviewerAndStatusDTO.getReviewerStatus()));
     }
