@@ -290,8 +290,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
             case MediaType.APPLICATION_XML_VALUE -> {
                 body.setBodyType(Body.BodyType.XML.name());
                 XmlBody xml = new XmlBody();
-                //xml.setValue(XMLUtils.jsonToXmlStr(jsonValue));
-                String xmlBody = parseXmlBody(value.getSchema(), jsonSchemaItem);
+                String xmlBody = parseXmlBody(value, jsonSchemaItem);
                 xml.setValue(xmlBody);
                 body.setXmlBody(xml);
             }
@@ -335,8 +334,7 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
             case MediaType.APPLICATION_XML_VALUE -> {
                 body.setBodyType(Body.BodyType.XML.name());
                 XmlBody xml = new XmlBody();
-                //xml.setValue(XMLUtils.jsonToXmlStr(jsonValue));
-                String xmlBody = parseXmlBody(value.getSchema(), jsonSchemaItem);
+                String xmlBody = parseXmlBody(value, jsonSchemaItem);
                 xml.setValue(xmlBody);
                 body.setXmlBody(xml);
             }
@@ -361,8 +359,12 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
         }
     }
 
-    private String parseXmlBody(Schema schema, JsonSchemaItem jsonSchemaItem) {
+    private String parseXmlBody(io.swagger.v3.oas.models.media.MediaType value, JsonSchemaItem jsonSchemaItem) {
+        Schema schema = value.getSchema();
         JSONObject object = new JSONObject();
+        if (value.getExample() != null) {
+            return value.getExample().toString();
+        }
 
         if (jsonSchemaItem != null && MapUtils.isNotEmpty(jsonSchemaItem.getProperties())) {
             if (StringUtils.isNotBlank(schema.get$ref()) && schema.get$ref().split("/").length > 3) {

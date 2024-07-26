@@ -219,9 +219,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                     ((JSONObject) bodyInfo).put("example", body.optJSONObject("rawBody").optString("value"));
                 }
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.XML.name())) {
-                String xmlText = body.optString("xmlBody");
-                JSONObject xmlObject = JSONUtil.parseObject(xmlText);
-                xmlText = xmlObject.optString("value");
+                String xmlText = body.optJSONObject("xmlBody").optString("value");
                 String xml = XMLUtil.delXmlHeader(xmlText);
                 int startIndex = xml.indexOf("<", 0);
                 int endIndex = xml.indexOf(">", 0);
@@ -235,6 +233,7 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
                     schemas = new LinkedList<>();
                 }
                 schemas.add(jsonObject);
+                jsonInfo = xml;
             } else if (bodyType != null && bodyType.equalsIgnoreCase(Body.BodyType.WWW_FORM.name())) {
                 String wwwFormBody = body.optString("wwwFormBody");
                 JSONObject wwwFormObject = JSONUtil.parseObject(wwwFormBody);
