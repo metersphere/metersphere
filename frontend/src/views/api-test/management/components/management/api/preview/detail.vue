@@ -65,6 +65,8 @@
               :columns="queryRestColumns"
               :data="previewDetail.query?.filter((e) => e.key !== '') || []"
               :selectable="false"
+              :show-setting="true"
+              :table-key="TableKeyEnum.API_TEST_DEBUG_QUERY"
             />
             <MsCodeEditor
               v-show="queryShowType === 'raw'"
@@ -103,6 +105,8 @@
               :columns="queryRestColumns?.filter((e) => e.key !== '')"
               :data="previewDetail.rest || []"
               :selectable="false"
+              :show-setting="true"
+              :table-key="TableKeyEnum.API_TEST_DEBUG_REST"
             />
             <MsCodeEditor
               v-show="restShowType === 'raw'"
@@ -133,15 +137,15 @@
               <div class="detail-item-title-text">
                 {{ `${t('apiTestManagement.requestBody')}-${previewDetail.body.bodyType}` }}
               </div>
-              <!-- <a-radio-group
-                    v-if="previewDetail.body.bodyType !== RequestBodyFormat.NONE"
-                    v-model:model-value="bodyShowType"
-                    type="button"
-                    size="mini"
-                  >
-                    <a-radio value="table">Table</a-radio>
-                    <a-radio value="code">Code</a-radio>
-                  </a-radio-group> -->
+              <a-radio-group
+                v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON"
+                v-model:model-value="bodyShowType"
+                type="button"
+                size="mini"
+              >
+                <a-radio value="schema">Schema</a-radio>
+                <a-radio value="json">JSON</a-radio>
+              </a-radio-group>
             </div>
             <!--            <div
               v-if="previewDetail.body.bodyType === RequestBodyFormat.NONE"
@@ -158,34 +162,45 @@
               :columns="bodyColumns"
               :data="bodyTableData"
               :selectable="false"
+              :show-setting="true"
+              :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
             />
-            <MsCodeEditor
+            <template
               v-else-if="
                 [RequestBodyFormat.JSON, RequestBodyFormat.RAW, RequestBodyFormat.XML].includes(
                   previewDetail.body.bodyType
                 )
               "
-              :model-value="bodyCode"
-              theme="vs"
-              height="200px"
-              :language="bodyCodeLanguage"
-              :show-full-screen="false"
-              :show-theme-change="false"
-              read-only
             >
-              <template #rightTitle>
-                <a-button
-                  type="outline"
-                  class="arco-btn-outline--secondary p-[0_8px]"
-                  size="mini"
-                  @click="copyScript(bodyCode)"
-                >
-                  <template #icon>
-                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                  </template>
-                </a-button>
-              </template>
-            </MsCodeEditor>
+              <MsJsonSchema
+                v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON && bodyShowType === 'schema'"
+                :data="previewDetail.body.jsonBody.jsonSchemaTableData"
+                disabled
+              />
+              <MsCodeEditor
+                v-show="!(previewDetail.body.bodyType === RequestBodyFormat.JSON && bodyShowType === 'schema')"
+                :model-value="bodyCode"
+                theme="vs"
+                height="200px"
+                :language="bodyCodeLanguage"
+                :show-full-screen="false"
+                :show-theme-change="false"
+                read-only
+              >
+                <template #rightTitle>
+                  <a-button
+                    type="outline"
+                    class="arco-btn-outline--secondary p-[0_8px]"
+                    size="mini"
+                    @click="copyScript(bodyCode)"
+                  >
+                    <template #icon>
+                      <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
+                    </template>
+                  </a-button>
+                </template>
+              </MsCodeEditor>
+            </template>
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
         </template>
@@ -272,12 +287,46 @@
             <div class="detail-item-title-text">
               {{ `${t('apiTestDebug.responseBody')}-${activeResponse?.body.bodyType}` }}
             </div>
+            <div v-if="activeResponse?.body.bodyType === ResponseBodyFormat.JSON" class="flex items-center gap-[8px]">
+              <MsButton
+                type="text"
+                class="!mr-0"
+                :class="
+                  activeResponse.body.jsonBody.enableJsonSchema
+                    ? 'font-medium !text-[rgb(var(--primary-5))]'
+                    : '!text-[var(--color-text-4)]'
+                "
+                @click="handleChangeJsonType('Schema')"
+              >
+                Schema
+              </MsButton>
+              <a-divider :margin="0" direction="vertical"></a-divider>
+              <MsButton
+                type="text"
+                class="!mr-0"
+                :class="
+                  !activeResponse.body.jsonBody.enableJsonSchema
+                    ? 'font-medium !text-[rgb(var(--primary-5))]'
+                    : '!text-[var(--color-text-4)]'
+                "
+                @click="handleChangeJsonType('Json')"
+              >
+                Json
+              </MsButton>
+            </div>
           </div>
           <MsFormTable
             v-if="activeResponse?.body.bodyType === ResponseBodyFormat.BINARY"
             :columns="responseBodyColumns"
             :data="responseBodyTableData"
             :selectable="false"
+          />
+          <MsJsonSchema
+            v-else-if="
+              activeResponse?.body.bodyType === ResponseBodyFormat.JSON && activeResponse.body.jsonBody.enableJsonSchema
+            "
+            :data="activeResponse.body.jsonBody.jsonSchemaTableData"
+            disabled
           />
           <MsCodeEditor
             v-else
@@ -323,7 +372,7 @@
           "
           class="h-full"
         >
-          <result
+          <Result
             v-model:active-tab="previewDetail.responseActiveTab"
             :request-result="previewDetail.response?.requestResults[0]"
             :console="previewDetail.response?.console"
@@ -344,21 +393,25 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
+  import { parseSchemaToJsonSchemaTableData } from '@/components/pure/ms-json-schema/utils';
   import { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
   import responseCodeTimeSize from '@/views/api-test/components/requestComposition/response/responseCodeTimeSize.vue';
-  import result from '@/views/api-test/components/requestComposition/response/result.vue';
+  import Result from '@/views/api-test/components/requestComposition/response/result.vue';
 
   import { getPluginScript } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
 
   import { PluginConfig, ProtocolItem } from '@/models/apiTest/common';
   import { RequestBodyFormat, RequestParamsType, ResponseBodyFormat } from '@/enums/apiEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
@@ -510,18 +563,20 @@
       dataIndex: 'key',
       inputType: 'text',
       width: 220,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiTestDebug.paramType',
       dataIndex: 'paramType',
       inputType: 'text',
       width: 96,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       inputType: 'text',
-      width: 220,
+      columnSelectorDisabled: true,
     },
     {
       title: 'apiTestManagement.required',
@@ -538,6 +593,7 @@
       dataIndex: 'lengthRange',
       slotName: 'lengthRange',
       inputType: 'text',
+      showInTable: false,
       valueFormat: (record) => {
         return [null, undefined].includes(record.minLength) && [null, undefined].includes(record.maxLength)
           ? '-'
@@ -550,6 +606,7 @@
       dataIndex: 'encode',
       slotName: 'encode',
       inputType: 'text',
+      showInTable: false,
       valueFormat: (record) => {
         return record.encode ? t('common.yes') : t('common.no');
       },
@@ -560,6 +617,13 @@
       dataIndex: 'description',
       inputType: 'text',
       showTooltip: true,
+    },
+    {
+      title: '',
+      dataIndex: 'operation',
+      slotName: 'operation',
+      fixed: 'right',
+      width: 100,
     },
   ];
   const queryShowType = ref('table');
@@ -582,19 +646,21 @@
           dataIndex: 'key',
           inputType: 'text',
           width: 220,
+          columnSelectorDisabled: true,
         },
         {
           title: 'apiTestManagement.paramsType',
           dataIndex: 'paramType',
           inputType: 'text',
           width: 96,
+          columnSelectorDisabled: true,
         },
         {
           title: 'apiTestManagement.paramVal',
           dataIndex: 'value',
           inputType: 'text',
           showTooltip: true,
-          width: 220,
+          columnSelectorDisabled: true,
         },
         {
           title: 'apiTestManagement.required',
@@ -611,6 +677,7 @@
           dataIndex: 'lengthRange',
           slotName: 'lengthRange',
           inputType: 'text',
+          showInTable: false,
           valueFormat: (record) => {
             return [null, undefined].includes(record.minLength) && [null, undefined].includes(record.maxLength)
               ? '-'
@@ -623,6 +690,7 @@
           dataIndex: 'encode',
           slotName: 'encode',
           inputType: 'text',
+          showInTable: false,
           valueFormat: (record) => {
             return record.encode ? t('common.yes') : t('common.no');
           },
@@ -633,6 +701,13 @@
           dataIndex: 'description',
           inputType: 'text',
           showTooltip: true,
+        },
+        {
+          title: '',
+          dataIndex: 'operation',
+          slotName: 'operation',
+          fixed: 'right',
+          width: 100,
         },
       ];
     }
@@ -651,7 +726,7 @@
       },
     ];
   });
-  // const bodyShowType = ref('table');
+  const bodyShowType = ref('schema');
   const bodyTableData = computed(() => {
     switch (previewDetail.value.body.bodyType) {
       case RequestBodyFormat.FORM_DATA:
@@ -688,6 +763,17 @@
         return previewDetail.value.body.xmlBody?.value;
       default:
         return '';
+    }
+  });
+  watchEffect(() => {
+    if (previewDetail.value.body.jsonBody?.jsonSchema) {
+      const { result } = parseSchemaToJsonSchemaTableData(previewDetail.value.body.jsonBody.jsonSchema);
+      previewDetail.value.body.jsonBody.jsonSchemaTableData = result;
+    } else if (
+      !previewDetail.value.body.jsonBody.jsonSchemaTableData ||
+      previewDetail.value.body.jsonBody.jsonSchemaTableData.length === 0
+    ) {
+      previewDetail.value.body.jsonBody.jsonSchemaTableData = [];
     }
   });
   const bodyCodeLanguage = computed(() => {
@@ -760,6 +846,22 @@
         ]
       : [];
   });
+
+  watchEffect(() => {
+    if (activeResponse.value) {
+      if (activeResponse.value.body.jsonBody.jsonSchema) {
+        const { result } = parseSchemaToJsonSchemaTableData(activeResponse.value.body.jsonBody.jsonSchema);
+        activeResponse.value.body.jsonBody.jsonSchemaTableData = result;
+      } else {
+        activeResponse.value.body.jsonBody.jsonSchemaTableData = [];
+      }
+    }
+  });
+  function handleChangeJsonType(type: 'Schema' | 'Json') {
+    if (activeResponse.value) {
+      activeResponse.value.body.jsonBody.enableJsonSchema = type === 'Schema';
+    }
+  }
 </script>
 
 <style lang="less" scoped>
@@ -794,7 +896,7 @@
   .detail-item {
     padding-top: 16px;
     .detail-item-title {
-      @apply flex items-center;
+      @apply flex items-center justify-between;
 
       margin-bottom: 8px;
       gap: 16px;
@@ -820,5 +922,8 @@
   }
   :deep(.arco-table-td-content) {
     padding: 5px 8px;
+  }
+  :deep(.ms-json-schema) .arco-table-td-content {
+    padding: 0;
   }
 </style>
