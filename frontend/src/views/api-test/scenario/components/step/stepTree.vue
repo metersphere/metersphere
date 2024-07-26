@@ -1257,9 +1257,9 @@
           body: {
             ...request.body,
             jsonBody: {
-              ...request.body.jsonBody,
-              jsonSchema: request.body.jsonBody.jsonSchemaTableData
-                ? parseTableDataToJsonSchema(request.body.jsonBody.jsonSchemaTableData[0])
+              ...request.body?.jsonBody,
+              jsonSchema: request.body?.jsonBody?.jsonSchemaTableData
+                ? parseTableDataToJsonSchema(request.body?.jsonBody?.jsonSchemaTableData?.[0])
                 : undefined,
             },
           },
