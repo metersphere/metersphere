@@ -137,8 +137,8 @@ export function getStepDetails(steps: ScenarioStepItem[], details: Record<string
         body: {
           ...currentDetail.body,
           jsonBody: {
-            ...currentDetail.body.jsonBody,
-            jsonSchema: currentDetail.body.jsonBody.jsonSchema,
+            ...currentDetail.body?.jsonBody,
+            jsonSchema: currentDetail.body?.jsonBody?.jsonSchema,
             jsonSchemaTableData: [], // 原树形结构存在循环引用，这里要去掉以免 axios 序列化失败
           },
         },
