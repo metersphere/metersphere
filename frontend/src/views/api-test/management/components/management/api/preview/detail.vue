@@ -138,7 +138,7 @@
                 {{ `${t('apiTestManagement.requestBody')}-${previewDetail.body.bodyType}` }}
               </div>
               <a-radio-group
-                v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON"
+                v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON && !props.isCase"
                 v-model:model-value="bodyShowType"
                 type="button"
                 size="mini"
@@ -173,12 +173,14 @@
               "
             >
               <MsJsonSchema
-                v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON && bodyShowType === 'schema'"
+                v-if="
+                  previewDetail.body.bodyType === RequestBodyFormat.JSON && bodyShowType === 'schema' && !props.isCase
+                "
                 :data="previewDetail.body.jsonBody.jsonSchemaTableData"
                 disabled
               />
               <MsCodeEditor
-                v-show="!(previewDetail.body.bodyType === RequestBodyFormat.JSON && bodyShowType === 'schema')"
+                v-else
                 :model-value="bodyCode"
                 theme="vs"
                 height="200px"
@@ -566,6 +568,17 @@
       columnSelectorDisabled: true,
     },
     {
+      title: 'apiTestManagement.required',
+      dataIndex: 'required',
+      slotName: 'required',
+      inputType: 'text',
+      columnSelectorDisabled: true,
+      valueFormat: (record) => {
+        return record.required ? t('common.yes') : t('common.no');
+      },
+      width: 68,
+    },
+    {
       title: 'apiTestDebug.paramType',
       dataIndex: 'paramType',
       inputType: 'text',
@@ -576,17 +589,6 @@
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       inputType: 'text',
-      columnSelectorDisabled: true,
-    },
-    {
-      title: 'apiTestManagement.required',
-      dataIndex: 'required',
-      slotName: 'required',
-      inputType: 'text',
-      valueFormat: (record) => {
-        return record.required ? t('common.yes') : t('common.no');
-      },
-      width: 68,
     },
     {
       title: 'apiTestDebug.paramLengthRange',
@@ -649,6 +651,17 @@
           columnSelectorDisabled: true,
         },
         {
+          title: 'apiTestManagement.required',
+          dataIndex: 'required',
+          slotName: 'required',
+          inputType: 'text',
+          columnSelectorDisabled: true,
+          valueFormat: (record) => {
+            return record.required ? t('common.yes') : t('common.no');
+          },
+          width: 68,
+        },
+        {
           title: 'apiTestManagement.paramsType',
           dataIndex: 'paramType',
           inputType: 'text',
@@ -660,17 +673,6 @@
           dataIndex: 'value',
           inputType: 'text',
           showTooltip: true,
-          columnSelectorDisabled: true,
-        },
-        {
-          title: 'apiTestManagement.required',
-          dataIndex: 'required',
-          slotName: 'required',
-          inputType: 'text',
-          valueFormat: (record) => {
-            return record.required ? t('common.yes') : t('common.no');
-          },
-          width: 68,
         },
         {
           title: 'apiTestDebug.paramLengthRange',
