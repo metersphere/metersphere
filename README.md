@@ -74,7 +74,7 @@ MeterSphere v3.x 的版本发布计划：
 - 2024 年 6 月 27 日：发布 v3.0 正式版本；
 - 2024 年 12 月 26 日：发布 v3.6-lts LTS 版本。
 
-友情提示：MeterSphere v3.x 社区版不支持多组织，资源池只能添加一个主机，最多支持 30 个用户。
+MeterSphere 产品版本分为社区版和企业版，详情请参见：[MeterSphere 产品版本对比](https://metersphere.io/v3/pricing.html)
 
 ## 技术栈
 
