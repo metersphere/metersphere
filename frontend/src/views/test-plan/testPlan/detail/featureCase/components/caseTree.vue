@@ -57,8 +57,8 @@
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
-  import { getFeatureCaseModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
   import { mapTree } from '@/utils';
   import { getNodeParentId } from '@/utils/tree';
 
@@ -76,6 +76,7 @@
 
   const route = useRoute();
   const { t } = useI18n();
+  const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
   const virtualListProps = computed(() => {
     return {
@@ -109,8 +110,8 @@
   }
 
   const moduleKeyword = ref('');
-  const folderTree = ref<ModuleTreeNode[]>([]);
-  const loading = ref(false);
+  const folderTree = computed(() => testPlanFeatureCaseStore.moduleTree);
+  const loading = computed(() => testPlanFeatureCaseStore.loading);
 
   const selectedKeys = useVModel(props, 'selectedKeys', emit);
 
@@ -118,22 +119,7 @@
    * 初始化模块树
    */
   async function initModules() {
-    try {
-      loading.value = true;
-      const res = await getFeatureCaseModule({ testPlanId: route.query.id as string, treeType: props.treeType });
-      folderTree.value = mapTree<ModuleTreeNode>(res, (node) => {
-        return {
-          ...node,
-          count: props.modulesCount?.[node.id] || 0,
-        };
-      });
-      emit('init', folderTree.value);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
+    await testPlanFeatureCaseStore.initModules(route.query.id as string, props.treeType);
   }
 
   /**
@@ -160,12 +146,13 @@
   watch(
     () => props.modulesCount,
     (obj) => {
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+      const tree = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
         return {
           ...node,
           count: obj?.[node.id] || 0,
         };
       });
+      testPlanFeatureCaseStore.setModulesTree(tree);
       allCount.value = obj?.all || 0;
     }
   );

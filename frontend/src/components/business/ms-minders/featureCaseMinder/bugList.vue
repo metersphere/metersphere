@@ -1,6 +1,6 @@
 <template>
   <a-spin :loading="bugListLoading" class="block h-full pl-[16px]">
-    <div class="flex items-center justify-between">
+    <div v-if="!props.isTestPlanCase" class="flex items-center justify-between">
       <div class="flex items-center justify-between">
         <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
           {{ t('caseManagement.featureCase.linkDefect') }}
@@ -39,7 +39,11 @@
         <div class="bug-item">
           <div class="mb-[4px] flex items-center justify-between">
             <MsButton type="text" @click="goBug(item.bugId)">{{ item.num }}</MsButton>
-            <MsButton v-if="hasEditPermission && showType === 'link'" type="text" @click="disassociateBug(item.id)">
+            <MsButton
+              v-if="hasEditPermission && (!props.isTestPlanCase ? showType === 'link' : props.showDisassociateButton)"
+              type="text"
+              @click="disassociateBug(item.id)"
+            >
               {{ t('ms.add.attachment.cancelAssociate') }}
             </MsButton>
           </div>
@@ -67,7 +71,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -79,6 +82,7 @@
     getLinkedCaseBugList,
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -94,9 +98,11 @@
 
   const props = defineProps<{
     activeCase: Record<string, any>;
+    isTestPlanCase?: boolean;
+    showDisassociateButton?: boolean;
   }>();
 
-  const router = useRouter();
+  const { openNewPage } = useOpenNewPage();
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -108,7 +114,7 @@
     pageSize: 10,
     current: 1,
   });
-  const showType = ref<'link' | 'testPlan'>('link');
+  const showType = ref<'link' | 'testPlan'>(!props.isTestPlanCase ? 'link' : 'testPlan');
   const bugListLoading = ref(false);
 
   async function loadBugList() {
@@ -167,11 +173,8 @@
   }
 
   function goBug(id: string) {
-    router.push({
-      name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
-      query: {
-        id,
-      },
+    openNewPage(BugManagementRouteEnum.BUG_MANAGEMENT_INDEX, {
+      id,
     });
   }
 

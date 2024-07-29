@@ -5,7 +5,7 @@
       v-model:extra-visible="extraVisible"
       v-model:loading="loading"
       v-model:import-json="importJson"
-      :minder-key="MinderKeyEnum.CASE_REVIEW_MINDER"
+      :minder-key="MinderKeyEnum.TEST_PLAN_FEATURE_CASE_MINDER"
       :extract-content-tab-list="extractContentTabList"
       :can-show-float-menu="canShowFloatMenu"
       :can-show-priority-menu="false"
@@ -18,38 +18,32 @@
       @node-unselect="handleNodeUnselect"
     >
       <template #extractMenu>
-        <!-- 评审 查看详情 -->
-        <a-trigger
-          v-if="hasAnyPermission(['CASE_REVIEW:READ+REVIEW']) && isReviewer"
-          v-model:popup-visible="reviewVisible"
-          trigger="click"
-          position="bl"
-          :click-outside-to-close="false"
-          popup-container=".ms-minder-container"
-        >
-          <a-tooltip :content="t('caseManagement.caseReview.review')">
-            <MsButton
-              type="icon"
-              :class="[
-                'ms-minder-node-float-menu-icon-button',
-                `${reviewVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
-              ]"
-            >
-              <MsIcon type="icon-icon_audit" class="text-[var(--color-text-4)]" />
+        <!-- 缺陷 -->
+        <a-dropdown position="bl">
+          <a-tooltip
+            v-if="showAssociateBugMenu && hasAnyPermission(['PROJECT_BUG:READ', 'PROJECT_BUG:READ+ADD'])"
+            :content="t('common.add')"
+          >
+            <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
+              <MsIcon type="icon-icon_add_outlined" class="text-[var(--color-text-4)]" />
             </MsButton>
           </a-tooltip>
           <template #content>
-            <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
-              <ReviewSubmit
-                :review-pass-rule="reviewPassRule"
-                :select-node="selectNode"
-                :user-id="props.viewFlag ? userStore.id || '' : ''"
-                :review-id="route.query.id as string"
-                @done="handleReviewDone"
-              />
-            </div>
+            <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new">
+              {{ t('testPlan.featureCase.noBugDataNewBug') }}
+            </a-doption>
+            <a-doption v-permission="['PROJECT_BUG:READ']" value="link">
+              {{ t('caseManagement.featureCase.linkDefect') }}
+            </a-doption>
           </template>
-        </a-trigger>
+        </a-dropdown>
+        <!-- 执行 -->
+        <a-tooltip :content="t('common.execute')">
+          <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
+            <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
+          </MsButton>
+        </a-tooltip>
+        <!-- 查看详情 -->
         <a-tooltip v-if="canShowDetail" :content="t('common.detail')">
           <MsButton
             type="icon"
@@ -63,6 +57,7 @@
           </MsButton>
         </a-tooltip>
       </template>
+
       <template #extractTabContent>
         <MsDescription
           v-if="activeExtraKey === 'baseInfo'"
@@ -78,28 +73,25 @@
           disabled
           :active-case="activeCaseInfo"
         />
-        <div v-show="activeExtraKey === 'history'" class="pl-[16px]">
-          <div v-if="props.reviewPassRule === 'MULTIPLE'" class="mb-[8px] flex items-center justify-between">
-            <div class="text-[12px]">
-              <span class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.progress') }}</span>
-              {{ props.reviewProgress }}
-            </div>
-            <ReviewStatusTrigger ref="reviewStatusTriggerRef" :size="12" />
-          </div>
-          <ReviewCommentList
-            :review-comment-list="reviewHistoryList"
-            active-comment="reviewComment"
-            not-show-review-name
-          />
-        </div>
+        <BugList
+          v-else-if="activeExtraKey === 'bug'"
+          :active-case="activeCaseInfo"
+          is-test-plan-case
+          show-disassociate-button
+        />
+        <ReviewCommentList
+          v-else
+          class="pl-[16px]"
+          :review-comment-list="executeHistoryList"
+          active-comment="executiveComment"
+          not-show-review-name
+        />
       </template>
     </MsMinderEditor>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
@@ -114,62 +106,41 @@
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
-  import ReviewStatusTrigger from './components/reviewStatusTrigger.vue';
+  import BugList from '@/components/business/ms-minders/featureCaseMinder/bugList.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
-  import ReviewSubmit from '@/views/case-management/caseReview/components/reviewSubmit.vue';
 
-  import {
-    getCaseReviewerList,
-    getCaseReviewHistoryList,
-    getCaseReviewMinder,
-  } from '@/api/modules/case-management/caseReview';
-  import { getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import { getCasePlanMinder } from '@/api/modules/case-management/caseReview';
+  import { executeHistory, getCaseDetail } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
-  import { useUserStore } from '@/store';
-  import useAppStore from '@/store/modules/app';
-  import useCaseReviewStore from '@/store/modules/case/caseReview';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
+  import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
   import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import {
-    CaseReviewFunctionalCaseUserItem,
-    ReviewHistoryItem,
-    ReviewPassRule,
-  } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
-  import { StartReviewStatus } from '@/enums/caseEnum';
+  import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
-  import { convertToFile, getCustomField } from '@/views/case-management/caseManagementFeature/components/utils';
+  import {
+    convertToFile,
+    executionResultMap,
+    getCustomField,
+  } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
-    moduleId: string;
-    viewFlag: boolean; // 是否只看我的
-    viewStatusFlag: boolean; // 我的评审结果
-    reviewProgress: string;
-    reviewPassRule: ReviewPassRule; // 评审规则
+    activeModule: string;
     moduleTree: ModuleTreeNode[];
+    planId: string;
   }>();
 
   const emit = defineEmits<{
     (e: 'operation', type: string, node: MinderJsonNode): void;
-    (e: 'handleReviewDone', refreshTree?: boolean): void;
   }>();
 
-  const route = useRoute();
-  const appStore = useAppStore();
   const { t } = useI18n();
   const minderStore = useMinderStore();
-  const userStore = useUserStore();
-  const caseReviewStore = useCaseReviewStore();
+  const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
-  const statusTagMap: Record<string, string> = {
-    PASS: t('common.pass'),
-    UN_PASS: t('common.unPass'),
-    UNDER_REVIEWED: t('caseManagement.caseReview.reviewing'),
-    RE_REVIEWED: t('caseManagement.caseReview.reReview'),
-  };
   const caseTag = t('common.case');
   const moduleTag = t('common.module');
   const importJson = ref<MinderJson>({
@@ -177,8 +148,18 @@
     treePath: [],
   });
   const loading = ref(false);
+  const modulesCount = computed(() => testPlanFeatureCaseStore.modulesCount);
 
-  const modulesCount = computed(() => caseReviewStore.modulesCount);
+  /**
+   * 找到最顶层的父节点id
+   * @param node 选中节点
+   */
+  function getMinderNodeParentId(node: MinderJsonNode): string {
+    while (node?.parent && node.parent.data?.id !== 'NONE') {
+      node = node.parent;
+    }
+    return node.id ?? '';
+  }
 
   /**
    * 初始化用例模块树
@@ -194,6 +175,7 @@
         expandState: e.level === 0 ? 'expand' : 'collapse',
         count: modulesCount.value[e.id],
         disabled: true,
+        projectId: getMinderNodeParentId(e),
       },
       children:
         modulesCount.value[e.id] > 0 && !e.children?.length
@@ -212,7 +194,7 @@
       children: tree,
       data: {
         id: 'NONE',
-        text: t('caseManagement.caseReview.allCases'),
+        text: t('testPlan.testPlanIndex.functionalUseCase'),
         resource: [moduleTag],
         disabled: true,
         count: modulesCount.value.all,
@@ -220,11 +202,11 @@
     };
     importJson.value.treePath = [];
     window.minder.importJson(importJson.value);
-    if (props.moduleId !== 'all') {
+    if (props.activeModule !== 'all') {
       // 携带具体的模块 ID 加载时，进入该模块内
       nextTick(() => {
         minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [
-          findNodeByKey(importJson.value.root.children || [], props.moduleId, 'id', 'data') as MinderJsonNode,
+          findNodeByKey(importJson.value.root.children || [], props.activeModule, 'id', 'data') as MinderJsonNode,
         ]);
       });
     } else {
@@ -239,16 +221,18 @@
     initCaseTree();
     // 固定标签颜色
     window.minder._resourceColorMapping = {
-      [statusTagMap.UNDER_REVIEWED]: 8,
-      [statusTagMap.PASS]: 4,
-      [statusTagMap.UN_PASS]: 5,
-      [statusTagMap.RE_REVIEWED]: 6,
+      [executionResultMap.SUCCESS.statusText]: 4,
+      [executionResultMap.ERROR.statusText]: 5,
+      [executionResultMap.BLOCKED.statusText]: 6,
     };
   });
 
-  watch([() => props.moduleId, () => props.viewStatusFlag], () => {
-    initCaseTree();
-  });
+  watch(
+    () => props.activeModule,
+    () => {
+      initCaseTree();
+    }
+  );
 
   /**
    * 加载模块节点下的用例节点
@@ -259,13 +243,11 @@
     try {
       loading.value = true;
       if (!node?.data) return;
-      const { list, total } = await getCaseReviewMinder({
+      const { list, total } = await getCasePlanMinder({
         current: (loadMoreCurrent ?? 0) + 1,
-        projectId: appStore.currentProjectId,
         moduleId: node.data?.id,
-        reviewId: route.query.id as string,
-        viewFlag: props.viewFlag,
-        viewStatusFlag: props.viewStatusFlag,
+        projectId: node.data?.projectId,
+        planId: props.planId,
       });
       // 移除占位的虚拟节点
       removeFakeNode(node, loadMoreCurrent ? `tmp-${node.data?.id}` : 'fakeNode');
@@ -284,7 +266,9 @@
           {
             ...(e.data as MinderJsonNodeData),
             resource: [
-              ...(statusTagMap[e.data?.status] ? [statusTagMap[e.data?.status]] : []),
+              ...(executionResultMap[e.data?.status]?.statusText
+                ? [executionResultMap[e.data?.status].statusText]
+                : []),
               ...(e.data?.resource ?? []),
             ],
           },
@@ -327,7 +311,7 @@
   }
 
   const extraVisible = ref<boolean>(false);
-  const activeExtraKey = ref<'baseInfo' | 'attachment' | 'history'>('history');
+  const activeExtraKey = ref<'baseInfo' | 'attachment' | 'history' | 'bug'>('history');
   const baseInfoLoading = ref(false);
   const activeCaseInfo = ref<Record<string, any>>({});
   const descriptions = ref<Description[]>([]);
@@ -342,8 +326,12 @@
       label: t('caseManagement.featureCase.attachment'),
     },
     {
+      value: 'bug',
+      label: t('testPlan.featureCase.bug'),
+    },
+    {
       value: 'history',
-      label: t('caseManagement.caseReview.reviewHistory'),
+      label: t('testPlan.featureCase.executionHistory'),
     },
   ];
   function resetExtractInfo() {
@@ -358,7 +346,7 @@
   async function initCaseDetail(data: MinderJsonNodeData) {
     try {
       baseInfoLoading.value = true;
-      const res = await getCaseDetail(data?.caseId || activeCaseInfo.value.caseId);
+      const res = await getCaseDetail(data?.id || activeCaseInfo.value.id);
       activeCaseInfo.value = res;
       // 基本信息
       descriptions.value = [
@@ -406,12 +394,15 @@
       baseInfoLoading.value = false;
     }
   }
-
-  const reviewHistoryList = ref<ReviewHistoryItem[]>([]); // 加载评审历史列表
-  async function initReviewHistoryList(data: MinderJsonNodeData) {
+  // 执行历史
+  const executeHistoryList = ref<ExecuteHistoryItem[]>([]);
+  async function initExecuteHistory(data: MinderJsonNodeData) {
     try {
-      const res = await getCaseReviewHistoryList(route.query.id as string, data?.caseId || activeCaseInfo.value.caseId);
-      reviewHistoryList.value = res;
+      executeHistoryList.value = await executeHistory({
+        caseId: data?.caseId,
+        id: data.id,
+        testPlanId: props.planId,
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -421,52 +412,41 @@
   /**
    * 切换用例详情显示
    */
-  const reviewStatusTriggerRef = ref<InstanceType<typeof ReviewStatusTrigger>>();
   async function toggleDetail(val?: boolean) {
     extraVisible.value = val !== undefined ? val : !extraVisible.value;
     const node: MinderJsonNode = window.minder.getSelectedNode();
     const { data } = node;
     if (extraVisible.value && data?.resource?.includes(caseTag)) {
       activeExtraKey.value = 'history';
+      initExecuteHistory(data);
       initCaseDetail(data);
-      initReviewHistoryList(data);
-      reviewStatusTriggerRef.value?.initReviewerAndStatus(
-        route.query.id as string,
-        data?.caseId || activeCaseInfo.value.caseId
-      );
     }
   }
 
-  const hasOperationPermission = hasAnyPermission(['CASE_REVIEW:READ+UPDATE', 'CASE_REVIEW:READ+RELEVANCE']);
+  const hasOperationPermission = hasAnyPermission([
+    'PROJECT_TEST_PLAN:READ+UPDATE',
+    'PROJECT_TEST_PLAN:READ+ASSOCIATION',
+  ]);
   const canShowFloatMenu = ref(false); // 是否展示浮动菜单
   const canShowMoreMenu = ref(false); // 更多
-  const isReviewer = ref(false); // 是否是此用例的评审人
-  const caseReviewerList = ref<CaseReviewFunctionalCaseUserItem[]>([]);
   const canShowEnterNode = ref(false);
+  const showAssociateBugMenu = ref(false);
   const canShowDetail = ref(false);
   const moreMenuOtherOperationList = ref();
   function setMoreMenuOtherOperationList(node: MinderJsonNode) {
     moreMenuOtherOperationList.value = [
       {
-        value: 'changeReviewer',
-        label: t('caseManagement.caseReview.changeReviewer'),
-        permission: ['CASE_REVIEW:READ+UPDATE'],
+        value: 'changeExecutor',
+        label: t('testPlan.featureCase.changeExecutor'),
+        permission: ['PROJECT_TEST_PLAN:READ+UPDATE'],
         onClick: () => {
-          emit('operation', 'changeReviewer', node);
-        },
-      },
-      {
-        value: 'reReview',
-        label: t('caseManagement.caseReview.reReview'),
-        permission: ['CASE_REVIEW:READ+UPDATE'],
-        onClick: () => {
-          emit('operation', 'reReview', node);
+          emit('operation', 'changeExecutor', node);
         },
       },
       {
         value: 'disassociate',
         label: t('caseManagement.caseReview.disassociateCase'),
-        permission: ['CASE_REVIEW:READ+RELEVANCE'],
+        permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
         onClick: () => {
           emit('operation', 'disassociate', node);
         },
@@ -475,54 +455,7 @@
   }
 
   const selectNode = ref();
-  const reviewVisible = ref(false);
-  function handleReviewDone(status: StartReviewStatus) {
-    reviewVisible.value = false;
-    if (
-      props.reviewPassRule !== 'MULTIPLE' &&
-      status !== StartReviewStatus.UNDER_REVIEWED &&
-      selectNode.value.data?.resource?.includes(caseTag)
-    ) {
-      window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
-      emit('handleReviewDone');
-    } else {
-      emit('handleReviewDone', true);
-    }
-  }
 
-  // 递归更新子节点的用例标签
-  function updateChildResources(status: string, node?: MinderJsonNode) {
-    node?.children?.forEach((child: MinderJsonNode) => {
-      if (child.data?.resource?.includes(caseTag)) {
-        child.setData('resource', [statusTagMap[status], caseTag]).render();
-      } else if (child.data?.resource?.includes(moduleTag)) {
-        updateChildResources(status, child);
-      }
-    });
-  }
-
-  // 更新状态标签
-  function updateResource(status: string) {
-    if (selectNode.value.data?.resource?.includes(moduleTag)) {
-      updateChildResources(status, selectNode.value);
-    } else if (selectNode.value.data?.resource?.includes(caseTag)) {
-      window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
-    }
-  }
-
-  /**
-   * 是否是当前用例的评审人
-   * @param data 节点信息
-   */
-  async function setIsReviewer(data?: MinderJsonNodeData) {
-    caseReviewerList.value = await getCaseReviewerList(route.query.id as string, data?.caseId);
-    isReviewer.value = caseReviewerList.value.some((child) => child.userId === userStore.id);
-  }
-
-  /**
-   * 处理节点选中
-   * @param node 节点
-   */
   async function handleNodeSelect(node: MinderJsonNode) {
     const { data } = node;
     // 点击更多节点，加载更多用例
@@ -547,8 +480,6 @@
       canShowFloatMenu.value = false;
     }
 
-    reviewVisible.value = false;
-
     // 不展示更多：没操作权限的用例
     if (node.data?.resource?.includes(caseTag) && !hasOperationPermission) {
       canShowMoreMenu.value = false;
@@ -563,15 +494,9 @@
       canShowEnterNode.value = false;
     }
 
-    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0) {
-      isReviewer.value = true;
-    } else {
-      isReviewer.value = false;
-    }
-
     if (data?.resource?.includes(caseTag)) {
       canShowDetail.value = true;
-      setIsReviewer(node.data);
+      showAssociateBugMenu.value = true;
       if (extraVisible.value) {
         toggleDetail(true);
       }
@@ -579,12 +504,16 @@
       expendNodeAndChildren(node);
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
-      await initNodeCases(node);
+      if (data.id !== 'NONE') {
+        await initNodeCases(node);
+      }
       extraVisible.value = false;
       canShowDetail.value = false;
+      showAssociateBugMenu.value = false;
     } else {
       extraVisible.value = false;
       canShowDetail.value = false;
+      showAssociateBugMenu.value = false;
       resetExtractInfo();
       removeFakeNode(node, 'fakeNode');
     }
@@ -597,12 +526,14 @@
 
   defineExpose({
     initCaseTree,
-    updateResource,
   });
 </script>
 
 <style lang="less" scoped>
   :deep(.comment-list-item-name) {
     max-width: 200px;
+  }
+  :deep(.ms-list) {
+    margin: 0;
   }
 </style>
