@@ -1197,7 +1197,12 @@ public class FunctionalCaseMinderService {
 
     public List<FunctionalMinderTreeDTO> getPlanMindFunctionalCase(FunctionalCasePlanMindRequest request, boolean deleted) {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
-        //查出当前模块下的所有用例
+        //查出当前模块下的所有用例,模块可能是根节点，这里做跨项目的处理
+        if (request.getModuleId().contains("root")) {
+            int i = request.getModuleId().indexOf("_");
+            String substring = request.getModuleId().substring(i+1);
+            request.setModuleId(substring);
+        }
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderTestPlanList(request, deleted);
         List<String> fieldIds = getFieldIds(request);
         List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldList(request, deleted, fieldIds);
