@@ -27,5 +27,6 @@ export const GetReviewDetailModuleTreeUrl = '/case/review/detail/tree'; // 评�
 export const GetCaseReviewHistoryListUrl = '/review/functional/case/get/list'; // 评审详情-获取用例评审历史
 export const SaveCaseReviewResultUrl = '/review/functional/case/save'; // 评审详情-提交评审
 export const getCaseReviewerListUrl = '/case/review/detail/reviewer/list'; // 评审详情-获取用例的评审人
-export const GetCaseReviewMinderUrl = '/functional/mind/case/review/list'; // 获取脑图数据
+export const GetCaseReviewMinderUrl = '/functional/mind/case/review/list'; // 获取评审脑图数据
 export const GetReviewerAndStatusUrl = '/case/review/detail/reviewer/status/total'; // 脑图-获取用例评审最终结果和每个评审人最终的评审结果
+export const GetCasePlanMinderUrl = '/functional/mind/case/plan/list'; // 获取测试计划用例脑图

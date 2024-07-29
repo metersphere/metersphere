@@ -1,6 +1,6 @@
-import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
+import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
 
-import type { MinderJsonNode } from '../../props';
+import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
 
 export function isDisableNode(minder: any) {
   let node: MinderJsonNode;
@@ -181,4 +181,48 @@ export function expendNodeAndChildren(node: MinderJsonNode) {
     node.layout();
     node.children?.forEach((child) => expendNodeAndChildren(child));
   }
+}
+
+/**
+ * 移除占位的虚拟节点
+ * @param node 对应节点
+ * @param fakeNodeName 虚拟节点名称
+ */
+export function removeFakeNode(node: MinderJsonNode, fakeNodeName: string) {
+  const fakeNode = node.children?.find((e: MinderJsonNode) => e.data?.id === fakeNodeName);
+  if (fakeNode) {
+    window.minder.removeNode(fakeNode);
+  }
+}
+
+/**
+ * 创建节点
+ * @param data 节点数据
+ * @param parentNode 父节点
+ */
+export function createNode(data?: MinderJsonNodeData, parentNode?: MinderJsonNode) {
+  return window.minder.createNode(
+    {
+      ...data,
+      expandState: 'collapse',
+      disabled: true,
+    },
+    parentNode
+  );
+}
+
+/**
+ * 递归渲染子节点及其子节点
+ * @param parentNode - 父节点
+ * @param children - 子节点数组
+ */
+export function renderSubNodes(parentNode: MinderJsonNode, children?: MinderJsonNode[]) {
+  return (
+    children?.map((item: MinderJsonNode) => {
+      const grandChild = createNode(item.data, parentNode);
+      const greatGrandChildren = renderSubNodes(grandChild, item.children);
+      window.minder.renderNodeBatch(greatGrandChildren);
+      return grandChild;
+    }) || []
+  );
 }

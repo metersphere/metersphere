@@ -1,90 +1,122 @@
 <template>
-  <div class="p-[16px]">
-    <MsAdvanceFilter
-      v-model:keyword="keyword"
-      :filter-config-list="[]"
-      :custom-fields-config-list="[]"
-      :row-count="0"
-      :count="props.modulesCount[props.activeModule] || 0"
-      :name="moduleNamePath"
-      :search-placeholder="t('ms.case.associate.searchPlaceholder')"
-      @keyword-search="loadCaseList()"
-      @adv-search="loadCaseList()"
-      @refresh="loadCaseList()"
-    />
-    <MsBaseTable
-      ref="tableRef"
-      class="mt-[16px]"
-      v-bind="propsRes"
-      :action-config="batchActions"
-      :selectable="hasOperationPermission"
-      v-on="propsEvent"
-      @batch-action="handleTableBatch"
-      @drag-change="handleDragChange"
-      @selected-change="handleTableSelect"
-      @filter-change="getModuleCount"
-      @module-change="loadCaseList(false)"
-    >
-      <template #num="{ record }">
-        <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
-      </template>
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
-        <CaseLevel :case-level="filterContent.value" />
-      </template>
-      <template #caseLevel="{ record }">
-        <CaseLevel :case-level="record.caseLevel" />
-      </template>
-      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-        <ExecuteResult :execute-result="filterContent.key" />
-      </template>
-      <template #lastExecResult="{ record }">
-        <a-select
-          v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && props.canEdit"
-          v-model:model-value="record.lastExecResult"
-          :placeholder="t('common.pleaseSelect')"
-          class="param-input w-full"
-          @change="() => handleEditLastExecResult(record)"
-        >
-          <template #label>
-            <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
-          </template>
-          <a-option v-for="item in Object.values(executionResultMap)" :key="item.key" :value="item.key">
-            <ExecuteResult :execute-result="item.key" />
-          </a-option>
-        </a-select>
-        <span v-else class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
-      </template>
-      <template #bugCount="{ record }">
-        <BugCountPopover :case-item="record" :can-edit="props.canEdit" @load-list="loadList" />
-      </template>
-      <template v-if="props.canEdit" #operation="{ record }">
-        <MsButton
-          v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
-          type="text"
-          class="!mr-0"
-          @click="toCaseDetail(record)"
-        >
-          {{ t('common.execute') }}
-        </MsButton>
-        <a-divider
-          v-if="hasAllPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION'])"
-          direction="vertical"
-          :margin="8"
-        ></a-divider>
-        <MsPopconfirm
-          :title="t('testPlan.featureCase.disassociateTip', { name: characterLimit(record.name) })"
-          :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
-          :ok-text="t('common.confirm')"
-          :loading="disassociateLoading"
-          type="error"
-          @confirm="(val, done) => handleDisassociateCase(record, done)"
-        >
-          <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="text" class="!mr-0">
-            {{ t('common.cancelLink') }}
+  <div class="h-full p-[16px]">
+    <div class="mb-[16px]">
+      <MsAdvanceFilter
+        v-model:keyword="keyword"
+        :filter-config-list="[]"
+        :custom-fields-config-list="[]"
+        :row-count="0"
+        :count="modulesCount[props.activeModule] || 0"
+        :name="moduleNamePath"
+        :not-show-input-search="showType !== 'list'"
+        :search-placeholder="t('ms.case.associate.searchPlaceholder')"
+        @keyword-search="loadCaseList()"
+        @adv-search="loadCaseList()"
+        @refresh="handleRefreshAndInitModules()"
+      >
+        <template v-if="props.treeType === 'MODULE'" #right>
+          <a-radio-group
+            v-model:model-value="showType"
+            type="button"
+            size="small"
+            class="list-show-type"
+            @change="handleShowTypeChange"
+          >
+            <a-radio value="list" class="show-type-icon !m-[2px]">
+              <MsIcon :size="14" type="icon-icon_view-list_outlined" />
+            </a-radio>
+            <a-radio value="minder" class="show-type-icon !m-[2px]">
+              <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
+            </a-radio>
+          </a-radio-group>
+        </template>
+      </MsAdvanceFilter>
+    </div>
+    <template v-if="showType === 'list'">
+      <MsBaseTable
+        ref="tableRef"
+        v-bind="propsRes"
+        :action-config="batchActions"
+        :selectable="hasOperationPermission"
+        v-on="propsEvent"
+        @batch-action="handleTableBatch"
+        @drag-change="handleDragChange"
+        @selected-change="handleTableSelect"
+        @filter-change="getModuleCount"
+        @module-change="loadCaseList(false)"
+      >
+        <template #num="{ record }">
+          <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
+        </template>
+        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+          <CaseLevel :case-level="filterContent.value" />
+        </template>
+        <template #caseLevel="{ record }">
+          <CaseLevel :case-level="record.caseLevel" />
+        </template>
+        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+          <ExecuteResult :execute-result="filterContent.key" />
+        </template>
+        <template #lastExecResult="{ record }">
+          <a-select
+            v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE']) && props.canEdit"
+            v-model:model-value="record.lastExecResult"
+            :placeholder="t('common.pleaseSelect')"
+            class="param-input w-full"
+            @change="() => handleEditLastExecResult(record)"
+          >
+            <template #label>
+              <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
+            </template>
+            <a-option v-for="item in Object.values(executionResultMap)" :key="item.key" :value="item.key">
+              <ExecuteResult :execute-result="item.key" />
+            </a-option>
+          </a-select>
+          <span v-else class="text-[var(--color-text-2)]">
+            <ExecuteResult :execute-result="record.lastExecResult" />
+          </span>
+        </template>
+        <template #bugCount="{ record }">
+          <BugCountPopover :case-item="record" :can-edit="props.canEdit" @load-list="loadList" />
+        </template>
+        <template v-if="props.canEdit" #operation="{ record }">
+          <MsButton
+            v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
+            type="text"
+            class="!mr-0"
+            @click="toCaseDetail(record)"
+          >
+            {{ t('common.execute') }}
           </MsButton>
-        </MsPopconfirm>
-      </template>
-    </MsBaseTable>
+          <a-divider
+            v-if="hasAllPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION'])"
+            direction="vertical"
+            :margin="8"
+          ></a-divider>
+          <MsPopconfirm
+            :title="t('testPlan.featureCase.disassociateTip', { name: characterLimit(record.name) })"
+            :sub-title-tip="t('testPlan.featureCase.disassociateTipContent')"
+            :ok-text="t('common.confirm')"
+            :loading="disassociateLoading"
+            type="error"
+            @confirm="(val, done) => handleDisassociateCase(record, done)"
+          >
+            <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ASSOCIATION']" type="text" class="!mr-0">
+              {{ t('common.cancelLink') }}
+            </MsButton>
+          </MsPopconfirm>
+        </template>
+      </MsBaseTable>
+    </template>
+    <!-- 脑图 -->
+    <div v-else class="h-[calc(100%-48px)] border-t border-[var(--color-text-n8)]">
+      <MsTestPlanFeatureCaseMinder
+        ref="msTestPlanFeatureCaseMinderRef"
+        :active-module="props.activeModule"
+        :module-tree="moduleTree"
+        :plan-id="props.planId"
+      />
+    </div>
     <!-- 批量执行 -->
     <a-modal
       v-model:visible="batchExecuteModalVisible"
@@ -120,7 +152,7 @@
     <!-- 批量移动 -->
     <BatchApiMoveModal
       v-model:visible="batchMoveModalVisible"
-      :module-tree="props.moduleTree"
+      :module-tree="moduleTree"
       :count="batchParams.currentSelectCount || tableSelected.length"
       :params="batchUpdateParams"
       :batch-move="batchMoveFeatureCase"
@@ -147,6 +179,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import MsTestPlanFeatureCaseMinder from '@/components/business/ms-minders/testPlanFeatureCaseMinder/index.vue';
   import BugCountPopover from './bugCountPopover.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
@@ -167,15 +200,12 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
   import { characterLimit } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
-  import { DragSortParams, ModuleTreeNode } from '@/models/common';
-  import type {
-    ExecuteFeatureCaseFormParams,
-    PlanDetailFeatureCaseItem,
-    PlanDetailFeatureCaseListQueryParams,
-  } from '@/models/testPlan/testPlan';
+  import { DragSortParams } from '@/models/common';
+  import type { ExecuteFeatureCaseFormParams, PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -185,21 +215,17 @@
   import { executionResultMap, getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
-    modulesCount: Record<string, number>; // 模块数量统计对象
     moduleName: string;
     moduleParentId: string;
     activeModule: string;
     offspringIds: string[];
     planId: string;
-    moduleTree: ModuleTreeNode[];
     canEdit: boolean;
     treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
-    (e: 'getModuleCount', params: PlanDetailFeatureCaseListQueryParams): void;
     (e: 'refresh'): void;
-    (e: 'initModules'): void;
   }>();
 
   const { t } = useI18n();
@@ -208,7 +234,14 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const { openModal } = useModal();
+  const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
+  const moduleTree = computed(() => unref(testPlanFeatureCaseStore.moduleTree));
+  async function initModules() {
+    await testPlanFeatureCaseStore.initModules(route.query.id as string, props.treeType);
+  }
+
+  const showType = ref<'list' | 'minder'>('list');
   const keyword = ref('');
   const moduleNamePath = computed(() => {
     return props.activeModule === 'all' ? t('caseManagement.featureCase.allCase') : props.moduleName;
@@ -430,9 +463,10 @@
       ...tableParams,
       projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
     });
+    resetSelector();
     loadList();
     if (refreshTreeCount) {
-      emit('getModuleCount', {
+      testPlanFeatureCaseStore.getModuleCount({
         ...tableParams,
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
@@ -446,13 +480,62 @@
     }
   );
 
+  onBeforeMount(() => {
+    loadCaseList();
+  });
+
+  const modulesCount = computed(() => testPlanFeatureCaseStore.modulesCount);
   async function getModuleCount() {
+    let params;
     const tableParams = await getTableParams(false);
-    emit('getModuleCount', {
-      ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    });
+    if (showType.value === 'list') {
+      params = {
+        ...tableParams,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+      };
+    } else {
+      params = { treeType: props.treeType, moduleIds: [], testPlanId: props.planId, pageSize: 10, current: 1 };
+    }
+    await testPlanFeatureCaseStore.getModuleCount(params);
+  }
+
+  /**
+   * 更新数据
+   * @param getCount 获取模块树数量
+   */
+  const msTestPlanFeatureCaseMinderRef = ref<InstanceType<typeof MsTestPlanFeatureCaseMinder>>();
+  async function refresh(getCount = true) {
+    if (showType.value === 'list') {
+      loadCaseList(getCount);
+    } else {
+      if (getCount) {
+        await getModuleCount();
+      }
+      msTestPlanFeatureCaseMinderRef.value?.initCaseTree();
+    }
+  }
+
+  async function handleRefreshAndInitModules() {
+    await initModules();
+    refresh();
+  }
+
+  function handleTreeTypeChange() {
+    if (showType.value !== 'list') {
+      showType.value = 'list';
+    }
+    loadCaseList(true);
+  }
+
+  function handleShowTypeChange(val: string | number | boolean) {
+    if (val === 'minder') {
+      keyword.value = '';
+      // 切换到脑图刷新模块统计
+      getModuleCount();
+    } else {
+      loadCaseList();
+    }
   }
 
   const tableSelected = ref<(string | number)[]>([]); // 表格选中的
@@ -519,7 +602,7 @@
       }
       Message.success(t('common.unLinkSuccess'));
       resetCaseList();
-      emit('initModules');
+      initModules();
       emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -550,7 +633,7 @@
           });
           Message.success(t('common.updateSuccess'));
           resetCaseList();
-          emit('initModules');
+          initModules();
           emit('refresh');
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -643,13 +726,9 @@
     });
   }
 
-  onBeforeMount(() => {
-    loadCaseList();
-  });
-
   defineExpose({
     resetSelector,
-    loadCaseList,
+    handleTreeTypeChange,
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE, columns.value, 'drawer', true);
@@ -668,6 +747,12 @@
       .arco-select-view-value {
         color: var(--color-text-brand);
       }
+    }
+  }
+  .list-show-type {
+    padding: 0;
+    :deep(.arco-radio-button-content) {
+      padding: 4px 6px;
     }
   }
 </style>

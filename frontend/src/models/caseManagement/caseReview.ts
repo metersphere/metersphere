@@ -273,3 +273,11 @@ export interface CaseReviewMinderParams {
   viewFlag: boolean; // 是否只看我的
   viewStatusFlag: boolean; // 我的评审结果
 }
+
+// 测试计划用例脑图
+export interface CasePlanMinderParams {
+  projectId: string;
+  moduleId: string;
+  current?: number;
+  planId: string;
+}

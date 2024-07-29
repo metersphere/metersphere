@@ -64,7 +64,7 @@
                 </span>
 
                 <span
-                  v-else
+                  v-if="!item.deleted && !props.notShowReviewName"
                   class="one-line-text ml-[16px] max-w-[300px] cursor-pointer break-words break-all text-[rgb(var(--primary-5))]"
                   @click="toPlan(item)"
                 >

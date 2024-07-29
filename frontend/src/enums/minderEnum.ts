@@ -21,6 +21,7 @@ export enum MinderKeyEnum {
   FEATURE_CASE_MINDER = 'featureCaseMinder',
   CASE_REVIEW_MINDER = 'caseReviewMinder',
   TEST_PLAN_MINDER = 'testPlanMinder',
+  TEST_PLAN_FEATURE_CASE_MINDER = 'testPlanFeatureCaseMinder',
 }
 
 export enum ModeIcon {
