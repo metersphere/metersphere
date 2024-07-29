@@ -129,16 +129,12 @@
             <div :class="{ 'flex w-full flex-row items-center': !item.isTag && !item.align }">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
-                  <div v-if="record.enable" class="flex flex-row flex-nowrap items-center gap-[2px]">
-                    <icon-check-circle-fill class="text-[rgb(var(--success-6))]" />
-                    <div>{{ item.enableTitle ? t(item.enableTitle) : t('msTable.enable') }}</div>
-                  </div>
-                  <div v-else class="flex flex-row flex-nowrap items-center gap-[2px]">
-                    <MsIcon type="icon-icon_disable" class="text-[var(--color-text-4)]" />
-                    <div class="text-[var(--color-text-1)]">
-                      {{ item.disableTitle ? t(item.disableTitle) : t('msTable.disable') }}
-                    </div>
-                  </div>
+                  <a-switch
+                    v-model:model-value="record.enable"
+                    size="small"
+                    :disabled="!hasAnyPermission(item.permission)"
+                    :before-change="(val) => handleChangeEnable(val, record)"
+                  />
                 </slot>
               </template>
               <template v-else-if="item.isTag || item.isStringTag">
@@ -312,6 +308,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams } from '@/models/common';
   import { ColumnEditTypeEnum, SelectAllEnum, SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -374,6 +371,7 @@
     (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
     (e: 'clearSelector'): void;
+    (e: 'enableChange', record: any, newValue: string | number | boolean): void;
     (
       e: 'filterChange',
       dataIndex: string,
@@ -696,6 +694,11 @@
       });
     }
   };
+
+  function handleChangeEnable(newValue: string | number | boolean, record: TableData) {
+    emit('enableChange', record, newValue);
+    return false;
+  }
 
   // 根据参数获取全选按钮的位置
   const getBatchLeft = () => {

@@ -76,9 +76,43 @@
           <span>{{ formatFileSize(record.size) }}</span>
         </template>
         <template #action="{ record }">
-          <MsButton type="text" class="mr-[8px]" @click="handleDownload(record)">
+          <a-switch
+            v-if="record.fileType === 'jar' && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
+            v-model:model-value="record.enable"
+            size="small"
+            :before-change="(val) => handleChangeEnable(val, record)"
+          />
+          <a-divider
+            v-if="record.fileType === 'jar' && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
+            direction="vertical"
+            :margin="8"
+          />
+          <MsButton
+            v-if="record.fileType !== 'jar' && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
+            type="text"
+            class="!mr-0"
+            @click="handleMove(record)"
+          >
+            {{ t('project.fileManagement.move') }}
+          </MsButton>
+          <a-divider
+            v-if="record.fileType !== 'jar' && hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE'])"
+            direction="vertical"
+            :margin="8"
+          />
+          <MsButton
+            v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD'])"
+            type="text"
+            class="!mr-0"
+            @click="handleDownload(record)"
+          >
             {{ t('project.fileManagement.download') }}
           </MsButton>
+          <a-divider
+            v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD'])"
+            direction="vertical"
+            :margin="8"
+          />
           <MsTableMoreAction
             :list="record.fileType === 'jar' ? getJarFileActions(record) : normalFileActions"
             @select="handleMoreActionSelect($event, record)"
@@ -462,7 +496,7 @@
         },
       ];
     }
-    const normalActions = [
+    const moveActions = [
       {
         label: 'project.fileManagement.move',
         eventTag: 'move',
@@ -470,6 +504,9 @@
       {
         isDivider: true,
       },
+    ];
+
+    const normalActions = [
       {
         label: 'project.fileManagement.delete',
         eventTag: 'delete',
@@ -482,6 +519,7 @@
           label: 'project.fileManagement.download',
           eventTag: 'download',
         },
+        ...moveActions,
         ...normalActions,
       ];
     }
@@ -489,11 +527,7 @@
   });
 
   function getJarFileActions(record: FileItem) {
-    let jarFileActions: ActionsItem[] = [
-      {
-        label: 'project.fileManagement.move',
-        eventTag: 'move',
-      },
+    let enableActions: ActionsItem[] = [
       {
         label: 'common.enable',
         eventTag: 'toggle',
@@ -502,33 +536,49 @@
         label: 'common.disable',
         eventTag: 'toggle',
       },
-      {
-        isDivider: true,
-      },
+    ];
+
+    if (record.enable) {
+      enableActions = enableActions.filter((e) => e.label !== 'common.enable');
+    } else if (record.enable === false) {
+      enableActions = enableActions.filter((e) => e.label !== 'common.disable');
+    }
+
+    const deleteActions = [
       {
         label: 'project.fileManagement.delete',
         eventTag: 'delete',
         danger: true,
       },
     ];
+
+    const jarFileActions: ActionsItem[] = [
+      {
+        label: 'project.fileManagement.move',
+        eventTag: 'move',
+      },
+      {
+        isDivider: true,
+      },
+    ];
+
     if (showType.value === 'card') {
-      jarFileActions = [
+      return [
         {
           label: 'project.fileManagement.download',
           eventTag: 'download',
         },
         ...jarFileActions,
+        ...enableActions,
+        ...deleteActions,
       ];
     }
+
     if (record.storage === 'GIT') {
-      jarFileActions = jarFileActions.filter((e) => e.eventTag !== 'move');
+      return jarFileActions.filter((e) => e.eventTag !== 'move');
     }
-    if (record.enable) {
-      jarFileActions = jarFileActions.filter((e) => e.label !== 'common.enable');
-    } else if (record.enable === false) {
-      jarFileActions = jarFileActions.filter((e) => e.label !== 'common.disable');
-    }
-    return jarFileActions;
+
+    return [...jarFileActions, ...deleteActions];
   }
   const hasOperationPermission = computed(() =>
     hasAnyPermission([
@@ -594,7 +644,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 120 : 50,
+      width: hasOperationPermission.value ? 180 : 50,
     },
   ];
   const tableStore = useTableStore();
@@ -993,6 +1043,13 @@
     }
   }
 
+  // 移动
+  function handleMove(record: FileItem) {
+    isBatchMove.value = false;
+    activeFile.value = record;
+    moveModalVisible.value = true;
+  }
+
   /**
    * 处理表格更多按钮事件
    * @param item
@@ -1000,9 +1057,7 @@
   function handleMoreActionSelect(item: ActionsItem, record: FileItem) {
     switch (item.eventTag) {
       case 'move':
-        isBatchMove.value = false;
-        activeFile.value = record;
-        moveModalVisible.value = true;
+        handleMove(record);
         break;
       case 'delete':
         delFile(record, false);
@@ -1274,6 +1329,12 @@
       await addStorageFile();
       handleStorageModalCancel();
     });
+  }
+
+  // 开启|禁用
+  function handleChangeEnable(newValue: string | number | boolean, record: FileItem) {
+    toggleJarFile(record);
+    return false;
   }
 
   await tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');

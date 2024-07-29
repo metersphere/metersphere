@@ -120,6 +120,7 @@
   import { computed, ref, watch, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
 
   import { addPlugin } from '@/api/modules/setting/pluginManger';

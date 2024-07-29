@@ -1,5 +1,5 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+  <MsBaseTable v-bind="propsRes" v-on="propsEvent" @enable-change="enableChange">
     <template #revokeDelete="{ record }">
       <a-tooltip class="ms-tooltip-white">
         <template #content>
@@ -46,11 +46,6 @@
         }}</MsButton>
       </template>
       <template v-else-if="!record.enable">
-        <MsButton
-          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']"
-          @click="handleEnableOrDisableOrg(record)"
-          >{{ t('common.enable') }}</MsButton
-        >
         <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
           t('common.delete')
         }}</MsButton>
@@ -62,11 +57,10 @@
         <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">{{
           t('system.organization.addMember')
         }}</MsButton>
-        <MsButton
-          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']"
-          @click="handleEnableOrDisableOrg(record, false)"
-          >{{ t('common.end') }}</MsButton
-        >
+        <!-- TODO 后台缺少字段控制  -->
+        <MsButton v-xpack :disabled="appStore.currentOrgId === record.id" @click="enterOrganization(record.id)">{{
+          t('system.project.enterOrganization')
+        }}</MsButton>
         <MsTableMoreAction
           v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']"
           :list="tableActions"
@@ -118,11 +112,16 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
+  import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CreateOrUpdateSystemOrgParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+
+  import { enterOrganization } from '@/views/setting/utils';
+
+  const appStore = useAppStore();
 
   export interface SystemOrganizationProps {
     keyword: string;
@@ -173,6 +172,7 @@
       title: 'system.organization.status',
       dataIndex: 'enable',
       disableTitle: 'common.end',
+      permission: ['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE'],
     },
     {
       title: 'common.desc',
@@ -200,7 +200,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 230 : 50,
+      width: hasOperationPermission.value ? 250 : 50,
     },
   ];
 
@@ -252,7 +252,7 @@
     },
   ];
 
-  const handleEnableOrDisableOrg = async (record: any, isEnable = true) => {
+  const handleEnableOrDisableOrg = async (record: OrgProjectTableItem, isEnable = true) => {
     const title = isEnable ? t('system.organization.enableTitle') : t('system.organization.endTitle');
     const content = isEnable ? t('system.organization.enableContent') : t('system.organization.endContent');
     const okText = isEnable ? t('common.confirmStart') : t('common.confirmEnd');
@@ -276,7 +276,11 @@
     });
   };
 
-  const showOrganizationModal = (record: any) => {
+  function enableChange(record: OrgProjectTableItem, newValue: string | number | boolean) {
+    handleEnableOrDisableOrg(record, newValue as boolean);
+  }
+
+  const showOrganizationModal = (record: OrgProjectTableItem) => {
     currentOrganizationId.value = record.id;
     orgVisible.value = true;
     currentUpdateOrganization.value = {
@@ -287,7 +291,7 @@
     };
   };
 
-  const showAddUserModal = (record: any) => {
+  const showAddUserModal = (record: OrgProjectTableItem) => {
     currentOrganizationId.value = record.id;
     userVisible.value = true;
   };

@@ -60,14 +60,12 @@
         </a-table-column>
         <a-table-column :title="t('system.plugin.tableColumnsStatus')">
           <template #cell="{ record }">
-            <div v-if="record.enable" class="flex items-center">
-              <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-              {{ t('system.user.tableEnable') }}
-            </div>
-            <div v-else class="flex items-center text-[var(--color-text-4)]">
-              <MsIcon type="icon-icon_disable" class="mr-[2px] text-[var(--color-text-4)]" />
-              {{ t('system.user.tableDisable') }}
-            </div>
+            <a-switch
+              v-model:model-value="record.enable"
+              size="small"
+              :disabled="!hasAnyPermission(['SYSTEM_PLUGIN:READ+UPDATE'])"
+              :before-change="(val: string | number | boolean) => handleChangeEnable(val, record)"
+            />
           </template>
         </a-table-column>
         <a-table-column :title="t('system.plugin.tableColumnsApplicationScene')" data-index="scenario">
@@ -115,7 +113,7 @@
             <span>{{ getTime(record.updateTime) }}</span>
           </template>
         </a-table-column>
-        <a-table-column v-if="hasOperationPluginPermission" :width="180" fixed="right" :bordered="false">
+        <a-table-column v-if="hasOperationPluginPermission" :width="150" fixed="right" :bordered="false">
           <template #title>
             {{ t('system.plugin.tableColumnsActions') }}
           </template>
@@ -123,15 +121,6 @@
             <div class="flex">
               <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">{{
                 t('system.plugin.edit')
-              }}</MsButton>
-              <MsButton
-                v-if="record.enable"
-                v-permission="['SYSTEM_PLUGIN:READ+UPDATE']"
-                @click="disableHandler(record)"
-                >{{ t('system.plugin.tableDisable') }}</MsButton
-              >
-              <MsButton v-else v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="enableHandler(record)">{{
-                t('system.plugin.tableEnable')
               }}</MsButton>
               <MsTableMoreAction
                 v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
@@ -393,6 +382,16 @@
       console.log(error);
     }
   };
+
+  function handleChangeEnable(value: string | number | boolean, record: PluginItem) {
+    if (value) {
+      enableHandler(record);
+    } else {
+      disableHandler(record);
+    }
+    return false;
+  }
+
   const detailScript = async (record: PluginItem, item: PluginForms) => {
     showDrawer.value = true;
     config.value = {
