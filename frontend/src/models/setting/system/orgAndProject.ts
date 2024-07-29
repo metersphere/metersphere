@@ -1,4 +1,5 @@
 import { TableQueryParams } from '@/models/common';
+import type { ResourcePoolItem } from '@/models/setting/resourcePool';
 
 import { UserItem } from '../log';
 
@@ -59,4 +60,7 @@ export interface OrgProjectTableItem {
   memberCount: number;
   userIds: string[];
   resourcePoolIds: string[];
+  orgAdmins: Record<string, any>;
+  moduleIds: string[];
+  resourcePoolList: ResourcePoolItem[];
 }

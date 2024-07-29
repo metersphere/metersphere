@@ -17,7 +17,7 @@
         @clear="fetchData"
       ></a-input-search>
     </div>
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <MsBaseTable v-bind="propsRes" v-on="propsEvent" @enable-change="enableChange">
       <template #revokeDelete="{ record }">
         <a-tooltip class="ms-tooltip-white">
           <template #content>
@@ -57,9 +57,6 @@
           </MsButton>
         </template>
         <template v-else-if="!record.enable">
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="handleEnableOrDisableProject(record)">
-            {{ t('common.enable') }}
-          </MsButton>
           <MsButton v-permission="['ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">
             {{ t('common.delete') }}
           </MsButton>
@@ -185,6 +182,7 @@
       dataIndex: 'enable',
       disableTitle: 'common.end',
       showDrag: true,
+      permission: ['ORGANIZATION_PROJECT:READ+UPDATE'],
     },
     {
       title: 'common.desc',
@@ -262,11 +260,6 @@
 
   const tableActions: ActionsItem[] = [
     {
-      label: 'common.end',
-      eventTag: 'end',
-      permission: ['ORGANIZATION_PROJECT:READ+UPDATE'],
-    },
-    {
       label: 'system.user.delete',
       eventTag: 'delete',
       danger: true,
@@ -302,7 +295,11 @@
     });
   };
 
-  const showAddProjectModal = (record: any) => {
+  function enableChange(record: OrgProjectTableItem, newValue: string | number | boolean) {
+    handleEnableOrDisableProject(record, newValue as boolean);
+  }
+
+  const showAddProjectModal = (record: OrgProjectTableItem) => {
     const { id, name, description, enable, adminList, organizationId, moduleIds, resourcePoolList } = record;
     currentUpdateProject.value = {
       id,
@@ -317,7 +314,7 @@
     addProjectVisible.value = true;
   };
 
-  const showAddUserModal = (record: any) => {
+  const showAddUserModal = (record: OrgProjectTableItem) => {
     currentProjectId.value = record.id;
     userVisible.value = true;
   };
@@ -406,9 +403,6 @@
   const handleMoreAction = (tag: ActionsItem, record: TableData) => {
     const { eventTag } = tag;
     switch (eventTag) {
-      case 'end':
-        handleEnableOrDisableProject(record, false);
-        break;
       case 'delete':
         handleDelete(record);
         break;

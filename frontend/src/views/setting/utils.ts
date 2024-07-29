@@ -17,6 +17,28 @@ const userStore = useUserStore();
 const appStore = useAppStore();
 const licenseStore = useLicenseStore();
 
+// 进入组织
+export async function enterOrganization(organizationId: string) {
+  try {
+    appStore.showLoading();
+    if (appStore.currentOrgId !== organizationId) {
+      if (!licenseStore.hasLicense()) {
+        router.push({
+          name: NO_PROJECT_ROUTE_NAME,
+        });
+        return;
+      }
+      await switchUserOrg(organizationId, userStore.id || '');
+      await userStore.isLogin();
+      await userStore.checkIsLogin(true);
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    appStore.hideLoading();
+  }
+}
+
 export async function enterProject(projectId: string, organizationId?: string) {
   try {
     appStore.showLoading();

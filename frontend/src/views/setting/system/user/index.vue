@@ -37,6 +37,7 @@
       :action-config="tableBatchActions"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
+      @enable-change="enableChange"
     >
       <template #userGroup="{ record }">
         <MsTagGroup
@@ -71,9 +72,6 @@
       </template>
       <template #action="{ record }">
         <template v-if="!record.enable">
-          <MsButton v-permission="['SYSTEM_USER:READ+UPDATE']" @click="enableUser(record)">
-            {{ t('system.user.enable') }}
-          </MsButton>
           <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteUser(record)">
             {{ t('system.user.delete') }}
           </MsButton>
@@ -387,6 +385,7 @@
       slotName: 'enable',
       dataIndex: 'enable',
       showDrag: true,
+      permission: ['SYSTEM_USER:READ+UPDATE'],
     },
     {
       title: hasOperationSysUserPermission.value ? 'system.user.tableColumnActions' : '',
@@ -543,6 +542,14 @@
     });
   }
 
+  function enableChange(record: UserListItem, newValue: string | number | boolean) {
+    if (newValue) {
+      enableUser(record);
+    } else {
+      disabledUser(record);
+    }
+  }
+
   /**
    * 删除用户
    */
@@ -587,11 +594,6 @@
     {
       label: 'system.user.resetPassword',
       eventTag: 'resetPassword',
-      permission: ['SYSTEM_USER:READ+UPDATE'],
-    },
-    {
-      label: 'system.user.disable',
-      eventTag: 'disabled',
       permission: ['SYSTEM_USER:READ+UPDATE'],
     },
     {
@@ -704,9 +706,6 @@
     switch (item.eventTag) {
       case 'resetPassword':
         resetPassword(record);
-        break;
-      case 'disabled':
-        disabledUser(record);
         break;
       case 'delete':
         deleteUser(record);
