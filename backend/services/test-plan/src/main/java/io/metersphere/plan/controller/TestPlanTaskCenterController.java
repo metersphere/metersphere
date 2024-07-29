@@ -26,9 +26,6 @@ public class TestPlanTaskCenterController {
     private TestPlanTaskCenterService testPlanTaskCenterService;
 
     private static final String PROJECT = "project";
-    private static final String ORG = "org";
-    private static final String SYSTEM = "system";
-
 
     @PostMapping("/project/real-time/page")
     @Operation(summary = "项目-任务中心-测试计划-实时任务列表")
@@ -57,16 +54,13 @@ public class TestPlanTaskCenterController {
                 SessionUtils.getCurrentOrganizationId(),
                 SessionUtils.getCurrentProjectId());
         testPlanTaskCenterService.stopById(id, SessionUtils.getUserId(),
-                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, null);
     }
 
     @GetMapping("/org/stop/{id}")
     @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
     public void stopOrgById(@PathVariable String id) {
-        testPlanTaskCenterService.hasPermission(ORG,
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-        testPlanTaskCenterService.stopById(id, SessionUtils.getUserId(),
+        testPlanTaskCenterService.orgStopById(id, SessionUtils.getUserId(),
                 OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
@@ -74,29 +68,19 @@ public class TestPlanTaskCenterController {
     @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public void stopSystemById(@PathVariable String id) {
-        testPlanTaskCenterService.hasPermission(SYSTEM,
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-        testPlanTaskCenterService.stopById(id, SessionUtils.getUserId(),
+        testPlanTaskCenterService.systemStopById(id, SessionUtils.getUserId(),
                 OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     @PostMapping("/system/stop")
     @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
     public void systemStop(@Validated @RequestBody TaskCenterBatchRequest request) {
-        testPlanTaskCenterService.hasPermission(SYSTEM,
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
         testPlanTaskCenterService.systemStop(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/org/stop")
     @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
     public void orgStop(@Validated @RequestBody TaskCenterBatchRequest request) {
-        testPlanTaskCenterService.hasPermission(ORG,
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-
         testPlanTaskCenterService.orgStop(request, SessionUtils.getCurrentOrganizationId(), SessionUtils.getUserId());
     }
 
@@ -108,6 +92,4 @@ public class TestPlanTaskCenterController {
                 SessionUtils.getCurrentProjectId());
         testPlanTaskCenterService.projectStop(request, SessionUtils.getCurrentProjectId(), SessionUtils.getUserId());
     }
-
-
 }

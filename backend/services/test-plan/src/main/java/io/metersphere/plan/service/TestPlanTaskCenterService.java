@@ -5,6 +5,7 @@ import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
+import io.metersphere.api.service.ApiTaskCenterService;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
 import io.metersphere.project.domain.Project;
@@ -46,6 +47,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,7 +82,11 @@ public class TestPlanTaskCenterService {
     ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
     TestPlanExecuteService testPlanExecuteService;
+    @Resource
+    ApiTaskCenterService apiTaskCenterService;
     private static final String DEFAULT_SORT = "start_time desc";
+    private static final String ORG = "org";
+    private static final String SYSTEM = "system";
 
     /**
      * 任务中心实时任务列表-项目级
@@ -239,15 +245,14 @@ public class TestPlanTaskCenterService {
     }
 
     public void systemStop(TaskCenterBatchRequest request, String userId) {
-        stopApiTask(request, new ArrayList<>(), userId, OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        stopApiTask(request, new ArrayList<>(), userId, OperationLogModule.SETTING_SYSTEM_TASK_CENTER, getCheckPermissionFunc(SYSTEM));
     }
 
     public void orgStop(TaskCenterBatchRequest request, String orgId, String userId) {
         checkOrganizationExist(orgId);
         List<OptionDTO> projectList = getOrgProjectList(orgId);
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-        stopApiTask(request, projectIds, userId, OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
-
+        stopApiTask(request, projectIds, userId, OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, getCheckPermissionFunc(ORG));
     }
 
     public void projectStop(TaskCenterBatchRequest request, String currentProjectId, String userId) {
@@ -255,23 +260,38 @@ public class TestPlanTaskCenterService {
         stopApiTask(request, List.of(currentProjectId), userId, OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
+    public void systemStopById(String id, String userId, String logModule) {
+        stopById(id, userId, logModule, getCheckPermissionFunc(SYSTEM));
+    }
 
-    public void stopById(String id, String userId, String logModule) {
+    public void orgStopById(String id, String userId, String logModule) {
+        stopById(id, userId, logModule, getCheckPermissionFunc(ORG));
+    }
+
+    public void stopById(String id, String userId, String logModule, Consumer<Map<String, List<String>>> checkPermissionFunc) {
         List<String> reportIds = new ArrayList<>();
         reportIds.add(id);
         TaskCenterBatchRequest request = new TaskCenterBatchRequest();
         request.setSelectIds(reportIds);
         request.setModuleType(TaskCenterResourceType.TEST_PLAN.name());
-        stopApiTask(request, null, userId, logModule);
+        stopApiTask(request, null, userId, logModule, checkPermissionFunc);
     }
 
     private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String module) {
+        stopApiTask(request, projectIds, userId, module, null);
+    }
+
+    private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String module,
+                             Consumer<Map<String, List<String>>> checkPermissionFunc) {
         List<ReportDTO> reports;
         if (request.isSelectAll()) {
             reports = extTestPlanReportMapper.getReports(request, projectIds, null, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
         } else {
             reports = extTestPlanReportMapper.getReports(request, projectIds, request.getSelectIds(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
         }
+
+        apiTaskCenterService.checkBatchPermission(checkPermissionFunc, reports);
+
         // 需要处理  如果是集成报告， 需要找到计划组下面的所有的测试计划 然后全部停掉
         if (CollectionUtils.isNotEmpty(reports)) {
             //过滤所有为集合的报告，取测试计划ID
@@ -369,4 +389,12 @@ public class TestPlanTaskCenterService {
         operationLogService.batchAdd(logs);
     }
 
+    public Consumer<Map<String, List<String>>> getCheckPermissionFunc(String type) {
+        return (orgProjectMap) ->
+                orgProjectMap.keySet().forEach(orgId ->
+                        orgProjectMap.get(orgId).forEach(projectId ->
+                                hasPermission(type, orgId, projectId)
+                        )
+                );
+    }
 }

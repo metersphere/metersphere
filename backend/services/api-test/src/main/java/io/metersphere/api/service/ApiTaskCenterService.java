@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,6 +90,8 @@ public class ApiTaskCenterService {
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
     private static final String DEFAULT_SORT = "start_time desc";
+    private static final String ORG = "org";
+    private static final String SYSTEM = "system";
 
     /**
      * 任务中心实时任务列表-项目级
@@ -220,10 +223,11 @@ public class ApiTaskCenterService {
     }
 
     public void systemStop(TaskCenterBatchRequest request, String userId) {
-        stopApiTask(request, new ArrayList<>(), userId, OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        stopApiTask(request, new ArrayList<>(), userId, OperationLogModule.SETTING_SYSTEM_TASK_CENTER, getCheckPermissionFunc(SYSTEM, request.getModuleType()));
     }
 
-    private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String module) {
+    private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds, String userId, String module,
+                             Consumer<Map<String, List<String>>> checkPermissionFunc) {
         List<ReportDTO> reports = new ArrayList<>();
         if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
             if (request.isSelectAll()) {
@@ -238,8 +242,28 @@ public class ApiTaskCenterService {
                 reports = extApiScenarioReportMapper.getReports(request, projectIds, request.getSelectIds(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
             }
         }
+        checkBatchPermission(checkPermissionFunc, reports);
         if (CollectionUtils.isNotEmpty(reports)) {
             detailReport(request, reports, userId, module);
+        }
+    }
+
+    /**
+     * 校验权限
+     * @param checkPermissionFunc
+     * @param reports
+     */
+    public void checkBatchPermission(Consumer<Map<String, List<String>>> checkPermissionFunc, List<ReportDTO> reports) {
+        if (checkPermissionFunc != null && CollectionUtils.isNotEmpty(reports)) {
+            Map<String, List<String>> reportOrgProjectMap = new HashMap<>();
+            reports.forEach(report -> {
+                // 获取组织和项目信息，校验对应权限
+                List<String> reportIds = reportOrgProjectMap.getOrDefault(report.getOrganizationId(), new ArrayList<>());
+                reportIds.add(report.getProjectId());
+                reportOrgProjectMap.put(report.getOrganizationId(), reportIds);
+            });
+            // 校验权限
+            checkPermissionFunc.accept(reportOrgProjectMap);
         }
     }
 
@@ -365,24 +389,30 @@ public class ApiTaskCenterService {
         checkOrganizationExist(orgId);
         List<OptionDTO> projectList = getOrgProjectList(orgId);
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-        stopApiTask(request, projectIds, userId, OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
-
+        stopApiTask(request, projectIds, userId, OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, getCheckPermissionFunc(ORG, request.getModuleType()));
     }
 
     public void projectStop(TaskCenterBatchRequest request, String currentProjectId, String userId) {
         checkProjectExist(currentProjectId);
-        stopApiTask(request, List.of(currentProjectId), userId, OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+        stopApiTask(request, List.of(currentProjectId), userId, OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, null);
     }
 
-    public void stopById(String moduleType, String id, String userId, String module) {
+    public void systemStopById(String moduleType, String id, String userId, String module) {
+        stopById(moduleType, id, userId, module, getCheckPermissionFunc(SYSTEM, moduleType));
+    }
+
+    public void orgStopById(String moduleType, String id, String userId, String module) {
+        stopById(moduleType, id, userId, module, getCheckPermissionFunc(ORG, moduleType));
+    }
+
+    public void stopById(String moduleType, String id, String userId, String module, Consumer<Map<String, List<String>>> checkPermissionFunc) {
         List<String> reportIds = new ArrayList<>();
         reportIds.add(id);
         TaskCenterBatchRequest request = new TaskCenterBatchRequest();
         request.setSelectIds(reportIds);
         request.setModuleType(moduleType);
-        stopApiTask(request, null, userId, module);
+        stopApiTask(request, null, userId, module, checkPermissionFunc);
     }
-
 
     public void hasPermission(String type, String moduleType, String orgId, String projectId) {
         Map<String, List<String>> orgPermission = Map.of(
@@ -415,4 +445,12 @@ public class ApiTaskCenterService {
         }
     }
 
+    public Consumer<Map<String, List<String>>> getCheckPermissionFunc(String type, String moduleType) {
+        return (orgProjectMap) ->
+                orgProjectMap.keySet().forEach(orgId ->
+                        orgProjectMap.get(orgId).forEach(projectId ->
+                                hasPermission(type, moduleType, orgId, projectId)
+                        )
+                );
+    }
 }
