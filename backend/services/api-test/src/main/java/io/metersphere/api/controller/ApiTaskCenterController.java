@@ -31,9 +31,6 @@ public class ApiTaskCenterController {
     private ApiTaskCenterService apiTaskCenterService;
 
     private static final String PROJECT = "project";
-    private static final String ORG = "org";
-    private static final String SYSTEM = "system";
-
 
     @PostMapping("/api/project/real-time/page")
     @Operation(summary = "项目-任务中心-接口用例/场景-实时任务列表")
@@ -58,20 +55,12 @@ public class ApiTaskCenterController {
     @PostMapping("/api/system/stop")
     @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
     public void systemStop(@Validated @RequestBody TaskCenterBatchRequest request) {
-        apiTaskCenterService.hasPermission(SYSTEM, request.getModuleType(),
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-
         apiTaskCenterService.systemStop(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/api/org/stop")
     @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
     public void orgStop(@Validated @RequestBody TaskCenterBatchRequest request) {
-        apiTaskCenterService.hasPermission(ORG, request.getModuleType(),
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-
         apiTaskCenterService.orgStop(request, SessionUtils.getCurrentOrganizationId(), SessionUtils.getUserId());
     }
 
@@ -91,16 +80,13 @@ public class ApiTaskCenterController {
                 SessionUtils.getCurrentOrganizationId(),
                 SessionUtils.getCurrentProjectId());
         apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(),
-                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+                OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, null);
     }
 
     @GetMapping("/api/org/stop/{moduleType}/{id}")
     @Operation(summary = "组织-任务中心-接口用例/场景-停止任务")
     public void stopOrgById(@PathVariable String moduleType, @PathVariable String id) {
-        apiTaskCenterService.hasPermission(ORG, moduleType,
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-        apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(),
+        apiTaskCenterService.orgStopById(moduleType, id, SessionUtils.getUserId(),
                 OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
@@ -108,10 +94,7 @@ public class ApiTaskCenterController {
     @Operation(summary = "系统-任务中心-接口用例/场景-停止任务")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public void stopSystemById(@PathVariable String moduleType, @PathVariable String id) {
-        apiTaskCenterService.hasPermission(SYSTEM, moduleType,
-                SessionUtils.getCurrentOrganizationId(),
-                SessionUtils.getCurrentProjectId());
-        apiTaskCenterService.stopById(moduleType, id, SessionUtils.getUserId(),
+        apiTaskCenterService.systemStopById(moduleType, id, SessionUtils.getUserId(),
                 OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 }

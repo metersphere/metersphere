@@ -31,9 +31,6 @@ public class TaskCenterController {
     @Resource
     private TaskCenterService taskCenterService;
     private static final String PROJECT = "project";
-    private static final String ORG = "org";
-    private static final String SYSTEM = "system";
-
 
     @PostMapping("/project/schedule/page")
     @Operation(summary = "项目-任务中心-定时任务列表")
@@ -57,18 +54,15 @@ public class TaskCenterController {
 
     @GetMapping("/system/schedule/delete/{moduleType}/{id}")
     @Operation(summary = "系统-任务中心-删除定时任务")
-    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void delete(@PathVariable String moduleType, @PathVariable String id) {
-        taskCenterService.hasPermission(SYSTEM, moduleType, SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
+        taskCenterService.checkSystemPermission(moduleType, id);
         taskCenterService.delete(id, moduleType, SessionUtils.getUserId(), "/task/center/system/schedule/delete/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     @GetMapping("/org/schedule/delete/{moduleType}/{id}")
     @Operation(summary = "组织-任务中心-删除定时任务")
-    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void deleteOrg(@PathVariable String moduleType, @PathVariable String id) {
-        taskCenterService.hasPermission(ORG, moduleType,
-                SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
+        taskCenterService.checkOrgPermission(moduleType, id);
         taskCenterService.delete(id, moduleType, SessionUtils.getUserId(), "/task/center/org/schedule/delete/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
@@ -83,20 +77,16 @@ public class TaskCenterController {
 
     @GetMapping("/system/schedule/switch/{moduleType}/{id}")
     @Operation(summary = "系统-任务中心-定时任务开启关闭")
-    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void enable(@PathVariable String moduleType, @PathVariable String id) {
-        taskCenterService.hasPermission(SYSTEM, moduleType,
-                SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
+        taskCenterService.checkSystemPermission(moduleType, id);
         taskCenterService.enable(id, moduleType, SessionUtils.getUserId(), "/task/center/system/schedule/switch/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
 
     @GetMapping("/org/schedule/switch/{moduleType}/{id}")
     @Operation(summary = "组织-任务中心-定时任务开启关闭")
-    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void enableOrg(@PathVariable String moduleType, @PathVariable String id) {
-        taskCenterService.hasPermission(ORG, moduleType,
-                SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
+        taskCenterService.checkOrgPermission(moduleType, id);
         taskCenterService.enable(id, moduleType, SessionUtils.getUserId(), "/task/center/org/schedule/switch/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
@@ -111,19 +101,15 @@ public class TaskCenterController {
 
     @PostMapping("/system/schedule/update/{moduleType}/{id}")
     @Operation(summary = "系统-任务中心-修改定时任务")
-    @CheckOwner(resourceId = "#id", resourceType = "schedule")
-    public void update(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
-        taskCenterService.hasPermission(SYSTEM, moduleType,
-                SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
+    public void updateSystem(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
+        taskCenterService.checkSystemPermission(moduleType, id);
         taskCenterService.update(id, moduleType, cron.toString(), SessionUtils.getUserId(), "/task/center/system/schedule/update/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     @PostMapping("/org/schedule/update/{moduleType}/{id}")
     @Operation(summary = "组织-任务中心-修改定时任务")
-    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void updateOrg(@PathVariable String moduleType, @PathVariable String id, @RequestBody Object cron) {
-        taskCenterService.hasPermission(ORG, moduleType,
-                SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
+        taskCenterService.checkOrgPermission(moduleType, id);
         taskCenterService.update(id, moduleType, cron.toString(), SessionUtils.getUserId(), "/task/center/org/schedule/update/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
@@ -139,15 +125,13 @@ public class TaskCenterController {
     @PostMapping("/system/schedule/batch-enable")
     @Operation(summary = "系统-任务中心-定时任务批量开启")
     public void batchEnable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
-        taskCenterService.hasPermission(SYSTEM, request.getScheduleTagType(), SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
-        taskCenterService.batchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-enable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, true, SessionUtils.getCurrentProjectId());
+        taskCenterService.systemBatchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-enable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, true, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/org/schedule/batch-enable")
     @Operation(summary = "组织-任务中心-定时任务批量开启")
     public void batchOrgEnable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
-        taskCenterService.hasPermission(ORG, request.getScheduleTagType(), SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
-        taskCenterService.batchEnableOrg(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true, SessionUtils.getCurrentProjectId());
+        taskCenterService.orgBatchEnable(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/project/schedule/batch-enable")
@@ -160,15 +144,13 @@ public class TaskCenterController {
     @PostMapping("/system/schedule/batch-disable")
     @Operation(summary = "系统-任务中心-定时任务批量关闭")
     public void batchDisable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
-        taskCenterService.hasPermission(SYSTEM, request.getScheduleTagType(), SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
-        taskCenterService.batchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-disable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, false, SessionUtils.getCurrentProjectId());
+        taskCenterService.systemBatchEnable(request, SessionUtils.getUserId(), "/task/center/system/schedule/batch-disable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, false, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/org/schedule/batch-disable")
     @Operation(summary = "组织-任务中心-定时任务批量关闭")
     public void batchOrgDisable(@Validated @RequestBody TaskCenterScheduleBatchRequest request) {
-        taskCenterService.hasPermission(ORG, request.getScheduleTagType(), SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId());
-        taskCenterService.batchEnableOrg(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-disable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, false, SessionUtils.getCurrentProjectId());
+        taskCenterService.orgBatchEnable(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), "/task/center/org/schedule/batch-disable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, false, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/project/schedule/batch-disable")
@@ -214,6 +196,4 @@ public class TaskCenterController {
     public int projectRealTotal() {
         return taskCenterService.getProjectRealTotal(SessionUtils.getCurrentProjectId());
     }
-
-
 }

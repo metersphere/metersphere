@@ -81,6 +81,6 @@ export const taskSysPlanRealCenterListUrl = '/task/center/plan/system/real-time/
 export const taskOrgPlanRealCenterListUrl = '/task/center/plan/org/real-time/page';
 export const taskProPlanRealCenterListUrl = '/task/center/plan/project/real-time/page';
 
-export const stopRealSysPlanUrl = '/task/center/plan/project/stop';
+export const stopRealSysPlanUrl = '/task/center/plan/system/stop';
 export const stopRealOrgPlanUrl = '/task/center/plan/org/stop';
 export const stopRealProjectPlanUrl = '/task/center/plan/project/stop';
