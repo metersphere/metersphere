@@ -26,9 +26,8 @@
             field="title"
             :label="t('bugManagement.bugName')"
             :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
-            :placeholder="t('bugManagement.edit.pleaseInputBugName')"
           >
-            <a-input v-model="form.title" :max-length="255" />
+            <a-input v-model="form.title" :placeholder="t('bugManagement.edit.pleaseInputBugName')" :max-length="255" />
           </a-form-item>
           <a-form-item v-if="!isPlatformDefaultTemplate" field="description" :label="t('bugManagement.edit.content')">
             <MsRichText
@@ -260,6 +259,7 @@
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
+  import type { CustomField } from '@/models/setting/template';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
@@ -432,6 +432,10 @@
           });
         }
         getFormRules(res.customFields.filter((field: Record<string, any>) => !field.platformSystemField));
+        // 回显默认系统模板字段
+        res.systemFields.forEach((item: CustomField) => {
+          form.value[item.fieldId] = item.defaultValue;
+        });
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);

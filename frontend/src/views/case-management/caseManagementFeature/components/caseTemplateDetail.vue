@@ -301,6 +301,7 @@
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { CustomField } from '@/models/setting/template';
 
   import { convertToFile, initFormCreate } from './utils';
 
@@ -395,13 +396,36 @@
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref<any>(null);
+
+  function getStepData(steps: string) {
+    stepData.value = JSON.parse(steps).map((item: any) => {
+      return {
+        id: item.id,
+        step: item.desc,
+        expected: item.result,
+      };
+    });
+  }
+
+  // 回显模板默认表单值
+  function setSystemDefault(systemFields: CustomField[]) {
+    systemFields.forEach((item: CustomField) => {
+      form.value[item.fieldId] = item.defaultValue;
+    });
+    const { steps } = form.value;
+
+    if (steps) {
+      getStepData(steps);
+    }
+  }
+
   // 初始化模板默认字段
   async function initDefaultFields() {
     formRules.value = [];
     try {
       isLoading.value = true;
       const res = await getCaseDefaultFields(currentProjectId.value);
-      const { customFields, id } = res;
+      const { customFields, id, systemFields } = res;
       form.value.templateId = id;
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
@@ -427,6 +451,7 @@
         };
       });
       formRules.value = result;
+      setSystemDefault(systemFields);
       isLoading.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -481,7 +506,7 @@
       .map((item: any) => item.id);
   });
 
-  // 取消关联文件id TODO
+  // 取消关联文件id
   const unLinkFilesIds = computed(() => {
     const deleteAssociateFileIds = fileList.value
       .filter(
@@ -538,13 +563,7 @@
     formRules.value = initFormCreate(customFields as CustomAttributes[], ['FUNCTIONAL_CASE:READ+UPDATE']);
     // 处理步骤
     if (steps) {
-      stepData.value = JSON.parse(steps).map((item: any) => {
-        return {
-          id: item.id,
-          step: item.desc,
-          expected: item.result,
-        };
-      });
+      getStepData(steps);
     }
     if (attachments) {
       attachmentsList.value = attachments;
