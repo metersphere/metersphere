@@ -33,10 +33,10 @@
             </MsButton>
           </a-tooltip>
           <template #content>
-            <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new">
+            <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new" @click="showAddDefectDrawer = true">
               {{ t('testPlan.featureCase.noBugDataNewBug') }}
             </a-doption>
-            <a-doption v-permission="['PROJECT_BUG:READ']" value="link">
+            <a-doption v-permission="['PROJECT_BUG:READ']" value="link" @click="showLinkDefectDrawer = true">
               {{ t('caseManagement.featureCase.linkDefect') }}
             </a-doption>
           </template>
@@ -82,6 +82,7 @@
         />
         <BugList
           v-else-if="activeExtraKey === 'bug'"
+          ref="bugListRef"
           :active-case="activeCaseInfo"
           is-test-plan-case
           :show-disassociate-button="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
@@ -95,10 +96,29 @@
         />
       </template>
     </MsMinderEditor>
+    <LinkDefectDrawer
+      v-model:visible="showLinkDefectDrawer"
+      :case-id="selectNode?.data?.caseId ?? ''"
+      :drawer-loading="linkDrawerLoading"
+      :show-selector-all="false"
+      @save="associateSuccessHandler"
+    />
+    <AddDefectDrawer
+      v-model:visible="showAddDefectDrawer"
+      :case-id="selectNode?.data?.id ?? ''"
+      :extra-params="{
+        testPlanCaseId: selectNode?.data?.id,
+        caseId: selectNode?.data?.caseId,
+        testPlanId: props.planId,
+      }"
+      @success="handleAddBugDone"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
@@ -114,16 +134,19 @@
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import BugList from '@/components/business/ms-minders/featureCaseMinder/bugList.vue';
+  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
+  import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
 
   import { getCasePlanMinder } from '@/api/modules/case-management/caseReview';
-  import { executeHistory, getCaseDetail } from '@/api/modules/test-plan/testPlan';
+  import { associateBugToPlan, executeHistory, getCaseDetail } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
   import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
+  import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
   import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
@@ -143,6 +166,7 @@
 
   const emit = defineEmits<{
     (e: 'operation', type: string, node: MinderJsonNode): void;
+    (e: 'handleAddBugDone'): void;
   }>();
 
   const { t } = useI18n();
@@ -531,6 +555,37 @@
     extraVisible.value = false;
   }
 
+  // 添加缺陷
+  const showLinkDefectDrawer = ref(false);
+  const showAddDefectDrawer = ref(false);
+  const linkDrawerLoading = ref(false);
+  const bugListRef = ref<InstanceType<typeof BugList>>();
+  function handleAddBugDone() {
+    if (extraVisible.value && activeExtraKey.value === 'bug') {
+      bugListRef.value?.handleShowTypeChange();
+    }
+    emit('handleAddBugDone');
+  }
+  async function associateSuccessHandler(params: TableQueryParams) {
+    try {
+      linkDrawerLoading.value = true;
+      await associateBugToPlan({
+        ...params,
+        testPlanCaseId: selectNode.value.data?.id,
+        caseId: selectNode.value.data?.caseId,
+        testPlanId: props.planId,
+      });
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      linkDrawerLoading.value = false;
+      handleAddBugDone();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      linkDrawerLoading.value = false;
+    }
+  }
+
   defineExpose({
     initCaseTree,
   });
@@ -542,5 +597,6 @@
   }
   :deep(.ms-list) {
     margin: 0;
+    height: 100%;
   }
 </style>

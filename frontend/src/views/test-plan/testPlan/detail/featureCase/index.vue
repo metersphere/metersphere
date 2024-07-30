@@ -22,6 +22,7 @@
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
         :can-edit="props.canEdit"
+        @select-parent-node="selectParentNode"
         @refresh="emit('refresh')"
       ></CaseTable>
     </template>
@@ -37,6 +38,8 @@
   import CaseTree from './components/caseTree.vue';
 
   import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
+
+  import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
     canEdit: boolean;
@@ -71,6 +74,10 @@
   }
 
   const caseTreeRef = ref<InstanceType<typeof CaseTree>>();
+
+  function selectParentNode(folderTree: ModuleTreeNode[]) {
+    caseTreeRef.value?.selectParentNode(folderTree);
+  }
 
   function getCaseTableList() {
     nextTick(async () => {

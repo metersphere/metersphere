@@ -208,6 +208,10 @@
   onBeforeMount(() => {
     loadBugList();
   });
+
+  defineExpose({
+    handleShowTypeChange,
+  });
 </script>
 
 <style lang="less" scoped>

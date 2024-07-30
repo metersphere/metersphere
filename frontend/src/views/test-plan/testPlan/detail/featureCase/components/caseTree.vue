@@ -135,6 +135,25 @@
     emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name, getNodeParentId(node));
   }
 
+  /**
+   * 选中父节点
+   * @param tree 原来的模块树
+   */
+  function selectParentNode(tree: ModuleTreeNode[]) {
+    mapTree(tree || [], (e) => {
+      if (e.id === selectedKeys.value[0]) {
+        if (e.parentId) {
+          selectedKeys.value = [e.parentId];
+          folderNodeSelect([e.parentId], e.parent);
+        } else {
+          setActiveFolder('all');
+        }
+        return e;
+      }
+      return e;
+    });
+  }
+
   onBeforeMount(() => {
     setIsExpandAll();
     initModules();
@@ -160,5 +179,6 @@
   defineExpose({
     setActiveFolder,
     initModules,
+    selectParentNode,
   });
 </script>
