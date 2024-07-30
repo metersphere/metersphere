@@ -64,6 +64,10 @@ export const mainEditorProps = {
   minderKey: String as PropType<MinderKeyEnum>,
   disabled: Boolean,
   extractContentTabList: Array as PropType<{ label: string; value: string }[]>,
+  insertNode: {
+    type: Function as PropType<(node: MinderJsonNode, type: string, value?: string) => void>,
+    default: undefined,
+  },
 };
 
 export const headerProps = {
@@ -204,13 +208,6 @@ export const floatMenuProps = {
   customPriority: {
     type: Boolean,
     default: false,
-  },
-};
-
-export const insertProps = {
-  insertNode: {
-    type: Function as PropType<(node: MinderJsonNode, type: string, value?: string) => void>,
-    default: undefined,
   },
 };
 

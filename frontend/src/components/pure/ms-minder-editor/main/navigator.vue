@@ -39,7 +39,7 @@
           <MsIcon type="icon-icon_aiming" class="text-[var(--color-text-4)]" />
         </MsButton>
       </a-tooltip>
-      <!-- <a-trigger
+      <a-trigger
         :popup-translate="[5, -105]"
         position="right"
         class="ms-minder-shortcut-trigger"
@@ -87,16 +87,16 @@
             <div class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.hotboxMenu.insetSon') }}</div>
               <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto">
-                Shift+Tab
+                Tab
               </div>
             </div>
             <div class="ms-minder-shortcut-trigger-listitem">
-              <div>{{ t('minder.main.history.undo') }}</div>
+              <div>{{ t('minder.hotboxMenu.cut') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
                   <icon-command :size="14" />
                 </div>
-                <div class="ms-minder-shortcut-trigger-listitem-icon">Z</div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">X</div>
               </div>
             </div>
             <div class="ms-minder-shortcut-trigger-listitem">
@@ -111,12 +111,12 @@
               </div>
             </div>
             <div class="ms-minder-shortcut-trigger-listitem">
-              <div>{{ t('minder.main.history.redo') }}</div>
+              <div>{{ t('minder.main.history.undo') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
                   <icon-command :size="14" />
                 </div>
-                <div class="ms-minder-shortcut-trigger-listitem-icon">Y</div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">Z</div>
               </div>
             </div>
             <div class="ms-minder-shortcut-trigger-listitem">
@@ -125,9 +125,18 @@
                 <MsIcon type="icon-icon_carriage_return1" />
               </div>
             </div>
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.main.history.redo') }}</div>
+              <div class="flex items-center gap-[4px]">
+                <div class="ms-minder-shortcut-trigger-listitem-icon">
+                  <icon-command :size="14" />
+                </div>
+                <div class="ms-minder-shortcut-trigger-listitem-icon">Y</div>
+              </div>
+            </div>
           </div>
         </template>
-      </a-trigger> -->
+      </a-trigger>
     </div>
     <div v-show="isNavOpen" ref="navPreviewer" class="ms-minder-navigator-previewer" />
   </div>
@@ -325,7 +334,7 @@
     });
   }
 
-  // const shortcutTriggerVisible = ref(false);
+  const shortcutTriggerVisible = ref(false);
 
   onMounted(() => {
     nextTick(() => {

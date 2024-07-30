@@ -39,6 +39,7 @@ const useMinderStore = defineStore('minder', {
     /**
      * 脑图组件派发事件
      * @param name 事件名称
+     * @param params 携带参数
      * @param position 触发事件的节点/鼠标位置
      * @param nodeDom 节点 DOM
      * @param nodes 节点集合
@@ -90,7 +91,14 @@ const useMinderStore = defineStore('minder', {
     setClipboard(nodes?: MinderJsonNode[]) {
       this.clipboard = mapTree(nodes || [], (node) => {
         if (node.id !== 'fakeNode' && node.type !== 'tmp') {
-          return { ...node, id: getGenerateId(), type: 'ADD' };
+          return {
+            ...node,
+            id: getGenerateId(),
+            type: 'ADD',
+            isNew: true,
+            changed: false,
+            count: node.children?.length || 0,
+          };
         }
         return null;
       });

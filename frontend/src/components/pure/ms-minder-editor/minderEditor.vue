@@ -34,12 +34,13 @@
   import { MinderEventName } from '@/enums/minderEnum';
 
   import useMinderEventListener from './hooks/useMinderEventListener';
+  import useMinderOperation from './hooks/useMinderOperation';
+  import useShortCut from './hooks/useShortCut';
   import {
     delProps,
     editMenuProps,
     floatMenuProps,
     headerProps,
-    insertProps,
     mainEditorProps,
     MinderEvent,
     MinderJson,
@@ -49,7 +50,7 @@
     tagProps,
     viewMenuProps,
   } from './props';
-  import { isNodeInMinderView } from './script/tool/utils';
+  import { isNodeInMinderView, setPriorityView } from './script/tool/utils';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;
@@ -66,7 +67,6 @@
   const props = defineProps({
     ...headerProps,
     ...floatMenuProps,
-    ...insertProps,
     ...editMenuProps,
     ...mainEditorProps,
     ...moleProps,
@@ -115,6 +115,63 @@
     emit('save', data, callback);
   }
 
+  const { appendChildNode, appendSiblingNode, minderDelete } = useMinderOperation({
+    insertNode: props.insertNode,
+  });
+  const { unbindShortcuts } = useShortCut(
+    {
+      undo: () => {
+        window.minderHistory?.undo();
+      },
+      redo: () => {
+        window.minderHistory?.redo();
+      },
+      enter: () => {
+        if (props.canShowEnterNode) {
+          const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+          minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [selectedNodes[0]]);
+        }
+      },
+      delete: () => {
+        if (props.canShowMoreMenuNodeOperation && props.canShowDeleteMenu) {
+          const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+          minderDelete(selectedNodes);
+        }
+      },
+      expand: () => {
+        const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+        if (selectedNodes.every((node) => node.isExpanded())) {
+          // 选中的节点集合全部展开，则全部收起
+          window.minder.execCommand('Collapse');
+          minderStore.dispatchEvent(MinderEventName.COLLAPSE, undefined, undefined, undefined, selectedNodes);
+        } else {
+          // 选中的节点集合中有一个节点未展开，则全部展开
+          window.minder.execCommand('Expand');
+          if (!props.customPriority) {
+            // 展开后，需要设置一次优先级展示，避免展开后优先级显示成脑图内置文案；如果设置了自定义优先级，则不在此设置，由外部自行处理
+            setPriorityView(props.priorityStartWithZero, props.priorityPrefix);
+          }
+          minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, undefined, selectedNodes);
+        }
+      },
+      appendChildNode: () => {
+        if (props.insertSonMenus.length > 0 || props.insertNode) {
+          const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+          appendChildNode(selectedNodes);
+        }
+      },
+      appendSiblingNode: () => {
+        if (props.insertSiblingMenus.length > 0 || props.insertNode) {
+          const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+          appendSiblingNode(selectedNodes);
+        }
+      },
+    },
+    {
+      insertNode: props.insertNode,
+    }
+  );
+
   onMounted(() => {
     window.minderProps = props;
     useMinderEventListener({
@@ -156,6 +213,10 @@
         minderStore.dispatchEvent(MinderEventName.DRAG_FINISH);
       },
     });
+  });
+
+  onUnmounted(() => {
+    unbindShortcuts();
   });
 </script>
 

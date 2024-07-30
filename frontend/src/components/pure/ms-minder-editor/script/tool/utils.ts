@@ -1,6 +1,7 @@
 import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
 
 import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
+import { getGenerateId, mapTree } from '@/utils';
 
 export function isDisableNode(minder: any) {
   let node: MinderJsonNode;
@@ -120,20 +121,25 @@ export function setCustomPriorityView(valueMap: Record<any, string>) {
 }
 
 /**
- * 将节点及其子节点id置为null，changed 标记为true
+ * 重置节点为新节点
  * @param node
  */
 export function resetNodes(nodes: MinderJsonNode[]) {
-  if (nodes) {
-    nodes.forEach((item: any) => {
-      if (item.data) {
-        item.data.id = null;
-        item.data.contextChanged = true;
-        item.data.changed = true;
-        resetNodes(item.children);
-      }
-    });
-  }
+  return mapTree(nodes, (node) => {
+    if (node.data && node.data?.id !== 'fakeNode' && node.data?.type !== 'tmp') {
+      node.data = {
+        ...node.data,
+        isNew: true,
+        id: getGenerateId(),
+        count:
+          node.children?.filter((e: MinderJsonNode) => e.data?.id !== 'fakeNode' && e.data?.type !== 'tmp').length || 0,
+        type: 'ADD',
+        changed: false,
+      };
+      return node;
+    }
+    return null;
+  });
 }
 
 export function isDisableForNode(node: MinderJsonNode) {

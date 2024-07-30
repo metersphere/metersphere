@@ -3,6 +3,7 @@ export enum MinderEventName {
   'HOTBOX' = 'HOTBOX', // 热键菜单
   'ENTER_NODE' = 'ENTER_NODE', // 进入节点
   'EXPAND' = 'EXPAND', // 展开节点
+  'COLLAPSE' = 'COLLAPSE', // 折叠节点
   'INSERT_CHILD' = 'INSERT_CHILD', // 插入子节点
   'INSERT_SIBLING' = 'INSERT_SIBLING', // 插入同级节点
   'COPY_NODE' = 'COPY_NODE', // 复制节点

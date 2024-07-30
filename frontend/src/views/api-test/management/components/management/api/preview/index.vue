@@ -135,7 +135,7 @@
     {
       key: 'belongModule',
       locale: 'apiTestManagement.belongModule',
-      value: previewDetail.value.path,
+      value: previewDetail.value.moduleName,
     },
     {
       key: 'creator',
