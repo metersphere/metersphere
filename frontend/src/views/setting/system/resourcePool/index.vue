@@ -42,7 +42,6 @@
               :before-change="(val) => handleToggle(val, record)"
             >
             </a-switch>
-            {{ record.enable ? t('system.resourcePool.tableEnabled') : t('system.resourcePool.tableDisabled') }}
             <template #content>
               <span class="text-[var(--color-text-000)]">{{ t('system.authorized.resourcePoolTableTip') }}</span>
               <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
