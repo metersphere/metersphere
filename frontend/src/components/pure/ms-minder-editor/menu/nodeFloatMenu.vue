@@ -195,25 +195,17 @@
   import { useI18n } from '@/hooks/useI18n';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
-  import { getGenerateId, sleep } from '@/utils';
+  import { sleep } from '@/utils';
 
   import { MinderEventName } from '@/enums/minderEnum';
 
-  import {
-    floatMenuProps,
-    insertProps,
-    mainEditorProps,
-    MinderJsonNode,
-    MinderJsonNodeData,
-    priorityProps,
-    tagProps,
-  } from '../props';
+  import useMinderOperation from '../hooks/useMinderOperation';
+  import { floatMenuProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
   import { isDisableNode, isNodeInMinderView, setPriorityView } from '../script/tool/utils';
 
   const props = defineProps({
     ...mainEditorProps,
     ...floatMenuProps,
-    ...insertProps,
     ...tagProps,
     ...priorityProps,
   });
@@ -278,31 +270,6 @@
   const moreMenuVisible = ref(false);
 
   /**
-   * 执行插入
-   * @param command 插入命令
-   */
-  function execInsertCommand(command: string, value?: string) {
-    const node: MinderJsonNode = window.minder.getSelectedNode();
-    if (props.insertNode) {
-      props.insertNode(node, command, value);
-      return;
-    }
-    if (window.minder.queryCommandState(command) !== -1) {
-      window.minder.execCommand(command);
-      nextTick(() => {
-        const newNode: MinderJsonNode = window.minder.getSelectedNode();
-        if (!newNode.data) {
-          newNode.data = {
-            id: getGenerateId(),
-            text: '',
-          };
-        }
-        newNode.data.isNew = true; // 新建的节点标记为新建
-      });
-    }
-  }
-
-  /**
    * 切换标签
    * @param value 切换后的标签
    */
@@ -359,6 +326,10 @@
     return !!window.minder.queryCommandState && window.minder.queryCommandState('priority') === -1;
   }
 
+  const { minderCopy, minderCut, minderPaste, appendChildNode, appendSiblingNode, minderDelete } = useMinderOperation({
+    insertNode: props.insertNode,
+  });
+
   /**
    * 处理快捷菜单选择
    * @param type 选择的菜单项
@@ -368,48 +339,22 @@
     if (selectedNodes.length > 0) {
       switch (type) {
         case 'AppendChildNode':
-          execInsertCommand('AppendChildNode', value);
-          minderStore.dispatchEvent(MinderEventName.INSERT_CHILD, value, undefined, undefined, selectedNodes);
+          appendChildNode(selectedNodes, value);
           break;
         case 'AppendSiblingNode':
-          execInsertCommand('AppendSiblingNode', value);
-          minderStore.dispatchEvent(MinderEventName.INSERT_SIBLING, value, undefined, undefined, selectedNodes);
+          appendSiblingNode(selectedNodes, value);
           break;
         case 'copy':
-          minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, undefined, selectedNodes);
-          window.minder.execCommand('Copy');
+          minderCopy();
           break;
         case 'cut':
-          minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, undefined, selectedNodes);
-          window.minder.execCommand('Cut');
+          minderCut();
           break;
         case 'paste':
-          minderStore.dispatchEvent(MinderEventName.PASTE_NODE, undefined, undefined, undefined, selectedNodes);
-          window.minder.execCommand('Paste');
-          let pastedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-          if (pastedNodes.length > 0) {
-            pastedNodes = pastedNodes
-              .filter((e) => {
-                if (e.data?.id !== 'fakeNode' && e.data?.type !== 'tmp') {
-                  return true;
-                }
-                window.minder.removeNode(e);
-                return false;
-              })
-              .map((e) => {
-                e.data = {
-                  ...(e.data as MinderJsonNodeData),
-                  isNew: true,
-                  id: getGenerateId(),
-                  count: e.children?.length || 0,
-                };
-                return e;
-              });
-          }
+          minderPaste();
           break;
         case 'delete':
-          minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, undefined, selectedNodes);
-          window.minder.execCommand('RemoveNode');
+          minderDelete(selectedNodes);
           break;
         case 'enterNode':
           minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [selectedNodes[0]]);

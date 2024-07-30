@@ -373,6 +373,12 @@
    * @param value 插入值
    */
   function insertNode(node: PlanMinderNode, type: string) {
+    if (
+      (node.data?.level === 2 && type === 'AppendChildNode') ||
+      (node.data?.level === 1 && type === 'AppendSiblingNode')
+    ) {
+      return;
+    }
     let child: PlanMinderNodeData | undefined;
     // 用例数子节点
     const caseCountNodeData = {
@@ -630,6 +636,15 @@
     },
     {
       deep: true,
+    }
+  );
+
+  watch(
+    () => minderStore.event.eventId,
+    () => {
+      if ([MinderEventName.EXPAND, MinderEventName.COLLAPSE].includes(minderStore.event.name)) {
+        setCustomPriorityView(priorityTextMap);
+      }
     }
   );
 
