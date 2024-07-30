@@ -12,7 +12,7 @@
       :can-show-more-menu="canShowMoreMenu"
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
-      :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
+      :more-menu-other-operation-list="canShowFloatMenu && hasOperationPermission ? moreMenuOtherOperationList : []"
       disabled
       @node-select="handleNodeSelect"
       @node-unselect="handleNodeUnselect"
@@ -21,7 +21,11 @@
         <!-- 缺陷 -->
         <a-dropdown position="bl">
           <a-tooltip
-            v-if="showAssociateBugMenu && hasAnyPermission(['PROJECT_BUG:READ', 'PROJECT_BUG:READ+ADD'])"
+            v-if="
+              props.canEdit &&
+              showAssociateBugMenu &&
+              hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])
+            "
             :content="t('common.add')"
           >
             <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
@@ -38,7 +42,10 @@
           </template>
         </a-dropdown>
         <!-- 执行 -->
-        <a-tooltip :content="t('common.execute')">
+        <a-tooltip
+          v-if="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          :content="t('common.execute')"
+        >
           <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
             <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
           </MsButton>
@@ -77,7 +84,7 @@
           v-else-if="activeExtraKey === 'bug'"
           :active-case="activeCaseInfo"
           is-test-plan-case
-          show-disassociate-button
+          :show-disassociate-button="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
         />
         <ReviewCommentList
           v-else
@@ -115,7 +122,7 @@
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
   import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
   import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
@@ -131,6 +138,7 @@
     activeModule: string;
     moduleTree: ModuleTreeNode[];
     planId: string;
+    canEdit: boolean; // 已归档的测试计划不能操作
   }>();
 
   const emit = defineEmits<{
@@ -423,10 +431,9 @@
     }
   }
 
-  const hasOperationPermission = hasAnyPermission([
-    'PROJECT_TEST_PLAN:READ+UPDATE',
-    'PROJECT_TEST_PLAN:READ+ASSOCIATION',
-  ]);
+  const hasOperationPermission = computed(
+    () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit
+  );
   const canShowFloatMenu = ref(false); // 是否展示浮动菜单
   const canShowMoreMenu = ref(false); // 更多
   const canShowEnterNode = ref(false);
@@ -472,7 +479,7 @@
       node.data?.resource?.includes(caseTag) ||
       (node.data?.resource?.includes(moduleTag) &&
         (node.children || []).length > 0 &&
-        !(!hasOperationPermission && node.type === 'root'))
+        !(!hasOperationPermission.value && node.type === 'root'))
     ) {
       canShowFloatMenu.value = true;
       setMoreMenuOtherOperationList(node);
@@ -481,7 +488,7 @@
     }
 
     // 不展示更多：没操作权限的用例
-    if (node.data?.resource?.includes(caseTag) && !hasOperationPermission) {
+    if (node.data?.resource?.includes(caseTag) && !hasOperationPermission.value) {
       canShowMoreMenu.value = false;
     } else {
       canShowMoreMenu.value = true;

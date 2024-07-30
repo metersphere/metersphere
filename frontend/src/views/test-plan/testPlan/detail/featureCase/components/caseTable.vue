@@ -115,6 +115,7 @@
         :active-module="props.activeModule"
         :module-tree="moduleTree"
         :plan-id="props.planId"
+        :can-edit="props.canEdit"
       />
     </div>
     <!-- 批量执行 -->
