@@ -130,7 +130,12 @@
                     <span class="ml-1 text-[rgb(var(--danger-6))]">{{ caseDetail.bugListCount }}</span>
                   </MsTag>
                   <a-dropdown @select="handleSelect">
-                    <a-button v-if="hasAnyPermission(['PROJECT_BUG:READ'])" type="outline" size="small" class="ml-1">
+                    <a-button
+                      v-if="hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])"
+                      type="outline"
+                      size="small"
+                      class="ml-1"
+                    >
                       <template #icon> <icon-plus class="text-[12px]" /> </template>
                     </a-button>
                     <template #content>
@@ -186,7 +191,7 @@
             ref="bugRef"
             :case-id="activeCaseId"
             :test-plan-case-id="activeId"
-            :can-edit="canEdit"
+            :can-edit="canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
             @link="linkDefect"
             @new="addBug"
             @update-count="loadCaseDetail()"
@@ -256,7 +261,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import type { TableQueryParams } from '@/models/common';
   import type { ExecuteHistoryItem, PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
