@@ -1,8 +1,8 @@
 <template>
   <div class="wrapper-preview">
     <div class="preview-left pr-4">
-      <DefectTemplateLeftContent v-if="props.templateType === 'BUG'" :defect-form="props.defectForm" />
-      <CaseTemplateLeftContent v-else />
+      <DefectTemplateLeftContent v-if="props.templateType === 'BUG'" v-model:defaultForm="defaultBugForm" is-disabled />
+      <CaseTemplateLeftContent v-else v-model:defaultForm="defaultCaseForm" is-disabled />
     </div>
     <div class="preview-right px-4">
       <!-- 系统内置的字段 {处理人, 状态...} -->
@@ -36,6 +36,7 @@
    * @description 模板-创建模板&编辑模板-预览模板
    */
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
@@ -44,16 +45,18 @@
   import CaseTemplateRightSystemField from '@/views/setting/organization/template/components/caseTemplateRightSystemField.vue';
   import DefectTemplateRightSystemField from '@/views/setting/organization/template/components/defectTemplateRightSystemField.vue';
 
+  import { defaultCaseDetail } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { DefinedFieldItem, SeneType } from '@/models/setting/template';
+  import type { DetailCase } from '@/models/caseManagement/featureCase';
+  import type { CustomField, defaultBugField, DefinedFieldItem, SeneType } from '@/models/setting/template';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     templateType: SeneType; // 模板场景
-    selectField: DefinedFieldItem[]; // 选择模板字段
-    defectForm: Record<string, any>; // 缺陷详情
+    selectField: DefinedFieldItem[]; // 已选择模板字段
+    systemFields: CustomField[]; // 模板系统默认字段
   }>();
 
   const formRuleField = ref<FormItem[][]>([]);
@@ -102,8 +105,30 @@
     }
   };
 
+  const initBugField: defaultBugField = {
+    title: '',
+    description: '',
+    descriptionFileIds: [],
+  };
+
+  // 用例默认字段
+  const defaultCaseForm = ref<DetailCase>(cloneDeep(defaultCaseDetail));
+  // 缺陷默认字段
+  const defaultBugForm = ref<defaultBugField>(cloneDeep(initBugField));
+
+  function getSystemField() {
+    props.systemFields.forEach((item: CustomField) => {
+      if (props.templateType === 'BUG') {
+        defaultBugForm.value[item.fieldId] = item.defaultValue;
+      } else {
+        defaultCaseForm.value[item.fieldId] = item.defaultValue;
+      }
+    });
+  }
+
   watchEffect(() => {
     getFormRules();
+    getSystemField();
   });
 
   onBeforeUnmount(() => {

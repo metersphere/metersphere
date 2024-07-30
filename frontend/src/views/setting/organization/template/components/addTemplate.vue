@@ -56,8 +56,8 @@
     </template>
     <div class="wrapper-preview">
       <div class="preview-left pr-4">
-        <DefectTemplateLeftContent v-if="route.query.type === 'BUG'" :defect-form="defectForm" />
-        <CaseTemplateLeftContent v-else />
+        <DefectTemplateLeftContent v-if="route.query.type === 'BUG'" v-model:defaultForm="defaultBugForm" />
+        <CaseTemplateLeftContent v-else v-model:defaultForm="defaultCaseForm" />
       </div>
       <div class="preview-right px-4">
         <!-- 系统内置的字段 {处理人, 状态...} -->
@@ -241,6 +241,7 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -264,13 +265,20 @@
     updateOrganizeTemplateInfo,
     updateProjectTemplateInfo,
   } from '@/api/modules/setting/template';
+  import { defaultTemplateBugDetail, defaultTemplateCaseDetail } from '@/config/template';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { useAppStore } from '@/store';
   import { sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { ActionTemplateManage, CustomField, DefinedFieldItem } from '@/models/setting/template';
+  import type {
+    ActionTemplateManage,
+    CustomField,
+    defaultBugField,
+    defaultCaseField,
+    DefinedFieldItem,
+  } from '@/models/setting/template';
   import { ProjectManagementRouteEnum, SettingRouteEnum } from '@/enums/routeEnum';
 
   import { getTemplateName, getTotalFieldOptionList } from './fieldSetting';
@@ -346,6 +354,25 @@
   const totalTemplateField = ref<DefinedFieldItem[]>([]);
   const selectData = ref<DefinedFieldItem[]>([]);
 
+  // 用例默认字段
+  const defaultCaseForm = ref<defaultCaseField>(cloneDeep(defaultTemplateCaseDetail));
+  // 缺陷默认字段
+  const defaultBugForm = ref<defaultBugField>(cloneDeep(defaultTemplateBugDetail));
+
+  // 获取系统默认字段
+  function getSystemFields(form: Record<string, any>) {
+    const tempFormField: Record<string, any>[] = [];
+    Object.keys(form).forEach((key: any) => {
+      if (form[key]) {
+        tempFormField.push({
+          fieldId: key,
+          defaultValue: form[key],
+        });
+      }
+    });
+    return tempFormField;
+  }
+
   // 获取模板参数
   function getTemplateParams(): ActionTemplateManage {
     const result = selectData.value.map((item) => {
@@ -367,6 +394,9 @@
       return [];
     });
 
+    const systemFields: Record<string, any>[] =
+      route.query.type === 'BUG' ? getSystemFields(defaultBugForm.value) : getSystemFields(defaultCaseForm.value);
+
     const { name, remark, enableThirdPart, id } = templateForm.value;
     return {
       id,
@@ -376,6 +406,7 @@
       customFields: result as CustomField[],
       scopeId: props.mode === 'organization' ? currentOrgId.value : currentProjectId.value,
       scene: route.query.type,
+      systemFields,
     };
   }
 
@@ -549,8 +580,6 @@
     formItem.required = !!value;
   }
 
-  const systemFieldData = ref<CustomField[]>([]);
-
   function getSelectData(customFields: DefinedFieldItem[]) {
     return customFields.map((item: any) => {
       const currentFormRules = FieldTypeFormRules[item.type];
@@ -609,6 +638,18 @@
     });
   }
 
+  // 设置系统表单默认字段
+  function setCaseSystemFormField(systemFields: CustomField[]) {
+    systemFields.forEach((item: CustomField) => {
+      const key = item.fieldId;
+      if (route.query.type === 'BUG') {
+        defaultBugForm.value[key] = item.defaultValue;
+      } else {
+        defaultCaseForm.value[key] = item.defaultValue;
+      }
+    });
+  }
+
   // 获取模板详情
   const getTemplateInfo = async () => {
     try {
@@ -628,7 +669,7 @@
         templateForm.value.id = undefined;
       }
       selectData.value = getSelectData(customFields);
-      systemFieldData.value = systemFields;
+      setCaseSystemFormField(systemFields);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
