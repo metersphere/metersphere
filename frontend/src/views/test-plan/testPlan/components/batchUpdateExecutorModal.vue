@@ -8,7 +8,7 @@
   >
     <template #title>
       {{ t('testPlan.featureCase.batchChangeExecutor') }}
-      <div class="ml-1 text-[var(--color-text-4)]">
+      <div v-show="props.showTitleCount" class="ml-1 text-[var(--color-text-4)]">
         {{
           t('common.selectedCount', {
             count: props.count,
@@ -66,6 +66,7 @@
     count: number;
     params?: BatchUpdateCaseExecutorParams;
     batchUpdateExecutor: (...args: any) => Promise<any>; // 更新执行人接口
+    showTitleCount: boolean;
   }>();
 
   const emit = defineEmits<{

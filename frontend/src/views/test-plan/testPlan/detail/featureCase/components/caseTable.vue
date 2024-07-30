@@ -116,6 +116,8 @@
         :module-tree="moduleTree"
         :plan-id="props.planId"
         :can-edit="props.canEdit"
+        @operation="handleMinderOperation"
+        @handle-add-bug-done="emit('refresh')"
       />
     </div>
     <!-- 批量执行 -->
@@ -147,6 +149,7 @@
       v-model:visible="batchUpdateExecutorModalVisible"
       :count="batchParams.currentSelectCount || tableSelected.length"
       :params="batchUpdateParams"
+      :show-title-count="showType === 'list'"
       :batch-update-executor="batchUpdateCaseExecutor"
       @load-list="resetSelectorAndCaseList"
     />
@@ -166,9 +169,11 @@
   import { computed, onBeforeMount, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type {
@@ -180,6 +185,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import MsTestPlanFeatureCaseMinder from '@/components/business/ms-minders/testPlanFeatureCaseMinder/index.vue';
   import BugCountPopover from './bugCountPopover.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
@@ -205,7 +211,7 @@
   import { characterLimit } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
-  import { DragSortParams } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type { ExecuteFeatureCaseFormParams, PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -227,6 +233,7 @@
 
   const emit = defineEmits<{
     (e: 'refresh'): void;
+    (e: 'selectParentNode', tree: ModuleTreeNode[]): void;
   }>();
 
   const { t } = useI18n();
@@ -558,8 +565,10 @@
   }
 
   function resetSelectorAndCaseList() {
-    resetSelector();
-    loadList();
+    if (showType.value === 'list') {
+      resetSelector();
+      loadList();
+    }
   }
 
   // 拖拽排序
@@ -613,29 +622,39 @@
     }
   }
 
+  const batchUpdateParams = ref();
+  const minderSelectData = ref<MinderJsonNodeData>(); // 当前脑图选中的数据
+
   // 批量取消关联用例
   function handleBatchDisassociateCase() {
+    const count =
+      showType.value !== 'list'
+        ? minderSelectData.value?.count
+        : batchParams.value.currentSelectCount || tableSelected.value.length;
+    const batchDisassociateTitle =
+      showType.value !== 'list' && minderSelectData.value?.resource?.includes(t('common.case'))
+        ? t('testPlan.featureCase.disassociateTip', { name: characterLimit(minderSelectData.value?.text) })
+        : t('caseManagement.caseReview.disassociateConfirmTitle', { count });
     openModal({
       type: 'warning',
-      title: t('caseManagement.caseReview.disassociateConfirmTitle', {
-        count: batchParams.value.currentSelectCount || tableSelected.value.length,
-      }),
+      title: batchDisassociateTitle,
       content: t('testPlan.featureCase.batchDisassociateTipContent'),
       okText: t('common.cancelLink'),
       cancelText: t('common.cancel'),
       onBeforeOk: async () => {
         try {
-          const tableParams = await getTableParams(true);
-          await batchDisassociateCase({
-            selectIds: tableSelected.value as string[],
-            selectAll: batchParams.value.selectAll,
-            excludeIds: batchParams.value?.excludeIds || [],
-            ...tableParams,
-          });
+          await batchDisassociateCase(batchUpdateParams.value);
           Message.success(t('common.updateSuccess'));
-          resetCaseList();
-          initModules();
+          const tree = cloneDeep(moduleTree.value);
           emit('refresh');
+          await initModules();
+          await getModuleCount();
+          if (!Object.keys(modulesCount.value).includes(props.activeModule)) {
+            // 模块树选中返回上一级
+            emit('selectParentNode', tree);
+          } else {
+            refresh(false);
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -678,22 +697,11 @@
   }
 
   // 批量修改执行人 和 批量移动
-  const batchUpdateParams = ref();
   const batchUpdateExecutorModalVisible = ref(false);
   const batchMoveModalVisible = ref(false);
 
-  // 处理表格选中后批量操作
-  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params?.selectedIds || [];
-    batchParams.value = { ...params, selectIds: params?.selectedIds };
-    const tableParams = await getTableParams(true);
-    batchUpdateParams.value = {
-      selectIds: tableSelected.value as string[],
-      selectAll: batchParams.value.selectAll,
-      excludeIds: batchParams.value?.excludeIds || [],
-      ...tableParams,
-    };
-    switch (event.eventTag) {
+  function handleOperation(type?: string) {
+    switch (type) {
       case 'execute':
         batchExecuteModalVisible.value = true;
         break;
@@ -709,6 +717,30 @@
       default:
         break;
     }
+  }
+  // 脑图操作
+  function handleMinderOperation(type: string, node: MinderJsonNode) {
+    minderSelectData.value = node.data;
+    batchUpdateParams.value = {
+      ...getMinderOperationParams(node),
+      testPlanId: props.planId,
+      projectId: node.data?.id !== 'NONE' ? node.data?.projectId : '',
+    };
+    handleOperation(type);
+  }
+
+  // 处理表格选中后批量操作
+  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    tableSelected.value = params?.selectedIds || [];
+    batchParams.value = { ...params, selectIds: params?.selectedIds };
+    const tableParams = await getTableParams(true);
+    batchUpdateParams.value = {
+      selectIds: tableSelected.value as string[],
+      selectAll: batchParams.value.selectAll,
+      excludeIds: batchParams.value?.excludeIds || [],
+      ...tableParams,
+    };
+    handleOperation(event.eventTag);
   }
 
   // 去用例详情页面
