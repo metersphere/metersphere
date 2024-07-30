@@ -496,7 +496,6 @@
         if (!isInit) {
           emit('change', { ...condition.value });
         }
-
         break;
       case ResponseBodyAssertionType.XPATH:
         condition.value.xpathAssertion.assertions = data;

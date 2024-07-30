@@ -224,18 +224,12 @@ export const assertDefaultParamsItem: ResponseAssertionItem = {
 
 // 断言 json默认值
 export const jsonPathDefaultParamItem = {
+  id: '',
   enable: true,
-  variableName: '',
-  variableType: RequestExtractEnvType.TEMPORARY,
-  extractScope: RequestExtractScope.BODY,
   expression: '',
+  expectedValue: '',
   condition: EQUAL.value,
-  extractType: RequestExtractExpressionEnum.JSON_PATH,
-  expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-  resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-  resultMatchingRuleNum: 1,
-  responseFormat: ResponseBodyXPathAssertionFormat.XML,
-  moreSettingPopoverVisible: false,
+  valid: true,
 };
 // 断言 正则默认值
 export const regexDefaultParamItem = {
