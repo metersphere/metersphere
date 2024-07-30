@@ -9,6 +9,7 @@
     :ok-disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
     :handle-before-cancel="handleBeforeCancel"
     show-full-screen
+    unmount-on-close
     @confirm="handleSave"
     @continue="handleContinue"
     @close="handleClose"
@@ -214,7 +215,7 @@
           class="sticky-content no-content relative top-0 mx-[16px] border-b"
           @tab-click="requestTabClick"
         />
-        <div v-if="visible" :class="`request-content-and-response ${activeLayout}`">
+        <div :class="`request-content-and-response ${activeLayout}`">
           <a-spin class="request block h-full w-full" :loading="requestVModel.executeLoading || loading">
             <div class="request-tab-pane flex flex-col p-[16px]">
               <a-spin
@@ -1331,6 +1332,7 @@
         if (requestVModel.value.protocol === 'HTTP') {
           setDefaultActiveTab();
         }
+        handleActiveDebugProtocolChange(requestVModel.value.protocol);
         nextTick(() => {
           isSwitchingContent.value = false;
         });
