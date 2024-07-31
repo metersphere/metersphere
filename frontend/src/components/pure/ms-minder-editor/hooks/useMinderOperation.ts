@@ -44,6 +44,7 @@ export default function useMinderOperation({
    */
   const minderCopy = (e?: ClipboardEvent) => {
     if (!canShowMoreMenuNodeOperation) {
+      e?.preventDefault();
       return;
     }
     const { editor } = window;
@@ -69,6 +70,7 @@ export default function useMinderOperation({
    */
   const minderCut = (e?: ClipboardEvent) => {
     if (!canShowMoreMenuNodeOperation) {
+      e?.preventDefault();
       return;
     }
     const { editor } = window;
@@ -103,7 +105,8 @@ export default function useMinderOperation({
    * 执行粘贴
    */
   const minderPaste = (e?: ClipboardEvent) => {
-    if (!canShowMoreMenuNodeOperation || !canShowPasteMenu) {
+    if (!canShowMoreMenuNodeOperation && !canShowPasteMenu) {
+      e?.preventDefault();
       return;
     }
     const { editor } = window;

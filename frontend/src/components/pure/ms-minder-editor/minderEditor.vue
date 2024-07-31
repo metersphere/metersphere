@@ -117,6 +117,8 @@
 
   const { appendChildNode, appendSiblingNode, minderDelete } = useMinderOperation({
     insertNode: props.insertNode,
+    canShowMoreMenuNodeOperation: props.canShowMoreMenuNodeOperation,
+    canShowPasteMenu: props.canShowPasteMenu,
   });
   const { unbindShortcuts } = useShortCut(
     {
@@ -133,7 +135,7 @@
         }
       },
       delete: () => {
-        if (props.canShowMoreMenuNodeOperation && props.canShowDeleteMenu) {
+        if (props.canShowMoreMenuNodeOperation && !props.disabled) {
           const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
           minderDelete(selectedNodes);
         }
@@ -169,6 +171,8 @@
     },
     {
       insertNode: props.insertNode,
+      canShowMoreMenuNodeOperation: props.canShowMoreMenuNodeOperation,
+      canShowPasteMenu: props.canShowPasteMenu,
     }
   );
 
