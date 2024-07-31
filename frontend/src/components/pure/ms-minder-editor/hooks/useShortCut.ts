@@ -15,8 +15,8 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
 
     // 定义组合键事件
     const combinationShortcuts: { [key: string]: ShortcutKey } = {
-      z: 'undo', // 撤销
-      y: 'redo', // 重做
+      // z: 'undo', // 撤销 TODO:暂时不上撤销和重做
+      // y: 'redo', // 重做
       enter: 'enter', // 进入节点
     };
     // 定义单键事件

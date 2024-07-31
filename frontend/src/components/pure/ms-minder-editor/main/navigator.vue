@@ -110,7 +110,7 @@
                 </div>
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <!-- <div class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.main.history.undo') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
@@ -118,14 +118,14 @@
                 </div>
                 <div class="ms-minder-shortcut-trigger-listitem-icon">Z</div>
               </div>
-            </div>
+            </div> -->
             <div class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('common.delete') }}</div>
               <div class="ms-minder-shortcut-trigger-listitem-icon">
                 <MsIcon type="icon-icon_carriage_return1" />
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <!-- <div class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.main.history.redo') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
@@ -133,7 +133,7 @@
                 </div>
                 <div class="ms-minder-shortcut-trigger-listitem-icon">Y</div>
               </div>
-            </div>
+            </div> -->
           </div>
         </template>
       </a-trigger>

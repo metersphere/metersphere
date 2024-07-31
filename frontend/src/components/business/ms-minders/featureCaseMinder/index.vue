@@ -449,7 +449,11 @@
         waitingRenderNodes.push(moreNode);
       }
       window.minder.renderNodeBatch(waitingRenderNodes);
-      node.layout();
+      if (node.parent) {
+        node.parent?.layout();
+      } else {
+        node.layout();
+      }
       data.isLoaded = true;
       // 加载完用例数据后，更新当前importJson数据
       replaceNodeInTree([importJson.value.root], node.data?.id || '', window.minder.exportNode(node), 'data', 'id');
