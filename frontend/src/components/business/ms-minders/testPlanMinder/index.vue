@@ -15,6 +15,8 @@
     :can-show-float-menu="canShowFloatMenu"
     :can-show-delete-menu="canShowDeleteMenu"
     :disabled="!hasEditPermission"
+    :can-show-batch-delete="true"
+    can-show-more-batch-menu
     custom-priority
     single-tag
     tag-enable
@@ -523,8 +525,13 @@
       Message.warning(t('ms.minders.unsavedTip'));
       return;
     }
+    const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+    if (nodes.length > 1) {
+      extraVisible.value = false;
+      return;
+    }
     extraVisible.value = !extraVisible.value;
-    const node: MinderJsonNode = window.minder.getSelectedNode();
+    const node = nodes[0];
     switchingConfigFormData.value = true;
     if (extraVisible.value) {
       activePlanSet.value = node as PlanMinderNode;

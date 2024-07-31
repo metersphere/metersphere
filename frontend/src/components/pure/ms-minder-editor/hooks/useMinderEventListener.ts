@@ -7,7 +7,7 @@ import type { MinderEvent, MinderJsonNode } from '../props';
 
 export interface UseEventListenerProps {
   handleContentChange?: (node?: MinderJsonNode) => void;
-  handleSelectionChange?: (node?: MinderJsonNode) => void;
+  handleSelectionChange?: (nodes: MinderJsonNode[]) => void;
   handleMinderEvent?: (event: MinderCustomEvent) => void;
   handleBeforeExecCommand?: (event: MinderEvent) => void;
   handleViewChange?: (event: MinderEvent) => void;
@@ -36,16 +36,16 @@ export default function useEventListener(listener: UseEventListenerProps) {
   minder.on(
     'selectionchange',
     debounce(() => {
-      const node: MinderJsonNode = minder.getSelectedNode();
+      const nodes: MinderJsonNode[] = minder.getSelectedNodes();
       // 如果节点选中后即刻进行拖拽，则等待拖拽结束后再触发选中事件
       if (isDragging.value) {
         selectionchangeEvent = () => {
           if (listener.handleSelectionChange) {
-            listener.handleSelectionChange(node);
+            listener.handleSelectionChange(nodes);
           }
         };
       } else if (listener.handleSelectionChange) {
-        listener.handleSelectionChange(node);
+        listener.handleSelectionChange(nodes);
       }
     }, 300)
   );

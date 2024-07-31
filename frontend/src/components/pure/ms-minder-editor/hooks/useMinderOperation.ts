@@ -1,10 +1,14 @@
+import { useClipboard } from '@vueuse/core';
+import { Message } from '@arco-design/web-vue';
+
+import { useI18n } from '@/hooks/useI18n';
 import useMinderStore from '@/store/modules/components/minder-editor';
 import { getGenerateId } from '@/utils';
 
 import { MinderEventName } from '@/enums/minderEnum';
 
 import type { MinderJsonNode } from '../props';
-import { markDeleteNode, resetNodes } from '../script/tool/utils';
+import { markDeleteNode, resetNodes, setPriorityView } from '../script/tool/utils';
 
 interface IData {
   getRegisterProtocol(protocol: string): {
@@ -15,16 +19,23 @@ interface IData {
 
 export interface MinderOperationProps {
   insertNode?: (node: MinderJsonNode, command: string, value?: string) => void;
+  customBatchExpand?: (node: MinderJsonNode) => void;
+  disabled?: boolean;
+  canShowMoreMenu?: boolean;
   canShowMoreMenuNodeOperation?: boolean;
   canShowPasteMenu?: boolean;
+  canShowDeleteMenu?: boolean;
+  customPriority?: boolean;
+  priorityStartWithZero?: boolean;
+  priorityPrefix?: string;
+  canShowBatchCut?: boolean;
+  canShowBatchCopy?: boolean;
+  canShowBatchDelete?: boolean;
 }
 
-export default function useMinderOperation({
-  insertNode,
-  canShowMoreMenuNodeOperation,
-  canShowPasteMenu,
-}: MinderOperationProps) {
+export default function useMinderOperation(options: MinderOperationProps) {
   const minderStore = useMinderStore();
+  const { t } = useI18n();
 
   function encode(nodes: Array<MinderJsonNode>): string {
     const { editor } = window;
@@ -42,8 +53,8 @@ export default function useMinderOperation({
   /**
    * 执行复制
    */
-  const minderCopy = (e?: ClipboardEvent) => {
-    if (!canShowMoreMenuNodeOperation) {
+  const minderCopy = async (e?: ClipboardEvent) => {
+    if ((!options.canShowMoreMenu || !options.canShowMoreMenuNodeOperation) && options.canShowBatchCopy === false) {
       e?.preventDefault();
       return;
     }
@@ -57,8 +68,15 @@ export default function useMinderOperation({
       case 'normal': {
         const selectedNodes = minder.getSelectedNodes();
         minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, undefined, selectedNodes);
+        if (e?.clipboardData) {
+          e.clipboardData.setData('text/plain', encode(selectedNodes));
+        } else {
+          const { copy } = useClipboard();
+          await copy(encode(selectedNodes));
+        }
         minder.execCommand('Copy');
         e?.preventDefault();
+        Message.success(t('common.copySuccess'));
         break;
       }
       default:
@@ -68,8 +86,11 @@ export default function useMinderOperation({
   /**
    * 执行剪切
    */
-  const minderCut = (e?: ClipboardEvent) => {
-    if (!canShowMoreMenuNodeOperation) {
+  const minderCut = async (e?: ClipboardEvent) => {
+    if (
+      (options.disabled || !options.canShowMoreMenu || !options.canShowMoreMenuNodeOperation) &&
+      options.canShowBatchCut === false
+    ) {
       e?.preventDefault();
       return;
     }
@@ -79,9 +100,7 @@ export default function useMinderOperation({
       e?.preventDefault();
       return;
     }
-
     const state = fsm.state();
-
     switch (state) {
       case 'input': {
         break;
@@ -90,11 +109,17 @@ export default function useMinderOperation({
         markDeleteNode(minder);
         const selectedNodes = minder.getSelectedNodes();
         if (selectedNodes.length) {
-          e?.clipboardData?.setData('text/plain', encode(selectedNodes));
+          if (e?.clipboardData) {
+            e.clipboardData.setData('text/plain', encode(selectedNodes));
+          } else {
+            const { copy } = useClipboard();
+            await copy(encode(selectedNodes));
+          }
           minder.execCommand('Cut');
         }
-        e?.preventDefault();
         minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, undefined, selectedNodes);
+        e?.preventDefault();
+        Message.success(t('common.cutSuccess'));
         break;
       }
       default:
@@ -104,8 +129,8 @@ export default function useMinderOperation({
   /**
    * 执行粘贴
    */
-  const minderPaste = (e?: ClipboardEvent) => {
-    if (!canShowMoreMenuNodeOperation && !canShowPasteMenu) {
+  const minderPaste = async (e?: ClipboardEvent) => {
+    if (options.disabled || !options.canShowPasteMenu) {
       e?.preventDefault();
       return;
     }
@@ -117,10 +142,8 @@ export default function useMinderOperation({
       e?.preventDefault();
       return;
     }
-
     const state = fsm.state();
-    const textData = e?.clipboardData?.getData('text/plain');
-
+    const textData = e?.clipboardData ? e.clipboardData.getData('text/plain') : await navigator.clipboard.readText();
     switch (state) {
       case 'input': {
         // input状态下如果格式为application/km则不进行paste操作
@@ -181,8 +204,8 @@ export default function useMinderOperation({
    */
   const execInsertCommand = (command: string, value?: string) => {
     const node: MinderJsonNode = window.minder.getSelectedNode();
-    if (insertNode) {
-      insertNode(node, command, value);
+    if (options.insertNode) {
+      options.insertNode(node, command, value);
       return;
     }
     if (window.minder.queryCommandState(command) !== -1) {
@@ -221,12 +244,56 @@ export default function useMinderOperation({
   };
 
   /**
+   * 脑图展开
+   * @param selectedNodes 当前选中的节点集合
+   */
+  const minderExpand = (selectedNodes: MinderJsonNode[]) => {
+    if (selectedNodes.every((node) => node.isExpanded())) {
+      // 选中的节点集合全部展开，则全部收起
+      selectedNodes.forEach((node) => {
+        node.collapse();
+        node.renderTree();
+      });
+      if (!options.customPriority) {
+        // 展开后，需要设置一次优先级展示，避免展开后优先级显示成脑图内置文案；如果设置了自定义优先级，则不在此设置，由外部自行处理
+        setPriorityView(!!options.priorityStartWithZero, options.priorityPrefix || '');
+        window.minder.refresh();
+      }
+      minderStore.dispatchEvent(MinderEventName.COLLAPSE, undefined, undefined, undefined, selectedNodes);
+    } else {
+      // 选中的节点集合中有一个节点未展开，则全部展开
+      selectedNodes.forEach((node) => {
+        if (selectedNodes.length > 1 && options.customBatchExpand) {
+          // 批量操作节点才执行customBatchExpand
+          options.customBatchExpand(node);
+        } else {
+          node.expand();
+          node.renderTree();
+        }
+      });
+      if (!options.customPriority) {
+        // 展开后，需要设置一次优先级展示，避免展开后优先级显示成脑图内置文案；如果设置了自定义优先级，则不在此设置，由外部自行处理
+        setPriorityView(!!options.priorityStartWithZero, options.priorityPrefix || '');
+        window.minder.refresh();
+      }
+      minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, undefined, selectedNodes);
+    }
+  };
+
+  /**
    * 删除节点
    * @param selectedNodes 当前选中的节点集合
    */
   const minderDelete = (selectedNodes: MinderJsonNode[]) => {
-    minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, undefined, selectedNodes);
-    window.minder.execCommand('RemoveNode');
+    if (
+      (options.canShowDeleteMenu ||
+        (options.canShowMoreMenu && options.canShowMoreMenuNodeOperation) ||
+        options.canShowBatchDelete) &&
+      !options.disabled
+    ) {
+      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, undefined, selectedNodes);
+      window.minder.execCommand('RemoveNode');
+    }
   };
 
   return {
@@ -236,5 +303,6 @@ export default function useMinderOperation({
     appendChildNode,
     appendSiblingNode,
     minderDelete,
+    minderExpand,
   };
 }

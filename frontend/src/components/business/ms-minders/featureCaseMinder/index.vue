@@ -19,8 +19,14 @@
       :can-show-paste-menu="!stopPaste()"
       :can-show-more-menu="canShowMoreMenu()"
       :can-show-priority-menu="canShowPriorityMenu()"
+      :custom-batch-expand="customBatchExpand"
+      :can-show-batch-expand="canShowBatchExpand()"
+      :can-show-batch-cut="true"
+      :can-show-batch-copy="true"
+      :can-show-batch-delete="true"
       :priority-tooltip="t('caseManagement.caseReview.caseLevel')"
       :disabled="!hasEditPermission"
+      can-show-more-batch-menu
       single-tag
       tag-enable
       sequence-enable
@@ -695,6 +701,26 @@
           break;
       }
     }
+  }
+
+  /**
+   * 批量展开节点
+   */
+  function customBatchExpand(node: MinderJsonNode) {
+    if (node.data?.resource?.includes(caseTag)) {
+      expendNodeAndChildren(node);
+    }
+  }
+
+  /**
+   * 判断是否显示批量展开按钮
+   */
+  function canShowBatchExpand() {
+    if (window.minder) {
+      const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+      return nodes.some((node) => !!node.data?.resource?.includes(caseTag));
+    }
+    return false;
   }
 
   /**

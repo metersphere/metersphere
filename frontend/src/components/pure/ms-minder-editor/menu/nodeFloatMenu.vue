@@ -137,32 +137,32 @@
           <a-doption v-if="props.canShowEnterNode" value="enterNode">
             <div class="flex items-center">
               <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
-              <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div> -->
+              <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div>
             </div>
           </a-doption>
           <template v-if="props.canShowMoreMenuNodeOperation">
             <a-doption value="copy">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.copy') }}</div>
-                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div> -->
+                <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div>
               </div>
             </a-doption>
             <a-doption value="cut">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.cut') }}</div>
-                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div> -->
+                <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div>
               </div>
             </a-doption>
             <a-doption v-if="props.canShowPasteMenu && minderStore.clipboard.length > 0" value="paste">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.paste') }}</div>
-                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + V)</div> -->
+                <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + V)</div>
               </div>
             </a-doption>
             <a-doption value="delete">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.delete') }}</div>
-                <!-- <div class="ml-[4px] text-[var(--color-text-4)]">(Backspace)</div> -->
+                <div class="ml-[4px] text-[var(--color-text-4)]">(Backspace)</div>
               </div>
             </a-doption>
           </template>
@@ -200,8 +200,9 @@
   import { MinderEventName } from '@/enums/minderEnum';
 
   import useMinderOperation from '../hooks/useMinderOperation';
-  import { floatMenuProps, mainEditorProps, MinderJsonNode, priorityProps, tagProps } from '../props';
-  import { isDisableNode, isNodeInMinderView, setPriorityView } from '../script/tool/utils';
+  import usePriority from '../hooks/useMinderPriority';
+  import { floatMenuProps, mainEditorProps, MinderJsonNode, priorityColorMap, priorityProps, tagProps } from '../props';
+  import { isNodeInMinderView } from '../script/tool/utils';
 
   const props = defineProps({
     ...mainEditorProps,
@@ -215,6 +216,7 @@
 
   const { t } = useI18n();
   const minderStore = useMinderStore();
+  const { setPriority } = usePriority(props);
 
   const currentNodeTags = ref<string[]>([]);
   const tags = ref<string[]>([]);
@@ -240,7 +242,7 @@
           }
         }
         if (selectedNodes.length > 1) {
-          // 多选时隐藏悬浮菜单 TODO:支持批量操作
+          // 多选时隐藏悬浮菜单
           menuVisible.value = false;
           return;
         }
@@ -304,31 +306,8 @@
     }
   }
 
-  const priorityColorMap: Record<number, string> = {
-    1: 'rgb(var(--danger-6))',
-    2: 'rgb(var(--link-6))',
-    3: 'rgb(var(--success-6))',
-    4: 'rgb(var(--warning-6))',
-  };
-  const priorityDisabled = ref(true);
-  function isDisable(): boolean {
-    if (Object.keys(window.minder).length === 0) return true;
-    nextTick(() => {
-      setPriorityView(props.priorityStartWithZero, props.priorityPrefix);
-    });
-    const node = window.minder.getSelectedNode();
-    if (isDisableNode(window.minder) || !node || node.parent === null) {
-      return true;
-    }
-    if (props.priorityDisableCheck) {
-      return props.priorityDisableCheck(node);
-    }
-    return !!window.minder.queryCommandState && window.minder.queryCommandState('priority') === -1;
-  }
-
-  const { minderCopy, minderCut, minderPaste, appendChildNode, appendSiblingNode, minderDelete } = useMinderOperation({
-    insertNode: props.insertNode,
-  });
+  const { minderCopy, minderCut, minderPaste, appendChildNode, appendSiblingNode, minderDelete } =
+    useMinderOperation(props);
 
   /**
    * 处理快捷菜单选择
@@ -360,12 +339,7 @@
           minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [selectedNodes[0]]);
           break;
         case 'priority':
-          if (value && !priorityDisabled.value) {
-            window.minder.execCommand('priority', value);
-            setPriorityView(props.priorityStartWithZero, props.priorityPrefix);
-          } else if (window.minder.execCommand && !priorityDisabled.value) {
-            window.minder.execCommand('priority');
-          }
+          setPriority(value);
           break;
         default:
           break;
@@ -385,23 +359,6 @@
       }
     }
   );
-
-  onMounted(() => {
-    nextTick(() => {
-      const freshFuc = setPriorityView;
-      if (window.minder && !props.customPriority) {
-        window.minder.on('contentchange', () => {
-          // 异步执行，否则执行完，还会被重置
-          setTimeout(() => {
-            freshFuc(props.priorityStartWithZero, props.priorityPrefix);
-          }, 0);
-        });
-        window.minder.on('selectionchange', () => {
-          priorityDisabled.value = isDisable();
-        });
-      }
-    });
-  });
 </script>
 
 <style lang="less">
