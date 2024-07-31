@@ -37,7 +37,7 @@
               :preview-url="EditorPreviewFileUrl"
             />
           </a-form-item>
-          <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型   -->
+          <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型 -->
           <div v-if="isPlatformDefaultTemplate">
             <a-form-item
               v-for="(value, key) in form.platformSystemFields"
@@ -383,6 +383,8 @@
   const getFormRules = (arr: BugEditCustomField[]) => {
     formRules.value = [];
     const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
+    const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX'];
+    const numberType = ['INT', 'FLOAT'];
 
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
@@ -391,7 +393,13 @@
         if (memberType.includes(item.type)) {
           if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
             initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
+          } else if (item.type === 'MULTIPLE_MEMBER' && item.defaultValue) {
+            initValue = JSON.parse(item.defaultValue);
           }
+        } else if (multipleType.includes(item.type)) {
+          initValue = item.defaultValue ? JSON.parse(item.defaultValue) : [];
+        } else if (numberType.includes(item.type)) {
+          initValue = Number(initValue);
         }
         return {
           type: item.type,
@@ -746,11 +754,12 @@
         } else if (item.type === 'INT' || item.type === 'FLOAT') {
           tmpObj[item.id] = Number(item.value);
         } else if (item.type === 'CASCADER') {
-          const arr = JSON.parse(item.value);
-          if (arr && arr instanceof Array && arr.length > 0) {
-            tmpObj[item.id] = arr[arr.length - 1];
+          if (item.value) {
+            const arr = JSON.parse(item.value);
+            if (arr && arr instanceof Array && arr.length > 0) {
+              tmpObj[item.id] = arr[arr.length - 1];
+            }
           }
-          // 单选多选项
         } else if (SINGRADIO_TYPE.includes(item.type)) {
           const multipleOptions = getOptionFromTemplate(
             currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)

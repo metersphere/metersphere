@@ -134,6 +134,7 @@
                 ref="bugDetailTabRef"
                 :allow-edit="hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
                 :detail-info="detailInfo"
+                :current-custom-fields="currentCustomFields"
                 :is-platform-default-template="isPlatformDefaultTemplate"
                 :platform-system-fields="platformSystemFields"
                 :current-platform="props.currentPlatform"
@@ -374,6 +375,7 @@
     platformSystemFields.value.forEach((item) => {
       item.defaultValue = tmpObj[item.fieldId];
     });
+
     getFormRules(
       customFieldsRes.customFields.filter((field: Record<string, any>) => !field.platformSystemField),
       tmpObj
