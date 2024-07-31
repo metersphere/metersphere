@@ -4,7 +4,9 @@ import io.metersphere.bug.dto.response.BugFileDTO;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.service.CommonFileService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -38,6 +40,8 @@ public class BugSyncExtraServiceTests extends BaseTest {
     MinioRepository minioMock;
     @Resource
     private BugAttachmentService bugAttachmentService;
+    @Resource
+    private CommonFileService commonFileService;
 
     @Test
     @Order(1)
@@ -47,8 +51,8 @@ public class BugSyncExtraServiceTests extends BaseTest {
         // Mock minio upload exception
         MockMultipartFile file = new MockMultipartFile("file", "test.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
         Mockito.doThrow(new MSException("save minio error!")).when(minioMock).saveFile(Mockito.eq(file), Mockito.any());
-        MSException uploadException = assertThrows(MSException.class, () -> bugAttachmentService.uploadMdFile(file));
-        assertEquals(uploadException.getMessage(), "save minio error!");
+        MSException uploadException = assertThrows(MSException.class, () -> commonFileService.uploadTempImgFile(file));
+        assertEquals(uploadException.getMessage(), Translator.get("file_upload_fail"));
         // Mock minio delete exception
         Mockito.doThrow(new MSException("delete minio error!")).when(minioMock).delete(Mockito.any());
         MSException deleteException = assertThrows(MSException.class, () ->

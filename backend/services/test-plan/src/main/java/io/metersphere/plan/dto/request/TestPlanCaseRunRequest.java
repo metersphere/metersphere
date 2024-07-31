@@ -41,7 +41,7 @@ public class TestPlanCaseRunRequest {
     @Schema(description = "评论@的人的Id, 多个以';'隔开")
     private String notifier;
 
-    @Schema(description = "测试计划执行评论副文本的文件id集合")
+    @Schema(description = "测试计划执行评论富文本的文件id集合")
     private List<String> planCommentFileIds;
 
 }

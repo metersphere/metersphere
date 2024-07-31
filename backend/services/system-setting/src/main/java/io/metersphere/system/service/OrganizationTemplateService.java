@@ -1,15 +1,16 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.OrganizationParameter;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateExample;
+import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.mapper.BaseProjectMapper;
@@ -17,6 +18,7 @@ import io.metersphere.system.mapper.ExtOrganizationTemplateMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
         template = super.add(template, request.getCustomFields(), request.getSystemFields());
         // 同步创建项目级别模板
         addRefProjectTemplate(template, request.getCustomFields(), request.getSystemFields());
+        saveUploadImages(request);
         return template;
     }
 
@@ -95,7 +98,6 @@ public class OrganizationTemplateService extends BaseTemplateService {
         OrganizationService.checkResourceExist(template.getScopeId());
     }
 
-
     public Template update(TemplateUpdateRequest request) {
         Template template = new Template();
         BeanUtils.copyBean(template, request);
@@ -110,7 +112,21 @@ public class OrganizationTemplateService extends BaseTemplateService {
         checkOrgResourceExist(originTemplate);
         updateRefProjectTemplate(template, request.getCustomFields(), request.getSystemFields());
         template.setRefId(null);
-        return super.update(template, request.getCustomFields(), request.getSystemFields());
+        template = super.update(template, request.getCustomFields(), request.getSystemFields());
+        saveUploadImages(request);
+        return template;
+    }
+
+    /**
+     * 保存上传的文件
+     * 将文件从临时目录移动到正式目录
+     *
+     * @param request
+     */
+    private void saveUploadImages(TemplateUpdateRequest request) {
+        String orgTemplateDir = DefaultRepositoryDir.getOrgTemplateImgDir(request.getScopeId());
+        String orgTemplatePreviewDir = DefaultRepositoryDir.getOrgTemplateImgPreviewDir(request.getScopeId());
+        commonFileService.saveReviewImgFromTempFile(orgTemplateDir, orgTemplatePreviewDir, request.getUploadImgFileIds());
     }
 
     /**
@@ -195,6 +211,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
 
     /**
      * 一个接口返回各个模板是否启用组织模板
+     *
      * @param organizationId
      * @return
      */
@@ -205,5 +222,18 @@ public class OrganizationTemplateService extends BaseTemplateService {
                 .forEach(scene ->
                         templateEnableConfig.put(scene.name(), isOrganizationTemplateEnable(organizationId, scene.name())));
         return templateEnableConfig;
+    }
+
+    /**
+     * 富文本框图片预览
+     * @param organizationId
+     * @param fileId
+     * @param compressed
+     * @return
+     */
+    public ResponseEntity<byte[]> previewImg(String organizationId, String fileId, boolean compressed) {
+        String orgTemplateImgDir = DefaultRepositoryDir.getOrgTemplateImgDir(organizationId);
+        String orgTemplateImgPreviewDir = DefaultRepositoryDir.getOrgTemplateImgPreviewDir(organizationId);
+        return super.previewImg(fileId, orgTemplateImgDir, orgTemplateImgPreviewDir, compressed);
     }
 }

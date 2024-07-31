@@ -95,7 +95,7 @@ public class ReviewFunctionalCaseService {
         extCaseReviewFunctionalCaseMapper.updateStatus(caseId, reviewId, functionalCaseStatus);
         caseReviewHistoryMapper.insert(caseReviewHistory);
 
-        //保存副文本评论附件
+        //保存富文本评论附件
         functionalCaseAttachmentService.uploadMinioFile(caseId, request.getProjectId(), request.getReviewCommentFileIds(), userId, CaseFileSourceType.REVIEW_COMMENT.toString());
 
         //检查是否有@，发送@通知

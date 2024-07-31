@@ -18,7 +18,7 @@ import io.metersphere.functional.service.ReviewFunctionalCaseService;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.StorageType;

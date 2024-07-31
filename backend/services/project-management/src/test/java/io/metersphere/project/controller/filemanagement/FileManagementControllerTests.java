@@ -14,7 +14,7 @@ import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileModuleService;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.project.utils.FileMetadataUtils;

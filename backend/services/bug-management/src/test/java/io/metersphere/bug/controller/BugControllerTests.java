@@ -20,7 +20,7 @@ import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.StorageType;

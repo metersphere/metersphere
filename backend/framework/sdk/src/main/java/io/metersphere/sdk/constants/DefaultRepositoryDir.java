@@ -35,9 +35,37 @@ public class DefaultRepositoryDir {
 
     /*------ end: 系统下资源目录 --------*/
 
+    /*------ start: 组织下资源目录 ------*/
 
+    /**
+     * 组织模板富文本图片存储目录
+     * 这里省略模板ID，模板的图片不处理删除的情况
+     * 因为用例会引用图片，模板删除后图片也需要能访问
+     */
+    private static final String ORGANIZATION_TEMPLATE_IMG_DIR = ORGANIZATION_DIR + "/template-img";
+    /**
+     * 组织模板压缩图片存储目录
+     * 这里省略模板ID，模板的图片不处理删除的情况
+     * 因为用例会引用图片，模板删除后图片也需要能访问
+     */
+    private static final String ORGANIZATION_TEMPLATE_IMG_PREVIEW_DIR = ORGANIZATION_DIR + "/template-img/preview";
+
+    /*------ end: 组织下资源目录 --------*/
 
     /*------ start: 项目下资源目录 --------*/
+
+    /**
+     * 项目模板富文本图片存储目录
+     * 这里省略模板ID，模板的图片不处理删除的情况
+     * 因为用例会引用图片，模板删除后图片也需要能访问
+     */
+    private static final String PROJECT_TEMPLATE_IMG_DIR = PROJECT_DIR + "/template-img";
+    /**
+     * 项目模板压缩图片存储目录
+     * 这里省略模板ID，模板的图片不处理删除的情况
+     * 因为用例会引用图片，模板删除后图片也需要能访问
+     */
+    private static final String PROJECT_TEMPLATE_IMG_PREVIEW_DIR = PROJECT_DIR + "/template-img/preview";
 
     /**
      * 接口用例相关文件的存储目录
@@ -144,5 +172,21 @@ public class DefaultRepositoryDir {
 
     public static String getProjectDir(String projectId) {
         return String.format(PROJECT_DIR, projectId);
+    }
+
+    public static String getOrgTemplateImgDir(String orgId) {
+        return String.format(ORGANIZATION_TEMPLATE_IMG_DIR, orgId);
+    }
+
+    public static String getOrgTemplateImgPreviewDir(String orgId) {
+        return String.format(ORGANIZATION_TEMPLATE_IMG_PREVIEW_DIR, orgId);
+    }
+
+    public static String getProjectTemplateImgDir(String projectId) {
+        return String.format(PROJECT_TEMPLATE_IMG_DIR, projectId);
+    }
+
+    public static String getProjectTemplateImgPreviewDir(String projectId) {
+        return String.format(PROJECT_TEMPLATE_IMG_PREVIEW_DIR, projectId);
     }
 }

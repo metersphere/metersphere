@@ -35,6 +35,6 @@ public class ReviewFunctionalCaseRequest {
     @Schema(description =  "评论@的人的Id, 多个以';'隔开")
     private String  notifier;
 
-    @Schema(description = "用例评审评论副文本的文件id集合")
+    @Schema(description = "用例评审评论富文本的文件id集合")
     private List<String> reviewCommentFileIds;
 }

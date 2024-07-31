@@ -1,8 +1,10 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
@@ -20,6 +22,9 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +53,10 @@ public class BaseTemplateService {
     protected UserLoginService userLoginService;
     @Resource
     protected BaseCustomFieldService baseCustomFieldService;
+    @Resource
+    protected CommonFileService commonFileService;
+    @Resource
+    protected FileService fileService;
 
     @Resource
     private BaseCustomFieldOptionService baseCustomFieldOptionService;
@@ -393,5 +402,31 @@ public class BaseTemplateService {
         template.setScene(scene.name());
         templateMapper.insert(template);
         return template;
+    }
+
+    public ResponseEntity<byte[]> previewImg(String fileId, String imgFolder, String previewImgFolder, boolean compressed) {
+        byte[] bytes;
+        String fileName;
+        // 在临时文件获取文件名
+        fileName = commonFileService.getTempFileNameByFileId(fileId);
+        if (fileName != null) {
+            bytes = commonFileService.downloadTempImg(fileId, fileName, compressed);
+        } else {
+            // 没有则在正式目录获取
+            FileRequest fileRequest = new FileRequest();
+            String folder = compressed ? imgFolder : previewImgFolder;
+            fileRequest.setFolder(folder + "/" + fileId);
+            fileRequest.setStorage(StorageType.MINIO.name());
+            fileRequest.setFileName(commonFileService.getFileNameByFileId(fileId, folder));
+            try {
+                bytes = fileService.download(fileRequest);
+            } catch (Exception e) {
+                throw new MSException("get file error");
+            }
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(bytes);
     }
 }

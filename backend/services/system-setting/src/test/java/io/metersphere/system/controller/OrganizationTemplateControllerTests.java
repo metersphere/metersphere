@@ -1,31 +1,36 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.constants.OrganizationParameterConstants;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.sdk.constants.TemplateScopeType;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BaseCustomFieldTestService;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateSystemCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.base.BaseCustomFieldTestService;
-import io.metersphere.system.base.BaseTest;
-import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
-import io.metersphere.system.domain.*;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.service.*;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
@@ -36,6 +41,8 @@ import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.*;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.ORGANIZATION_TEMPLATE_PERMISSION;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author jianxing
@@ -48,7 +55,9 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private static final String BASE_PATH = "/organization/template/";
     private static final String LIST = "list/{0}/{1}";
     private static final String DISABLE_ORG_TEMPLATE = "disable/{0}/{1}";
-    protected static final String ORGANIZATION_TEMPLATE_ENABLE_CONFIG = "enable/config/{0}";
+    protected static final String ENABLE_CONFIG = "enable/config/{0}";
+    protected static final String UPLOAD_TEMP_IMG = "upload/temp/img";
+    protected static final String IMG_PREVIEW = "/img/preview/{0}/{1}/{2}";
 
     @Resource
     private TemplateMapper templateMapper;
@@ -87,6 +96,36 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_ORGANIZATION_ID, TemplateScene.FUNCTIONAL.name());
         List<Template> templates = getResultDataArray(mvcResult, Template.class);
         this.defaultTemplate = templates.getFirst();
+    }
+
+    @Test
+    @Order(0)
+    public void uploadTempFile() throws Exception {
+        // 准备数据，上传文件管理文件
+        MockMultipartFile file = new MockMultipartFile("file", IDGenerator.nextStr() + "_file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        // @@请求成功
+        String fileId = doUploadTempFile(file);
+
+        // 校验文件存在
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+        fileRequest.setFileName(file.getOriginalFilename());
+        Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+
+        requestUploadPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, UPLOAD_TEMP_IMG, file);
+        requestUploadPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ADD, UPLOAD_TEMP_IMG, file);
+
+        // 图片预览
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, fileId, false)).andExpect(status().isOk());
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, fileId, false)).andExpect(status().isOk());
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, "no id", false));
+    }
+
+    private String doUploadTempFile(MockMultipartFile file) throws Exception {
+        return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP_IMG, file)
+                        .getResponse()
+                        .getContentAsString(), ResultHolder.class)
+                .getData().toString();
     }
 
     @Test
@@ -144,8 +183,15 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         request.setScopeId(DEFAULT_ORGANIZATION_ID);
         request.setCustomFields(null);
         request.setSystemFields(null);
+        String uploadFileId = doUploadTempFile(getMockMultipartFile("api-add-file_upload.JPG"));
+        request.setUploadImgFileIds(List.of(uploadFileId));
         MvcResult anotherMvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anotherTemplateField = templateMapper.selectByPrimaryKey(getResultData(anotherMvcResult, Template.class).getId());
+        assertUploadFile(uploadFileId, "api-add-file_upload.JPG");
+        // 图片预览
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, uploadFileId, false)).andExpect(status().isOk());
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, uploadFileId, false)).andExpect(status().isOk());
+        request.setUploadImgFileIds(null);
 
         // @@校验日志
         checkLog(this.addTemplate.getId(), OperationLogType.ADD);
@@ -153,6 +199,27 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         createdGroupParamValidateTest(TemplateUpdateRequestDefinition.class, DEFAULT_ADD);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_ADD, DEFAULT_ADD, request);
+    }
+
+    /**
+     * 校验上传的文件
+     *
+     */
+    public static void assertUploadFile(String fileId, String fileName) throws Exception {
+        String orgTemplateImgDir = DefaultRepositoryDir.getOrgTemplateImgDir(DEFAULT_ORGANIZATION_ID);
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFolder(orgTemplateImgDir + "/" + fileId);
+        fileRequest.setFileName(fileName);
+        Assertions.assertNotNull(FileCenter.getDefaultRepository().getFile(fileRequest));
+    }
+
+    public static MockMultipartFile getMockMultipartFile(String fileName) {
+        return new MockMultipartFile(
+                "file",
+                fileName,
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
     }
 
     public static List<TemplateSystemCustomFieldRequest> getTemplateSystemCustomFieldRequests() {
@@ -287,8 +354,16 @@ public class OrganizationTemplateControllerTests extends BaseTest {
 
         // 不更新字段
         request.setCustomFields(null);
+        String uploadFileId = doUploadTempFile(getMockMultipartFile("api-add-file_upload.JPG"));
+        request.setUploadImgFileIds(List.of(uploadFileId));
+        request.setScopeId(DEFAULT_ORGANIZATION_ID);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         Assertions.assertEquals(baseTemplateCustomFieldService.getByTemplateId(template.getId()).size(), 3);
+        assertUploadFile(uploadFileId, "api-add-file_upload.JPG");
+        // 图片预览
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, uploadFileId, false)).andExpect(status().isOk());
+        mockMvc.perform(getRequestBuilder(IMG_PREVIEW, DEFAULT_ORGANIZATION_ID, uploadFileId, false)).andExpect(status().isOk());
+        request.setUploadImgFileIds(null);
 
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
@@ -444,20 +519,20 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     @Order(8)
     public void getOrganizationTemplateEnableConfig() throws Exception {
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORGANIZATION_TEMPLATE_ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
         Map resultData = getResultData(mvcResult, Map.class);
         Assertions.assertEquals(resultData.size(), TemplateScene.values().length);
         Assertions.assertTrue((Boolean) resultData.get(TemplateScene.FUNCTIONAL.name()));
         changeOrgTemplateEnable(false);
-        mvcResult = this.requestGetWithOkAndReturn(ORGANIZATION_TEMPLATE_ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
+        mvcResult = this.requestGetWithOkAndReturn(ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
         Assertions.assertFalse((Boolean) getResultData(mvcResult, Map.class).get(TemplateScene.FUNCTIONAL.name()));
         changeOrgTemplateEnable(true);
 
         // @@校验 NOT_FOUND 异常
-        assertErrorCode(this.requestGet(ORGANIZATION_TEMPLATE_ENABLE_CONFIG,"1111"), NOT_FOUND);
+        assertErrorCode(this.requestGet(ENABLE_CONFIG,"1111"), NOT_FOUND);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, ORGANIZATION_TEMPLATE_ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_READ, ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
     }
 
     /**

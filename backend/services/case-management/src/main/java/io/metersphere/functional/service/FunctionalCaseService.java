@@ -189,7 +189,7 @@ public class FunctionalCaseService {
         //上传文件
         List<String> uploadFileIds = functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
 
-        //上传副文本里的文件
+        //上传富文本里的文件
         functionalCaseAttachmentService.uploadMinioFile(caseId, request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联附件
@@ -562,7 +562,7 @@ public class FunctionalCaseService {
         //上传新文件
         functionalCaseAttachmentService.uploadFile(request.getProjectId(), request.getId(), files, true, userId);
 
-        //上传副文本文件
+        //上传富文本文件
         functionalCaseAttachmentService.uploadMinioFile(request.getId(), request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联新附件

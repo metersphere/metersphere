@@ -7,6 +7,7 @@ import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.ReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.service.CommonFileService;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,9 +27,12 @@ public class ReviewFunctionalCaseController {
 
     @Resource
     private ReviewFunctionalCaseService reviewFunctionalCaseService;
-
+    
     @Resource
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
+    
+    @Resource
+    private CommonFileService commonFileService;
 
     @PostMapping("/save")
     @Operation(summary = "用例管理-用例评审-评审功能用例-提交评审")
@@ -46,14 +50,14 @@ public class ReviewFunctionalCaseController {
     }
 
     @PostMapping("/upload/temp/file")
-    @Operation(summary = "用例管理-用例评审-上传副文本里所需的文件资源，并返回文件ID")
+    @Operation(summary = "用例管理-用例评审-上传富文本里所需的文件资源，并返回文件ID")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
     public String upload(@RequestParam("file") MultipartFile file) throws Exception {
-        return functionalCaseAttachmentService.uploadTemp(file);
+        return commonFileService.uploadTempImgFile(file);
     }
 
     @PostMapping("/preview")
-    @Operation(summary = "用例管理-用例评审-附件/副文本(原图/文件)-文件预览")
+    @Operation(summary = "用例管理-用例评审-附件/富文本(原图/文件)-文件预览")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> preview(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
@@ -62,7 +66,7 @@ public class ReviewFunctionalCaseController {
     }
 
     @PostMapping("/download")
-    @Operation(summary = "用例管理-功能用例-附件/副文本(原图/文件)-文件下载")
+    @Operation(summary = "用例管理-功能用例-附件/富文本(原图/文件)-文件下载")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> download(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
@@ -70,7 +74,7 @@ public class ReviewFunctionalCaseController {
     }
 
     @GetMapping(value = "/download/file/{projectId}/{fileId}/{compressed}")
-    @Operation(summary = "用例管理-功能用例-预览上传的副文本里所需的文件资源原图")
+    @Operation(summary = "用例管理-功能用例-预览上传的富文本里所需的文件资源原图")
     public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId, @PathVariable boolean compressed) throws Exception {
         return functionalCaseAttachmentService.downloadImgById(projectId, fileId, compressed);
     }
