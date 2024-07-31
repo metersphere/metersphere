@@ -9,7 +9,8 @@ import io.metersphere.api.mapper.ApiFileResourceMapper;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.CommonFileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -22,7 +23,6 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +48,8 @@ public class ApiFileResourceService {
     private FileMetadataService fileMetadataService;
     @Resource
     private FileService fileService;
+    @Resource
+    private CommonFileService commonFileService;
 
     /**
      * 上传接口相关的资源文件
@@ -56,56 +58,14 @@ public class ApiFileResourceService {
      * @param addFileMap key:fileId value:fileName
      */
     public void uploadFileResource(String folder, Map<String, String> addFileMap) {
-        if (MapUtils.isEmpty(addFileMap)) {
-            return;
-        }
-        FileRepository defaultRepository = FileCenter.getDefaultRepository();
-        for (String fileId : addFileMap.keySet()) {
-            String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
-            try {
-                String fileName = addFileMap.get(fileId);
-                if (StringUtils.isEmpty(fileName)) {
-                    continue;
-                }
-                // 按ID建文件夹，避免文件名重复
-                FileCopyRequest fileCopyRequest = new FileCopyRequest();
-                fileCopyRequest.setCopyFolder(systemTempDir + "/" + fileId);
-                fileCopyRequest.setCopyfileName(fileName);
-                fileCopyRequest.setFileName(fileName);
-                fileCopyRequest.setFolder(folder + "/" + fileId);
-                // 将文件从临时目录复制到资源目录
-                defaultRepository.copyFile(fileCopyRequest);
-                // 删除临时文件
-                fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
-                fileCopyRequest.setFileName(fileName);
-                defaultRepository.delete(fileCopyRequest);
-            } catch (Exception e) {
-                LogUtils.error(e);
-                throw new MSException(Translator.get("file_upload_fail"));
-            }
-        }
+        commonFileService.saveFileFromTempFile(folder, addFileMap);
     }
 
     /**
      * 根据文件ID，查询minio中对应目录下的文件名称
      */
     public String getTempFileNameByFileId(String fileId) {
-        FileRepository defaultRepository = FileCenter.getDefaultRepository();
-        String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
-        try {
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFolder(systemTempDir + "/" + fileId);
-            List<String> folderFileNames = defaultRepository.getFolderFileNames(fileRequest);
-            if (CollectionUtils.isEmpty(folderFileNames)) {
-                return null;
-            }
-            String[] pathSplit = folderFileNames.getFirst().split("/");
-            return pathSplit[pathSplit.length - 1];
-
-        } catch (Exception e) {
-            LogUtils.error(e);
-            return null;
-        }
+        return commonFileService.getTempFileNameByFileId(fileId);
     }
 
     /**

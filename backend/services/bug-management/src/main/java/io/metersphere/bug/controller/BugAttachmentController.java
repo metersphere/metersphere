@@ -17,6 +17,7 @@ import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.service.CommonFileService;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +45,8 @@ public class BugAttachmentController {
     private BugAttachmentService bugAttachmentService;
     @Resource
     private FileAssociationService fileAssociationService;
+    @Resource
+    private CommonFileService commonFileService;
 
     @GetMapping("/list/{bugId}")
     @Operation(summary = "缺陷管理-附件-列表")
@@ -142,7 +145,7 @@ public class BugAttachmentController {
     @Operation(summary = "缺陷管理-富文本附件-上传")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_BUG_ADD, PermissionConstants.PROJECT_BUG_UPDATE, PermissionConstants.PROJECT_BUG_COMMENT})
     public String upload(@RequestParam("file") MultipartFile file) throws Exception {
-        return bugAttachmentService.uploadMdFile(file);
+        return commonFileService.uploadTempImgFile(file);
     }
 
     @GetMapping(value = "/preview/md/{projectId}/{fileId}/{compressed}")

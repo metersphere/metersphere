@@ -40,9 +40,9 @@ public class FilterChainUtils {
         //mock-server
         filterChainDefinitionMap.put("/mock-server/**", "anon");
 
-        //功能用例副文本访问
+        //功能用例富文本访问
         filterChainDefinitionMap.put("/attachment/download/file/**", "anon");
-        //用例评审副文本访问
+        //用例评审富文本访问
         filterChainDefinitionMap.put("/review/functional/case/download/file/**", "anon");
         //缺陷管理富文本访问
         filterChainDefinitionMap.put("/bug/attachment/preview/md/**", "anon");

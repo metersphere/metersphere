@@ -11,7 +11,7 @@ import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.service.EnvironmentService;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.StorageType;

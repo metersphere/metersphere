@@ -14,7 +14,8 @@ import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.CountUtils;
 import io.metersphere.plan.utils.RateCalculateUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.CommonFileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -103,6 +104,8 @@ public class TestPlanReportService {
     private ExtTestPlanCaseExecuteHistoryMapper extTestPlanCaseExecuteHistoryMapper;
     @Resource
     private TestPlanReportComponentMapper componentMapper;
+    @Resource
+    private CommonFileService commonFileService;
 
     /**
      * 分页查询报告列表
@@ -936,7 +939,7 @@ public class TestPlanReportService {
         String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
         // 添加文件与测试计划报告的关联关系
         Map<String, String> addFileMap = new HashMap<>(fileIds.size());
-        LogUtils.info("开始上传副文本里的附件");
+        LogUtils.info("开始上传富文本里的附件");
         List<TestPlanReportAttachment> attachments = fileIds.stream().map(fileId -> {
             TestPlanReportAttachment attachment = new TestPlanReportAttachment();
             String fileName = getTempFileNameByFileId(fileId);
@@ -1014,7 +1017,7 @@ public class TestPlanReportService {
                 fileCopyRequest.setFileName(fileName);
                 defaultRepository.delete(fileCopyRequest);
             } catch (Exception e) {
-                LogUtils.error("上传副文本文件失败：{}", e);
+                LogUtils.error("上传富文本文件失败：{}", e);
                 throw new MSException(Translator.get("file_upload_fail"));
             }
         }
@@ -1105,7 +1108,7 @@ public class TestPlanReportService {
         if (CollectionUtils.isEmpty(reportAttachments)) {
             //在临时文件获取
             fileName = getTempFileNameByFileId(fileId);
-            bytes = getPreviewImg(fileName, fileId, compressed);
+            bytes = commonFileService.downloadTempImg(fileId, fileName, compressed);
         } else {
             //在正式目录获取
             TestPlanReportAttachment attachment = reportAttachments.getFirst();
@@ -1142,52 +1145,5 @@ public class TestPlanReportService {
         fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
         return fileRequest;
-    }
-
-    public byte[] getPreviewImg(String fileName, String fileId, boolean isCompressed) {
-        String systemTempDir;
-        if (isCompressed) {
-            systemTempDir = DefaultRepositoryDir.getSystemTempCompressDir();
-        } else {
-            systemTempDir = DefaultRepositoryDir.getSystemTempDir();
-        }
-        FileRequest previewRequest = new FileRequest();
-        previewRequest.setFileName(fileName);
-        previewRequest.setStorage(StorageType.MINIO.name());
-        previewRequest.setFolder(systemTempDir + "/" + fileId);
-        byte[] previewImg = null;
-        try {
-            previewImg = fileService.download(previewRequest);
-        } catch (Exception e) {
-            LogUtils.error("获取预览图失败：{}", e);
-        }
-
-        if (previewImg == null || previewImg.length == 0) {
-            try {
-                if (isCompressed) {
-                    previewImg = this.compressPicWithFileMetadata(fileName, fileId);
-                    previewRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
-                    fileService.upload(previewImg, previewRequest);
-                }
-                return previewImg;
-            } catch (Exception e) {
-                LogUtils.error("获取预览图失败：{}", e);
-            }
-        }
-        return previewImg;
-    }
-
-    //获取文件并压缩的方法需要上锁，防止并发超过一定数量时内存溢出
-    private synchronized byte[] compressPicWithFileMetadata(String fileName, String fileId) throws Exception {
-        byte[] fileBytes = this.getFile(fileName, fileId);
-        return TempFileUtils.compressPic(fileBytes);
-    }
-
-    public byte[] getFile(String fileName, String fileId) throws Exception {
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(fileName);
-        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
-        fileRequest.setStorage(StorageType.MINIO.name());
-        return fileService.download(fileRequest);
     }
 }

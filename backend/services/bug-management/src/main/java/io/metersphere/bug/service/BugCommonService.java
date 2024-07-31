@@ -13,7 +13,7 @@ import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.dto.ProjectUserDTO;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.request.ProjectMemberRequest;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectMemberService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;

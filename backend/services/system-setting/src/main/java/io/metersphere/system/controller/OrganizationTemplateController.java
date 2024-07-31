@@ -7,6 +7,7 @@ import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOrgOwner;
+import io.metersphere.system.service.CommonFileService;
 import io.metersphere.system.service.OrganizationTemplateLogService;
 import io.metersphere.system.service.OrganizationTemplateService;
 import io.metersphere.system.utils.SessionUtils;
@@ -16,9 +17,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,8 @@ public class OrganizationTemplateController {
 
     @Resource
     private OrganizationTemplateService organizationTemplateService;
+    @Resource
+    private CommonFileService commonFileService;
 
     @GetMapping("/list/{organizationId}/{scene}")
     @Operation(summary = "获取模版列表")
@@ -92,5 +98,21 @@ public class OrganizationTemplateController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TEMPLATE_READ)
     public Map<String, Boolean> getOrganizationTemplateEnableConfig(@PathVariable String organizationId) {
         return organizationTemplateService.getOrganizationTemplateEnableConfig(organizationId);
+    }
+
+    @PostMapping("/upload/temp/img")
+    @Operation(summary = "上传富文本图片，并返回文件ID")
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, PermissionConstants.ORGANIZATION_TEMPLATE_ADD}, logical = Logical.OR)
+    public String upload(@RequestParam("file") MultipartFile file) {
+        return commonFileService.uploadTempImgFile(file);
+    }
+
+    @GetMapping(value = "/img/preview/{organizationId}/{fileId}/{compressed}")
+    @Operation(summary = "富文本图片-预览")
+    public ResponseEntity<byte[]> previewImg(@PathVariable String organizationId,
+                                                  @PathVariable String fileId,
+                                                  @Schema(description = "查看压缩图片", requiredMode = Schema.RequiredMode.REQUIRED)
+                                                  @PathVariable("compressed") boolean compressed) {
+        return organizationTemplateService.previewImg(organizationId, fileId, compressed);
     }
 }

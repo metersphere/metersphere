@@ -15,7 +15,8 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.project.service.FileService;
+import io.metersphere.system.service.CommonFileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -63,6 +64,9 @@ public class FunctionalCaseAttachmentService {
 
     @Resource
     private FileAssociationService fileAssociationService;
+
+    @Resource
+    private CommonFileService commonFileService;
 
     private static final String UPLOAD_FILE = "/attachment/upload/file";
     private static final String DELETED_FILE = "/attachment/delete/file";
@@ -364,39 +368,6 @@ public class FunctionalCaseAttachmentService {
         }
     }
 
-
-    public String uploadTemp(MultipartFile file) {
-        String fileName = StringUtils.trim(file.getOriginalFilename());
-        if (file.getSize() > maxFileSize.toBytes()) {
-            throw new MSException(Translator.get("file.size.is.too.large"));
-        }
-        if (StringUtils.isBlank(fileName)) {
-            throw new MSException(Translator.get("file.name.cannot.be.empty"));
-        }
-        String fileId = IDGenerator.nextStr();
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(file.getOriginalFilename());
-        String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
-        fileRequest.setFolder(systemTempDir + "/" + fileId);
-        try {
-            FileCenter.getDefaultRepository()
-                    .saveFile(file, fileRequest);
-            String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
-
-            if (TempFileUtils.isImage(fileType)) {
-                //图片文件自动生成预览图
-                byte[] previewImg = TempFileUtils.compressPic(file.getBytes());
-                fileRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
-                fileRequest.setStorage(StorageType.MINIO.toString());
-                fileService.upload(previewImg, fileRequest);
-            }
-        } catch (Exception e) {
-            LogUtils.error(e);
-            throw new MSException(Translator.get("file_upload_fail"));
-        }
-        return fileId;
-    }
-
     public void uploadMinioFile(String caseId, String projectId, List<String> uploadFileIds, String userId, String fileSource) {
         if (CollectionUtils.isEmpty(uploadFileIds)) {
             return;
@@ -416,7 +387,7 @@ public class FunctionalCaseAttachmentService {
         String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
         // 添加文件与功能用例的关联关系
         Map<String, String> addFileMap = new HashMap<>();
-        LogUtils.info("开始上传副文本里的附件");
+        LogUtils.info("开始上传富文本里的附件");
         List<FunctionalCaseAttachment> functionalCaseAttachments = filIds.stream().map(fileId -> {
             FunctionalCaseAttachment functionalCaseAttachment = new FunctionalCaseAttachment();
             String fileName = getTempFileNameByFileId(fileId);
@@ -445,69 +416,40 @@ public class FunctionalCaseAttachmentService {
         // 上传文件到对象存储
         LogUtils.info("上传文件到对象存储");
         uploadFileResource(functionalCaseDir, addFileMap, projectId, caseId);
-        LogUtils.info("上传副文本里的附件结束");
+        LogUtils.info("上传富文本里的附件结束");
     }
 
     /**
      * 根据文件ID，查询minio中对应目录下的文件名称
      */
     public String getTempFileNameByFileId(String fileId) {
-        FileRepository defaultRepository = FileCenter.getDefaultRepository();
-        try {
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
-            List<String> folderFileNames = defaultRepository.getFolderFileNames(fileRequest);
-            if (CollectionUtils.isEmpty(folderFileNames)) {
-                return null;
-            }
-            String[] pathSplit = folderFileNames.getFirst().split("/");
-            return pathSplit[pathSplit.length - 1];
-
-        } catch (Exception e) {
-            LogUtils.error(e);
-            return null;
-        }
+        return commonFileService.getTempFileNameByFileId(fileId);
     }
 
     /**
      * 上传用例管理相关的资源文件
      *
      * @param folder     用例管理文件路径
-     * @param addFileMap key:fileId value:fileName
+     * @param fileMap key:fileId value:fileName
      */
-    public void uploadFileResource(String folder, Map<String, String> addFileMap, String projectId, String caseId) {
-        if (MapUtils.isEmpty(addFileMap)) {
+    public void uploadFileResource(String folder, Map<String, String> fileMap, String projectId, String caseId) {
+        if (MapUtils.isEmpty(fileMap)) {
             return;
         }
-        FileRepository defaultRepository = FileCenter.getDefaultRepository();
-        for (String fileId : addFileMap.keySet()) {
-            String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+        for (String fileId : fileMap.keySet()) {
             try {
-                String fileName = addFileMap.get(fileId);
+                String fileName = fileMap.get(fileId);
                 if (StringUtils.isEmpty(fileName)) {
                     continue;
                 }
-                // 按ID建文件夹，避免文件名重复
-                FileCopyRequest fileCopyRequest = new FileCopyRequest();
-                fileCopyRequest.setCopyFolder(systemTempDir + "/" + fileId);
-                fileCopyRequest.setCopyfileName(fileName);
-                fileCopyRequest.setFileName(fileName);
-                fileCopyRequest.setFolder(folder + "/" + fileId);
-                // 将文件从临时目录复制到资源目录
-                defaultRepository.copyFile(fileCopyRequest);
-
-                String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
-                if (TempFileUtils.isImage(fileType)) {
-                    //图片文件自动生成预览图
-                    byte[] file = defaultRepository.getFile(fileCopyRequest);
-                    byte[] previewImg = TempFileUtils.compressPic(file);
-                    fileCopyRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, caseId) + "/" + fileId);
-                    fileCopyRequest.setStorage(StorageType.MINIO.toString());
-                    fileService.upload(previewImg, fileCopyRequest);
-                }
+                // 将临时文件移动到指定文件夹
+                commonFileService.moveTempFileToFolder(fileId, fileName, folder);
+                // 将文件从临时目录移动到指定的图片预览目录
+                commonFileService.moveTempFileToImgReviewFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, caseId), fileId, fileName);
+                // 这里不删除临时文件，批量评审需要保留，copy多次文件到正式目录
             } catch (Exception e) {
-                LogUtils.error("上传副文本文件失败：{}",e);
-                throw new MSException(Translator.get("file_upload_fail"));
+                LogUtils.error(e);
+                throw new MSException(Translator.get("file_upload_fail"), e);
             }
         }
     }
@@ -526,7 +468,7 @@ public class FunctionalCaseAttachmentService {
         if (CollectionUtils.isEmpty(caseAttachments)) {
             //在临时文件获取
             fileName = getTempFileNameByFileId(fileId);
-            bytes = getPreviewImg(fileName, fileId, compressed);
+            bytes = commonFileService.downloadTempImg(fileId, fileName, compressed);
         } else {
             //在正式目录获取
             FunctionalCaseAttachment attachment = caseAttachments.getFirst();
@@ -550,52 +492,4 @@ public class FunctionalCaseAttachmentService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(bytes);
     }
-
-    public byte[] getPreviewImg(String fileName, String fileId, boolean isCompressed) {
-        String systemTempDir;
-        if (isCompressed) {
-            systemTempDir = DefaultRepositoryDir.getSystemTempCompressDir();
-        } else {
-            systemTempDir = DefaultRepositoryDir.getSystemTempDir();
-        }
-        FileRequest previewRequest = new FileRequest();
-        previewRequest.setFileName(fileName);
-        previewRequest.setStorage(StorageType.MINIO.name());
-        previewRequest.setFolder(systemTempDir + "/" + fileId);
-        byte[] previewImg = null;
-        try {
-            previewImg = fileService.download(previewRequest);
-        } catch (Exception e) {
-            LogUtils.error("获取预览图失败：{}", e);
-        }
-
-        if (previewImg == null || previewImg.length == 0) {
-            try {
-                if (isCompressed) {
-                    previewImg = this.compressPicWithFileMetadata(fileName, fileId);
-                    previewRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
-                    fileService.upload(previewImg, previewRequest);
-                }
-                return previewImg;
-            } catch (Exception e) {
-                LogUtils.error("获取预览图失败：{}", e);
-            }
-        }
-        return previewImg;
-    }
-
-    //获取文件并压缩的方法需要上锁，防止并发超过一定数量时内存溢出
-    private synchronized byte[] compressPicWithFileMetadata(String fileName, String fileId) throws Exception {
-        byte[] fileBytes = this.getFile(fileName, fileId);
-        return TempFileUtils.compressPic(fileBytes);
-    }
-
-    public byte[] getFile(String fileName, String fileId) throws Exception {
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(fileName);
-        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
-        fileRequest.setStorage(StorageType.MINIO.name());
-        return fileService.download(fileRequest);
-    }
-
 }

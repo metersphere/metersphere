@@ -24,6 +24,7 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.mapper.BaseUserMapper;
+import io.metersphere.system.service.FileService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;

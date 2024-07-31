@@ -23,6 +23,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.PluginWrapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -311,7 +312,9 @@ public class ProjectTemplateService extends BaseTemplateService {
         checkProjectTemplateEnable(template.getScopeId(), template.getScene());
         template.setScopeType(TemplateScopeType.PROJECT.name());
         template.setRefId(null);
-        return super.add(template, request.getCustomFields(), request.getSystemFields());
+        template = super.add(template, request.getCustomFields(), request.getSystemFields());
+        saveUploadImages(request);
+        return template;
     }
 
     public void checkProjectResourceExist(Template template) {
@@ -330,7 +333,9 @@ public class ProjectTemplateService extends BaseTemplateService {
         template.setScopeId(originTemplate.getScopeId());
         template.setScene(originTemplate.getScene());
         checkProjectResourceExist(originTemplate);
-        return super.update(template, request.getCustomFields(), request.getSystemFields());
+        template = super.update(template, request.getCustomFields(), request.getSystemFields());
+        saveUploadImages(request);
+        return template;
     }
 
     @Override
@@ -437,5 +442,30 @@ public class ProjectTemplateService extends BaseTemplateService {
             return collect;
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * 保存上传的文件
+     * 将文件从临时目录移动到正式目录
+     *
+     * @param request
+     */
+    private void saveUploadImages(TemplateUpdateRequest request) {
+        String projectTemplateDir = DefaultRepositoryDir.getProjectTemplateImgDir(request.getScopeId());
+        String projectTemplatePreviewDir = DefaultRepositoryDir.getProjectTemplateImgPreviewDir(request.getScopeId());
+        commonFileService.saveReviewImgFromTempFile(projectTemplateDir, projectTemplatePreviewDir, request.getUploadImgFileIds());
+    }
+
+    /**
+     * 富文本框图片预览
+     * @param projectId
+     * @param fileId
+     * @param compressed
+     * @return
+     */
+    public ResponseEntity<byte[]> previewImg(String projectId, String fileId, boolean compressed) {
+        String projectTemplateDir = DefaultRepositoryDir.getProjectTemplateImgDir(projectId);
+        String projectTemplatePreviewDir = DefaultRepositoryDir.getProjectTemplateImgPreviewDir(projectId);
+        return super.previewImg(fileId, projectTemplateDir, projectTemplatePreviewDir, compressed);
     }
 }

@@ -49,4 +49,7 @@ public class TemplateUpdateRequest {
     @Valid
     @Schema(title = "系统字段列表")
     private List<TemplateSystemCustomFieldRequest> systemFields;
+
+    @Schema(description = "模板中新上传的文件ID列表")
+    private List<String> uploadImgFileIds;
 }

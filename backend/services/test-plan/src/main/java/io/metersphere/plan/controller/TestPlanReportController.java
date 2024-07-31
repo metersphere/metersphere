@@ -3,7 +3,6 @@ package io.metersphere.plan.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.bug.service.BugAttachmentService;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlanReportComponent;
@@ -19,6 +18,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.service.CommonFileService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -40,15 +40,14 @@ import java.util.List;
 @RequestMapping("/test-plan/report")
 @Tag(name = "测试计划-报告")
 public class TestPlanReportController {
-
-    @Resource
-    private BugAttachmentService bugAttachmentService;
     @Resource
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private CommonFileService commonFileService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-报告-表格分页查询")
@@ -128,7 +127,7 @@ public class TestPlanReportController {
     @Operation(summary = "测试计划-报告-详情-上传富文本(图片)")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_UPDATE)
     public String upload(@RequestParam("file") MultipartFile file) {
-        return bugAttachmentService.uploadMdFile(file);
+        return commonFileService.uploadTempImgFile(file);
     }
 
     @PostMapping("/detail/edit")
