@@ -272,14 +272,20 @@
     }
   );
 
+  watch(
+    () => [props.hideJsonSchema, props.isCase],
+    () => {
+      if (props.hideJsonSchema) {
+        innerParams.value.jsonBody.enableJsonSchema = false;
+        return;
+      }
+      if (props.isCase) {
+        innerParams.value.jsonBody.enableJsonSchema = false;
+      }
+    }
+  );
+
   watchEffect(() => {
-    if (props.hideJsonSchema) {
-      innerParams.value.jsonBody.enableJsonSchema = false;
-      return;
-    }
-    if (props.isCase) {
-      innerParams.value.jsonBody.enableJsonSchema = false;
-    }
     if (
       innerParams.value.jsonBody.jsonSchema &&
       (!innerParams.value.jsonBody.jsonSchemaTableData || innerParams.value.jsonBody.jsonSchemaTableData.length === 0)
