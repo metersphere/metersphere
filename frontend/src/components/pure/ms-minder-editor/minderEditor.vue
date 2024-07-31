@@ -37,6 +37,7 @@
   import useMinderOperation from './hooks/useMinderOperation';
   import useShortCut from './hooks/useShortCut';
   import {
+    batchMenuProps,
     delProps,
     editMenuProps,
     floatMenuProps,
@@ -50,13 +51,14 @@
     tagProps,
     viewMenuProps,
   } from './props';
-  import { isNodeInMinderView, setPriorityView } from './script/tool/utils';
+  import { isNodeInMinderView } from './script/tool/utils';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;
     (e: 'save', data: MinderJson, callback: () => void): void;
     (e: 'afterMount'): void;
     (e: 'nodeSelect', data: MinderJsonNode): void;
+    (e: 'nodeBatchSelect', data: MinderJsonNode[]): void;
     (e: 'contentChange', data?: MinderJsonNode): void;
     (e: 'action', event: MinderCustomEvent): void;
     (e: 'beforeExecCommand', event: MinderEvent): void;
@@ -74,6 +76,7 @@
     ...tagProps,
     ...delProps,
     ...viewMenuProps,
+    ...batchMenuProps,
   });
 
   const minderStore = useMinderStore();
@@ -115,11 +118,7 @@
     emit('save', data, callback);
   }
 
-  const { appendChildNode, appendSiblingNode, minderDelete } = useMinderOperation({
-    insertNode: props.insertNode,
-    canShowMoreMenuNodeOperation: props.canShowMoreMenuNodeOperation,
-    canShowPasteMenu: props.canShowPasteMenu,
-  });
+  const { appendChildNode, appendSiblingNode, minderDelete, minderExpand } = useMinderOperation(props);
   const { unbindShortcuts } = useShortCut(
     {
       undo: () => {
@@ -135,26 +134,17 @@
         }
       },
       delete: () => {
-        if (props.canShowMoreMenuNodeOperation && !props.disabled) {
+        if (
+          (props.canShowDeleteMenu || (props.canShowMoreMenu && props.canShowMoreMenuNodeOperation)) &&
+          !props.disabled
+        ) {
           const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
           minderDelete(selectedNodes);
         }
       },
       expand: () => {
         const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-        if (selectedNodes.every((node) => node.isExpanded())) {
-          // 选中的节点集合全部展开，则全部收起
-          window.minder.execCommand('Collapse');
-          minderStore.dispatchEvent(MinderEventName.COLLAPSE, undefined, undefined, undefined, selectedNodes);
-        } else {
-          // 选中的节点集合中有一个节点未展开，则全部展开
-          window.minder.execCommand('Expand');
-          if (!props.customPriority) {
-            // 展开后，需要设置一次优先级展示，避免展开后优先级显示成脑图内置文案；如果设置了自定义优先级，则不在此设置，由外部自行处理
-            setPriorityView(props.priorityStartWithZero, props.priorityPrefix);
-          }
-          minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, undefined, selectedNodes);
-        }
+        minderExpand(selectedNodes);
       },
       appendChildNode: () => {
         if (props.insertSonMenus.length > 0 || props.insertNode) {
@@ -169,17 +159,18 @@
         }
       },
     },
-    {
-      insertNode: props.insertNode,
-      canShowMoreMenuNodeOperation: props.canShowMoreMenuNodeOperation,
-      canShowPasteMenu: props.canShowPasteMenu,
-    }
+    props
   );
 
   onMounted(() => {
     window.minderProps = props;
     useMinderEventListener({
-      handleSelectionChange: (node?: MinderJsonNode) => {
+      handleSelectionChange: (nodes: MinderJsonNode[]) => {
+        if (nodes && nodes.length > 1) {
+          emit('nodeBatchSelect', nodes);
+          return;
+        }
+        const node = nodes[0];
         if (node) {
           emit('nodeSelect', node);
           const box = node.getRenderBox();

@@ -102,6 +102,12 @@ export const priorityProps = {
     default: '',
   },
 };
+export const priorityColorMap: Record<number, string> = {
+  1: 'rgb(var(--danger-6))',
+  2: 'rgb(var(--link-6))',
+  3: 'rgb(var(--success-6))',
+  4: 'rgb(var(--warning-6))',
+};
 
 export interface MinderReplaceTag {
   tags: string[];
@@ -133,7 +139,7 @@ export const tagProps = {
   afterTagEdit: Function as PropType<(nodes: MinderJsonNode[], tag: string) => void>,
 };
 
-export interface InsertMenuItem {
+export interface MinderMenuItem {
   value: string;
   label: string;
 }
@@ -146,14 +152,14 @@ export interface MoreMenuOtherOperationItem {
 export const floatMenuProps = {
   // 插入同级选项
   insertSiblingMenus: {
-    type: Array as PropType<InsertMenuItem[]>,
+    type: Array as PropType<MinderMenuItem[]>,
     default() {
       return [];
     },
   },
   // 插入子级选项
   insertSonMenus: {
-    type: Array as PropType<InsertMenuItem[]>,
+    type: Array as PropType<MinderMenuItem[]>,
     default() {
       return [];
     },
@@ -208,6 +214,31 @@ export const floatMenuProps = {
   customPriority: {
     type: Boolean,
     default: false,
+  },
+};
+export const batchMenuProps = {
+  canShowMoreBatchMenu: {
+    type: Boolean,
+    default: false,
+  },
+  canShowBatchCopy: {
+    type: Boolean,
+    default: false,
+  },
+  canShowBatchCut: {
+    type: Boolean,
+    default: false,
+  },
+  canShowBatchDelete: {
+    type: Boolean,
+    default: false,
+  },
+  canShowBatchExpand: {
+    type: Boolean,
+    default: false,
+  },
+  customBatchExpand: {
+    type: Function as PropType<(node: MinderJsonNode) => void>,
   },
 };
 

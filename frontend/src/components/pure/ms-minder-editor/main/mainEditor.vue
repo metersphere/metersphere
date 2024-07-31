@@ -29,12 +29,14 @@
         <slot name="extractMenu"></slot>
       </template>
     </nodeFloatMenu>
+    <batchMenu v-bind="props" />
   </div>
 </template>
 
 <script lang="ts" name="minderContainer" setup>
   import { cloneDeep } from 'lodash-es';
 
+  import batchMenu from '../menu/batchMenu.vue';
   import nodeFloatMenu from '../menu/nodeFloatMenu.vue';
   import minderHeader from './header.vue';
   import Navigator from './navigator.vue';
@@ -47,6 +49,7 @@
 
   import useEventListener from '../hooks/useMinderEventListener';
   import {
+    batchMenuProps,
     editMenuProps,
     floatMenuProps,
     headerProps,
@@ -68,6 +71,7 @@
     ...mainEditorProps,
     ...tagProps,
     ...priorityProps,
+    ...batchMenuProps,
   });
   const emit = defineEmits<{
     (e: 'save', data: MinderJson, callback: () => void): void;

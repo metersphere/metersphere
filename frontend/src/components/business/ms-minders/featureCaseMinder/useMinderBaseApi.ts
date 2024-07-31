@@ -1,8 +1,8 @@
 import type {
-  InsertMenuItem,
   MinderEvent,
   MinderJsonNode,
   MinderJsonNodeData,
+  MinderMenuItem,
 } from '@/components/pure/ms-minder-editor/props';
 
 import { useI18n } from '@/hooks/useI18n';
@@ -50,8 +50,8 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
     return true;
   }
 
-  const insertSiblingMenus = ref<InsertMenuItem[]>([]);
-  const insertSonMenus = ref<InsertMenuItem[]>([]);
+  const insertSiblingMenus = ref<MinderMenuItem[]>([]);
+  const insertSonMenus = ref<MinderMenuItem[]>([]);
 
   /**
    * 检测节点可展示的菜单项
@@ -236,9 +236,9 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
       return false;
     }
     if (window.minder) {
-      const node: MinderJsonNode = window.minder.getSelectedNode();
+      const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
       // 选中节点是用例节点时，可展示优先级菜单
-      return !!node?.data?.resource?.includes(caseTag);
+      return nodes.every((node) => !!node.data?.resource?.includes(caseTag));
     }
     return false;
   }

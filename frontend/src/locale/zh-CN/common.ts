@@ -200,4 +200,5 @@ export default {
   'common.jump': '跳转',
   'common.gotIt': '知道了',
   'common.inputPleaseEnterTags': '请输入更新标签回车添加，不得超过64字符',
+  'common.cutSuccess': '剪切成功',
 };
