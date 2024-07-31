@@ -981,8 +981,10 @@ public class BugService {
                 // 平台状态为空
                 bug.setStatus(StringUtils.EMPTY);
             }
-            // 第三方平台内置的处理人字段需要从自定义字段中移除
-            request.getCustomFields().removeIf(field -> StringUtils.startsWith(field.getName(), BugTemplateCustomField.HANDLE_USER.getName()));
+            // 第三方平台内置的处理人字段需要从自定义字段中移除 (当使用MS系统模板时)
+            if (!isPluginDefaultTemplate(request.getTemplateId(), request.getProjectId())) {
+                request.getCustomFields().removeIf(field -> StringUtils.startsWith(field.getName(), BugTemplateCustomField.HANDLE_USER.getName()));
+            }
         }
 
         //保存基础信息
@@ -1520,7 +1522,7 @@ public class BugService {
                 // 移除除状态, 处理人以外的所有非API映射的字段
                 platformCustomFields.removeIf(field -> systemCustomFieldApiMap.containsKey(field.getId()) && StringUtil.isBlank(systemCustomFieldApiMap.get(field.getId())));
             } else {
-                systemCustomFieldApiMap = new HashMap<>();
+                systemCustomFieldApiMap = new HashMap<>(16);
             }
             return platformCustomFields.stream().map(field -> {
                 PlatformCustomFieldItemDTO platformCustomFieldItem = new PlatformCustomFieldItemDTO();

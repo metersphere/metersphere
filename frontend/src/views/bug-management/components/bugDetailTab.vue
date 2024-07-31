@@ -39,7 +39,7 @@
       <!-- 特殊布局内容(平台默认模板时展示) -->
       <div v-if="isPlatformDefaultTemplate" class="special-content">
         <div v-for="(item, index) in platformSystemFields" :key="index">
-          <div v-if="item.fieldId !== 'summary'">
+          <div v-if="item.fieldId !== 'summary' && item.fieldId !== 'title'">
             <h1 class="header-title">
               <strong>{{ item.fieldName }}</strong>
             </h1>
@@ -233,11 +233,16 @@
   import { downloadByteFile, sleep } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
+  import {
+    BugEditCustomField,
+    BugEditCustomFieldItem,
+    BugEditFormObject,
+    type CustomFieldItem,
+  } from '@/models/bug-management';
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
-  import { convertToFileByBug, convertToFileByDetail } from '@/views/bug-management/utils';
+  import { convertToFileByBug } from '@/views/bug-management/utils';
 
   defineOptions({
     name: 'BugDetailTab',
@@ -252,6 +257,7 @@
     isPlatformDefaultTemplate: boolean; // 是否是平台默认模板
     platformSystemFields: BugEditCustomField[]; // 平台系统字段
     currentPlatform: string; // 当前平台
+    currentCustomFields: CustomFieldItem[];
   }>();
 
   const emit = defineEmits<{
@@ -453,12 +459,13 @@
   }
 
   function getDetailCustomFields() {
-    return props.detailInfo.customFields.map((item: any) => {
+    return props.currentCustomFields.map((field) => {
+      const filterField = props.detailInfo.customFields.filter((item: any) => item.id === field.fieldId)[0];
       return {
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        value: item.value,
+        id: field.fieldId,
+        name: field.fieldName,
+        type: field.type,
+        value: field.fieldId === 'status' ? props.detailInfo.status : filterField.value,
       };
     });
   }
@@ -468,15 +475,21 @@
     try {
       confirmLoading.value = true;
       const customFields: BugEditCustomFieldItem[] = getDetailCustomFields();
+      console.log(customFields);
       if (props.isPlatformDefaultTemplate) {
         // 平台系统默认字段插入自定义集合
         props.platformSystemFields.forEach((item) => {
-          customFields.push({
-            id: item.fieldId,
-            name: item.fieldName,
-            type: item.type,
-            value: item.defaultValue,
-          });
+          const systemField = customFields.filter((field) => field.id === item.fieldId)[0];
+          if (systemField) {
+            systemField.value = item.defaultValue;
+          } else {
+            customFields.push({
+              id: item.fieldId,
+              name: item.fieldName,
+              type: item.type,
+              value: item.defaultValue,
+            });
+          }
         });
       }
       const tmpObj: BugEditFormObject = {
