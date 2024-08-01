@@ -105,6 +105,7 @@
       stepList: any;
       isDisabled?: boolean;
       isScrollY?: boolean;
+      scrollY?: number;
       isTestPlan?: boolean;
       isDisabledTestPlan?: boolean;
       isPreview?: boolean; // 仅预览不展示状态可操作下拉和文本框
@@ -212,7 +213,7 @@
 
   const tableProps = ref<Partial<MsTableProps<StepList>>>({
     columns: templateFieldColumns.value,
-    scroll: { x: '100%', y: props.isScrollY ? 400 : '' },
+    scroll: { x: '100%', y: props.isScrollY ? props.scrollY ?? 400 : '' },
     selectable: false,
     noDisable: true,
     showSetting: false,

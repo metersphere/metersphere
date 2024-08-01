@@ -154,7 +154,7 @@
 
   const emit = defineEmits<{
     (e: 'operation', type: string, node: MinderJsonNode): void;
-    (e: 'handleReviewDone', refreshTree?: boolean): void;
+    (e: 'handleReviewDone'): void;
   }>();
 
   const route = useRoute();
@@ -484,10 +484,10 @@
       selectNode.value.data?.resource?.includes(caseTag)
     ) {
       window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
-      emit('handleReviewDone');
     } else {
-      emit('handleReviewDone', true);
+      initCaseTree();
     }
+    emit('handleReviewDone');
   }
 
   // 递归更新子节点的用例标签

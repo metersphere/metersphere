@@ -26,26 +26,29 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
+  import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
-  import { runFeatureCase } from '@/api/modules/test-plan/testPlan';
+  import { batchExecuteCase, runFeatureCase } from '@/api/modules/test-plan/testPlan';
   import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import type { StepExecutionResult } from '@/models/caseManagement/featureCase';
-  import type { ExecuteFeatureCaseFormParams } from '@/models/testPlan/testPlan';
+  import type { BatchExecuteFeatureCaseParams, ExecuteFeatureCaseFormParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
 
   const props = defineProps<{
-    caseId: string;
+    caseId?: string;
     testPlanId: string;
-    id: string;
+    id?: string;
+    selectNode?: MinderJsonNode;
     stepExecutionResult?: StepExecutionResult[];
   }>();
 
   const emit = defineEmits<{
-    (e: 'done'): void;
+    (e: 'done', status: LastExecuteResults, content: string): void;
   }>();
 
   const { t } = useI18n();
@@ -104,18 +107,28 @@
       submitLoading.value = true;
       const params = {
         projectId: appStore.currentProjectId,
-        caseId: props.caseId,
         testPlanId: props.testPlanId,
-        id: props.id,
         ...(modalVisible.value ? dialogForm.value : form.value),
-        stepsExecResult: JSON.stringify(props.stepExecutionResult) ?? '',
-        notifier: form.value?.commentIds?.join(';'),
+        stepsExecResult: JSON.stringify(props.stepExecutionResult),
+        notifier: (modalVisible.value ? dialogForm.value : form.value)?.commentIds?.join(';'),
       };
-      await runFeatureCase(params);
+      // 脑图执行是批量执行
+      if (props.selectNode) {
+        await batchExecuteCase({
+          ...params,
+          ...getMinderOperationParams(props.selectNode),
+        } as BatchExecuteFeatureCaseParams);
+      } else {
+        await runFeatureCase({
+          ...params,
+          caseId: props.caseId ?? '',
+          id: props.id ?? '',
+        });
+      }
       modalVisible.value = false;
       Message.success(t('common.updateSuccess'));
       form.value = { ...defaultExecuteForm };
-      emit('done');
+      emit('done', params.lastExecResult, params.content ?? '');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

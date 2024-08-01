@@ -134,7 +134,7 @@ export interface BatchReviewCaseParams extends BatchApiParams {
   reviewId: string; // 评审id
   userId: string; // 用户id, 用来判断是否只看我的
   reviewPassRule: ReviewPassRule; // 评审规则
-  status: ReviewResult; // 评审结果
+  status: StartReviewStatus; // 评审结果
   content: string; // 评论内容
   notifier: string; // 评论@的人的Id, 多个以';'隔开
   reviewCommentFileIds?: string[]; // 富文本ids

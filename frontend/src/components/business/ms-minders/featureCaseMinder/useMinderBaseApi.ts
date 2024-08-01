@@ -13,7 +13,7 @@ import { getGenerateId } from '@/utils';
  * 封装用例脑图基础功能，包含菜单显隐判断、节点插入、节点替换、节点拖拽等
  * @returns API 集合
  */
-export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermission: boolean }) {
+export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermission?: boolean }) {
   const { t } = useI18n();
   const minderStore = useMinderStore();
 
