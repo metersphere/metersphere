@@ -388,18 +388,25 @@
 
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
-        let initValue = item.defaultValue;
         const initOptions = item.options ? item.options : JSON.parse(item.platformOptionJson);
-        if (memberType.includes(item.type)) {
-          if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
-            initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
-          } else if (item.type === 'MULTIPLE_MEMBER' && item.defaultValue) {
-            initValue = JSON.parse(item.defaultValue);
+        let initValue;
+        if (!isEditOrCopy.value) {
+          initValue = item.defaultValue;
+          if (memberType.includes(item.type)) {
+            if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
+              initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
+            } else if (item.type === 'MULTIPLE_MEMBER' && item.defaultValue) {
+              initValue = JSON.parse(item.defaultValue);
+            }
+          } else if (multipleType.includes(item.type)) {
+            if (item.defaultValue && item.defaultValue.length > 0) {
+              initValue = item.defaultValue ? JSON.parse(item.defaultValue) : [];
+            }
+          } else if (numberType.includes(item.type)) {
+            initValue = Number(initValue);
           }
-        } else if (multipleType.includes(item.type)) {
-          initValue = item.defaultValue ? JSON.parse(item.defaultValue) : [];
-        } else if (numberType.includes(item.type)) {
-          initValue = Number(initValue);
+        } else {
+          initValue = null;
         }
         return {
           type: item.type,
@@ -590,7 +597,7 @@
                     value: form.value.platformSystemFields[key],
                   });
                 });
-                delete form.value.platformSystemFields;
+                // delete form.value.platformSystemFields;
                 // 平台默认模板不传递名称, 描述, 标签等参数
                 delete form.value.title;
                 delete form.value.description;
