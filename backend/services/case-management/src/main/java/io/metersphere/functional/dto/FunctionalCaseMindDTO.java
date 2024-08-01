@@ -63,6 +63,9 @@ public class FunctionalCaseMindDTO {
     @Schema(description =  "用例步骤（JSON)，step_model 为 Step 时启用")
     private byte[] steps;
 
+    @Schema(description =  "执行用例步骤（JSON)，step_model 为 Step 时启用")
+    private byte[] executeSteps;
+
     @Schema(description =  "步骤描述，step_model 为 Text 时启用")
     private byte[] textDescription;
 

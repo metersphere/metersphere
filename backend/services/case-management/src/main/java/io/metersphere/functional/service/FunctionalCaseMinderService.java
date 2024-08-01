@@ -200,6 +200,9 @@ public class FunctionalCaseMinderService {
             String stepText = new String(functionalCaseMindDTO.getSteps(), StandardCharsets.UTF_8);
             if (StringUtils.isNotBlank(stepText)) {
                 List<FunctionalCaseStepDTO> functionalCaseStepDTOS = JSON.parseArray(stepText, FunctionalCaseStepDTO.class);
+                if (addActualResult) {
+                    compareStep(functionalCaseMindDTO.getExecuteSteps(), functionalCaseStepDTOS);
+                }
                 for (FunctionalCaseStepDTO functionalCaseStepDTO : functionalCaseStepDTOS) {
                     i = i + 1;
                     String desc = functionalCaseStepDTO.getDesc();
@@ -230,7 +233,7 @@ public class FunctionalCaseMinderService {
                         if (StringUtils.isNotBlank(functionalCaseStepDTO.getExecuteResult())) {
                             List<String> resource = stepFunctionalMinderTreeDTO.getData().getResource();
                             List<String> list = new ArrayList<>(resource);
-                            list.add(statusMap.get(functionalCaseStepDTO.getExecuteResult()));
+                            list.add(0,statusMap.get(functionalCaseStepDTO.getExecuteResult()));
                             stepFunctionalMinderTreeDTO.getData().setResource(list);
                         }
                     }
@@ -1275,5 +1278,27 @@ public class FunctionalCaseMinderService {
         //默认模块下不允许创建子模块。  它本身也就是叶子节点。
         return new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, name, ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
     }
+
+    private static void compareStep(byte[] steps, List<FunctionalCaseStepDTO> newCaseSteps) {
+        if (steps != null) {
+            String historyStepStr = new String(steps, StandardCharsets.UTF_8);
+            if (StringUtils.isNotBlank(historyStepStr)) {
+                List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
+                Map<String, FunctionalCaseStepDTO> historyStepMap = historySteps.stream().collect(Collectors.toMap(FunctionalCaseStepDTO::getId, t -> t));
+                newCaseSteps.forEach(newCaseStep -> {
+                    setHistoryInfo(newCaseStep, historyStepMap);
+                });
+            }
+        }
+    }
+
+    private static void setHistoryInfo(FunctionalCaseStepDTO newCaseStep, Map<String, FunctionalCaseStepDTO> historyStepMap) {
+        FunctionalCaseStepDTO historyStep = historyStepMap.get(newCaseStep.getId());
+        if (historyStep != null && StringUtils.equals(historyStep.getDesc(), newCaseStep.getDesc()) && StringUtils.equals(historyStep.getResult(), newCaseStep.getResult())) {
+            newCaseStep.setExecuteResult(historyStep.getExecuteResult());
+            newCaseStep.setActualResult(historyStep.getActualResult());
+        }
+    }
+
 
 }
