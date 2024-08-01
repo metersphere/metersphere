@@ -15,8 +15,7 @@
     :can-show-float-menu="canShowFloatMenu"
     :can-show-delete-menu="canShowDeleteMenu"
     :disabled="!hasEditPermission"
-    :can-show-batch-delete="true"
-    can-show-more-batch-menu
+    :can-show-batch-delete="canShowBatchDelete"
     custom-priority
     single-tag
     tag-enable
@@ -346,8 +345,10 @@
         canShowDeleteMenu.value = true;
       }
     } else {
-      canShowFloatMenu.value = data.id === 'root';
-      canShowExecuteMethodMenu.value = data.id === 'root';
+      nextTick(() => {
+        canShowFloatMenu.value = node.data.id === 'root';
+        canShowExecuteMethodMenu.value = node.data.id === 'root';
+      });
       showAssociateCaseMenu.value = false;
       showConfigMenu.value = false;
       extraVisible.value = false;
@@ -662,6 +663,29 @@
     configForm.value = undefined;
     configFormUnsaved.value = false;
   }
+
+  /**
+   * 是否可以显示批量删除
+   */
+  const canShowBatchDelete = ref(false);
+  watch(
+    () => minderStore.event.eventId,
+    async () => {
+      if (window.minder) {
+        const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+        if (
+          minderStore.event.name === MinderEventName.DRAG_FINISH ||
+          minderStore.event.name === MinderEventName.NODE_UNSELECT ||
+          minderStore.event.name === MinderEventName.NODE_SELECT
+        ) {
+          canShowBatchDelete.value = selectedNodes.every((node) => node.data?.level === 2);
+        }
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
 
   /**
    * 处理节点选中

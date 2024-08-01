@@ -134,13 +134,8 @@
         }
       },
       delete: () => {
-        if (
-          (props.canShowDeleteMenu || (props.canShowMoreMenu && props.canShowMoreMenuNodeOperation)) &&
-          !props.disabled
-        ) {
-          const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-          minderDelete(selectedNodes);
-        }
+        const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+        minderDelete(selectedNodes);
       },
       expand: () => {
         const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
