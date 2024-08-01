@@ -628,6 +628,11 @@
   function cancelStepExecute() {
     executeForm.value = { ...defaultExecuteForm };
   }
+  /**
+   * 步骤/用例执行后 更新脑图数据
+   * @param status 用例执行状态
+   * @param content 用例实际结果内容
+   */
   function submitStepExecuteDone(status: string, content: string) {
     // 用例更新标签
     caseNodeAboveSelectStep.value.setData('resource', [executionResultMap[status].statusText, caseTag]).render();
@@ -645,6 +650,9 @@
     });
     caseNodeAboveSelectStep.value.layout();
   }
+  /**
+   * 步骤/用例执行
+   */
   async function submitStepExecute() {
     try {
       submitStepExecuteLoading.value = true;
@@ -655,7 +663,18 @@
         id: caseNodeAboveSelectStep.value.data.id,
         ...executeForm.value,
         notifier: executeForm.value?.commentIds?.join(';'),
-        stepsExecResult: JSON.stringify(stepData.value),
+        stepsExecResult: JSON.stringify(
+          stepData.value.map((item, index) => {
+            return {
+              id: item.id,
+              num: index,
+              desc: item.step,
+              result: item.expected,
+              actualResult: item.actualResult,
+              executeResult: item.executeResult,
+            };
+          })
+        ),
       };
       await runFeatureCase(params);
       stepExecuteModelVisible.value = false;
@@ -748,7 +767,7 @@
     // 点步骤描述下的【步骤描述/预期结果/实际结果】标签
     if ([actualResultTag, stepTag, stepExpectTag].some((item) => node.data?.resource?.includes(item))) {
       caseNodeAboveSelectStep.value = getCaseNodeWithResource(node, stepTag);
-      if (caseNodeAboveSelectStep.value.data.id) {
+      if (caseNodeAboveSelectStep.value?.data?.id) {
         getStepData(caseNodeAboveSelectStep.value.data.id);
         stepExecuteModelVisible.value = true;
       }
