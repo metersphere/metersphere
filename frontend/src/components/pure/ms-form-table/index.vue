@@ -12,6 +12,7 @@
         props.disabled ? 'ms-form-table--disabled' : '',
       ]"
       bordered
+      :row-class="rowClass"
       v-on="propsEvent"
       @drag-change="tableChange"
       @init-end="validateAndUpdateErrorMessageList"
@@ -294,6 +295,7 @@
       disabled?: boolean; // 是否禁用
       showSelectorAll?: boolean; // 是否显示全选
       rowSelection?: TableRowSelection;
+      diffMode?: 'add' | 'delete';
       spanMethod?: (data: {
         record: TableData;
         column: TableColumnData | TableOperationColumn;
@@ -537,6 +539,18 @@
     emit('selectAll', checked);
   }
 
+  function rowClass(record: TableData, rowIndex: number) {
+    if (record.diff) {
+      if (props.diffMode === 'add') {
+        return 'add-row-class';
+      }
+      if (props.diffMode === 'delete') {
+        return 'delete-row-class';
+      }
+    }
+    return '';
+  }
+
   defineExpose({
     validateAndUpdateErrorMessageList,
   });
@@ -717,6 +731,22 @@
     }
     .arco-form-item-content-flex {
       flex-wrap: nowrap;
+    }
+  }
+  :deep(.add-row-class) {
+    .arco-table-td {
+      background: rgb(var(--success-1));
+      .arco-table-td-content {
+        background: rgb(var(--success-1));
+      }
+    }
+  }
+  :deep(.delete-row-class) {
+    .arco-table-td {
+      background: rgb(var(--danger-1));
+      .arco-table-td-content {
+        background: rgb(var(--danger-1));
+      }
     }
   }
 </style>
