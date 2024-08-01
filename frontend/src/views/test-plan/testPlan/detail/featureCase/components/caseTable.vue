@@ -465,6 +465,15 @@
     }
   );
 
+  watch(
+    () => props.treeType,
+    (val) => {
+      if (val === 'COLLECTION') {
+        showType.value = 'list';
+      }
+    }
+  );
+
   async function loadCaseList(refreshTreeCount = true) {
     const tableParams = await getTableParams(false);
     setLoadListParams({
@@ -484,7 +493,9 @@
   watch(
     () => props.activeModule,
     () => {
-      loadCaseList();
+      if (showType.value === 'list') {
+        loadCaseList();
+      }
     }
   );
 
