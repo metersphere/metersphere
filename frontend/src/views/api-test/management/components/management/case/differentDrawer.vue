@@ -67,14 +67,27 @@
     </div>
     <!-- 对比 -->
     <div class="diff-container">
-      <div class="diff-item ml-[16px] mr-[8px]">
-        <div class="title-type"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
-        <DiffItem :diff-distance-map="diffDistanceMap" mode="add" is-api :detail="apiDefinedRequest as RequestParam" />
-      </div>
-      <div class="diff-item ml-[8px] mr-[16px]">
-        <div class="title-type"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
-        <DiffItem :diff-distance-map="diffDistanceMap" mode="delete" :detail="caseDetail as RequestParam" />
-      </div>
+      <a-spin class="h-full w-full" :loading="loading">
+        <div class="diff-normal">
+          <div class="diff-item">
+            <div class="title-type"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
+            <DiffItem
+              :diff-distance-map="diffDistanceMap"
+              mode="add"
+              is-api
+              :detail="apiDefinedRequest as RequestParam"
+            />
+          </div>
+          <div class="diff-item ml-[24px]">
+            <div class="title-type"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
+            <DiffItem :diff-distance-map="diffDistanceMap" mode="delete" :detail="caseDetail as RequestParam" />
+          </div>
+        </div>
+        <DiffRequestBody
+          :defined-detail="apiDefinedRequest as RequestParam"
+          :case-detail="caseDetail as RequestParam"
+        />
+      </a-spin>
     </div>
   </MsDrawer>
 </template>
@@ -86,6 +99,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import DiffItem from './diffItem.vue';
+  import DiffRequestBody from './diffRequestBody.vue';
 
   import { getCaseDetail, getDefinitionDetail } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
@@ -323,13 +337,16 @@
       console.log(error);
     }
   }
-
+  const loading = ref<boolean>(false);
   async function getRequestDetail(definedId: string, apiCaseId: string) {
+    loading.value = true;
     try {
       await Promise.all([getApiDetail(definedId), getCaseDetailInfo(apiCaseId)]);
       processData();
     } catch (error) {
       console.error(error);
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -361,31 +378,33 @@
     }
   }
   .diff-container {
-    @apply flex;
-    .diff-item {
-      overflow-y: auto;
-      padding: 16px;
-      min-height: calc(100vh - 110px);
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-      @apply flex-1;
-      .title-type {
-        color: var(--color-text-1);
-        @apply font-medium;
-      }
-      .title {
-        color: var(--color-text-1);
-        @apply my-4;
-      }
-      .detail-item-title {
-        margin-bottom: 8px;
-        gap: 16px;
-        @apply flex items-center justify-between;
-        .detail-item-title-text {
-          @apply font-medium;
-
+    padding: 16px;
+    min-height: calc(100vh - 110px);
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 0 10px rgba(120 56 135/ 5%);
+    @apply mx-4;
+    .diff-normal {
+      @apply flex;
+      .diff-item {
+        @apply flex-1;
+        .title-type {
           color: var(--color-text-1);
+          @apply font-medium;
+        }
+        .title {
+          color: var(--color-text-1);
+          @apply my-4;
+        }
+        .detail-item-title {
+          margin-bottom: 8px;
+          gap: 16px;
+          @apply flex items-center justify-between;
+          .detail-item-title-text {
+            @apply font-medium;
+
+            color: var(--color-text-1);
+          }
         }
       }
     }

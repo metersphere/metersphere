@@ -39,7 +39,7 @@
   </div>
   <div v-if="showDiff(RequestComposition.REST)" class="title">REST</div>
   <div
-    v-if="showDiff(RequestComposition.REST)"
+    v-if="showDiff(RequestComposition.REST) && hiddenEmptyTable(RequestComposition.REST)"
     :style="{ 'padding-bottom': `${getBottomDistance(RequestComposition.REST)}px` }"
   >
     <MsFormTable
@@ -56,20 +56,11 @@
   >
     {{ t('case.notSetData') }}
   </div>
-
+  <!-- 请求体 -->
   <div class="title flex items-center justify-between">
     <div class="detail-item-title-text">
       {{ `${t('apiTestManagement.requestBody')}-${previewDetail?.body?.bodyType}` }}
     </div>
-    <a-radio-group
-      v-if="previewDetail?.body?.bodyType === RequestBodyFormat.JSON && props.isApi"
-      v-model:model-value="bodyShowType"
-      type="button"
-      size="mini"
-    >
-      <a-radio value="schema">Schema</a-radio>
-      <a-radio value="json">JSON</a-radio>
-    </a-radio-group>
   </div>
   <div
     v-if="
@@ -96,52 +87,13 @@
   >
     {{ t('case.notSetData') }}
   </div>
-  <template
-    v-else-if="
-      [RequestBodyFormat.JSON, RequestBodyFormat.RAW, RequestBodyFormat.XML].includes(previewDetail?.body?.bodyType)
-    "
-  >
-    <MsJsonSchema
-      v-if="previewDetail?.body?.bodyType === RequestBodyFormat.JSON && bodyShowType === 'schema' && props.isApi"
-      :data="previewDetail.body.jsonBody.jsonSchemaTableData"
-      disabled
-    />
-    <MsCodeEditor
-      v-else
-      :model-value="bodyCode"
-      theme="vs"
-      height="200px"
-      :language="bodyCodeLanguage"
-      :show-full-screen="false"
-      :show-theme-change="false"
-      read-only
-    >
-      <template #rightTitle>
-        <a-button
-          type="outline"
-          class="arco-btn-outline--secondary p-[0_8px]"
-          size="mini"
-          @click="copyScript(bodyCode)"
-        >
-          <template #icon>
-            <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-          </template>
-        </a-button>
-      </template>
-    </MsCodeEditor>
-  </template>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useClipboard } from '@vueuse/core';
-  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsFormTable, { FormTableColumn } from '@/components/pure/ms-form-table/index.vue';
-  import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -150,7 +102,6 @@
 
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
-  const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -258,8 +209,6 @@
       width: 100,
     },
   ];
-
-  const bodyShowType = ref('schema');
 
   /**
    * 请求体
@@ -375,42 +324,6 @@
         return [];
     }
   });
-
-  const bodyCode = computed(() => {
-    switch (previewDetail.value?.body?.bodyType) {
-      case RequestBodyFormat.FORM_DATA:
-        return previewDetail.value.body.formDataBody?.formValues?.map((item) => `${item.key}:${item.value}`).join('\n');
-      case RequestBodyFormat.WWW_FORM:
-        return previewDetail.value.body.wwwFormBody?.formValues?.map((item) => `${item.key}:${item.value}`).join('\n');
-      case RequestBodyFormat.RAW:
-        return previewDetail.value.body.rawBody?.value;
-      case RequestBodyFormat.JSON:
-        return previewDetail.value.body.jsonBody?.jsonValue;
-      case RequestBodyFormat.XML:
-        return previewDetail.value.body.xmlBody?.value;
-      default:
-        return '';
-    }
-  });
-
-  const bodyCodeLanguage = computed(() => {
-    if (previewDetail.value?.body?.bodyType === RequestBodyFormat.JSON) {
-      return LanguageEnum.JSON;
-    }
-    if (previewDetail.value?.body?.bodyType === RequestBodyFormat.XML) {
-      return LanguageEnum.XML;
-    }
-    return LanguageEnum.PLAINTEXT;
-  });
-
-  function copyScript(val: string) {
-    if (isSupported) {
-      copy(val);
-      Message.success(t('common.copySuccess'));
-    } else {
-      Message.warning(t('apiTestDebug.copyNotSupport'));
-    }
-  }
 
   const typeKey = computed(() => (props.isApi ? 'api' : 'case'));
 
