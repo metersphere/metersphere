@@ -93,6 +93,8 @@
       const { t } = useI18n();
       // 编辑器实例，每次调用组件都会创建独立的实例
       let editor: monaco.editor.IStandaloneCodeEditor;
+      // 编辑器diffEditor实例 开启diffMode则会初始化
+      let diffEditor: monaco.editor.IStandaloneDiffEditor;
       const codeContainerRef = ref();
 
       // 用于全屏的容器 ref
@@ -266,16 +268,17 @@
           codeheight.value = props.height;
           return;
         }
-        const editorElement = editor.getDomNode();
-
-        if (!editorElement) {
-          return;
+        if (editor) {
+          const editorElement = editor.getDomNode();
+          if (!editorElement) {
+            return;
+          }
         }
 
         // 获取代码编辑器文本行高
-        const lineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight);
+        const lineHeight = editor?.getOption(monaco.editor.EditorOption.lineHeight);
         // 获取代码的行数
-        const lineCount = editor.getModel()?.getLineCount() || 10;
+        const lineCount = editor?.getModel()?.getLineCount() || 10;
         // 计算高度 @desc 原本行数差3行完全展示文本 24为上下的边距为12px
         const height = (lineCount + 3) * lineHeight;
         codeheight.value = height > 300 ? `${height + 24}px` : '300px';
@@ -343,11 +346,50 @@
         { deep: true }
       );
 
+      // 初始化diffEditor
+      const initDiffEditor = (originalValue: string, modifiedValue: string) => {
+        diffEditor = monaco.editor.createDiffEditor(codeContainerRef.value, {
+          automaticLayout: true,
+          padding: {
+            top: 12,
+            bottom: 12,
+          },
+          minimap: {
+            enabled: false,
+          },
+          contextmenu: !props.readOnly,
+          ...props,
+          theme: currentTheme.value,
+          lineNumbersMinChars: 3,
+          lineDecorationsWidth: 0,
+          scrollBeyondLastLine: false,
+        });
+
+        const originalModel = monaco.editor.createModel(originalValue, props.language.toLowerCase());
+        const modifiedModel = monaco.editor.createModel(modifiedValue, props.language.toLowerCase());
+
+        diffEditor.setModel({
+          original: originalModel,
+          modified: modifiedModel,
+        });
+
+        handleEditorMount();
+      };
+
       watch(
         () => props.language,
         (newValue) => {
           currentLanguage.value = newValue;
           monaco.editor.setModelLanguage(editor.getModel()!, newValue.toLowerCase()); // 设置语言，语言 ENUM 是大写的，但是 monaco 需要小写
+          // 设置对比初始和修改值
+          if (diffEditor) {
+            const originalModel = diffEditor.getModel()?.original;
+            const modifiedModel = diffEditor.getModel()?.modified;
+            if (originalModel && modifiedModel) {
+              monaco.editor.setModelLanguage(originalModel, newValue.toLowerCase());
+              monaco.editor.setModelLanguage(modifiedModel, newValue.toLowerCase());
+            }
+          }
         }
       );
 
@@ -355,15 +397,28 @@
         () => props.readOnly,
         (val) => {
           editor.updateOptions({ readOnly: val });
+          if (diffEditor) {
+            diffEditor.updateOptions({ readOnly: val });
+          }
         }
       );
 
       onBeforeUnmount(() => {
-        editor.dispose();
+        if (editor) {
+          editor.dispose();
+        }
+
+        if (diffEditor) {
+          diffEditor.dispose();
+        }
       });
 
       onMounted(() => {
-        init();
+        if (props.diffMode) {
+          initDiffEditor(props.originalValue, props.modelValue);
+        } else {
+          init();
+        }
         setEditBoxBg();
         if (props.readOnly) {
           format();

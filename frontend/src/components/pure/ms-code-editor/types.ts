@@ -135,4 +135,14 @@ export const editorProps = {
     type: Boolean as PropType<boolean>,
     default: false,
   },
+  // diff对比模式
+  diffMode: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
+  // 原来值
+  originalValue: {
+    type: String as PropType<string>,
+    default: null,
+  },
 };
