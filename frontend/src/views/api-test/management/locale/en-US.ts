@@ -205,6 +205,26 @@ export default {
   'case.recycle.confirmRecovery': 'Confirm Recovery',
   'case.createCase': 'Create Case',
   'case.updateCase': 'Update Case',
+  'case.changeDifferences': 'Interface versus use case differences',
+  'case.apiParamsHasChange': 'Interface parameter is changed',
+  'case.apiSyncChange': 'Sync',
+  'case.apiSyncModalAlert':
+    'Interface definition request parameter synchronization to the interface use case, may result in abnormal interfaces to perform case execution!',
+  'case.syncItem': 'Sync item',
+  'case.onlySyncNewParamsOrValue':
+    'JSON format, only the synchronous interface definition of new parameters and parameter values',
+  'case.deleteNotCorrespondValue':
+    'Remove parameters in the use case that cannot correspond to the interface definition',
+  'case.changeNotice': 'Change notice',
+  'case.confirmMessageStatusEnable':
+    'Verify that the "CASE Update "event in the Message Managementinterface test is configured for receivers and is on',
+  'case.NoticeApiCaseCreator': 'Notifies the creator of the interface use case',
+  'case.NoticeApiScenarioCreator': 'Notify the founder of citing the use case scenario',
+  'case.apiAndCaseDiff': 'Interface vs. use case differences',
+  'case.ignoreThisChange': 'Ignore this change',
+  'case.ignoreAllChange': 'Ignore all changes',
+  'case.diffAdd': 'Add',
+  'case.notSetData': 'No data has been set',
   'case.saveContinueText': 'Save and Continue Creating',
   'case.detail.changeHistoryTip':
     "View and compare historical changes. According to the administrator's settings, historical data will be automatically deleted",

@@ -47,9 +47,26 @@
         </div>
       </template>
       <template #num="{ record }">
-        <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">
-          {{ record.num }}
-        </MsButton>
+        <div class="flex items-center">
+          <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">
+            {{ record.num }}
+          </MsButton>
+          <!-- TODO 后台缺少字段 等待联调 -->
+          <a-tooltip v-if="record.apiChange" class="ms-tooltip-white">
+            <!-- 接口参数发生变更提示 -->
+            <MsIcon type="icon-icon_warning_colorful" size="16" />
+            <template #content>
+              <div class="flex flex-row">
+                <span class="text-[var(--color-text-1)]">
+                  {{ t('case.apiParamsHasChange') }}
+                </span>
+                <MsButton class="ml-[8px]" @click="showDifferences(record)">
+                  {{ t('case.changeDifferences') }}
+                </MsButton>
+              </div>
+            </template>
+          </a-tooltip>
+        </div>
       </template>
       <template #protocol="{ record }">
         <apiMethodName :method="record.protocol" />
@@ -281,6 +298,17 @@
   />
   <!-- 执行结果抽屉 -->
   <caseAndScenarioReportDrawer v-model:visible="showExecuteResult" :report-id="activeReportId" />
+  <!-- 同步抽屉 -->
+  <SyncModal v-model:visible="showSyncModal" :batch-params="batchParams" />
+  <!-- diff对比抽屉 -->
+  <DifferentDrawer
+    v-model:visible="showDifferentDrawer"
+    :detail="caseDetail as RequestParam"
+    :api-detail="apiDetail as RequestParam"
+    :active-api-case-id="activeApiCaseId"
+    :active-defined-id="activeDefinedId"
+    @close="closeDifferent"
+  />
 </template>
 
 <script setup lang="ts">
@@ -299,6 +327,8 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import caseDetailDrawer from './caseDetailDrawer.vue';
   import createAndEditCaseDrawer from './createAndEditCaseDrawer.vue';
+  import DifferentDrawer from './differentDrawer.vue';
+  import SyncModal from './syncModal.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import BatchRunModal from '@/views/api-test/components/batchRunModal.vue';
@@ -390,8 +420,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 130,
-      showTooltip: true,
+      width: 150,
       columnSelectorDisabled: true,
     },
     {
@@ -567,6 +596,11 @@
         label: 'system.log.operateType.execute',
         eventTag: 'execute',
         permission: ['PROJECT_API_DEFINITION_CASE:READ+EXECUTE'],
+      },
+      {
+        label: 'case.apiSyncChange',
+        eventTag: 'sync',
+        permission: ['PROJECT_API_DEFINITION_CASE:READ+UPDATE'],
       },
       {
         label: 'common.delete',
@@ -820,8 +854,13 @@
       }
     });
   }
-
   const batchConditionParams = ref<any>();
+
+  const showSyncModal = ref<boolean>(false);
+  // 同步 TODO 等待联调
+  function syncParams() {
+    showSyncModal.value = true;
+  }
 
   // 处理表格选中后批量操作
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
@@ -839,6 +878,9 @@
           batchConditionParams.value = data;
           showBatchExecute.value = true;
         });
+        break;
+      case 'sync':
+        syncParams();
         break;
       default:
         break;
@@ -918,6 +960,23 @@
     if (!record.lastReportId) return;
     activeReportId.value = record.lastReportId;
     showExecuteResult.value = true;
+  }
+
+  const activeApiCaseId = ref<string>('');
+  const activeDefinedId = ref<string>('');
+  const showDifferentDrawer = ref<boolean>(false);
+
+  // 查看对比 TODO 等待联调
+  async function showDifferences(record: ApiCaseDetail) {
+    activeApiCaseId.value = record.id;
+    activeDefinedId.value = record.apiDefinitionId;
+    showDifferentDrawer.value = true;
+  }
+  // 关闭对比 TODO 等待联调
+  function closeDifferent() {
+    showDifferentDrawer.value = false;
+    activeApiCaseId.value = '';
+    activeDefinedId.value = '';
   }
 
   defineExpose({
