@@ -48,6 +48,9 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/bug/attachment/preview/md/**", "anon");
         //计划报告富文本访问
         filterChainDefinitionMap.put("/test-plan/report/preview/md/**", "anon");
+        //模板富文本框图片预览
+        filterChainDefinitionMap.put("/organization/template/img/preview/**", "anon");
+        filterChainDefinitionMap.put("/project/template/img/preview/**", "anon");
 
         filterChainDefinitionMap.put("/system/version/current", "anon");
 

@@ -108,12 +108,12 @@ public class ProjectTemplateController {
         return commonFileService.uploadTempImgFile(file);
     }
 
-    @GetMapping(value = "/img/preview/{organizationId}/{fileId}/{compressed}")
+    @GetMapping(value = "/img/preview/{projectId}/{fileId}/{compressed}")
     @Operation(summary = "富文本图片-预览")
-    public ResponseEntity<byte[]> previewImg(@PathVariable String organizationId,
+    public ResponseEntity<byte[]> previewImg(@PathVariable String projectId,
                                              @PathVariable String fileId,
                                              @Schema(description = "是否是压缩图片")
                                              @PathVariable("compressed") boolean compressed) {
-        return projectTemplateservice.previewImg(organizationId, fileId, compressed);
+        return projectTemplateservice.previewImg(projectId, fileId, compressed);
     }
 }
