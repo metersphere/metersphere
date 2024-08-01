@@ -41,8 +41,13 @@
       </template>
     </a-dropdown>
     <slot name="batchMenu"></slot>
+    <a-tooltip v-if="onlyDelete" :content="t('common.delete')">
+      <MsButton type="icon" class="ms-minder-node-float-menu-icon-button" @click="handleMinderMenuSelect('delete')">
+        <MsIcon type="icon-icon_delete-trash_outlined1" class="text-[var(--color-text-4)]" />
+      </MsButton>
+    </a-tooltip>
     <a-dropdown
-      v-if="props.canShowMoreBatchMenu"
+      v-else-if="props.canShowMoreBatchMenu"
       v-model:popup-visible="moreMenuVisible"
       class="ms-minder-dropdown"
       :popup-translate="[0, -4]"
@@ -133,7 +138,8 @@
         const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
         if (
           minderStore.event.name === MinderEventName.DRAG_FINISH ||
-          minderStore.event.name === MinderEventName.NODE_UNSELECT
+          minderStore.event.name === MinderEventName.NODE_UNSELECT ||
+          minderStore.event.name === MinderEventName.NODE_SELECT
         ) {
           batchMenuVisible.value = selectedNodes.length > 1;
         }
@@ -143,6 +149,10 @@
       immediate: true,
     }
   );
+
+  const onlyDelete = computed(() => {
+    return props.canShowBatchDelete && !props.canShowBatchCopy && !props.canShowBatchCut && !props.canShowBatchExpand;
+  });
 
   /**
    * 处理快捷菜单选择
