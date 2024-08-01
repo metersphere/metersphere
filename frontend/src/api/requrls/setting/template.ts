@@ -93,3 +93,11 @@ export const ProjectSetStateUrl = '/project/status/flow/setting/status/definitio
 export const ProjectStateSortUrl = '/project/status/flow/setting/status/sort';
 // 更新状态流转
 export const ProjectUpdateStateFlowUrl = '/project/status/flow/setting/status/flow/update';
+// 组织模板富文本图片链接
+export const orgRichUploadImageUrl = '/organization/template/upload/temp/img';
+// 项目模板富文本图片链接
+export const proRichUploadImageUrl = '/project/template/upload/temp/img';
+// 组织预览富文本图片
+export const previewOrgImageUrl = '/organization/template/img/preview';
+// 项目预览富文本图片
+export const previewProImageUrl = '/project/template/img/preview';

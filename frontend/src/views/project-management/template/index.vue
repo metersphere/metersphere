@@ -30,7 +30,7 @@
    * @description 项目设置--模板
    */
 
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCardList from '@/components/business/ms-card-list/index.vue';
@@ -43,12 +43,14 @@
   import { getCardList } from '@/views/setting/organization/template/components/fieldSetting';
 
   const router = useRouter();
+  const route = useRoute();
   const templateStore = useTemplateStore();
   // 字段设置
   const fieldSetting = (key: string) => {
     router.push({
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
       query: {
+        ...route.query,
         type: key,
       },
     });
@@ -59,6 +61,7 @@
     router.push({
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
       query: {
+        ...route.query,
         type: key,
       },
     });
@@ -69,6 +72,7 @@
     router.push({
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
       query: {
+        ...route.query,
         type: key,
       },
     });

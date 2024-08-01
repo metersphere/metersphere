@@ -1,8 +1,13 @@
 <template>
   <div class="wrapper-preview">
     <div class="preview-left pr-4">
-      <DefectTemplateLeftContent v-if="props.templateType === 'BUG'" v-model:defaultForm="defaultBugForm" is-disabled />
-      <CaseTemplateLeftContent v-else v-model:defaultForm="defaultCaseForm" is-disabled />
+      <DefectTemplateLeftContent
+        v-if="props.templateType === 'BUG'"
+        v-model:defaultForm="defaultBugForm"
+        mode="project"
+        is-disabled
+      />
+      <CaseTemplateLeftContent v-else v-model:defaultForm="defaultCaseForm" mode="project" is-disabled />
     </div>
     <div class="preview-right px-4">
       <!-- 系统内置的字段 {处理人, 状态...} -->

@@ -238,6 +238,7 @@
     router.push({
       name: routeName.value,
       query: {
+        ...route.query,
         type: route.query.type,
       },
       params: {
@@ -251,6 +252,7 @@
     router.push({
       name: routeName.value,
       query: {
+        ...route.query,
         id,
         type: route.query.type,
       },
@@ -265,6 +267,7 @@
     router.push({
       name: routeName.value,
       query: {
+        ...route.query,
         id,
         type: route.query.type,
       },

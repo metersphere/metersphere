@@ -17,7 +17,7 @@
         v-model:raw="form.description"
         v-model:filed-ids="descriptionFileIds"
         :upload-image="handleUploadImage"
-        :preview-url="EditorPreviewFileUrl"
+        :preview-url="previewEditorImageUrl"
         :editable="!props.isDisabled"
       />
     </a-form-item>
@@ -34,8 +34,8 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
 
-  import { editorUploadFile } from '@/api/modules/bug-management';
-  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
+  import { editorUploadFile } from '@/api/modules/setting/template';
+  import { previewOrgImageUrl, previewProImageUrl } from '@/api/requrls/setting/template';
   import { defaultTemplateBugDetail } from '@/config/template';
   import { useI18n } from '@/hooks/useI18n';
 
@@ -44,6 +44,7 @@
   const { t } = useI18n();
 
   const props = defineProps<{
+    mode: 'organization' | 'project';
     isDisabled?: boolean;
   }>();
 
@@ -53,16 +54,39 @@
     default: defaultTemplateBugDetail,
   });
 
+  const uploadImgFileIds = defineModel<string[]>('uploadImgFileIds', {
+    default: [],
+  });
+
   // 富文本附件ID
   const descriptionFileIds = ref<string[]>([]);
 
-  // TODO 上传图片需要接口
+  // 上传图片
   async function handleUploadImage(file: File) {
-    const { data } = await editorUploadFile({
-      fileList: [file],
-    });
+    const { data } = await editorUploadFile(
+      {
+        fileList: [file],
+      },
+      props.mode
+    );
     return data;
   }
+
+  const previewEditorImageUrl = computed(() =>
+    props.mode === 'organization' ? previewOrgImageUrl : previewProImageUrl
+  );
+
+  watch(
+    () => descriptionFileIds.value,
+    (val) => {
+      if (val) {
+        uploadImgFileIds.value = val;
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped></style>

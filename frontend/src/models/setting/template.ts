@@ -120,6 +120,7 @@ export interface ActionTemplateManage {
   enablePlatformDefault?: boolean;
   internal?: boolean; // 是否为系统模板
   platForm?: string;
+  uploadImgFileIds: string[]; // 模板附件
   [key: string]: any;
 }
 

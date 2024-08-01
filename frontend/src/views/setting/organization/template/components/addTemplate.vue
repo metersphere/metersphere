@@ -56,8 +56,18 @@
     </template>
     <div class="wrapper-preview">
       <div class="preview-left pr-4">
-        <DefectTemplateLeftContent v-if="route.query.type === 'BUG'" v-model:defaultForm="defaultBugForm" />
-        <CaseTemplateLeftContent v-else v-model:defaultForm="defaultCaseForm" />
+        <DefectTemplateLeftContent
+          v-if="route.query.type === 'BUG'"
+          v-model:uploadImgFileIds="uploadBugImgFileIds"
+          v-model:defaultForm="defaultBugForm"
+          :mode="props.mode"
+        />
+        <CaseTemplateLeftContent
+          v-else
+          v-model:uploadImgFileIds="uploadCaseImgFileIds"
+          v-model:defaultForm="defaultCaseForm"
+          :mode="props.mode"
+        />
       </div>
       <div class="preview-right px-4">
         <!-- 系统内置的字段 {处理人, 状态...} -->
@@ -308,6 +318,7 @@
     scopeId: props.mode === 'organization' ? currentOrgId.value : currentProjectId.value,
     enableThirdPart: false,
     platForm: '',
+    uploadImgFileIds: [],
   };
 
   const initBugForm = {
@@ -359,6 +370,9 @@
   // 缺陷默认字段
   const defaultBugForm = ref<defaultBugField>(cloneDeep(defaultTemplateBugDetail));
 
+  const uploadBugImgFileIds = ref<string[]>([]);
+  const uploadCaseImgFileIds = ref<string[]>([]);
+
   // 获取系统默认字段
   function getSystemFields(form: Record<string, any>) {
     const tempFormField: Record<string, any>[] = [];
@@ -397,6 +411,8 @@
     const systemFields: Record<string, any>[] =
       route.query.type === 'BUG' ? getSystemFields(defaultBugForm.value) : getSystemFields(defaultCaseForm.value);
 
+    const uploadImgFileIds = route.query.type === 'BUG' ? uploadBugImgFileIds.value : uploadCaseImgFileIds.value;
+
     const { name, remark, enableThirdPart, id } = templateForm.value;
     return {
       id,
@@ -407,6 +423,7 @@
       scopeId: props.mode === 'organization' ? currentOrgId.value : currentProjectId.value,
       scene: route.query.type,
       systemFields,
+      uploadImgFileIds,
     };
   }
 

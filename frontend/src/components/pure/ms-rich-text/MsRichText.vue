@@ -12,6 +12,7 @@
    * import rehypeStringify from 'rehype-stringify';
    * return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
    */
+  import { useRoute } from 'vue-router';
   import { useDebounceFn, useVModel } from '@vueuse/core';
 
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -20,7 +21,6 @@
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
-  import { useAppStore } from '@/store';
 
   import '@halo-dev/richtext-editor/dist/style.css';
   import ExtensionImage from './extensions/image/index';
@@ -70,10 +70,8 @@
   import type { queueAsPromised } from 'fastq';
   import * as fastq from 'fastq';
 
-  const appStore = useAppStore();
   const { t } = useI18n();
-
-  // image drag and paste upload
+  const route = useRoute();
   type Task = {
     file: File;
     process: (permalink: string, fileId: string) => void;
@@ -122,8 +120,8 @@
     }
     const uploadFileId = await props.uploadImage(arg.file);
     if (uploadFileId) {
-      // const permanentUrl = `${PreviewEditorImageUrl}/${appStore.currentProjectId}/${uploadFileId}/${true}`;
-      const permanentUrl = `${props.previewUrl}/${appStore.currentProjectId}/${uploadFileId}/${true}`;
+      const infoId = route.query.orgId && route.query.pId ? route.query.pId : route.query.orgId;
+      const permanentUrl = `${props.previewUrl}/${infoId}/${uploadFileId}/${true}`;
       arg.process(permanentUrl, uploadFileId);
     }
   }
