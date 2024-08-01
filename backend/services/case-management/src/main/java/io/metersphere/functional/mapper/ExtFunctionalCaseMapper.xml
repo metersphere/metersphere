@@ -875,18 +875,22 @@
     <select id="getMinderTestPlanList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
         tpfc.id as id,
-        history.`status` as status,
+        history.`status` as reviewStatus,
         fc.module_id as moduleId,
         fc.name as name,
         fc.id as caseId,
-        fc.project_id,  fc.template_id, fc.review_status, fc.pos, fc.case_edit_type,
-        IFNULL(history.`steps`, fcb.steps) as steps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
+        fc.project_id,  fc.template_id, fc.pos, fc.case_edit_type,
+        IFNULL(history.`steps`, fcb.steps) as steps, execute_history.`steps` as executeSteps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description
         FROM
         test_plan_functional_case tpfc
         LEFT JOIN functional_case fc ON tpfc.functional_case_id = fc.id
         LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
-        LEFT JOIN ( SELECT GROUP_CONCAT(DISTINCT tpceh.test_plan_case_id) AS test_plan_case_id, tpceh.`status`, tpceh.`steps` from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId}
-                    GROUP BY test_plan_case_id order by tpceh.create_time desc ) as history  ON history.test_plan_case_id = tpfc.id
+        LEFT JOIN (select  * from (SELECT  tpceh.test_plan_case_id, tpceh.`status`,tpceh.`steps`, ROW_NUMBER() OVER (PARTITION BY tpceh.test_plan_case_id ORDER BY tpceh.create_time DESC) as rn from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId} and tpceh.deleted = false
+
+                                   order by tpceh.create_time desc ) as history_filter WHERE rn = 1 ) as history  ON history.test_plan_case_id = tpfc.id
+        LEFT JOIN (select  * from (SELECT  tpceh.test_plan_case_id, tpceh.`status`,tpceh.`steps`, ROW_NUMBER() OVER (PARTITION BY tpceh.test_plan_case_id ORDER BY tpceh.create_time DESC) as rn from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId} and tpceh.deleted = false and tpceh.steps IS NOT NULL
+
+                                   order by tpceh.create_time desc ) as history_filter WHERE rn = 1 ) as execute_history  ON execute_history.test_plan_case_id = tpfc.id
         WHERE
         tpfc.test_plan_id = #{request.planId}
         AND fc.deleted = #{deleted}
