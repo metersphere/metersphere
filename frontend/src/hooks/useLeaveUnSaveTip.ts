@@ -58,6 +58,13 @@ export default function useLeaveUnSaveTip(leaveProp = leaveProps) {
       next();
     }
   });
+
+  // 页面有变更时，关闭或刷新页面弹出浏览器的保存提示
+  window.onbeforeunload = () => {
+    if (!isSave.value) {
+      return '';
+    }
+  };
   return {
     setIsSave,
     openUnsavedTip,
