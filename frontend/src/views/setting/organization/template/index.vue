@@ -39,7 +39,7 @@
   /**
    * @description 系统设置--组织--模版
    */
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCardList from '@/components/business/ms-card-list/index.vue';
@@ -56,6 +56,7 @@
   const templateStore = useTemplateStore();
   const { t } = useI18n();
   const router = useRouter();
+  const route = useRoute();
   const visitedKey = 'notRemind';
   const { addVisited } = useVisit(visitedKey);
   const { getIsVisited } = useVisit(visitedKey);
@@ -78,6 +79,7 @@
     router.push({
       name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
       query: {
+        ...route.query,
         type: key,
       },
     });
@@ -88,6 +90,7 @@
     router.push({
       name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
       query: {
+        ...route.query,
         type: key,
       },
     });
@@ -98,6 +101,7 @@
     router.push({
       name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
       query: {
+        ...route.query,
         type: key,
       },
     });

@@ -20,7 +20,7 @@
         v-model:raw="form.prerequisite"
         v-model:filed-ids="prerequisiteFileIds"
         :upload-image="handleUploadImage"
-        :preview-url="PreviewEditorImageUrl"
+        :preview-url="previewEditorImageUrl"
         :editable="!props.isDisabled"
       />
     </a-form-item>
@@ -55,7 +55,7 @@
         v-model:raw="form.textDescription"
         v-model:filed-ids="textDescriptionFileIds"
         :upload-image="handleUploadImage"
-        :preview-url="PreviewEditorImageUrl"
+        :preview-url="previewEditorImageUrl"
         :editable="!props.isDisabled"
       />
     </a-form-item>
@@ -68,7 +68,7 @@
         v-model:raw="form.expectedResult"
         v-model:filed-ids="expectedResultFileIds"
         :upload-image="handleUploadImage"
-        :preview-url="PreviewEditorImageUrl"
+        :preview-url="previewEditorImageUrl"
         :editable="!props.isDisabled"
       />
     </a-form-item>
@@ -77,7 +77,7 @@
         v-model:raw="form.description"
         v-model:filed-ids="descriptionFileIds"
         :upload-image="handleUploadImage"
-        :preview-url="PreviewEditorImageUrl"
+        :preview-url="previewEditorImageUrl"
         :editable="!props.isDisabled"
       />
     </a-form-item>
@@ -95,8 +95,8 @@
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import AddStep from '@/views/case-management/caseManagementFeature/components/addStep.vue';
 
-  import { editorUploadFile } from '@/api/modules/case-management/featureCase';
-  import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
+  import { editorUploadFile } from '@/api/modules/setting/template';
+  import { previewOrgImageUrl, previewProImageUrl } from '@/api/requrls/setting/template';
   import { defaultTemplateCaseDetail } from '@/config/template';
   import { useI18n } from '@/hooks/useI18n';
   import { getGenerateId } from '@/utils';
@@ -107,11 +107,15 @@
   const { t } = useI18n();
 
   const props = defineProps<{
+    mode: 'organization' | 'project';
     isDisabled?: boolean;
   }>();
 
   const form = defineModel<defaultCaseField>('defaultForm', {
     default: defaultTemplateCaseDetail,
+  });
+  const uploadImgFileIds = defineModel<string[]>('uploadImgFileIds', {
+    default: [],
   });
 
   const fileList = ref([]);
@@ -177,13 +181,41 @@
       }
     }
   );
-  // TODO 上传需要接口
+  // 上传图片
   async function handleUploadImage(file: File) {
-    const { data } = await editorUploadFile({
-      fileList: [file],
-    });
+    const { data } = await editorUploadFile(
+      {
+        fileList: [file],
+      },
+      props.mode
+    );
     return data;
   }
+
+  const previewEditorImageUrl = computed(() =>
+    props.mode === 'organization' ? previewOrgImageUrl : previewProImageUrl
+  );
+
+  const fileIds = computed(() => {
+    return [
+      ...prerequisiteFileIds.value,
+      ...textDescriptionFileIds.value,
+      ...expectedResultFileIds.value,
+      ...descriptionFileIds.value,
+    ];
+  });
+
+  watch(
+    () => fileIds.value,
+    (val) => {
+      if (val) {
+        uploadImgFileIds.value = val;
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped></style>

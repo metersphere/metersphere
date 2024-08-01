@@ -26,6 +26,7 @@ import {
   OrdUpdateFlowStatusUrl,
   OrdUpdateStateFlowUrl,
   OrdWorkFlowUrl,
+  orgRichUploadImageUrl,
   ProjectCreateFlowStatusUrl,
   ProjectDeleteFlowStatusUrl,
   ProjectSetStateUrl,
@@ -33,6 +34,7 @@ import {
   ProjectUpdateFlowStatusUrl,
   ProjectUpdateStateFlowUrl,
   ProjectWorkFlowUrl,
+  proRichUploadImageUrl,
   SetProjectTemplateUrl,
   UpdateFieldUrl,
   UpdateOrganizeTemplateUrl,
@@ -40,11 +42,10 @@ import {
   UpdateProjectTemplateUrl,
 } from '@/api/requrls/setting/template';
 
-import { CommonList, TableQueryParams } from '@/models/common';
+import { TableQueryParams } from '@/models/common';
 import type {
   ActionTemplateManage,
   AddOrUpdateField,
-  OrdTemplateManagement,
   OrdWorkStatus,
   SeneType,
   SetStateType,
@@ -176,6 +177,12 @@ export function deleteProjectField(id: string) {
 // 获取自定义字段详情选项(组织)
 export function getProjectFieldDetail(id: string) {
   return MSR.get({ url: GetFieldProjectDetailUrl, params: id });
+}
+
+// 富文本编辑器上传图片文件
+export function editorUploadFile(data: { fileList: File[] }, mode: 'organization' | 'project') {
+  const url = mode === 'organization' ? orgRichUploadImageUrl : proRichUploadImageUrl;
+  return MSR.uploadFile({ url }, { fileList: data.fileList }, '', false);
 }
 
 /** *
