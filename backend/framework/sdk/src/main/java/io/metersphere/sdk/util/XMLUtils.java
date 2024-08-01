@@ -120,7 +120,7 @@ public class XMLUtils {
         return new LinkedHashMap<>();
     }
 
-    private static Map<String, Object> elementToMap(Element node) {
+    public static Map<String, Object> elementToMap(Element node) {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
 
         List<Element> listElement = node.elements();// 所有一级子节点的list

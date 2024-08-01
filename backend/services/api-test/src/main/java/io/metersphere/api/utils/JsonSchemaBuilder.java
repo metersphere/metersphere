@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class JsonSchemaBuilder {
 

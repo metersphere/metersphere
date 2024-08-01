@@ -28,6 +28,13 @@
         set pos =#{pos}
         where id = #{id}
     </update>
+    <update id="setApiChangeByApiDefinitionId">
+        update api_test_case
+        set api_change = true
+        where api_definition_id = #{apiDefinitionId}
+          and api_change is false
+          and ignore_api_change is false
+    </update>
 
     <select id="getPos" resultType="java.lang.Long">
         SELECT pos
@@ -60,7 +67,9 @@
         a.path,
         a.method,
         a.protocol,
-        atc.pos
+        atc.pos,
+        atc.api_change,
+        atc.ignore_api_change
         FROM
         api_test_case atc
         INNER JOIN api_definition a ON atc.api_definition_id = a.id

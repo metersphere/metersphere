@@ -2851,6 +2851,8 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiTestCase.setApiDefinitionId("system-api-id");
             apiTestCase.setVersionId("1.0");
             apiTestCase.setLastReportStatus("未执行");
+            apiTestCase.setApiChange(false);
+            apiTestCase.setIgnoreApiChange(false);
             apiTestCases.add(apiTestCase);
         }
         apiTestCaseMapper.batchInsert(apiTestCases);
