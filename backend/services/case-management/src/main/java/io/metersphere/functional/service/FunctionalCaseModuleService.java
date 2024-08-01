@@ -303,7 +303,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
                 currentModuleName = itemIterator.next().trim();
                 moduleTree.forEach(module -> {
                     //根节点是否存在
-                    if (StringUtils.equals(currentModuleName, module.getName())) {
+                    if (StringUtils.equalsIgnoreCase(currentModuleName, module.getName())) {
                         hasNode.set(true);
                         //根节点存在，检查子节点是否存在
                         createModuleByPathIterator(itemIterator, "/" + currentModuleName, module, pathMap, projectId, userId);
@@ -342,7 +342,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         String nodeName = itemIterator.next().trim();
         AtomicReference<Boolean> hasNode = new AtomicReference<>(false);
         children.forEach(child -> {
-            if (StringUtils.equals(nodeName, child.getName())) {
+            if (StringUtils.equalsIgnoreCase(nodeName, child.getName())) {
                 hasNode.set(true);
                 createModuleByPathIterator(itemIterator, currentModulePath + "/" + child.getName(), child, pathMap, projectId, userId);
             }

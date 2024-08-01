@@ -51,18 +51,11 @@ public class FunctionalCaseLogService {
     private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
     @Resource
     private FileAssociationMapper fileAssociationMapper;
-
-    @Resource
-    private CustomFieldMapper customFieldMapper;
-
     @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
 
     @Resource
     private BugMapper bugMapper;
-
-    @Resource
-    private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
 
 
     /**
@@ -431,6 +424,23 @@ public class FunctionalCaseLogService {
                 content);
         dto.setHistory(true);
         dto.setPath(path);
+        dto.setMethod(HttpMethodConstants.POST.name());
+        return dto;
+    }
+
+
+
+    public LogDTO exportExcelLog(FunctionalCaseExportRequest request) {
+        LogDTO dto = new LogDTO(
+                request.getProjectId(),
+                null,
+                request.getFileId(),
+                null,
+                OperationLogType.EXPORT.name(),
+                OperationLogModule.FUNCTIONAL_CASE,
+                "");
+        dto.setHistory(true);
+        dto.setPath("/functional/case/export/excel");
         dto.setMethod(HttpMethodConstants.POST.name());
         return dto;
     }

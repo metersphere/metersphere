@@ -24,7 +24,7 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
 
         for (String item : parse2Array(customField.getFieldName(), value)) {
             item = item.toLowerCase();
-            if (!userIdMap.containsKey(item) && !userNameMap.containsKey(item)) {
+            if (!userIdMap.containsKey(item) && !userEmailMap.containsKey(item)) {
                 CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_member_tip"), customField.getFieldName()));
             }
         }
@@ -42,10 +42,27 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
             if (userIdMap.containsKey(item)) {
                 keyOrValues.set(i, userIdMap.get(item));
             }
+            if (userEmailMap.containsKey(item)) {
+                keyOrValues.set(i, userEmailMap.get(item));
+            }
+        }
+        return JSON.toJSONString(keyOrValues);
+    }
+
+    @Override
+    public Object parse2Value(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
+        if (StringUtils.isBlank(keyOrValuesStr)) {
+            return JSON.toJSONString(new ArrayList<>());
+        }
+        List<String> keyOrValues = parse2Array(keyOrValuesStr);
+
+        for (int i = 0; i < keyOrValues.size(); i++) {
+            String item = keyOrValues.get(i).toLowerCase();
             if (userNameMap.containsKey(item)) {
                 keyOrValues.set(i, userNameMap.get(item));
             }
         }
         return JSON.toJSONString(keyOrValues);
     }
+
 }

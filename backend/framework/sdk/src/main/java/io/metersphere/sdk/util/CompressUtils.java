@@ -91,8 +91,9 @@ public class CompressUtils {
 
     /**
      * 将多个文件压缩
-     * @param zipFilePath   压缩文件所在路径
-     * @param fileList      要压缩的文件
+     *
+     * @param zipFilePath 压缩文件所在路径
+     * @param fileList    要压缩的文件
      * @return
      * @throws IOException
      */
@@ -110,6 +111,31 @@ public class CompressUtils {
         // 关闭压缩流、文件流
         zipOutputStream.close();
         outputStream.close();
+        return zipFile;
+    }
+
+    /**
+     * 将多个文件压缩至指定路径
+     *
+     * @param fileList    待压缩的文件列表
+     * @param zipFilePath 压缩文件路径
+     * @return 返回压缩好的文件
+     * @throws IOException
+     */
+    public static File zipFilesToPath(String zipFilePath, List<File> fileList) throws IOException {
+        File zipFile = new File(zipFilePath);
+        try( // 文件输出流
+             FileOutputStream outputStream = getFileStream(zipFile);
+             // 压缩流
+             ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)
+        ){
+            int size = fileList.size();
+            // 压缩列表中的文件
+            for (int i = 0; i < size; i++) {
+                File file = fileList.get(i);
+                zipFile(file, zipOutputStream);
+            }
+        }
         return zipFile;
     }
 

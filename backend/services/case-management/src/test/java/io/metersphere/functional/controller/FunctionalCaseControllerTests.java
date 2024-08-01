@@ -8,6 +8,7 @@ import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
+import io.metersphere.functional.excel.domain.FunctionalCaseHeader;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.*;
@@ -85,6 +86,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String CHECK_EXCEL_URL = "/functional/case/pre-check/excel";
     public static final String IMPORT_EXCEL_URL = "/functional/case/import/excel";
     public static final String OPERATION_HISTORY_URL = "/functional/case/operation-history";
+    public static final String EXPORT_EXCEL_URL = "/functional/case/export/excel";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -794,5 +796,42 @@ public class FunctionalCaseControllerTests extends BaseTest {
         List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthTable(request, "functional_case");
         Assertions.assertTrue(CollectionUtils.isNotEmpty(operationHistoryDTOS));
 
+    }
+
+
+    @Test
+    @Order(2)
+    public void exportExcel() throws Exception {
+        FunctionalCaseExportRequest request = new FunctionalCaseExportRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectIds(List.of("TEST_FUNCTIONAL_CASE_ID"));
+        List<FunctionalCaseHeader> sysHeaders = new ArrayList<>() {{
+            add(new FunctionalCaseHeader() {{
+                setId("num");
+                setName("ID");
+            }});
+            add(new FunctionalCaseHeader() {{
+                setId("name");
+                setName("用例名称");
+            }});
+        }};
+        request.setSystemFields(sysHeaders);
+        List<FunctionalCaseHeader> customHeaders = new ArrayList<>() {{
+            add(new FunctionalCaseHeader() {{
+                setId("A");
+                setName("测试3");
+            }});
+        }};
+        request.setCustomFields(customHeaders);
+        List<FunctionalCaseHeader> otherHeaders = new ArrayList<>() {{
+            add(new FunctionalCaseHeader() {{
+                setId("createTime");
+                setName("创建时间");
+            }});
+        }};
+        request.setOtherFields(otherHeaders);
+
+        request.setFileId("123142342");
+        this.requestPost(EXPORT_EXCEL_URL, request);
     }
 }

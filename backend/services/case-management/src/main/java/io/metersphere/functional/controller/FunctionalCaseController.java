@@ -33,6 +33,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.shiro.authz.annotation.Logical;
@@ -223,7 +224,7 @@ public class FunctionalCaseController {
 
     @PostMapping("/pre-check/excel")
     @Operation(summary = "用例管理-功能用例-excel导入检查")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_IMPORT)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCaseImportResponse preCheckExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         return functionalCaseFileService.preCheckExcel(request, file);
@@ -232,7 +233,7 @@ public class FunctionalCaseController {
 
     @PostMapping("/import/excel")
     @Operation(summary = "用例管理-功能用例-excel导入")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_IMPORT)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         SessionUser user = SessionUtils.getUser();
@@ -247,5 +248,13 @@ public class FunctionalCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, functionalCaseService.operationHistoryList(request));
+    }
+
+
+    @PostMapping("/export/excel")
+    @Operation(summary = "用例管理-功能用例-excel导出")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    public void testCaseExport(@Validated @RequestBody FunctionalCaseExportRequest request) {
+        functionalCaseFileService.exportFunctionalCaseZip(request);
     }
 }

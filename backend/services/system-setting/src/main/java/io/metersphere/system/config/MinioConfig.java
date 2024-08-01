@@ -28,6 +28,7 @@ public class MinioConfig {
 
         // 设置临时目录下文件的过期时间
         setBucketLifecycle(minioClient);
+        setBucketLifecycleByExcel(minioClient);
 
         boolean exist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(BUCKET).build());
         if (!exist) {
@@ -51,6 +52,38 @@ public class MinioConfig {
                         new Expiration((ZonedDateTime) null, 7, null),
                         new RuleFilter("system/temp/"),
                         "temp-file",
+                        null,
+                        null,
+                        null));
+        LifecycleConfiguration config = new LifecycleConfiguration(rules);
+        try {
+            minioClient.setBucketLifecycle(
+                    SetBucketLifecycleArgs.builder()
+                            .bucket(BUCKET)
+                            .config(config)
+                            .build());
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+    }
+
+
+
+    /**
+     * 设置生命周期规则-文件的过期时间
+     * 将 system/export/excel/ 下的文件设置为 1 天后过期
+     * 参考 minio 8.5.2 版本的示例代码
+     * https://github.com/minio/minio-java/blob/8.5.2/examples/SetBucketLifecycle.java
+     */
+    private static void setBucketLifecycleByExcel(MinioClient minioClient) {
+        List<LifecycleRule> rules = new LinkedList<>();
+        rules.add(
+                new LifecycleRule(
+                        Status.ENABLED,
+                        null,
+                        new Expiration((ZonedDateTime) null, 1, null),
+                        new RuleFilter("system/export/excel"),
+                        "excel-file",
                         null,
                         null,
                         null));

@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
 
-    Map<String, List<String>> caseLevelAndStatusValueMap;
+    Map<String, List<String>> customFieldOptionsMap;
 
     private Sheet sheet;
     private Drawing<?> drawingPatriarch;
@@ -37,9 +37,9 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
     private Map<String, TemplateCustomFieldDTO> customField;
     private Map<String, Integer> fieldMap = new HashMap<>();
 
-    public FunctionCaseTemplateWriteHandler(List<List<String>> headList, Map<String, List<String>> caseLevelAndStatusValueMap, Map<String, TemplateCustomFieldDTO> customFieldMap) {
+    public FunctionCaseTemplateWriteHandler(List<List<String>> headList, Map<String, List<String>> customFieldOptionsMap, Map<String, TemplateCustomFieldDTO> customFieldMap) {
         initIndex(headList);
-        this.caseLevelAndStatusValueMap = caseLevelAndStatusValueMap;
+        this.customFieldOptionsMap = customFieldOptionsMap;
         this.customField = customFieldMap;
     }
 
@@ -94,7 +94,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                 //自定义字段
                 if (customField.containsKey(entry.getKey())) {
                     TemplateCustomFieldDTO templateCustomFieldDTO = customField.get(entry.getKey());
-                    List<String> strings = caseLevelAndStatusValueMap.get(entry.getKey());
+                    List<String> strings = customFieldOptionsMap.get(entry.getKey());
                     if (StringUtils.equalsAnyIgnoreCase(templateCustomFieldDTO.getType(), CustomFieldType.MULTIPLE_MEMBER.name(), CustomFieldType.MEMBER.name())) {
                         if (templateCustomFieldDTO.getRequired()) {
                             setComment(fieldMap.get(entry.getKey()), Translator.get("required").concat(",").concat(Translator.get("excel.template.member")));
@@ -104,13 +104,13 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                     } else {
                         if (templateCustomFieldDTO.getRequired()) {
                             if (CollectionUtils.isNotEmpty(strings)) {
-                                setComment(fieldMap.get(entry.getKey()), Translator.get("required").concat("：").concat(Translator.get("options")).concat(JSON.toJSONString(caseLevelAndStatusValueMap.get(entry.getKey()))));
+                                setComment(fieldMap.get(entry.getKey()), Translator.get("required").concat("：").concat(Translator.get("options")).concat(JSON.toJSONString(customFieldOptionsMap.get(entry.getKey()))));
                             } else {
                                 setComment(fieldMap.get(entry.getKey()), Translator.get("required"));
                             }
                         } else {
                             if (CollectionUtils.isNotEmpty(strings)) {
-                                setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required").concat("：").concat(Translator.get("options")).concat(JSON.toJSONString(caseLevelAndStatusValueMap.get(entry.getKey()))));
+                                setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required").concat("：").concat(Translator.get("options")).concat(JSON.toJSONString(customFieldOptionsMap.get(entry.getKey()))));
                             } else {
                                 setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required"));
                             }

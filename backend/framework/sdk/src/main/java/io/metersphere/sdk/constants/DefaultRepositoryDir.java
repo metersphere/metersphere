@@ -32,6 +32,7 @@ public class DefaultRepositoryDir {
      * 会定时清理
      */
     private static final String SYSTEM_TEMP_DIR = SYSTEM_ROOT_DIR + "/temp";
+    private static final String EXPORT_EXCEL_TEMP_DIR = SYSTEM_ROOT_DIR + "/export/excel";
 
     /*------ end: 系统下资源目录 --------*/
 
@@ -158,6 +159,9 @@ public class DefaultRepositoryDir {
         return SYSTEM_TEMP_DIR;
     }
 
+    public static String getExportExcelTempDir() {
+        return EXPORT_EXCEL_TEMP_DIR;
+    }
     public static String getSystemTempCompressDir() {
         return SYSTEM_TEMP_DIR + "/compress";
     }

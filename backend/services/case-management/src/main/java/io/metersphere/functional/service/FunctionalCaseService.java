@@ -1158,7 +1158,7 @@ public class FunctionalCaseService {
     private void noticeModule(List<FunctionalCaseDTO> noticeList, FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         functionalCaseDTO.setTriggerMode(Translator.get("log.test_plan.functional_case"));
-        functionalCaseDTO.setName(functionalCaseExcelData.getName());
+        functionalCaseDTO.setName(functionalCaseExcelData.getName().toString());
         functionalCaseDTO.setProjectId(request.getProjectId());
         functionalCaseDTO.setCaseEditType(functionalCaseExcelData.getCaseEditType());
         functionalCaseDTO.setCreateUser(userId);
@@ -1187,7 +1187,7 @@ public class FunctionalCaseService {
         functionalCase.setModuleId(caseModulePathMap.get(functionalCaseExcelData.getModule()));
         functionalCase.setProjectId(request.getProjectId());
         functionalCase.setTemplateId(defaultTemplateDTO.getId());
-        functionalCase.setName(functionalCaseExcelData.getName());
+        functionalCase.setName(functionalCaseExcelData.getName().toString());
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setTags(handleImportTags(functionalCaseExcelData.getTags()));
         functionalCase.setCaseEditType(StringUtils.defaultIfBlank(functionalCaseExcelData.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name()));
@@ -1384,7 +1384,7 @@ public class FunctionalCaseService {
         //用例表
         FunctionalCase functionalCase = collect.get(functionalCaseExcelData.getNum()).getFirst();
 
-        functionalCase.setName(functionalCaseExcelData.getName());
+        functionalCase.setName(functionalCaseExcelData.getName().toString());
         functionalCase.setModuleId(caseModulePathMap.get(functionalCaseExcelData.getModule()));
         functionalCase.setTags(handleImportTags(functionalCaseExcelData.getTags()));
         functionalCase.setCaseEditType(StringUtils.defaultIfBlank(functionalCaseExcelData.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name()));
@@ -1417,7 +1417,7 @@ public class FunctionalCaseService {
         FunctionalCase functionalCase = collect.get(functionalCaseExcelData.getNum()).getFirst();
         if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.getFirst().getTypeValue())) {
             FunctionalCaseBlob blob = blobsCollect.get(functionalCaseExcelData.getNum()).getFirst();
-            if (!StringUtils.equals(functionalCase.getName(), functionalCaseExcelData.getName())
+            if (!StringUtils.equals(functionalCase.getName(), functionalCaseExcelData.getName().toString())
                     || !StringUtils.equals(new String(blob.getSteps(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getSteps(), StringUtils.EMPTY))
                     || !StringUtils.equals(new String(blob.getTextDescription(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getTextDescription(), StringUtils.EMPTY))
                     || !StringUtils.equals(new String(blob.getExpectedResult(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getExpectedResult(), StringUtils.EMPTY))) {
