@@ -34,4 +34,11 @@ export default function useLeaveTabUnSaveCheck(tabs: TabItem[], permissions?: st
       next();
     }
   });
+
+  // 页面有变更时，关闭或刷新页面弹出浏览器的保存提示
+  window.onbeforeunload = () => {
+    if (!isLeaving && tabs.some((tab) => tab.unSaved) && hasAnyPermission(permissions || [])) {
+      return '';
+    }
+  };
 }
