@@ -117,7 +117,7 @@
         :plan-id="props.planId"
         :can-edit="props.canEdit"
         @operation="handleMinderOperation"
-        @handle-add-bug-done="emit('refresh')"
+        @refresh-plan="emit('refresh')"
       />
     </div>
     <!-- 批量执行 -->

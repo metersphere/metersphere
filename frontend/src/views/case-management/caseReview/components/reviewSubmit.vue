@@ -73,10 +73,11 @@
 
   const modalVisible = ref(false);
   const submitLoading = ref(false);
+  const submitForm = computed(() => (modalVisible.value ? dialogForm.value : form.value));
   const submitDisabled = computed(
     () =>
-      form.value.status !== StartReviewStatus.PASS &&
-      (form.value.content === '' || form.value.content.trim() === '<p style=""></p>')
+      submitForm.value.status !== StartReviewStatus.PASS &&
+      (submitForm.value.content === '' || submitForm.value.content.trim() === '<p style=""></p>')
   );
 
   // 双击富文本内容打开弹窗
@@ -114,14 +115,14 @@
         userId: props.userId,
         reviewId: props.reviewId,
         reviewPassRule: props.reviewPassRule,
-        ...(modalVisible.value ? dialogForm.value : form.value),
-        notifier: form.value.notifiers?.join(';') ?? '',
+        ...submitForm.value,
+        notifier: submitForm.value.notifiers?.join(';') ?? '',
         ...getMinderOperationParams(props.selectNode),
       };
       await batchReview(params);
       modalVisible.value = false;
       Message.success(t('caseManagement.caseReview.reviewSuccess'));
-      emit('done', form.value.status);
+      emit('done', params.status);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

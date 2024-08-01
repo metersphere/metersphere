@@ -42,14 +42,33 @@
           </template>
         </a-dropdown>
         <!-- 执行 -->
-        <a-tooltip
-          v-if="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
-          :content="t('common.execute')"
+        <a-trigger
+          v-model:popup-visible="executeVisible"
+          trigger="click"
+          position="bl"
+          :click-outside-to-close="false"
+          popup-container=".ms-minder-container"
         >
-          <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
-            <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
-          </MsButton>
-        </a-tooltip>
+          <a-tooltip
+            v-if="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+            :content="t('common.execute')"
+          >
+            <MsButton
+              type="icon"
+              :class="[
+                'ms-minder-node-float-menu-icon-button',
+                `${executeVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+              ]"
+            >
+              <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
+            </MsButton>
+          </a-tooltip>
+          <template #content>
+            <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
+              <ExecuteSubmit :select-node="selectNode" :test-plan-id="props.planId" @done="handleExecuteDone" />
+            </div>
+          </template>
+        </a-trigger>
         <!-- 查看详情 -->
         <a-tooltip v-if="canShowDetail" :content="t('common.detail')">
           <MsButton
@@ -113,6 +132,29 @@
       }"
       @success="handleAddBugDone"
     />
+    <a-modal
+      v-model:visible="stepExecuteModelVisible"
+      :title="t('common.executionResult')"
+      class="p-[4px]"
+      title-align="start"
+      body-class="p-0"
+      :width="800"
+      :cancel-button-props="{ disabled: submitStepExecuteLoading }"
+      :ok-loading="submitStepExecuteLoading"
+      :ok-text="t('caseManagement.caseReview.commitResult')"
+      @before-ok="submitStepExecute"
+      @cancel="cancelStepExecute"
+    >
+      <AddStep
+        v-model:step-list="stepData"
+        is-scroll-y
+        is-test-plan
+        :scroll-y="190"
+        :is-disabled-test-plan="false"
+        is-disabled
+      />
+      <ExecuteForm v-model:form="executeForm" class="mt-[24px]" rich-text-max-height="150px" />
+    </a-modal>
   </div>
 </template>
 
@@ -134,21 +176,29 @@
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import BugList from '@/components/business/ms-minders/featureCaseMinder/bugList.vue';
+  import useMinderBaseApi from '@/components/business/ms-minders/featureCaseMinder/useMinderBaseApi';
+  import AddStep from '@/views/case-management/caseManagementFeature/components/addStep.vue';
   import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
   import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
+  import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
+  import ExecuteSubmit from '@/views/test-plan/testPlan/detail/featureCase/detail/executeSubmit.vue';
 
   import { getCasePlanMinder } from '@/api/modules/case-management/caseReview';
-  import { associateBugToPlan, executeHistory, getCaseDetail } from '@/api/modules/test-plan/testPlan';
+  import { associateBugToPlan, executeHistory, getCaseDetail, runFeatureCase } from '@/api/modules/test-plan/testPlan';
+  import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor/index';
   import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
-  import { findNodeByKey, mapTree, replaceNodeInTree } from '@/utils';
+  import { findNodeByKey, getGenerateId, mapTree, replaceNodeInTree } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
+  import type { StepList } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
-  import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
+  import type { ExecuteFeatureCaseFormParams, ExecuteHistoryItem } from '@/models/testPlan/testPlan';
+  import { LastExecuteResults } from '@/enums/caseEnum';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
   import {
@@ -166,15 +216,16 @@
 
   const emit = defineEmits<{
     (e: 'operation', type: string, node: MinderJsonNode): void;
-    (e: 'handleAddBugDone'): void;
+    (e: 'refreshPlan'): void;
   }>();
 
   const { t } = useI18n();
+  const appStore = useAppStore();
   const minderStore = useMinderStore();
   const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
-  const caseTag = t('common.case');
-  const moduleTag = t('common.module');
+  const { caseTag, moduleTag, stepTag, stepExpectTag } = useMinderBaseApi({});
+  const actualResultTag = t('system.orgTemplate.actualResult');
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
     treePath: [],
@@ -455,6 +506,172 @@
     }
   }
 
+  const selectNode = ref();
+
+  // 添加缺陷
+  const showLinkDefectDrawer = ref(false);
+  const showAddDefectDrawer = ref(false);
+  const linkDrawerLoading = ref(false);
+  const bugListRef = ref<InstanceType<typeof BugList>>();
+  function handleAddBugDone() {
+    if (extraVisible.value && activeExtraKey.value === 'bug') {
+      bugListRef.value?.handleShowTypeChange();
+    }
+    emit('refreshPlan');
+  }
+  async function associateSuccessHandler(params: TableQueryParams) {
+    try {
+      linkDrawerLoading.value = true;
+      await associateBugToPlan({
+        ...params,
+        testPlanCaseId: selectNode.value.data?.id,
+        caseId: selectNode.value.data?.caseId,
+        testPlanId: props.planId,
+      });
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      linkDrawerLoading.value = false;
+      handleAddBugDone();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      linkDrawerLoading.value = false;
+    }
+  }
+
+  // 执行
+  const executeVisible = ref(false);
+  // 新增或更新用例的实际结果节点
+  function updateCaseActualResultNode(node: MinderJsonNode, content: string) {
+    let actualResultNode;
+    actualResultNode = node.children?.find((item: MinderJsonNode) => item.data?.id === `actualResult-${node.data?.id}`);
+    if (actualResultNode) {
+      actualResultNode
+        .setData('resource', [actualResultTag])
+        .setData('text', content ?? '')
+        .render();
+    } else {
+      actualResultNode = createNode(
+        { resource: [actualResultTag], text: content ?? '', id: `actualResult-${node.data?.id}` },
+        node
+      );
+      handleRenderNode(node, [actualResultNode]);
+    }
+  }
+  // 点击模块/用例执行
+  function handleExecuteDone(status: LastExecuteResults, content: string) {
+    executeVisible.value = false;
+    const resource = selectNode.value.data?.resource;
+    if (resource?.includes(caseTag)) {
+      //  用例添加标签
+      window.minder.execCommand('resource', [executionResultMap[status].statusText, caseTag]);
+      // 新增或更新用例的实际结果节点
+      updateCaseActualResultNode(selectNode.value, content);
+      // 更新执行历史
+      if (extraVisible.value && activeExtraKey.value === 'history') {
+        initExecuteHistory(selectNode.value.data);
+      }
+    } else if (resource?.includes(moduleTag)) {
+      initCaseTree();
+    }
+    emit('refreshPlan');
+  }
+
+  const stepExecuteModelVisible = ref(false);
+  const caseNodeAboveSelectStep = ref(); // 选中的步骤节点对应的用例节点信息
+  const submitStepExecuteLoading = ref(false);
+  const executeForm = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
+  const stepData = ref<StepList[]>([
+    {
+      id: getGenerateId(),
+      step: '',
+      expected: '',
+      showStep: false,
+      showExpected: false,
+    },
+  ]);
+  async function getStepData(id: string) {
+    try {
+      const res = await getCaseDetail(id);
+      if (res.steps) {
+        stepData.value = JSON.parse(res.steps).map((item: any) => {
+          return {
+            id: item.id,
+            step: item.desc,
+            expected: item.result,
+            actualResult: item.actualResult,
+            executeResult: item.executeResult,
+          };
+        });
+      } else {
+        stepData.value = [];
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  watch(
+    () => stepData.value,
+    () => {
+      const executionResultList = stepData.value?.map((item) => item.executeResult);
+      if (executionResultList?.includes(LastExecuteResults.ERROR)) {
+        executeForm.value.lastExecResult = LastExecuteResults.ERROR;
+      } else if (executionResultList?.includes(LastExecuteResults.BLOCKED)) {
+        executeForm.value.lastExecResult = LastExecuteResults.BLOCKED;
+      } else {
+        executeForm.value.lastExecResult = LastExecuteResults.SUCCESS;
+      }
+    },
+    { deep: true }
+  );
+  function cancelStepExecute() {
+    executeForm.value = { ...defaultExecuteForm };
+  }
+  function submitStepExecuteDone(status: string, content: string) {
+    // 用例更新标签
+    caseNodeAboveSelectStep.value.setData('resource', [executionResultMap[status].statusText, caseTag]).render();
+    // 新增或更新用例的实际结果节点
+    updateCaseActualResultNode(caseNodeAboveSelectStep.value, content);
+    // 更新步骤数据：标签和实际结果
+    caseNodeAboveSelectStep.value.children.forEach((child: MinderJsonNode) => {
+      const step = stepData.value.find((item) => item.id === child.data?.id);
+      if (step?.executeResult?.length) {
+        child.setData('resource', [executionResultMap[step?.executeResult].statusText, stepTag]).render();
+      }
+      if (step?.actualResult?.length) {
+        child.children?.[0].children?.[0].setData('text', step?.actualResult).render();
+      }
+    });
+    caseNodeAboveSelectStep.value.layout();
+  }
+  async function submitStepExecute() {
+    try {
+      submitStepExecuteLoading.value = true;
+      const params = {
+        projectId: appStore.currentProjectId,
+        testPlanId: props.planId,
+        caseId: caseNodeAboveSelectStep.value.data.caseId,
+        id: caseNodeAboveSelectStep.value.data.id,
+        ...executeForm.value,
+        notifier: executeForm.value?.commentIds?.join(';'),
+        stepsExecResult: JSON.stringify(stepData.value),
+      };
+      await runFeatureCase(params);
+      stepExecuteModelVisible.value = false;
+      Message.success(t('common.updateSuccess'));
+      cancelStepExecute();
+      emit('refreshPlan');
+      submitStepExecuteDone(params.lastExecResult, params.content ?? '');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      submitStepExecuteLoading.value = false;
+    }
+  }
+
+  // 菜单显隐
   const hasOperationPermission = computed(
     () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit
   );
@@ -485,8 +702,25 @@
     ];
   }
 
-  const selectNode = ref();
+  /**
+   * 获取步骤节点对应的用例节点
+   * @param node 选中节点
+   * @param resource 标签
+   */
+  function getCaseNodeWithResource(node: MinderJsonNode, resource: string) {
+    while (node.parent) {
+      if (node?.data?.resource?.includes(resource)) {
+        return node.parent;
+      }
+      if (node.data?.resource?.includes(caseTag)) {
+        return null;
+      }
+      node = node.parent;
+    }
+    return null;
+  }
 
+  // 选中节点
   async function handleNodeSelect(node: MinderJsonNode) {
     const { data } = node;
     // 点击更多节点，加载更多用例
@@ -511,6 +745,16 @@
       canShowFloatMenu.value = false;
     }
 
+    // 点步骤描述下的【步骤描述/预期结果/实际结果】标签
+    if ([actualResultTag, stepTag, stepExpectTag].some((item) => node.data?.resource?.includes(item))) {
+      caseNodeAboveSelectStep.value = getCaseNodeWithResource(node, stepTag);
+      if (caseNodeAboveSelectStep.value.data.id) {
+        getStepData(caseNodeAboveSelectStep.value.data.id);
+        stepExecuteModelVisible.value = true;
+      }
+      return;
+    }
+
     // 不展示更多：没操作权限的用例
     if (node.data?.resource?.includes(caseTag) && !hasOperationPermission.value) {
       canShowMoreMenu.value = false;
@@ -524,6 +768,8 @@
     } else {
       canShowEnterNode.value = false;
     }
+
+    executeVisible.value = false;
 
     if (data?.resource?.includes(caseTag)) {
       canShowDetail.value = true;
@@ -555,37 +801,6 @@
     extraVisible.value = false;
   }
 
-  // 添加缺陷
-  const showLinkDefectDrawer = ref(false);
-  const showAddDefectDrawer = ref(false);
-  const linkDrawerLoading = ref(false);
-  const bugListRef = ref<InstanceType<typeof BugList>>();
-  function handleAddBugDone() {
-    if (extraVisible.value && activeExtraKey.value === 'bug') {
-      bugListRef.value?.handleShowTypeChange();
-    }
-    emit('handleAddBugDone');
-  }
-  async function associateSuccessHandler(params: TableQueryParams) {
-    try {
-      linkDrawerLoading.value = true;
-      await associateBugToPlan({
-        ...params,
-        testPlanCaseId: selectNode.value.data?.id,
-        caseId: selectNode.value.data?.caseId,
-        testPlanId: props.planId,
-      });
-      Message.success(t('caseManagement.featureCase.associatedSuccess'));
-      linkDrawerLoading.value = false;
-      handleAddBugDone();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      linkDrawerLoading.value = false;
-    }
-  }
-
   defineExpose({
     initCaseTree,
   });
@@ -598,5 +813,11 @@
   :deep(.ms-list) {
     margin: 0;
     height: 100%;
+  }
+  :deep(.execute-form) .rich-wrapper .halo-rich-text-editor .editor-content {
+    max-height: 54px !important;
+    .ProseMirror {
+      min-height: 38px;
+    }
   }
 </style>

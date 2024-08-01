@@ -175,7 +175,7 @@
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
         @operation="handleMinderOperation"
-        @handle-review-done="handleReviewDone"
+        @handle-review-done="emit('refresh')"
       />
     </div>
     <a-modal
@@ -372,6 +372,7 @@
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
   import { BatchApiParams, TableQueryParams } from '@/models/common';
+  import { StartReviewStatus } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -907,7 +908,7 @@
             reviewId: route.query.id as string,
             userId: props.onlyMine ? userStore.id || '' : '',
             reviewPassRule: props.reviewPassRule,
-            status: dialogForm.value.result as ReviewResult,
+            status: dialogForm.value.result as StartReviewStatus,
             content: dialogForm.value.reason,
             notifier: dialogForm.value.commentIds.join(';'),
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
@@ -987,13 +988,6 @@
     minderSelectData.value = node.data;
     minderParams.value = getMinderOperationParams(node);
     handleOperation(type);
-  }
-
-  function handleReviewDone(refreshTree?: boolean) {
-    if (refreshTree) {
-      refresh(false);
-    }
-    emit('refresh');
   }
 
   /**

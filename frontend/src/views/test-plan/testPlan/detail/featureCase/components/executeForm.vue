@@ -17,6 +17,7 @@
           :preview-url="PreviewEditorImageUrl"
           :auto-height="false"
           class="w-full"
+          :max-height="props.richTextMaxHeight"
           :placeholder="
             props.isDblclickPlaceholder
               ? t('testPlan.featureCase.richTextDblclickPlaceholder')
@@ -44,6 +45,7 @@
 
   const props = defineProps<{
     isDblclickPlaceholder?: boolean;
+    richTextMaxHeight?: string;
   }>();
 
   const form = defineModel<ExecuteFeatureCaseFormParams>('form', {
