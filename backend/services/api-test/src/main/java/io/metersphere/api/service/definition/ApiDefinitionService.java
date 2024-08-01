@@ -259,6 +259,7 @@ public class ApiDefinitionService extends MoveNodeService {
 
     public ApiDefinition update(ApiDefinitionUpdateRequest request, String userId) {
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
+        ApiDefinitionBlob originApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
         apiDefinition.setTags(ServiceUtils.parseTags(apiDefinition.getTags()));
@@ -295,6 +296,9 @@ public class ApiDefinitionService extends MoveNodeService {
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
 
+        AbstractMsTestElement originRequest = ApiDataUtils.parseObject(new String(originApiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
+        // 处理接口定义参数变更
+        apiTestCaseService.handleApiParamChange(apiDefinition.getId(), request.getRequest(), originRequest);
         return apiDefinition;
     }
 

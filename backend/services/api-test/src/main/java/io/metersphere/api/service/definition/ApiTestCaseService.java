@@ -12,6 +12,7 @@ import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.HttpRequestParamDiffUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -71,6 +72,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
     @Resource
     private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
     @Resource
@@ -243,6 +246,10 @@ public class ApiTestCaseService extends MoveNodeService {
         apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
         apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
         apiTestCaseDTO.setRequest(msTestElement);
+
+        ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
+        AbstractMsTestElement apiMsTestElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
+        apiTestCaseDTO.setInconsistentWithApi(HttpRequestParamDiffUtils.isRequestParamDiff(apiMsTestElement, msTestElement));
         return apiTestCaseDTO;
     }
 
@@ -922,4 +929,19 @@ public class ApiTestCaseService extends MoveNodeService {
     public List<ReferenceDTO> getReference(ReferenceRequest request) {
         return extApiDefinitionMapper.getReference(request);
     }
+
+    /**
+     * 处理接口定义参数变更
+     *
+     * @param changeRequest
+     * @param originRequest
+     */
+    public void handleApiParamChange(String apiDefinitionId, Object changeRequest, Object originRequest) {
+        boolean requestParamDifferent = HttpRequestParamDiffUtils.isRequestParamDiff(changeRequest, originRequest);
+        if (requestParamDifferent) {
+            // 添加接口变更标识
+            extApiTestCaseMapper.setApiChangeByApiDefinitionId(apiDefinitionId);
+        }
+    }
+
 }

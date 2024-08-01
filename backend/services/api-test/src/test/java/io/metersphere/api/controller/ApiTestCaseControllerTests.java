@@ -11,6 +11,7 @@ import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -230,6 +231,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiTestCase.setVersionId("1.0");
             apiTestCase.setDeleted(false);
             apiTestCase.setLastReportStatus("SUCCESS");
+            apiTestCase.setApiChange(false);
+            apiTestCase.setIgnoreApiChange(false);
             caseMapper.insert(apiTestCase);
             ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
             apiTestCaseBlob.setId(apiTestCase.getId());
@@ -396,7 +399,37 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, ADD, request);
+    }
 
+    @Test
+    @Order(3)
+    public void handleApiParamChange() {
+        apiTestCaseService.handleApiParamChange(apiTestCase.getApiDefinitionId(), new MsHTTPElement(), new MsHTTPElement());
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiChangeEqualTo(true);
+        Assertions.assertEquals(apiTestCaseMapper.selectByExample(example), List.of());
+
+        // 设置忽略变更通知
+        ApiTestCase updateCase = new ApiTestCase();
+        updateCase.setId(apiTestCase.getId());
+        updateCase.setIgnoreApiChange(true);
+        apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
+
+        MsHTTPElement changeRequest = new MsHTTPElement();
+        changeRequest.setBody(new Body());
+        changeRequest.getBody().setBodyType(Body.BodyType.FORM_DATA.name());
+        MsHTTPElement originRequest = new MsHTTPElement();
+        originRequest.setBody(new Body());
+        originRequest.getBody().setBodyType(Body.BodyType.XML.name());
+        apiTestCaseService.handleApiParamChange(apiTestCase.getApiDefinitionId(), changeRequest, originRequest);
+        // 校验忽略变更通知
+        Assertions.assertEquals(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange(), false);
+
+        updateCase.setIgnoreApiChange(false);
+        apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
+        apiTestCaseService.handleApiParamChange(apiTestCase.getApiDefinitionId(), changeRequest, originRequest);
+        // 校验变更通知
+        Assertions.assertEquals(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange(), true);
     }
 
     /**
@@ -540,24 +573,25 @@ public class ApiTestCaseControllerTests extends BaseTest {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(GET + apiTestCase.getId())
                 .andReturn();
-        ApiTestCaseDTO apiDebugDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiTestCaseDTO.class);
+        ApiTestCaseDTO apiTestCaseDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiTestCaseDTO.class);
         // 校验数据是否正确
         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
-        ApiTestCaseDTO copyApiDebugDTO = BeanUtils.copyBean(new ApiTestCaseDTO(), testCase);
+        ApiTestCaseDTO copyApiTestCaseDTO = BeanUtils.copyBean(new ApiTestCaseDTO(), testCase);
+        copyApiTestCaseDTO.setInconsistentWithApi(true);
         if (CollectionUtils.isNotEmpty(testCase.getTags())) {
-            copyApiDebugDTO.setTags(testCase.getTags());
+            copyApiTestCaseDTO.setTags(testCase.getTags());
         } else {
-            copyApiDebugDTO.setTags(new ArrayList<>());
+            copyApiTestCaseDTO.setTags(new ArrayList<>());
         }
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
-        copyApiDebugDTO.setMethod(apiDefinition.getMethod());
-        copyApiDebugDTO.setPath(apiDefinition.getPath());
-        copyApiDebugDTO.setProtocol(apiDefinition.getProtocol());
+        copyApiTestCaseDTO.setMethod(apiDefinition.getMethod());
+        copyApiTestCaseDTO.setPath(apiDefinition.getPath());
+        copyApiTestCaseDTO.setProtocol(apiDefinition.getProtocol());
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(apiTestCase.getId()).andUserIdEqualTo("admin");
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
-        copyApiDebugDTO.setFollow(CollectionUtils.isNotEmpty(followers));
+        copyApiTestCaseDTO.setFollow(CollectionUtils.isNotEmpty(followers));
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
         apiCommonService.setLinkFileInfo(apiTestCase.getId(), msTestElement);
         MsHTTPElement msHTTPElement = (MsHTTPElement) msTestElement;
@@ -565,13 +599,13 @@ public class ApiTestCaseControllerTests extends BaseTest {
         msHTTPElement.setPath(apiDefinition.getPath());
         msHTTPElement.setModuleId(apiDefinition.getModuleId());
         msHTTPElement.setNum(apiDefinition.getNum());
-        copyApiDebugDTO.setRequest(msTestElement);
+        copyApiTestCaseDTO.setRequest(msTestElement);
 
-        msHTTPElement = (MsHTTPElement) apiDebugDTO.getRequest();
+        msHTTPElement = (MsHTTPElement) apiTestCaseDTO.getRequest();
         Assertions.assertEquals(msHTTPElement.getMethod(), apiDefinition.getMethod());
         Assertions.assertEquals(msHTTPElement.getPath(), apiDefinition.getPath());
         Assertions.assertEquals(msHTTPElement.getModuleId(), apiDefinition.getModuleId());
-        Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
+        Assertions.assertEquals(apiTestCaseDTO, copyApiTestCaseDTO);
 
         this.requestGetWithOk(GET + anotherApiTestCase.getId())
                 .andReturn();

@@ -1477,6 +1477,126 @@ public class ApiTestCaseExample {
             addCriterion("deleted not between", value1, value2, "deleted");
             return (Criteria) this;
         }
+
+        public Criteria andApiChangeIsNull() {
+            addCriterion("api_change is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeIsNotNull() {
+            addCriterion("api_change is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeEqualTo(Boolean value) {
+            addCriterion("api_change =", value, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeNotEqualTo(Boolean value) {
+            addCriterion("api_change <>", value, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeGreaterThan(Boolean value) {
+            addCriterion("api_change >", value, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("api_change >=", value, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeLessThan(Boolean value) {
+            addCriterion("api_change <", value, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeLessThanOrEqualTo(Boolean value) {
+            addCriterion("api_change <=", value, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeIn(List<Boolean> values) {
+            addCriterion("api_change in", values, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeNotIn(List<Boolean> values) {
+            addCriterion("api_change not in", values, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeBetween(Boolean value1, Boolean value2) {
+            addCriterion("api_change between", value1, value2, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiChangeNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("api_change not between", value1, value2, "apiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeIsNull() {
+            addCriterion("ignore_api_change is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeIsNotNull() {
+            addCriterion("ignore_api_change is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeEqualTo(Boolean value) {
+            addCriterion("ignore_api_change =", value, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeNotEqualTo(Boolean value) {
+            addCriterion("ignore_api_change <>", value, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeGreaterThan(Boolean value) {
+            addCriterion("ignore_api_change >", value, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("ignore_api_change >=", value, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeLessThan(Boolean value) {
+            addCriterion("ignore_api_change <", value, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeLessThanOrEqualTo(Boolean value) {
+            addCriterion("ignore_api_change <=", value, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeIn(List<Boolean> values) {
+            addCriterion("ignore_api_change in", values, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeNotIn(List<Boolean> values) {
+            addCriterion("ignore_api_change not in", values, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeBetween(Boolean value1, Boolean value2) {
+            addCriterion("ignore_api_change between", value1, value2, "ignoreApiChange");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiChangeNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("ignore_api_change not between", value1, value2, "ignoreApiChange");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -95,4 +95,12 @@ public class ApiTestCaseDTO {
     @Schema(description = "协议")
     private String protocol;
 
+    @Schema(description = "接口定义参数变更标识")
+    private Boolean apiChange;
+
+    @Schema(description = "与接口定义不一致")
+    private Boolean inconsistentWithApi;
+
+    @Schema(description = "忽略接口定义参数变更")
+    private Boolean ignoreApiChange;
 }
