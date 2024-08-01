@@ -51,4 +51,14 @@ public class CustomFieldMultipleTextValidator extends AbstractCustomFieldValidat
 
         return JSON.toJSONString(keyOrValues);
     }
+
+    @Override
+    public Object parse2Value(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
+        if (StringUtils.isBlank(keyOrValuesStr)) {
+            return JSON.toJSONString(new ArrayList<>());
+        }
+        List<String> keyOrValues = parse2Array(keyOrValuesStr);
+
+        return JSON.toJSONString(keyOrValues);
+    }
 }

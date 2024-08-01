@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseCommentMapper">
+
+    <select id="getCaseComment" resultType="io.metersphere.functional.domain.FunctionalCaseComment">
+        SELECT
+            functional_case_comment.case_id,
+            functional_case_comment.content,
+            functional_case_comment.update_time,
+            user.name as createUser
+        FROM
+            functional_case_comment
+            INNER JOIN user ON functional_case_comment.create_user = user.id
+        where functional_case_comment.case_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getExecuteComment" resultType="io.metersphere.plan.domain.TestPlanCaseExecuteHistory">
+        SELECT
+        test_plan_case_execute_history.case_id,
+        test_plan_case_execute_history.content,
+        test_plan_case_execute_history.create_time,
+        user.name as createUser
+        FROM
+        test_plan_case_execute_history
+        INNER JOIN user ON test_plan_case_execute_history.create_user = user.id
+        where test_plan_case_execute_history.case_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <select id="getReviewComment" resultType="io.metersphere.functional.domain.CaseReviewHistory">
+        SELECT
+        case_review_history.case_id,
+        case_review_history.content,
+        case_review_history.create_time,
+        user.name as createUser
+        FROM
+        case_review_history
+        INNER JOIN user ON case_review_history.create_user = user.id
+        where case_review_history.case_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

@@ -1,6 +1,7 @@
 package io.metersphere.sdk.util;
 
 import io.metersphere.sdk.exception.MSException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -14,5 +15,10 @@ public class MsFileUtils {
                 }
             }
         }
+    }
+
+    public static void deleteDir(String path) throws Exception {
+        File file = new File(path);
+        FileUtils.deleteDirectory(file);
     }
 }

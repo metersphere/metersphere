@@ -1,6 +1,7 @@
 package io.metersphere.functional.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.metadata.data.WriteCellData;
 import io.metersphere.functional.excel.constants.FunctionalCaseImportFiled;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import lombok.Getter;
@@ -39,6 +40,9 @@ public class FunctionalCaseExcelData {
     Map<String, Object> customData = new LinkedHashMap<>();
     @ExcelIgnore
     Map<String, String> otherFields;
+
+    @ExcelIgnore
+    private WriteCellData<String> hyperLinkName;
 
     /**
      * 合并文本描述

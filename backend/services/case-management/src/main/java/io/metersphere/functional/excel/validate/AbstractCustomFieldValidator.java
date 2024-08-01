@@ -71,4 +71,8 @@ public abstract class AbstractCustomFieldValidator {
         }
         return new ArrayList<>();
     }
+
+    public Object parse2Value(String value, TemplateCustomFieldDTO customField) {
+        return value;
+    }
 }

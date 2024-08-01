@@ -60,6 +60,15 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
         return keyOrValuesStr;
     }
 
+    @Override
+    public Object parse2Value(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
+        Map<String, String> optionValueMap = customField.getOptions().stream().collect(Collectors.toMap(CustomFieldOption::getFieldId, CustomFieldOption::getValue));
+        if (optionValueMap.containsKey(keyOrValuesStr)) {
+            return optionValueMap.get(keyOrValuesStr);
+        }
+        return keyOrValuesStr;
+    }
+
     /**
      * 获取自定义字段的选项值和key
      * 存储到缓存中，增强导入时性能

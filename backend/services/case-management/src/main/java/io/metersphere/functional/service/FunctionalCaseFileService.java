@@ -3,36 +3,72 @@ package io.metersphere.functional.service;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.enums.CellExtraTypeEnum;
+import com.alibaba.excel.metadata.data.HyperlinkData;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.metadata.style.WriteFont;
+import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.excel.constants.FunctionalCaseImportFiled;
+import io.metersphere.functional.excel.converter.FunctionalCaseExportConverter;
+import io.metersphere.functional.excel.converter.FunctionalCaseExportConverterFactory;
 import io.metersphere.functional.excel.domain.ExcelMergeInfo;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelDataFactory;
+import io.metersphere.functional.excel.domain.FunctionalCaseHeader;
+import io.metersphere.functional.excel.handler.FunctionCaseMergeWriteHandler;
 import io.metersphere.functional.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.functional.excel.listener.FunctionalCaseCheckEventListener;
 import io.metersphere.functional.excel.listener.FunctionalCaseImportEventListener;
 import io.metersphere.functional.excel.listener.FunctionalCasePretreatmentListener;
+import io.metersphere.functional.excel.validate.AbstractCustomFieldValidator;
+import io.metersphere.functional.excel.validate.CustomFieldValidatorFactory;
+import io.metersphere.functional.mapper.ExtFunctionalCaseCommentMapper;
+import io.metersphere.functional.request.FunctionalCaseExportRequest;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
+import io.metersphere.functional.socket.ExportWebSocketHandler;
+import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.ProjectTemplateService;
-import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.SocketMsgDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.domain.SystemParameter;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.excel.utils.EasyExcelExporter;
+import io.metersphere.system.mapper.SystemParameterMapper;
+import io.metersphere.system.service.FileService;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Serial;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +86,22 @@ public class FunctionalCaseFileService {
 
     @Resource
     private FunctionalCaseService functionalCaseService;
-
+    @Resource
+    private FunctionalCaseModuleService functionalCaseModuleService;
+    @Resource
+    private FunctionalCaseCustomFieldService functionalCaseCustomFieldService;
+    private static final String EXPORT_CASE_TMP_DIR = "tmp";
+    private static final int EXPORT_CASE_MAX_COUNT = 2000;
+    @Resource
+    private ExtFunctionalCaseCommentMapper extFunctionalCaseCommentMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private FileService fileService;
+    @Resource
+    private FunctionalCaseLogService functionalCaseLogService;
+    @Resource
+    private SystemParameterMapper systemParameterMapper;
 
     /**
      * 下载excel导入模板
@@ -105,10 +156,17 @@ public class FunctionalCaseFileService {
             for (String head : headList) {
                 boolean isSystemField = false;
                 for (FunctionalCaseImportFiled importFiled : importFields) {
+                    if (StringUtils.equals("name", importFiled.getValue()) && model.getHyperLinkName() != null) {
+                        fields.add(model.getHyperLinkName());
+                        isSystemField = true;
+                        break;
+                    }
                     if (importFiled.containsHead(head)) {
                         fields.add(importFiled.parseExcelDataValue(model));
                         isSystemField = true;
+                        break;
                     }
+
                 }
                 if (!isSystemField) {
                     Object value = customDataMaps.get(head);
@@ -266,5 +324,409 @@ public class FunctionalCaseFileService {
             LogUtils.error("checkImportExcel error", e);
             throw new MSException(Translator.get("check_import_excel_error"));
         }
+    }
+
+
+    /**
+     * 导出excel
+     *
+     * @param request
+     * @param url
+     */
+    @Async
+    public void exportFunctionalCaseZip(FunctionalCaseExportRequest request) {
+        File tmpDir = null;
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        try {
+            tmpDir = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
+                    EXPORT_CASE_TMP_DIR + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
+            // 生成tmp随机目录
+            MsFileUtils.deleteDir(tmpDir.getPath());
+            tmpDir.mkdirs();
+            // 生成EXCEL
+            List<File> batchExcels = generateCaseExportExcel(tmpDir.getPath(), request, project);
+            if (batchExcels.size() > 1) {
+                // EXCEL -> ZIP (EXCEL数目大于1)
+                File zipFile = CompressUtils.zipFilesToPath(tmpDir.getPath() + File.separatorChar + "Metersphere_case_" + project.getName() + ".zip", batchExcels);
+                uploadFileToMinio(zipFile, request.getFileId());
+            } else {
+                // EXCEL (EXCEL数目等于1)
+                File singeFile = batchExcels.get(0);
+                uploadFileToMinio(singeFile, request.getFileId());
+            }
+            functionalCaseLogService.exportExcelLog(request);
+            SocketMsgDTO socketMsgDTO = new SocketMsgDTO(request.getFileId(), "", MsgType.CONNECT.name(), MsgType.CONNECT.name());
+            socketMsgDTO.setReportId(request.getFileId());
+            ExportWebSocketHandler.sendMessageSingle(socketMsgDTO);
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(e);
+        }
+
+    }
+
+    private void uploadFileToMinio(File file, String fileId) {
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(file.getName());
+        fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir() + "/" + fileId);
+        fileRequest.setStorage(StorageType.MINIO.name());
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            fileService.upload(inputStream, fileRequest);
+        } catch (Exception e) {
+            throw new MSException("save file error");
+        }
+    }
+
+    private List<File> generateCaseExportExcel(String tmpZipPath, FunctionalCaseExportRequest request, Project project) {
+        List<File> tmpExportExcelList = new ArrayList<>();
+        //excel表头
+        List<List<String>> headList = getFunctionalCaseExportHeads(request);
+        //获取导出的ids集合
+        List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
+        if (CollectionUtils.isEmpty(ids)) {
+            return tmpExportExcelList;
+        }
+        //获取当前项目下默认模板的自定义字段属性
+        List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
+        //默认字段+自定义字段的 options集合
+        Map<String, List<String>> customFieldOptionsMap = getCustomFieldOptionsMap(customFields);
+        Map<String, TemplateCustomFieldDTO> customFieldMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, templateCustomFieldDTO -> templateCustomFieldDTO));
+
+        //获取url
+        SystemParameter parameter = systemParameterMapper.selectByPrimaryKey(ParamConstants.BASE.URL.getValue());
+
+        //获取用例模块map
+        Map<String, String> moduleMap = getModuleMap(request.getProjectId());
+        //2000条，分批导出
+        AtomicInteger count = new AtomicInteger(0);
+        SubListUtils.dealForSubList(ids, EXPORT_CASE_MAX_COUNT, (subIds) -> {
+            count.getAndIncrement();
+            // 生成writeHandler
+            Map<Integer, Integer> rowMergeInfo = new HashMap<>();
+            FunctionCaseMergeWriteHandler writeHandler = new FunctionCaseMergeWriteHandler(rowMergeInfo, headList);
+            //表头备注信息
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(headList, customFieldOptionsMap, customFieldMap);
+
+            //获取导出数据
+            List<FunctionalCaseExcelData> excelData = parseCaseData2ExcelData(subIds, rowMergeInfo, request, customFields, moduleMap, parameter.getParamValue());
+            List<List<Object>> data = parseExcelData2List(headList, excelData);
+
+            File createFile = new File(tmpZipPath + File.separatorChar + "Metersphere_case_" + project.getName() + count.get() + ".xlsx");
+            if (!createFile.exists()) {
+                try {
+                    createFile.createNewFile();
+                } catch (IOException e) {
+                    throw new MSException(e);
+                }
+            }
+            //生成临时EXCEL
+            EasyExcel.write(createFile)
+                    .head(Optional.ofNullable(headList).orElse(new ArrayList<>()))
+                    .registerWriteHandler(handler)
+                    .registerWriteHandler(writeHandler)
+                    .registerWriteHandler(FunctionCaseTemplateWriteHandler.getHorizontalWrapStrategy())
+                    .excelType(ExcelTypeEnum.XLSX).sheet(Translator.get("test_case_import_template_sheet")).doWrite(data);
+            tmpExportExcelList.add(createFile);
+        });
+
+        return tmpExportExcelList;
+    }
+
+
+    private List<FunctionalCaseExcelData> parseCaseData2ExcelData(List<String> ids, Map<Integer, Integer> rowMergeInfo, FunctionalCaseExportRequest request, List<TemplateCustomFieldDTO> customFields, Map<String, String> moduleMap, String url) {
+        List<FunctionalCaseExcelData> list = new ArrayList<>();
+        //基础信息
+        Map<String, FunctionalCase> functionalCaseMap = functionalCaseService.copyBaseInfo(request.getProjectId(), ids);
+        //大字段
+        Map<String, FunctionalCaseBlob> functionalCaseBlobMap = functionalCaseService.copyBlobInfo(ids);
+        //自定义字段
+        Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
+        //用例评论
+        Map<String, List<FunctionalCaseComment>> caseCommentMap = getCaseComment(ids);
+        //执行评论
+        Map<String, List<TestPlanCaseExecuteHistory>> executeCommentMap = getExecuteComment(ids);
+        //评审评论
+        Map<String, List<CaseReviewHistory>> reviewCommentMap = getReviewComment(ids);
+
+        ids.forEach(id -> {
+            List<String> textDescriptionList = new ArrayList<>();
+            List<String> expectedResultList = new ArrayList<>();
+            //构建基本参数
+            FunctionalCaseExcelData data = new FunctionalCaseExcelData();
+            FunctionalCase functionalCase = functionalCaseMap.get(id);
+            FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(id);
+            //构建基本参数
+            buildBaseField(data, functionalCase, functionalCaseBlob, moduleMap, textDescriptionList, expectedResultList, url);
+            //构建自定义字段
+            buildExportCustomField(customFields, customFieldMap.get(id), data, request);
+            //构建其他字段
+            buildExportOtherField(functionalCase, data, caseCommentMap, executeCommentMap, reviewCommentMap, request);
+            validateExportTextField(data);
+            if (CollectionUtils.isNotEmpty(textDescriptionList)) {
+                // 如果有多条步骤则添加多条数据，之后合并单元格
+                buildExportMergeData(rowMergeInfo, list, textDescriptionList, expectedResultList, data);
+            } else {
+                list.add(data);
+            }
+        });
+
+        return list;
+    }
+
+    /**
+     * 构建基本参数
+     *
+     * @param data
+     * @param functionalCase
+     * @param functionalCaseBlob
+     */
+    private void buildBaseField(FunctionalCaseExcelData data, FunctionalCase functionalCase, FunctionalCaseBlob functionalCaseBlob, Map<String, String> moduleMap, List<String> textDescriptionList, List<String> expectedResultList, String url) {
+        data.setNum(functionalCase.getNum().toString());
+        data.setModule(moduleMap.get(functionalCase.getModuleId()));
+        data.setTags(functionalCase.getTags().toString());
+        //构建步骤
+        buildExportStep(data, functionalCaseBlob, functionalCase.getCaseEditType(), textDescriptionList, expectedResultList);
+        data.setPrerequisite(new String(functionalCaseBlob.getPrerequisite() == null ? new byte[0] : functionalCaseBlob.getPrerequisite(), StandardCharsets.UTF_8));
+
+        // 设置超链接
+        WriteCellData<String> hyperlink = new WriteCellData<>(functionalCase.getName());
+        data.setHyperLinkName(hyperlink);
+        HyperlinkData hyperlinkData = new HyperlinkData();
+        hyperlink.setHyperlinkData(hyperlinkData);
+
+        WriteFont writeFont = new WriteFont();
+        writeFont.setUnderline(Font.U_SINGLE);
+        writeFont.setColor(IndexedColors.BLUE.getIndex());
+        WriteCellStyle writeCellStyle = new WriteCellStyle();
+        writeCellStyle.setWriteFont(writeFont);
+        hyperlink.setWriteCellStyle(writeCellStyle);
+
+        hyperlinkData.setAddress(url + "/functional/case/detail/" + functionalCase.getId());
+        hyperlinkData.setHyperlinkType(HyperlinkData.HyperlinkType.URL);
+    }
+
+
+    /**
+     * 合并单元格
+     *
+     * @param rowMergeInfo
+     * @param list
+     * @param textDescriptionList
+     * @param expectedResultList
+     * @param data
+     */
+    @NotNull
+    private void buildExportMergeData(Map<Integer, Integer> rowMergeInfo, List<FunctionalCaseExcelData> list, List<String> textDescriptionList, List<String> expectedResultList, FunctionalCaseExcelData data) {
+        for (int i = 0; i < textDescriptionList.size(); i++) {
+            FunctionalCaseExcelData excelData;
+            if (i == 0) {
+                // 第一行存全量元素
+                excelData = data;
+                if (textDescriptionList.size() > 1) {
+                    // 保存合并单元格的下标和数量
+                    rowMergeInfo.put(list.size() + 1, textDescriptionList.size());
+                }
+            } else {
+                // 之后的行只存步骤
+                excelData = new FunctionalCaseExcelData();
+            }
+            excelData.setTextDescription(textDescriptionList.get(i));
+            excelData.setExpectedResult(expectedResultList.get(i));
+            list.add(excelData);
+        }
+    }
+
+    private void validateExportTextField(FunctionalCaseExcelData data) {
+        data.setPrerequisite(validateExportText(data.getPrerequisite()));
+        data.setDescription(validateExportText(data.getDescription()));
+        data.setTextDescription(validateExportText(data.getTextDescription()));
+        data.setExpectedResult(validateExportText(data.getExpectedResult()));
+    }
+
+
+    /**
+     * 构建其他字段
+     *
+     * @param functionalCase
+     * @param data
+     * @param caseCommentMap
+     * @param executeCommentMap
+     * @param reviewCommentMap
+     * @param request
+     */
+    private void buildExportOtherField(FunctionalCase functionalCase, FunctionalCaseExcelData data, Map<String, List<FunctionalCaseComment>> caseCommentMap, Map<String, List<TestPlanCaseExecuteHistory>> executeCommentMap, Map<String, List<CaseReviewHistory>> reviewCommentMap, FunctionalCaseExportRequest request) {
+        if (CollectionUtils.isEmpty(request.getOtherFields())) {
+            return;
+        }
+        List<FunctionalCaseHeader> otherFields = request.getOtherFields();
+        List<String> keys = otherFields.stream().map(FunctionalCaseHeader::getId).toList();
+        Map<String, FunctionalCaseExportConverter> converterMaps = FunctionalCaseExportConverterFactory.getConverters(keys);
+        HashMap<String, String> other = new HashMap<>();
+        otherFields.forEach(header -> {
+            FunctionalCaseExportConverter converter = converterMaps.get(header.getId());
+            if (converter != null) {
+                other.put(header.getName(), converter.parse(functionalCase, caseCommentMap, executeCommentMap, reviewCommentMap));
+            } else {
+                other.put(header.getName(), StringUtils.EMPTY);
+            }
+        });
+        data.setOtherFields(other);
+    }
+
+
+    /**
+     * 评审评论
+     *
+     * @param ids
+     * @return
+     */
+    private Map<String, List<CaseReviewHistory>> getReviewComment(List<String> ids) {
+        List<CaseReviewHistory> reviewHistories = extFunctionalCaseCommentMapper.getReviewComment(ids);
+        Map<String, List<CaseReviewHistory>> reviewHistoryMap = reviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId));
+        return reviewHistoryMap;
+    }
+
+    /**
+     * 执行评论
+     *
+     * @param ids
+     * @return
+     */
+    private Map<String, List<TestPlanCaseExecuteHistory>> getExecuteComment(List<String> ids) {
+        List<TestPlanCaseExecuteHistory> historyList = extFunctionalCaseCommentMapper.getExecuteComment(ids);
+        Map<String, List<TestPlanCaseExecuteHistory>> commentMap = historyList.stream().collect(Collectors.groupingBy(TestPlanCaseExecuteHistory::getCaseId));
+        return commentMap;
+    }
+
+    /**
+     * 用例评论
+     *
+     * @param ids
+     * @return
+     */
+    private Map<String, List<FunctionalCaseComment>> getCaseComment(List<String> ids) {
+        List<FunctionalCaseComment> functionalCaseComments = extFunctionalCaseCommentMapper.getCaseComment(ids);
+        Map<String, List<FunctionalCaseComment>> commentMap = functionalCaseComments.stream().collect(Collectors.groupingBy(FunctionalCaseComment::getCaseId));
+        return commentMap;
+    }
+
+    /**
+     * 构建自定义字段
+     *
+     * @param templateCustomFields
+     * @param functionalCaseCustomFields
+     * @param data
+     * @param request
+     */
+    private void buildExportCustomField(List<TemplateCustomFieldDTO> templateCustomFields, List<FunctionalCaseCustomField> functionalCaseCustomFields, FunctionalCaseExcelData data, FunctionalCaseExportRequest request) {
+        if (CollectionUtils.isEmpty(request.getCustomFields())) {
+            return;
+        }
+        HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        Map<String, TemplateCustomFieldDTO> customFieldsMap = templateCustomFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldId, i -> i));
+        Map<String, String> caseFieldvalueMap = functionalCaseCustomFields.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, FunctionalCaseCustomField::getValue));
+        Map<String, Object> map = new HashMap<>();
+        customFieldsMap.forEach((k, v) -> {
+            if (caseFieldvalueMap.containsKey(k)) {
+                AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(v.getType());
+                if (customFieldValidator.isKVOption) {
+                    // 这里如果填的是选项值，替换成选项ID，保存
+                    map.put(v.getFieldName(), customFieldValidator.parse2Value(caseFieldvalueMap.get(k), v));
+                }
+            }
+        });
+        data.setCustomData(map);
+    }
+
+
+    private String validateExportText(String textValue) {
+        // poi 导出的单个单元格最大字符数量为 32767 ，这里添加校验提示
+        int maxLength = 32767;
+        if (StringUtils.isNotBlank(textValue) && textValue.length() > maxLength) {
+            return String.format(Translator.get("case_export_text_validate_tip"), maxLength);
+        }
+        return textValue;
+    }
+
+
+    /**
+     * 构建步骤单元格
+     *
+     * @param data
+     * @param functionalCaseBlob
+     * @param caseEditType
+     * @param textDescriptionList
+     * @param expectedResultList
+     */
+    private void buildExportStep(FunctionalCaseExcelData data, FunctionalCaseBlob functionalCaseBlob, String caseEditType, List<String> textDescriptionList, List<String> expectedResultList) {
+        if (StringUtils.equals(caseEditType, FunctionalCaseTypeConstants.CaseEditType.TEXT.name())) {
+            data.setTextDescription(new String(functionalCaseBlob.getTextDescription() == null ? new byte[0] : functionalCaseBlob.getTextDescription(), StandardCharsets.UTF_8));
+            data.setExpectedResult(new String(functionalCaseBlob.getExpectedResult() == null ? new byte[0] : functionalCaseBlob.getExpectedResult(), StandardCharsets.UTF_8));
+        } else {
+            String steps = new String(functionalCaseBlob.getSteps() == null ? new byte[0] : functionalCaseBlob.getSteps(), StandardCharsets.UTF_8);
+            List jsonArray = new ArrayList();
+            try {
+                jsonArray = JSON.parseArray(steps);
+            } catch (Exception e) {
+                if (steps.contains("null") && !steps.contains("\"null\"")) {
+                    steps = steps.replace("null", "\"\"");
+                    jsonArray = JSON.parseArray(steps);
+                }
+            }
+            for (int j = 0; j < jsonArray.size(); j++) {
+                // 将步骤存储起来，之后生成多条数据，再合并单元格
+                Map item = (Map) jsonArray.get(j);
+                String textDescription = Optional.ofNullable(item.get("desc")).orElse(StringUtils.EMPTY).toString();
+                String expectedResult = Optional.ofNullable(item.get("result")).orElse(StringUtils.EMPTY).toString();
+                if (StringUtils.isNotBlank(textDescription) || StringUtils.isNotBlank(expectedResult)) {
+                    textDescriptionList.add(textDescription);
+                    expectedResultList.add(expectedResult);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 获取模块map
+     *
+     * @param projectId
+     * @return
+     */
+    private Map<String, String> getModuleMap(String projectId) {
+        List<BaseTreeNode> moduleTree = functionalCaseModuleService.getTree(projectId);
+        Map<String, String> moduleMap = moduleTree.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
+        return moduleMap;
+    }
+
+
+    /**
+     * 获取导出表头
+     *
+     * @param request
+     * @return
+     */
+    private List<List<String>> getFunctionalCaseExportHeads(FunctionalCaseExportRequest request) {
+        List<List<String>> headList = new ArrayList<>() {
+            @Serial
+            private static final long serialVersionUID = 5726921174161850104L;
+
+            {
+                addAll(request.getSystemFields()
+                        .stream()
+                        .map(item -> Arrays.asList(item.getName()))
+                        .collect(Collectors.toList()));
+                addAll(request.getCustomFields()
+                        .stream()
+                        .map(item -> Arrays.asList(item.getName()))
+                        .collect(Collectors.toList()));
+                addAll(request.getOtherFields()
+                        .stream()
+                        .map(item -> Arrays.asList(item.getName()))
+                        .collect(Collectors.toList()));
+            }
+        };
+        return headList;
     }
 }
