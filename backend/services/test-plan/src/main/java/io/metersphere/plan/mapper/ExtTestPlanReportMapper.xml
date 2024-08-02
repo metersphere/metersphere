@@ -45,11 +45,10 @@
     </select>
     <select id="selectReportIdByProjectIdAndTime" resultType="java.lang.String">
         select report.id
-        from test_plan_report report
-                 inner join test_plan_report_summary summary
-                            on report.id = summary.test_plan_report_id = report.id
+        from test_plan_report report left join test_plan_report_summary summary
+            on report.id = summary.test_plan_report_id
         where report.project_id = #{projectId}
-          and report.start_time = #{time}
+          and report.start_time &lt;= #{time}
     </select>
     <select id="selectReportIdTestPlanIds" resultType="java.lang.String">
         select report.id
