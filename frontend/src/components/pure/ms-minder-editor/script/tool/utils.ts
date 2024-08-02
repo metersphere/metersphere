@@ -232,3 +232,11 @@ export function renderSubNodes(parentNode: MinderJsonNode, children?: MinderJson
     }) || []
   );
 }
+
+// 清空选中状态
+export function clearSelectedNodes() {
+  const currentSelectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+  if (currentSelectedNodes && currentSelectedNodes.length > 0) {
+    window.minder.toggleSelect(currentSelectedNodes);
+  }
+}

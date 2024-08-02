@@ -105,6 +105,7 @@
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import {
+    clearSelectedNodes,
     createNode,
     expendNodeAndChildren,
     handleRenderNode,
@@ -219,6 +220,7 @@
       },
     };
     importJson.value.treePath = [];
+    clearSelectedNodes();
     window.minder.importJson(importJson.value);
     if (props.moduleId !== 'all') {
       // 携带具体的模块 ID 加载时，进入该模块内
